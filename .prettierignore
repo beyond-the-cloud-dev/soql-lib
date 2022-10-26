@@ -1,0 +1,31 @@
+# List files or directories below to ignore them when running prettier
+# More information: https://prettier.io/docs/en/ignore.html
+#
+
+**/staticresources/**
+.localdevserver
+.sfdx
+.vscode
+
+dist/
+lib/
+coverage/
+
+fixtures/
+public/
+types/
+
+# communities
+**/experiences/**/*.json
+
+# aura
+**/aura/**/*.design
+**/aura/**/*.auradoc
+**/aura/**/*.tokens
+
+# lwc
+customLabels.js
+
+node_modules
+
+.github

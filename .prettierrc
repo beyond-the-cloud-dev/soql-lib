@@ -1,0 +1,35 @@
+{
+  "trailingComma": "none",
+  "arrowParens": "avoid",
+  "singleQuote": true,
+  "overrides": [
+    {
+      "files": "**/lwc/**/*.html",
+      "options": {
+        "parser": "lwc",
+        "printWidth": 180
+      }
+    },
+    {
+      "files": "**/aura/**/*.cmp",
+      "options": {
+        "parser": "html",
+        "printWidth": 180
+      }
+    },
+    {
+      "files": "*.{page,component}",
+      "options": {
+        "parser": "html",
+        "printWidth": 180
+      }
+    },
+    {
+      "files": "*.{cls,trigger,html,js,css}",
+      "options": {
+        "printWidth": 180,
+        "tabWidth": 4
+      }
+    }
+  ]
+}
