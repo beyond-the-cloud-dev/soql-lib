@@ -11,7 +11,7 @@ public class QB_From extends QB_QueryClause {
     }
 
     public override String build() {
-        return 'FROM ' + objectApiName + ' \n';
+        return 'FROM ' + objectApiName;
     }
 
     public override Integer getPosition() {

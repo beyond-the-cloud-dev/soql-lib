@@ -7,7 +7,7 @@ public class QB_Limit extends QB_QueryClause {
     }
 
     public override String build() {
-        return 'LIMIT ' + this.soqlLimit + ' \n';
+        return 'LIMIT ' + this.soqlLimit;
     }
 
     public override Integer getPosition() {

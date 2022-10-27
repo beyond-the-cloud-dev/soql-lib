@@ -2,6 +2,8 @@ public class QB_Fields extends QB_QueryClause {
 
     private Set<String> fieldsToQuery = new Set<String>{ 'Id' };
 
+    public QB_Fields() {}
+
     public QB_Fields(String commaSeparatedFields) {
         this.addFields(commaSeparatedFields);
     }
@@ -23,7 +25,7 @@ public class QB_Fields extends QB_QueryClause {
     }
 
     public override String build() {
-        return 'SELECT ' + String.join(new List<String>(this.fieldsToQuery), ', ') + ' \n';
+        return 'SELECT ' + String.join(new List<String>(this.fieldsToQuery), ', ');
     }
 
     public override Integer getPosition() {

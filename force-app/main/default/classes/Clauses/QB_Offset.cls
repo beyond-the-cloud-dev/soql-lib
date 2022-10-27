@@ -7,7 +7,7 @@ public class QB_Offset extends QB_QueryClause {
     }
 
     public override String build() {
-        return 'OFFSET ' + this.soqlOffset + ' \n';
+        return 'OFFSET ' + this.soqlOffset;
     }
 
     public override Integer getPosition() {

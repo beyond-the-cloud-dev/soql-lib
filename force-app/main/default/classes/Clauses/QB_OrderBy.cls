@@ -56,7 +56,7 @@ public class QB_OrderBy extends QB_QueryClause {
             orderByStatement += ' NULLS ' + this.nullsOrder;
         }
 
-        return orderByStatement + ' \n';
+        return orderByStatement;
     }
 
     public override Integer getPosition() {

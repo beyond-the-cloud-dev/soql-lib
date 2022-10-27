@@ -37,7 +37,7 @@ public class QB_Scope extends QB_QueryClause {
     }
 
     public override String build() {
-        return 'USING SCOPE ' + this.scope.name() + ' \n';
+        return 'USING SCOPE ' + this.scope.name();
     }
 
     public override Integer getPosition() {

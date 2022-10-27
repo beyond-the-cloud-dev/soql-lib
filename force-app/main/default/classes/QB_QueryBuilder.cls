@@ -1,20 +1,30 @@
 public class QB_QueryBuilder extends QB_QueryClause {
 
-    protected Set<QB_QueryUnit> queryParts;
+    protected Set<QB_QueryClause> queryClauses;
 
-    public QB_From(sObjectType objectType) {
-        this.queryParts = new Set<QB_QueryUnit>{ new QB_Fields(), new QB_From(fromObject) };
+    public QB_QueryBuilder(sObjectType objectType) {
+        this.queryClauses = new Set<QB_QueryClause>{ new QB_Fields(), new QB_From(objectType) };
     }
 
-    public QB_From(sObjectType objectType) {
-        this.objectApiName = objectType.getDescribe().getName();
+    public QB_QueryBuilder(String fromObject) { // for subQuery
+        this.queryClauses = new Set<QB_QueryClause>{ new QB_Fields(), new QB_From(fromObject) };
     }
 
     public override String build() {
-        return 'FROM ' + objectApiName + ' \n';
+        List<QB_QueryClause> queryClausesToProcess = new List<QB_QueryClause>(queryClauses);
+
+        queryClausesToProcess.sort(); //sort by getPosition
+
+        List<String> clauses = new List<String>();
+
+        for (QB_QueryClause clause : queryClausesToProcess) {
+            clauses.add(clause.build());
+        }
+
+        return String.join(new List<String>(clauses), '\n');
     }
 
     public override Integer getPosition() {
-        return 3;
+        return null;
     }
 }
