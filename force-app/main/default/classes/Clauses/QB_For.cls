@@ -1,25 +1,32 @@
 public class QB_For extends QB_QueryClause {
 
-    private String forStatement;
+    private enum ForStatements {
+        FOR_REFERENCE,
+        FOR_VIEW,
+        FOR_UPDATE,
+        ALL_ROWS
+    }
+
+    private ForStatements forStatement = ForStatements.ALL_ROWS;
 
     public void setForReference() {
-        this.forStatement = 'FOR REFERENCE';
+        this.forStatement = ForStatements.FOR_REFERENCE;
     }
 
     public void setForView() {
-        this.forStatement = 'FOR VIEW';
+        this.forStatement = ForStatements.FOR_VIEW;
     }
 
     public void setForUpdate() {
-        this.forStatement = 'FOR UPDATE';
+        this.forStatement = ForStatements.FOR_UPDATE;
     }
 
     public void setAllRows() {
-        this.forStatement = 'ALL ROWS';
+        this.forStatement = ForStatements.ALL_ROWS;
     }
 
     public override String build() {
-        return this.forStatement + ' \n';
+        return this.forStatement.name().replace('_', ' ') + ' \n';
     }
 
     public override Integer getPosition() {
