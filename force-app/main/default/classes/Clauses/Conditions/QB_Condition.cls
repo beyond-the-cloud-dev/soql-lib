@@ -11,6 +11,12 @@ public abstract class QB_Condition extends QB_QueryClause {
         this.fieldName = field.getDescribe().getName();
     }
 
+    protected QB_Condition bind(String condition, String nameOfVariableToBind) {
+        //e.g bind('IN', 'accountIds');
+        this.condition = this.fieldName + ' ' + condition + ' :' + nameOfVariableToBind;
+        return this;
+    }
+
     public override String build() {
         return this.condition;
     }
