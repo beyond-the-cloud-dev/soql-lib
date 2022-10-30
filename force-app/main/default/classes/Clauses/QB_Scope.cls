@@ -12,27 +12,27 @@ public class QB_Scope extends QB_QueryClause {
 
     private FilterScope scope = FilterScope.EVERYTHING;
 
-    public void setDelegated() {
+    public void withDelegated() {
         this.scope = FilterScope.DELEGATED;
     }
 
-    public void setMine() {
+    public void withMine() {
         this.scope = FilterScope.MINE;
     }
 
-    public void setMineAndMyGroups() {
+    public void withMineAndMyGroups() {
         this.scope = FilterScope.MINE_AND_MY_GROUPS;
     }
 
-    public void setMyTerritory() {
+    public void withMyTerritory() {
         this.scope = FilterScope.MY_TERRITORY;
     }
 
-    public void setMyTeamTerritory() {
+    public void withMyTeamTerritory() {
         this.scope = FilterScope.MY_TEAM_TERRITORY;
     }
 
-    public void setTeam() {
+    public void withTeam() {
         this.scope = FilterScope.TEAM;
     }
 
@@ -41,6 +41,6 @@ public class QB_Scope extends QB_QueryClause {
     }
 
     public override Integer getPosition() {
-        return 11;
+        return 4;
     }
 }

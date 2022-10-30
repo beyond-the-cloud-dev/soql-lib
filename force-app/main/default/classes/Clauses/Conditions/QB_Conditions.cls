@@ -35,11 +35,7 @@ public class QB_Conditions extends QB_QueryClause {
             this.conditionOrder = '';// TODO Build conditions order
         }
 
-        return 'WHERE ' + '';//TODO Replace nubers with actual values
-    }
-
-    public override Integer getPosition() {
-        return 5;
+        return '';//TODO Replace nubers with actual values
     }
 
     public Boolean hasConditions() {

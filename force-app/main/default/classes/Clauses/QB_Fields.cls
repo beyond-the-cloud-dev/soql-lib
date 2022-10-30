@@ -1,15 +1,19 @@
 public class QB_Fields extends QB_QueryClause {
 
-    private Set<String> fieldsToQuery = new Set<String>{ 'Id' };
+    private Set<String> fieldsToQuery;
 
-    public QB_Fields() {}
+    public QB_Fields() {
+        this.fieldsToQuery = new Set<String>{ 'Id' };
+    }
 
     public QB_Fields(String commaSeparatedFields) {
+        this();
         this.addFields(commaSeparatedFields);
     }
 
-    public QB_Fields(Set<String> fieldNames) {
-        this.fieldsToQuery.addAll(fieldNames);
+    public QB_Fields(List<sObjectField> fields) {
+        this();
+        this.addFields(fields);
     }
 
     public QB_Fields addFields(String commaSeparatedFields) {
