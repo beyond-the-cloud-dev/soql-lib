@@ -1,7 +1,10 @@
 public abstract class QB_QueryClause implements Comparable {
 
     public abstract String build();
-    protected abstract Integer getPosition();
+
+    protected virtual Integer getPosition() {
+        return null;
+    }
 
     public virtual String validate() {
         return '';

@@ -41,4 +41,8 @@ public class QB_Conditions extends QB_QueryClause {
     public override Integer getPosition() {
         return 5;
     }
+
+    public Boolean hasConditions() {
+        return !this.queryConditions.isEmpty();
+    }
 }

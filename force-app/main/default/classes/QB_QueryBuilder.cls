@@ -23,8 +23,4 @@ public class QB_QueryBuilder extends QB_QueryClause {
 
         return String.join(new List<String>(clauses), '\n');
     }
-
-    public override Integer getPosition() {
-        return null;
-    }
 }

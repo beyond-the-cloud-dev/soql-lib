@@ -20,8 +20,4 @@ public abstract class QB_Condition extends QB_QueryClause {
     public override String build() {
         return this.condition;
     }
-
-    public override Integer getPosition() {
-        return null;
-    }
 }
