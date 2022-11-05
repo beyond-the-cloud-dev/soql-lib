@@ -25,13 +25,4 @@ public class QB_SubQuery extends QB_QueryClause {
     public override Integer getPosition() {
         return 2;
     }
-
-    public override String validate() {
-        for (QB_QueryBuilder subQueryBuilder : subQueries) {
-           // if (subQueryBuilder.hasSubQuery()) {
-            //    return 'You cannot have nested subqueries. Only one level is allowed. \n';
-           // }
-        }
-        return '';
-    }
 }
