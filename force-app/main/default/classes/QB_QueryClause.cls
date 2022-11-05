@@ -2,6 +2,8 @@ public abstract class QB_QueryClause implements Comparable {
 
     public abstract String build();
 
+    // Allows to keep QB_QueryClause as unique element of Set
+    // Allows to sort List<QB_QueryClause> in proper way
     protected virtual Integer getPosition() {
         return null;
     }
