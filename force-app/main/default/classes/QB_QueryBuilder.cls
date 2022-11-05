@@ -8,11 +8,11 @@ public class QB_QueryBuilder extends QB_QueryClause {
     protected Set<QB_QueryClause> queryClauses;
 
     public QB_QueryBuilder(sObjectType objectType) {
-        this.queryClauses = new Set<QB_QueryClause>{ new QB_Fields(), new QB_From(objectType) };
+        this.queryClauses = new Set<QB_QueryClause>{ new QB_Fields(), new QB_From(objectType), new QB_WithSecurityEnforced() };
     }
 
     public QB_QueryBuilder(String fromObject) { // for subQuery
-        this.queryClauses = new Set<QB_QueryClause>{ new QB_Fields(), new QB_From(fromObject) };
+        this.queryClauses = new Set<QB_QueryClause>{ new QB_Fields(), new QB_From(fromObject), new QB_WithSecurityEnforced() };
     }
 
     // Fields
@@ -67,8 +67,9 @@ public class QB_QueryBuilder extends QB_QueryClause {
 
     // Security
 
-    public QB_QueryBuilder withSecurityEnforced() {
-        return this.addQueryClause(new QB_WithSecurityEnforced());
+    public QB_QueryBuilder withoutSecurityEnforced() {
+        this.queryClauses.remove(new QB_WithSecurityEnforced());
+        return this;
     }
 
     // Group By
@@ -124,7 +125,7 @@ public class QB_QueryBuilder extends QB_QueryClause {
     // Unit Test
 
     private QB_QueryBuilder addQueryClause(QB_QueryClause queryClause) {
-        // Add will ad an element to the set if it is not already present,
+        // Add element to the set if it is not already present,
         // but because there can be element, we need to remove it first to override
         this.queryClauses.remove(queryClause);
         this.queryClauses.add(queryClause);
