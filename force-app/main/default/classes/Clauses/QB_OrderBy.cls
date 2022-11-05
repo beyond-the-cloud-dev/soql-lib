@@ -13,7 +13,7 @@ public class QB_OrderBy extends QB_QueryClause {
         this(sortingFields.getDescribe().getName());
     }
 
-    public QB_OrderBy(String sortingFields) { // for related fields only or sophisticated order by
+    public QB_OrderBy(String sortingFields) { // for related fields only
         this(sortingFields, ASC_ORDER, '');
     }
 

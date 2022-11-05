@@ -29,6 +29,14 @@ public class QB_QueryBuilder extends QB_QueryClause {
 
     // SubQuery
 
+    public QB_QueryBuilder withSubQuery(QB_QueryBuilder subQueryBuilder) {
+        return this.addQueryClause(new QB_SubQuery(subQueryBuilder));
+    }
+
+    public QB_QueryBuilder withSubQueries(QB_SubQuery subQueryBuilder) {
+        return this.addQueryClause(subQueryBuilder);
+    }
+
     // Scope
 
     public QB_QueryBuilder withScope(QB_Scope qbScope) {
@@ -59,15 +67,59 @@ public class QB_QueryBuilder extends QB_QueryClause {
 
     // Security
 
+    public QB_QueryBuilder withSecurityEnforced() {
+        return this.addQueryClause(new QB_WithSecurityEnforced());
+    }
+
     // Group By
+
+    public QB_QueryBuilder withGroupBy(sObjectField field) {
+        return this.addQueryClause(new QB_GroupBy(field));
+    }
+
+    public QB_QueryBuilder withGroupBy(List<sObjectField> fields) {
+        return this.addQueryClause(new QB_GroupBy(fields));
+    }
 
     // Order By
 
+    public QB_QueryBuilder withAscOrder(sObjectField field) {
+        return this.addQueryClause(new QB_OrderBy(field).setAscOrder());
+    }
+
+    public QB_QueryBuilder withDescOrder(sObjectField field) {
+        return this.addQueryClause(new QB_OrderBy(field).setDescOrder());
+    }
+
     // Limit
+
+    public QB_QueryBuilder withLimit(Integer soqlLimit) {
+        return this.addQueryClause(new QB_Limit(soqlLimit));
+    }
 
     // Offset
 
+    public QB_QueryBuilder withOffset(Integer soqlOffset) {
+        return this.addQueryClause(new QB_Offset(soqlOffset));
+    }
+
     // For
+
+    public QB_QueryBuilder withForReference() {
+        return this.addQueryClause(new QB_For().setForReference());
+    }
+
+    public QB_QueryBuilder withForView() {
+        return this.addQueryClause(new QB_For().setForView());
+    }
+
+    public QB_QueryBuilder withForUpdate() {
+        return this.addQueryClause(new QB_For().setForUpdate());
+    }
+
+    public QB_QueryBuilder withForAllRows() {
+        return this.addQueryClause(new QB_For().setAllRows());
+    }
 
     // Unit Test
 
