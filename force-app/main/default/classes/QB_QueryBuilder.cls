@@ -145,4 +145,24 @@ public class QB_QueryBuilder extends QB_QueryClause {
 
         return String.join(new List<String>(clauses), '\n');
     }
+
+    public override String validate() {
+        String queryErrors = '';
+
+        for (QB_QueryClause clause : new List<QB_QueryClause>(queryClauses)) {
+            queryErrors += clause.validate();
+        }
+
+        if (String.isNotEmpty(queryErrors)) {
+            this.throwQueryException(queryErrors);
+        }
+
+        return queryErrors;
+    }
+
+    private void throwQueryException(String errorMessage) {
+        QueryException e = new QueryException();
+        e.setMessage('\n\n============ Query Errors ============\n\n' + errorMessage + '\n=======================================\n');
+        throw e;
+    }
 }
