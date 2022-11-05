@@ -6,13 +6,15 @@ public class QB_QueryBuilder extends QB_QueryClause {
     // 3. A few methods per clause that can override each other
 
     protected Set<QB_QueryClause> queryClauses;
+    protected QB_QueryExecutor queryExecutor;
 
     public QB_QueryBuilder(sObjectType objectType) {
-        this.queryClauses = new Set<QB_QueryClause>{ new QB_Fields(), new QB_From(objectType), new QB_WithSecurityEnforced() };
+        this(objectType.getDescribe().getName());
     }
 
     public QB_QueryBuilder(String fromObject) { // for subQuery
         this.queryClauses = new Set<QB_QueryClause>{ new QB_Fields(), new QB_From(fromObject), new QB_WithSecurityEnforced() };
+        this.queryExecutor = new QB_QueryExecutor();
     }
 
     // Fields
@@ -72,6 +74,11 @@ public class QB_QueryBuilder extends QB_QueryClause {
         return this;
     }
 
+    public QB_QueryBuilder withoutSharing() {
+        this.queryExecutor.withoutSharing();
+        return this;
+    }
+
     // Group By
 
     public QB_QueryBuilder withGroupBy(sObjectField field) {
@@ -120,6 +127,16 @@ public class QB_QueryBuilder extends QB_QueryClause {
 
     public QB_QueryBuilder withForAllRows() {
         return this.addQueryClause(new QB_For().setAllRows());
+    }
+
+    // Result
+
+    public List<sObject> toList() {
+        return this.queryExecutor.setQuery(this.build()).toList();
+    }
+
+    public sObject toObject() {
+        return this.queryExecutor.setQuery(this.build()).toObject();
     }
 
     // Unit Test

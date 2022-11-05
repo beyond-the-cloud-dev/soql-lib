@@ -6,10 +6,6 @@ public class QB_From extends QB_QueryClause {
         this.objectApiName = objectApiName;
     }
 
-    public QB_From(sObjectType objectType) {
-        this.objectApiName = objectType.getDescribe().getName();
-    }
-
     public override String build() {
         return 'FROM ' + objectApiName;
     }
