@@ -9,7 +9,7 @@ public with sharing class QB_QueryExecutor {
         moduleToMockedResults.put(moduleName, recordsToMock);
     }
 
-    public QB_QueryExecutor setQuery(String soqlQuery) {
+    public QB_QueryExecutor withQuery(String soqlQuery) {
         this.soqlQuery = soqlQuery;
         return this;
     }

@@ -131,12 +131,32 @@ public class QB_QueryBuilder extends QB_QueryClause {
 
     // Result
 
+    public List<sObject> toListWithPreview() { //to debug
+        String soqlQuery = this.build();
+        QB_Preview.displayQuery(soqlQuery);
+
+        List<sObject> results = this.queryExecutor.withQuery(soqlQuery).toList();
+        QB_Preview.displayResults(results);
+
+        return results;
+    }
+
     public List<sObject> toList() {
-        return this.queryExecutor.setQuery(this.build()).toList();
+        return this.queryExecutor.withQuery(this.build()).toList();
+    }
+
+    public sObject toObjectWithPreview() { //to debug
+        String soqlQuery = this.build();
+        QB_Preview.displayQuery(soqlQuery);
+
+        sObject result = this.queryExecutor.withQuery(soqlQuery).toObject();
+        QB_Preview.displayResults(result);
+
+        return result;
     }
 
     public sObject toObject() {
-        return this.queryExecutor.setQuery(this.build()).toObject();
+        return this.queryExecutor.withQuery(this.build()).toObject();
     }
 
     // Unit Test
@@ -160,7 +180,7 @@ public class QB_QueryBuilder extends QB_QueryClause {
             clauses.add(clause.build());
         }
 
-        return String.join(new List<String>(clauses), '\n');
+        return String.join(new List<String>(clauses), ' ');
     }
 
     public override String validate() {
@@ -182,4 +202,5 @@ public class QB_QueryBuilder extends QB_QueryClause {
         e.setMessage('\n\n============ Query Errors ============\n\n' + errorMessage + '\n=======================================\n');
         throw e;
     }
+
 }
