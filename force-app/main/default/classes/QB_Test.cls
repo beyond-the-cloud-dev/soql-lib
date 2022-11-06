@@ -1,19 +1,27 @@
 @isTest
 public class QB_Test {
-    private final static String ACCOUNT_NAME = 'TestAccount';
+    private final static String ACCOUNT_NAME_1 = 'TestAccount 1';
+    private final static String ACCOUNT_NAME_2 = 'TestAccount 2';
 
     @TestSetup
     static void setup() {
-        Account account = new Account(Name = ACCOUNT_NAME);
-        insert account;
-
-        insert new Contact(FirstName = 'Test', LastName = 'Contact', AccountId = account.Id);
+        insert new List<Account>{
+            new Account(Name = ACCOUNT_NAME_1),
+            new Account(Name = ACCOUNT_NAME_2)
+        };
     }
 
     @isTest
-    static void simpleQuery() {
+    static void singleRecord() {
         Account account = (Account) new QB_QueryBuilder(Account.sObjectType).withFields(new List<sObjectField>{ Account.Id, Account.Name }).toObject();
 
-        System.assertEquals(ACCOUNT_NAME, account.Name, 'Account Name should be equal ' + ACCOUNT_NAME);
+        System.assertEquals(ACCOUNT_NAME_1, account.Name, 'Account Name should be equal ' + ACCOUNT_NAME_1);
+    }
+
+    @isTest
+    static void multipleRecords() {
+        List<Account> accounts = (List<Account>) new QB_QueryBuilder(Account.sObjectType).withFields(new List<sObjectField>{ Account.Id, Account.Name }).toList();
+
+        System.assertEquals(2, accounts.size(), 'Should be 2 accounts');
     }
 }
