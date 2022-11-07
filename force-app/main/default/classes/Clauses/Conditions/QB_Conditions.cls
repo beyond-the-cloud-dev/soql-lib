@@ -32,10 +32,10 @@ public class QB_Conditions extends QB_QueryClause {
         }
 
         if (String.isEmpty(this.conditionOrder)) {
-            this.conditionOrder = '';// TODO Build conditions order
+            this.conditionOrder = QB_ConditionsUtils.buildDefaultConditionsOrder(this.queryConditions);
         }
 
-        return '';//TODO Replace nubers with actual values
+        return QB_ConditionsUtils.getConditionsWithFilteringExpressions(this.queryConditions, this.conditionOrder);
     }
 
     public Boolean hasConditions() {
