@@ -5,10 +5,7 @@ public class QB_Test {
 
     @TestSetup
     static void setup() {
-        insert new List<Account>{
-            new Account(Name = ACCOUNT_NAME_1),
-            new Account(Name = ACCOUNT_NAME_2)
-        };
+        insert new List<Account>{ new Account(Name = ACCOUNT_NAME_1), new Account(Name = ACCOUNT_NAME_2) };
     }
 
     @isTest
@@ -23,5 +20,15 @@ public class QB_Test {
         List<Account> accounts = (List<Account>) new QB_QueryBuilder(Account.sObjectType).withFields(new List<sObjectField>{ Account.Id, Account.Name }).toList();
 
         System.assertEquals(2, accounts.size(), 'Should be 2 accounts');
+    }
+
+    @isTest
+    static void singleRecordWithCondition() {
+        Account account = (Account) new QB_QueryBuilder(Account.sObjectType)
+            .withFields(new List<sObjectField>{ Account.Id, Account.Name })
+            .withCondition(new QB_StringCondition(Account.Name).likeAnyBoth(ACCOUNT_NAME_1))
+            .toObject();
+
+        System.assertEquals(ACCOUNT_NAME_1, account.Name, 'Account Name should be equal ' + ACCOUNT_NAME_1);
     }
 }
