@@ -47,23 +47,23 @@ public class QB_QueryBuilder extends QB_QueryClause {
 
     //  Where
 
-    public QB_QueryBuilder withCondition(QB_Condition queryCondition) {
+    public QB_QueryBuilder withWhere(QB_Condition queryCondition) {
         return this.addQueryClause(new QB_ConditionsGroup().addCondition(queryCondition));
     }
 
-    public QB_QueryBuilder withConditions(List<QB_Condition> queryConditions) {
+    public QB_QueryBuilder withWhere(List<QB_Condition> queryConditions) {
         return this.addQueryClause(new QB_ConditionsGroup().addConditions(queryConditions));
     }
 
-    public QB_QueryBuilder withConditions(List<QB_Condition> queryConditions, String conditionOrder) {
+    public QB_QueryBuilder withWhere(List<QB_Condition> queryConditions, String conditionOrder) {
         return this.addQueryClause(new QB_ConditionsGroup().addConditions(queryConditions, conditionOrder));
     }
 
-    public QB_QueryBuilder withConditions(QB_Conditions queryConditions) {
+    public QB_QueryBuilder withWhere(QB_Conditions queryConditions) {
         return this.addQueryClause(new QB_ConditionsGroup().addConditions(queryConditions));
     }
 
-    public QB_QueryBuilder withConditions(QB_ConditionsGroup queryConditionsBuilder) {
+    public QB_QueryBuilder withWhere(QB_ConditionsGroup queryConditionsBuilder) {
         return this.addQueryClause(queryConditionsBuilder);
     }
 
