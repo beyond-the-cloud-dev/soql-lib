@@ -26,7 +26,6 @@ public class QB_Test {
     static void singleRecordWithCondition() {
         Account account = (Account) new QB(Account.sObjectType)
             .withFields(new List<sObjectField>{ Account.Id, Account.Name })
-            .withFields(new List<sObjectField>{ Account.Id, Account.FirstName })
             .withWhere(new QB_StringCondition(Account.Name).likeAnyBoth(ACCOUNT_NAME_1))
             .toObject();
 
