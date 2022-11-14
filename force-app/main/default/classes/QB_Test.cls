@@ -10,22 +10,23 @@ public class QB_Test {
 
     @isTest
     static void singleRecord() {
-        Account account = (Account) new QB_QueryBuilder(Account.sObjectType).withFields(new List<sObjectField>{ Account.Id, Account.Name }).toObject();
+       Account account = (Account) new QB(Account.sObjectType).withFields(new List<sObjectField>{ Account.Id, Account.Name }).toObject();
 
-        System.assertEquals(ACCOUNT_NAME_1, account.Name, 'Account Name should be equal ' + ACCOUNT_NAME_1);
+       System.assertEquals(ACCOUNT_NAME_1, account.Name, 'Account Name should be equal ' + ACCOUNT_NAME_1);
     }
 
     @isTest
     static void multipleRecords() {
-        List<Account> accounts = (List<Account>) new QB_QueryBuilder(Account.sObjectType).withFields(new List<sObjectField>{ Account.Id, Account.Name }).toList();
+        List<Account> accounts = (List<Account>) new QB(Account.sObjectType).withFields(new List<sObjectField>{ Account.Id, Account.Name }).toList();
 
         System.assertEquals(2, accounts.size(), 'Should be 2 accounts');
     }
 
     @isTest
     static void singleRecordWithCondition() {
-        Account account = (Account) new QB_QueryBuilder(Account.sObjectType)
+        Account account = (Account) new QB(Account.sObjectType)
             .withFields(new List<sObjectField>{ Account.Id, Account.Name })
+            .withFields(new List<sObjectField>{ Account.Id, Account.FirstName })
             .withWhere(new QB_StringCondition(Account.Name).likeAnyBoth(ACCOUNT_NAME_1))
             .toObject();
 
