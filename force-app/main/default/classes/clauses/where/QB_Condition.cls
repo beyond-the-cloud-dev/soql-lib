@@ -135,4 +135,34 @@ public abstract class QB_Condition extends QB_QueryClause {
             return ' >= ' + fieldValue;
         }
     }
+
+    private class QB_StringCondition {
+        private final String QUOTE = '\'';
+        private final String BRACKET_L = '(';
+        private final String BRACKET_R = ')';
+
+        // public void bindLike(String nameOfVariableToBind) {
+        //     return this.bind('LIKE', nameOfVariableToBind);
+        // }
+
+        public String likeAnyBoth(String fieldValue) {
+            return this.contain('%' + fieldValue + '%');
+        }
+
+        public String likeAnyLeft(String fieldValue) {
+            return this.contain('%' + fieldValue);
+        }
+
+        public String likeAnyRight(String fieldValue) {
+            return this.contain(fieldValue + '%');
+        }
+
+        private String contain(String fieldValue) {
+            return ' LIKE ' + this.quote(fieldValue);
+        }
+
+        private String quote(String field) {
+            return QUOTE + String.escapeSingleQuotes(field.trim()) + QUOTE;
+        }
+    }
 }
