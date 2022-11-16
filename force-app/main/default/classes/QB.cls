@@ -162,6 +162,13 @@ public class QB extends QB_QueryClause {
         return this.addQueryClause(new QB_For().setAllRows());
     }
 
+    // Mocking
+
+    public QB withMocking(String modulName) {
+        this.queryExecutor.withTestResultMock(modulName);
+        return this;
+    }
+
     // Result
 
     public List<sObject> toListWithPreview() {
@@ -193,8 +200,6 @@ public class QB extends QB_QueryClause {
     public sObject toObject() {
         return this.queryExecutor.withQuery(this.build()).toObject();
     }
-
-    // Unit Test
 
     private QB addQueryClause(QB_QueryClause queryClause) {
         // Add element to the set if it is not already present,
