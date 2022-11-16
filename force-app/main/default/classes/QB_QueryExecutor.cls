@@ -1,8 +1,9 @@
 public with sharing class QB_QueryExecutor {
+    private static Map<String, List<sObject>> moduleToMockedResults = new Map<String, List<sObject>>();
+
     private String soqlQuery;
     private String moduleName;
     private Boolean executeWithoutSharing = false;
-    private static Map<String, List<sObject>> moduleToMockedResults = new Map<String, List<sObject>>();
 
     @TestVisible
     private static void createMock(String moduleName, List<sObject> recordsToMock) {
@@ -25,7 +26,7 @@ public with sharing class QB_QueryExecutor {
     }
 
     public sObject toObject() {
-        return toList().get(0);
+        return this.toList().get(0);
     }
 
     public List<sObject> toList() {
