@@ -62,8 +62,4 @@ public class QB_OrderBy extends QB_QueryClause {
     public override Integer getPosition() {
         return 8;
     }
-
-    public override String validate() {
-        return '';
-    }
 }

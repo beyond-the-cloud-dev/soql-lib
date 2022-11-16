@@ -12,32 +12,31 @@ public class QB_Scope extends QB_QueryClause {
     private FilterScope scope = FilterScope.EVERYTHING;
 
     public QB_Scope withDelegated() {
-        this.scope = FilterScope.DELEGATED;
-        return this;
+        return this.setScope(FilterScope.DELEGATED);
     }
 
     public QB_Scope withMine() {
-        this.scope = FilterScope.MINE;
-        return this;
+        return this.setScope(FilterScope.MINE);
     }
 
     public QB_Scope withMineAndMyGroups() {
-        this.scope = FilterScope.MINE_AND_MY_GROUPS;
-        return this;
+        return this.setScope(FilterScope.MINE_AND_MY_GROUPS);
     }
 
     public QB_Scope withMyTerritory() {
-        this.scope = FilterScope.MY_TERRITORY;
-        return this;
+        return this.setScope(FilterScope.MY_TERRITORY);
     }
 
     public QB_Scope withMyTeamTerritory() {
-        this.scope = FilterScope.MY_TEAM_TERRITORY;
-        return this;
+        return this.setScope(FilterScope.MY_TEAM_TERRITORY);
     }
 
     public QB_Scope withTeam() {
-        this.scope = FilterScope.TEAM;
+        return this.setScope(FilterScope.TEAM);
+    }
+
+    private QB_Scope setScope(FilterScope scope) {
+        this.scope = scope;
         return this;
     }
 
