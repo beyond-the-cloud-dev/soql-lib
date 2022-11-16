@@ -1,4 +1,4 @@
-public abstract class QB_Condition extends QB_QueryClause {
+public class QB_Condition extends QB_QueryClause {
     public String fieldName;
     private String condition;
 
@@ -10,96 +10,119 @@ public abstract class QB_Condition extends QB_QueryClause {
         this.fieldName = field.getDescribe().getName();
     }
 
-    public void equal(Boolean fieldValue) {
+    public QB_Condition equal(Boolean fieldValue) {
         this.condition = new QB_BooleanCondition().equal(fieldValue);
+        return this;
     }
 
-    public void notEqual(Boolean fieldValue) {
+    public QB_Condition notEqual(Boolean fieldValue) {
         this.condition = new QB_BooleanCondition().notEqual(fieldValue);
+        return this;
     }
 
-    public void isNull() {
+    public QB_Condition isNull() {
         this.condition = new QB_NullCondition().isNull();
+        return this;
     }
 
-    public void isNotNull() {
+    public QB_Condition isNotNull() {
         this.condition = new QB_NullCondition().isNotNull();
+        return this;
     }
 
-    public void equal(Decimal fieldValue) {
+    public QB_Condition equal(Decimal fieldValue) {
         this.condition = new QB_NumberCondition().equal(fieldValue);
+        return this;
     }
 
-    public void lessThan(Decimal fieldValue) {
+    public QB_Condition lessThan(Decimal fieldValue) {
         this.condition = new QB_NumberCondition().lessThan(fieldValue);
+        return this;
     }
 
-    public void greaterThan(Decimal fieldValue) {
+    public QB_Condition greaterThan(Decimal fieldValue) {
         this.condition = new QB_NumberCondition().greaterThan(fieldValue);
+        return this;
     }
 
-    public void lessThanOrEqual(Decimal fieldValue) {
+    public QB_Condition lessThanOrEqual(Decimal fieldValue) {
         this.condition = new QB_NumberCondition().lessThanOrEqual(fieldValue);
+        return this;
     }
 
-    public void greaterThanOrEqual(Decimal fieldValue) {
+    public QB_Condition greaterThanOrEqual(Decimal fieldValue) {
         this.condition = new QB_NumberCondition().greaterThanOrEqual(fieldValue);
+        return this;
     }
 
-    public void notEqual(Decimal fieldValue) {
+    public QB_Condition notEqual(Decimal fieldValue) {
         this.condition = new QB_NumberCondition().notEqual(fieldValue);
+        return this;
     }
 
-    public void lessThan(String fieldValue) {
+    public QB_Condition lessThan(String fieldValue) {
         this.condition = new QB_DateCondition().lessThan(fieldValue);
+        return this;
     }
 
-    public void greaterThan(String fieldValue) {
+    public QB_Condition greaterThan(String fieldValue) {
         this.condition = new QB_DateCondition().greaterThan(fieldValue);
+        return this;
     }
 
-    public void lessThanOrEqual(String fieldValue) {
+    public QB_Condition lessThanOrEqual(String fieldValue) {
         this.condition = new QB_DateCondition().lessThanOrEqual(fieldValue);
+        return this;
     }
 
-    public void greaterThanOrEqual(String fieldValue) {
+    public QB_Condition greaterThanOrEqual(String fieldValue) {
         this.condition = new QB_DateCondition().greaterThanOrEqual(fieldValue);
+        return this;
     }
 
-    public void likeAnyBoth(String fieldValue) {
+    public QB_Condition likeAnyBoth(String fieldValue) {
         this.condition = new QB_StringCondition().likeAnyBoth(fieldValue);
+        return this;
     }
 
-    public void likeAnyLeft(String fieldValue) {
+    public QB_Condition likeAnyLeft(String fieldValue) {
         this.condition = new QB_StringCondition().likeAnyLeft(fieldValue);
+        return this;
     }
 
-    public void likeAnyRight(String fieldValue) {
+    public QB_Condition likeAnyRight(String fieldValue) {
         this.condition = new QB_StringCondition().likeAnyRight(fieldValue);
+        return this;
     }
 
-    public void contain(String fieldValue) {
+    public QB_Condition contain(String fieldValue) {
         this.condition = new QB_StringCondition().contain(fieldValue);
+        return this;
     }
 
-    public void inCollection(List<String> inList) {
+    public QB_Condition inCollection(List<String> inList) {
         this.condition = new QB_CollectionCondition().inCollection(inList);
+        return this;
     }
 
-    public void inCollection(List<Decimal> inList) {
+    public QB_Condition inCollection(List<Decimal> inList) {
         this.condition = new QB_CollectionCondition().inCollection(inList);
+        return this;
     }
 
-    public void notIn(List<String> inList) {
+    public QB_Condition notIn(List<String> inList) {
         this.condition = new QB_CollectionCondition().notIn(inList);
+        return this;
     }
 
-    public void bindInCollection(String nameOfVariableToBind) {
+    public QB_Condition bindInCollection(String nameOfVariableToBind) {
         this.condition = new QB_CollectionCondition().bindInCollection(nameOfVariableToBind);
+        return this;
     }
 
-    public void bindNotInCollection(String nameOfVariableToBind) {
+    public QB_Condition bindNotInCollection(String nameOfVariableToBind) {
         this.condition = new QB_CollectionCondition().bindNotInCollection(nameOfVariableToBind);
+        return this;
     }
 
     public override String build() {
