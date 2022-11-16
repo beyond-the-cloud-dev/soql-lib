@@ -54,8 +54,28 @@ public class QB extends QB_QueryClause {
 
     // Scope
 
-    public QB withScope(QB_Scope qbScope) {
-        return this.addQueryClause(qbScope);
+    public QB withDelegatedScope() {
+        return this.addQueryClause(new QB_Scope().withDelegated());
+    }
+
+    public QB withMineScope() {
+        return this.addQueryClause(new QB_Scope().withMine());
+    }
+
+    public QB withMineAndMyGroupsScope() {
+        return this.addQueryClause(new QB_Scope().withMineAndMyGroups());
+    }
+
+    public QB withMyTerritoryScope() {
+        return this.addQueryClause(new QB_Scope().withMyTerritory());
+    }
+
+    public QB withMyTeamTerritoryScope() {
+        return this.addQueryClause(new QB_Scope().withMyTeamTerritory());
+    }
+
+    public QB withTeamScope() {
+        return this.addQueryClause(new QB_Scope().withTeam());
     }
 
     //  Where

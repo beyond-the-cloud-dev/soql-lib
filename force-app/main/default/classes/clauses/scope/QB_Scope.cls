@@ -1,5 +1,4 @@
 public class QB_Scope extends QB_QueryClause {
-
     private enum FilterScope { // https://developer.salesforce.com/docs/atlas.en-us.236.0.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_using_scope.htm
         DELEGATED,
         EVERYTHING,
@@ -12,28 +11,34 @@ public class QB_Scope extends QB_QueryClause {
 
     private FilterScope scope = FilterScope.EVERYTHING;
 
-    public void withDelegated() {
+    public QB_Scope withDelegated() {
         this.scope = FilterScope.DELEGATED;
+        return this;
     }
 
-    public void withMine() {
+    public QB_Scope withMine() {
         this.scope = FilterScope.MINE;
+        return this;
     }
 
-    public void withMineAndMyGroups() {
+    public QB_Scope withMineAndMyGroups() {
         this.scope = FilterScope.MINE_AND_MY_GROUPS;
+        return this;
     }
 
-    public void withMyTerritory() {
+    public QB_Scope withMyTerritory() {
         this.scope = FilterScope.MY_TERRITORY;
+        return this;
     }
 
-    public void withMyTeamTerritory() {
+    public QB_Scope withMyTeamTerritory() {
         this.scope = FilterScope.MY_TEAM_TERRITORY;
+        return this;
     }
 
-    public void withTeam() {
+    public QB_Scope withTeam() {
         this.scope = FilterScope.TEAM;
+        return this;
     }
 
     public override String build() {
