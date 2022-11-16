@@ -177,9 +177,9 @@ public abstract class QB_Condition extends QB_QueryClause {
         private final String BRACKET_L = '(';
         private final String BRACKET_R = ')';
 
-        // public void bindLike(String nameOfVariableToBind) {
-        //     return this.bind('LIKE', nameOfVariableToBind);
-        // }
+        public String bindLike(String nameOfVariableToBind) {
+            return this.bind('LIKE', nameOfVariableToBind);
+        }
 
         public String likeAnyBoth(String fieldValue) {
             return this.contain('%' + fieldValue + '%');
@@ -195,6 +195,11 @@ public abstract class QB_Condition extends QB_QueryClause {
 
         private String contain(String fieldValue) {
             return ' LIKE ' + this.quote(fieldValue);
+        }
+
+        private String bind(String condition, String nameOfVariableToBind) {
+            //e.g bind('LIKE', 'accountIds');
+            return ' ' + condition + ' :' + nameOfVariableToBind;
         }
 
         private String quote(String field) {
