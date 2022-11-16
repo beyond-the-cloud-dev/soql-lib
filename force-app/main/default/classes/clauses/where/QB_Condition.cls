@@ -174,8 +174,6 @@ public abstract class QB_Condition extends QB_QueryClause {
 
     private class QB_StringCondition {
         private final String QUOTE = '\'';
-        private final String BRACKET_L = '(';
-        private final String BRACKET_R = ')';
 
         public String bindLike(String nameOfVariableToBind) {
             return this.bind('LIKE', nameOfVariableToBind);
