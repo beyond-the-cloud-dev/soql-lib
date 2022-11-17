@@ -1,8 +1,4 @@
 public class QB extends QB_QueryClause {
-    // TODO
-    // 1. with or set or add - builder pattern
-    // 2. Constructors or methods
-    // 3. A few methods per clause that can override each other
 
     protected Set<QB_QueryClause> queryClauses;
 
