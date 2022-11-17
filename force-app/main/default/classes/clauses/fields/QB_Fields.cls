@@ -17,7 +17,7 @@ public class QB_Fields extends QB_QueryClause {
     }
 
     public QB_Fields addFields(String commaSeparatedFields) {
-        this.fieldsToQuery.addAll(commaSeparatedFields.split(','));
+        this.fieldsToQuery.addAll(commaSeparatedFields.deleteWhitespace().split(','));
         return this;
     }
 
