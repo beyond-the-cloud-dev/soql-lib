@@ -1,6 +1,5 @@
 @isTest
-public class QB_SecurityEnforceTest {
-
+public class QB_WithSecurityEnforceTest {
     @isTest
     static void withSecurityEnforced() {
         Test.startTest();
