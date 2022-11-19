@@ -9,19 +9,19 @@ public class QB_For extends QB_QueryClause {
 
     private ForStatements forStatement = ForStatements.ALL_ROWS;
 
-    public QB_For setForReference() {
+    public QB_For withForReferece() {
         return this.setForStatement(ForStatements.FOR_REFERENCE);
     }
 
-    public QB_For setForView() {
+    public QB_For withForView() {
         return this.setForStatement(ForStatements.FOR_VIEW);
     }
 
-    public QB_For setForUpdate() {
+    public QB_For withForUpdate() {
         return this.setForStatement(ForStatements.FOR_UPDATE);
     }
 
-    public QB_For setAllRows() {
+    public QB_For withAllRows() {
         return this.setForStatement(ForStatements.ALL_ROWS);
     }
 

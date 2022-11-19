@@ -143,19 +143,19 @@ public class QB extends QB_QueryClause {
     // For
 
     public QB withForReference() {
-        return this.addQueryClause(new QB_For().setForReference());
+        return this.addQueryClause(new QB_For().withForReferece());
     }
 
     public QB withForView() {
-        return this.addQueryClause(new QB_For().setForView());
+        return this.addQueryClause(new QB_For().withForView());
     }
 
     public QB withForUpdate() {
-        return this.addQueryClause(new QB_For().setForUpdate());
+        return this.addQueryClause(new QB_For().withForUpdate());
     }
 
-    public QB withForAllRows() {
-        return this.addQueryClause(new QB_For().setAllRows());
+    public QB withAllRows() {
+        return this.addQueryClause(new QB_For().withAllRows());
     }
 
     // Mocking
