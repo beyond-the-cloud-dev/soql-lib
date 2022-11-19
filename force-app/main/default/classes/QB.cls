@@ -120,7 +120,15 @@ public class QB extends QB_QueryClause {
         return this.addQueryClause(8, new QB_OrderBy(field).setAscOrder());
     }
 
+    public QB withAscOrder(String field) {
+        return this.addQueryClause(8, new QB_OrderBy(field).setAscOrder());
+    }
+
     public QB withDescOrder(sObjectField field) {
+        return this.addQueryClause(8, new QB_OrderBy(field).setDescOrder());
+    }
+
+    public QB withDescOrder(String field) {
         return this.addQueryClause(8, new QB_OrderBy(field).setDescOrder());
     }
 

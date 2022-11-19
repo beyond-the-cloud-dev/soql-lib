@@ -9,7 +9,7 @@ public class QB_OrderBy extends QB_QueryClause {
     private String sortingOrder;
     private String nullsOrder;
 
-    public QB_OrderBy(SObjectField sortingFields) {
+    public QB_OrderBy(sObjectField sortingFields) {
         this(sortingFields.getDescribe().getName());
     }
 
