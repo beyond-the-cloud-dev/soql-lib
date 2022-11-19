@@ -80,6 +80,16 @@ public class QB_Condition extends QB_QueryClause {
         return this;
     }
 
+    public QB_Condition equal(String fieldValue) {
+        this.condition = new QB_StringCondition().equal(fieldValue);
+        return this;
+    }
+
+    public QB_Condition notEqual(String fieldValue) {
+        this.condition = new QB_StringCondition().notEqual(fieldValue);
+        return this;
+    }
+
     public QB_Condition likeAnyBoth(String fieldValue) {
         this.condition = new QB_StringCondition().likeAnyBoth(fieldValue);
         return this;
@@ -200,6 +210,14 @@ public class QB_Condition extends QB_QueryClause {
 
         public String bindLike(String nameOfVariableToBind) {
             return this.bind('LIKE', nameOfVariableToBind);
+        }
+
+        public String equal(String fieldValue) {
+            return ' = ' +  this.quote(fieldValue);
+        }
+
+        public String notEqual(String fieldValue) {
+            return ' != ' +  this.quote(fieldValue);
         }
 
         public String likeAnyBoth(String fieldValue) {
