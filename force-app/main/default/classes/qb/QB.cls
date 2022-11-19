@@ -1,4 +1,4 @@
-public class QB extends QB_QueryClause {
+public virtual class QB extends QB_QueryClause {
 
     protected List<QB_QueryClause> queryClauses;
 
