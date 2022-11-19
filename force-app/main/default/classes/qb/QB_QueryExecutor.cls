@@ -1,14 +1,8 @@
 public with sharing class QB_QueryExecutor {
-    private static Map<String, List<sObject>> moduleToMockedResults = new Map<String, List<sObject>>();
 
     private String soqlQuery;
-    private String moduleName;
+    private String queryIdentifier;
     private Boolean executeWithoutSharing = false;
-
-    @TestVisible
-    private static void createMock(String moduleName, List<sObject> recordsToMock) {
-        moduleToMockedResults.put(moduleName, recordsToMock);
-    }
 
     public QB_QueryExecutor withQuery(String soqlQuery) {
         this.soqlQuery = soqlQuery;
@@ -20,8 +14,8 @@ public with sharing class QB_QueryExecutor {
         return this;
     }
 
-    public QB_QueryExecutor withTestResultMock(String moduleName) {
-        this.moduleName = moduleName;
+    public QB_QueryExecutor withTestResultMock(String queryIdentifier) {
+        this.queryIdentifier = queryIdentifier;
         return this;
     }
 
@@ -30,8 +24,8 @@ public with sharing class QB_QueryExecutor {
     }
 
     public List<sObject> toList() {
-        if (moduleToMockedResults.get(this.moduleName) != null && Test.isRunningTest()) {
-            return moduleToMockedResults.get(this.moduleName);
+        if (QB_Mock.contains(this.queryIdentifier)) {
+            return QB_Mock.get(this.queryIdentifier);
         }
 
         if (this.executeWithoutSharing) {
