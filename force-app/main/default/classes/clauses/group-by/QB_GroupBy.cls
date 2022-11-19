@@ -15,8 +15,4 @@ public class QB_GroupBy extends QB_QueryClause {
     public override String build() {
         return 'GROUP BY ' + String.join(new List<String>(this.groupByFields), ', ');
     }
-
-    public override Integer getPosition() {
-        return 7;
-    }
 }

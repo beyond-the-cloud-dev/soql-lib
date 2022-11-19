@@ -31,8 +31,4 @@ public class QB_Fields extends QB_QueryClause {
     public override String build() {
         return 'SELECT ' + String.join(new List<String>(this.fieldsToQuery), ', ');
     }
-
-    public override Integer getPosition() {
-        return 1;
-    }
 }

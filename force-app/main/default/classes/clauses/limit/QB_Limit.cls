@@ -10,10 +10,6 @@ public class QB_Limit extends QB_QueryClause {
         return 'LIMIT ' + this.soqlLimit;
     }
 
-    public override Integer getPosition() {
-        return 9;
-    }
-
     public override String validate() {
         if (this.soqlLimit < 1 || this.soqlLimit > 50000) {
             return 'Limit outside range. Limit should be between 1 - 50000. \n';

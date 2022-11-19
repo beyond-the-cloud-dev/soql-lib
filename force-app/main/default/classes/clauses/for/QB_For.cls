@@ -33,8 +33,4 @@ public class QB_For extends QB_QueryClause {
     public override String build() {
         return this.forStatement.name().replace('_', ' ');
     }
-
-    public override Integer getPosition() {
-        return 11;
-    }
 }

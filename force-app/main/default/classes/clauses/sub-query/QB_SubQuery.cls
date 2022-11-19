@@ -21,8 +21,4 @@ public class QB_SubQuery extends QB_QueryClause {
 
         return ',' + String.join(subQueriesSoql, ', ');
     }
-
-    public override Integer getPosition() {
-        return 2;
-    }
 }

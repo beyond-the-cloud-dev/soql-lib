@@ -58,8 +58,4 @@ public class QB_OrderBy extends QB_QueryClause {
 
         return orderByStatement;
     }
-
-    public override Integer getPosition() {
-        return 8;
-    }
 }

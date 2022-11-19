@@ -1,105 +1,101 @@
 public class QB extends QB_QueryClause {
 
-    protected Set<QB_QueryClause> queryClauses;
-
-    QB_Scope scope = null;
+    protected List<QB_QueryClause> queryClauses;
 
     protected QB_QueryExecutor queryExecutor;
+
+    private final Integer NUMBER_OF_CLAUSES = 12;
 
     public QB(sObjectType objectType) {
         this(objectType.getDescribe().getName());
     }
 
     public QB(String fromObject) {
-        // for subQuery
-        this.queryClauses = new Set<QB_QueryClause>{ new QB_Fields(), new QB_From(fromObject), new QB_WithSecurityEnforced() };
-        this.queryExecutor = new QB_QueryExecutor();
-    }
+        this.queryClauses = new List<QB_QueryClause>(NUMBER_OF_CLAUSES);
 
-    public QB withClause(QB_QueryClause clause) {
-        this.addQueryClause(clause);
-        return this;
+        this.queryClauses.set(0, new QB_Fields());
+        this.queryClauses.set(1, new QB_From(fromObject));
+        this.queryClauses.set(6, new QB_WithSecurityEnforced());
+
+        this.queryExecutor = new QB_QueryExecutor();
     }
 
     // Fields
 
     public QB withFields(List<sObjectField> fields) {
-        this.addQueryClause(new QB_Fields(fields));
-        return this;
+        return this.addQueryClause(0, new QB_Fields(fields));
     }
 
     public QB withFields(String commaSeparatedFieldsNames) {
-        this.addQueryClause(new QB_Fields(commaSeparatedFieldsNames));
-        return this;
+        return this.addQueryClause(0, new QB_Fields(commaSeparatedFieldsNames));
     }
 
     public QB withFields(QB_Fields fields) {
-        this.addQueryClause(fields);
-        return this;
+        return this.addQueryClause(0, fields);
     }
 
     // SubQuery
 
     public QB withSubQuery(QB subQueryBuilder) {
-        return this.addQueryClause(new QB_SubQuery(subQueryBuilder));
+        return this.addQueryClause(2, new QB_SubQuery(subQueryBuilder));
     }
 
     public QB withSubQueries(QB_SubQuery subQueryBuilder) {
-        return this.addQueryClause(subQueryBuilder);
+        return this.addQueryClause(2, subQueryBuilder);
     }
 
     // Scope
 
     public QB withDelegatedScope() {
-        return this.addQueryClause(new QB_Scope().withDelegated());
+        return this.addQueryClause(4, new QB_Scope().withDelegated());
     }
 
     public QB withMineScope() {
-        return this.addQueryClause(new QB_Scope().withMine());
+        return this.addQueryClause(4, new QB_Scope().withMine());
     }
 
     public QB withMineAndMyGroupsScope() {
-        return this.addQueryClause(new QB_Scope().withMineAndMyGroups());
+        return this.addQueryClause(4, new QB_Scope().withMineAndMyGroups());
     }
 
     public QB withMyTerritoryScope() {
-        return this.addQueryClause(new QB_Scope().withMyTerritory());
+        return this.addQueryClause(4, new QB_Scope().withMyTerritory());
     }
 
     public QB withMyTeamTerritoryScope() {
-        return this.addQueryClause(new QB_Scope().withMyTeamTerritory());
+        return this.addQueryClause(4, new QB_Scope().withMyTeamTerritory());
     }
 
     public QB withTeamScope() {
-        return this.addQueryClause(new QB_Scope().withTeam());
+        return this.addQueryClause(4, new QB_Scope().withTeam());
     }
 
     //  Where
 
     public QB withWhere(QB_Condition queryCondition) {
-        return this.addQueryClause(new QB_ConditionsGroup().addCondition(queryCondition));
+        return this.addQueryClause(5, new QB_ConditionsGroup().addCondition(queryCondition));
     }
 
     public QB withWhere(List<QB_Condition> queryConditions) {
-        return this.addQueryClause(new QB_ConditionsGroup().addConditions(queryConditions));
+        return this.addQueryClause(5, new QB_ConditionsGroup().addConditions(queryConditions));
     }
 
     public QB withWhere(List<QB_Condition> queryConditions, String conditionOrder) {
-        return this.addQueryClause(new QB_ConditionsGroup().addConditions(queryConditions, conditionOrder));
+        return this.addQueryClause(5, new QB_ConditionsGroup().addConditions(queryConditions, conditionOrder));
     }
 
     public QB withWhere(QB_Conditions queryConditions) {
-        return this.addQueryClause(new QB_ConditionsGroup().addConditions(queryConditions));
+        return this.addQueryClause(5, new QB_ConditionsGroup().addConditions(queryConditions));
     }
 
     public QB withWhere(QB_ConditionsGroup queryConditionsBuilder) {
-        return this.addQueryClause(queryConditionsBuilder);
+        return this.addQueryClause(5, queryConditionsBuilder);
     }
 
     // Security
 
     public QB withoutSecurityEnforced() {
-        this.queryClauses.remove(new QB_WithSecurityEnforced());
+        this.queryClauses.set(6, null);
         return this;
     }
 
@@ -111,51 +107,51 @@ public class QB extends QB_QueryClause {
     // Group By
 
     public QB withGroupBy(sObjectField field) {
-        return this.addQueryClause(new QB_GroupBy(field));
+        return this.addQueryClause(7, new QB_GroupBy(field));
     }
 
     public QB withGroupBy(List<sObjectField> fields) {
-        return this.addQueryClause(new QB_GroupBy(fields));
+        return this.addQueryClause(7, new QB_GroupBy(fields));
     }
 
     // Order By
 
     public QB withAscOrder(sObjectField field) {
-        return this.addQueryClause(new QB_OrderBy(field).setAscOrder());
+        return this.addQueryClause(8, new QB_OrderBy(field).setAscOrder());
     }
 
     public QB withDescOrder(sObjectField field) {
-        return this.addQueryClause(new QB_OrderBy(field).setDescOrder());
+        return this.addQueryClause(8, new QB_OrderBy(field).setDescOrder());
     }
 
     // Limit
 
     public QB withLimit(Integer soqlLimit) {
-        return this.addQueryClause(new QB_Limit(soqlLimit));
+        return this.addQueryClause(9, new QB_Limit(soqlLimit));
     }
 
     // Offset
 
     public QB withOffset(Integer soqlOffset) {
-        return this.addQueryClause(new QB_Offset(soqlOffset));
+        return this.addQueryClause(10, new QB_Offset(soqlOffset));
     }
 
     // For
 
     public QB withForReference() {
-        return this.addQueryClause(new QB_For().withForReferece());
+        return this.addQueryClause(11, new QB_For().withForReferece());
     }
 
     public QB withForView() {
-        return this.addQueryClause(new QB_For().withForView());
+        return this.addQueryClause(11, new QB_For().withForView());
     }
 
     public QB withForUpdate() {
-        return this.addQueryClause(new QB_For().withForUpdate());
+        return this.addQueryClause(11, new QB_For().withForUpdate());
     }
 
     public QB withAllRows() {
-        return this.addQueryClause(new QB_For().withAllRows());
+        return this.addQueryClause(11, new QB_For().withAllRows());
     }
 
     // Mocking
@@ -197,22 +193,18 @@ public class QB extends QB_QueryClause {
         return this.queryExecutor.withQuery(this.build()).toObject();
     }
 
-    private QB addQueryClause(QB_QueryClause queryClause) {
-        // Add element to the set if it is not already present,
-        // but because there can be element, we need to remove it first to override
-        this.queryClauses.remove(queryClause);
-        this.queryClauses.add(queryClause);
+    private QB addQueryClause(Integer index, QB_QueryClause queryClause) {
+        this.queryClauses.set(index, queryClause);
         return this;
     }
 
     public override String build() {
-        List<QB_QueryClause> queryClausesToProcess = new List<QB_QueryClause>(queryClauses);
-
-        queryClausesToProcess.sort(); //sort by getPosition
-
         List<String> clauses = new List<String>();
 
-        for (QB_QueryClause clause : queryClausesToProcess) {
+        for (QB_QueryClause clause : this.queryClauses) {
+            if (clause == null) {
+                continue;
+            }
             clauses.add(clause.build());
         }
 
@@ -222,7 +214,10 @@ public class QB extends QB_QueryClause {
     public override String validate() {
         String queryErrors = '';
 
-        for (QB_QueryClause clause : new List<QB_QueryClause>(queryClauses)) {
+        for (QB_QueryClause clause : this.queryClauses) {
+            if (clause == null) {
+                continue;
+            }
             queryErrors += clause.validate();
         }
 

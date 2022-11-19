@@ -36,8 +36,4 @@ public class QB_ConditionsGroup extends QB_QueryClause {
 
         return 'WHERE ' + QB_ConditionsUtils.getConditionsWithFilteringExpressions(this.queryConditions, this.conditionOrder);
     }
-
-    public override Integer getPosition() {
-        return 5;
-    }
 }
