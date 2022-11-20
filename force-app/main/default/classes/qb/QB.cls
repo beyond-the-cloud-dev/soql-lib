@@ -1,6 +1,6 @@
 public virtual class QB extends QB_QueryClause {
 
-    protected List<QB_QueryClause> queryClauses = new List<QB_QueryClause>(12);
+    protected List<QB_QueryClause> queryClauses = new List<QB_QueryClause>(11);
     protected QB_QueryExecutor queryExecutor = new QB_QueryExecutor();
 
     public QB(sObjectType objectType) {
@@ -9,8 +9,8 @@ public virtual class QB extends QB_QueryClause {
 
     public QB(String fromObject) {
         this.queryClauses.set(0, new QB_Fields());
-        this.queryClauses.set(1, new QB_From(fromObject));
-        this.queryClauses.set(6, new QB_WithSecurityEnforced());
+        this.queryClauses.set(2, new QB_From(fromObject));
+        this.queryClauses.set(5, new QB_WithSecurityEnforced());
     }
 
     // Fields
@@ -30,65 +30,65 @@ public virtual class QB extends QB_QueryClause {
     // SubQuery
 
     public QB withSubQuery(QB subQueryBuilder) {
-        return this.addQueryClause(2, new QB_SubQuery(subQueryBuilder));
+        return this.addQueryClause(1, new QB_SubQuery(subQueryBuilder));
     }
 
     public QB withSubQueries(QB_SubQuery subQueryBuilder) {
-        return this.addQueryClause(2, subQueryBuilder);
+        return this.addQueryClause(1, subQueryBuilder);
     }
 
     // Scope
 
     public QB withDelegatedScope() {
-        return this.addQueryClause(4, new QB_Scope().withDelegated());
+        return this.addQueryClause(3, new QB_Scope().withDelegated());
     }
 
     public QB withMineScope() {
-        return this.addQueryClause(4, new QB_Scope().withMine());
+        return this.addQueryClause(3, new QB_Scope().withMine());
     }
 
     public QB withMineAndMyGroupsScope() {
-        return this.addQueryClause(4, new QB_Scope().withMineAndMyGroups());
+        return this.addQueryClause(3, new QB_Scope().withMineAndMyGroups());
     }
 
     public QB withMyTerritoryScope() {
-        return this.addQueryClause(4, new QB_Scope().withMyTerritory());
+        return this.addQueryClause(3, new QB_Scope().withMyTerritory());
     }
 
     public QB withMyTeamTerritoryScope() {
-        return this.addQueryClause(4, new QB_Scope().withMyTeamTerritory());
+        return this.addQueryClause(3, new QB_Scope().withMyTeamTerritory());
     }
 
     public QB withTeamScope() {
-        return this.addQueryClause(4, new QB_Scope().withTeam());
+        return this.addQueryClause(3, new QB_Scope().withTeam());
     }
 
     //  Where
 
     public QB withWhere(QB_Condition queryCondition) {
-        return this.addQueryClause(5, new QB_ConditionsGroup().addCondition(queryCondition));
+        return this.addQueryClause(4, new QB_ConditionsGroup().addCondition(queryCondition));
     }
 
     public QB withWhere(List<QB_Condition> queryConditions) {
-        return this.addQueryClause(5, new QB_ConditionsGroup().addConditions(queryConditions));
+        return this.addQueryClause(4, new QB_ConditionsGroup().addConditions(queryConditions));
     }
 
     public QB withWhere(List<QB_Condition> queryConditions, String conditionOrder) {
-        return this.addQueryClause(5, new QB_ConditionsGroup().addConditions(queryConditions, conditionOrder));
+        return this.addQueryClause(4, new QB_ConditionsGroup().addConditions(queryConditions, conditionOrder));
     }
 
     public QB withWhere(QB_Conditions queryConditions) {
-        return this.addQueryClause(5, new QB_ConditionsGroup().addConditions(queryConditions));
+        return this.addQueryClause(4, new QB_ConditionsGroup().addConditions(queryConditions));
     }
 
     public QB withWhere(QB_ConditionsGroup queryConditionsBuilder) {
-        return this.addQueryClause(5, queryConditionsBuilder);
+        return this.addQueryClause(4, queryConditionsBuilder);
     }
 
     // Security
 
     public QB withoutSecurityEnforced() {
-        this.queryClauses.set(6, null);
+        this.queryClauses.set(5, null);
         return this;
     }
 
@@ -100,59 +100,59 @@ public virtual class QB extends QB_QueryClause {
     // Group By
 
     public QB withGroupBy(sObjectField field) {
-        return this.addQueryClause(7, new QB_GroupBy(field));
+        return this.addQueryClause(6, new QB_GroupBy(field));
     }
 
     public QB withGroupBy(List<sObjectField> fields) {
-        return this.addQueryClause(7, new QB_GroupBy(fields));
+        return this.addQueryClause(6, new QB_GroupBy(fields));
     }
 
     // Order By
 
     public QB withAscOrder(sObjectField field) {
-        return this.addQueryClause(8, new QB_OrderBy(field).setAscOrder());
+        return this.addQueryClause(7, new QB_OrderBy(field).setAscOrder());
     }
 
     public QB withAscOrder(String field) {
-        return this.addQueryClause(8, new QB_OrderBy(field).setAscOrder());
+        return this.addQueryClause(7, new QB_OrderBy(field).setAscOrder());
     }
 
     public QB withDescOrder(sObjectField field) {
-        return this.addQueryClause(8, new QB_OrderBy(field).setDescOrder());
+        return this.addQueryClause(7, new QB_OrderBy(field).setDescOrder());
     }
 
     public QB withDescOrder(String field) {
-        return this.addQueryClause(8, new QB_OrderBy(field).setDescOrder());
+        return this.addQueryClause(7, new QB_OrderBy(field).setDescOrder());
     }
 
     // Limit
 
     public QB withLimit(Integer soqlLimit) {
-        return this.addQueryClause(9, new QB_Limit(soqlLimit));
+        return this.addQueryClause(8, new QB_Limit(soqlLimit));
     }
 
     // Offset
 
     public QB withOffset(Integer soqlOffset) {
-        return this.addQueryClause(10, new QB_Offset(soqlOffset));
+        return this.addQueryClause(9, new QB_Offset(soqlOffset));
     }
 
     // For
 
     public QB withForReference() {
-        return this.addQueryClause(11, new QB_For().withForReferece());
+        return this.addQueryClause(10, new QB_For().withForReferece());
     }
 
     public QB withForView() {
-        return this.addQueryClause(11, new QB_For().withForView());
+        return this.addQueryClause(10, new QB_For().withForView());
     }
 
     public QB withForUpdate() {
-        return this.addQueryClause(11, new QB_For().withForUpdate());
+        return this.addQueryClause(10, new QB_For().withForUpdate());
     }
 
     public QB withAllRows() {
-        return this.addQueryClause(11, new QB_For().withAllRows());
+        return this.addQueryClause(10, new QB_For().withAllRows());
     }
 
     // Mocking
