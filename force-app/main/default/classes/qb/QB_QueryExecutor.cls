@@ -1,38 +1,30 @@
 public with sharing class QB_QueryExecutor {
 
-    private String soqlQuery;
     private String queryIdentifier;
     private Boolean executeWithoutSharing = false;
 
-    public QB_QueryExecutor withQuery(String soqlQuery) {
-        this.soqlQuery = soqlQuery;
-        return this;
-    }
-
-    public QB_QueryExecutor withoutSharing() {
+    public void withoutSharing() {
         this.executeWithoutSharing = true;
-        return this;
     }
 
-    public QB_QueryExecutor withTestResultMock(String queryIdentifier) {
+    public void withTestResultMock(String queryIdentifier) {
         this.queryIdentifier = queryIdentifier;
-        return this;
     }
 
-    public sObject toObject() {
-        return this.toList().get(0);
+    public sObject toObject(String soqlQuery) {
+        return this.toList(soqlQuery).get(0);
     }
 
-    public List<sObject> toList() {
+    public List<sObject> toList(String soqlQuery) {
         if (QB_Mock.contains(this.queryIdentifier)) {
             return QB_Mock.get(this.queryIdentifier);
         }
 
         if (this.executeWithoutSharing) {
-            return new WithoutSharing().executeQuery(this.soqlQuery);
+            return new WithoutSharing().executeQuery(soqlQuery);
         }
         // default with sharing
-        return new WithSharing().executeQuery(this.soqlQuery);
+        return new WithSharing().executeQuery(soqlQuery);
     }
 
     private without sharing class WithoutSharing {

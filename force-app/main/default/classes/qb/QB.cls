@@ -1,23 +1,16 @@
 public virtual class QB extends QB_QueryClause {
 
-    protected List<QB_QueryClause> queryClauses;
-
-    protected QB_QueryExecutor queryExecutor;
-
-    private final Integer NUMBER_OF_CLAUSES = 12;
+    protected List<QB_QueryClause> queryClauses = new List<QB_QueryClause>(12);
+    protected QB_QueryExecutor queryExecutor = new QB_QueryExecutor();
 
     public QB(sObjectType objectType) {
         this(objectType.getDescribe().getName());
     }
 
     public QB(String fromObject) {
-        this.queryClauses = new List<QB_QueryClause>(NUMBER_OF_CLAUSES);
-
         this.queryClauses.set(0, new QB_Fields());
         this.queryClauses.set(1, new QB_From(fromObject));
         this.queryClauses.set(6, new QB_WithSecurityEnforced());
-
-        this.queryExecutor = new QB_QueryExecutor();
     }
 
     // Fields
@@ -164,8 +157,8 @@ public virtual class QB extends QB_QueryClause {
 
     // Mocking
 
-    public QB withMocking(String modulName) {
-        this.queryExecutor.withTestResultMock(modulName);
+    public QB withMocking(String queryIdentifier) {
+        this.queryExecutor.withTestResultMock(queryIdentifier);
         return this;
     }
 
@@ -176,14 +169,14 @@ public virtual class QB extends QB_QueryClause {
         String soqlQuery = this.build();
         QB_Preview.displayQuery(soqlQuery);
 
-        List<sObject> results = this.queryExecutor.withQuery(soqlQuery).toList();
+        List<sObject> results = this.queryExecutor.toList(soqlQuery);
         QB_Preview.displayResults(results);
 
         return results;
     }
 
     public List<sObject> toList() {
-        return this.queryExecutor.withQuery(this.build()).toList();
+        return this.queryExecutor.toList(this.build());
     }
 
     public sObject toObjectWithPreview() {
@@ -191,14 +184,14 @@ public virtual class QB extends QB_QueryClause {
         String soqlQuery = this.build();
         QB_Preview.displayQuery(soqlQuery);
 
-        sObject result = this.queryExecutor.withQuery(soqlQuery).toObject();
+        sObject result = this.queryExecutor.toObject(soqlQuery);
         QB_Preview.displayResults(result);
 
         return result;
     }
 
     public sObject toObject() {
-        return this.queryExecutor.withQuery(this.build()).toObject();
+        return this.queryExecutor.toObject(this.build());
     }
 
     private QB addQueryClause(Integer index, QB_QueryClause queryClause) {
