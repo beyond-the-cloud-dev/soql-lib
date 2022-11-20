@@ -207,6 +207,8 @@ public virtual class QB extends QB_QueryClause {
     }
 
     public override String build() {
+        this.validate();
+
         List<String> clauses = new List<String>();
 
         for (QB_QueryClause clause : this.queryClauses) {
