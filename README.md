@@ -1,4 +1,6 @@
+# Architecture
 
+![image](README.svg)
 
 # Usage
 
