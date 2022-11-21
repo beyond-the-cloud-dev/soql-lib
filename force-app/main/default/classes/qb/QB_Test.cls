@@ -11,7 +11,7 @@ public class QB_Test {
     @isTest
     static void singleRecord() {
         Test.startTest();
-        Account account = (Account) new QB(Account.sObjectType).withFields(new List<sObjectField>{ Account.Id, Account.Name }).toObject();
+        Account account = (Account) new QB(Account.sObjectType).withFields(new List<sObjectField>{ Account.Id, Account.Name }).toSObject();
         Test.stopTest();
 
         Assert.areEqual(ACCOUNT_NAME_1, account.Name, 'Account Name should be equal ' + ACCOUNT_NAME_1);
@@ -20,7 +20,7 @@ public class QB_Test {
     @isTest
     static void multipleRecords() {
         Test.startTest();
-        List<Account> accounts = (List<Account>) new QB(Account.sObjectType).withFields(new List<sObjectField>{ Account.Id, Account.Name }).toList();
+        List<Account> accounts = (List<Account>) new QB(Account.sObjectType).withFields(new List<sObjectField>{ Account.Id, Account.Name }).toSObjectList();
         Test.stopTest();
 
         Assert.areEqual(2, accounts.size(), 'Should be 2 accounts');
@@ -31,7 +31,7 @@ public class QB_Test {
         Account account = (Account) new QB(Account.sObjectType)
             .withFields(new List<sObjectField>{ Account.Id, Account.Name })
             .withWhere(new QB_Condition(Account.Name).likeAnyBoth(ACCOUNT_NAME_1))
-            .toObject();
+            .toSObject();
 
         Assert.areEqual(ACCOUNT_NAME_1, account.Name, 'Account Name should be equal ' + ACCOUNT_NAME_1);
     }
@@ -41,7 +41,7 @@ public class QB_Test {
         List<Account> accounts = (List<Account>) new QB(Account.sObjectType)
             .withFields(new List<sObjectField>{ Account.Id, Account.Name })
             .withWhere(new List<QB_Condition>{ new QB_Condition(Account.Name).likeAnyBoth(ACCOUNT_NAME_1), new QB_Condition(Account.Name).likeAnyBoth(ACCOUNT_NAME_2) }, '(1 OR 2)')
-            .toList();
+            .toSObjectList();
 
         Assert.areEqual(2, accounts.size(), 'Should be 2 accounts');
     }
