@@ -20,12 +20,8 @@ public virtual class QB extends QB_QueryClause {
         return this.addQueryClause(0, new QB_Fields(fields));
     }
 
-    public QB withFields(String commaSeparatedFieldsNames) {
+    public QB withRelatedFields(String commaSeparatedFieldsNames) { //TODO
         return this.addQueryClause(0, new QB_Fields(commaSeparatedFieldsNames));
-    }
-
-    public QB withFields(QB_Fields fields) {
-        return this.addQueryClause(0, fields);
     }
 
     // SubQuery
@@ -64,7 +60,7 @@ public virtual class QB extends QB_QueryClause {
         return this.addQueryClause(3, new QB_Scope().withTeam());
     }
 
-    //  Where
+    // Where
 
     public QB withWhere(QB_Condition queryCondition) {
         return this.addQueryClause(4, new QB_ConditionsGroup().addCondition(queryCondition));
@@ -109,6 +105,8 @@ public virtual class QB extends QB_QueryClause {
     }
 
     // Order By
+
+    //TODO Nulls
 
     public QB withAscOrder(sObjectField field) {
         return this.addQueryClause(7, new QB_OrderBy(field).setAscOrder());
@@ -165,7 +163,7 @@ public virtual class QB extends QB_QueryClause {
 
     // Result
 
-    public List<sObject> toListWithPreview() {
+    public List<sObject> toSObjectListWithPreview() {
         //to debug
         String soqlQuery = this.build();
         QB_Preview.displayQuery(soqlQuery);
@@ -180,7 +178,7 @@ public virtual class QB extends QB_QueryClause {
         return this.queryExecutor.toList(this.build());
     }
 
-    public sObject toObjectWithPreview() {
+    public sObject toSObjectWithPreview() {
         //to debug
         String soqlQuery = this.build();
         QB_Preview.displayQuery(soqlQuery);
