@@ -12,7 +12,11 @@ public with sharing class QB_QueryExecutor {
     }
 
     public sObject toObject(String soqlQuery) {
-        return this.toList(soqlQuery).get(0);
+        try {
+            return this.toList(soqlQuery)[0];
+        } catch (Exception e) {
+            return null; // List index out of bounds: 0
+        }
     }
 
     public List<sObject> toList(String soqlQuery) {

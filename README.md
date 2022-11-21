@@ -10,3 +10,18 @@ Contact myContact = new QS_Contact()
                         .toWhere(new QB_Condition(Contact.Name).equal('Contact1'))
                         .toObject();
 ```
+
+# Benefits
+
+1. No *List has no rows for assignment to SObject* error. When record not found value will be null.
+
+```java
+Contact myContact = [SELECT Id, Name FROM Contact WHERE Name = 'invalidName']; // Error: List has no rows for assignment to SObject
+
+Contact myContact = new QS_Contact()
+                        .withFields(new List<sObjectField>{ Contact.Id, Contact.Name })
+                        .withWhere(new QB_Condition(Contact.Naem).equal('invalidName'))
+                        .toObject(); // null
+```
+
+2.
