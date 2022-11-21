@@ -1,8 +1,8 @@
-# Architecture
+## Architecture
 
 ![image](README.svg)
 
-# Usage
+## Usage
 
 ```java
 Contact myContact = new QS_Contact()
@@ -11,28 +11,39 @@ Contact myContact = new QS_Contact()
                         .toObject();
 ```
 
-# Benefits
+## Benefits
 
-1. No *List has no rows for assignment to SObject* error. When record not found value will be null.
+### SOQL Errors handling
+
+No *List has no rows for assignment to SObject* error. When record not found value will be set to null.
 
 ```java
-Contact myContact = [SELECT Id, Name FROM Contact WHERE Name = 'invalidName']; // Error: List has no rows for assignment to SObject
+Contact myContact = [SELECT Id, Name FROM Contact WHERE Name = 'invalidName'];
+// Error: List has no rows for assignment to SObject
 
 Contact myContact = new QS_Contact()
                         .withFields(new List<sObjectField>{ Contact.Id, Contact.Name })
                         .withWhere(new QB_Condition(Contact.Name).equal('invalidName'))
-                        .toObject(); // null
+                        .toObject();
+// null
 ```
 
-2.
+### Easy to debug
 
-# TODO
+### External objects mocking
+
+External objects cannot be insert during the test. Selectors provide easy way to mock the data.
+
+### One place to manage all SOQLs
+
+## TODO
 
 - [ ] SOQL Query Performance sugestion
 - [ ] QB_TestMock
 - [ ] Custom Metadata for debugging on production
 - [ ] Skip condition when null (?)
 
-# License notes:
+## License notes
+
 - For proper license management each repository should contain LICENSE file similar to this one.
 - each original class should contain copyright mark: © Copyright 2022, Beyond The Cloud Dev Authors
