@@ -1,6 +1,19 @@
+# Query Selector (QS) - Query Builder (QB)
+
 Dynamic SOQL refers to the creation of a SOQL string at run time with Apex code. Dynamic SOQL enables you to create more flexible applications. For example, you can create a search based on input from an end user or update records with varying field names.
 
 ## Architecture
+
+Framework has two connected parts
+- Query Builder (`QB`) - Allows to build dynamic SOQL
+- Query Selector (`QS`) - Uses `QB` to build dynamic SOQL and get results
+
+![image](README.svg)
+### Query Builder (QB)
+
+Allows to build dynamic SQOL.
+
+Query Builder (QB) framework uses [Composite](https://refactoring.guru/design-patterns/composite) and [Builder](https://refactoring.guru/design-patterns/builder) patterns.
 
 Each query clause (`SELECT`, `FROM`, `WHERE`, `LIMIT`) is represented by concrete Apex Class (Single Responsibility Principle).
 
@@ -18,8 +31,8 @@ Each query clause (`SELECT`, `FROM`, `WHERE`, `LIMIT`) is represented by concret
 | 10    | OFFSET            | `QB_Offset`                                           |
 | 11    | FOR               | `QB_For`                                              |
 
-Query Builder (QB) framework uses [Composite](https://refactoring.guru/design-patterns/composite) pattern.
-All classes mentioned above and the main class `QB` extends `QB_QueryClause` abstract class.
+
+All classes mentioned above + `QB.cls` extends `QB_QueryClause` abstract class.
 
 ```java
 public abstract class QB_QueryClause {
@@ -32,13 +45,8 @@ public abstract class QB_QueryClause {
 }
 ```
 
-Classes needs to implement `build()` method that return SOQL part. `validate()` can be use to provide additional validation that will be executed during build phase.
-
-
-
-![image](README.svg)
-
-## Usage
+Classes needs to implement `build()` method that return SOQL part.
+`validate()` can be use to provide additional validation that will be executed during build phase.
 
 Developer should based on:
 - `QB.cls` - to build SOQL.
@@ -92,6 +100,21 @@ new QB(sObjectType)
     .toSObjectList()
     .toSObject()
 ```
+
+### Query Selector (QS)
+
+Query Builder is middle class between `QB.cls` and concrete selectors.
+QS contains default methods that can be used by new selectors.
+
+SObject Selectors should extends `QS` class, and implements the following methods:
+- `getById(Id recordId)`
+- `getByIds(List<Id> recordIds)`
+- `toObject()`
+- `toList()`
+
+**NOTE** Methods implementation **CANNOT** be forced by interface/abstract method, because methods return instances of concrete object so developer do not need to cast it.
+
+## Usage
 
 ```java
 Contact myContact = new QS_Contact()
