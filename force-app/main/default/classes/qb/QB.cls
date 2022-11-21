@@ -175,7 +175,7 @@ public virtual class QB extends QB_QueryClause {
         return results;
     }
 
-    public List<sObject> toList() {
+    public List<sObject> toSObjectList() {
         return this.queryExecutor.toList(this.build());
     }
 
@@ -190,7 +190,7 @@ public virtual class QB extends QB_QueryClause {
         return result;
     }
 
-    public sObject toObject() {
+    public sObject toSObject() {
         return this.queryExecutor.toObject(this.build());
     }
 

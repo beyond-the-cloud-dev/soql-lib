@@ -10,4 +10,12 @@ public with sharing class QS_User extends QS {
     public List<User> getByIds(List<Id> userIds) {
         return (List<User>) this.getSObjectsByIds(userIds);
     }
+
+    public User toObject() {
+        return (User) this.toSObject();
+    }
+
+    public List<User> toList() {
+        return (List<User>) this.toSObjectList();
+    }
 }

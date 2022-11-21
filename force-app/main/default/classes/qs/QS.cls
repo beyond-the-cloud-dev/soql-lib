@@ -4,10 +4,10 @@ public with sharing abstract class QS extends QB {
     }
 
     protected sObject getSObjectsById(Id recordId) {
-        return this.withWhere(new QB_Condition('Id').equal(recordId)).toObject();
+        return this.withWhere(new QB_Condition('Id').equal(recordId)).toSObject();
     }
 
     protected List<sObject> getSObjectsByIds(List<Id> recordIds) {
-        return this.withWhere(new QB_Condition('Id').inCollection(recordIds)).toList();
+        return this.withWhere(new QB_Condition('Id').inCollection(recordIds)).toSObjectList();
     }
 }

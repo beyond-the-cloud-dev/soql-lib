@@ -10,4 +10,12 @@ public with sharing class QS_Contact extends QS {
     public List<Contact> getByIds(List<Id> contactIds) {
         return (List<Contact>) this.getSObjectsByIds(contactIds);
     }
+
+    public Contact toObject() {
+        return (Contact) this.toSObject();
+    }
+
+    public List<Contact> toList() {
+        return (List<Contact>) this.toSObjectList();
+    }
 }
