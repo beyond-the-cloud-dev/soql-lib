@@ -1,4 +1,4 @@
-public with sharing class QB_Mock {
+public with sharing class QB_TestMock {
     private static Map<String, List<sObject>> queryIdentifierToMockedResults = new Map<String, List<sObject>>();
 
     public static void set(String queryIdentifier, List<sObject> mockRecords) {

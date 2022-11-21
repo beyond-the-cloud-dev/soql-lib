@@ -20,8 +20,8 @@ public with sharing class QB_QueryExecutor {
     }
 
     public List<sObject> toList(String soqlQuery) {
-        if (QB_Mock.contains(this.queryIdentifier)) {
-            return QB_Mock.get(this.queryIdentifier);
+        if (QB_TestMock.contains(this.queryIdentifier)) {
+            return QB_TestMock.get(this.queryIdentifier);
         }
 
         if (this.executeWithoutSharing) {
