@@ -15,10 +15,10 @@ public class QB_SubQuery extends QB_QueryClause {
 
         for (QB qbBuilder : subQueries) {
             subQueriesSoql.add(
-                '( \n' + qbBuilder.build() + ')'
+                '(' + qbBuilder.build() + ')'
             );
         }
 
-        return ',' + String.join(subQueriesSoql, ', ');
+        return ', ' + String.join(subQueriesSoql, ', ');
     }
 }

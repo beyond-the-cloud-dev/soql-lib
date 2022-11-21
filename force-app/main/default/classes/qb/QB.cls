@@ -4,13 +4,14 @@ public virtual class QB extends QB_QueryClause {
     protected QB_QueryExecutor queryExecutor = new QB_QueryExecutor();
 
     public QB(sObjectType objectType) {
-        this(objectType.getDescribe().getName());
+        this.queryClauses.set(0, new QB_Fields());
+        this.queryClauses.set(2, new QB_From(objectType));
+        this.queryClauses.set(5, new QB_WithSecurityEnforced()); // clause is only supported on top-level queries
     }
 
-    public QB(String fromObject) {
+    public QB(String fromObject) { // for sub-query
         this.queryClauses.set(0, new QB_Fields());
         this.queryClauses.set(2, new QB_From(fromObject));
-        this.queryClauses.set(5, new QB_WithSecurityEnforced());
     }
 
     // Fields
@@ -33,8 +34,8 @@ public virtual class QB extends QB_QueryClause {
         return this.addQueryClause(1, new QB_SubQuery(subQueryBuilder));
     }
 
-    public QB withSubQueries(QB_SubQuery subQueryBuilder) {
-        return this.addQueryClause(1, subQueryBuilder);
+    public QB withSubQueries(List<QB> subQueryBuilders) {
+        return this.addQueryClause(1, new QB_SubQuery(subQueryBuilders));
     }
 
     // Scope
