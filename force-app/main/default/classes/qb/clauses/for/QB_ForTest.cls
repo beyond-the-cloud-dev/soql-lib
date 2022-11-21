@@ -36,3 +36,5 @@ public class QB_ForTest {
         Assert.isTrue(query.contains('ALL ROWS'), 'Query should contains ALL ROWS');
     }
 }
+Contact c = [SELECT Id FROM Contact WHERE Name = 'ss'];
+Contact c = new QS_Contact().toObject();
