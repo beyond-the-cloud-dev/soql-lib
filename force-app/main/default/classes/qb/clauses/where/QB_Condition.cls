@@ -11,127 +11,107 @@ public class QB_Condition extends QB_QueryClause {
     }
 
     public QB_Condition equal(Boolean fieldValue) {
-        this.condition = new QB_BooleanCondition().equal(fieldValue);
-        return this;
+        return this.setCondition(new QB_BooleanCondition().equal(fieldValue));
     }
 
     public QB_Condition notEqual(Boolean fieldValue) {
-        this.condition = new QB_BooleanCondition().notEqual(fieldValue);
-        return this;
+        return this.setCondition(new QB_BooleanCondition().notEqual(fieldValue));
     }
 
     public QB_Condition isNull() {
-        this.condition = new QB_NullCondition().isNull();
-        return this;
+        return this.setCondition(new QB_NullCondition().isNull());
     }
 
     public QB_Condition isNotNull() {
-        this.condition = new QB_NullCondition().isNotNull();
-        return this;
+        return this.setCondition(new QB_NullCondition().isNotNull());
     }
 
     public QB_Condition equal(Decimal fieldValue) {
-        this.condition = new QB_NumberCondition().equal(fieldValue);
-        return this;
+        return this.setCondition(new QB_NumberCondition().equal(fieldValue));
     }
 
     public QB_Condition lessThan(Decimal fieldValue) {
-        this.condition = new QB_NumberCondition().lessThan(fieldValue);
-        return this;
+        return this.setCondition(new QB_NumberCondition().lessThan(fieldValue));
     }
 
     public QB_Condition greaterThan(Decimal fieldValue) {
-        this.condition = new QB_NumberCondition().greaterThan(fieldValue);
-        return this;
+        return this.setCondition(new QB_NumberCondition().greaterThan(fieldValue));
     }
 
     public QB_Condition lessThanOrEqual(Decimal fieldValue) {
-        this.condition = new QB_NumberCondition().lessThanOrEqual(fieldValue);
-        return this;
+        return this.setCondition(new QB_NumberCondition().lessThanOrEqual(fieldValue));
     }
 
     public QB_Condition greaterThanOrEqual(Decimal fieldValue) {
-        this.condition = new QB_NumberCondition().greaterThanOrEqual(fieldValue);
-        return this;
+        return this.setCondition(new QB_NumberCondition().greaterThanOrEqual(fieldValue));
     }
 
     public QB_Condition notEqual(Decimal fieldValue) {
-        this.condition = new QB_NumberCondition().notEqual(fieldValue);
-        return this;
+        return this.setCondition(new QB_NumberCondition().notEqual(fieldValue));
     }
 
     public QB_Condition lessThan(String fieldValue) {
-        this.condition = new QB_DateCondition().lessThan(fieldValue);
-        return this;
+        return this.setCondition(new QB_DateCondition().lessThan(fieldValue));
     }
 
     public QB_Condition greaterThan(String fieldValue) {
-        this.condition = new QB_DateCondition().greaterThan(fieldValue);
-        return this;
+        return this.setCondition(new QB_DateCondition().greaterThan(fieldValue));
     }
 
     public QB_Condition lessThanOrEqual(String fieldValue) {
-        this.condition = new QB_DateCondition().lessThanOrEqual(fieldValue);
-        return this;
+        return this.setCondition(new QB_DateCondition().lessThanOrEqual(fieldValue));
     }
 
     public QB_Condition greaterThanOrEqual(String fieldValue) {
-        this.condition = new QB_DateCondition().greaterThanOrEqual(fieldValue);
-        return this;
+        return this.setCondition(new QB_DateCondition().greaterThanOrEqual(fieldValue));
     }
 
     public QB_Condition equal(String fieldValue) {
-        this.condition = new QB_StringCondition().equal(fieldValue);
-        return this;
+        return this.setCondition(new QB_StringCondition().equal(fieldValue));
     }
 
     public QB_Condition notEqual(String fieldValue) {
-        this.condition = new QB_StringCondition().notEqual(fieldValue);
-        return this;
+        return this.setCondition(new QB_StringCondition().notEqual(fieldValue));
     }
 
     public QB_Condition likeAnyBoth(String fieldValue) {
-        this.condition = new QB_StringCondition().likeAnyBoth(fieldValue);
-        return this;
+        return this.setCondition(new QB_StringCondition().likeAnyBoth(fieldValue));
     }
 
     public QB_Condition likeAnyLeft(String fieldValue) {
-        this.condition = new QB_StringCondition().likeAnyLeft(fieldValue);
-        return this;
+        return this.setCondition(new QB_StringCondition().likeAnyLeft(fieldValue));
     }
 
     public QB_Condition likeAnyRight(String fieldValue) {
-        this.condition = new QB_StringCondition().likeAnyRight(fieldValue);
-        return this;
+        return this.setCondition(new QB_StringCondition().likeAnyRight(fieldValue));
     }
 
     public QB_Condition contain(String fieldValue) {
-        this.condition = new QB_StringCondition().contain(fieldValue);
-        return this;
+        return this.setCondition(new QB_StringCondition().contain(fieldValue));
     }
 
     public QB_Condition inCollection(List<String> inList) {
-        this.condition = new QB_CollectionCondition().inCollection(inList);
-        return this;
+        return this.setCondition(new QB_CollectionCondition().inCollection(inList));
     }
 
     public QB_Condition inCollection(List<Decimal> inList) {
-        this.condition = new QB_CollectionCondition().inCollection(inList);
-        return this;
+        return this.setCondition(new QB_CollectionCondition().inCollection(inList));
     }
 
     public QB_Condition notIn(List<String> inList) {
-        this.condition = new QB_CollectionCondition().notIn(inList);
-        return this;
+        return this.setCondition(new QB_CollectionCondition().notIn(inList));
     }
 
     public QB_Condition bindInCollection(String nameOfVariableToBind) {
-        this.condition = new QB_CollectionCondition().bindInCollection(nameOfVariableToBind);
-        return this;
+        return this.setCondition(new QB_CollectionCondition().bindInCollection(nameOfVariableToBind));
     }
 
     public QB_Condition bindNotInCollection(String nameOfVariableToBind) {
-        this.condition = new QB_CollectionCondition().bindNotInCollection(nameOfVariableToBind);
+        return this.setCondition(new QB_CollectionCondition().bindNotInCollection(nameOfVariableToBind));
+    }
+
+    private QB_Condition setCondition(String condition) {
+        this.condition = condition;
         return this;
     }
 
