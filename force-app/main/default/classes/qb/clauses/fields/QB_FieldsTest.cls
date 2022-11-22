@@ -21,15 +21,11 @@ public class QB_FieldsTest {
     }
 
     @isTest
-    static void withQbFields() {
-        QB_Fields qbFields = new QB_Fields();
-
-        qbFields.addFields(new List<sObjectField>{ Account.Id, Account.Name });
-
+    static void withRelationshipFields() {
         Test.startTest();
-        String query = new QB(Account.sObjectType).withFields(qbFields).build();
+        String query = new QB(Contact.sObjectType).withRelationshipFields('Account', new List<sObjectField>{ Account.Id, Account.Name }).build();
         Test.stopTest();
 
-        Assert.isTrue(query.contains('SELECT Id, Name'), 'Query should contains SELECT Id, Name');
+        Assert.isTrue(query.contains('Account.Id, Account.Name'), 'Query should contains Account.Id, Account.Name');
     }
 }
