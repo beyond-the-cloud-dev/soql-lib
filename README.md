@@ -114,6 +114,25 @@ SObject Selectors should extends `QS` class, and implements the following method
 
 **NOTE** Methods implementation **CANNOT** be forced by interface/abstract method, because methods return instances of concrete object so developer do not need to cast it.
 
+### Conditions
+
+Conditions are handled by the following classes:
+ - `QB_Condition.cls`
+ - `QB_Conditions.cls`
+ - `QB_ConditionsGroup.cls`
+
+Why three classes?
+It allows build conditions in dynamic way e.g. passing `QB_Conditions` or `QB_ConditionsGroup` instance between method and add more conditions.
+
+Developer should would interact mostly with `QB_Condition`
+
+```java
+new QB_Condition(Schema.SObjectField field)
+new QB_Condition(String fieldName)
+
+```
+
+
 ## Usage
 
 ```java
@@ -154,6 +173,8 @@ External objects cannot be insert during the test. Selectors provide easy way to
 - [ ] QB_TestMock
 - [ ] Custom Metadata for debugging on production
 - [ ] Skip condition when null (?)
+- [ ] Enforce CRUD
+- [ ] Relationship name as a String, fields as sObjectFields
 
 ## License notes
 
