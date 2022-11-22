@@ -3,9 +3,9 @@ public virtual class QB extends QB_QueryClause {
     protected List<QB_QueryClause> queryClauses = new List<QB_QueryClause>(11);
     protected QB_QueryExecutor queryExecutor = new QB_QueryExecutor();
 
-    public QB(sObjectType objectType) {
+    public QB(sObjectType fromObject) {
         this.queryClauses.set(0, new QB_Fields());
-        this.queryClauses.set(2, new QB_From(objectType));
+        this.queryClauses.set(2, new QB_From(fromObject));
         this.queryClauses.set(5, new QB_WithSecurityEnforced()); // clause is only supported on top-level queries
     }
 
