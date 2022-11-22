@@ -21,9 +21,14 @@ public virtual class QB extends QB_QueryClause {
         return this.addQueryClause(0, qbFields.addFields(fields));
     }
 
-    public QB withRelatedFields(String commaSeparatedFieldsNames) {
+    public QB withFields(String commaSeparatedFields) {
         QB_Fields qbFields = (QB_Fields) queryClauses.get(0);
-        return this.addQueryClause(0, qbFields.addFields(commaSeparatedFieldsNames));
+        return this.addQueryClause(0, qbFields.addFields(commaSeparatedFields));
+    }
+
+    public QB withRelatedFields(String relationshipName, List<sObjectField> fields) {
+        QB_Fields qbFields = (QB_Fields) queryClauses.get(0);
+        return this.addQueryClause(0, qbFields.addRelationshipFields(relationshipName, fields));
     }
 
     // SubQuery
