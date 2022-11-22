@@ -170,11 +170,11 @@ External objects cannot be insert during the test. Selectors provide easy way to
 ## TODO
 
 - [ ] SOQL Query Performance sugestion
-- [ ] QB_TestMock
+- [x] QB_TestMock
 - [ ] Custom Metadata for debugging on production
 - [ ] Skip condition when null (?)
-- [ ] Enforce CRUD
-- [ ] Relationship name as a String, fields as sObjectFields
+- [x] Enforce CRUD
+- [x] Relationship name as a String, fields as sObjectFields
 
 ## License notes
 
