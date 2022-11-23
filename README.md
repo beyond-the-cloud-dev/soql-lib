@@ -142,6 +142,45 @@ Contact myContact = new QS_Contact()
                         .toObject();
 ```
 
+### Test Mocking
+
+```java
+public class MyController {
+
+    @AuraEnabled
+    public static List<Account> getAccounts() {
+        return QS_Account()
+            .withFields(new List<sObjectField>{ Account.Id, Account.Name})
+            .withLimit(100)
+            .withMocking('MyController.getAccounts')
+            .toList();
+    }
+}
+
+```
+
+```java
+@isTest
+public class MyControllerTest {
+
+    @isTest
+    static void getAccounts() {
+        List<Account> accountsToMock = new List<Account>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        };
+
+        Test.startTest();
+        QS_TestMock.set('MyController.getAccounts', accountsToMock);
+
+        List<Account> accounts = MyController.getAccounts();
+        Test.stopTest();
+
+        Assert.areEqual(accountsToMock.size(), accounts.size(), 'Size should be the same.');
+    }
+}
+```
+
 ## Benefits
 
 ### SOQL Errors handling
@@ -161,17 +200,23 @@ Contact myContact = new QS_Contact()
 
 ### Easy to debug
 
+`Query Debugger` allows to see SOQL and result on production without changes in code.
+
 ### External objects mocking
 
 External objects cannot be insert during the test. Selectors provide easy way to mock the data.
 
 ### One place to manage all SOQLs
 
+### Modify SOQL on fly
+
+Pass `QB` instance between different classes and methods.
+
 ## TODO
 
 - [ ] SOQL Query Performance sugestion
 - [x] QB_TestMock
-- [ ] Custom Metadata for debugging on production
+- [x] Custom Metadata for debugging on production
 - [ ] Skip condition when null (?)
 - [x] Enforce CRUD
 - [x] Relationship name as a String, fields as sObjectFields
