@@ -7,11 +7,15 @@ public virtual class QB extends QB_QueryClause {
         this.queryClauses.set(0, new QB_Fields());
         this.queryClauses.set(2, new QB_From(fromObject));
         this.queryClauses.set(5, new QB_WithSecurityEnforced(fromObject)); // clause is only supported on top-level queries
+
+        this.queryExecutor = new QB_QueryExecutor(fromObject);
     }
 
     public QB(String fromObject) { // for sub-query
         this.queryClauses.set(0, new QB_Fields());
         this.queryClauses.set(2, new QB_From(fromObject));
+
+        this.queryExecutor = new QB_QueryExecutor();
     }
 
     // Fields
@@ -168,37 +172,24 @@ public virtual class QB extends QB_QueryClause {
         return this;
     }
 
+    // Preview
+
+    public QB withPreview() {
+        this.queryExecutor.withPreview();
+        return this;
+    }
+
     // Result
 
-    public List<sObject> toSObjectListWithPreview() {
-        //to debug
-        String soqlQuery = this.build();
-        QB_Preview.displayQuery(soqlQuery);
-
-        List<sObject> results = this.queryExecutor.toList(soqlQuery);
-        QB_Preview.displayResults(results);
-
-        return results;
+    public sObject toSObject() {
+        return this.queryExecutor.toSObject(this.build());
     }
 
     public List<sObject> toSObjectList() {
-        return this.queryExecutor.toList(this.build());
+        return this.queryExecutor.toSObjectList(this.build());
     }
 
-    public sObject toSObjectWithPreview() {
-        //to debug
-        String soqlQuery = this.build();
-        QB_Preview.displayQuery(soqlQuery);
-
-        sObject result = this.queryExecutor.toObject(soqlQuery);
-        QB_Preview.displayResults(result);
-
-        return result;
-    }
-
-    public sObject toSObject() {
-        return this.queryExecutor.toObject(this.build());
-    }
+    // Helpers
 
     private QB addQueryClause(Integer index, QB_QueryClause queryClause) {
         this.queryClauses.set(index, queryClause);
