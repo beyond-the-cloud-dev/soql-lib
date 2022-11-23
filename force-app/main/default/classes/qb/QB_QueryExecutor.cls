@@ -43,7 +43,7 @@ public with sharing class QB_QueryExecutor {
 
     private Boolean isPreviewActive() {
         if (String.isEmpty(this.fromObject)) { // sub-query
-            return this.previewQuery;
+            return false;
         }
 
         QueryDebugger__mdt qd = QueryDebugger__mdt.getInstance(this.fromObject);
