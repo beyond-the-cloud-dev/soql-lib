@@ -190,6 +190,9 @@ public class MyController {
 ```
 ## Benefits
 
+### Separation of Concerns
+
+> Separating the various concerns into different systems or layers makes code easier to navigate and maintain. When changes are made, the impacts and regressions on other areas are minimized, and a healthier and more adaptable program evolves. ~ Salesforce
 ### SOQL Errors handling
 
 No *List has no rows for assignment to SObject* error. When record not found value will be set to null.
@@ -199,32 +202,29 @@ Contact myContact = [SELECT Id, Name FROM Contact WHERE Name = 'invalidName'];
 // Error: List has no rows for assignment to SObject
 
 Contact myContact = new QS_Contact()
-                        .withFields(new List<sObjectField>{ Contact.Id, Contact.Name })
-                        .withWhere(new QB_Condition(Contact.Name).equal('invalidName'))
-                        .toObject();
+            .withFields(new List<sObjectField>{ Contact.Id, Contact.Name })
+            .withWhere(new QB_Condition(Contact.Name).equal('invalidName'))
+            .toObject();
 // null
 ```
 
 ### Easy to debug
 
-`Query Debugger` allows to see SOQL and result on production without changes in code.
+`Query Debugger` metadata allows to debug SOQL and see results on production without changes in code.
 
-### External objects mocking
+### Test Data Mocking
 
-External objects cannot be insert during the test. Selectors provide easy way to mock the data.
-
+Selectors provide easy way to mock the data. Speed up your Unit Tests.
+External Object cannot be insert during the test, the only way is to mock the result.
 ### One place to manage all SOQLs
 
 ### Modify SOQL on fly
 
-Pass `QB` instance between different classes and methods.
-
+Pass `QB` instance between classes and methods. Add necessary conditions, use builder methods.
 ## TODO
 
-- [ ] SOQL Query Performance sugestion
 - [x] QB_TestMock
 - [x] Custom Metadata for debugging on production
-- [ ] Skip condition when null (?)
 - [x] Enforce CRUD
 - [x] Relationship name as a String, fields as sObjectFields
 
