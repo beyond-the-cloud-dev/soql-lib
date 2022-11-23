@@ -26,7 +26,7 @@ public with sharing class QB_QueryExecutor {
     public sObject toSObject(String soqlQuery) {
         try {
             return this.toSObjectList(soqlQuery)[0];
-        } catch (Exception e) {
+        } catch (ListException e) {
             return null; // List index out of bounds: 0
         }
     }
