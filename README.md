@@ -4,35 +4,35 @@ Dynamic SOQL refers to the creation of a SOQL string at run time with Apex code.
 
 ## Architecture
 
-Framework has two connected parts
-- Query Builder (`QB`) - Allows to build dynamic SOQL
-- Query Selector (`QS`) - Uses `QB` to build dynamic SOQL and get results
+Framework has two main classes:
+- Query Builder (`QB.cls`) - Builder, that allows you to create and execute dynamic SQOL.
+- Query Selector (`QS.cls`) - Extends `QB` and add Selector specific logic, that can be use by concrete selectors.
 
 ![image](README.svg)
 ### Query Builder (QB)
 
-Allows to build dynamic SQOL.
+Allows to build and execute dynamic SQOL.
 
 Query Builder (QB) framework uses [Composite](https://refactoring.guru/design-patterns/composite) and [Builder](https://refactoring.guru/design-patterns/builder) patterns.
 
-Each query clause (`SELECT`, `FROM`, `WHERE`, `LIMIT`) is represented by concrete Apex Class (Single Responsibility Principle).
+Each query clause (`SELECT`, `FROM`, `WHERE`, `LIMIT`) is represented by separated Apex Class (Single Responsibility Principle).
 
-| Index | Statement         | Apex Class                                            |
-| ----- | ----------------- | ----------------------------------------------------- |
-| 1     | SELECT            | `QB_Fields`                                           |
-| 2     | subQuery          | `QB_SubQuery`                                         |
-| 3     | FROM              | `QB_From`                                             |
-| 4     | USING SCOPE       | `QB_Scope`                                            |
-| 5     | WHERE             | `QB_ConditionsGroup`, `QB_Conditions`, `QB_Condition` |
-| 6     | SECURITY_ENFORCED | `QB_WithSecurityEnforced`                             |
-| 7     | GROUP BY          | `QB_GroupBy`                                          |
-| 8     | ORDER BY          | `QB_OrderBy`                                          |
-| 9     | LIMIT             | `QB_Limit`                                            |
-| 10    | OFFSET            | `QB_Offset`                                           |
-| 11    | FOR               | `QB_For`                                              |
+| Index | Statement         | Apex Class                                                        |
+| ----- | ----------------- | ----------------------------------------------------------------- |
+| 1     | SELECT            | `QB_Fields.cls`                                                   |
+| 2     | subQuery          | `QB_SubQuery.cls`                                                 |
+| 3     | FROM              | `QB_From.cls`                                                     |
+| 4     | USING SCOPE       | `QB_Scope.cls`                                                    |
+| 5     | WHERE             | `QB_ConditionsGroup.cls`, `QB_Conditions.cls`, `QB_Condition.cls` |
+| 6     | SECURITY_ENFORCED | `QB_WithSecurityEnforced.cls`                                     |
+| 7     | GROUP BY          | `QB_GroupBy.cls`                                                  |
+| 8     | ORDER BY          | `QB_OrderBy.cls`                                                  |
+| 9     | LIMIT             | `QB_Limit.cls`                                                    |
+| 10    | OFFSET            | `QB_Offset.cls`                                                   |
+| 11    | FOR               | `QB_For.cls`                                                      |
 
 
-All classes mentioned above + `QB.cls` extends `QB_QueryClause` abstract class.
+All classes mentioned above and `QB.cls` extends `QB_QueryClause.clss` abstract class.
 
 ```java
 public abstract class QB_QueryClause {
@@ -45,19 +45,20 @@ public abstract class QB_QueryClause {
 }
 ```
 
-Classes needs to implement `build()` method that return SOQL part.
-`validate()` can be use to provide additional validation that will be executed during build phase.
+Classes needs to implement:
+- `String build()` - returns SOQL part.
+- `String validate()` - can be use to provide additional validation that will be executed during build phase.
 
-Developer should based on:
-- `QB.cls` - to build SOQL.
-- `QB_Condition` - to prepare condition.
-- `QB_TestMock` - to mock query result in unit tests.
+Developer should use:
+- `QS_ObjectA.cls` - to build SOQL.
+- `QB_ConditionsGroup.cls`, `QB_Conditions.cls`, `QB_Condition.cls` - to prepare conditions.
+- `QB_TestMock.cls` - to mock query results in unit tests.
 
 ```java
 new QB(sObjectType)
     // Fields
     .withFields(List<sObjectField> fields)
-    .withRelatedFields(String commaSeparatedFieldsNames)
+    .withRelatedFields(String relationshipName, List<sObjectField> fields)
     // SubQuery
     .withSubQuery(QB subQueryBuilder)
     .withSubQueries(List<QB> subQueryBuilders)
@@ -122,24 +123,11 @@ Conditions are handled by the following classes:
  - `QB_ConditionsGroup.cls`
 
 Why three classes?
-It allows build conditions in dynamic way e.g. passing `QB_Conditions` or `QB_ConditionsGroup` instance between method and add more conditions.
-
-Developer should would interact mostly with `QB_Condition`
+It allows build conditions in dynamic way e.g. passing `QB_Conditions` or `QB_ConditionsGroup` instance between methods and modify it.
 
 ```java
 new QB_Condition(Schema.SObjectField field)
 new QB_Condition(String fieldName)
-
-```
-
-
-## Usage
-
-```java
-Contact myContact = new QS_Contact()
-                        .withField(new List<sObjectField>{ Contact.Id, Contact.FirstName, Contact.LastName })
-                        .toWhere(new QB_Condition(Contact.Name).equal('Contact1'))
-                        .toObject();
 ```
 
 ### Test Mocking
@@ -156,7 +144,6 @@ public class MyController {
             .toList();
     }
 }
-
 ```
 
 ```java
@@ -180,7 +167,27 @@ public class MyControllerTest {
     }
 }
 ```
+## Usage
 
+```java
+public class MyController {
+
+    // Inline SOQL
+    @AuraEnabled
+    public static List<Account> getAccounts() {
+        return [SELECT Id, Name FROM Account LIMIT 100];
+    }
+
+    // Selector
+    @AuraEnabled
+    public static List<Account> getAccounts() {
+        return QS_Account()
+            .withFields(new List<sObjectField>{ Account.Id, Account.Name})
+            .withLimit(100)
+            .toList();
+    }
+}
+```
 ## Benefits
 
 ### SOQL Errors handling
