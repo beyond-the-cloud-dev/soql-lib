@@ -190,4 +190,26 @@ public class QB_ConditionTest {
 
         Assert.isTrue(query.contains('WHERE ((Name IN (\'TestName 1\', \'TestName 2\')))'), 'Query should contains WHERE WHERE ((Name IN (\'TestName 1\', \'TestName 2\')))');
     }
+
+    @isTest
+    static void inCollectionDecimal() {
+        List<Decimal> opportunityAmounts = new List<Decimal>{ 10, 20 };
+
+        Test.startTest();
+        String query = new QB(Opportunity.sObjectType).withWhere(new QB_Condition(Opportunity.Amount).inCollection(opportunityAmounts)).build();
+        Test.stopTest();
+
+        Assert.isTrue(query.contains('WHERE ((Amount IN (10, 20)))'), 'Query should contains WHERE WHERE WHERE ((Amount IN (10, 20)))');
+    }
+
+    @isTest
+    static void notInString() {
+        List<String> accountNames = new List<String>{ 'TestName 1', 'TestName 2' };
+
+        Test.startTest();
+        String query = new QB(Account.sObjectType).withWhere(new QB_Condition(Account.Name).notIn(accountNames)).build();
+        Test.stopTest();
+
+        Assert.isTrue(query.contains('WHERE ((Name NOT IN (\'TestName 1\', \'TestName 2\')))'), 'Query should contains WHERE WHERE ((Name NOT IN (\'TestName 1\', \'TestName 2\')))');
+    }
 }
