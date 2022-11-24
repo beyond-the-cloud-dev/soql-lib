@@ -10,10 +10,10 @@ public with sharing class QB_ConditionsUtils {
     }
 
     public static String getConditionsWithFilteringExpressions(List<QB_QueryClause> queryConditions, String conditionsOrder) {
-        String finalCondition = getConditionsOrderWithSpecialCharacters(queryConditions, conditionsOrder);
+        String finalCondition = getConditionsOrderWithSpecialCharacters(queryConditions, conditionsOrder); // e.g (*1* AND (*2* OR *3*))
 
         for (Integer i = 0; i < queryConditions.size(); i++) {
-            String formattedConditionNumber = addSpecialCharacters(String.valueOf(i + 1));
+            String formattedConditionNumber = addSpecialCharacters(String.valueOf(i + 1)); // e.g *1*
 
             finalCondition = finalCondition.replace(formattedConditionNumber, queryConditions.get(i).build());
         }
