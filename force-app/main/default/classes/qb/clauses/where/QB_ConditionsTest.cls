@@ -43,8 +43,9 @@ public class QB_ConditionsTest {
 
     @isTest
     static void dynamicConditions() {
-        QB_Conditions conditions = new QB_Conditions(new QB_Condition(Account.Name).equal('Test'));
+        QB_Conditions conditions = new QB_Conditions();
 
+        conditions.add(new QB_Condition(Account.Name).equal('Test'));
         conditions.add(new QB_Condition(Account.AccountSource).equal('Advertisement'));
         conditions.add(new QB_Condition(Account.IsDeleted).equal(false));
 

@@ -3,14 +3,6 @@ public class QB_Conditions extends QB_QueryClause {
     private List<QB_Condition> queryConditions = new List<QB_Condition>();
     private String conditionOrder = '';
 
-    public QB_Conditions(QB_Condition queryCondition) {
-        this.add(queryCondition);
-    }
-
-    public QB_Conditions(List<QB_Condition> queryConditions) {
-        this.add(queryConditions);
-    }
-
     public QB_Conditions add(QB_Condition queryCondition) {
         this.queryConditions.add(queryCondition);
         return this;
