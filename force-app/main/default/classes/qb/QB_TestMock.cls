@@ -18,4 +18,4 @@ public with sharing class QB_TestMock {
         }
         return queryIdentifierToMockedResults.get(queryIdentifier);
     }
-}Assert.areEqual(expected, actual, message);
+}
