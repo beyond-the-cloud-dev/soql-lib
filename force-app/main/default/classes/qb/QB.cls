@@ -74,19 +74,19 @@ public virtual class QB extends QB_QueryClause {
     // Where
 
     public QB withWhere(QB_Condition queryCondition) {
-        return this.addQueryClause(4, new QB_ConditionsGroup().addCondition(queryCondition));
+        return this.addQueryClause(4, new QB_ConditionsGroup().add(queryCondition));
     }
 
     public QB withWhere(List<QB_Condition> queryConditions) {
-        return this.addQueryClause(4, new QB_ConditionsGroup().addConditions(queryConditions));
+        return this.addQueryClause(4, new QB_ConditionsGroup().add(queryConditions));
     }
 
     public QB withWhere(List<QB_Condition> queryConditions, String conditionOrder) {
-        return this.addQueryClause(4, new QB_ConditionsGroup().addConditions(queryConditions, conditionOrder));
+        return this.addQueryClause(4, new QB_ConditionsGroup().add(queryConditions, conditionOrder));
     }
 
     public QB withWhere(QB_Conditions queryConditions) {
-        return this.addQueryClause(4, new QB_ConditionsGroup().addConditions(queryConditions));
+        return this.addQueryClause(4, new QB_ConditionsGroup().add(queryConditions));
     }
 
     public QB withWhere(QB_ConditionsGroup queryConditionsBuilder) {

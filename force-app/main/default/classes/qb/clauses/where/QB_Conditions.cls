@@ -4,19 +4,19 @@ public class QB_Conditions extends QB_QueryClause {
     private String conditionOrder = '';
 
     public QB_Conditions(QB_Condition queryCondition) {
-        this.addCondition(queryCondition);
+        this.add(queryCondition);
     }
 
     public QB_Conditions(List<QB_Condition> queryConditions) {
-        this.addConditions(queryConditions);
+        this.add(queryConditions);
     }
 
-    public QB_Conditions addCondition(QB_Condition queryCondition) {
+    public QB_Conditions add(QB_Condition queryCondition) {
         this.queryConditions.add(queryCondition);
         return this;
     }
 
-    public QB_Conditions addConditions(List<QB_Condition> queryConditions) {
+    public QB_Conditions add(List<QB_Condition> queryConditions) {
         this.queryConditions.addAll(queryConditions);
         return this;
     }
