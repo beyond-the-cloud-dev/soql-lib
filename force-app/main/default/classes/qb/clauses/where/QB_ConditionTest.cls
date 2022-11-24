@@ -188,7 +188,7 @@ public class QB_ConditionTest {
         String query = new QB(Account.sObjectType).withWhere(new QB_Condition(Account.Name).inCollection(accountNames)).build();
         Test.stopTest();
 
-        Assert.isTrue(query.contains('WHERE ((Name IN (\'TestName 1\', \'TestName 2\')))'), 'Query should contains WHERE WHERE ((Name IN (\'TestName 1\', \'TestName 2\')))');
+        Assert.isTrue(query.contains('WHERE ((Name IN (\'TestName 1\', \'TestName 2\')))'), 'Query should contains WHERE ((Name IN (\'TestName 1\', \'TestName 2\')))');
     }
 
     @isTest
@@ -199,7 +199,7 @@ public class QB_ConditionTest {
         String query = new QB(Opportunity.sObjectType).withWhere(new QB_Condition(Opportunity.Amount).inCollection(opportunityAmounts)).build();
         Test.stopTest();
 
-        Assert.isTrue(query.contains('WHERE ((Amount IN (10, 20)))'), 'Query should contains WHERE WHERE WHERE ((Amount IN (10, 20)))');
+        Assert.isTrue(query.contains('WHERE ((Amount IN (10, 20)))'), 'Query should contains WHERE ((Amount IN (10, 20)))');
     }
 
     @isTest
@@ -210,6 +210,24 @@ public class QB_ConditionTest {
         String query = new QB(Account.sObjectType).withWhere(new QB_Condition(Account.Name).notIn(accountNames)).build();
         Test.stopTest();
 
-        Assert.isTrue(query.contains('WHERE ((Name NOT IN (\'TestName 1\', \'TestName 2\')))'), 'Query should contains WHERE WHERE ((Name NOT IN (\'TestName 1\', \'TestName 2\')))');
+        Assert.isTrue(query.contains('WHERE ((Name NOT IN (\'TestName 1\', \'TestName 2\')))'), 'Query should contains WHERE ((Name NOT IN (\'TestName 1\', \'TestName 2\')))');
+    }
+
+    @isTest
+    static void bindInCollection() {
+        Test.startTest();
+        String query = new QB(Account.sObjectType).withWhere(new QB_Condition(Account.Name).bindInCollection('accountNames')).build();
+        Test.stopTest();
+
+        Assert.isTrue(query.contains('WHERE ((Name IN :accountNames))'), 'Query should contains WHERE ((Name IN :accountNames))');
+    }
+
+    @isTest
+    static void bindNotInCollection() {
+        Test.startTest();
+        String query = new QB(Account.sObjectType).withWhere(new QB_Condition(Account.Name).bindNotInCollection('accountNames')).build();
+        Test.stopTest();
+
+        Assert.isTrue(query.contains('WHERE ((Name NOT IN :accountNames))'), 'Query should contains WHERE ((Name NOT IN :accountNames))');
     }
 }
