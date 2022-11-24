@@ -4,7 +4,7 @@ public class QB_ConditionsTest {
     static void multipleConditions() {
         Test.startTest();
         String query = new QB(Account.sObjectType)
-            .withWhere(
+            .conditions(
                 new List<QB_Condition>{
                     new QB_Condition(Account.Name).equal('Test'),
                     new QB_Condition(Account.AccountSource).equal('Advertisement'),
@@ -24,7 +24,7 @@ public class QB_ConditionsTest {
     static void multipleConditionsWithOrder() {
         Test.startTest();
         String query = new QB(Account.sObjectType)
-            .withWhere(
+            .conditions(
                 new List<QB_Condition>{
                     new QB_Condition(Account.Name).equal('Test'),
                     new QB_Condition(Account.AccountSource).equal('Advertisement'),
@@ -52,7 +52,7 @@ public class QB_ConditionsTest {
         conditions.setConditionsOrder('(1 OR 2) AND 3');
 
         Test.startTest();
-        String query = new QB(Account.sObjectType).withWhere(conditions).build();
+        String query = new QB(Account.sObjectType).conditions(conditions).build();
         Test.stopTest();
 
         Assert.isTrue(

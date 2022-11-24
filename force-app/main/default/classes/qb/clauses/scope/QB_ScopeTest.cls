@@ -2,54 +2,54 @@
 public class QB_ScopeTest {
 
     @isTest
-    static void withDelegatedScope() {
+    static void delegatedScope() {
         Test.startTest();
-        String query = new QB(Account.sObjectType).withDelegatedScope().build();
+        String query = new QB(Account.sObjectType).delegatedScope().build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('USING SCOPE DELEGATED'), 'Query should contains USING SCOPE DELEGATED');
     }
 
     @isTest
-    static void withMineScope() {
+    static void mineScope() {
         Test.startTest();
-        String query = new QB(Account.sObjectType).withMineScope().build();
+        String query = new QB(Account.sObjectType).mineScope().build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('USING SCOPE MINE'), 'Query should contains USING SCOPE MINE');
     }
 
     @isTest
-    static void withMineAndMyGroupsScope() {
+    static void mineAndMyGroupsScope() {
         Test.startTest();
-        String query = new QB(Account.sObjectType).withMineAndMyGroupsScope().build();
+        String query = new QB(Account.sObjectType).mineAndMyGroupsScope().build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('USING SCOPE MINE_AND_MY_GROUPS'), 'Query should contains USING SCOPE MINE_AND_MY_GROUPS');
     }
 
     @isTest
-    static void withMyTerritoryScope() {
+    static void myTerritoryScope() {
         Test.startTest();
-        String query = new QB(Account.sObjectType).withMyTerritoryScope().build();
+        String query = new QB(Account.sObjectType).myTerritoryScope().build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('USING SCOPE MY_TERRITORY'), 'Query should contains USING SCOPE MY_TERRITORY');
     }
 
     @isTest
-    static void withMyTeamTerritoryScope() {
+    static void MyTeamTerritoryScope() {
         Test.startTest();
-        String query = new QB(Account.sObjectType).withMyTeamTerritoryScope().build();
+        String query = new QB(Account.sObjectType).MyTeamTerritoryScope().build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('USING SCOPE MY_TEAM_TERRITORY'), 'Query should contains USING SCOPE MY_TEAM_TERRITORY');
     }
 
     @isTest
-    static void withTeamScope() {
+    static void TeamScope() {
         Test.startTest();
-        String query = new QB(Account.sObjectType).withTeamScope().build();
+        String query = new QB(Account.sObjectType).TeamScope().build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('USING SCOPE TEAM'), 'Query should contains USING SCOPE TEAM');

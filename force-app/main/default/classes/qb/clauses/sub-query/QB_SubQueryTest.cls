@@ -1,22 +1,22 @@
 @isTest
 public class QB_SubQueryTest {
     @isTest
-    static void withSubQuery() {
+    static void subQuery() {
         Test.startTest();
-        String query = new QB(Account.sObjectType).withSubQuery(new QB('Contacts').withFields(new List<sObjectField>{ Contact.Id, Contact.FirstName, Contact.LastName })).build();
+        String query = new QB(Account.sObjectType).subQuery(new QB('Contacts').fields(new List<sObjectField>{ Contact.Id, Contact.FirstName, Contact.LastName })).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('SELECT Id, FirstName, LastName FROM Contacts'), 'Query should contains (SELECT Id, FirstName, LastName FROM Contacts)');
     }
 
     @isTest
-    static void withSubQueries() {
+    static void subQueries() {
         Test.startTest();
         String query = new QB(Account.sObjectType)
-            .withSubQueries(
+            .subQueries(
                 new List<QB>{
-                    new QB('Contacts').withFields(new List<sObjectField>{ Contact.Id, Contact.FirstName, Contact.LastName }),
-                    new QB('Opportunities').withFields(new List<sObjectField>{ Opportunity.Id, Opportunity.Amount })
+                    new QB('Contacts').fields(new List<sObjectField>{ Contact.Id, Contact.FirstName, Contact.LastName }),
+                    new QB('Opportunities').fields(new List<sObjectField>{ Opportunity.Id, Opportunity.Amount })
                 }
             )
             .build();
