@@ -66,6 +66,10 @@ public class QB_Condition extends QB_QueryClause {
         return this.setCondition(new QB_DateCondition().greaterThanOrEqual(fieldValue));
     }
 
+    public QB_Condition bindLike(String nameOfVariableToBind) {
+        return this.setCondition(new QB_StringCondition().bindLike(nameOfVariableToBind));
+    }
+
     public QB_Condition equal(String fieldValue) {
         return this.setCondition(new QB_StringCondition().equal(fieldValue));
     }

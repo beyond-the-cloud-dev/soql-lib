@@ -1,5 +1,15 @@
 @isTest
 public class QB_ConditionTest {
+
+    @isTest
+    static void relationshipCondition() {
+        Test.startTest();
+        String query = new QB(Contact.sObjectType).withWhere(new QB_Condition('Account.RecordType', RecordType.DeveloperName).equal('Test')).build();
+        Test.stopTest();
+
+        Assert.isTrue(query.contains('WHERE ((Account.RecordType.DeveloperName = \'Test\'))'), 'Query should contains WHERE ((Account.RecordType.DeveloperName = \'Test\')))');
+    }
+
     @isTest
     static void equalBoolean() {
         Test.startTest();
@@ -124,6 +134,15 @@ public class QB_ConditionTest {
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((CloseDate >= 2050-10-24))'), 'Query should contains WHERE ((CloseDate >= 2050-10-24))');
+    }
+
+    @isTest
+    static void bindLike() {
+        Test.startTest();
+        String query = new QB(Account.sObjectType).withWhere(new QB_Condition(Account.Name).bindLike('accountName')).build();
+        Test.stopTest();
+
+        Assert.isTrue(query.contains('WHERE ((Name LIKE :accountName))'), 'Query should contains WHERE ((Name LIKE :accountName))');
     }
 
     @isTest
