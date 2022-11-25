@@ -74,22 +74,6 @@ public virtual class QB extends QB_QueryClause {
 
     // Where
 
-    public QB conditions(QB_Condition queryCondition) {
-        return this.addQueryClause(4, new QB_ConditionsGroup().add(queryCondition));
-    }
-
-    public QB conditions(List<QB_Condition> queryConditions) {
-        return this.addQueryClause(4, new QB_ConditionsGroup().add(queryConditions));
-    }
-
-    public QB conditions(List<QB_Condition> queryConditions, String conditionOrder) {
-        return this.addQueryClause(4, new QB_ConditionsGroup().add(queryConditions, conditionOrder));
-    }
-
-    public QB conditions(QB_Conditions queryConditions) {
-        return this.addQueryClause(4, new QB_ConditionsGroup().add(queryConditions));
-    }
-
     public QB conditions(QB_ConditionsGroup queryConditionsBuilder) {
         return this.addQueryClause(4, queryConditionsBuilder);
     }
