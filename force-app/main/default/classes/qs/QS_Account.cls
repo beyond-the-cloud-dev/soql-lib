@@ -16,6 +16,6 @@ public inherited sharing class QS_Account extends QS {
     }
 
     public List<Account> toList() {
-        return (List<Account>) this.toSObjectList();
+        return (List<Account>) this.toSObjects();
     }
 }
