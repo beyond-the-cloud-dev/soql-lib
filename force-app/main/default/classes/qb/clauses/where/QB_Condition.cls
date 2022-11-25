@@ -1,4 +1,4 @@
-public class QB_Condition extends QB_QueryClause {
+public class QB_Condition extends QB_ConditionClause {
     public String fieldName;
     private String condition;
 

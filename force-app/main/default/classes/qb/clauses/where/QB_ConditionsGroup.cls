@@ -1,9 +1,9 @@
-public class QB_ConditionsGroup extends QB_QueryClause {
-    private List<QB_QueryClause> queryConditions = new List<QB_QueryClause>();
+public class QB_ConditionsGroup extends QB_ConditionClause {
+    private List<QB_ConditionClause> queryConditions = new List<QB_ConditionClause>();
     private String conditionOrder = '';
     Boolean isNested = true;
 
-    public QB_ConditionsGroup add(QB_QueryClause condition) {
+    public QB_ConditionsGroup add(QB_ConditionClause condition) {
         this.queryConditions.add(condition);
         return this;
     }
@@ -20,21 +20,21 @@ public class QB_ConditionsGroup extends QB_QueryClause {
 
     public override String build() {
         if (String.isEmpty(this.conditionOrder)) {
-            this.conditionOrder = this.buildDefaultConditionsOrder(this.queryConditions);
+            this.setDefaultOrder();
         }
 
         String query = '';
 
-        if (!isNested) {
+        if (!this.isNested) {
             query += 'WHERE ';
         }
 
-        return query + this.getConditionsWithFilteringExpressions(this.queryConditions, this.conditionOrder);
+        return query + this.buildConditions();
     }
 
     public override String validate() {
         if (String.isEmpty(this.conditionOrder)) {
-            return this.validateChildren(this.queryConditions);
+            return this.validateChildren();
         }
 
         String errors = '';
@@ -54,45 +54,45 @@ public class QB_ConditionsGroup extends QB_QueryClause {
             }
         }
 
-        return errors + this.validateChildren(this.queryConditions);
+        return errors + this.validateChildren();
     }
 
-    public String validateChildren(List<QB_QueryClause> queryConditions) {
-        String queryErrors = '';
+    public String validateChildren() {
+        String conditionsErrors = '';
 
-        for (QB_QueryClause clause : this.queryConditions) {
-            queryErrors += clause.validate();
+        for (QB_ConditionClause qc : this.queryConditions) {
+            conditionsErrors += qc.validate();
         }
 
-        return queryErrors;
+        return conditionsErrors;
     }
 
-    public String buildDefaultConditionsOrder(List<QB_QueryClause> queryConditions) {
+    private void setDefaultOrder() {
         List<String> defaultConditionsOrder = new List<String>();
 
-        for (Integer i = 0; i < queryConditions.size(); i++) {
+        for (Integer i = 0; i < this.queryConditions.size(); i++) {
             defaultConditionsOrder.add(String.valueOf(i + 1));
         }
 
-        return '(' + String.join(defaultConditionsOrder, ' AND ') + ')';
+        this.conditionOrder = '(' + String.join(defaultConditionsOrder, ' AND ') + ')';
     }
 
-    public String getConditionsWithFilteringExpressions(List<QB_QueryClause> queryConditions, String conditionsOrder) {
-        String finalCondition = getConditionsOrderWithSpecialCharacters(queryConditions, conditionsOrder); // e.g (*1* AND (*2* OR *3*))
+    private String buildConditions() {
+        String finalCondition = addSpecialCharactersToOrder(); // e.g (*1* AND (*2* OR *3*))
 
-        for (Integer i = 0; i < queryConditions.size(); i++) {
+        for (Integer i = 0; i < this.queryConditions.size(); i++) {
             String formattedConditionNumber = addSpecialCharacters(String.valueOf(i + 1)); // e.g *1*
 
-            finalCondition = finalCondition.replace(formattedConditionNumber, queryConditions.get(i).build());
+            finalCondition = finalCondition.replace(formattedConditionNumber, this.queryConditions.get(i).build());
         }
 
         return finalCondition;
     }
 
-    private String getConditionsOrderWithSpecialCharacters(List<QB_QueryClause> queryConditions, String conditionsOrder) {
-        String formattedConditionsOrder = conditionsOrder;
+    private String addSpecialCharactersToOrder() {
+        String formattedConditionsOrder = this.conditionOrder;
 
-        for (Integer i = 1; i <= queryConditions.size(); i++) {
+        for (Integer i = 1; i <= this.queryConditions.size(); i++) {
             String conditionNumber = String.valueOf(i);
 
             formattedConditionsOrder = formattedConditionsOrder.replace(conditionNumber, addSpecialCharacters(conditionNumber));
@@ -101,7 +101,7 @@ public class QB_ConditionsGroup extends QB_QueryClause {
         return '(' + formattedConditionsOrder + ')'; // e.g (*1* AND (*2* OR *3*))
     }
 
-    private static String addSpecialCharacters(String condition) {
+    private String addSpecialCharacters(String condition) {
         return '*' + condition.trim() + '*';
     }
 }
