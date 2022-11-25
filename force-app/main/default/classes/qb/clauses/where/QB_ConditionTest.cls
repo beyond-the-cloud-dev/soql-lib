@@ -4,7 +4,7 @@ public class QB_ConditionTest {
     @isTest
     static void relationshipCondition() {
         Test.startTest();
-        String query = new QB(Contact.sObjectType).conditions(new QB_Condition('Account.RecordType', RecordType.DeveloperName).equal('Test')).build();
+        String query = new QB(Contact.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition('Account.RecordType', RecordType.DeveloperName).equal('Test'))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((Account.RecordType.DeveloperName = \'Test\'))'), 'Query should contains WHERE ((Account.RecordType.DeveloperName = \'Test\')))');
@@ -13,7 +13,7 @@ public class QB_ConditionTest {
     @isTest
     static void equalBoolean() {
         Test.startTest();
-        String query = new QB(Account.sObjectType).conditions(new QB_Condition(Account.IsDeleted).equal(false)).build();
+        String query = new QB(Account.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Account.IsDeleted).equal(false))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((IsDeleted = false))'), 'Query should contains WHERE ((IsDeleted = false))');
@@ -22,7 +22,7 @@ public class QB_ConditionTest {
     @isTest
     static void notEqualBoolean() {
         Test.startTest();
-        String query = new QB(Account.sObjectType).conditions(new QB_Condition(Account.IsDeleted).notEqual(false)).build();
+        String query = new QB(Account.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Account.IsDeleted).notEqual(false))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((IsDeleted != false))'), 'Query should contains WHERE ((IsDeleted != false))');
@@ -31,7 +31,7 @@ public class QB_ConditionTest {
     @isTest
     static void isNull() {
         Test.startTest();
-        String query = new QB(Account.sObjectType).conditions(new QB_Condition(Account.Name).isNull()).build();
+        String query = new QB(Account.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Account.Name).isNull())).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((Name = NULL))'), 'Query should contains WHERE ((Name = NULL))');
@@ -40,7 +40,7 @@ public class QB_ConditionTest {
     @isTest
     static void isNotNull() {
         Test.startTest();
-        String query = new QB(Account.sObjectType).conditions(new QB_Condition(Account.Name).isNotNull()).build();
+        String query = new QB(Account.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Account.Name).isNotNull())).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((Name != NULL))'), 'Query should contains WHERE ((Name != NULL))');
@@ -49,7 +49,7 @@ public class QB_ConditionTest {
     @isTest
     static void equalDecimal() {
         Test.startTest();
-        String query = new QB(Opportunity.sObjectType).conditions(new QB_Condition(Opportunity.Amount).equal(100)).build();
+        String query = new QB(Opportunity.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Opportunity.Amount).equal(100))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((Amount = 100))'), 'Query should contains WHERE ((Amount = 100))');
@@ -58,7 +58,7 @@ public class QB_ConditionTest {
     @isTest
     static void lessThanDecimal() {
         Test.startTest();
-        String query = new QB(Opportunity.sObjectType).conditions(new QB_Condition(Opportunity.Amount).lessThan(100)).build();
+        String query = new QB(Opportunity.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Opportunity.Amount).lessThan(100))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((Amount < 100))'), 'Query should contains WHERE ((Amount < 100))');
@@ -67,7 +67,7 @@ public class QB_ConditionTest {
     @isTest
     static void greaterThanDecimal() {
         Test.startTest();
-        String query = new QB(Opportunity.sObjectType).conditions(new QB_Condition(Opportunity.Amount).greaterThan(100)).build();
+        String query = new QB(Opportunity.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Opportunity.Amount).greaterThan(100))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((Amount > 100))'), 'Query should contains WHERE ((Amount > 100))');
@@ -76,7 +76,7 @@ public class QB_ConditionTest {
     @isTest
     static void lessThanOrEqualDecimal() {
         Test.startTest();
-        String query = new QB(Opportunity.sObjectType).conditions(new QB_Condition(Opportunity.Amount).lessThanOrEqual(100)).build();
+        String query = new QB(Opportunity.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Opportunity.Amount).lessThanOrEqual(100))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((Amount <= 100))'), 'Query should contains WHERE ((Amount <= 100))');
@@ -85,7 +85,7 @@ public class QB_ConditionTest {
     @isTest
     static void greaterThanOrEqualDecimal() {
         Test.startTest();
-        String query = new QB(Opportunity.sObjectType).conditions(new QB_Condition(Opportunity.Amount).greaterThanOrEqual(100)).build();
+        String query = new QB(Opportunity.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Opportunity.Amount).greaterThanOrEqual(100))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((Amount >= 100))'), 'Query should contains WHERE ((Amount >= 100))');
@@ -94,7 +94,7 @@ public class QB_ConditionTest {
     @isTest
     static void notEqualDecimal() {
         Test.startTest();
-        String query = new QB(Opportunity.sObjectType).conditions(new QB_Condition(Opportunity.Amount).notEqual(100)).build();
+        String query = new QB(Opportunity.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Opportunity.Amount).notEqual(100))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((Amount != 100))'), 'Query should contains WHERE ((Amount != 100))');
@@ -103,7 +103,7 @@ public class QB_ConditionTest {
     @isTest
     static void lessThanDate() {
         Test.startTest();
-        String query = new QB(Opportunity.sObjectType).conditions(new QB_Condition(Opportunity.CloseDate).lessThan('2050-10-24')).build();
+        String query = new QB(Opportunity.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Opportunity.CloseDate).lessThan('2050-10-24'))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((CloseDate < 2050-10-24))'), 'Query should contains WHERE ((CloseDate < 2050-10-24))');
@@ -112,7 +112,7 @@ public class QB_ConditionTest {
     @isTest
     static void greaterThanDate() {
         Test.startTest();
-        String query = new QB(Opportunity.sObjectType).conditions(new QB_Condition(Opportunity.CloseDate).greaterThan('2050-10-24')).build();
+        String query = new QB(Opportunity.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Opportunity.CloseDate).greaterThan('2050-10-24'))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((CloseDate > 2050-10-24))'), 'Query should contains WHERE ((CloseDate > 2050-10-24))');
@@ -121,7 +121,7 @@ public class QB_ConditionTest {
     @isTest
     static void lessThanOrEqualDate() {
         Test.startTest();
-        String query = new QB(Opportunity.sObjectType).conditions(new QB_Condition(Opportunity.CloseDate).lessThanOrEqual('2050-10-24')).build();
+        String query = new QB(Opportunity.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Opportunity.CloseDate).lessThanOrEqual('2050-10-24'))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((CloseDate <= 2050-10-24))'), 'Query should contains WHERE ((CloseDate <= 2050-10-24))');
@@ -130,7 +130,7 @@ public class QB_ConditionTest {
     @isTest
     static void greaterThanOrEqualDate() {
         Test.startTest();
-        String query = new QB(Opportunity.sObjectType).conditions(new QB_Condition(Opportunity.CloseDate).greaterThanOrEqual('2050-10-24')).build();
+        String query = new QB(Opportunity.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Opportunity.CloseDate).greaterThanOrEqual('2050-10-24'))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((CloseDate >= 2050-10-24))'), 'Query should contains WHERE ((CloseDate >= 2050-10-24))');
@@ -139,7 +139,7 @@ public class QB_ConditionTest {
     @isTest
     static void bindLike() {
         Test.startTest();
-        String query = new QB(Account.sObjectType).conditions(new QB_Condition(Account.Name).bindLike('accountName')).build();
+        String query = new QB(Account.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Account.Name).bindLike('accountName'))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((Name LIKE :accountName))'), 'Query should contains WHERE ((Name LIKE :accountName))');
@@ -148,7 +148,7 @@ public class QB_ConditionTest {
     @isTest
     static void equalString() {
         Test.startTest();
-        String query = new QB(Account.sObjectType).conditions(new QB_Condition(Account.Name).equal('TestName')).build();
+        String query = new QB(Account.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Account.Name).equal('TestName'))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((Name = \'TestName\'))'), 'Query should contains WHERE ((Name = \'TestName\'))');
@@ -157,7 +157,7 @@ public class QB_ConditionTest {
     @isTest
     static void notEqualString() {
         Test.startTest();
-        String query = new QB(Account.sObjectType).conditions(new QB_Condition(Account.Name).notEqual('TestName')).build();
+        String query = new QB(Account.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Account.Name).notEqual('TestName'))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((Name != \'TestName\'))'), 'Query should contains WHERE ((Name != \'TestName\'))');
@@ -166,7 +166,7 @@ public class QB_ConditionTest {
     @isTest
     static void likeAnyBothString() {
         Test.startTest();
-        String query = new QB(Account.sObjectType).conditions(new QB_Condition(Account.Name).likeAnyBoth('TestName')).build();
+        String query = new QB(Account.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Account.Name).likeAnyBoth('TestName'))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((Name LIKE \'%TestName%\'))'), 'Query should contains WHERE ((Name LIKE \'%TestName%\'))');
@@ -175,7 +175,7 @@ public class QB_ConditionTest {
     @isTest
     static void likeAnyLeftString() {
         Test.startTest();
-        String query = new QB(Account.sObjectType).conditions(new QB_Condition(Account.Name).likeAnyLeft('TestName')).build();
+        String query = new QB(Account.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Account.Name).likeAnyLeft('TestName'))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((Name LIKE \'%TestName\'))'), 'Query should contains WHERE ((Name LIKE \'%TestName\'))');
@@ -184,7 +184,7 @@ public class QB_ConditionTest {
     @isTest
     static void likeAnyRightString() {
         Test.startTest();
-        String query = new QB(Account.sObjectType).conditions(new QB_Condition(Account.Name).likeAnyRight('TestName')).build();
+        String query = new QB(Account.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Account.Name).likeAnyRight('TestName'))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((Name LIKE \'TestName%\'))'), 'Query should contains WHERE ((Name LIKE \'TestName%\'))');
@@ -193,7 +193,7 @@ public class QB_ConditionTest {
     @isTest
     static void containString() {
         Test.startTest();
-        String query = new QB(Account.sObjectType).conditions(new QB_Condition(Account.Name).contain('TestName')).build();
+        String query = new QB(Account.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Account.Name).contain('TestName'))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((Name LIKE \'TestName\'))'), 'Query should contains WHERE ((Name LIKE \'TestName\'))');
@@ -204,7 +204,7 @@ public class QB_ConditionTest {
         List<String> accountNames = new List<String>{ 'TestName 1', 'TestName 2' };
 
         Test.startTest();
-        String query = new QB(Account.sObjectType).conditions(new QB_Condition(Account.Name).inCollection(accountNames)).build();
+        String query = new QB(Account.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Account.Name).inCollection(accountNames))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((Name IN (\'TestName 1\', \'TestName 2\')))'), 'Query should contains WHERE ((Name IN (\'TestName 1\', \'TestName 2\')))');
@@ -215,7 +215,7 @@ public class QB_ConditionTest {
         List<Decimal> opportunityAmounts = new List<Decimal>{ 10, 20 };
 
         Test.startTest();
-        String query = new QB(Opportunity.sObjectType).conditions(new QB_Condition(Opportunity.Amount).inCollection(opportunityAmounts)).build();
+        String query = new QB(Opportunity.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Opportunity.Amount).inCollection(opportunityAmounts))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((Amount IN (10, 20)))'), 'Query should contains WHERE ((Amount IN (10, 20)))');
@@ -226,7 +226,7 @@ public class QB_ConditionTest {
         List<String> accountNames = new List<String>{ 'TestName 1', 'TestName 2' };
 
         Test.startTest();
-        String query = new QB(Account.sObjectType).conditions(new QB_Condition(Account.Name).notIn(accountNames)).build();
+        String query = new QB(Account.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Account.Name).notIn(accountNames))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((Name NOT IN (\'TestName 1\', \'TestName 2\')))'), 'Query should contains WHERE ((Name NOT IN (\'TestName 1\', \'TestName 2\')))');
@@ -235,7 +235,7 @@ public class QB_ConditionTest {
     @isTest
     static void bindInCollection() {
         Test.startTest();
-        String query = new QB(Account.sObjectType).conditions(new QB_Condition(Account.Name).bindInCollection('accountNames')).build();
+        String query = new QB(Account.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Account.Name).bindInCollection('accountNames'))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((Name IN :accountNames))'), 'Query should contains WHERE ((Name IN :accountNames))');
@@ -244,7 +244,7 @@ public class QB_ConditionTest {
     @isTest
     static void bindNotInCollection() {
         Test.startTest();
-        String query = new QB(Account.sObjectType).conditions(new QB_Condition(Account.Name).bindNotInCollection('accountNames')).build();
+        String query = new QB(Account.sObjectType).conditions(new QB_ConditionsGroup().add(new QB_Condition(Account.Name).bindNotInCollection('accountNames'))).build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('WHERE ((Name NOT IN :accountNames))'), 'Query should contains WHERE ((Name NOT IN :accountNames))');
