@@ -1,4 +1,4 @@
-public with sharing class QS_Contact extends QS {
+public inherited sharing class QS_Contact extends QS {
     public QS_Contact() {
         super(Contact.sObjectType);
     }

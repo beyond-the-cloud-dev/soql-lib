@@ -1,4 +1,4 @@
-public virtual class QB extends QB_QueryClause {
+public inherited sharing virtual class QB extends QB_QueryClause {
     protected List<QB_QueryClause> queryClauses = new QB_QueryClause[11];
     protected QB_QueryExecutor queryExecutor = new QB_QueryExecutor();
 
@@ -82,6 +82,11 @@ public virtual class QB extends QB_QueryClause {
 
     public QB withoutSecurityEnforced() {
         return this.addQueryClause(5, null);
+    }
+
+    public QB withSharing() {
+        this.queryExecutor.withSharing();
+        return this;
     }
 
     public QB withoutSharing() {

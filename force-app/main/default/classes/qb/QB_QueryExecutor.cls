@@ -1,8 +1,12 @@
-public with sharing class QB_QueryExecutor {
+public inherited sharing class QB_QueryExecutor {
     private String queryIdentifier;
     private String fromObject;
-    private Boolean executeWithoutSharing = false;
+    private SharingMode mode = SharingMode.INHERITED;
     private Boolean previewQuery = false;
+
+    public enum SharingMode {
+        INHERITED, WITH_SHARING, WITHOUT_SHARING
+    }
 
     public QB_QueryExecutor() {
     }
@@ -11,8 +15,12 @@ public with sharing class QB_QueryExecutor {
         this.fromObject = fromObject.getDescribe().getName();
     }
 
+    public void withSharing() {
+        this.mode = SharingMode.WITH_SHARING;
+    }
+
     public void withoutSharing() {
-        this.executeWithoutSharing = true;
+        this.mode = SharingMode.WITHOUT_SHARING;
     }
 
     public void withTestResultMock(String queryIdentifier) {
@@ -56,11 +64,21 @@ public with sharing class QB_QueryExecutor {
             return QB_TestMock.get(this.queryIdentifier);
         }
 
-        if (this.executeWithoutSharing) {
+        if (this.mode == sharingMode.WITH_SHARING) {
+            return new WithSharing().executeQuery(soqlQuery);
+        }
+
+        if (this.mode == sharingMode.WITHOUT_SHARING) {
             return new WithoutSharing().executeQuery(soqlQuery);
         }
-        // default with sharing
-        return new WithSharing().executeQuery(soqlQuery);
+
+        return new InheritedSharing().executeQuery(soqlQuery);
+    }
+
+    private inherited sharing class InheritedSharing {
+        public List<sObject> executeQuery(String query) {
+            return Database.query(query);
+        }
     }
 
     private without sharing class WithoutSharing {

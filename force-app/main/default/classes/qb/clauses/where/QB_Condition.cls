@@ -2,6 +2,10 @@ public class QB_Condition extends QB_ConditionClause {
     public String fieldName;
     private String condition;
 
+    public QB_Condition() {
+        this.fieldName = 'Id';
+    }
+
     public QB_Condition(String relationshipName, Schema.SObjectField field) {
         this.fieldName = relationshipName + '.' + field.getDescribe().getName();
     }

@@ -1,4 +1,4 @@
-public with sharing class QS_User extends QS {
+public inherited sharing class QS_User extends QS {
     public QS_User() {
         super(User.sObjectType);
     }
