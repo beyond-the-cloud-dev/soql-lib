@@ -2,13 +2,13 @@ public class QB_GroupBy extends QB_QueryClause {
 
     private Set<String> groupByFields = new Set<String>();
 
-    public QB_GroupBy(List<sObjectField> fields) {
+    public void add(List<sObjectField> fields) {
         for (sObjectField field : fields) {
-            this.groupByFields.add(field.getDescribe().getName());
+            this.add(field);
         }
     }
 
-    public QB_GroupBy(sObjectField field) {
+    public void add(sObjectField field) {
         this.groupByFields.add(field.getDescribe().getName());
     }
 

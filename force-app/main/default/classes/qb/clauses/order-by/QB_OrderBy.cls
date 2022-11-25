@@ -9,18 +9,13 @@ public class QB_OrderBy extends QB_QueryClause {
     private String sortingOrder;
     private String nullsOrder;
 
-    public QB_OrderBy(sObjectField sortingFields) {
-        this(sortingFields.getDescribe().getName());
+    public QB_OrderBy setField(sObjectField sortingFields) {
+        return this.setField(sortingFields.getDescribe().getName());
     }
 
-    public QB_OrderBy(String sortingFields) { // for related fields only
-        this(sortingFields, ASC_ORDER, '');
-    }
-
-    private QB_OrderBy(String sortingFields, String sortingOrder, String nullsOrder) {
+    public QB_OrderBy setField(String sortingFields) {
         this.sortingField = sortingFields;
-        this.sortingOrder = sortingOrder;
-        this.nullsOrder = nullsOrder;
+        return this;
     }
 
     public QB_OrderBy setAscOrder() {

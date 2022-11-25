@@ -2,7 +2,7 @@ public class QB_Offset extends QB_QueryClause {
 
     private Integer soqlOffset;
 
-    public QB_Offset(Integer soqlOffset) {
+    public void set(Integer soqlOffset) {
         this.soqlOffset = soqlOffset;
     }
 

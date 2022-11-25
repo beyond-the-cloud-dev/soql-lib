@@ -2,7 +2,7 @@ public class QB_Limit extends QB_QueryClause {
 
     private Integer soqlLimit;
 
-    public QB_Limit(Integer soqlLimit) {
+    public void set(Integer soqlLimit) {
         this.soqlLimit = soqlLimit;
     }
 
