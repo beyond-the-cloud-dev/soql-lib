@@ -106,8 +106,6 @@ public inherited sharing virtual class QB extends QB_QueryClause {
 
     // Order By
 
-    //TODO Nulls
-
     public QB ascOrder(sObjectField field) {
         return this.addQueryClause(7, new QB_OrderBy(field).setAscOrder());
     }
@@ -122,6 +120,18 @@ public inherited sharing virtual class QB extends QB_QueryClause {
 
     public QB descOrder(String field) {
         return this.addQueryClause(7, new QB_OrderBy(field).setDescOrder());
+    }
+
+    public QB nullFirst() {
+        return this.addQueryClause(7, this.qbOrderBy().setNullsFirstOrder());
+    }
+
+    public QB nullLast() {
+        return this.addQueryClause(7, this.qbOrderBy().setNullsLastOrder());
+    }
+
+    private QB_OrderBy qbOrderBy() {
+        return (QB_OrderBy) queryClauses.get(7);
     }
 
     // Limit
