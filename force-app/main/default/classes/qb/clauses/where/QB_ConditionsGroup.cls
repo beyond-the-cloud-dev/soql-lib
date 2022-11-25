@@ -1,16 +1,20 @@
 public class QB_ConditionsGroup extends QB_QueryClause {
     private List<QB_QueryClause> queryConditions = new List<QB_QueryClause>();
     private String conditionOrder = '';
-    Boolean isNested = false;
+    Boolean isNested = true;
 
     public QB_ConditionsGroup add(QB_QueryClause condition) {
-        this.isNested = true;
         this.queryConditions.add(condition);
         return this;
     }
 
     public QB_ConditionsGroup order(String conditionsOrder) {
         this.conditionOrder = conditionsOrder;
+        return this;
+    }
+
+    public QB_ConditionsGroup top() {
+        this.isNested = false;
         return this;
     }
 

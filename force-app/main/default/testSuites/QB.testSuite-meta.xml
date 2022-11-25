@@ -11,5 +11,6 @@
     <testClassName>QB_SubQueryTest</testClassName>
     <testClassName>QB_WithSecurityEnforceTest</testClassName>
     <testClassName>QB_ConditionTest</testClassName>
+    <testClassName>QB_ConditionsGroupTest</testClassName>
     <testClassName>QB_Test</testClassName>
 </ApexTestSuite>

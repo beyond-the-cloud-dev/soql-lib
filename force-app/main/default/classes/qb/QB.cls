@@ -75,7 +75,7 @@ public virtual class QB extends QB_QueryClause {
     // Where
 
     public QB conditions(QB_ConditionsGroup queryConditionsBuilder) {
-        return this.addQueryClause(4, queryConditionsBuilder);
+        return this.addQueryClause(4, queryConditionsBuilder.top());
     }
 
     // Security
