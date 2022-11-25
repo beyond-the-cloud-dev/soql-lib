@@ -70,8 +70,13 @@ public inherited sharing virtual class QB extends QB_QueryClause {
 
     // Where
 
-    public QB conditions(QB_ConditionsGroup queryConditionsBuilder) {
-        this.storage.qbConditions().add(queryConditionsBuilder);
+    public QB condition(QB_ConditionClause conditionClause) {
+        this.storage.qbConditions().add(conditionClause);
+        return this;
+    }
+
+    public QB conditionsOrder(String conditionsOrder) {
+        this.storage.qbConditions().order(conditionsOrder);
         return this;
     }
 
