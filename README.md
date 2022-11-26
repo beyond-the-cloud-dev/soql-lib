@@ -17,19 +17,19 @@ Query Builder (QB) framework uses [Composite](https://refactoring.guru/design-pa
 
 Each query clause (`SELECT`, `FROM`, `WHERE`, `LIMIT`) is represented by separated Apex Class (Single Responsibility Principle).
 
-| Index | Statement         | Apex Class                                                        |
-| ----- | ----------------- | ----------------------------------------------------------------- |
-| 1     | SELECT            | `QB_Fields.cls`                                                   |
-| 2     | subQuery          | `QB_SubQuery.cls`                                                 |
-| 3     | FROM              | `QB_From.cls`                                                     |
-| 4     | USING SCOPE       | `QB_Scope.cls`                                                    |
-| 5     | WHERE             | `QB_ConditionsGroup.cls`, `QB_Conditions.cls`, `QB_Condition.cls` |
-| 6     | SECURITY_ENFORCED | `QB_WithSecurityEnforced.cls`                                     |
-| 7     | GROUP BY          | `QB_GroupBy.cls`                                                  |
-| 8     | ORDER BY          | `QB_OrderBy.cls`                                                  |
-| 9     | LIMIT             | `QB_Limit.cls`                                                    |
-| 10    | OFFSET            | `QB_Offset.cls`                                                   |
-| 11    | FOR               | `QB_For.cls`                                                      |
+| Index | Statement         | Apex Class                                   |
+| ----- | ----------------- | -------------------------------------------- |
+| 1     | SELECT            | `QB_Fields.cls`                              |
+| 2     | subQuery          | `QB_Sub.cls`                                 |
+| 3     | FROM              | `QB_From.cls`                                |
+| 4     | USING SCOPE       | `QB_Scope.cls`, `QB_SubQueries.cls`          |
+| 5     | WHERE             | `QB_ConditionsGroup.cls`, `QB_Condition.cls` |
+| 6     | SECURITY_ENFORCED | `QB_WithSecurityEnforced.cls`                |
+| 7     | GROUP BY          | `QB_GroupBy.cls`                             |
+| 8     | ORDER BY          | `QB_OrderBy.cls`                             |
+| 9     | LIMIT             | `QB_Limit.cls`                               |
+| 10    | OFFSET            | `QB_Offset.cls`                              |
+| 11    | FOR               | `QB_For.cls`                                 |
 
 
 All classes mentioned above and `QB.cls` extends `QB_QueryClause.clss` abstract class.
@@ -57,49 +57,51 @@ Developer should use:
 ```java
 new QB(sObjectType)
     // Fields
-    .withFields(List<sObjectField> fields)
-    .withRelatedFields(String relationshipName, List<sObjectField> fields)
+    .fields(List<sObjectField> fields)
+    .fields(String commaSeparatedFields)
+    .relationship(String relationshipName, List<sObjectField> fields)
     // SubQuery
-    .withSubQuery(QB subQueryBuilder)
-    .withSubQueries(List<QB> subQueryBuilders)
-    // Scope
-    .withDelegatedScope()
-    .withMineScope()
-    .withMineAndMyGroupsScope()
-    .withMyTerritoryScope()
-    .withMyTeamTerritoryScope()
-    .withTeamScope()
+    .subQuery(QB_Sub subQueryBuilder)
+    // Scope - only one
+    .delegatedScope()
+    .mineScope()
+    .mineAndMyGroupsScope()
+    .myTerritoryScope()
+    .myTeamTerritoryScope()
+    .teamScope()
     // Where
-    .withWhere(QB_Condition queryCondition)
-    .withWhere(List<QB_Condition> queryConditions)
-    .withWhere(List<QB_Condition> queryConditions, String conditionOrder)
-    .withWhere(QB_Conditions queryConditions)
-    .withWhere(QB_ConditionsGroup queryConditionsBuilder)
+    .condition(QB_ConditionClause conditionClause)
+    .conditionsOrder(String conditionsOrder)
     // Security
     .withoutSecurityEnforced() // WITH SECURITY ENFORCED by default
-    .withoutSharing() // cxecuted with sharing by default
+    .withSharing()
+    .withoutSharing()
     // Group By
-    .withGroupBy(sObjectField field)
-    .withGroupBy(List<sObjectField> fields)
+    .groupBy(sObjectField field)
+    .groupBy(List<sObjectField> fields)
     // Order By
-    .withAscOrder(sObjectField field)
-    .withAscOrder(String field)
-    .withDescOrder(sObjectField field)
-    .withDescOrder(String field)
+    .ascOrder(sObjectField field)
+    .ascOrder(String field)
+    .descOrder(sObjectField field)
+    .descOrder(String field)
+    .nullFirst()
+    .nullLast()
     // Limit
-    .withLimit(Integer soqlLimit)
+    .setLimit(Integer soqlLimit)
     // Offset
-    .withOffset(Integer soqlOffset)
-    // For
-    .withForReference()
-    .withForView()
-    .withForUpdate()
-    .withAllRows()
+    .setOffset(Integer soqlOffset)
+    // For - only one
+    .forReference()
+    .forView()
+    .forUpdate()
+    .allRows()
     // Mocking - Allow mocking in unit tests
-    .withMocking(String queryIdentifier)
+    .mocking(String queryIdentifier)
+    // Debug
+    .preview()
     // Execute
-    .toSObjectList()
     .toSObject()
+    .toSObjects()
 ```
 
 ### Query Selector (QS)
@@ -119,11 +121,9 @@ SObject Selectors should extends `QS` class, and implements the following method
 
 Conditions are handled by the following classes:
  - `QB_Condition.cls`
- - `QB_Conditions.cls`
  - `QB_ConditionsGroup.cls`
 
-Why three classes?
-It allows build conditions in dynamic way e.g. passing `QB_Conditions` or `QB_ConditionsGroup` instance between methods and modify it.
+It allows build conditions in dynamic way. Pass `QB_ConditionsGroup` instance between methods and modify it.
 
 ```java
 new QB_Condition(Schema.SObjectField field)
@@ -138,27 +138,31 @@ public class MyController {
     @AuraEnabled
     public static List<Account> getAccounts() {
         return QS_Account()
-            .withFields(new List<sObjectField>{ Account.Id, Account.Name})
-            .withLimit(100)
-            .withMocking('MyController.getAccounts')
+            .fields(new List<sObjectField>{ Account.Id, Account.Name})
+            .setLimit(100)
+            .mockint('MyController.getAccounts')
             .toList();
     }
 }
 ```
 
 ```java
+public class AccountMock implements QB_Mock {
+    public List<SObject> records() {
+        return new List<Account>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        };
+    }
+}
+
 @isTest
 public class MyControllerTest {
 
     @isTest
     static void getAccounts() {
-        List<Account> accountsToMock = new List<Account>{
-            new Account(Name = 'Test 1'),
-            new Account(Name = 'Test 2')
-        };
-
         Test.startTest();
-        QS_TestMock.set('MyController.getAccounts', accountsToMock);
+        QS_TestMock.setMock('MyController.getAccounts', new AccountMock());
 
         List<Account> accounts = MyController.getAccounts();
         Test.stopTest();
@@ -167,6 +171,7 @@ public class MyControllerTest {
     }
 }
 ```
+
 ## Usage
 
 ```java
@@ -182,8 +187,8 @@ public class MyController {
     @AuraEnabled
     public static List<Account> getAccounts() {
         return QS_Account()
-            .withFields(new List<sObjectField>{ Account.Id, Account.Name})
-            .withLimit(100)
+            .fields(new List<sObjectField>{ Account.Id, Account.Name})
+            .setLimit(100)
             .toList();
     }
 }
@@ -202,8 +207,8 @@ Contact myContact = [SELECT Id, Name FROM Contact WHERE Name = 'invalidName'];
 // Error: List has no rows for assignment to SObject
 
 Contact myContact = new QS_Contact()
-            .withFields(new List<sObjectField>{ Contact.Id, Contact.Name })
-            .withWhere(new QB_Condition(Contact.Name).equal('invalidName'))
+            .fields(new List<sObjectField>{ Contact.Id, Contact.Name })
+            .condition(new QB_Condition(Contact.Name).equal('invalidName'))
             .toObject();
 // null
 ```
