@@ -17,7 +17,7 @@ public class QB_ConditionsGroup extends QB_ConditionClause {
             this.setDefaultOrder();
         }
 
-        return 'WHERE ' + this.buildConditions().replaceFirst('WHERE', '');
+        return 'WHERE ' + this.buildConditions().replaceFirst('WHERE ', '');
     }
 
     public override String validate() {
@@ -86,7 +86,7 @@ public class QB_ConditionsGroup extends QB_ConditionClause {
             formattedConditionsOrder = formattedConditionsOrder.replace(conditionNumber, addSpecialCharacters(conditionNumber));
         }
 
-        return '(' + formattedConditionsOrder + ')'; // e.g (*1* AND (*2* OR *3*))
+        return '(' +formattedConditionsOrder  + ')'; // e.g (*1* AND (*2* OR *3*))
     }
 
     private String addSpecialCharacters(String condition) {

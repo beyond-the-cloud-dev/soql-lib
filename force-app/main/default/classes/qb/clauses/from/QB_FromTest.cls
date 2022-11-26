@@ -4,7 +4,7 @@ public class QB_FromTest {
     @isTest
     static void fromSObject() {
         Test.startTest();
-        String query = new QB('Account').build();
+        String query = new QB_Sub('Account').build();
         Test.stopTest();
 
         Assert.isTrue(query.contains('FROM Account'), 'Query should contains FROM Account');
