@@ -31,6 +31,7 @@ public class QB_Test {
         Account account = (Account) new QB(Account.sObjectType)
             .fields(new List<sObjectField>{ Account.Id, Account.Name })
             .condition(new QB_Condition(Account.Name).likeAnyBoth(ACCOUNT_NAME_1))
+            .preview()
             .toSObject();
 
         Assert.areEqual(ACCOUNT_NAME_1, account.Name, 'Account Name should be equal ' + ACCOUNT_NAME_1);

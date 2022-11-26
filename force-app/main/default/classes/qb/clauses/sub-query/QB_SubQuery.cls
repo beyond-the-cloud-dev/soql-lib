@@ -1,4 +1,4 @@
-public class QB_SubQuery extends QB_QueryClause {
+public with sharing class QB_SubQuery extends QB_QueryClause {
     protected List<QB_QueryClause> queryClauses = new QB_QueryClause[8];
     protected QB_QueryExecutor queryExecutor = null;
 

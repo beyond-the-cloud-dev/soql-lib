@@ -1,7 +1,6 @@
 public class QB_ConditionsGroup extends QB_ConditionClause {
     private List<QB_ConditionClause> queryConditions = new List<QB_ConditionClause>();
     private String conditionOrder = '';
-    Boolean isNested = true;
 
     public QB_ConditionsGroup add(QB_ConditionClause condition) {
         this.queryConditions.add(condition);
@@ -13,28 +12,17 @@ public class QB_ConditionsGroup extends QB_ConditionClause {
         return this;
     }
 
-    public QB_ConditionsGroup top() {
-        this.isNested = false;
-        return this;
-    }
-
     public override String build() {
         if (String.isEmpty(this.conditionOrder)) {
             this.setDefaultOrder();
         }
 
-        String query = '';
-
-        if (!this.isNested) {
-            query += 'WHERE ';
-        }
-
-        return query + this.buildConditions();
+        return 'WHERE ' + this.buildConditions().replaceFirst('WHERE', '');
     }
 
     public override String validate() {
         if (String.isEmpty(this.conditionOrder)) {
-            return this.validateChildren();
+            return this.validateNestedConditions();
         }
 
         String errors = '';
@@ -54,10 +42,10 @@ public class QB_ConditionsGroup extends QB_ConditionClause {
             }
         }
 
-        return errors + this.validateChildren();
+        return errors + this.validateNestedConditions();
     }
 
-    public String validateChildren() {
+    public String validateNestedConditions() {
         String conditionsErrors = '';
 
         for (QB_ConditionClause qc : this.queryConditions) {
