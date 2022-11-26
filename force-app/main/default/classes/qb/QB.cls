@@ -1,89 +1,103 @@
 public inherited sharing virtual class QB extends QB_QueryClause {
-    protected QB_QueryExecutor queryExecutor = null;
-    protected QB_Storage storage = null;
+    private List<QB_QueryClause> queryClauses = new QB_QueryClause[11];
+    private QB_QueryExecutor queryExecutor = null;
 
     public QB(sObjectType fromObject) {
-        this.storage = new QB_Storage(fromObject);
-        this.queryExecutor = new QB_QueryExecutor(fromObject);
-    }
+        this.queryClauses.set(0, new QB_Fields());
+        this.queryClauses.set(2, new QB_From(fromObject));
+        this.queryClauses.set(5, new QB_WithSecurityEnforced(fromObject)); // clause is only supported on top-level queries
 
-    public QB(String fromObject) {
-        this.storage = new QB_Storage(fromObject);
-        this.queryExecutor = new QB_QueryExecutor();
+        this.queryExecutor = new QB_QueryExecutor(fromObject);
     }
 
     // Fields
 
     public QB fields(List<sObjectField> fields) {
-        this.storage.qbFields().add(fields);
+        this.qbFields().add(fields);
         return this;
     }
 
     public QB fields(String commaSeparatedFields) {
-        this.storage.qbFields().add(commaSeparatedFields);
+        this.qbFields().add(commaSeparatedFields);
         return this;
     }
 
     public QB relationship(String relationshipName, List<sObjectField> fields) {
-        this.storage.qbFields().add(relationshipName, fields);
+        this.qbFields().add(relationshipName, fields);
         return this;
+    }
+
+    private QB_Fields qbFields() {
+        return (QB_Fields) get(0, QB_Fields.class);
     }
 
     // SubQuery
 
-    public QB subQuery(QB subQueryBuilder) {
-        this.storage.qbSubQuery().add(subQueryBuilder);
+    public QB subQuery(QB_SubQuery subQueryBuilder) {
+        this.qbSubQuery().add(subQueryBuilder);
         return this;
+    }
+
+    private QB_SubQueries qbSubQuery() {
+        return (QB_SubQueries) get(2, QB_SubQueries.class);
     }
 
     // Scope
 
     public QB delegatedScope() {
-        this.storage.qbScope().withDelegated();
+        this.qbScope().withDelegated();
         return this;
     }
 
     public QB mineScope() {
-        this.storage.qbScope().withMine();
+        this.qbScope().withMine();
         return this;
     }
 
     public QB mineAndMyGroupsScope() {
-        this.storage.qbScope().withMineAndMyGroups();
+        this.qbScope().withMineAndMyGroups();
         return this;
     }
 
     public QB myTerritoryScope() {
-        this.storage.qbScope().withMyTerritory();
+        this.qbScope().withMyTerritory();
         return this;
     }
 
     public QB myTeamTerritoryScope() {
-        this.storage.qbScope().withMyTeamTerritory();
+        this.qbScope().withMyTeamTerritory();
         return this;
     }
 
     public QB teamScope() {
-        this.storage.qbScope().withTeam();
+        this.qbScope().withTeam();
         return this;
+    }
+
+    private QB_Scope qbScope() {
+        return (QB_Scope) get(3, QB_Scope.class);
     }
 
     // Where
 
     public QB condition(QB_ConditionClause conditionClause) {
-        this.storage.qbConditions().add(conditionClause);
+        this.qbConditions().add(conditionClause);
         return this;
     }
 
     public QB conditionsOrder(String conditionsOrder) {
-        this.storage.qbConditions().order(conditionsOrder);
+        this.qbConditions().order(conditionsOrder);
         return this;
+    }
+
+    private QB_ConditionsGroup qbConditions() {
+        return (QB_ConditionsGroup) get(4, QB_ConditionsGroup.class);
     }
 
     // Security
 
     public QB withoutSecurityEnforced() {
-        this.storage.removeSecurityEnforced();
+        this.queryClauses.set(5, null);
         return this;
     }
 
@@ -100,81 +114,101 @@ public inherited sharing virtual class QB extends QB_QueryClause {
     // Group By
 
     public QB groupBy(sObjectField field) {
-        this.storage.qbGroupBy().add(field);
+        this.qbGroupBy().add(field);
         return this;
     }
 
     public QB groupBy(List<sObjectField> fields) {
-        this.storage.qbGroupBy().add(fields);
+        this.qbGroupBy().add(fields);
         return this;
+    }
+
+    private QB_GroupBy qbGroupBy() {
+        return (QB_GroupBy) get(6, QB_GroupBy.class);
     }
 
     // Order By
 
     public QB ascOrder(sObjectField field) {
-        this.storage.qbOrderBy().setField(field).setAscOrder();
+        this.qbOrderBy().setField(field).setAscOrder();
         return this;
     }
 
     public QB ascOrder(String field) {
-        this.storage.qbOrderBy().setField(field).setAscOrder();
+        this.qbOrderBy().setField(field).setAscOrder();
         return this;
     }
 
     public QB descOrder(sObjectField field) {
-        this.storage.qbOrderBy().setField(field).setDescOrder();
+        this.qbOrderBy().setField(field).setDescOrder();
         return this;
     }
 
     public QB descOrder(String field) {
-        this.storage.qbOrderBy().setField(field).setDescOrder();
+        this.qbOrderBy().setField(field).setDescOrder();
         return this;
     }
 
     public QB nullFirst() {
-        this.storage.qbOrderBy().setNullsFirstOrder();
+        this.qbOrderBy().setNullsFirstOrder();
         return this;
     }
 
     public QB nullLast() {
-        this.storage.qbOrderBy().setNullsLastOrder();
+        this.qbOrderBy().setNullsLastOrder();
         return this;
+    }
+
+    private QB_OrderBy qbOrderBy() {
+        return (QB_OrderBy) get(7, QB_OrderBy.class);
     }
 
     // Limit
 
     public QB setLimit(Integer soqlLimit) {
-        this.storage.qbLimit().set(soqlLimit);
+        this.qbLimit().set(soqlLimit);
         return this;
+    }
+
+    private QB_Limit qbLimit() {
+        return (QB_Limit) get(8, QB_Limit.class);
     }
 
     // Offset
 
     public QB setOffset(Integer soqlOffset) {
-        this.storage.qbOffset().set(soqlOffset);
+        this.qbOffset().set(soqlOffset);
         return this;
+    }
+
+    private QB_Offset qbOffset() {
+        return (QB_Offset) get(9, QB_Offset.class);
     }
 
     // For
 
     public QB forReference() {
-        this.storage.qbFor().withForReferece();
+        this.qbFor().withForReferece();
         return this;
     }
 
     public QB forView() {
-        this.storage.qbFor().withForView();
+        this.qbFor().withForView();
         return this;
     }
 
     public QB forUpdate() {
-        this.storage.qbFor().withForUpdate();
+        this.qbFor().withForUpdate();
         return this;
     }
 
     public QB allRows() {
-        this.storage.qbFor().withAllRows();
+        this.qbFor().withAllRows();
         return this;
+    }
+
+    private QB_For qbFor() {
+        return (QB_For) get(10, QB_For.class);
     }
 
     // Mocking
@@ -203,12 +237,21 @@ public inherited sharing virtual class QB extends QB_QueryClause {
 
     // Helpers
 
+    public QB_QueryClause get(Integer index, System.Type queryClauseClass) {
+        QB_QueryClause qc = this.queryClauses.get(index);
+        if (qc == null) {
+            qc = (QB_QueryClause) queryClauseClass.newInstance();
+            this.queryClauses.set(index, qc);
+        }
+        return qc;
+    }
+
     public override String build() {
         this.validate();
 
         List<String> clauses = new List<String>();
 
-        for (QB_QueryClause clause : this.storage.queryClauses) {
+        for (QB_QueryClause clause : this.queryClauses) {
             if (clause == null) {
                 continue;
             }
@@ -221,7 +264,7 @@ public inherited sharing virtual class QB extends QB_QueryClause {
     public override String validate() {
         String queryErrors = '';
 
-        for (QB_QueryClause clause : this.storage.queryClauses) {
+        for (QB_QueryClause clause : this.queryClauses) {
             if (clause == null) {
                 continue;
             }

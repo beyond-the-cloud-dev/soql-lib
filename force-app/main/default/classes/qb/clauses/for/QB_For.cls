@@ -1,5 +1,4 @@
 public class QB_For extends QB_QueryClause {
-
     private enum ForStatements {
         FOR_REFERENCE,
         FOR_VIEW,

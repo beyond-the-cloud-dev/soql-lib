@@ -1,5 +1,4 @@
 public class QB_Fields extends QB_QueryClause {
-
     private Set<String> fieldsToQuery = new Set<String>{ 'Id' };
 
     public QB_Fields add(String commaSeparatedFields) {
