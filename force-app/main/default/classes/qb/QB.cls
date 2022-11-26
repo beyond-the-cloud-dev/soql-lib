@@ -39,7 +39,7 @@ public inherited sharing virtual class QB extends QB_QueryClause {
     }
 
     private QB_SubQueries qbSubQuery() {
-        return (QB_SubQueries) get(2, QB_SubQueries.class);
+        return (QB_SubQueries) get(1, QB_SubQueries.class);
     }
 
     // Scope
