@@ -33,7 +33,7 @@ public inherited sharing virtual class QB extends QB_QueryClause {
 
     // SubQuery
 
-    public QB subQuery(QB_SubQuery subQueryBuilder) {
+    public QB subQuery(QB_Sub subQueryBuilder) {
         this.qbSubQuery().add(subQueryBuilder);
         return this;
     }

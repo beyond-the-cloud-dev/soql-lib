@@ -1,8 +1,8 @@
-public with sharing class QB_SubQuery extends QB_QueryClause {
+public with sharing class QB_Sub extends QB_QueryClause {
     protected List<QB_QueryClause> queryClauses = new QB_QueryClause[8];
     protected QB_QueryExecutor queryExecutor = null;
 
-    public QB_SubQuery(String fromObject) {
+    public QB_Sub(String fromObject) {
         this.queryClauses.set(0, new QB_Fields());
         this.queryClauses.set(1, new QB_From(fromObject));
 
@@ -11,17 +11,17 @@ public with sharing class QB_SubQuery extends QB_QueryClause {
 
     // Fields
 
-    public QB_SubQuery fields(List<sObjectField> fields) {
+    public QB_Sub fields(List<sObjectField> fields) {
         this.qbFields().add(fields);
         return this;
     }
 
-    public QB_SubQuery fields(String commaSeparatedFields) {
+    public QB_Sub fields(String commaSeparatedFields) {
         this.qbFields().add(commaSeparatedFields);
         return this;
     }
 
-    public QB_SubQuery relationship(String relationshipName, List<sObjectField> fields) {
+    public QB_Sub relationship(String relationshipName, List<sObjectField> fields) {
         this.qbFields().add(relationshipName, fields);
         return this;
     }
@@ -32,12 +32,12 @@ public with sharing class QB_SubQuery extends QB_QueryClause {
 
     // Where
 
-    public QB_SubQuery condition(QB_ConditionClause conditionClause) {
+    public QB_Sub condition(QB_ConditionClause conditionClause) {
         this.qbConditions().add(conditionClause);
         return this;
     }
 
-    public QB_SubQuery conditionsOrder(String conditionsOrder) {
+    public QB_Sub conditionsOrder(String conditionsOrder) {
         this.qbConditions().order(conditionsOrder);
         return this;
     }
@@ -48,12 +48,12 @@ public with sharing class QB_SubQuery extends QB_QueryClause {
 
     // Group By
 
-    public QB_SubQuery groupBy(sObjectField field) {
+    public QB_Sub groupBy(sObjectField field) {
         this.qbGroupBy().add(field);
         return this;
     }
 
-    public QB_SubQuery groupBy(List<sObjectField> fields) {
+    public QB_Sub groupBy(List<sObjectField> fields) {
         this.qbGroupBy().add(fields);
         return this;
     }
@@ -64,32 +64,32 @@ public with sharing class QB_SubQuery extends QB_QueryClause {
 
     // Order By
 
-    public QB_SubQuery ascOrder(sObjectField field) {
+    public QB_Sub ascOrder(sObjectField field) {
         this.qbOrderBy().setField(field).setAscOrder();
         return this;
     }
 
-    public QB_SubQuery ascOrder(String field) {
+    public QB_Sub ascOrder(String field) {
         this.qbOrderBy().setField(field).setAscOrder();
         return this;
     }
 
-    public QB_SubQuery descOrder(sObjectField field) {
+    public QB_Sub descOrder(sObjectField field) {
         this.qbOrderBy().setField(field).setDescOrder();
         return this;
     }
 
-    public QB_SubQuery descOrder(String field) {
+    public QB_Sub descOrder(String field) {
         this.qbOrderBy().setField(field).setDescOrder();
         return this;
     }
 
-    public QB_SubQuery nullFirst() {
+    public QB_Sub nullFirst() {
         this.qbOrderBy().setNullsFirstOrder();
         return this;
     }
 
-    public QB_SubQuery nullLast() {
+    public QB_Sub nullLast() {
         this.qbOrderBy().setNullsLastOrder();
         return this;
     }
@@ -100,7 +100,7 @@ public with sharing class QB_SubQuery extends QB_QueryClause {
 
     // Limit
 
-    public QB_SubQuery setLimit(Integer soqlLimit) {
+    public QB_Sub setLimit(Integer soqlLimit) {
         this.qbLimit().set(soqlLimit);
         return this;
     }
@@ -111,7 +111,7 @@ public with sharing class QB_SubQuery extends QB_QueryClause {
 
     // Offset
 
-    public QB_SubQuery setOffset(Integer soqlOffset) {
+    public QB_Sub setOffset(Integer soqlOffset) {
         this.qbOffset().set(soqlOffset);
         return this;
     }
@@ -122,12 +122,12 @@ public with sharing class QB_SubQuery extends QB_QueryClause {
 
     // For
 
-    public QB_SubQuery forReference() {
+    public QB_Sub forReference() {
         this.qbFor().withForReferece();
         return this;
     }
 
-    public QB_SubQuery forView() {
+    public QB_Sub forView() {
         this.qbFor().withForView();
         return this;
     }

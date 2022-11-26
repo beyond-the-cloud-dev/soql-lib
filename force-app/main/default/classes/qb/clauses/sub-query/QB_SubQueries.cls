@@ -1,7 +1,7 @@
 public with sharing class QB_SubQueries extends QB_QueryClause {
-    private List<QB_SubQuery> subQueries = new List<QB_SubQuery>();
+    private List<QB_Sub> subQueries = new List<QB_Sub>();
 
-    public QB_SubQueries add(QB_SubQuery subQueryBuilder) {
+    public QB_SubQueries add(QB_Sub subQueryBuilder) {
         this.subQueries.add(subQueryBuilder);
         return this;
     }
@@ -9,7 +9,7 @@ public with sharing class QB_SubQueries extends QB_QueryClause {
     public override String build() {
         List<String> subQueriesSoql = new List<String>();
 
-        for (QB_SubQuery qbBuilder : subQueries) {
+        for (QB_Sub qbBuilder : subQueries) {
             subQueriesSoql.add(
                 '(' + qbBuilder.build() + ')'
             );

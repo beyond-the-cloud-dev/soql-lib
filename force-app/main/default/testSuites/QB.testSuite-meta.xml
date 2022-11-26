@@ -8,7 +8,7 @@
     <testClassName>QB_OffsetTest</testClassName>
     <testClassName>QB_OrderByTest</testClassName>
     <testClassName>QB_ScopeTest</testClassName>
-    <testClassName>QB_SubQueryTest</testClassName>
+    <testClassName>QB_SubTest</testClassName>
     <testClassName>QB_WithSecurityEnforceTest</testClassName>
     <testClassName>QB_ConditionTest</testClassName>
     <testClassName>QB_ConditionsGroupTest</testClassName>
