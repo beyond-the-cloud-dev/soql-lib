@@ -140,7 +140,7 @@ public class MyController {
         return QS_Account()
             .fields(new List<sObjectField>{ Account.Id, Account.Name})
             .setLimit(100)
-            .mockint('MyController.getAccounts')
+            .mocking('MyController.getAccounts')
             .toList();
     }
 }
