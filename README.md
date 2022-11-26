@@ -51,8 +51,8 @@ Classes needs to implement:
 
 Developer should use:
 - `QS_ObjectA.cls` - to build SOQL.
-- `QB_ConditionsGroup.cls`, `QB_Conditions.cls`, `QB_Condition.cls` - to prepare conditions.
-- `QB_TestMock.cls` - to mock query results in unit tests.
+- `QB_ConditionsGroup.cls`, `QB_Condition.cls` - to prepare conditions.
+- `QB_TestMock.cls`, `QB_Mock.cls` - to mock query results in unit tests.
 
 ```java
 new QB(sObjectType)
