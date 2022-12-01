@@ -1,1 +1,3 @@
-public abstract class QB_ConditionClause extends QB_QueryClause {}
+public interface QB_ConditionClause {
+    String build(QB_QueryExecutor executor);
+}

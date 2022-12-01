@@ -1,4 +1,4 @@
-public class QB_Fields extends QB_QueryClause {
+public class QB_Fields implements QB_QueryClause {
     private Set<String> fieldsToQuery = new Set<String>{ 'Id' };
 
     public QB_Fields add(String commaSeparatedFields) {
@@ -20,7 +20,7 @@ public class QB_Fields extends QB_QueryClause {
         return this;
     }
 
-    public override String build() {
+    public String build(QB_QueryExecutor executor) {
         return 'SELECT ' + String.join(new List<String>(this.fieldsToQuery), ', ');
     }
 }

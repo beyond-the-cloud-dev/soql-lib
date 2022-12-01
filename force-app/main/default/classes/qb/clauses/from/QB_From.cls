@@ -1,4 +1,4 @@
-public class QB_From extends QB_QueryClause {
+public class QB_From implements QB_QueryClause {
     private String objectApiName;
 
     public QB_From(sObjectType objectType) {
@@ -10,7 +10,7 @@ public class QB_From extends QB_QueryClause {
         this.objectApiName = objectApiName;
     }
 
-    public override String build() {
+    public String build(QB_QueryExecutor executor) {
         return 'FROM ' + objectApiName;
     }
 }

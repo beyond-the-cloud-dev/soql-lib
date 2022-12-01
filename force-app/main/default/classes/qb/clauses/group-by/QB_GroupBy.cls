@@ -1,4 +1,4 @@
-public class QB_GroupBy extends QB_QueryClause {
+public class QB_GroupBy implements QB_QueryClause {
 
     private Set<String> groupByFields = new Set<String>();
 
@@ -12,7 +12,7 @@ public class QB_GroupBy extends QB_QueryClause {
         this.groupByFields.add(field.getDescribe().getName());
     }
 
-    public override String build() {
+    public String build(QB_QueryExecutor executor) {
         return 'GROUP BY ' + String.join(new List<String>(this.groupByFields), ', ');
     }
 }

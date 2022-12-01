@@ -1,4 +1,4 @@
-public class QB_For extends QB_QueryClause {
+public class QB_For implements QB_QueryClause {
     private enum ForStatements {
         FOR_REFERENCE,
         FOR_VIEW,
@@ -29,7 +29,7 @@ public class QB_For extends QB_QueryClause {
         return this;
     }
 
-    public override String build() {
+    public String build(QB_QueryExecutor executor) {
         return this.forStatement.name().replace('_', ' ');
     }
 }

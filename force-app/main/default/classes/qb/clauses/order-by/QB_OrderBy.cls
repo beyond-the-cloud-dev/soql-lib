@@ -1,4 +1,4 @@
-public class QB_OrderBy extends QB_QueryClause {
+public class QB_OrderBy implements QB_QueryClause {
 
     private static final String ASC_ORDER = 'ASC';
     private static final String DESC_ORDER = 'DESC';
@@ -26,11 +26,6 @@ public class QB_OrderBy extends QB_QueryClause {
         return this.setResultOrder(DESC_ORDER);
     }
 
-    private QB_OrderBy setResultOrder(String sortingOrder) {
-        this.sortingOrder = sortingOrder;
-        return this;
-    }
-
     public QB_OrderBy setNullsFirstOrder() {
         return this.setNullsOrder(FIRST);
     }
@@ -39,12 +34,17 @@ public class QB_OrderBy extends QB_QueryClause {
         return this.setNullsOrder(LAST);
     }
 
+    private QB_OrderBy setResultOrder(String sortingOrder) {
+        this.sortingOrder = sortingOrder;
+        return this;
+    }
+
     private QB_OrderBy setNullsOrder(String nullsOrder) {
         this.nullsOrder = nullsOrder;
         return this;
     }
 
-    public override String build() {
+    public String build(QB_QueryExecutor executor) {
         String orderByStatement = 'ORDER BY ' + this.sortingField + ' ' + this.sortingOrder;
 
         if (String.isNotEmpty(this.nullsOrder)) {

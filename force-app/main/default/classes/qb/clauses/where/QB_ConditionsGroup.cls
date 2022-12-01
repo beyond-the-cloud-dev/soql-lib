@@ -1,58 +1,27 @@
-public class QB_ConditionsGroup extends QB_ConditionClause {
+public class QB_ConditionsGroup implements QB_ConditionClause, QB_QueryClause {
     private List<QB_ConditionClause> queryConditions = new List<QB_ConditionClause>();
     private String conditionOrder = '';
 
-    public QB_ConditionsGroup add(QB_ConditionClause condition) {
+    public QB_ConditionsGroup condition(QB_ConditionClause condition) {
         this.queryConditions.add(condition);
         return this;
     }
 
-    public QB_ConditionsGroup order(String conditionsOrder) {
+    public QB_ConditionsGroup conditionsOrder(String conditionsOrder) {
         this.conditionOrder = conditionsOrder;
         return this;
     }
 
-    public override String build() {
+    public String build() {
+        if (this.queryConditions.isEmpty()) {
+            return '';
+        }
+
         if (String.isEmpty(this.conditionOrder)) {
             this.setDefaultOrder();
         }
 
-        return 'WHERE ' + this.buildConditions().replaceFirst('WHERE ', '');
-    }
-
-    public override String validate() {
-        if (String.isEmpty(this.conditionOrder)) {
-            return this.validateNestedConditions();
-        }
-
-        String errors = '';
-
-        if (!Pattern.matches('(OR|AND|\\ |\\d|\\(|\\))+', this.conditionOrder)) {
-            errors += 'Invalid condition order. You are allowed to use only (, ), numbers, AND, OR. \n';
-        }
-
-        if (this.conditionOrder.countMatches('(') != this.conditionOrder.countMatches(')')) {
-            errors += 'Invalid condition order. Missing open or close bracket. \n';
-        }
-
-        for (Integer i = 0; i < this.queryConditions.size(); i++) {
-            if (!this.conditionOrder.contains(String.valueOf(i + 1))) {
-                errors += 'Invalid condition order. Condition order not contains all conditions. \n';
-                break;
-            }
-        }
-
-        return errors + this.validateNestedConditions();
-    }
-
-    public String validateNestedConditions() {
-        String conditionsErrors = '';
-
-        for (QB_ConditionClause qc : this.queryConditions) {
-            conditionsErrors += qc.validate();
-        }
-
-        return conditionsErrors;
+        return 'WHERE ' + this.buildConditions(executor).replaceFirst('WHERE ', '');
     }
 
     private void setDefaultOrder() {
@@ -65,13 +34,13 @@ public class QB_ConditionsGroup extends QB_ConditionClause {
         this.conditionOrder = '(' + String.join(defaultConditionsOrder, ' AND ') + ')';
     }
 
-    private String buildConditions() {
+    private String buildConditions(QB_QueryExecutor executor) {
         String finalCondition = addSpecialCharactersToOrder(); // e.g (*1* AND (*2* OR *3*))
 
         for (Integer i = 0; i < this.queryConditions.size(); i++) {
             String formattedConditionNumber = addSpecialCharacters(String.valueOf(i + 1)); // e.g *1*
 
-            finalCondition = finalCondition.replace(formattedConditionNumber, this.queryConditions.get(i).build());
+            finalCondition = finalCondition.replace(formattedConditionNumber, this.queryConditions.get(i).build(executor));
         }
 
         return finalCondition;

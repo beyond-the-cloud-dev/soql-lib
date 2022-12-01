@@ -1,4 +1,4 @@
-public class QB_Scope extends QB_QueryClause {
+public class QB_Scope implements QB_QueryClause {
     private enum FilterScope { // https://developer.salesforce.com/docs/atlas.en-us.236.0.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_using_scope.htm
         DELEGATED,
         EVERYTHING,
@@ -40,7 +40,7 @@ public class QB_Scope extends QB_QueryClause {
         return this;
     }
 
-    public override String build() {
+    public String build(QB_QueryExecutor executor) {
         return 'USING SCOPE ' + this.scope.name();
     }
 }
