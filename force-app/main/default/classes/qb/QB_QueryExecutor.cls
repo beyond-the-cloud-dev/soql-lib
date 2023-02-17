@@ -6,7 +6,7 @@ public inherited sharing class QB_QueryExecutor {
 
     private SharingMode mode = SharingMode.INHERITED;
 
-    public List<Object> valuesToBind = new List<Object>();
+    public Map<String, Object> binding = new Map<String, Object>();
 
     private final Map<SharingMode, System.Type> MODE_TO_EXECUTOR = new Map<SharingMode, System.Type>{
         sharingMode.WITH_SHARING => WithSharing.class,
@@ -37,7 +37,8 @@ public inherited sharing class QB_QueryExecutor {
     }
 
     public void preview() {
-        System.debug('\n\n============ Query Preview ============\n\n' + this.getSoql() + '\n=======================================\n');
+        System.debug('\n\n============ Query Preview ============\n' + this.getSoql() + '\n=======================================\n');
+        System.debug('\n\n============ Query Variables ============\n' + JSON.SerializePretty(this.binding) + '\n=======================================\n');
     }
 
     public String getSoql() {
@@ -45,9 +46,11 @@ public inherited sharing class QB_QueryExecutor {
     }
 
     public String bindVariable(Object variable) {
-        this.valuesToBind.add(variable);
+        String bindingName = 'binding' + String.valueof(this.binding.size() - 1);
 
-        return 'binding' + String.valueof(this.valuesToBind.size() - 1);
+        this.binding.put(bindingName, variable);
+
+        return bindingName;
     }
 
     public sObject toSObject() {
@@ -69,60 +72,40 @@ public inherited sharing class QB_QueryExecutor {
 
         DatabaseQuery dq = (DatabaseQuery) MODE_TO_EXECUTOR.get(this.mode).newInstance();
 
-        dq.setValuesToBind(this.valuesToBind);
+        dq.setValuesToBind(this.binding);
 
         return dq.executeQuery(soqlQuery);
     }
 
     private abstract class DatabaseQuery {
-        protected Object binding0;
-        protected Object binding1;
-        protected Object binding2;
-        protected Object binding3;
-        protected Object binding4;
-        protected Object binding5;
-        protected Object binding6;
-        protected Object binding7;
-        protected Object binding8;
-        protected Object binding9;
+        protected Map<String, Object> binding = new Map<String, Object>();
 
         public abstract List<sObject> executeQuery(String query);
 
-        public void setValuesToBind(List<Object> valuesToBind) {
-            if (!valuesToBind.isEmpty()) {
+        public void setValuesToBind(Map<String, Object> binding) {
+            if (!binding.isEmpty()) {
                 return;
             }
 
-            valuesToBind.addAll(new List<Object>(10 - valuesToBind.size()));
-
-            this.binding0 = valuesToBind.get(0);
-            this.binding1 = valuesToBind.get(1);
-            this.binding2 = valuesToBind.get(2);
-            this.binding3 = valuesToBind.get(3);
-            this.binding4 = valuesToBind.get(4);
-            this.binding5 = valuesToBind.get(5);
-            this.binding6 = valuesToBind.get(6);
-            this.binding7 = valuesToBind.get(7);
-            this.binding8 = valuesToBind.get(8);
-            this.binding9 = valuesToBind.get(9);
+            this.binding = binding;
         }
     }
 
     private inherited sharing class InheritedSharing extends DatabaseQuery {
         public override List<sObject> executeQuery(String query) {
-            return Database.query(query);
+            return Database.queryWithBinds(query, binding, AccessLevel.USER_MODE);
         }
     }
 
     private without sharing class WithoutSharing extends DatabaseQuery {
         public override List<sObject> executeQuery(String query) {
-            return Database.query(query);
+            return Database.queryWithBinds(query, binding, AccessLevel.USER_MODE);
         }
     }
 
     private with sharing class WithSharing extends DatabaseQuery {
         public override List<sObject> executeQuery(String query) {
-            return Database.query(query);
+            return Database.queryWithBinds(query, binding, AccessLevel.USER_MODE);
         }
     }
 }
