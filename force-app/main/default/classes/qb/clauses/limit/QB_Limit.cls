@@ -1,11 +1,11 @@
 public class QB_Limit implements QB_QueryClause {
     private Integer soqlLimit;
 
-    public void set(Integer soqlLimit) {
-        this.soqlLimit = soqlLimit;
+    public QB_Limit(Integer soqlLimit) {
+        soqlLimit = soqlLimit;
     }
 
-    public String build(QB_QueryExecutor executor) {
+    public String build() {
         return 'LIMIT ' + this.soqlLimit;
     }
 }

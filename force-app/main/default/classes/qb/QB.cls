@@ -12,6 +12,12 @@ public inherited sharing virtual class QB implements QB_QueryClause {
         this.queryClauses.set(2, new QB_From(fromObject));
     }
 
+
+    public QB fieldsAdd(List<sObjectField> fields) {
+        this.qbFields().add(fields);
+        return this;
+    }
+
     // Fields
 
     public QB_Fields qbFields() {

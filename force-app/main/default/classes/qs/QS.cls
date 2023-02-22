@@ -2,9 +2,17 @@ public inherited sharing abstract class QS {
     private QB soqlBuilder;
     private QB_QueryExecutor soqlExecutor;
 
-    public QS(sObjectType objectType) {
+    private QS(sObjectType objectType) {
         this.soqlBuilder = new QB(objectType);
         this.soqlExecutor = new QB_QueryExecutor(this.soqlBuilder);
+    }
+
+    protected sObject getSObjectsById(Id recordId) {
+        return this.condition(new QB_Condition().equal(recordId)).toSObject();
+    }
+
+    protected List<sObject> getSObjectsByIds(List<Id> recordIds) {
+        return this.condition(new QB_Condition().inCollection(recordIds)).toSObjects();
     }
 
     // Fields

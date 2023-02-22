@@ -11,36 +11,35 @@ public class QB_Scope implements QB_QueryClause {
 
     private FilterScope scope = FilterScope.EVERYTHING;
 
-    public QB_Scope withDelegated() {
-        return this.setScope(FilterScope.DELEGATED);
+    public void delegated() {
+        scope(FilterScope.DELEGATED);
     }
 
-    public QB_Scope withMine() {
-        return this.setScope(FilterScope.MINE);
+    public void mine() {
+        scope(FilterScope.MINE);
     }
 
-    public QB_Scope withMineAndMyGroups() {
-        return this.setScope(FilterScope.MINE_AND_MY_GROUPS);
+    public void mineAndMyGroups() {
+        scope(FilterScope.MINE_AND_MY_GROUPS);
     }
 
-    public QB_Scope withMyTerritory() {
-        return this.setScope(FilterScope.MY_TERRITORY);
+    public void myTerritory() {
+        scope(FilterScope.MY_TERRITORY);
     }
 
-    public QB_Scope withMyTeamTerritory() {
-        return this.setScope(FilterScope.MY_TEAM_TERRITORY);
+    public void myTeamTerritory() {
+        scope(FilterScope.MY_TEAM_TERRITORY);
     }
 
-    public QB_Scope withTeam() {
-        return this.setScope(FilterScope.TEAM);
+    public void team() {
+        scope(FilterScope.TEAM);
     }
 
-    private QB_Scope setScope(FilterScope scope) {
+    private void scope(FilterScope scope) {
         this.scope = scope;
-        return this;
     }
 
-    public String build(QB_QueryExecutor executor) {
+    public String build() {
         return 'USING SCOPE ' + this.scope.name();
     }
 }

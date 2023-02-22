@@ -90,10 +90,16 @@ public class QB_Condition implements QB_ConditionClause {
     }
 
     public String build(QB_QueryExecutor executor) {
-        String condition = this.fieldName + ' ' + this.comperator + ' :';
         if (this.joinQuery != null) {
-            return condition + joinQuery.build(executor);
+            return this.fieldName + ' ' + this.comperator + ' (' + joinQuery.build(executor) + ')';
         }
-        return condition + executor.bindVariable(this.value);
+        return this.fieldName + ' ' + this.comperator + ' :' + executor.bindVariable(this.value);
     }
+}
+
+
+public class QB {
+
+    public QB_MainCondition Conditions = new QQB_MainConditionB_Condition();
+
 }

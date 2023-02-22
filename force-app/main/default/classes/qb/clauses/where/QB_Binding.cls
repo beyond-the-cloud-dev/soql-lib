@@ -21,16 +21,18 @@ public with sharing class QB_Binding {
 }
 
 
-// System.debug(
-//     new QB(Account.sObjectType)
-//         .condition(new QB_Condition(Account.Name).equal('Test 1'))
-//         .condition(new QB_Condition(Account.Name).equal('Test 2'))
-//         .condition(new QB_Condition(Account.Name).equal('Test 2'))
-//         .condition(
-//             new QB_ConditionsGroup()
-//             .condition(new QB_Condition(Account.Name).equal('Test 1'))
-//             .condition(new QB_Condition(Account.Name).equal('Test 2'))
-//         )
-//         .conditionsOrder('1 OR 2 OR 3 OR 4')
-// );
-// System.debug(new QB(Account.sObjectType).condition(new QB_Condition(Account.Name).equal('Test 1')).build());
+System.debug(
+    new QB(Account.sObjectType)
+        .condition(new QB_Condition(Account.Name).equal('Test 1'))
+        .condition(new QB_Condition(Account.Name).equal('Test 2'))
+        .condition(new QB_Condition(Account.Name).equal('Test 2'))
+        .condition(
+            new QB_ConditionsGroup()
+            .condition(new QB_Condition(Account.Name).equal('Test 1'))
+            .condition(new QB_Condition(Account.Name).equal('Test 2'))
+        )
+        .conditionsOrder('1 OR 2 OR 3 OR 4')
+);
+System.debug(new QB(Account.sObjectType).condition(new QB_Condition(Account.Name).equal('Test 1')).build());
+
+(1 or 2 or(1 Or 2))

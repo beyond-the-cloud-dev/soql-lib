@@ -8,8 +8,8 @@ public with sharing class QB_Join implements QB_QueryClause {
 
     // Fields
 
-    public QB_Join fields(sObjectField fields) {
-        this.soqlBuilder.qbFields().add(new List<sObjectField>{ fields });
+    public QB_Join field(sObjectField field) {
+        this.soqlBuilder.qbFields().add(new List<sObjectField>{ field });
         return this;
     }
 
