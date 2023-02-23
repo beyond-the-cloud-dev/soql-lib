@@ -1,4 +1,4 @@
-public inherited sharing class QB_Execution {
+public inherited sharing class QBE {
     private enum SharingMode {
         INHERITED,
         WITH_SHARING,

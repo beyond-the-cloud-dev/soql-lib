@@ -1,5 +1,6 @@
 public inherited sharing class QS {
     private QB qb;
+    private QBE qbe;
 
     public static QS of(sObjectType ofObject) {
         return new QS(ofObject);
@@ -7,6 +8,7 @@ public inherited sharing class QS {
 
     private QS(sObjectType ofObject) {
         qb = new QB(ofObject);
+        qbe = new QBE();
     }
 
     // Fields
@@ -159,13 +161,13 @@ public inherited sharing class QS {
         return this;
     }
 
-    public QS intheritedSharing() {
-        //TODO Moze to powinno być by default?
+    public QS withSharing() {
+        qbe.withSharing();
         return this;
     }
 
     public QS withoutSharing() {
-        //TODO
+        qbe.withoutSharing();
         return this;
     }
 
