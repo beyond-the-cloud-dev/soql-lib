@@ -1,18 +1,24 @@
 public class QS {
     private List<QB_QueryClause> clauses = new QB_QueryClause[11];
+    private QC config;
 
     public static QS of(sObjectType ofObject) {
         return new QS(ofObject);
     }
 
     private QS(sObjectType ofObject) {
-        clauses.set(2, QC.QFrom.of(ofObject));
+        config = new QC(ofObject);
     }
 
     // Fields
 
     public QS fields(List<sObjectField> fields) {
-        clauses.set(0, QC.Fields.add(fields));
+        config.fields.retrive(fields);
+        return this;
+    }
+
+    public QS relatedFields(String relationshipPath, List<sObjectField> fields) {
+        config.fields.retrive(relationshipPath, fields);
         return this;
     }
 
@@ -25,31 +31,32 @@ public class QS {
     // Scope
 
     public QS delegatedScope() {
-        return scope(QC.Scope.delegated());
+        config.scope.delegated();
+        return this;
     }
 
     public QS mineScope() {
-        return scope(QC.Scope.mine());
+        config.scope.mine();
+        return this;
     }
 
     public QS mineAndMyGroupsScope() {
-        return scope(QC.Scope.mineAndMyGroups());
+        config.scope.mineAndMyGroups();
+        return this;
     }
 
     public QS myTerritoryScope() {
-        return scope(QC.Scope.myTerritory());
+        config.scope.myTerritory();
+        return this;
     }
 
     public QS myTeamTerritoryScope() {
-        return scope(QC.Scope.myTeamTerritory());
+        config.scope.myTeamTerritory();
+        return this;
     }
 
     public QS teamScope() {
-        return scope(QC.Scope.team());
-    }
-
-    private QS scope(QC.QB_Scope scope) {
-        clauses.set(3, scope);
+        config.scope.team();
         return this;
     }
 
@@ -80,12 +87,12 @@ public class QS {
     // Order By
 
     public QS orderBy(sObjectField field) {
-        // clauses.set(7, orderBy);
+        config.orderBy.field(field);
         return this;
     }
 
     public QS orderBy(List<sObjectField> fields) {
-        // clauses.set(7, orderBy);
+        config.orderBy.fields(fields);
         return this;
     }
 
@@ -95,55 +102,58 @@ public class QS {
     }
 
     public QS sortAsc() {
+        config.orderBy.sortAsc();
         return this;
     }
 
     public QS sortDesc() {
+        config.orderBy.sortDesc();
         return this;
     }
 
     public QS nullsFirst() {
+        config.orderBy.nullsFirst();
         return this;
     }
 
     public QS nullsLast() {
+        config.orderBy.nullsLast();
         return this;
     }
 
     // Limit
 
-    public QS setLimit(Integer soqlLimit) {
-        clauses.set(8, QC.QLimit.set(soqlLimit));
+    public QS setLimit(Integer amount) {
+        config.soqlLimit.max(amount);
         return this;
     }
 
     // Offset
 
-    public QS setOffset(Integer soqlOffset) {
-        clauses.set(9, QC.QOffset.set(soqlOffset));
+    public QS setOffset(Integer startingRow) {
+        config.soqlOffset.fromRow(startingRow);
         return this;
     }
 
     // For
 
     public QS forReference() {
-        return setFor(QC.QFor.forReference());
+        config.soqlFor.forReference();
+        return this;
     }
 
     public QS forView() {
-        return setFor(QC.QFor.forView());
+        config.soqlFor.forView();
+        return this;
     }
 
     public QS forUpdate() {
-        return setFor(QC.QFor.forUpdate());
+        config.soqlFor.forUpdate();
+        return this;
     }
 
     public QS allRows() {
-        return setFor(QC.QFor.allRows());
-    }
-
-    private QS setFor(QC.QB_For qFor) {
-        clauses.set(10, qFor);
+        config.soqlFor.allRows();
         return this;
     }
 
