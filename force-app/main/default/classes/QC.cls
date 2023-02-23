@@ -13,7 +13,7 @@ public with sharing class QC {
         }
     }
 
-    // 1 - subQuery
+    // 1 - SUB-QUERY
 
     // 2 - FROM
 

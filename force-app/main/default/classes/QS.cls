@@ -168,6 +168,16 @@ public with sharing class QS {
         //TODO
         return this;
     }
+
+    // Result
+
+    public sObject asObject() {
+        return null;
+    }
+
+    public List<sObject> asList() {
+        return null;
+    }
 }
 
 // QS.of(Contact.sObjectType)
