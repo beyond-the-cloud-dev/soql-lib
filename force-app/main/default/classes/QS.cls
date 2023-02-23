@@ -151,13 +151,8 @@ public inherited sharing class QS {
 
     // Sharing
 
-    public QS securityEnforced() {
-      //  qb.with.securityEnforced();
-        return this;
-    }
-
     public QS systemMode() {
-      //  qb.with.systemMode();
+        qbe.systemMode();
         return this;
     }
 
@@ -174,13 +169,12 @@ public inherited sharing class QS {
     // Result
 
     public sObject asObject() {
-        qbe.evaluate(qb.build()).asObject();
-        return null;
+        return qbe.evaluate(qb.build()).asObject();
     }
 
     public List<sObject> asList() {
-        qbe.evaluate(qb.build()).asList();
-        return null;
+        System.debug(LoggingLevel.DEBUG, ': ' + qb.build());
+        return qbe.evaluate(qb.build()).asList();
     }
 }
 
@@ -214,3 +208,4 @@ public inherited sharing class QS {
 // .asList();
 
 // System.debug(LoggingLevel.DEBUG, ': ' + contacts);
+// SELECT Id, Name FROM Account LIMIT 10

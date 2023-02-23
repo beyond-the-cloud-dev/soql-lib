@@ -4,7 +4,6 @@ public inherited sharing class QB implements QB_QueryClause {
     public QB(sObjectType ofObject) {
         clauses.set(0, new QB_Fields());
         clauses.set(2, new QB_From(ofObject));
-        // clauses.set(5, new QB_With());
     }
 
     public QB_Fields fields {
@@ -27,17 +26,6 @@ public inherited sharing class QB implements QB_QueryClause {
     }
 
     // 4 - WHERE
-
-
-    // public QB_With with {
-        // Cannot use the WITH AccessLevel clause in dynamic queries that also specify an access level.
-    //     get {
-    //         if (clauses[5] == null) {
-    //             clauses.set(5, new QB_With());
-    //         }
-    //         return (QB_With) clauses[5];
-    //     }
-    // }
 
     public QB_GroupBy groupBy {
         get {
@@ -158,22 +146,6 @@ public inherited sharing class QB implements QB_QueryClause {
 
         public String build() {
             return 'USING SCOPE ' + scope;
-        }
-    }
-
-    public class QB_With implements QB_QueryClause {
-        private String soqlMode = 'USER_MODE';
-
-        public void securityEnforced() {
-            soqlMode = 'SECURITY_ENFORCED';
-        }
-
-        public void systemMode() {
-            soqlMode = 'SYSTEM_MODE';
-        }
-
-        public String build() {
-            return 'WITH ' + soqlMode;
         }
     }
 
