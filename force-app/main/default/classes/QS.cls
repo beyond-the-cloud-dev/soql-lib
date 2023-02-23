@@ -173,7 +173,6 @@ public inherited sharing class QS {
     }
 
     public List<sObject> asList() {
-        System.debug(LoggingLevel.DEBUG, ': ' + qb.build());
         return qbe.evaluate(qb.build()).asList();
     }
 }
