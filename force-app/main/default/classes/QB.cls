@@ -4,7 +4,7 @@ public inherited sharing class QB implements QB_QueryClause {
     public QB(sObjectType ofObject) {
         clauses.set(0, new QB_Fields());
         clauses.set(2, new QB_From(ofObject));
-        clauses.set(5, new QB_With());
+        // clauses.set(5, new QB_With());
     }
 
     public QB_Fields fields {
@@ -28,14 +28,16 @@ public inherited sharing class QB implements QB_QueryClause {
 
     // 4 - WHERE
 
-    public QB_With with {
-        get {
-            if (clauses[5] == null) {
-                clauses.set(5, new QB_With());
-            }
-            return (QB_With) clauses[5];
-        }
-    }
+
+    // public QB_With with {
+        // Cannot use the WITH AccessLevel clause in dynamic queries that also specify an access level.
+    //     get {
+    //         if (clauses[5] == null) {
+    //             clauses.set(5, new QB_With());
+    //         }
+    //         return (QB_With) clauses[5];
+    //     }
+    // }
 
     public QB_GroupBy groupBy {
         get {
@@ -245,7 +247,7 @@ public inherited sharing class QB implements QB_QueryClause {
         private Integer soqlLimit = 50000;
 
         public void max(Integer soqlLimit) {
-            soqlLimit = soqlLimit;
+            this.soqlLimit = soqlLimit;
         }
 
         public String build() {
@@ -257,7 +259,7 @@ public inherited sharing class QB implements QB_QueryClause {
         private Integer soqlOffset = 2000;
 
         public void fromRow(Integer soqlOffset) {
-            soqlOffset = soqlOffset;
+            this.soqlOffset = soqlOffset;
         }
 
         public String build() {

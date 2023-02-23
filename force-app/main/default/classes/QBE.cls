@@ -1,24 +1,36 @@
 public inherited sharing class QBE {
-    private enum SharingMode {
+    private enum SharingLevel {
         INHERITED,
         WITH_SHARING,
         WITHOUT_SHARING
     }
 
-    private SharingMode mode = SharingMode.INHERITED;
+    private SharingLevel sharingMode = SharingLevel.INHERITED;
+    private AccessLevel accessMode = AccessLevel.USER_MODE;
 
-    private static final Map<SharingMode, DatabaseQuery> MODE_TO_EXECUTOR = new Map<SharingMode, DatabaseQuery>{
-        SharingMode.WITH_SHARING => new WithSharing(),
-        SharingMode.WITHOUT_SHARING => new WithoutSharing(),
-        SharingMode.INHERITED => new InheritedSharing()
+    private String query;
+
+    private static final Map<SharingLevel, DatabaseQuery> MODE_TO_EXECUTOR = new Map<SharingLevel, DatabaseQuery>{
+        SharingLevel.WITH_SHARING => new WithSharing(),
+        SharingLevel.WITHOUT_SHARING => new WithoutSharing(),
+        SharingLevel.INHERITED => new InheritedSharing()
     };
 
     public void withSharing() {
-        mode = Sharingmode.WITH_SHARING;
+        sharingMode = SharingLevel.WITH_SHARING;
     }
 
     public void withoutSharing() {
-        mode = Sharingmode.WITHOUT_SHARING;
+        sharingMode = SharingLevel.WITHOUT_SHARING;
+    }
+
+    public void systemMode() {
+        accessMode = AccessLevel.SYSTEM_MODE;
+    }
+
+    public QBE evaluate(String query) {
+        this.query = query;
+        return this;
     }
 
     public sObject asObject() {
@@ -35,31 +47,28 @@ public inherited sharing class QBE {
         //TODO Binding
         Map<String, Object> binding = new Map<String, Object>();
 
-        //TODO Query
-        String query = '';
-
-        return MODE_TO_EXECUTOR.get(mode).execute(query, binding);
+        return MODE_TO_EXECUTOR.get(sharingMode).execute(query, binding, accessMode);
     }
 
     private interface DatabaseQuery {
-        List<sObject> execute(String query, Map<String, Object> binding);
+        List<sObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel);
     }
 
     private inherited sharing class InheritedSharing implements DatabaseQuery {
-        public List<sObject> execute(String query, Map<String, Object> binding) {
-            return Database.queryWithBinds(query, binding, AccessLevel.USER_MODE);
+        public List<sObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.queryWithBinds(query, binding, accessLevel);
         }
     }
 
     private without sharing class WithoutSharing implements DatabaseQuery {
-        public List<sObject> execute(String query, Map<String, Object> binding) {
-            return Database.queryWithBinds(query, binding, AccessLevel.USER_MODE);
+        public List<sObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.queryWithBinds(query, binding, accessLevel);
         }
     }
 
     private with sharing class WithSharing implements DatabaseQuery {
-        public List<sObject> execute(String query, Map<String, Object> binding) {
-            return Database.queryWithBinds(query, binding, AccessLevel.USER_MODE);
+        public List<sObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.queryWithBinds(query, binding, accessLevel);
         }
     }
 }

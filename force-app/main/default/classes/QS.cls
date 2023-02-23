@@ -152,12 +152,12 @@ public inherited sharing class QS {
     // Sharing
 
     public QS securityEnforced() {
-        qb.with.securityEnforced();
+      //  qb.with.securityEnforced();
         return this;
     }
 
     public QS systemMode() {
-        qb.with.systemMode();
+      //  qb.with.systemMode();
         return this;
     }
 
@@ -174,12 +174,12 @@ public inherited sharing class QS {
     // Result
 
     public sObject asObject() {
-        System.debug(qb.build());
+        qbe.evaluate(qb.build()).asObject();
         return null;
     }
 
     public List<sObject> asList() {
-        System.debug(qb.build());
+        qbe.evaluate(qb.build()).asList();
         return null;
     }
 }
@@ -205,3 +205,12 @@ public inherited sharing class QS {
 //     .setLimit(10)
 //     .setOffset(1000)
 //     .asList();
+
+// List<Account> contacts = (List<Account>) QS.of(Account.sObjectType)
+// .fields(new List<sObjectField>{
+//     Account.Name
+// })
+// .setLimit(10)
+// .asList();
+
+// System.debug(LoggingLevel.DEBUG, ': ' + contacts);
