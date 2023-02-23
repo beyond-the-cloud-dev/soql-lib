@@ -9,6 +9,7 @@ public inherited sharing class QBE {
     private AccessLevel accessMode = AccessLevel.USER_MODE;
 
     private String query;
+    private Map<String, Object> binding;
 
     private static final Map<SharingLevel, DatabaseQuery> MODE_TO_EXECUTOR = new Map<SharingLevel, DatabaseQuery>{
         SharingLevel.WITH_SHARING => new WithSharing(),
@@ -28,8 +29,9 @@ public inherited sharing class QBE {
         accessMode = AccessLevel.SYSTEM_MODE;
     }
 
-    public QBE evaluate(String query) {
+    public QBE evaluate(String query, Map<String, Object> binding) {
         this.query = query;
+        this.binding = binding;
         return this;
     }
 
@@ -45,7 +47,7 @@ public inherited sharing class QBE {
         //TODO return mock if there is mock
 
         //TODO Binding
-        Map<String, Object> binding = new Map<String, Object>();
+        // Map<String, Object> binding = new Map<String, Object>();
 
         return MODE_TO_EXECUTOR.get(sharingMode).execute(query, binding, accessMode);
     }
