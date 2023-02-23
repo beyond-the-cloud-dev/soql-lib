@@ -160,7 +160,7 @@ public inherited sharing class QS {
     }
 
     public QS intheritedSharing() {
-        //TODO
+        //TODO Moze to powinno być by default?
         return this;
     }
 
