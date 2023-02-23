@@ -1,6 +1,7 @@
 public inherited sharing class QS {
     private QB qb;
     private QBE qbe;
+    private QBB qbb;
 
     public static QS of(sObjectType ofObject) {
         return new QS(ofObject);
@@ -9,6 +10,7 @@ public inherited sharing class QS {
     private QS(sObjectType ofObject) {
         qb = new QB(ofObject);
         qbe = new QBE();
+        qbb = new QBB();
     }
 
     // Fields
@@ -169,11 +171,12 @@ public inherited sharing class QS {
     // Result
 
     public sObject asObject() {
-        return qbe.evaluate(qb.build()).asObject();
+        // return qbe.evaluate(qb.build(), binder.build()).asObject();
+        return qbe.evaluate(qb.build(), qbb.build()).asObject();
     }
 
     public List<sObject> asList() {
-        return qbe.evaluate(qb.build()).asList();
+        return qbe.evaluate(qb.build(), qbb.build()).asList();
     }
 }
 
