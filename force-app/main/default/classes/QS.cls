@@ -11,8 +11,8 @@ public class QS {
 
     // Fields
 
-    public QS fields(QB_Fields fields) {
-        clauses.set(0, fields);
+    public QS fields(List<sObjectField> fields) {
+        clauses.set(0, QC.Fields.add(fields));
         return this;
     }
 
@@ -79,8 +79,34 @@ public class QS {
 
     // Order By
 
-    public QS orderBy(QC.QB_OrderBy orderBy) {
-        clauses.set(7, orderBy);
+    public QS orderBy(sObjectField field) {
+        // clauses.set(7, orderBy);
+        return this;
+    }
+
+    public QS orderBy(List<sObjectField> fields) {
+        // clauses.set(7, orderBy);
+        return this;
+    }
+
+    public QS orderByRelationship(String path, sObjectField field) {
+        // clauses.set(7, orderBy);
+        return this;
+    }
+
+    public QS sortAsc() {
+        return this;
+    }
+
+    public QS sortDesc() {
+        return this;
+    }
+
+    public QS nullsFirst() {
+        return this;
+    }
+
+    public QS nullsLast() {
         return this;
     }
 
@@ -128,27 +154,24 @@ public class QS {
     }
 }
 
-QS.of(Contact.sObjectType)
-    .fields(QC.Fields.get(Contact.Name))
-    .myTerritoryScope()
-    .groupBy(QC.GroupBy.field(Contact.Name))
-    .orderBy(QC.OrderBy
-        .field(Contact.FirstName)
-        .field(Contact.LastName)
-        .sortAsc()
-        .nullLast()
-    )
-    .whereAre(QC.Conditions
-        .add(QC.Condition.field(Contact.FirstName).equal('Test 1'))
-        .add(QC.Condition.field(Contact.LastName).equal('Test 2'))
-        .add(QC.Conditions
-            .add(QC.Condition.field(Contact.LastName).equal('Test 4'))
-            .add(QC.Condition.field(Contact.LastName).equal('Test 5'))
-            .order('1 AND 2')
-        )
-        .order('1 OR 2 OR 3')
-    )
-    .forUpdate()
-    .setLimit(10)
-    .setOffset(1000)
-    .asList();
+// QS.of(Contact.sObjectType)
+//     .fields(QC.Fields.get(Contact.Name))
+//     .myTerritoryScope()
+//     .groupBy(QC.GroupBy.field(Contact.Name))
+//     .orderBy(Contact.FirstName)
+//     .sortAsc()
+//     .nullLast()
+//     .whereAre(QC.Conditions
+//         .add(QC.Condition.field(Contact.FirstName).equal('Test 1'))
+//         .add(QC.Condition.field(Contact.LastName).equal('Test 2'))
+//         .add(QC.Conditions
+//             .add(QC.Condition.field(Contact.LastName).equal('Test 4'))
+//             .add(QC.Condition.field(Contact.LastName).equal('Test 5'))
+//             .order('1 AND 2')
+//         )
+//         .order('1 OR 2 OR 3')
+//     )
+//     .forUpdate()
+//     .setLimit(10)
+//     .setOffset(1000)
+//     .asList();
