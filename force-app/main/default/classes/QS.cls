@@ -1,4 +1,4 @@
-public class QS {
+public with sharing class QS {
     private QC config;
 
     public static QS of(sObjectType ofObject) {
@@ -64,16 +64,6 @@ public class QS {
 
     public QS whereAre() {
         //TODO
-        return this;
-    }
-
-    // Security
-
-    public QS withoutSharing() {
-        return this;
-    }
-
-    public QS intheritedSharing() {
         return this;
     }
 
@@ -159,13 +149,29 @@ public class QS {
 
     // Sharing
 
-    public QS sharing() {
+    public QS securityEnforced() {
+        config.with.securityEnforced();
+        return this;
+    }
+
+    public QS systemMode() {
+        config.with.systemMode();
+        return this;
+    }
+
+    public QS intheritedSharing() {
+        //TODO
+        return this;
+    }
+
+    public QS withoutSharing() {
+        //TODO
         return this;
     }
 }
 
 // QS.of(Contact.sObjectType)
-//     .fields(QC.Fields.get(Contact.Name))
+//     .fields(new List<sObjectField>{})
 //     .myTerritoryScope()
 //     .groupBy(QC.GroupBy.field(Contact.Name))
 //     .orderBy(Contact.FirstName)

@@ -1,10 +1,10 @@
-public class QC {
-
+public with sharing class QC {
     private List<QB_QueryClause> clauses = new QB_QueryClause[11];
 
     public QC(sObjectType ofObject) {
         clauses.set(0, new QB_Fields());
-        clauses.set(2, new QB_From());
+        clauses.set(2, new QB_From(ofObject));
+        clauses.set(5, new QB_With());
     }
 
     public QB_Fields fields {
@@ -12,6 +12,10 @@ public class QC {
             return (QB_Fields) clauses[0];
         }
     }
+
+    // 1 - subQuery
+
+    // 2 - FROM
 
     public QB_Scope scope {
         get {
@@ -22,30 +26,23 @@ public class QC {
         }
     }
 
-    public QB_Offset soqlOffset {
+    // 4 - WHERE
+
+    public QB_With with {
         get {
-            if (clauses[9] == null) {
-                clauses.set(9, new QB_Offset());
+            if (clauses[5] == null) {
+                clauses.set(5, new QB_With());
             }
-            return (QB_Offset) clauses[9];
+            return (QB_With) clauses[5];
         }
     }
 
-    public QB_Limit soqlLimit {
+    public QB_GroupBy groupBy {
         get {
-            if (clauses[10] == null) {
-                clauses.set(10, new QB_Limit());
+            if (clauses[6] == null) {
+                clauses.set(6, new QB_GroupBy());
             }
-            return (QB_Limit) clauses[10];
-        }
-    }
-
-    public QB_For soqlFor {
-        get {
-            if (clauses[10] == null) {
-                clauses.set(10, new QB_For());
-            }
-            return (QB_For) clauses[10];
+            return (QB_GroupBy) clauses[6];
         }
     }
 
@@ -58,32 +55,47 @@ public class QC {
         }
     }
 
-    public QB_GroupBy groupBy {
+    public QB_Limit soqlLimit {
         get {
-            if (clauses[7] == null) {
-                clauses.set(7, new QB_GroupBy());
+            if (clauses[8] == null) {
+                clauses.set(8, new QB_Limit());
             }
-            return (QB_GroupBy) clauses[7];
+            return (QB_Limit) clauses[8];
+        }
+    }
+
+    public QB_Offset soqlOffset {
+        get {
+            if (clauses[9] == null) {
+                clauses.set(9, new QB_Offset());
+            }
+            return (QB_Offset) clauses[9];
+        }
+    }
+
+    public QB_For soqlFor {
+        get {
+            if (clauses[10] == null) {
+                clauses.set(10, new QB_For());
+            }
+            return (QB_For) clauses[10];
         }
     }
 
     public class QB_Fields implements QB_QueryClause {
         private Set<String> queryFields = new Set<String>{ 'Id' };
 
-        public QB_Fields retrive(List<sObjectField> fields) {
+        public void retrive(List<sObjectField> fields) {
             for (sObjectField field : fields) {
                 queryFields.add(field.getDescribe().getName());
             }
-            return this;
         }
 
-        public QB_Fields retrive(String relationshipPath, List<sObjectField> fields) {
+        public void retrive(String relationshipPath, List<sObjectField> fields) {
             for (sObjectField field : fields) {
                 queryFields.add(relationshipPath + '.' +field.getDescribe().getName());
             }
-            return this;
         }
-
 
         public String build() {
             return 'SELECT ' + String.join(new List<String>(queryFields), ', ');
@@ -93,9 +105,8 @@ public class QC {
     public class QB_From implements QB_QueryClause {
         private String objectApiName;
 
-        public QB_From of(sObjectType objectType) {
+        public QB_From(sObjectType objectType) {
             objectApiName = objectType.getDescribe().getName();
-            return this;
         }
 
         public String build() {
@@ -103,62 +114,31 @@ public class QC {
         }
     }
 
-    public class QB_Limit implements QB_QueryClause {
-        private Integer soqlLimit = 50000;
-
-        public QB_Limit max(Integer soqlLimit) {
-            soqlLimit = soqlLimit;
-            return this;
-        }
-
-        public String build() {
-            return 'LIMIT ' + this.soqlLimit;
-        }
-    }
-
-    public class QB_Offset implements QB_QueryClause {
-        private Integer soqlOffset = 2000;
-
-        public QB_Offset fromRow(Integer soqlOffset) {
-            soqlOffset = soqlOffset;
-            return this;
-        }
-
-        public String build() {
-            return 'OFFSET ' + soqlOffset;
-        }
-    }
-
     public class QB_Scope implements QB_QueryClause {
         private String scope = 'EVERYTHING';
 
-        public QB_Scope delegated() {
-            return scope('DELEGATED');
+        public void delegated() {
+            scope = 'DELEGATED';
         }
 
-        public QB_Scope mine() {
-            return scope('MINE');
+        public void mine() {
+            scope = 'MINE';
         }
 
-        public QB_Scope mineAndMyGroups() {
-            return scope('MINE_AND_MY_GROUPS');
+        public void mineAndMyGroups() {
+            scope = 'MINE_AND_MY_GROUPS';
         }
 
-        public QB_Scope myTerritory() {
-            return scope('MY_TERRITORY');
+        public void myTerritory() {
+            scope = 'MY_TERRITORY';
         }
 
-        public QB_Scope myTeamTerritory() {
-            return scope('MY_TEAM_TERRITORY');
+        public void myTeamTerritory() {
+            scope = 'MY_TEAM_TERRITORY';
         }
 
-        public QB_Scope team() {
-            return scope('TEAM');
-        }
-
-        private QB_Scope scope(String scope) {
-            scope = scope;
-            return this;
+        public void team() {
+            scope = 'TEAM';
         }
 
         public String build() {
@@ -166,53 +146,39 @@ public class QC {
         }
     }
 
-    public class QB_For implements QB_QueryClause {
-        private String forStatement = 'ALL ROWS';
+    public class QB_With implements QB_QueryClause {
+        private String soqlMode = 'USER_MODE';
 
-        public QB_For forReference() {
-            return forStatement('FOR REFERENCE');
+        public void securityEnforced() {
+            soqlMode = 'SECURITY_ENFORCED';
         }
 
-        public QB_For forView() {
-            return forStatement('FOR VIEW');
-        }
-
-        public QB_For forUpdate() {
-            return forStatement('FOR UPDATE');
-        }
-
-        public QB_For allRows() {
-            return forStatement('ALL ROWS');
-        }
-
-        private QB_For forStatement(String forStatement) {
-            forStatement = forStatement;
-            return this;
+        public void systemMode() {
+            soqlMode = 'SYSTEM_MODE';
         }
 
         public String build() {
-            return forStatement;
+            return 'WITH ' + soqlMode;
         }
     }
 
     public class QB_GroupBy implements QB_QueryClause {
         private Set<String> groupByFields = new Set<String>();
 
-        public QB_GroupBy field(sObjectField field) {
+        public void field(sObjectField field) {
             groupByFields.add(field.getDescribe().getName());
-            return this;
         }
 
-        public QB_GroupBy thatHaving() {
-            return this;
+        public void thatHaving() {
+            //TODO
         }
 
-        public QB_GroupBy rollup() {
-            return this;
+        public void rollup() {
+            //TODO
         }
 
-        public QB_GroupBy cube() {
-            return this;
+        public void cube() {
+            //TODO
         }
 
         public String build() {
@@ -236,27 +202,19 @@ public class QC {
         }
 
         public void sortAsc() {
-            recordsOrder('ASC');
+            sortingOrder = 'ASC';
         }
 
         public void sortDesc() {
-            recordsOrder('DESC');
+            sortingOrder = 'DESC';
         }
 
         public void nullsFirst() {
-            nullsOrder('FIRST');
+            nullsOrder = 'FIRST';
         }
 
         public void nullsLast() {
-            nullsOrder('LAST');
-        }
-
-        private void recordsOrder(String sortingOrder) {
-            sortingOrder = sortingOrder;
-        }
-
-        private void nullsOrder(String nullsOrder) {
-            nullsOrder = nullsOrder;
+            nullsOrder = 'LAST';
         }
 
         public String build() {
@@ -270,103 +228,51 @@ public class QC {
         }
     }
 
-    // public class QB_Condition implements QB_ConditionClause {
-    //     private String fieldName;
-    //     private String comperator;
+    public class QB_Limit implements QB_QueryClause {
+        private Integer soqlLimit = 50000;
 
-    //     private Object value;
-    //     // private QB_Join joinQuery;
+        public void max(Integer soqlLimit) {
+            soqlLimit = soqlLimit;
+        }
 
-    //     public QB_Condition() {
-    //         this.fieldName = 'Id';
-    //     }
+        public String build() {
+            return 'LIMIT ' + this.soqlLimit;
+        }
+    }
 
-    //     public QB_Condition(String relationshipName, Schema.SObjectField field) {
-    //         this.fieldName = relationshipName + '.' + field.getDescribe().getName();
-    //     }
+    public class QB_Offset implements QB_QueryClause {
+        private Integer soqlOffset = 2000;
 
-    //     public QB_Condition(Schema.SObjectField field) {
-    //         this.fieldName = field.getDescribe().getName();
-    //     }
+        public void fromRow(Integer soqlOffset) {
+            soqlOffset = soqlOffset;
+        }
 
-    //     public QB_Condition isNull() {
-    //         return this.equal(null);
-    //     }
+        public String build() {
+            return 'OFFSET ' + soqlOffset;
+        }
+    }
 
-    //     public QB_Condition isNotNull() {
-    //         return this.notEqual(null);
-    //     }
+    public class QB_For implements QB_QueryClause {
+        private String forStatement;
 
-    //     public QB_Condition equal(Object value) {
-    //         return this.set('=', value);
-    //     }
+        public void forReference() {
+            forStatement = 'FOR REFERENCE';
+        }
 
-    //     public QB_Condition notEqual(Object fieldValue) {
-    //         return this.set('!=', value);
-    //     }
+        public void forView() {
+            forStatement = 'FOR VIEW';
+        }
 
-    //     public QB_Condition lessThan(Object value) {
-    //         return this.set('<', value);
-    //     }
+        public void forUpdate() {
+            forStatement = 'FOR UPDATE';
+        }
 
-    //     public QB_Condition greaterThan(Object fieldValue) {
-    //         return this.set('>', value);
-    //     }
+        public void allRows() {
+            forStatement = 'ALL ROWS';
+        }
 
-    //     public QB_Condition lessThanOrEqual(Object fieldValue) {
-    //         return this.set('<=', value);
-    //     }
-
-    //     public QB_Condition greaterThanOrEqual(Object fieldValue) {
-    //         return this.set('>=', value);
-    //     }
-
-    //     public QB_Condition likeAnyBoth(String fieldValue) {
-    //         return this.set('LIKE', '%' + String.escapeSingleQuotes(fieldValue.trim()) + '%');
-    //     }
-
-    //     public QB_Condition likeAnyLeft(String fieldValue) {
-    //         return this.set('LIKE', '%' + String.escapeSingleQuotes(fieldValue.trim()));
-    //     }
-
-    //     public QB_Condition likeAnyRight(String fieldValue) {
-    //         return this.set('LIKE', String.escapeSingleQuotes(fieldValue.trim()) + '%');
-    //     }
-
-    //     public QB_Condition inCollection(List<Object> inList) {
-    //         return this.set('IN', inList);
-    //     }
-
-    //     public QB_Condition notIn(List<Object> inList) {
-    //         return this.set('NOT IN', inList);
-    //     }
-
-    //     private QB_Condition set(String comperator, Object value) {
-    //         this.value = value;
-    //         this.comperator = comperator;
-    //         return this;
-    //     }
-
-    //     // public QB_Condition inCollection(QB_Join joinQuery) {
-    //     //     return this.set('IN', joinQuery);
-    //     // }
-
-    //     // public QB_Condition notIn(QB_Join joinQuery) {
-    //     //     return this.set('NOT IN', joinQuery);
-    //     // }
-
-    //     // private QB_Condition set(String comperator, QB_Join joinQuery) {
-    //     //     this.joinQuery = joinQuery;
-    //     //     this.comperator = comperator;
-    //     //     return this;
-    //     // }
-
-    //     public String build() {
-    //         // if (this.joinQuery != null) {
-    //         //     return this.fieldName + ' ' + this.comperator + ' (' + joinQuery.build(executor) + ')';
-    //         //}
-    //         return this.fieldName + ' ' + this.comperator + ' :' + executor.bindVariable(this.value);
-    //     }
-    // }
-
+        public String build() {
+            return forStatement;
+        }
+    }
 }
