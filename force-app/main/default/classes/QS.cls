@@ -1,5 +1,4 @@
 public class QS {
-    private List<QB_QueryClause> clauses = new QB_QueryClause[11];
     private QC config;
 
     public static QS of(sObjectType ofObject) {
@@ -25,6 +24,7 @@ public class QS {
     // SubQuery
 
     public QS subquery() {
+        //TODO
         return this;
     }
 
@@ -63,7 +63,7 @@ public class QS {
     // Where
 
     public QS whereAre() {
-        clauses.set(4, null);
+        //TODO
         return this;
     }
 
@@ -79,8 +79,8 @@ public class QS {
 
     // Group By
 
-    public QS groupBy(QC.QB_GroupBy groupBy) {
-        clauses.set(6, groupBy);
+    public QS groupBy(sObjectField field) {
+        config.groupBy.field(field);
         return this;
     }
 
@@ -97,7 +97,7 @@ public class QS {
     }
 
     public QS orderByRelationship(String path, sObjectField field) {
-        // clauses.set(7, orderBy);
+        //TODO
         return this;
     }
 

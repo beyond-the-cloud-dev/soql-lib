@@ -13,12 +13,6 @@ public class QC {
         }
     }
 
-    public static QB_From QFrom {
-        get {
-            return new QB_From();
-        }
-    }
-
     public QB_Scope scope {
         get {
             if (clauses[3] == null) {
@@ -64,9 +58,12 @@ public class QC {
         }
     }
 
-    public static QB_GroupBy GroupBy {
+    public QB_GroupBy groupBy {
         get {
-            return new QB_GroupBy();
+            if (clauses[7] == null) {
+                clauses.set(7, new QB_GroupBy());
+            }
+            return (QB_GroupBy) clauses[7];
         }
     }
 
@@ -238,30 +235,28 @@ public class QC {
             fields.add(field.getDescribe().getName());
         }
 
-        public QB_OrderBy sortAsc() {
-            return recordsOrder('ASC');
+        public void sortAsc() {
+            recordsOrder('ASC');
         }
 
-        public QB_OrderBy sortDesc() {
-            return recordsOrder('DESC');
+        public void sortDesc() {
+            recordsOrder('DESC');
         }
 
-        public QB_OrderBy nullsFirst() {
-            return nullsOrder('FIRST');
+        public void nullsFirst() {
+            nullsOrder('FIRST');
         }
 
-        public QB_OrderBy nullsLast() {
-            return nullsOrder('LAST');
+        public void nullsLast() {
+            nullsOrder('LAST');
         }
 
-        private QB_OrderBy recordsOrder(String sortingOrder) {
+        private void recordsOrder(String sortingOrder) {
             sortingOrder = sortingOrder;
-            return this;
         }
 
-        private QB_OrderBy nullsOrder(String nullsOrder) {
+        private void nullsOrder(String nullsOrder) {
             nullsOrder = nullsOrder;
-            return this;
         }
 
         public String build() {
