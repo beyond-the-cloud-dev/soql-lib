@@ -96,10 +96,3 @@ public class QB_Condition implements QB_ConditionClause {
         return this.fieldName + ' ' + this.comperator + ' :' + executor.bindVariable(this.value);
     }
 }
-
-
-public class QB {
-
-    public QB_MainCondition Conditions = new QQB_MainConditionB_Condition();
-
-}

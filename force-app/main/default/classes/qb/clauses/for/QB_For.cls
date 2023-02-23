@@ -8,28 +8,27 @@ public class QB_For implements QB_QueryClause {
 
     private ForStatements forStatement = ForStatements.ALL_ROWS;
 
-    public QB_For withForReferece() {
-        return this.setForStatement(ForStatements.FOR_REFERENCE);
+    public void referece() {
+        forStatement(ForStatements.FOR_REFERENCE);
     }
 
-    public QB_For withForView() {
-        return this.setForStatement(ForStatements.FOR_VIEW);
+    public void view() {
+        forStatement(ForStatements.FOR_VIEW);
     }
 
-    public QB_For withForUpdate() {
-        return this.setForStatement(ForStatements.FOR_UPDATE);
+    public void forUpdate() {
+        forStatement(ForStatements.FOR_UPDATE);
     }
 
-    public QB_For withAllRows() {
-        return this.setForStatement(ForStatements.ALL_ROWS);
+    public void allRows() {
+        forStatement(ForStatements.ALL_ROWS);
     }
 
-    private QB_For setForStatement(ForStatements forStatement) {
-        this.forStatement = forStatement;
-        return this;
+    private void forStatement(ForStatements forStatement) {
+        forStatement = forStatement;
     }
 
-    public String build(QB_QueryExecutor executor) {
-        return this.forStatement.name().replace('_', ' ');
+    public String build() {
+        return forStatement.name().replace('_', ' ');
     }
 }
