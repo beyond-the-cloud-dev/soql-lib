@@ -1,23 +1,23 @@
-public with sharing class QS {
-    private QC config;
+public inherited sharing class QS {
+    private QB qb;
 
     public static QS of(sObjectType ofObject) {
         return new QS(ofObject);
     }
 
     private QS(sObjectType ofObject) {
-        config = new QC(ofObject);
+        qb = new QB(ofObject);
     }
 
     // Fields
 
     public QS fields(List<sObjectField> fields) {
-        config.fields.retrive(fields);
+        qb.fields.retrive(fields);
         return this;
     }
 
     public QS relatedFields(String relationshipPath, List<sObjectField> fields) {
-        config.fields.retrive(relationshipPath, fields);
+        qb.fields.retrive(relationshipPath, fields);
         return this;
     }
 
@@ -31,32 +31,32 @@ public with sharing class QS {
     // Scope
 
     public QS delegatedScope() {
-        config.scope.delegated();
+        qb.scope.delegated();
         return this;
     }
 
     public QS mineScope() {
-        config.scope.mine();
+        qb.scope.mine();
         return this;
     }
 
     public QS mineAndMyGroupsScope() {
-        config.scope.mineAndMyGroups();
+        qb.scope.mineAndMyGroups();
         return this;
     }
 
     public QS myTerritoryScope() {
-        config.scope.myTerritory();
+        qb.scope.myTerritory();
         return this;
     }
 
     public QS myTeamTerritoryScope() {
-        config.scope.myTeamTerritory();
+        qb.scope.myTeamTerritory();
         return this;
     }
 
     public QS teamScope() {
-        config.scope.team();
+        qb.scope.team();
         return this;
     }
 
@@ -70,19 +70,19 @@ public with sharing class QS {
     // Group By
 
     public QS groupBy(sObjectField field) {
-        config.groupBy.field(field);
+        qb.groupBy.field(field);
         return this;
     }
 
     // Order By
 
     public QS orderBy(sObjectField field) {
-        config.orderBy.field(field);
+        qb.orderBy.field(field);
         return this;
     }
 
     public QS orderBy(List<sObjectField> fields) {
-        config.orderBy.fields(fields);
+        qb.orderBy.fields(fields);
         return this;
     }
 
@@ -92,70 +92,70 @@ public with sharing class QS {
     }
 
     public QS sortAsc() {
-        config.orderBy.sortAsc();
+        qb.orderBy.sortAsc();
         return this;
     }
 
     public QS sortDesc() {
-        config.orderBy.sortDesc();
+        qb.orderBy.sortDesc();
         return this;
     }
 
     public QS nullsFirst() {
-        config.orderBy.nullsFirst();
+        qb.orderBy.nullsFirst();
         return this;
     }
 
     public QS nullsLast() {
-        config.orderBy.nullsLast();
+        qb.orderBy.nullsLast();
         return this;
     }
 
     // Limit
 
     public QS setLimit(Integer amount) {
-        config.soqlLimit.max(amount);
+        qb.soqlLimit.max(amount);
         return this;
     }
 
     // Offset
 
     public QS setOffset(Integer startingRow) {
-        config.soqlOffset.fromRow(startingRow);
+        qb.soqlOffset.fromRow(startingRow);
         return this;
     }
 
     // For
 
     public QS forReference() {
-        config.soqlFor.forReference();
+        qb.soqlFor.forReference();
         return this;
     }
 
     public QS forView() {
-        config.soqlFor.forView();
+        qb.soqlFor.forView();
         return this;
     }
 
     public QS forUpdate() {
-        config.soqlFor.forUpdate();
+        qb.soqlFor.forUpdate();
         return this;
     }
 
     public QS allRows() {
-        config.soqlFor.allRows();
+        qb.soqlFor.allRows();
         return this;
     }
 
     // Sharing
 
     public QS securityEnforced() {
-        config.with.securityEnforced();
+        qb.with.securityEnforced();
         return this;
     }
 
     public QS systemMode() {
-        config.with.systemMode();
+        qb.with.systemMode();
         return this;
     }
 
@@ -172,10 +172,12 @@ public with sharing class QS {
     // Result
 
     public sObject asObject() {
+        System.debug(qb.build());
         return null;
     }
 
     public List<sObject> asList() {
+        System.debug(qb.build());
         return null;
     }
 }
