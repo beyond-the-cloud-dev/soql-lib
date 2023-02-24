@@ -1,20 +1,28 @@
 public class QB_Condition implements QB_ConditionClause {
-    private String fieldName;
+    private String field;
     private String comperator;
-
     private Object value;
-    private QB_Join joinQuery;
+    // private QB_Join joinQuery;
 
-    public QB_Condition() {
-        this.fieldName = 'Id';
+    public QB_Condition id() {
+        return field('Id');
     }
 
-    public QB_Condition(String relationshipName, Schema.SObjectField field) {
-        this.fieldName = relationshipName + '.' + field.getDescribe().getName();
+    public QB_Condition recordTypeDeveloperName() {
+        return field('RecordType.DeveloperName');
     }
 
-    public QB_Condition(Schema.SObjectField field) {
-        this.fieldName = field.getDescribe().getName();
+    public QB_Condition field(Schema.SObjectField field) {
+        return field(field.getDescribe().getName());
+    }
+
+    public QB_Condition relationship(String relationshipPath, Schema.SObjectField field) {
+        return field(relationshipPath + '.' + field.getDescribe().getName());
+    }
+
+    private QB_Condition field(String field) {
+        this.field = field;
+        return this;
     }
 
     public QB_Condition isNull() {
@@ -75,24 +83,24 @@ public class QB_Condition implements QB_ConditionClause {
         return this;
     }
 
-    public QB_Condition inCollection(QB_Join joinQuery) {
-        return this.set('IN', joinQuery);
-    }
+    // public QB_Condition inCollection(QB_Join joinQuery) {
+    //     return this.set('IN', joinQuery);
+    // }
 
-    public QB_Condition notIn(QB_Join joinQuery) {
-        return this.set('NOT IN', joinQuery);
-    }
+    // public QB_Condition notIn(QB_Join joinQuery) {
+    //     return this.set('NOT IN', joinQuery);
+    // }
 
-    private QB_Condition set(String comperator, QB_Join joinQuery) {
-        this.joinQuery = joinQuery;
-        this.comperator = comperator;
-        return this;
-    }
+    // private QB_Condition set(String comperator, QB_Join joinQuery) {
+    //     this.joinQuery = joinQuery;
+    //     this.comperator = comperator;
+    //     return this;
+    // }
 
-    public String build(QB_QueryExecutor executor) {
-        if (this.joinQuery != null) {
-            return this.fieldName + ' ' + this.comperator + ' (' + joinQuery.build(executor) + ')';
-        }
-        return this.fieldName + ' ' + this.comperator + ' :' + executor.bindVariable(this.value);
+    public String build(QBB qbb) {
+        // if (this.joinQuery != null) {
+        //     return this.field + ' ' + this.comperator + ' (' + joinQuery.build(executor) + ')';
+        // }
+        return field + ' ' + comperator + ' :' + qbb.bind(value);
     }
 }
