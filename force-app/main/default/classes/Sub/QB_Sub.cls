@@ -1,5 +1,5 @@
 public inherited sharing class QB_Sub implements QB_QueryClause {
-    private QBS qbs;
+    private QB qb;
     private QBB qbb;
 
     public QB_Sub(QBB qbb) {
@@ -7,32 +7,32 @@ public inherited sharing class QB_Sub implements QB_QueryClause {
     }
 
     public QB_Sub of(String ofObject) {
-        qbs = new QBS(ofObject);
+        qb = new QB(ofObject);
         return this;
     }
 
     // Fields
 
     public QB_Sub fields(List<sObjectField> fields) {
-        qbs.fields.retrive(fields);
+        qb.fields.retrive(fields);
         return this;
     }
 
     public QB_Sub relatedFields(String relationshipPath, List<sObjectField> fields) {
-        qbs.fields.retrive(relationshipPath, fields);
+        qb.fields.retrive(relationshipPath, fields);
         return this;
     }
 
     // Where
 
     public QB_Sub whereAre(QB_ConditionsGroup conditions) {
-        qbs.conditions = conditions;
+        qb.conditions = conditions;
         return this;
     }
 
     // Build
 
     public String build() {
-        return qbs.build();
+        return qb.build();
     }
 }

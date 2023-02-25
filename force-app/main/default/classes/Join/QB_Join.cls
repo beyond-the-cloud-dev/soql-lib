@@ -1,9 +1,9 @@
 public with sharing class QB_Join implements QB_QueryClause {
-    private QBJ qbj;
+    private QB qb;
     private QBB qbb;
 
     public QB_Join of(sObjectType ofObject) {
-        qbj = new QBJ(ofObject);
+        qb = new QB(ofObject);
         return this;
     }
 
@@ -13,20 +13,20 @@ public with sharing class QB_Join implements QB_QueryClause {
     // Fields
 
     public QB_Join field(sObjectField field) {
-        qbj.fields.retrive(new List<sObjectField>{ field });
+        qb.fields.retrive(new List<sObjectField>{ field });
         return this;
     }
 
     // Where
 
     public QB_Join whereAre(QB_ConditionsGroup conditions) {
-        qbj.conditions = conditions;
+        qb.conditions = conditions;
         return this;
     }
 
     // Helper
 
     public String build() {
-        return qbj.build();
+        return qb.build();
     }
 }

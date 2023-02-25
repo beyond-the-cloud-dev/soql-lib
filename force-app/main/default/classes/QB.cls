@@ -1,7 +1,11 @@
 public inherited sharing class QB implements QB_QueryClause {
-    private List<QB_QueryClause> clauses = new QB_QueryClause[11];
+    private List<QB_QueryClause> clauses = new QB_QueryClause[10];
 
     public QB(sObjectType ofObject) {
+        this(ofObject.getDescribe().getName());
+    }
+
+    public QB(String ofObject) {
         clauses.set(0, new QBC.QFields());
         clauses.set(2, new QBC.QFrom(ofObject));
     }
@@ -12,8 +16,6 @@ public inherited sharing class QB implements QB_QueryClause {
         }
     }
 
-    // 1 - SUB-QUERY
-
     public QB_SubQueries subQueries {
         get {
             if (clauses[1] == null) {
@@ -22,8 +24,6 @@ public inherited sharing class QB implements QB_QueryClause {
             return (QB_SubQueries) clauses[1];
         }
     }
-
-    // 2 - FROM
 
     public QBC.QScope scope {
         get {
@@ -45,46 +45,46 @@ public inherited sharing class QB implements QB_QueryClause {
 
     public QBC.QGroupBy groupBy {
         get {
-            if (clauses[6] == null) {
-                clauses.set(6, new QBC.QGroupBy());
+            if (clauses[5] == null) {
+                clauses.set(5, new QBC.QGroupBy());
             }
-            return (QBC.QGroupBy) clauses[6];
+            return (QBC.QGroupBy) clauses[5];
         }
     }
 
     public QBC.QOrderBy orderBy {
         get {
-            if (clauses[7] == null) {
-                clauses.set(7, new QBC.QOrderBy());
+            if (clauses[6] == null) {
+                clauses.set(6, new QBC.QOrderBy());
             }
-            return (QBC.QOrderBy) clauses[7];
+            return (QBC.QOrderBy) clauses[6];
         }
     }
 
     public QBC.QLimit soqlLimit {
         get {
-            if (clauses[8] == null) {
-                clauses.set(8, new QBC.QLimit());
+            if (clauses[7] == null) {
+                clauses.set(7, new QBC.QLimit());
             }
-            return (QBC.QLimit) clauses[8];
+            return (QBC.QLimit) clauses[7];
         }
     }
 
     public QBC.QOffset soqlOffset {
         get {
-            if (clauses[9] == null) {
-                clauses.set(9, new QBC.QOffset());
+            if (clauses[8] == null) {
+                clauses.set(8, new QBC.QOffset());
             }
-            return (QBC.QOffset) clauses[9];
+            return (QBC.QOffset) clauses[8];
         }
     }
 
     public QBC.QFor soqlFor {
         get {
-            if (clauses[10] == null) {
-                clauses.set(10, new QBC.QFor());
+            if (clauses[9] == null) {
+                clauses.set(9, new QBC.QFor());
             }
-            return (QBC.QFor) clauses[10];
+            return (QBC.QFor) clauses[9];
         }
     }
 
