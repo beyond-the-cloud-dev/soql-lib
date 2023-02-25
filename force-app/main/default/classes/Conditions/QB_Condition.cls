@@ -3,7 +3,7 @@ public class QB_Condition implements QB_ConditionClause {
     private String comperator;
     private Object value;
     private QBB qbb;
-    // private QB_Join joinQuery;
+    private QB_Join joinQuery;
 
     public QB_Condition(QBB qbb) {
         this.qbb = qbb;
@@ -88,25 +88,25 @@ public class QB_Condition implements QB_ConditionClause {
         return this;
     }
 
-    // public QB_Condition inCollection(QB_Join joinQuery) {
-    //     return this.set('IN', joinQuery);
-    // }
+    public QB_Condition inCollection(QB_Join joinQuery) {
+        return this.set('IN', joinQuery);
+    }
 
-    // public QB_Condition notIn(QB_Join joinQuery) {
-    //     return this.set('NOT IN', joinQuery);
-    // }
+    public QB_Condition notIn(QB_Join joinQuery) {
+        return this.set('NOT IN', joinQuery);
+    }
 
-    // private QB_Condition set(String comperator, QB_Join joinQuery) {
-    //     this.joinQuery = joinQuery;
-    //     this.comperator = comperator;
-    //     return this;
-    // }
+    private QB_Condition set(String comperator, QB_Join joinQuery) {
+        this.joinQuery = joinQuery;
+        this.comperator = comperator;
+        return this;
+    }
 
     public String build(QBB qbb) {
-        // if (this.joinQuery != null) {
-        //     return this.field + ' ' + this.comperator + ' (' + joinQuery.build(executor) + ')';
-        // }
+        if (joinQuery != null) {
+            return field + ' ' + comperator + ' (' + joinQuery.build() + ')';
+        }
 
-        return field + ' ' + comperator + ' :' + this.qbb.bind(value);
+        return field + ' ' + comperator + ' :' + qbb.bind(value);
     }
 }
