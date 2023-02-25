@@ -13,6 +13,12 @@ public inherited sharing class QS {
         qbb = new QBB();
     }
 
+    public static QB_WhereGroup ConditionsGroup {
+        get {
+            return new QB_WhereGroup();
+        }
+    }
+
     // Fields
 
     public QS fields(List<sObjectField> fields) {
@@ -66,8 +72,9 @@ public inherited sharing class QS {
 
     // Where
 
-    public QS whereAre() {
-        //TODO
+    public QS whereAre(QB_WhereGroup conditions) {
+        conditions.setBinder(qbb);
+        qb.conditions = conditions;
         return this;
     }
 

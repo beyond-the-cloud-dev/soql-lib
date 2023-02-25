@@ -6,9 +6,9 @@ public inherited sharing class QB implements QB_QueryClause {
         clauses.set(2, new QBC.QFrom(ofObject));
     }
 
-    public QB_Fields fields {
+    public QBC.QFields fields {
         get {
-            return (QB_Fields) clauses[0];
+            return (QBC.QFields) clauses[0];
         }
     }
 
@@ -25,7 +25,14 @@ public inherited sharing class QB implements QB_QueryClause {
         }
     }
 
-    // 4 - WHERE
+    public QB_WhereGroup conditions {
+        get {
+            return (QB_WhereGroup) clauses[4];
+        }
+        set {
+            clauses.set(4, conditions);
+        }
+    }
 
     public QBC.QGroupBy groupBy {
         get {

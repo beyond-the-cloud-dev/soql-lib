@@ -1,3 +1,4 @@
 public interface QB_ConditionClause {
-    String build(QBB qbb);
+    void bindWith(QBB qbb);
+    String build();
 }

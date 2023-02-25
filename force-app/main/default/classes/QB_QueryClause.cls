@@ -1,3 +1,3 @@
 public interface QB_QueryClause {
-    String build(QBB qbb);
+    String build();
 }
