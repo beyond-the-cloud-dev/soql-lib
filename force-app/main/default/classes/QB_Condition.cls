@@ -2,7 +2,12 @@ public class QB_Condition implements QB_ConditionClause {
     private String field;
     private String comperator;
     private Object value;
+    private QBB qbb;
     // private QB_Join joinQuery;
+
+    public QB_Condition(QBB qbb) {
+        this.qbb = qbb;
+    }
 
     public QB_Condition id() {
         return field('Id');
@@ -102,6 +107,6 @@ public class QB_Condition implements QB_ConditionClause {
         //     return this.field + ' ' + this.comperator + ' (' + joinQuery.build(executor) + ')';
         // }
 
-        return field + ' ' + comperator + ' :' + qbb.bind(value);
+        return field + ' ' + comperator + ' :' + this.qbb.bind(value);
     }
 }

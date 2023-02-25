@@ -26,6 +26,10 @@ public with sharing class QBC {
             objectApiName = objectType.getDescribe().getName();
         }
 
+        public QFrom(String objectType) {
+            objectApiName = objectType;
+        }
+
         public String build() {
             return 'FROM ' + objectApiName;
         }

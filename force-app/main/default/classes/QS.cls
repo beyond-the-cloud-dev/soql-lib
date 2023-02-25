@@ -1,7 +1,7 @@
 public inherited sharing class QS {
     private QB qb;
     private QBE qbe;
-    private QBB qbb;
+    private static QBB qbb;
 
     public static QS of(sObjectType ofObject) {
         return new QS(ofObject);
@@ -15,13 +15,19 @@ public inherited sharing class QS {
 
     public static QB_ConditionsGroup ConditionGroup {
         get {
-            return new QB_ConditionsGroup();
+            return new QB_ConditionsGroup(qbb);
         }
     }
 
     public static QB_Condition Condition {
         get {
-            return new QB_Condition();
+            return new QB_Condition(qbb);
+        }
+    }
+
+    public static QB_Sub SubQuery {
+        get {
+            return new QB_Sub(qbb);
         }
     }
 
@@ -39,7 +45,8 @@ public inherited sharing class QS {
 
     // SubQuery
 
-    public QS subquery() {
+    public QS subquery(QB_Sub subQuery) {
+        // subQuery.
         //TODO
         return this;
     }
@@ -79,7 +86,6 @@ public inherited sharing class QS {
     // Where
 
     public QS whereAre(QB_ConditionsGroup conditions) {
-        System.debug(LoggingLevel.DEBUG, 'qbb: ' + qbb);
         conditions.bindWith(qbb);
         qb.conditions = conditions;
         return this;

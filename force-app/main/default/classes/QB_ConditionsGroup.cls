@@ -3,6 +3,10 @@ public class QB_ConditionsGroup implements QB_ConditionClause, QB_QueryClause {
     private String order = '';
     private QBB qbb;
 
+    public QB_ConditionsGroup(QBB qbb) {
+        this.qbb = qbb;
+    }
+
     public QB_ConditionsGroup add(QB_ConditionClause condition) {
         queryConditions.add(condition);
         return this;
@@ -14,7 +18,7 @@ public class QB_ConditionsGroup implements QB_ConditionClause, QB_QueryClause {
     }
 
     public void bindWith(QBB qbb) {
-        this.qbb = qbb;
+        // this.qbb = qbb;
     }
 
     public String build() {
