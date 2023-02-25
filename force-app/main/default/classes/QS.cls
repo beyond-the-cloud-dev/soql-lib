@@ -10,7 +10,6 @@ public inherited sharing class QS {
 
     private QS(sObjectType ofObject) {
         qbb = new QBB();
-
         qb = new QB(ofObject);
         qbe = new QBE();
     }

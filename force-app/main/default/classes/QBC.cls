@@ -10,12 +10,30 @@ public with sharing class QBC {
 
         public void retrive(String relationshipPath, List<sObjectField> fields) {
             for (sObjectField field : fields) {
-                queryFields.add(relationshipPath + '.' +field.getDescribe().getName());
+                queryFields.add(relationshipPath + '.' + field.getDescribe().getName());
             }
         }
 
         public String build() {
             return 'SELECT ' + String.join(new List<String>(queryFields), ', ');
+        }
+    }
+
+    public class QB_SubQueries implements QB_QueryClause {
+        private List<QB_Sub> subQueries = new List<QB_Sub>();
+
+        public void add(QB_Sub subQuery) {
+            subQueries.add(subQuery);
+        }
+
+        public String build() {
+            List<String> subQueriesSoql = new List<String>();
+
+            for (QB_Sub sub : subQueries) {
+                subQueriesSoql.add('(' + sub.build() + ')');
+            }
+
+            return ', ' + String.join(subQueriesSoql, ', ');
         }
     }
 

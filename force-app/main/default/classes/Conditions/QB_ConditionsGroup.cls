@@ -29,6 +29,16 @@ public class QB_ConditionsGroup implements QB_ConditionClause, QB_QueryClause {
         return 'WHERE ' + buildNested();
     }
 
+    private void setDefaultOrder() {
+        List<String> defaultOrder = new List<String>();
+
+        for (Integer i = 0; i < queryConditions.size(); i++) {
+            defaultOrder.add(String.valueOf(i + 1));
+        }
+
+        order = String.join(defaultOrder, ' AND '); // e.g (1 AND 2 AND 3)
+    }
+
     public String buildNested() {
         String orderWithSpecialCharacters = addSpecialCharactersToOrder(order); // e.g (*1* AND (*2* OR *3*))
 
@@ -42,16 +52,6 @@ public class QB_ConditionsGroup implements QB_ConditionClause, QB_QueryClause {
         }
 
         return orderWithSpecialCharacters.replaceFirst('WHERE ', '');
-    }
-
-    private void setDefaultOrder() {
-        List<String> defaultOrder = new List<String>();
-
-        for (Integer i = 0; i < queryConditions.size(); i++) {
-            defaultOrder.add(String.valueOf(i + 1));
-        }
-
-        order = String.join(defaultOrder, ' AND '); // e.g (1 AND 2 AND 3)
     }
 
     private String addSpecialCharactersToOrder(String order) {
