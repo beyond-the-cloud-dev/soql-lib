@@ -237,3 +237,61 @@ Pass `QB` instance between classes and methods. Add necessary conditions, use bu
 
 - For proper license management each repository should contain LICENSE file similar to this one.
 - each original class should contain copyright mark: © Copyright 2022, Beyond The Cloud Dev Authors
+
+
+---------------
+# Draft
+
+```js
+{
+    fields: [ 'field1', 'field2', 'field3' ],
+    subQueries: [
+        {
+            fields: [ 'field4', 'field5', 'field6' ],
+            from: 'objectApi',
+            conditions: {
+                conditions: [
+                    {
+                        field: 'field4',
+                        expression: '',
+                        value: ''
+                    }
+                ],
+                order: ''
+            },
+            groupBy: [ 'field4', 'field5' ],
+            orderBy: {
+                field: 'field6',
+                order: 'asc/desc',
+                nulls: 'first/last'
+            },
+            limit: 1,
+            offset: 1,
+            for: 'reference/view'
+        }
+    ],
+    from: 'objectApi',
+    scope: 'delegated/mine/mineAndMyGroup/myTerritory/myTeamTerritory/team',
+    conditions: {
+        conditions: [
+            {
+                field: 'field1',
+                expression: '',
+                value: ''
+            }
+        ],
+        order: ''
+    },
+    security: 'withSecurityEnforced',
+    sharing: 'inherited/withSharing/withoutSharing',
+    groupBy: [ 'field1', 'field2' ],
+    orderBy: {
+        field: 'field1',
+        order: 'asc/desc',
+        nulls: 'first/last'
+    },
+    limit: 1,
+    offset: 1,
+    for: 'reference/view/update/allRows'
+}
+```
