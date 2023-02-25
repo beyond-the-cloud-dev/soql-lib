@@ -26,7 +26,6 @@ public inherited sharing class QB_Sub implements QB_QueryClause {
     // Where
 
     public QB_Sub whereAre(QB_ConditionsGroup conditions) {
-        // conditions.bindWith(qbb);
         qbs.conditions = conditions;
         return this;
     }

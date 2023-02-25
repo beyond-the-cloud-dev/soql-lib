@@ -35,7 +35,8 @@ List<Account> contacts2 = (List<Account>) QS.of(Account.sObjectType)
     Account.Name
 })
 .subQuery(
-    QS.SubQuery.of('Contacts')
+    QS.SubQuery
+    .of('Contacts')
     .fields(new List<sObjectField>{
         Contact.FirstName, Contact.LastName
     })

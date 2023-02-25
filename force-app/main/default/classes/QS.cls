@@ -9,9 +9,10 @@ public inherited sharing class QS {
     }
 
     private QS(sObjectType ofObject) {
+        qbb = new QBB();
+
         qb = new QB(ofObject);
         qbe = new QBE();
-        qbb = new QBB();
     }
 
     public static QB_ConditionsGroup ConditionGroup {
@@ -29,6 +30,12 @@ public inherited sharing class QS {
     public static QB_Sub SubQuery {
         get {
             return new QB_Sub(qbb);
+        }
+    }
+
+    public static QB_Join JoinQuery {
+        get {
+            return new QB_Join(qbb);
         }
     }
 

@@ -26,10 +26,10 @@ public class QB_ConditionsGroup implements QB_ConditionClause, QB_QueryClause {
             setDefaultOrder();
         }
 
-        return 'WHERE ' + build(qbb);
+        return 'WHERE ' + buildNested();
     }
 
-    public String build(QBB qbb) {
+    public String buildNested() {
         String orderWithSpecialCharacters = addSpecialCharactersToOrder(order); // e.g (*1* AND (*2* OR *3*))
 
         for (Integer i = 0; i < queryConditions.size(); i++) {
@@ -37,7 +37,7 @@ public class QB_ConditionsGroup implements QB_ConditionClause, QB_QueryClause {
 
             orderWithSpecialCharacters = orderWithSpecialCharacters.replace(
                 conditionNumber,
-                queryConditions.get(i).build(qbb)
+                queryConditions.get(i).build()
             );
         }
 
