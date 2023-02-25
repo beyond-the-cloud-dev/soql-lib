@@ -2,14 +2,13 @@ public inherited sharing class QB_Sub implements QB_QueryClause {
     private QBS qbs;
     private QBB qbb;
 
-    public QB_Sub of(String ofObject) {
-        // return new QB_Sub(ofObject);
-        // qbs.from.of(ofObject);
-        return this;
-    }
-
     public QB_Sub(QBB qbb) {
         this.qbb = qbb;
+    }
+
+    public QB_Sub of(String ofObject) {
+        qbs = new QBS(ofObject);
+        return this;
     }
 
     // Fields
@@ -28,7 +27,7 @@ public inherited sharing class QB_Sub implements QB_QueryClause {
 
     public QB_Sub whereAre(QB_ConditionsGroup conditions) {
         // conditions.bindWith(qbb);
-        // qb.conditions = conditions;
+        qbs.conditions = conditions;
         return this;
     }
 

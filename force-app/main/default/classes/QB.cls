@@ -14,6 +14,15 @@ public inherited sharing class QB implements QB_QueryClause {
 
     // 1 - SUB-QUERY
 
+    public QB_SubQueries subQueries {
+        get {
+            if (clauses[1] == null) {
+                clauses.set(1, new QB_SubQueries());
+            }
+            return (QB_SubQueries) clauses[1];
+        }
+    }
+
     // 2 - FROM
 
     public QBC.QScope scope {

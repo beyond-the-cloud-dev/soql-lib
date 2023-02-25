@@ -47,8 +47,7 @@ public inherited sharing class QS {
     // SubQuery
 
     public QS subquery(QB_Sub subQuery) {
-        // subQuery.
-        //TODO
+        qb.subQueries.add(subQuery);
         return this;
     }
 
@@ -87,7 +86,6 @@ public inherited sharing class QS {
     // Where
 
     public QS whereAre(QB_ConditionsGroup conditions) {
-        conditions.bindWith(qbb);
         qb.conditions = conditions;
         return this;
     }
