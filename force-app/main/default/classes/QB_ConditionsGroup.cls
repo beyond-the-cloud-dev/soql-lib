@@ -17,10 +17,6 @@ public class QB_ConditionsGroup implements QB_ConditionClause, QB_QueryClause {
         return this;
     }
 
-    public void bindWith(QBB qbb) {
-        // this.qbb = qbb;
-    }
-
     public String build() {
         if (queryConditions.isEmpty()) {
             return '';

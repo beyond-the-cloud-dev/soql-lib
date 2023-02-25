@@ -1,7 +1,8 @@
 public inherited sharing class QS {
+    private static QBB qbb;
+
     private QB qb;
     private QBE qbe;
-    private static QBB qbb;
 
     public static QS of(sObjectType ofObject) {
         return new QS(ofObject);
