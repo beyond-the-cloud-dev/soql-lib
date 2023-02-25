@@ -13,9 +13,15 @@ public inherited sharing class QS {
         qbb = new QBB();
     }
 
-    public static QB_WhereGroup ConditionsGroup {
+    public static QB_ConditionsGroup ConditionGroup {
         get {
-            return new QB_WhereGroup();
+            return new QB_ConditionsGroup();
+        }
+    }
+
+    public static QB_Condition Condition {
+        get {
+            return new QB_Condition();
         }
     }
 
@@ -72,8 +78,9 @@ public inherited sharing class QS {
 
     // Where
 
-    public QS whereAre(QB_WhereGroup conditions) {
-        conditions.setBinder(qbb);
+    public QS whereAre(QB_ConditionsGroup conditions) {
+        System.debug(LoggingLevel.DEBUG, 'qbb: ' + qbb);
+        conditions.bindWith(qbb);
         qb.conditions = conditions;
         return this;
     }
@@ -177,8 +184,12 @@ public inherited sharing class QS {
 
     // Result
 
+    public QS preview() {
+        qbe.preview();
+        return this;
+    }
+
     public sObject asObject() {
-        // return qbe.evaluate(qb.build(), binder.build()).asObject();
         return qbe.evaluate(qb.build(), qbb.build()).asObject();
     }
 
@@ -186,35 +197,3 @@ public inherited sharing class QS {
         return qbe.evaluate(qb.build(), qbb.build()).asList();
     }
 }
-
-// QS.of(Contact.sObjectType)
-//     .fields(new List<sObjectField>{})
-//     .myTerritoryScope()
-//     .groupBy(QC.GroupBy.field(Contact.Name))
-//     .orderBy(Contact.FirstName)
-//     .sortAsc()
-//     .nullLast()
-//     .whereAre(QC.Conditions
-//         .add(QC.Condition.field(Contact.FirstName).equal('Test 1'))
-//         .add(QC.Condition.field(Contact.LastName).equal('Test 2'))
-//         .add(QC.Conditions
-//             .add(QC.Condition.field(Contact.LastName).equal('Test 4'))
-//             .add(QC.Condition.field(Contact.LastName).equal('Test 5'))
-//             .order('1 AND 2')
-//         )
-//         .order('1 OR 2 OR 3')
-//     )
-//     .forUpdate()
-//     .setLimit(10)
-//     .setOffset(1000)
-//     .asList();
-
-// List<Account> contacts = (List<Account>) QS.of(Account.sObjectType)
-// .fields(new List<sObjectField>{
-//     Account.Name
-// })
-// .setLimit(10)
-// .asList();
-
-// System.debug(LoggingLevel.DEBUG, ': ' + contacts);
-// SELECT Id, Name FROM Account LIMIT 10

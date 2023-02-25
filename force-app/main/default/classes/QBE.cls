@@ -9,6 +9,7 @@ public inherited sharing class QBE {
     private AccessLevel accessMode = AccessLevel.USER_MODE;
 
     private String query;
+    private Boolean withPreview = false;
     private Map<String, Object> binding;
 
     private static final Map<SharingLevel, DatabaseQuery> MODE_TO_EXECUTOR = new Map<SharingLevel, DatabaseQuery>{
@@ -29,6 +30,10 @@ public inherited sharing class QBE {
         accessMode = AccessLevel.SYSTEM_MODE;
     }
 
+    public void preview() {
+        withPreview = true;
+    }
+
     public QBE evaluate(String query, Map<String, Object> binding) {
         this.query = query;
         this.binding = binding;
@@ -44,12 +49,22 @@ public inherited sharing class QBE {
     }
 
     public List<sObject> asList() {
+        if (withPreview) {
+            previewSoql();
+            previewBinding();
+        }
+
         //TODO return mock if there is mock
 
-        //TODO Binding
-        // Map<String, Object> binding = new Map<String, Object>();
-
         return MODE_TO_EXECUTOR.get(sharingMode).execute(query, binding, accessMode);
+    }
+
+    private void previewSoql() {
+        System.debug('\n\n============ Query Preview ============\n' + this.query + '\n=======================================\n');
+    }
+
+    private void previewBinding() {
+        System.debug('\n\n============ Query Binding ============\n' + JSON.serializePretty(this.binding) + '\n=======================================\n');
     }
 
     private interface DatabaseQuery {

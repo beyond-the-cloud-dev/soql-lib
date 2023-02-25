@@ -25,12 +25,12 @@ public inherited sharing class QB implements QB_QueryClause {
         }
     }
 
-    public QB_WhereGroup conditions {
+    public QB_ConditionsGroup conditions {
         get {
-            return (QB_WhereGroup) clauses[4];
+            return (QB_ConditionsGroup) clauses[4];
         }
         set {
-            clauses.set(4, conditions);
+            clauses.set(4, value);
         }
     }
 
