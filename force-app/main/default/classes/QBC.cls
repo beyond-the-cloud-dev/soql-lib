@@ -88,6 +88,9 @@ public with sharing class QBC {
     public class QGroupBy implements QB_QueryClause {
         private Set<String> groupByFields = new Set<String>();
 
+        private Boolean isRollup = false;
+        private Boolean isCube = false;
+
         public void field(sObjectField field) {
             groupByFields.add(field.getDescribe().getName());
         }
