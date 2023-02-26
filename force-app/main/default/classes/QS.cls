@@ -14,6 +14,12 @@ public inherited sharing class QS {
         qbe = new QBE();
     }
 
+    public static QB_Sub SubQuery {
+        get {
+            return new QB_Sub(qbb);
+        }
+    }
+
     public static QB_ConditionsGroup ConditionGroup {
         get {
             return new QB_ConditionsGroup(qbb);
@@ -23,12 +29,6 @@ public inherited sharing class QS {
     public static QB_Condition Condition {
         get {
             return new QB_Condition(qbb);
-        }
-    }
-
-    public static QB_Sub SubQuery {
-        get {
-            return new QB_Sub(qbb);
         }
     }
 
@@ -115,8 +115,13 @@ public inherited sharing class QS {
         return this;
     }
 
-    public QS orderByRelationship(String path, sObjectField field) {
-        //TODO
+    public QS orderByRelated(String path, sObjectField field) {
+        qb.orderBy.relatedField(path, field);
+        return this;
+    }
+
+    public QS orderByRelated(String path, List<sObjectField> fields) {
+        qb.orderBy.relatedFields(path, fields);
         return this;
     }
 

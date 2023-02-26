@@ -110,7 +110,7 @@ public with sharing class QBC {
     }
 
     public class QOrderBy implements QB_QueryClause {
-        private List<String> fields;
+        private Set<String> fields;
         private String sortingOrder = 'ASC';
         private String nullsOrder;
 
@@ -122,6 +122,16 @@ public with sharing class QBC {
 
         public void field(sObjectField field) {
             fields.add(field.getDescribe().getName());
+        }
+
+        public void relatedFields(String relationshipPath, List<sObjectField> fields) {
+            for (sObjectField field : fields) {
+                relatedField(relationshipPath, field);
+            }
+        }
+
+        public void relatedField(String relationshipPath, sObjectField field) {
+            fields.add(relationshipPath + '.' + field.getDescribe().getName());
         }
 
         public void sortAsc() {

@@ -49,8 +49,13 @@ public inherited sharing class QB_Sub implements QB_QueryClause {
         return this;
     }
 
-    public QB_Sub orderByRelationship(String path, sObjectField field) {
-        //TODO
+    public QB_Sub orderByRelated(String path, sObjectField field) {
+        qb.orderBy.relatedField(path, field);
+        return this;
+    }
+
+    public QB_Sub orderByRelated(String path, List<sObjectField> fields) {
+        qb.orderBy.relatedFields(path, fields);
         return this;
     }
 
