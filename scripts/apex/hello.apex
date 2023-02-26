@@ -30,16 +30,14 @@ List<Account> contacts2 = (List<Account>) QS.of(Account.sObjectType)
 // SELECT Id, Name FROM Account LIMIT 10
 
 // sub-query
-List<Account> contacts2 = (List<Account>) QS.of(Account.sObjectType)
+List<Account> accounts = (List<Account>) QS.of(Account.sObjectType)
 .fields(new List<sObjectField>{
-    Account.Name
+    Account.Name, Accont.Owner
 })
 .subQuery(
-    QS.SubQuery
-    .of('Contacts')
-    .fields(new List<sObjectField>{
-        Contact.FirstName, Contact.LastName
-    })
+    QS.SubQuery.of('Contacts')
+    .with(Contact.FirstName)
+    .with(Contact.Last)
 )
 .whereAre(QS.ConditionGroup
     .add(QS.Condition.field(Account.Name).equal('Test 2'))
@@ -48,3 +46,8 @@ List<Account> contacts2 = (List<Account>) QS.of(Account.sObjectType)
 .setLimit(10)
 .preview()
 .asList();
+
+
+List<Account> accounts = (List<Account>) QS.of(Account.sObjectType)
+.with(Account.Name)
+.with(Accont.Owner)
