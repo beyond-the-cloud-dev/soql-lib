@@ -20,14 +20,22 @@ public with sharing class QBC {
 
         public void retrive(List<sObjectField> fields) {
             for (sObjectField field : fields) {
-                queryFields.add(field.getDescribe().getName());
+                retrive(field);
             }
+        }
+
+        public void retrive(sObjectField field) {
+            queryFields.add(field.getDescribe().getName());
         }
 
         public void retrive(String relationshipPath, List<sObjectField> fields) {
             for (sObjectField field : fields) {
-                queryFields.add(relationshipPath + '.' + field.getDescribe().getName());
+                retrive(relationshipPath, field);
             }
+        }
+
+        public void retrive(String relationshipPath, sObjectField field) {
+            queryFields.add(relationshipPath + '.' + field.getDescribe().getName());
         }
 
         public String build() {

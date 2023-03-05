@@ -10,10 +10,11 @@ public with sharing class QB_Join implements QB_QueryClause {
     public QB_Join(QBB qbb) {
         this.qbb = qbb;
     }
+
     // Fields
 
     public QB_Join field(sObjectField field) {
-        qb.fields.retrive(new List<sObjectField>{ field });
+        qb.fields.retrive(field);
         return this;
     }
 
