@@ -10,6 +10,10 @@ public with sharing class QBC {
             queryFields.add('COUNT(' + field.getDescribe().getName() +')');
         }
 
+        public void grouping(sObjectField field) {
+            queryFields.add('GROUPING(' + field.getDescribe().getName() +')');
+        }
+
         public void grouping(sObjectField field, String alias) {
             queryFields.add('GROUPING(' + field.getDescribe().getName() +')' + alias);
         }

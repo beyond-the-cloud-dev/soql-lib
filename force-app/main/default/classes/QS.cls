@@ -52,6 +52,11 @@ public inherited sharing class QS {
         return this;
     }
 
+    public QS grouping(sObjectField field) {
+        qb.fields.grouping(field);
+        return this;
+    }
+
     public QS grouping(sObjectField field, String alias) {
         qb.fields.grouping(field, alias);
         return this;
