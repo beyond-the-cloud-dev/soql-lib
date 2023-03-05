@@ -1,8 +1,8 @@
 public inherited sharing abstract class SObjectSelector {
-    protected QS qsBuilder;
+    protected QS selector;
 
     public SObjectSelector() {
-        qsBuilder = QS.of(fromSObject());
+        selector = QS.of(fromSObject());
         globalQueryConfig();
     }
 

@@ -1,11 +1,12 @@
 public class QB_ConditionsGroup implements QB_ConditionClause, QB_Part {
     private List<QB_ConditionClause> queryConditions = new List<QB_ConditionClause>();
     private String order = '';
-    private QBB qbb;
 
-    public QB_ConditionsGroup(QBB qbb) {
-        this.qbb = qbb;
+    public static QB_ConditionsGroup newGroup() {
+        return new QB_ConditionsGroup();
     }
+
+    private QB_ConditionsGroup() {}
 
     public QB_ConditionsGroup add(QB_ConditionClause condition) {
         queryConditions.add(condition);

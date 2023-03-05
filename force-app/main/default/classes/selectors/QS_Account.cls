@@ -4,7 +4,7 @@ public inherited sharing class QS_Account extends SObjectSelector {
     }
 
     public void globalQueryConfig() {
-        qsBuilder.fields(new List<sObjectField>{
+        selector.fields(new List<sObjectField>{
             Account.Name,
             Account.AccountNumber,
             Account.AnnualRevenue,
@@ -18,7 +18,7 @@ public inherited sharing class QS_Account extends SObjectSelector {
     }
 
     public Account getById(Id accountId) {
-        return (Account) qsBuilder
+        return (Account) selector
             .whereAre(QS.ConditionGroup
                 .add(QS.Condition.field(Account.Id).equal(accountId))
             )
@@ -27,7 +27,7 @@ public inherited sharing class QS_Account extends SObjectSelector {
     }
 
     public List<Account> getByIds(List<Id> accountIds) {
-        return (List<Account>) qsBuilder
+        return (List<Account>) selector
             .whereAre(QS.ConditionGroup
                 .add(QS.Condition.field(Account.Id).inCollection(accountIds))
             )

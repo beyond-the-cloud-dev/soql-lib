@@ -2,13 +2,19 @@ public with sharing class QB_Join implements QB_Part {
     private QB qb;
     private QBB qbb;
 
+    public static QB_Join joinWithBinder(QBB qbb) {
+        return new QB_Join(qbb);
+    }
+
+    private QB_Join(QBB qbb) {
+        this.qbb = qbb;
+    }
+
+    // From
+
     public QB_Join of(sObjectType ofObject) {
         qb = new QB(ofObject);
         return this;
-    }
-
-    public QB_Join(QBB qbb) {
-        this.qbb = qbb;
     }
 
     // Fields

@@ -2,9 +2,15 @@ public inherited sharing class QB_Sub implements QB_Part {
     private QB qb;
     private QBB qbb;
 
-    public QB_Sub(QBB qbb) {
+    public static QB_Sub subQueryWithBinder(QBB qbb) {
+        return new QB_Sub(qbb);
+    }
+
+    private QB_Sub(QBB qbb) {
         this.qbb = qbb;
     }
+
+    // From
 
     public QB_Sub of(String ofObject) {
         qb = new QB(ofObject);

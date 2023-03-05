@@ -16,25 +16,25 @@ public inherited sharing class QS {
 
     public static QB_Sub SubQuery {
         get {
-            return new QB_Sub(qbb);
+            return QB_Sub.subQueryWithBinder(qbb);
         }
     }
 
     public static QB_ConditionsGroup ConditionGroup {
         get {
-            return new QB_ConditionsGroup(qbb);
+            return QB_ConditionsGroup.newGroup();
         }
     }
 
     public static QB_Condition Condition {
         get {
-            return new QB_Condition(qbb);
+            return QB_Condition.conditionWithBinder(qbb);
         }
     }
 
     public static QB_Join JoinQuery {
         get {
-            return new QB_Join(qbb);
+            return QB_Join.joinWithBinder(qbb);
         }
     }
 

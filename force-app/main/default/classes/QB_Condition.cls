@@ -5,7 +5,11 @@ public class QB_Condition implements QB_ConditionClause {
     private QBB qbb;
     private QB_Join joinQuery;
 
-    public QB_Condition(QBB qbb) {
+    public static QB_Condition conditionWithBinder(QBB qbb) {
+        return new QB_Condition(qbb);
+    }
+
+    private QB_Condition(QBB qbb) {
         this.qbb = qbb;
     }
 
