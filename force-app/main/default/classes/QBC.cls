@@ -1,5 +1,5 @@
 public with sharing class QBC {
-    public class QFields implements QB_QueryClause {
+    public class QFields implements QB_Part {
         private Set<String> queryFields = new Set<String>{ 'Id' };
 
         public void count() {
@@ -43,7 +43,7 @@ public with sharing class QBC {
         }
     }
 
-    public class QB_SubQueries implements QB_QueryClause {
+    public class QB_SubQueries implements QB_Part {
         private List<QB_Sub> subQueries = new List<QB_Sub>();
 
         public void add(QB_Sub subQuery) {
@@ -61,7 +61,7 @@ public with sharing class QBC {
         }
     }
 
-    public class QFrom implements QB_QueryClause {
+    public class QFrom implements QB_Part {
         private String objectApiName;
 
         public QFrom(sObjectType objectType) {
@@ -77,7 +77,7 @@ public with sharing class QBC {
         }
     }
 
-    public class QScope implements QB_QueryClause {
+    public class QScope implements QB_Part {
         private String scope = 'EVERYTHING';
 
         public void delegated() {
@@ -109,7 +109,7 @@ public with sharing class QBC {
         }
     }
 
-    public class QGroupBy implements QB_QueryClause {
+    public class QGroupBy implements QB_Part {
         private Set<String> groupByFields = new Set<String>();
 
         public void field(sObjectField field) {
@@ -133,7 +133,7 @@ public with sharing class QBC {
         }
     }
 
-    public class QOrderBy implements QB_QueryClause {
+    public class QOrderBy implements QB_Part {
         private Set<String> fields;
         private String sortingOrder = 'ASC';
         private String nullsOrder;
@@ -189,7 +189,7 @@ public with sharing class QBC {
         }
     }
 
-    public class QLimit implements QB_QueryClause {
+    public class QLimit implements QB_Part {
         private Integer soqlLimit = 50000;
 
         public void max(Integer soqlLimit) {
@@ -201,7 +201,7 @@ public with sharing class QBC {
         }
     }
 
-    public class QOffset implements QB_QueryClause {
+    public class QOffset implements QB_Part {
         private Integer soqlOffset = 2000;
 
         public void fromRow(Integer soqlOffset) {
@@ -213,7 +213,7 @@ public with sharing class QBC {
         }
     }
 
-    public class QFor implements QB_QueryClause {
+    public class QFor implements QB_Part {
         private String forStatement;
 
         public void forReference() {

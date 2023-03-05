@@ -1,13 +1,13 @@
 public with sharing class QBB {
-    private static Integer index = 0;
+    private static Integer uniqueIndex = 0;
     private Map<String, Object> binding = new Map<String, Object>();
 
     public String bind(Object value) {
-        index++;
+        uniqueIndex++;
 
-        binding.put('v' + index, value);
+        binding.put('v' + uniqueIndex, value);
 
-        return 'v' + index;
+        return 'v' + uniqueIndex;
     }
 
     public Map<String, Object> build() {

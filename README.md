@@ -32,10 +32,10 @@ Each query clause (`SELECT`, `FROM`, `WHERE`, `LIMIT`) is represented by separat
 | 11    | FOR               | `QB_For.cls`                                 |
 
 
-All classes mentioned above and `QB.cls` extends `QB_QueryClause.clss` abstract class.
+All classes mentioned above and `QB.cls` extends `QB_Part.clss` abstract class.
 
 ```java
-public abstract class QB_QueryClause {
+public abstract class QB_Part {
 
     public abstract String build();
 

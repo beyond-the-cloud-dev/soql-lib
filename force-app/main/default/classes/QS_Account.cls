@@ -3,7 +3,7 @@ public inherited sharing class QS_Account extends SObjectSelector {
         return Account.sObjectType;
     }
 
-    public void globalConfig() {
+    public void globalQueryConfig() {
         qsBuilder.fields(new List<sObjectField>{
             Account.Name,
             Account.AccountNumber,

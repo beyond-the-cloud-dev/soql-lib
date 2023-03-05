@@ -1,4 +1,4 @@
-public inherited sharing class QB_Sub implements QB_QueryClause {
+public inherited sharing class QB_Sub implements QB_Part {
     private QB qb;
     private QBB qbb;
 

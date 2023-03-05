@@ -1,4 +1,4 @@
-public with sharing class QB_Join implements QB_QueryClause {
+public with sharing class QB_Join implements QB_Part {
     private QB qb;
     private QBB qbb;
 

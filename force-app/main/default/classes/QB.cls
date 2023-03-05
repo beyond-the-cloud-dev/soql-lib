@@ -1,5 +1,5 @@
-public inherited sharing class QB implements QB_QueryClause {
-    private List<QB_QueryClause> clauses = new QB_QueryClause[10];
+public inherited sharing class QB implements QB_Part {
+    private List<QB_Part> clauses = new QB_Part[10];
 
     public QB(sObjectType ofObject) {
         this(ofObject.getDescribe().getName());
@@ -91,7 +91,7 @@ public inherited sharing class QB implements QB_QueryClause {
     public String build() {
         List<String> soqlParts = new List<String>();
 
-        for (QB_QueryClause clause : clauses) {
+        for (QB_Part clause : clauses) {
             if (clause == null) {
                 continue;
             }

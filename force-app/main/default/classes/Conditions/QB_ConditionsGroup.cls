@@ -1,4 +1,4 @@
-public class QB_ConditionsGroup implements QB_ConditionClause, QB_QueryClause {
+public class QB_ConditionsGroup implements QB_ConditionClause, QB_Part {
     private List<QB_ConditionClause> queryConditions = new List<QB_ConditionClause>();
     private String order = '';
     private QBB qbb;

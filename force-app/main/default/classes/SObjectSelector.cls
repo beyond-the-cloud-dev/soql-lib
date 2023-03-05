@@ -3,10 +3,10 @@ public inherited sharing abstract class SObjectSelector {
 
     public SObjectSelector() {
         qsBuilder = QS.of(fromSObject());
-        globalConfig();
+        globalQueryConfig();
     }
 
     abstract sObjectType fromSObject();
 
-    virtual void globalConfig() {}
+    virtual void globalQueryConfig() {}
 }
