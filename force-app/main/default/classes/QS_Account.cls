@@ -3,8 +3,8 @@ public inherited sharing class QS_Account extends SObjectSelector {
         return Account.sObjectType;
     }
 
-    public List<sObjectField> standardFields() {
-        return new List<sObjectField>{
+    public void globalConfig() {
+        qsBuilder.fields(new List<sObjectField>{
             Account.Name,
             Account.AccountNumber,
             Account.AnnualRevenue,
@@ -14,7 +14,7 @@ public inherited sharing class QS_Account extends SObjectSelector {
             Account.BillingLongitude,
             Account.BillingPostalCode,
             Account.BillingState
-        };
+        });
     }
 
     public Account getById(Id accountId) {
@@ -29,10 +29,9 @@ public inherited sharing class QS_Account extends SObjectSelector {
     public List<Account> getByIds(List<Id> accountIds) {
         return (List<Account>) qsBuilder
             .whereAre(QS.ConditionGroup
-                .add(
-                    QS.Condition.field(Account.Id).inCollection(accountIds)
-                )
+                .add(QS.Condition.field(Account.Id).inCollection(accountIds))
             )
+            .preview()
             .asList();
     }
 }
