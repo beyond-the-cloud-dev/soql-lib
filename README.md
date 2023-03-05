@@ -48,131 +48,7 @@ public inherited sharing class QS_Account extends SObjectSelector {
 
 ## Architecture
 
-Framework has two main classes:
-- Query Builder (`QB.cls`) - Builder, that allows you to create and execute dynamic SQOL.
-- Query Selector (`QS.cls`) - Extends `QB` and add Selector specific logic, that can be use by concrete selectors.
-
 ![image](README.svg)
-### Query Builder (QB)
-
-Allows to build and execute dynamic SQOL.
-
-Query Builder (QB) framework uses [Composite](https://refactoring.guru/design-patterns/composite) and [Builder](https://refactoring.guru/design-patterns/builder) patterns.
-
-Each query clause (`SELECT`, `FROM`, `WHERE`, `LIMIT`) is represented by separated Apex Class (Single Responsibility Principle).
-
-| Index | Statement         | Apex Class                                   |
-| ----- | ----------------- | -------------------------------------------- |
-| 1     | SELECT            | `QB_Fields.cls`                              |
-| 2     | subQuery          | `QB_Sub.cls`                                 |
-| 3     | FROM              | `QB_From.cls`                                |
-| 4     | USING SCOPE       | `QB_Scope.cls`, `QB_SubQueries.cls`          |
-| 5     | WHERE             | `QB_ConditionsGroup.cls`, `QB_Condition.cls` |
-| 6     | SECURITY_ENFORCED | `QB_WithSecurityEnforced.cls`                |
-| 7     | GROUP BY          | `QB_GroupBy.cls`                             |
-| 8     | ORDER BY          | `QB_OrderBy.cls`                             |
-| 9     | LIMIT             | `QB_Limit.cls`                               |
-| 10    | OFFSET            | `QB_Offset.cls`                              |
-| 11    | FOR               | `QB_For.cls`                                 |
-
-
-All classes mentioned above and `QB.cls` extends `QB_Part.clss` abstract class.
-
-```java
-public abstract class QB_Part {
-
-    public abstract String build();
-
-    public virtual String validate() {
-        return '';
-    }
-}
-```
-
-Classes needs to implement:
-- `String build()` - returns SOQL part.
-- `String validate()` - can be use to provide additional validation that will be executed during build phase.
-
-Developer should use:
-- `QS_ObjectA.cls` - to build SOQL.
-- `QB_ConditionsGroup.cls`, `QB_Condition.cls` - to prepare conditions.
-- `QB_TestMock.cls`, `QB_Mock.cls` - to mock query results in unit tests.
-
-```java
-new QB(sObjectType)
-    // Fields
-    .fields(List<sObjectField> fields)
-    .fields(String commaSeparatedFields)
-    .relationship(String relationshipName, List<sObjectField> fields)
-    // SubQuery
-    .subQuery(QB_Sub subQueryBuilder)
-    // Scope - only one
-    .delegatedScope()
-    .mineScope()
-    .mineAndMyGroupsScope()
-    .myTerritoryScope()
-    .myTeamTerritoryScope()
-    .teamScope()
-    // Where
-    .condition(QB_ConditionClause conditionClause)
-    .conditionsOrder(String conditionsOrder)
-    // Security
-    .withoutSecurityEnforced() // WITH SECURITY ENFORCED by default
-    .withSharing()
-    .withoutSharing()
-    // Group By
-    .groupBy(sObjectField field)
-    .groupBy(List<sObjectField> fields)
-    // Order By
-    .ascOrder(sObjectField field)
-    .ascOrder(String field)
-    .descOrder(sObjectField field)
-    .descOrder(String field)
-    .nullFirst()
-    .nullLast()
-    // Limit
-    .setLimit(Integer soqlLimit)
-    // Offset
-    .setOffset(Integer soqlOffset)
-    // For - only one
-    .forReference()
-    .forView()
-    .forUpdate()
-    .allRows()
-    // Mocking - Allow mocking in unit tests
-    .mocking(String queryIdentifier)
-    // Debug
-    .preview()
-    // Execute
-    .toSObject()
-    .toSObjects()
-```
-
-### Query Selector (QS)
-
-Query Builder is middle class between `QB.cls` and concrete selectors.
-QS contains default methods that can be used by new selectors.
-
-SObject Selectors should extends `QS` class, and implements the following methods:
-- `getById(Id recordId)`
-- `getByIds(List<Id> recordIds)`
-- `toObject()`
-- `toList()`
-
-**NOTE** Methods implementation **CANNOT** be forced by interface/abstract method, because methods return instances of concrete object so developer do not need to cast it.
-
-### Conditions
-
-Conditions are handled by the following classes:
- - `QB_Condition.cls`
- - `QB_ConditionsGroup.cls`
-
-It allows build conditions in dynamic way. Pass `QB_ConditionsGroup` instance between methods and modify it.
-
-```java
-new QB_Condition(Schema.SObjectField field)
-new QB_Condition(String fieldName)
-```
 
 ### Test Mocking
 
@@ -224,16 +100,13 @@ public class MyController {
     // Inline SOQL
     @AuraEnabled
     public static List<Account> getAccounts() {
-        return [SELECT Id, Name FROM Account LIMIT 100];
+        return [SELECT Id, Name FROM Account;
     }
 
     // Selector
     @AuraEnabled
     public static List<Account> getAccounts() {
-        return QS_Account()
-            .fields(new List<sObjectField>{ Account.Id, Account.Name})
-            .setLimit(100)
-            .toList();
+        return new QS_Account().getAll();
     }
 }
 ```
