@@ -1,6 +1,50 @@
 # Query Selector (QS) - Query Builder (QB)
 
-Dynamic SOQL refers to the creation of a SOQL string at run time with Apex code. Dynamic SOQL enables you to create more flexible applications. For example, you can create a search based on input from an end user or update records with varying field names.
+Apex QS provides functional constructs for SOQL.
+
+## Examples
+
+```java
+public inherited sharing class QS_Account extends SObjectSelector {
+    public sObjectType fromSObject() {
+        return Account.sObjectType;
+    }
+
+    public void globalQueryConfig() {
+        selector.fields(new List<sObjectField>{
+            Account.Name,
+            Account.AccountNumber
+        });
+    }
+
+    public Account getById(Id accountId) {
+        return (Account) selector
+            .fields(new List<sObjectField>{
+                Account.BillingCity,
+                Account.BillingCountry,
+                Account.BillingCountryCode
+            })
+            .whereAre(QS.ConditionGroup
+                .add(QS.Condition.field(Account.Id).equal(accountId))
+            )
+            .preview()
+            .asObject();
+    }
+
+    public List<Account> getByIds(List<Id> accountIds) {
+        return (List<Account>) selector
+            .fields(new List<sObjectField>{
+                Account.BillingPostalCode,
+                Account.BillingState
+            })
+            .whereAre(QS.ConditionGroup
+                .add(QS.Condition.field(Account.Id).inCollection(accountIds))
+            )
+            .preview()
+            .asList();
+    }
+}
+```
 
 ## Architecture
 
