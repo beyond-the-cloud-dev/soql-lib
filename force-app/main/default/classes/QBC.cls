@@ -2,8 +2,16 @@ public with sharing class QBC {
     public class QFields implements QB_QueryClause {
         private Set<String> queryFields = new Set<String>{ 'Id' };
 
+        public void count() {
+            queryFields.add('COUNT(Id)');
+        }
+
         public void count(sObjectField field) {
             queryFields.add('COUNT(' + field.getDescribe().getName() +')');
+        }
+
+        public void grouping(sObjectField field, String alias) {
+            queryFields.add('GROUPING(' + field.getDescribe().getName() +')' + alias);
         }
 
         public void retrive(List<sObjectField> fields) {

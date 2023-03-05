@@ -40,9 +40,20 @@ public inherited sharing class QS {
 
     // Fields
 
+    public QS count() {
+        qb.fields.count();
+        qbe.countQuery();
+        return this;
+    }
+
     public QS count(sObjectField field) {
         qb.fields.count(field);
         qbe.countQuery();
+        return this;
+    }
+
+    public QS grouping(sObjectField field, String alias) {
+        qb.fields.grouping(field, alias);
         return this;
     }
 
