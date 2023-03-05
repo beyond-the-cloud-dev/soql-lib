@@ -104,9 +104,6 @@ public with sharing class QBC {
     public class QGroupBy implements QB_QueryClause {
         private Set<String> groupByFields = new Set<String>();
 
-        private Boolean isRollup = false;
-        private Boolean isCube = false;
-
         public void field(sObjectField field) {
             groupByFields.add(field.getDescribe().getName());
         }
@@ -115,12 +112,12 @@ public with sharing class QBC {
             //TODO
         }
 
-        public void rollup() {
-            //TODO
+        public void rollup(sObjectField field) {
+            groupByFields.add('ROLLUP(' + field.getDescribe().getName() + ')');
         }
 
-        public void cube() {
-            //TODO
+        public void cube(sObjectField field) {
+            groupByFields.add('CUBE(' + field.getDescribe().getName() + ')');
         }
 
         public String build() {
@@ -141,6 +138,10 @@ public with sharing class QBC {
 
         public void field(sObjectField field) {
             fields.add(field.getDescribe().getName());
+        }
+
+        public void grouping(sObjectField field) {
+            fields.add('GROUPING(' + field.getDescribe().getName() + ')');
         }
 
         public void relatedFields(String relationshipPath, List<sObjectField> fields) {

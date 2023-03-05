@@ -125,6 +125,16 @@ public inherited sharing class QS {
         return this;
     }
 
+    public QS groupByRollup(sObjectField field) {
+        qb.groupBy.rollup(field);
+        return this;
+    }
+
+    public QS groupByCube(sObjectField field) {
+        qb.groupBy.cube(field);
+        return this;
+    }
+
     // Order By
 
     public QS orderBy(sObjectField field) {
@@ -132,8 +142,8 @@ public inherited sharing class QS {
         return this;
     }
 
-    public QS orderBy(List<sObjectField> fields) {
-        qb.orderBy.fields(fields);
+    public QS orderByGrouping(sObjectField field) {
+        qb.orderBy.grouping(field);
         return this;
     }
 
