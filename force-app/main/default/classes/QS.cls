@@ -40,6 +40,12 @@ public inherited sharing class QS {
 
     // Fields
 
+    public QS count(sObjectField field) {
+        qb.fields.count(field);
+        qbe.countQuery();
+        return this;
+    }
+
     public QS fields(List<sObjectField> fields) {
         qb.fields.retrive(fields);
         return this;
@@ -211,5 +217,9 @@ public inherited sharing class QS {
 
     public List<sObject> asList() {
         return qbe.evaluate(qb.build(), qbb.build()).asList();
+    }
+
+    public Integer asInteger() {
+        return qbe.evaluate(qb.build(), qbb.build()).asInteger();
     }
 }

@@ -10,6 +10,7 @@ public inherited sharing class QBE {
 
     private String query;
     private Boolean withPreview = false;
+    private Boolean isCountQuery = false;
     private Map<String, Object> binding;
 
     private static final Map<SharingLevel, DatabaseQuery> MODE_TO_EXECUTOR = new Map<SharingLevel, DatabaseQuery>{
@@ -30,6 +31,10 @@ public inherited sharing class QBE {
         accessMode = AccessLevel.SYSTEM_MODE;
     }
 
+    public void countQuery() {
+        isCountQuery = true;
+    }
+
     public void preview() {
         withPreview = true;
     }
@@ -46,6 +51,17 @@ public inherited sharing class QBE {
         } catch (ListException e) {
             return null; // List index out of bounds: 0
         }
+    }
+
+    public Integer asInteger() {
+        if (withPreview) {
+            previewSoql();
+            previewBinding();
+        }
+
+        //TODO return mock if there is mock
+
+        return MODE_TO_EXECUTOR.get(sharingMode).executeCount(query, binding, accessMode);
     }
 
     public List<sObject> asList() {
@@ -69,11 +85,16 @@ public inherited sharing class QBE {
 
     private interface DatabaseQuery {
         List<sObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel);
+        Integer executeCount(String query, Map<String, Object> binding, AccessLevel accessLevel);
     }
 
     private inherited sharing class InheritedSharing implements DatabaseQuery {
         public List<sObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.queryWithBinds(query, binding, accessLevel);
+        }
+
+        public Integer executeCount(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.countQueryWithBinds(query, binding, accessLevel);
         }
     }
 
@@ -81,11 +102,19 @@ public inherited sharing class QBE {
         public List<sObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.queryWithBinds(query, binding, accessLevel);
         }
+
+        public Integer executeCount(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.countQueryWithBinds(query, binding, accessLevel);
+        }
     }
 
     private with sharing class WithSharing implements DatabaseQuery {
         public List<sObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.queryWithBinds(query, binding, accessLevel);
+        }
+
+        public Integer executeCount(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.countQueryWithBinds(query, binding, accessLevel);
         }
     }
 }
