@@ -11,6 +11,19 @@ public inherited sharing class QS_Contact extends SObjectSelector {
         });
     }
 
+    public List<Contact> getAll() {
+        return (List<Contact>) selector
+            .fields(new List<sObjectField>{
+                Contact.Name,
+                Contact.FirstName,
+                Contact.LastName
+            })
+            .orderBy(Contact.Name)
+            .setLimit(1000)
+            .preview()
+            .asList();
+    }
+
     public Contact getById(Id contactId) {
         return (Contact) selector
             .whereAre(QS.ConditionGroup
