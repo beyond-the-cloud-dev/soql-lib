@@ -1,37 +1,21 @@
-public inherited sharing class QS_Account extends SObjectSelector {
-    public sObjectType fromSObject() {
-        return Account.sObjectType;
+public inherited sharing class QS_Account {
+
+    public static QS Selector {
+        get {
+            return QS.of(Account.sObjectType).fields(new List<sObjectField>{
+                Account.Name,
+                Account.AccountNumber
+            });
+        }
     }
 
-    public void globalQueryConfig() {
-        selector.fields(new List<sObjectField>{
-            Account.Name,
-            Account.AccountNumber,
-            Account.AnnualRevenue,
+    public static QS getByRecordType(String rtDevName) {
+        return Selector.fields(new List<sObjectField>{
             Account.BillingCity,
             Account.BillingCountry,
-            Account.BillingCountryCode,
-            Account.BillingLongitude,
-            Account.BillingPostalCode,
-            Account.BillingState
-        });
-    }
-
-    public Account getById(Id accountId) {
-        return (Account) selector
-            .whereAre(QS.ConditionGroup
-                .add(QS.Condition.field(Account.Id).equal(accountId))
-            )
-            .preview()
-            .asObject();
-    }
-
-    public List<Account> getByIds(List<Id> accountIds) {
-        return (List<Account>) selector
-            .whereAre(QS.ConditionGroup
-                .add(QS.Condition.field(Account.Id).inCollection(accountIds))
-            )
-            .preview()
-            .asList();
+            Account.BillingCountryCode
+        }).whereAre(QS.ConditionGroup
+            .add(QS.Condition.recordTypeDeveloperName().equal(rtDevName))
+        );
     }
 }

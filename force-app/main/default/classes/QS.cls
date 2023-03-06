@@ -248,4 +248,14 @@ public inherited sharing class QS {
     public Integer asInteger() {
         return qbe.evaluate(qb.build(), qbb.build()).asInteger();
     }
+
+    // Standard
+
+    public sObject getById(Id recordId) {
+        return whereAre(QS.ConditionGroup.add(QS.Condition.field(Account.Id).equal(recordId))).asObject();
+    }
+
+    public List<sObject> getByIds(List<Id> recordIds) {
+        return whereAre(QS.ConditionGroup.add(QS.Condition.field(Account.Id).inCollection(recordIds))).asList();
+    }
 }
