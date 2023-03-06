@@ -9,6 +9,7 @@ public inherited sharing class QBE {
     private AccessLevel accessMode = AccessLevel.USER_MODE;
 
     private String query;
+    private String queryIdentifier;
     private Boolean withPreview = false;
     private Boolean isCountQuery = false;
     private Map<String, Object> binding;
@@ -29,6 +30,10 @@ public inherited sharing class QBE {
 
     public void systemMode() {
         accessMode = AccessLevel.SYSTEM_MODE;
+    }
+
+    public void mocking(String identifier) {
+        queryIdentifier = identifier;
     }
 
     public void countQuery() {
@@ -59,7 +64,9 @@ public inherited sharing class QBE {
             previewBinding();
         }
 
-        //TODO return mock if there is mock
+        if (QS_Mock.containsCountMock(queryIdentifier)) {
+            return QS_Mock.getCountMock(queryIdentifier);
+        }
 
         return MODE_TO_EXECUTOR.get(sharingMode).executeCount(query, binding, accessMode);
     }
@@ -70,7 +77,9 @@ public inherited sharing class QBE {
             previewBinding();
         }
 
-        //TODO return mock if there is mock
+        if (QS_Mock.containsMock(queryIdentifier)) {
+            return QS_Mock.getMock(queryIdentifier);
+        }
 
         return MODE_TO_EXECUTOR.get(sharingMode).execute(query, binding, accessMode);
     }

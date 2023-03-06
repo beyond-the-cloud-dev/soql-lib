@@ -230,6 +230,13 @@ public inherited sharing class QS {
         return this;
     }
 
+    // Mocking
+
+    public QS mocking(String queryIdentifier) {
+        qbe.mocking(queryIdentifier);
+        return this;
+    }
+
     // Result
 
     public QS preview() {
