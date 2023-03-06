@@ -2,7 +2,7 @@ public inherited sharing class QS {
     private static QBB qbb;
 
     private QB qb;
-    private QBE qbe;
+    private QE qe;
 
     public static QS of(sObjectType ofObject) {
         return new QS(ofObject);
@@ -11,7 +11,7 @@ public inherited sharing class QS {
     private QS(sObjectType ofObject) {
         qbb = new QBB();
         qb = new QB(ofObject);
-        qbe = new QBE();
+        qe = new QE();
     }
 
     public static QB_Sub SubQuery {
@@ -42,13 +42,13 @@ public inherited sharing class QS {
 
     public QS count() {
         qb.fields.count();
-        qbe.countQuery();
+        qe.countQuery();
         return this;
     }
 
     public QS count(sObjectField field) {
         qb.fields.count(field);
-        qbe.countQuery();
+        qe.countQuery();
         return this;
     }
 
@@ -221,44 +221,44 @@ public inherited sharing class QS {
     // Sharing
 
     public QS systemMode() {
-        qbe.systemMode();
+        qe.systemMode();
         return this;
     }
 
     public QS withSharing() {
-        qbe.withSharing();
+        qe.withSharing();
         return this;
     }
 
     public QS withoutSharing() {
-        qbe.withoutSharing();
+        qe.withoutSharing();
         return this;
     }
 
     // Mocking
 
     public QS mocking(String queryIdentifier) {
-        qbe.mocking(queryIdentifier);
+        qe.mocking(queryIdentifier);
         return this;
     }
 
     // Result
 
     public QS preview() {
-        qbe.preview();
+        qe.preview();
         return this;
     }
 
     public sObject asObject() {
-        return qbe.evaluate(qb.build(), qbb.build()).asObject();
+        return qe.evaluate(qb.build(), qbb.build()).asObject();
     }
 
     public List<sObject> asList() {
-        return qbe.evaluate(qb.build(), qbb.build()).asList();
+        return qe.evaluate(qb.build(), qbb.build()).asList();
     }
 
     public Integer asInteger() {
-        return qbe.evaluate(qb.build(), qbb.build()).asInteger();
+        return qe.evaluate(qb.build(), qbb.build()).asInteger();
     }
 
     // Standard
