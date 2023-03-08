@@ -32,7 +32,7 @@ public inherited sharing class QB_Sub implements QB_Part {
     // Where
 
     public QB_Sub whereAre(QB_ConditionsGroup conditions) {
-        builder.conditions = conditions;
+        builder.conditions.add(conditions);
         return this;
     }
 

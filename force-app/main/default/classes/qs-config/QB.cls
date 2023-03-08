@@ -36,10 +36,10 @@ public inherited sharing class QB implements QB_Part {
 
     public QB_ConditionsGroup conditions {
         get {
+            if (clauses[4] == null) {
+                clauses.set(4, QB_ConditionsGroup.newGroup());
+            }
             return (QB_ConditionsGroup) clauses[4];
-        }
-        set {
-            clauses.set(4, value);
         }
     }
 

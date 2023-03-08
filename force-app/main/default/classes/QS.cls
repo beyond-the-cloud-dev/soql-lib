@@ -119,7 +119,7 @@ public inherited sharing class QS {
     // Where
 
     public QS whereAre(QB_ConditionsGroup conditions) {
-        builder.conditions = conditions;
+        builder.conditions.add(conditions);
         return this;
     }
 
