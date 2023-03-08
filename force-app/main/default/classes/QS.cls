@@ -1,22 +1,22 @@
 public inherited sharing class QS {
-    private static QBB qbb;
+    private static QB_Bind bind;
 
-    private QB qb;
-    private QE qe;
+    private QB builder;
+    private QB_Executor executor;
 
     public static QS of(sObjectType ofObject) {
         return new QS(ofObject);
     }
 
     private QS(sObjectType ofObject) {
-        qbb = new QBB();
-        qb = new QB(ofObject);
-        qe = new QE();
+        bind = new QB_Bind();
+        builder = new QB(ofObject);
+        executor = new QB_Executor();
     }
 
     public static QB_Sub SubQuery {
         get {
-            return QB_Sub.subQueryWithBinder(qbb);
+            return QB_Sub.subQueryWithBinder(bind);
         }
     }
 
@@ -28,237 +28,237 @@ public inherited sharing class QS {
 
     public static QB_Condition Condition {
         get {
-            return QB_Condition.conditionWithBinder(qbb);
+            return QB_Condition.conditionWithBinder(bind);
         }
     }
 
     public static QB_Join JoinQuery {
         get {
-            return QB_Join.joinWithBinder(qbb);
+            return QB_Join.joinWithBinder(bind);
         }
     }
 
     // Fields
 
     public QS count() {
-        qb.fields.count();
-        qe.countQuery();
+        builder.fields.count();
+        executor.countQuery();
         return this;
     }
 
     public QS count(sObjectField field) {
-        qb.fields.count(field);
-        qe.countQuery();
+        builder.fields.count(field);
+        executor.countQuery();
         return this;
     }
 
     public QS grouping(sObjectField field) {
-        qb.fields.grouping(field);
+        builder.fields.grouping(field);
         return this;
     }
 
     public QS grouping(sObjectField field, String alias) {
-        qb.fields.grouping(field, alias);
+        builder.fields.grouping(field, alias);
         return this;
     }
 
     public QS field(sObjectField field) {
-        qb.fields.retrive(field);
+        builder.fields.retrive(field);
         return this;
     }
 
     public QS fields(List<sObjectField> fields) {
-        qb.fields.retrive(fields);
+        builder.fields.retrive(fields);
         return this;
     }
 
     public QS relatedFields(String relationshipPath, List<sObjectField> fields) {
-        qb.fields.retrive(relationshipPath, fields);
+        builder.fields.retrive(relationshipPath, fields);
         return this;
     }
 
     // SubQuery
 
     public QS subquery(QB_Sub subQuery) {
-        qb.subQueries.add(subQuery);
+        builder.subQueries.add(subQuery);
         return this;
     }
 
     // Scope
 
     public QS delegatedScope() {
-        qb.scope.delegated();
+        builder.scope.delegated();
         return this;
     }
 
     public QS mineScope() {
-        qb.scope.mine();
+        builder.scope.mine();
         return this;
     }
 
     public QS mineAndMyGroupsScope() {
-        qb.scope.mineAndMyGroups();
+        builder.scope.mineAndMyGroups();
         return this;
     }
 
     public QS myTerritoryScope() {
-        qb.scope.myTerritory();
+        builder.scope.myTerritory();
         return this;
     }
 
     public QS myTeamTerritoryScope() {
-        qb.scope.myTeamTerritory();
+        builder.scope.myTeamTerritory();
         return this;
     }
 
     public QS teamScope() {
-        qb.scope.team();
+        builder.scope.team();
         return this;
     }
 
     // Where
 
     public QS whereAre(QB_ConditionsGroup conditions) {
-        qb.conditions = conditions;
+        builder.conditions = conditions;
         return this;
     }
 
     // Group By
 
     public QS groupBy(sObjectField field) {
-        qb.groupBy.field(field);
+        builder.groupBy.field(field);
         return this;
     }
 
     public QS groupByRollup(sObjectField field) {
-        qb.groupBy.rollup(field);
+        builder.groupBy.rollup(field);
         return this;
     }
 
     public QS groupByCube(sObjectField field) {
-        qb.groupBy.cube(field);
+        builder.groupBy.cube(field);
         return this;
     }
 
     // Order By
 
     public QS orderBy(sObjectField field) {
-        qb.orderBy.field(field);
+        builder.orderBy.field(field);
         return this;
     }
 
     public QS orderByGrouping(sObjectField field) {
-        qb.orderBy.grouping(field);
+        builder.orderBy.grouping(field);
         return this;
     }
 
     public QS orderByRelated(String path, sObjectField field) {
-        qb.orderBy.relatedField(path, field);
+        builder.orderBy.relatedField(path, field);
         return this;
     }
 
     public QS orderByRelated(String path, List<sObjectField> fields) {
-        qb.orderBy.relatedFields(path, fields);
+        builder.orderBy.relatedFields(path, fields);
         return this;
     }
 
     public QS sortAsc() {
-        qb.orderBy.sortAsc();
+        builder.orderBy.sortAsc();
         return this;
     }
 
     public QS sortDesc() {
-        qb.orderBy.sortDesc();
+        builder.orderBy.sortDesc();
         return this;
     }
 
     public QS nullsFirst() {
-        qb.orderBy.nullsFirst();
+        builder.orderBy.nullsFirst();
         return this;
     }
 
     public QS nullsLast() {
-        qb.orderBy.nullsLast();
+        builder.orderBy.nullsLast();
         return this;
     }
 
     // Limit
 
     public QS setLimit(Integer amount) {
-        qb.soqlLimit.max(amount);
+        builder.soqlLimit.max(amount);
         return this;
     }
 
     // Offset
 
     public QS setOffset(Integer startingRow) {
-        qb.soqlOffset.fromRow(startingRow);
+        builder.soqlOffset.fromRow(startingRow);
         return this;
     }
 
     // For
 
     public QS forReference() {
-        qb.soqlFor.forReference();
+        builder.soqlFor.forReference();
         return this;
     }
 
     public QS forView() {
-        qb.soqlFor.forView();
+        builder.soqlFor.forView();
         return this;
     }
 
     public QS forUpdate() {
-        qb.soqlFor.forUpdate();
+        builder.soqlFor.forUpdate();
         return this;
     }
 
     public QS allRows() {
-        qb.soqlFor.allRows();
+        builder.soqlFor.allRows();
         return this;
     }
 
     // Sharing
 
     public QS systemMode() {
-        qe.systemMode();
+        executor.systemMode();
         return this;
     }
 
     public QS withSharing() {
-        qe.withSharing();
+        executor.withSharing();
         return this;
     }
 
     public QS withoutSharing() {
-        qe.withoutSharing();
+        executor.withoutSharing();
         return this;
     }
 
     // Mocking
 
     public QS mocking(String queryIdentifier) {
-        qe.mocking(queryIdentifier);
+        executor.mocking(queryIdentifier);
         return this;
     }
 
     // Result
 
     public QS preview() {
-        qe.preview();
+        executor.preview();
         return this;
     }
 
     public sObject asObject() {
-        return qe.evaluate(qb.build(), qbb.build()).asObject();
+        return executor.evaluate(builder.build(), bind.build()).asObject();
     }
 
     public List<sObject> asList() {
-        return qe.evaluate(qb.build(), qbb.build()).asList();
+        return executor.evaluate(builder.build(), bind.build()).asList();
     }
 
     public Integer asInteger() {
-        return qe.evaluate(qb.build(), qbb.build()).asInteger();
+        return executor.evaluate(builder.build(), bind.build()).asInteger();
     }
 
     // Standard

@@ -1,4 +1,4 @@
-public with sharing class QBC {
+public class QB_Components {
     public class QFields implements QB_Part {
         private Set<String> queryFields = new Set<String>{ 'Id' };
 

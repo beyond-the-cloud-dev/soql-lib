@@ -1,39 +1,39 @@
 public with sharing class QB_Join implements QB_Part {
-    private QB qb;
-    private QBB qbb;
+    private QB builder;
+    private QB_Bind bind;
 
-    public static QB_Join joinWithBinder(QBB qbb) {
-        return new QB_Join(qbb);
+    public static QB_Join joinWithBinder(QB_Bind bind) {
+        return new QB_Join(bind);
     }
 
-    private QB_Join(QBB qbb) {
-        this.qbb = qbb;
+    private QB_Join(QB_Bind bind) {
+        this.bind = bind;
     }
 
     // From
 
     public QB_Join of(sObjectType ofObject) {
-        qb = new QB(ofObject);
+        builder = new QB(ofObject);
         return this;
     }
 
     // Fields
 
     public QB_Join field(sObjectField field) {
-        qb.fields.retrive(field);
+        builder.fields.retrive(field);
         return this;
     }
 
     // Where
 
     public QB_Join whereAre(QB_ConditionsGroup conditions) {
-        qb.conditions = conditions;
+        builder.conditions = conditions;
         return this;
     }
 
     // Helper
 
     public String build() {
-        return qb.build();
+        return builder.build();
     }
 }

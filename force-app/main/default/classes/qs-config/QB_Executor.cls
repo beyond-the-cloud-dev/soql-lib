@@ -1,4 +1,4 @@
-public inherited sharing class QE {
+public inherited sharing class QB_Executor {
     private enum SharingLevel {
         INHERITED,
         WITH_SHARING,
@@ -44,7 +44,7 @@ public inherited sharing class QE {
         withPreview = true;
     }
 
-    public QE evaluate(String query, Map<String, Object> binding) {
+    public QB_Executor evaluate(String query, Map<String, Object> binding) {
         this.query = query;
         this.binding = binding;
         return this;

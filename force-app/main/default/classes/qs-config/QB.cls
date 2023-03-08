@@ -6,31 +6,31 @@ public inherited sharing class QB implements QB_Part {
     }
 
     public QB(String ofObject) {
-        clauses.set(0, new QBC.QFields());
-        clauses.set(2, new QBC.QFrom(ofObject));
+        clauses.set(0, new QB_Components.QFields());
+        clauses.set(2, new QB_Components.QFrom(ofObject));
     }
 
-    public QBC.QFields fields {
+    public QB_Components.QFields fields {
         get {
-            return (QBC.QFields) clauses[0];
+            return (QB_Components.QFields) clauses[0];
         }
     }
 
-    public QBC.QB_SubQueries subQueries {
+    public QB_Components.QB_SubQueries subQueries {
         get {
             if (clauses[1] == null) {
-                clauses.set(1, new QBC.QB_SubQueries());
+                clauses.set(1, new QB_Components.QB_SubQueries());
             }
-            return (QBC.QB_SubQueries) clauses[1];
+            return (QB_Components.QB_SubQueries) clauses[1];
         }
     }
 
-    public QBC.QScope scope {
+    public QB_Components.QScope scope {
         get {
             if (clauses[3] == null) {
-                clauses.set(3, new QBC.QScope());
+                clauses.set(3, new QB_Components.QScope());
             }
-            return (QBC.QScope) clauses[3];
+            return (QB_Components.QScope) clauses[3];
         }
     }
 
@@ -43,48 +43,48 @@ public inherited sharing class QB implements QB_Part {
         }
     }
 
-    public QBC.QGroupBy groupBy {
+    public QB_Components.QGroupBy groupBy {
         get {
             if (clauses[5] == null) {
-                clauses.set(5, new QBC.QGroupBy());
+                clauses.set(5, new QB_Components.QGroupBy());
             }
-            return (QBC.QGroupBy) clauses[5];
+            return (QB_Components.QGroupBy) clauses[5];
         }
     }
 
-    public QBC.QOrderBy orderBy {
+    public QB_Components.QOrderBy orderBy {
         get {
             if (clauses[6] == null) {
-                clauses.set(6, new QBC.QOrderBy());
+                clauses.set(6, new QB_Components.QOrderBy());
             }
-            return (QBC.QOrderBy) clauses[6];
+            return (QB_Components.QOrderBy) clauses[6];
         }
     }
 
-    public QBC.QLimit soqlLimit {
+    public QB_Components.QLimit soqlLimit {
         get {
             if (clauses[7] == null) {
-                clauses.set(7, new QBC.QLimit());
+                clauses.set(7, new QB_Components.QLimit());
             }
-            return (QBC.QLimit) clauses[7];
+            return (QB_Components.QLimit) clauses[7];
         }
     }
 
-    public QBC.QOffset soqlOffset {
+    public QB_Components.QOffset soqlOffset {
         get {
             if (clauses[8] == null) {
-                clauses.set(8, new QBC.QOffset());
+                clauses.set(8, new QB_Components.QOffset());
             }
-            return (QBC.QOffset) clauses[8];
+            return (QB_Components.QOffset) clauses[8];
         }
     }
 
-    public QBC.QFor soqlFor {
+    public QB_Components.QFor soqlFor {
         get {
             if (clauses[9] == null) {
-                clauses.set(9, new QBC.QFor());
+                clauses.set(9, new QB_Components.QFor());
             }
-            return (QBC.QFor) clauses[9];
+            return (QB_Components.QFor) clauses[9];
         }
     }
 
