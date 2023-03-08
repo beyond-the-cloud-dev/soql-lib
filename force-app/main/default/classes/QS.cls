@@ -14,13 +14,13 @@ public inherited sharing class QS {
         executor = new QB_Executor();
     }
 
-    public static QB_Sub SubQuery {
+    public static QB_Sub Sub {
         get {
             return QB_Sub.subQueryWithBinder(binder);
         }
     }
 
-    public static QB_ConditionsGroup ConditionGroup {
+    public static QB_ConditionsGroup ConditionsGroup {
         get {
             return QB_ConditionsGroup.newGroup();
         }
@@ -264,10 +264,10 @@ public inherited sharing class QS {
     // Standard
 
     public sObject getById(Id recordId) {
-        return whereAre(QS.ConditionGroup.add(QS.Condition.field(Account.Id).equal(recordId))).asObject();
+        return whereAre(QS.ConditionsGroup.add(QS.Condition.field(Account.Id).equal(recordId))).asObject();
     }
 
     public List<sObject> getByIds(List<Id> recordIds) {
-        return whereAre(QS.ConditionGroup.add(QS.Condition.field(Account.Id).inCollection(recordIds))).asList();
+        return whereAre(QS.ConditionsGroup.add(QS.Condition.field(Account.Id).inCollection(recordIds))).asList();
     }
 }
