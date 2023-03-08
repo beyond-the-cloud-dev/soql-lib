@@ -43,7 +43,7 @@ public class QB_Components {
         }
     }
 
-    public class QB_SubQueries implements QB_Part {
+    public class QSubQueries implements QB_Part {
         private List<QB_Sub> subQueries = new List<QB_Sub>();
 
         public void add(QB_Sub subQuery) {

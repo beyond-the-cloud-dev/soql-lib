@@ -85,11 +85,11 @@ public inherited sharing class QB_Executor {
     }
 
     private void previewSoql() {
-        System.debug('\n\n============ Query Preview ============\n' + this.query + '\n=======================================\n');
+        System.debug('\n\n============ Query Preview ============\n' + query + '\n=======================================\n');
     }
 
     private void previewBinding() {
-        System.debug('\n\n============ Query Binding ============\n' + JSON.serializePretty(this.binding) + '\n=======================================\n');
+        System.debug('\n\n============ Query Binding ============\n' + JSON.serializePretty(binding) + '\n=======================================\n');
     }
 
     private interface DatabaseQuery {

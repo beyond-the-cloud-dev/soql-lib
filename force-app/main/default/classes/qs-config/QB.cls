@@ -16,12 +16,12 @@ public inherited sharing class QB implements QB_Part {
         }
     }
 
-    public QB_Components.QB_SubQueries subQueries {
+    public QB_Components.QSubQueries subQueries {
         get {
             if (clauses[1] == null) {
-                clauses.set(1, new QB_Components.QB_SubQueries());
+                clauses.set(1, new QB_Components.QSubQueries());
             }
-            return (QB_Components.QB_SubQueries) clauses[1];
+            return (QB_Components.QSubQueries) clauses[1];
         }
     }
 
