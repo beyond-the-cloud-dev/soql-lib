@@ -116,10 +116,6 @@ public class QB_Components {
             groupByFields.add(field.getDescribe().getName());
         }
 
-        public void thatHaving() {
-            //TODO
-        }
-
         public void rollup(sObjectField field) {
             groupByFields.add('ROLLUP(' + field.getDescribe().getName() + ')');
         }
