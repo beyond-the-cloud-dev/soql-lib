@@ -1,4 +1,4 @@
-public class QB_Bind {
+public class QB_Binder {
     private static Integer bindIndex = 0;
     private Map<String, Object> binding = new Map<String, Object>();
 

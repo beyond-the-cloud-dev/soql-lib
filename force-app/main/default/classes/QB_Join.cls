@@ -1,13 +1,13 @@
 public with sharing class QB_Join implements QB_Part {
     private QB builder;
-    private QB_Bind bind;
+    private QB_Binder binder;
 
-    public static QB_Join joinWithBinder(QB_Bind bind) {
-        return new QB_Join(bind);
+    public static QB_Join joinWithBinder(QB_Binder binder) {
+        return new QB_Join(binder);
     }
 
-    private QB_Join(QB_Bind bind) {
-        this.bind = bind;
+    private QB_Join(QB_Binder binder) {
+        this.binder = binder;
     }
 
     // From

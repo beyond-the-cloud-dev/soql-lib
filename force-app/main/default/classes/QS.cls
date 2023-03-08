@@ -1,5 +1,5 @@
 public inherited sharing class QS {
-    private static QB_Bind bind;
+    private static QB_Binder binder;
 
     private QB builder;
     private QB_Executor executor;
@@ -9,14 +9,14 @@ public inherited sharing class QS {
     }
 
     private QS(sObjectType ofObject) {
-        bind = new QB_Bind();
+        binder = new QB_Binder();
         builder = new QB(ofObject);
         executor = new QB_Executor();
     }
 
     public static QB_Sub SubQuery {
         get {
-            return QB_Sub.subQueryWithBinder(bind);
+            return QB_Sub.subQueryWithBinder(binder);
         }
     }
 
@@ -28,13 +28,13 @@ public inherited sharing class QS {
 
     public static QB_Condition Condition {
         get {
-            return QB_Condition.conditionWithBinder(bind);
+            return QB_Condition.conditionWithBinder(binder);
         }
     }
 
     public static QB_Join JoinQuery {
         get {
-            return QB_Join.joinWithBinder(bind);
+            return QB_Join.joinWithBinder(binder);
         }
     }
 
@@ -250,15 +250,15 @@ public inherited sharing class QS {
     }
 
     public sObject asObject() {
-        return executor.evaluate(builder.build(), bind.build()).asObject();
+        return executor.evaluate(builder.build(), binder.build()).asObject();
     }
 
     public List<sObject> asList() {
-        return executor.evaluate(builder.build(), bind.build()).asList();
+        return executor.evaluate(builder.build(), binder.build()).asList();
     }
 
     public Integer asInteger() {
-        return executor.evaluate(builder.build(), bind.build()).asInteger();
+        return executor.evaluate(builder.build(), binder.build()).asInteger();
     }
 
     // Standard

@@ -1,13 +1,13 @@
 public inherited sharing class QB_Sub implements QB_Part {
     private QB builder;
-    private QB_Bind bind;
+    private QB_Binder binder;
 
-    public static QB_Sub subQueryWithBinder(QB_Bind bind) {
-        return new QB_Sub(bind);
+    public static QB_Sub subQueryWithBinder(QB_Binder binder) {
+        return new QB_Sub(binder);
     }
 
-    private QB_Sub(QB_Bind bind) {
-        this.bind = bind;
+    private QB_Sub(QB_Binder binder) {
+        this.binder = binder;
     }
 
     // From
