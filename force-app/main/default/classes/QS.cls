@@ -46,9 +46,34 @@ public inherited sharing class QS {
         return this;
     }
 
-    public QS count(sObjectField field) {
-        builder.fields.count(field);
+    public QS count(sObjectField field, String alias) {
+        builder.fields.count(field, alias);
         executor.countQuery();
+        return this;
+    }
+
+    public QS fields(List<sObjectField> fields) {
+        builder.fields.retrive(fields);
+        return this;
+    }
+
+    public QS relatedFields(String relationshipPath, List<sObjectField> fields) {
+        builder.fields.retrive(relationshipPath, fields);
+        return this;
+    }
+
+    public QS allFields() {
+        builder.fields.all();
+        return this;
+    }
+
+    public QS standardFields() {
+        builder.fields.standard();
+        return this;
+    }
+
+    public QS customFields() {
+        builder.fields.custom();
         return this;
     }
 
@@ -62,20 +87,6 @@ public inherited sharing class QS {
         return this;
     }
 
-    public QS field(sObjectField field) {
-        builder.fields.retrive(field);
-        return this;
-    }
-
-    public QS fields(List<sObjectField> fields) {
-        builder.fields.retrive(fields);
-        return this;
-    }
-
-    public QS relatedFields(String relationshipPath, List<sObjectField> fields) {
-        builder.fields.retrive(relationshipPath, fields);
-        return this;
-    }
 
     // SubQuery
 
@@ -118,7 +129,7 @@ public inherited sharing class QS {
 
     // Where
 
-    public QS whereAre(QB_ConditionsGroup conditions) {
+    public QS whereAre(QB_ConditionClause conditions) {
         builder.conditions.add(conditions);
         return this;
     }

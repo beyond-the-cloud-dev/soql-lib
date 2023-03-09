@@ -1,13 +1,13 @@
 public class QB_Components {
     public class QFields implements QB_Part {
-        private Set<String> queryFields = new Set<String>{ 'Id' };
+        private Set<String> queryFields = new Set<String>();
 
         public void count() {
-            queryFields.add('COUNT(Id)');
+            queryFields.add('COUNT()');
         }
 
-        public void count(sObjectField field) {
-            queryFields.add('COUNT(' + field.getDescribe().getName() +')');
+        public void count(sObjectField field, String alias) {
+            queryFields.add('COUNT(' + field.getDescribe().getName() +') ' + alias);
         }
 
         public void grouping(sObjectField field) {
@@ -16,6 +16,18 @@ public class QB_Components {
 
         public void grouping(sObjectField field, String alias) {
             queryFields.add('GROUPING(' + field.getDescribe().getName() +')' + alias);
+        }
+
+        public void standard() {
+            queryFields.add('FIELDS(STANDARD)');
+        }
+
+        public void custom() {
+            queryFields.add('FIELDS(CUSTOM)');
+        }
+
+        public void all() {
+            queryFields.add('FIELDS(ALL)');
         }
 
         public void retrive(List<sObjectField> fields) {
