@@ -222,36 +222,6 @@ public List<Account> selectByName(Set<String> names){
 7. Selector framwork should allow for mocking in unit tests.
 8. Selector framwork should allow to build query on fly.
 
-## Benefits
-### Separation of Concerns
-
-> Separating the various concerns into different systems or layers makes code easier to navigate and maintain. When changes are made, the impacts and regressions on other areas are minimized, and a healthier and more adaptable program evolves. ~ Salesforce
-### SOQL Errors handling
-
-No *List has no rows for assignment to SObject* error. When record not found value will be set to null.
-
-```java
-Contact myContact = [SELECT Id, Name FROM Contact WHERE Name = 'invalidName'];
-// Error: List has no rows for assignment to SObject
-
-Contact myContact = new QS_Contact()
-            .fields(new List<sObjectField>{ Contact.Id, Contact.Name })
-            .condition(QS.Condition.field(Contact.Name).equal('invalidName'))
-            .toObject();
-// null
-```
-
-### Easy to debug
-
-`.preview()` method allows you to see query in the debug logs with all bind variables.
-### Test Data Mocking
-
-Selectors provide easy way to mock the data. Speed up your Unit Tests.
-External Object cannot be insert during the test, the only way is to mock the result.
-### Modify SOQL on fly
-
-Pass `QB` instance between classes and methods. Add necessary conditions, use builder methods.
-
 ## License notes
 
 - For proper license management each repository should contain LICENSE file similar to this one.
