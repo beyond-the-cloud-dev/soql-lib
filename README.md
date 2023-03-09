@@ -10,12 +10,12 @@ public inherited sharing class QS_Account {
     public static QS Selector {
         get {
             return QS.of(Account.sObjectType)
-            .fields(new List<sObjectField>{
-                Account.Name,
-                Account.AccountNumber
-            })
-            .withSharing()
-            .systemMode();
+                .fields(new List<sObjectField>{
+                    Account.Name,
+                    Account.AccountNumber
+                })
+                .withSharing()
+                .systemMode();
         }
     }
 
