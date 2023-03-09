@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <ApexTestSuite xmlns="http://soap.sforce.com/2006/04/metadata">
-    <testClassName>QB_FieldsTest</testClassName>
-    <testClassName>QB_ForTest</testClassName>
-    <testClassName>QB_FromTest</testClassName>
-    <testClassName>QB_GroupByTest</testClassName>
-    <testClassName>QB_LimitTest</testClassName>
-    <testClassName>QB_OffsetTest</testClassName>
-    <testClassName>QB_OrderByTest</testClassName>
-    <testClassName>QB_ScopeTest</testClassName>
-    <testClassName>QB_SubTest</testClassName>
-    <testClassName>QB_WithSecurityEnforceTest</testClassName>
-    <testClassName>QB_ConditionTest</testClassName>
-    <testClassName>QB_ConditionsGroupTest</testClassName>
-    <testClassName>QB_Test</testClassName>
+    <testClassName>QS_FieldsTest</testClassName>
+    <testClassName>QS_SubQueryTest</testClassName>
 </ApexTestSuite>

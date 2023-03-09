@@ -10,26 +10,6 @@ public class QB_Components {
             queryFields.add('COUNT(' + field.getDescribe().getName() +') ' + alias);
         }
 
-        public void grouping(sObjectField field) {
-            queryFields.add('GROUPING(' + field.getDescribe().getName() +')');
-        }
-
-        public void grouping(sObjectField field, String alias) {
-            queryFields.add('GROUPING(' + field.getDescribe().getName() +')' + alias);
-        }
-
-        public void standard() {
-            queryFields.add('FIELDS(STANDARD)');
-        }
-
-        public void custom() {
-            queryFields.add('FIELDS(CUSTOM)');
-        }
-
-        public void all() {
-            queryFields.add('FIELDS(ALL)');
-        }
-
         public void retrive(List<sObjectField> fields) {
             for (sObjectField field : fields) {
                 retrive(field);

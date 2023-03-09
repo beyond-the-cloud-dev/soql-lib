@@ -31,15 +31,8 @@ public inherited sharing class QB_Sub implements QB_Part {
 
     // Where
 
-    public QB_Sub whereAre(QB_ConditionsGroup conditions) {
+    public QB_Sub whereAre(QB_ConditionClause conditions) {
         builder.conditions.add(conditions);
-        return this;
-    }
-
-    // Group By
-
-    public QB_Sub groupBy(sObjectField field) {
-        builder.groupBy.field(field);
         return this;
     }
 

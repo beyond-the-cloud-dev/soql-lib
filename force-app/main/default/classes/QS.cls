@@ -46,7 +46,7 @@ public inherited sharing class QS {
         return this;
     }
 
-    public QS count(sObjectField field, String alias) {
+    public QS countAs(sObjectField field, String alias) {
         builder.fields.count(field, alias);
         executor.countQuery();
         return this;
@@ -62,35 +62,9 @@ public inherited sharing class QS {
         return this;
     }
 
-    public QS allFields() {
-        builder.fields.all();
-        return this;
-    }
-
-    public QS standardFields() {
-        builder.fields.standard();
-        return this;
-    }
-
-    public QS customFields() {
-        builder.fields.custom();
-        return this;
-    }
-
-    public QS grouping(sObjectField field) {
-        builder.fields.grouping(field);
-        return this;
-    }
-
-    public QS grouping(sObjectField field, String alias) {
-        builder.fields.grouping(field, alias);
-        return this;
-    }
-
-
     // SubQuery
 
-    public QS subquery(QB_Sub subQuery) {
+    public QS subQuery(QB_Sub subQuery) {
         builder.subQueries.add(subQuery);
         return this;
     }
