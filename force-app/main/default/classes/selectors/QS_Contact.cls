@@ -26,7 +26,7 @@ public inherited sharing class QS_Contact extends SObjectSelector {
 
     public Contact getById(Id contactId) {
         return (Contact) selector
-            .whereAre(QS.ConditionGroup
+            .whereAre(QS.ConditionsGroup
                 .add(QS.Condition.field(Contact.Id).equal(contactId))
             )
             .preview()
@@ -35,7 +35,7 @@ public inherited sharing class QS_Contact extends SObjectSelector {
 
     public List<Contact> getByIds(List<Id> contactIds) {
         return (List<Contact>) selector
-            .whereAre(QS.ConditionGroup
+            .whereAre(QS.ConditionsGroup
                 .add(QS.Condition.field(Contact.Id).inCollection(contactIds))
             )
             .preview()
