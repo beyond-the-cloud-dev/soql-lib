@@ -132,11 +132,6 @@ public inherited sharing class QS {
         return this;
     }
 
-    public QS orderByGrouping(sObjectField field) {
-        builder.orderBy.grouping(field);
-        return this;
-    }
-
     public QS orderByRelated(String path, sObjectField field) {
         builder.orderBy.relatedField(path, field);
         return this;
@@ -203,12 +198,14 @@ public inherited sharing class QS {
         return this;
     }
 
-    // Sharing
+    // FLS
 
     public QS systemMode() {
         executor.systemMode();
         return this;
     }
+
+    // Sharing
 
     public QS withSharing() {
         executor.withSharing();

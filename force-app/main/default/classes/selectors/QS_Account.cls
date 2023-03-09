@@ -14,7 +14,7 @@ public inherited sharing class QS_Account {
             Account.BillingCity,
             Account.BillingCountry,
             Account.BillingCountryCode
-        }).whereAre(QS.ConditionGroup
+        }).whereAre(QS.ConditionsGroup
             .add(QS.Condition.recordTypeDeveloperName().equal(rtDevName))
         );
     }
