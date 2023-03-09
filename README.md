@@ -143,7 +143,7 @@ public inherited sharing class QS_YourObject {
 
 ## Assumptions
 
-1. Selector class should be small and contains only selector based configuration + very generic methods.
+1. Selector class should be small and contains only selector base configuration + very generic methods. Selector should allow building SOQL inline in the place of usage.
 
 We should avoid constructions like that:
 
@@ -173,10 +173,10 @@ public with sharing AccountSelector extends fflib_SObjectSelector {
 }
 ```
 
-2. Developer should be able to modify SOQL with fields, conditions and other clauses as needed.
-3. Developer should not spend to much time on methods naming convention.
-- How to name method with 3 conditions? selectBySomethingAAndSomethingBAndSomehtingC?
-- What if order should be passed as argument?
+2. Developers should be able to modify SOQL with fields, conditions, and other clauses as needed.
+3. Developers should not spend too much time on selector methods naming convention.
+- How to name a method with 3 conditions? selectBySomethingAAndSomethingBAndSomehtingC?
+- What if an order should be passed as an argument?
 
 ```java
 public with sharing AccountSelector extends fflib_SObjectSelector {
@@ -206,9 +206,9 @@ public with sharing AccountSelector extends fflib_SObjectSelector {
 }
 ```
 
-4. Avoid methods where the only differences is list of fields, limit, order, etc.
-5. Selector framework should allows to controll FLS and sharing.
-- If fflib_SObjectSelector is marked as `with sharing` it is applied to all methods. However there are some cases where some methods should be `without sharing`? What we can do? A new selector, but `without sharing`? Not good enough.
+4. Avoid methods where the only difference is a list of fields, limit, order, etc.
+5. Selector framework should allow controlling FLS and sharing.
+- If fflib_SObjectSelector is marked as `with sharing` it is applied to all methods. However, there are some cases where some methods should be `without sharing`? What we can do? A new selector, but `without sharing`? Not good enough.
 6. Selector framework should be able to do dynamic binding without constructions as below:
 
 ```
@@ -219,8 +219,8 @@ public List<Account> selectByName(Set<String> names){
 }
 ```
 
-7. Selector framwork should allow for mocking in unit tests.
-8. Selector framwork should allow to build query on fly.
+7. Selector framework should allow for mocking in unit tests.
+8. Selector framework should allow building query/adjust on the fly.
 
 ## License notes
 
