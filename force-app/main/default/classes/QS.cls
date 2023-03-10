@@ -137,11 +137,6 @@ public inherited sharing class QS {
         return this;
     }
 
-    public QS orderByRelated(String path, List<sObjectField> fields) {
-        builder.orderBy.relatedFields(path, fields);
-        return this;
-    }
-
     public QS sortAsc() {
         builder.orderBy.sortAsc();
         return this;

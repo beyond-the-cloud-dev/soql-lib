@@ -43,18 +43,8 @@ public inherited sharing class QB_Sub implements QB_Part {
         return this;
     }
 
-    public QB_Sub orderBy(List<sObjectField> fields) {
-        builder.orderBy.fields(fields);
-        return this;
-    }
-
     public QB_Sub orderByRelated(String path, sObjectField field) {
         builder.orderBy.relatedField(path, field);
-        return this;
-    }
-
-    public QB_Sub orderByRelated(String path, List<sObjectField> fields) {
-        builder.orderBy.relatedFields(path, fields);
         return this;
     }
 

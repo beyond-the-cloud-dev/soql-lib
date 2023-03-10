@@ -122,32 +122,20 @@ public class QB_Components {
     }
 
     public class QOrderBy implements QB_Part {
-        private Set<String> fields;
+        private Set<String> fields = new Set<String>();
         private String sortingOrder = 'ASC';
         private String nullsOrder;
-
-        public void fields(List<sObjectField> fields) {
-            for (sObjectField field : fields) {
-                field(field);
-            }
-        }
 
         public void field(sObjectField field) {
             fields.add(field.getDescribe().getName());
         }
 
-        public void grouping(sObjectField field) {
-            fields.add('GROUPING(' + field.getDescribe().getName() + ')');
-        }
-
-        public void relatedFields(String relationshipPath, List<sObjectField> fields) {
-            for (sObjectField field : fields) {
-                relatedField(relationshipPath, field);
-            }
-        }
-
         public void relatedField(String relationshipPath, sObjectField field) {
             fields.add(relationshipPath + '.' + field.getDescribe().getName());
+        }
+
+        public void grouping(sObjectField field) {
+            fields.add('GROUPING(' + field.getDescribe().getName() + ')');
         }
 
         public void sortAsc() {
