@@ -144,4 +144,38 @@ public class QS_SubQueryTest {
             Assert.areEqual(reference[i].Contacts.size(), actual[i].Contacts.size());
         }
     }
+
+    @isTest
+    static void orderByRelated() {
+        List<Account> reference = [
+            SELECT Name, BillingCity,
+                (
+                    SELECT Id, Name, LastName
+                    FROM Contacts
+                    ORDER BY CreatedBy.Name
+                )
+            FROM Account
+        ];
+
+        Test.startTest();
+        List<Account> actual = (List<Account>) QS.of(Account.sObjectType)
+            .fields(new List<sObjectField>{
+                Account.Name, Account.BillingCity
+            })
+            .subQuery(QS.Sub.of('Contacts')
+                .fields(new List<sObjectField>{
+                    Contact.Id, Contact.Name, Contact.LastName
+                })
+                .orderByRelated('CreatedBy', User.Name)
+            )
+            .preview()
+            .asList();
+        Test.stopTest();
+
+        for (Integer i=0 ; i<reference.size() ; i++) {
+            Assert.areEqual(reference[i].Name, actual[i].Name);
+            Assert.areEqual(reference[i].BillingCity, actual[i].BillingCity);
+            Assert.areEqual(reference[i].Contacts.size(), actual[i].Contacts.size());
+        }
+    }
 }
