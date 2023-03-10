@@ -125,7 +125,7 @@ public inherited sharing class QS {
         return this;
     }
 
-    // Order By - ASC default
+    // Order By - ASC, NULLS FIRST by default
 
     public QS orderBy(sObjectField field) {
         builder.orderBys.add(field);
@@ -139,11 +139,6 @@ public inherited sharing class QS {
 
     public QS sortDesc() {
         builder.orderBy.sortDesc();
-        return this;
-    }
-
-    public QS nullsFirst() {
-        builder.orderBy.nullsFirst();
         return this;
     }
 

@@ -36,7 +36,7 @@ public inherited sharing class QB_Sub implements QB_Part {
         return this;
     }
 
-    // Order Byc - ASC default
+    // Order By - ASC, NULLS FIRST by default
 
     public QB_Sub orderBy(sObjectField field) {
         builder.orderBys.add(field);
@@ -50,11 +50,6 @@ public inherited sharing class QB_Sub implements QB_Part {
 
     public QB_Sub sortDesc() {
         builder.orderBy.sortDesc();
-        return this;
-    }
-
-    public QB_Sub nullsFirst() {
-        builder.orderBy.nullsFirst();
         return this;
     }
 

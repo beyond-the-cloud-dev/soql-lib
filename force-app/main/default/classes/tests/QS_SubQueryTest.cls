@@ -119,7 +119,7 @@ public class QS_SubQueryTest {
                 (
                     SELECT Id, Name, LastName
                     FROM Contacts
-                    ORDER BY Name
+                    ORDER BY Name DESC NULLS LAST
                 )
             FROM Account
         ];
@@ -134,6 +134,8 @@ public class QS_SubQueryTest {
                     Contact.Id, Contact.Name, Contact.LastName
                 })
                 .orderBy(Contact.Name)
+                .sortDesc()
+                .nullsLast()
             )
             .asList();
         Test.stopTest();
@@ -168,7 +170,6 @@ public class QS_SubQueryTest {
                 })
                 .orderByRelated('CreatedBy', User.Name)
             )
-            .preview()
             .asList();
         Test.stopTest();
 

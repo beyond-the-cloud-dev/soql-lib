@@ -146,7 +146,7 @@ public class QB_Components {
     public class QOrderBy implements QB_Part {
         private String orderField;
         private String sortingOrder = 'ASC';
-        private String nullsOrder;
+        private String nullsOrder = 'FIRST';
 
         public QOrderBy field(sObjectField field) {
             orderField = field.getDescribe().getName();
@@ -166,22 +166,12 @@ public class QB_Components {
             sortingOrder = 'DESC';
         }
 
-        public void nullsFirst() {
-            nullsOrder = 'FIRST';
-        }
-
         public void nullsLast() {
             nullsOrder = 'LAST';
         }
 
         public String build() {
-            String orderByStatement = orderField + ' ' + sortingOrder;
-
-            if (String.isNotEmpty(nullsOrder)) {
-                orderByStatement += ' NULLS ' + nullsOrder;
-            }
-
-            return orderByStatement;
+            return orderField + ' ' + sortingOrder + ' NULLS ' + nullsOrder;
         }
     }
 
