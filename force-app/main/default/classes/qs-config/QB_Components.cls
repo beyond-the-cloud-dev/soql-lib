@@ -121,25 +121,45 @@ public class QB_Components {
         }
     }
 
+    public class QOrderBys implements QB_Part {
+        public List<QOrderBy> orderBys = new List<QOrderBy>();
+
+        public void add(sObjectField field) {
+            orderBys.add(new QOrderBy().field(field));
+        }
+
+        public QOrderBy recentOrderBy() {
+            return orderBys.get(orderBys.size() - 1);
+        }
+
+        public String build() {
+            List<String> orderFields = new List<String>();
+
+            for (QOrderBy orderBy : orderBys) {
+                orderFields.add(orderBy.build());
+            }
+
+            return 'ORDER BY ' + String.join(orderFields, ', ');
+        }
+    }
+
     public class QOrderBy implements QB_Part {
-        private Set<String> fields = new Set<String>();
+        private String orderField;
         private String sortingOrder = 'ASC';
         private String nullsOrder;
 
-        public void field(sObjectField field) {
-            fields.add(field.getDescribe().getName());
+        public QOrderBy field(sObjectField field) {
+            orderField = field.getDescribe().getName();
+            return this;
         }
 
-        public void relatedField(String relationshipPath, sObjectField field) {
-            fields.add(relationshipPath + '.' + field.getDescribe().getName());
+        public QOrderBy relatedField(String relationshipPath, sObjectField field) {
+            orderField = relationshipPath + '.' + field.getDescribe().getName();
+            return this;
         }
 
         public void grouping(sObjectField field) {
-            fields.add('GROUPING(' + field.getDescribe().getName() + ')');
-        }
-
-        public void sortAsc() {
-            sortingOrder = 'ASC';
+            orderField = 'GROUPING(' + field.getDescribe().getName() + ')';
         }
 
         public void sortDesc() {
@@ -155,7 +175,7 @@ public class QB_Components {
         }
 
         public String build() {
-            String orderByStatement = 'ORDER BY ' + String.join(new List<String>(fields), ', ') + ' ' + sortingOrder;
+            String orderByStatement = orderField + ' ' + sortingOrder;
 
             if (String.isNotEmpty(nullsOrder)) {
                 orderByStatement += ' NULLS ' + nullsOrder;

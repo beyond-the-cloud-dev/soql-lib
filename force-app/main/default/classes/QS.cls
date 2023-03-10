@@ -125,20 +125,15 @@ public inherited sharing class QS {
         return this;
     }
 
-    // Order By
+    // Order By - ASC default
 
     public QS orderBy(sObjectField field) {
-        builder.orderBy.field(field);
+        builder.orderBys.add(field);
         return this;
     }
 
     public QS orderByRelated(String path, sObjectField field) {
         builder.orderBy.relatedField(path, field);
-        return this;
-    }
-
-    public QS sortAsc() {
-        builder.orderBy.sortAsc();
         return this;
     }
 
@@ -193,14 +188,14 @@ public inherited sharing class QS {
         return this;
     }
 
-    // FLS
+    // FLS - User Mode by default
 
     public QS systemMode() {
         executor.systemMode();
         return this;
     }
 
-    // Sharing
+    // Sharing - inherited sharing by default
 
     public QS withSharing() {
         executor.withSharing();
@@ -219,12 +214,14 @@ public inherited sharing class QS {
         return this;
     }
 
-    // Result
+    // Debug
 
     public QS preview() {
         executor.preview();
         return this;
     }
+
+    // Result
 
     public sObject asObject() {
         return executor.evaluate(builder.build(), binder.build()).asObject();

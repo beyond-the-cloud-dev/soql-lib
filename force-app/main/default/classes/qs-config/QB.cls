@@ -54,10 +54,16 @@ public inherited sharing class QB implements QB_Part {
 
     public QB_Components.QOrderBy orderBy {
         get {
+            return orderBys.recentOrderBy();
+        }
+    }
+
+    public QB_Components.QOrderBys orderBys {
+        get {
             if (clauses[6] == null) {
-                clauses.set(6, new QB_Components.QOrderBy());
+                clauses.set(6, new QB_Components.QOrderBys());
             }
-            return (QB_Components.QOrderBy) clauses[6];
+            return (QB_Components.QOrderBys) clauses[6];
         }
     }
 

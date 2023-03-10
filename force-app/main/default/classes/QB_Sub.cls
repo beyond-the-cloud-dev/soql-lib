@@ -36,20 +36,15 @@ public inherited sharing class QB_Sub implements QB_Part {
         return this;
     }
 
-    // Order By
+    // Order Byc - ASC default
 
     public QB_Sub orderBy(sObjectField field) {
-        builder.orderBy.field(field);
+        builder.orderBys.add(field);
         return this;
     }
 
     public QB_Sub orderByRelated(String path, sObjectField field) {
         builder.orderBy.relatedField(path, field);
-        return this;
-    }
-
-    public QB_Sub sortAsc() {
-        builder.orderBy.sortAsc();
         return this;
     }
 
