@@ -128,6 +128,10 @@ public class QB_Components {
             orderBys.add(new QOrderBy().field(field));
         }
 
+        public void add(String relationshipPath, sObjectField field) {
+            orderBys.add(new QOrderBy().relatedField(relationshipPath, field));
+        }
+
         public QOrderBy recentOrderBy() {
             return orderBys.get(orderBys.size() - 1);
         }

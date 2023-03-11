@@ -208,4 +208,95 @@ public class QS_SubQueryTest {
             Assert.areEqual(reference[i].Contacts.size(), actual[i].Contacts.size());
         }
     }
+
+    @isTest
+    static void setOffset() {
+        List<Account> reference = [
+            SELECT Name, BillingCity,
+                (SELECT Id, Name FROM Contacts OFFSET 1)
+            FROM Account
+            LIMIT 1
+        ];
+
+        Test.startTest();
+        List<Account> actual = (List<Account>) QS.of(Account.sObjectType)
+            .fields(new List<sObjectField>{
+                Account.Name, Account.BillingCity
+            })
+            .subQuery(QS.Sub.of('Contacts')
+                .fields(new List<sObjectField>{
+                    Contact.Id, Contact.Name
+                })
+                .setOffset(1)
+            )
+            .setLimit(1)
+            .asList();
+        Test.stopTest();
+
+        for (Integer i=0 ; i<reference.size() ; i++) {
+            Assert.areEqual(reference[i].Name, actual[i].Name);
+            Assert.areEqual(reference[i].BillingCity, actual[i].BillingCity);
+            Assert.areEqual(reference[i].Contacts.size(), actual[i].Contacts.size());
+        }
+    }
+
+    @isTest
+    static void forReference() {
+        List<Account> reference = [
+            SELECT Name, BillingCity,
+                (SELECT Id, Name FROM Contacts FOR REFERENCE)
+            FROM Account
+            LIMIT 1
+        ];
+
+        Test.startTest();
+        List<Account> actual = (List<Account>) QS.of(Account.sObjectType)
+            .fields(new List<sObjectField>{
+                Account.Name, Account.BillingCity
+            })
+            .subQuery(QS.Sub.of('Contacts')
+                .fields(new List<sObjectField>{
+                    Contact.Id, Contact.Name
+                })
+                .forReference()
+            )
+            .asList();
+        Test.stopTest();
+
+        for (Integer i=0 ; i<reference.size() ; i++) {
+            Assert.areEqual(reference[i].Name, actual[i].Name);
+            Assert.areEqual(reference[i].BillingCity, actual[i].BillingCity);
+            Assert.areEqual(reference[i].Contacts.size(), actual[i].Contacts.size());
+        }
+    }
+
+    @isTest
+    static void forView() {
+        List<Account> reference = [
+            SELECT Name, BillingCity,
+                (SELECT Id, Name FROM Contacts FOR REFERENCE)
+            FROM Account
+            LIMIT 1
+        ];
+
+        Test.startTest();
+        List<Account> actual = (List<Account>) QS.of(Account.sObjectType)
+            .fields(new List<sObjectField>{
+                Account.Name, Account.BillingCity
+            })
+            .subQuery(QS.Sub.of('Contacts')
+                .fields(new List<sObjectField>{
+                    Contact.Id, Contact.Name
+                })
+                .forView()
+            )
+            .asList();
+        Test.stopTest();
+
+        for (Integer i=0 ; i<reference.size() ; i++) {
+            Assert.areEqual(reference[i].Name, actual[i].Name);
+            Assert.areEqual(reference[i].BillingCity, actual[i].BillingCity);
+            Assert.areEqual(reference[i].Contacts.size(), actual[i].Contacts.size());
+        }
+    }
 }

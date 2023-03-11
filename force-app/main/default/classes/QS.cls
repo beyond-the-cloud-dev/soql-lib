@@ -133,7 +133,7 @@ public inherited sharing class QS {
     }
 
     public QS orderByRelated(String path, sObjectField field) {
-        builder.orderBy.relatedField(path, field);
+        builder.orderBys.add(path, field);
         return this;
     }
 
