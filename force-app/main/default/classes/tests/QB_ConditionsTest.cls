@@ -10,6 +10,29 @@ public class QB_ConditionsTest {
     }
 
     @isTest
+    static void id() {
+        List<Account> reference = [
+            SELECT Name, BillingCity
+            FROM Account
+            WHERE Id != null
+        ];
+
+        Test.startTest();
+        List<Account> actual = (List<Account>) QS.of(Account.sObjectType)
+            .fields(new List<sObjectField>{
+                Account.Name, Account.BillingCity
+            })
+            .whereAre(QS.Condition.id().isNotNull())
+            .asList();
+        Test.stopTest();
+
+        for (Integer i=0 ; i<reference.size() ; i++) {
+            Assert.areEqual(reference[i].Name, actual[i].Name);
+            Assert.areEqual(reference[i].BillingCity, actual[i].BillingCity);
+        }
+    }
+
+    @isTest
     static void equalString() {
         List<Account> reference = [
             SELECT Name, BillingCity
