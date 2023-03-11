@@ -130,7 +130,7 @@ public class QB_ConditionsTest {
         List<Account> reference = [
             SELECT Name, BillingCity
             FROM Account
-            WHERE NumberOfEmployees <= 10
+            WHERE NumberOfEmployees >= 10
         ];
 
         Test.startTest();
@@ -138,7 +138,7 @@ public class QB_ConditionsTest {
             .fields(new List<sObjectField>{
                 Account.Name, Account.BillingCity
             })
-            .whereAre(QS.Condition.field(Account.Name).greaterThanOrEqual(10))
+            .whereAre(QS.Condition.field(Account.NumberOfEmployees).greaterThanOrEqual(10))
             .asList();
         Test.stopTest();
 
@@ -208,6 +208,56 @@ public class QB_ConditionsTest {
                 Account.Name, Account.BillingCity
             })
             .whereAre(QS.Condition.field(Account.Name).likeAnyRight('Test'))
+            .asList();
+        Test.stopTest();
+
+        for (Integer i=0 ; i<reference.size() ; i++) {
+            Assert.areEqual(reference[i].Name, actual[i].Name);
+            Assert.areEqual(reference[i].BillingCity, actual[i].BillingCity);
+        }
+    }
+
+    @isTest
+    static void inCollection() {
+        List<String> names = new List<String>{ 'Test 1', 'Test 2' };
+
+        List<Account> reference = [
+            SELECT Name, BillingCity
+            FROM Account
+            WHERE NAME IN :names
+        ];
+
+        Test.startTest();
+        List<Account> actual = (List<Account>) QS.of(Account.sObjectType)
+            .fields(new List<sObjectField>{
+                Account.Name, Account.BillingCity
+            })
+            .whereAre(QS.Condition.field(Account.Name).inCollection(names))
+            .asList();
+        Test.stopTest();
+
+        for (Integer i=0 ; i<reference.size() ; i++) {
+            Assert.areEqual(reference[i].Name, actual[i].Name);
+            Assert.areEqual(reference[i].BillingCity, actual[i].BillingCity);
+        }
+    }
+
+    @isTest
+    static void notIn() {
+        List<String> names = new List<String>{ 'Test 1' };
+
+        List<Account> reference = [
+            SELECT Name, BillingCity
+            FROM Account
+            WHERE NAME NOT IN :names
+        ];
+
+        Test.startTest();
+        List<Account> actual = (List<Account>) QS.of(Account.sObjectType)
+            .fields(new List<sObjectField>{
+                Account.Name, Account.BillingCity
+            })
+            .whereAre(QS.Condition.field(Account.Name).notIn(names))
             .asList();
         Test.stopTest();
 

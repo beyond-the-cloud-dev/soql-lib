@@ -46,7 +46,7 @@ public class QB_Condition implements QB_ConditionClause {
         return set('=', value);
     }
 
-    public QB_Condition notEqual(Object fieldValue) {
+    public QB_Condition notEqual(Object value) {
         return set('!=', value);
     }
 
@@ -54,28 +54,28 @@ public class QB_Condition implements QB_ConditionClause {
         return set('<', value);
     }
 
-    public QB_Condition greaterThan(Object fieldValue) {
+    public QB_Condition greaterThan(Object value) {
         return set('>', value);
     }
 
-    public QB_Condition lessThanOrEqual(Object fieldValue) {
+    public QB_Condition lessThanOrEqual(Object value) {
         return set('<=', value);
     }
 
-    public QB_Condition greaterThanOrEqual(Object fieldValue) {
+    public QB_Condition greaterThanOrEqual(Object value) {
         return set('>=', value);
     }
 
-    public QB_Condition likeAnyBoth(String fieldValue) {
-        return set('LIKE', '%' + String.escapeSingleQuotes(fieldValue.trim()) + '%');
+    public QB_Condition likeAnyBoth(String value) {
+        return set('LIKE', '%' + String.escapeSingleQuotes(value.trim()) + '%');
     }
 
-    public QB_Condition likeAnyLeft(String fieldValue) {
-        return set('LIKE', '%' + String.escapeSingleQuotes(fieldValue.trim()));
+    public QB_Condition likeAnyLeft(String value) {
+        return set('LIKE', '%' + String.escapeSingleQuotes(value.trim()));
     }
 
-    public QB_Condition likeAnyRight(String fieldValue) {
-        return set('LIKE', String.escapeSingleQuotes(fieldValue.trim()) + '%');
+    public QB_Condition likeAnyRight(String value) {
+        return set('LIKE', String.escapeSingleQuotes(value.trim()) + '%');
     }
 
     public QB_Condition inCollection(List<Object> inList) {
