@@ -335,4 +335,31 @@ public class QB_ConditionsTest {
             Assert.areEqual(reference[i].BillingCity, actual[i].BillingCity);
         }
     }
+
+    @isTest
+    static void group() {
+        List<Account> reference = [
+            SELECT Name, BillingCity
+            FROM Account
+            WHERE Name LIKE 'Test%'
+            AND BillingCity = 'Krakow'
+        ];
+
+        Test.startTest();
+        List<Account> actual = (List<Account>) QS.of(Account.sObjectType)
+            .fields(new List<sObjectField>{
+                Account.Name, Account.BillingCity
+            })
+            .whereAre(QS.ConditionsGroup
+                .add(QS.Condition.field(Account.Name).likeAnyRight('Test'))
+                .add(QS.Condition.field(Account.BillingCity).likeAnyRight('Krakow'))
+            )
+            .asList();
+        Test.stopTest();
+
+        for (Integer i=0 ; i<reference.size() ; i++) {
+            Assert.areEqual(reference[i].Name, actual[i].Name);
+            Assert.areEqual(reference[i].BillingCity, actual[i].BillingCity);
+        }
+    }
 }
