@@ -143,37 +143,139 @@ public List<Account> selectByName(Set<String> names){
 
 ![image](README.svg)
 
+### SELECT fields, Parent.Field FROM SObject
+
+```java
+public inherited sharing class QS_Account {
+
+    public static QS Selector {
+        get {
+            // default fields
+            return QS.of(QS_Account.sObjectType)
+                .fields(new List<sObjectField>{
+                    Account.Id,
+                    Account.Name
+                });
+        }
+    }
+}
+
+public with sharing class MyController {
+
+    public static List<Account> getAccounts() {
+        return (List<Account>) QS_Account.Selector
+            .fields(new List<sObjectField>{
+                Account.BillingCity,
+                Account.BillingState,
+                Account.BillingStreet,
+                Account.BillingCountry
+            }).asList();
+    }
+
+    public static List<Account> getAccountsWithCreatedBy() {
+        return (List<Account>) QS_Account.Selector
+            .relatedFields('CreatedBy', new List<sObjectField>{
+                User.Id,
+                User.Name
+            }).asList();
+    }
+}
+```
+
+### SELECT Count(), Count(Field) alias FROM SObject
+
+```java
+public inherited sharing class QS_Account {
+
+    public static QS Selector {
+        get {
+            return QS.of(Account.sObjectType);
+        }
+    }
+}
+
+public with sharing class MyController {
+
+    public static Integer getAccountAmount() {
+        return QS_Account.Selector.count().asInteger();
+    }
+
+    public static Integer getUniqueAccountNameAmount() {
+        return QS_Account.Selector.countAs(Account.Name, 'names').asAggregated()[0].names;
+    }
+}
+```
+
+### SELECT fields, (SELECT fields FROM ChildSObject) FROM SObject
+
+```java
+public inherited sharing class QS_Account {
+
+    public static QS Selector {
+        get {
+            return QS.of(QS_Account.sObjectType)
+                .fields(new List<sObjectField>{
+                    Account.Id,
+                    Account.Name
+                });
+        }
+    }
+}
+
+public with sharing class MyController {
+
+    public static List<Account> getAccountsWithContacts() {
+        return (List<Account>) QS_Account.Selector
+            .subQuery(QS.Sub.of('Contacts')
+                .fields(new List<sObjectField>{
+                    Contact.Id,
+                    Contact.Name
+                })
+            ).asList();
+    }
+}
+```
+
+### SELECT fields FROM SObject USING SCOPE scope
+
+```java
+public inherited sharing class QS_Account {
+
+    public static QS Selector {
+        get {
+            return QS.of(QS_Account.sObjectType)
+                .fields(new List<sObjectField>{
+                    Account.Id,
+                    Account.Name
+                });
+        }
+    }
+}
+
+public with sharing class MyController {
+
+    public static List<Account> getMineAccounts() {
+        return (List<Account>) QS_Account.Selector
+            .mineScope()
+            .asList();
+    }
+
+    public static List<Account> getTeamAccounts() {
+        return (List<Account>) QS_Account.Selector
+            .myTeamScope()
+            .asList();
+    }
+}
+```
+
+### TBD
+
 ```java
 public inherited sharing class QS_YourObject {
 
     public static QS Selector {
         get {
             return QS.of(YourObject.sObjectType)
-                // Fields
-                .count()
-                .countAs(YourObject.sObjectField, 'alias')
-                .fields(new List<sObjectField>{
-                    YourObject.FieldA,
-                    YourObject.FieldB
-                })
-                .relatedFields('ParentRelationshipName', new List<sObjectField>{
-                    YourParentObject.FieldA,
-                    YourParentObject.FieldB
-                })
-                // SubQuery
-                .subQuery(QS.Sub.of('ChildRelationshipName')
-                    .fields(new List<sObjectField>{
-                        ChildObject.FieldC,
-                        ChildObject.FieldD
-                    })
-                )
-                // Scope
-                .delegatedScope()
-                .mineScope()
-                .mineAndMyGroupsScope()
-                .myTerritoryScope()
-                .myTeamTerritoryScope()
-                .teamScope()
                 // Where
                 .whereAre(QS.ConditionsGroup
                     .add(QS.Condition.field(YourObject.FieldA).equal('Value 1'))
