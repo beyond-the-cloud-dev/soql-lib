@@ -1,5 +1,5 @@
 @isTest
-public class QB_ConditionsTest {
+private class QB_ConditionsTest {
 
     @TestSetup
     static void setup() {

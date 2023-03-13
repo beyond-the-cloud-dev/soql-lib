@@ -1,5 +1,5 @@
 @isTest
-public class QS_SubQueryTest {
+private class QS_SubQueryTest {
 
     @TestSetup
     static void setup() {

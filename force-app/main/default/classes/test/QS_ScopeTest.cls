@@ -1,5 +1,5 @@
 @isTest
-public class QS_ScopeTest {
+private class QS_ScopeTest {
 
     @TestSetup
     static void setup() {
