@@ -226,6 +226,10 @@ public inherited sharing class QS {
         return executor.evaluate(builder.build(), binder.build()).asList();
     }
 
+    public List<AggregateResult> asAggregated() {
+        return (List<AggregateResult>) asList();
+    }
+
     public Integer asInteger() {
         return executor.evaluate(builder.build(), binder.build()).asInteger();
     }
