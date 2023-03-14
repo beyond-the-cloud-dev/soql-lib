@@ -23,7 +23,9 @@ QS.of(Contact.sObjectType)
 
 ## fields
 
-Allows to add fields to a query.
+[SELECT](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_fields.htm)
+
+> `SELECT` statement that specifies the fields to query. The fieldList in the `SELECT` statement specifies the list of one or more fields, separated by commas, that you want to retrieve.
 
 **Signature**
 
@@ -48,6 +50,8 @@ QS.of(Contact.sObjectType).fields(List<sObjectField>{
 ```
 
 ## relatedFields
+
+[SELECT](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_fields.htm)
 
 Allows to add parent field to a query.
 
@@ -113,7 +117,11 @@ QS subQuery(QB_Sub subQuery)
 
 ## scope
 
+[USING SCOPE](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_using_scope.htm)
+
 ### delegatedScope
+
+> Filter for records delegated to another user for action. For example, a query could filter for only delegated Task records.
 
 **Signature**
 
@@ -124,9 +132,12 @@ QS delegatedScope()
 **Example**
 
 ```apex
+QS.of(Task.sObjectType).delegatedScope()
 ```
 
 ### mineScope
+
+> Filter for records owned by the user running the query.
 
 **Signature**
 
@@ -137,9 +148,12 @@ QS mineScope()
 **Example**
 
 ```apex
+QS.of(Account.sObjectType).mineScope()
 ```
 
 ### mineAndMyGroupsScope
+
+> Filter for records assigned to the user running the query and the user’s queues. If a user is assigned to a queue, the user can access records in the queue. This filter applies only to the ProcessInstanceWorkItem object.
 
 **Signature**
 
@@ -150,9 +164,12 @@ QS mineAndMyGroupsScope()
 **Example**
 
 ```apex
+QS.of(ProcessInstanceWorkItem.sObjectType).mineAndMyGroupsScope()
 ```
 
 ### myTerritoryScope
+
+> Filter for records in the territory of the user running the query. This option is available if territory management is enabled for your organization.
 
 **Signature**
 
@@ -167,6 +184,8 @@ QS myTerritoryScope()
 
 ### myTeamTerritoryScope
 
+> Filter for records in the territory of the team of the user running the query. This option is available if territory management is enabled for your organization.
+
 **Signature**
 
 ```apex
@@ -180,6 +199,8 @@ QS myTeamTerritoryScope()
 
 ### teamScope
 
+> Filter for records assigned to a team, such as an Account team.
+
 **Signature**
 
 ```apex
@@ -189,6 +210,7 @@ QS teamScope()
 **Example**
 
 ```apex
+QS.of(Account.sObjectType).teamScope()
 ```
 
 ## whereAre
@@ -247,7 +269,11 @@ QS groupByCube(sObjectField field)
 
 ## order by
 
+[ORDER BY](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_orderby.htm)
+
 ### orderBy
+
+> Use the optional `ORDER BY` in a `SELECT` statement of a SOQL query to control the order of the query results.
 
 **Signature**
 
@@ -258,9 +284,12 @@ QS orderBy(sObjectField field)
 **Example**
 
 ```apex
+QS.of(Account.sObjectType).orderBy(Account.Name)
 ```
 
 ### orderByRelated
+
+Order SOQL query by parent field.
 
 **Signature**
 
@@ -271,9 +300,12 @@ QS orderByRelated(String path, sObjectField field)
 **Example**
 
 ```apex
+QS.of(Contact.sObjectType).orderByRelated('Account', Account.Name)
 ```
 
 ### sortDesc
+
+Default order is ascending (`ASC`).
 
 **Signature**
 
@@ -284,9 +316,12 @@ QS sortDesc()
 **Example**
 
 ```apex
+QS.of(Account.sObjectType).orderBy(Account.Name).sortDesc()
 ```
 
 ### nullsLast
+
+By default, null values are sorted first (`NULLS FIRST`).
 
 **Signature**
 
@@ -297,9 +332,14 @@ QS nullsLast()
 **Example**
 
 ```apex
+QS.of(Account.sObjectType).orderBy(Account.Industry).nullsLast()
 ```
 
 ## setLimit
+
+- [LIMIT](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_limit.htm)
+
+> `LIMIT` is an optional clause that can be added to a `SELECT` statement of a SOQL query to specify the maximum number of rows to return.
 
 **Signature**
 
@@ -310,9 +350,14 @@ QS setLimit(Integer amount)
 **Example**
 
 ```apex
+QS.of(Account.sObjectType).setLimit(100)
 ```
 
 ## setOffset
+
+- [OFFSET](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_offset.htm)
+
+> When expecting many records in a query’s results, you can display the results in multiple pages by using the `OFFSET` clause on a SOQL query.
 
 **Signature**
 
@@ -323,11 +368,16 @@ QS setOffset(Integer startingRow)
 **Example**
 
 ```apex
+QS.of(Account.sObjectType).setOffset(10)
 ```
 
 ## for
 
+- [FOR VIEW and FOR REFERENCE](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_for_view_for_reference.htm)
+- [FOR UPDATE](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_for_update.htm)
 ### forReference
+
+> Use to notify Salesforce when a record is referenced from a custom interface, such as in a mobile application or from a custom page.
 
 **Signature**
 
@@ -338,9 +388,12 @@ QS forReference()
 **Example**
 
 ```apex
+QS.of(Contact.sObjectType).forReference()
 ```
 
 ### forView
+
+> Use to update objects with information about when they were last viewed.
 
 **Signature**
 
@@ -351,9 +404,12 @@ QS forView()
 **Example**
 
 ```apex
+QS.of(Contact.sObjectType).forView()
 ```
 
 ### forUpdate
+
+> Use to lock sObject records while they’re being updated in order to prevent race conditions and other thread safety problems.
 
 **Signature**
 
@@ -364,6 +420,7 @@ QS forUpdate()
 **Example**
 
 ```apex
+QS.of(Contact.sObjectType).forUpdate()
 ```
 
 ### allRows
@@ -381,7 +438,13 @@ QS allRows()
 
 ## fls
 
+[AccessLevel Class](https://developer.salesforce.com/docs/atlas.en-us.apexref.meta/apexref/apex_class_System_AccessLevel.htm#apex_class_System_AccessLevel)
+
+By default AccessLevel is set as `USER_MODE`.
+
 ### systemMode
+
+> Execution mode in which the the object and field-level permissions of the current user are ignored, and the record sharing rules are controlled by the class sharing keywords.
 
 **Signature**
 
@@ -392,11 +455,17 @@ QS systemMode()
 **Example**
 
 ```apex
+QS.of(Account.sObjectType).systemMode()
+QS.of(Contact.sObjectType).userMode()
 ```
 
 ## sharing
 
+[Using the with sharing, without sharing, and inherited sharing Keywords](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_classes_keywords_sharing.htm)
+
 ### withSharing
+
+Execute query `with sharing`
 
 **Signature**
 
@@ -407,9 +476,13 @@ QS withSharing()
 **Example**
 
 ```apex
+QS.of(Account.sObjectType).withSharing()
+QS.of(Contact.sObjectType).withSharing()
 ```
 
 ### withoutSharing
+
+Execute query `without sharing`
 
 **Signature**
 
@@ -420,6 +493,8 @@ QS withoutSharing()
 **Example**
 
 ```apex
+QS.of(Account.sObjectType).withoutSharing()
+QS.of(Contact.sObjectType).withoutSharing()
 ```
 
 ## mocking
@@ -446,6 +521,25 @@ QS preview()
 **Example**
 
 ```apex
+QS.of(Account.sObjectType).preview()
+QS.of(Contact.sObjectType).preview()
+```
+
+Query preview will be available in debug logs:
+
+```
+============ Query Preview ============
+SELECT Name, AccountNumber, BillingCity, BillingCountry, BillingCountryCode
+FROM Account
+WHERE ((Id = :v1 OR Name LIKE :v2))
+=======================================
+
+============ Query Binding ============
+{
+  "v2" : "%Test%",
+  "v1" : "0013V00000WNCw4QAH"
+}
+=======================================
 ```
 
 ## result
