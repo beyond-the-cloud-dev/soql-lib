@@ -146,8 +146,6 @@ public List<Account> selectByName(Set<String> names){
 
 ## Architecture
 
-![image](assets/Architecture.png)
-
 ### SELECT fields, Parent.Field FROM SObject
 
 ```java
