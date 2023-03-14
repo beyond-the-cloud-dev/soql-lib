@@ -148,7 +148,7 @@ public List<Account> selectByName(Set<String> names){
 
 ### SELECT fields, Parent.Field FROM SObject
 
-```java
+```apex
 public inherited sharing class QS_Account {
 
     public static QS Selector {
