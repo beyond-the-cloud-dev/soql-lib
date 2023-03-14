@@ -1,4 +1,4 @@
-# Query Selector (QS) - Query Builder (QB)
+# Query Selector (QS)
 
 Apex QS provides functional constructs for SOQL.
 
@@ -57,6 +57,10 @@ public with sharing class ExampleController {
     }
 }
 ```
+
+## Dcoumentation
+
+Find more examples [in the documentation](https://btc-query-selector.vercel.app/).
 
 ## Guidelines
 
@@ -142,61 +146,6 @@ public List<Account> selectByName(Set<String> names){
 ## Architecture
 
 ![image](assets/Architecture.png)
-
-### TBD
-
-```java
-public inherited sharing class QS_YourObject {
-
-    public static QS Selector {
-        get {
-            return QS.of(YourObject.sObjectType)
-                // Where
-                .whereAre(QS.ConditionsGroup
-                    .add(QS.Condition.field(YourObject.FieldA).equal('Value 1'))
-                    .add(QS.Condition.field(YourObject.FieldA).equal('Value 2'))
-                    .order('1 OR 2')
-                )
-                // Group By
-                .groupBy(YourObject.FieldE)
-                .groupByRollup(YourObject.FieldE)
-                .groupByCube(YourObject.FieldE)
-                // Order By
-                .orderBy(YourObject.FieldF)
-                .orderByRelated('ParentRelationshipName', YourParentObject.FieldG)
-                .sortAsc()
-                .sortDesc()
-                .nullsFirst()
-                .nullsLast()
-                // Limit
-                .setLimit(50000)
-                // Offset
-                .setOffset(2000)
-                // For
-                .forReference()
-                .forView()
-                .forUpate()
-                .allRows()
-                // FLS - USER_MODE by default
-                .systemMode()
-                // Sharing - Inherited sharing by default
-                .withSharing()
-                .withoutSharing()
-                // Mocking
-                .mocking('queryIdentifier')
-                // Debug
-                .preview()
-                // Result
-                .asObject()
-                .asList()
-                .asInteger()
-                // Generic methods
-                .getById(recordId)
-                .getByIds(recordIds);
-        }
-    }
-}
-```
 
 ## License notes
 

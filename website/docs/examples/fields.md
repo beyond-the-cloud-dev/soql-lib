@@ -2,7 +2,9 @@
 sidebar_position: 1
 ---
 
-# SELECT fields
+# SELECT Fields
+
+You are able to add a default fields to selector class. More fields can be added in a place of usage.
 
 ```apex
 public inherited sharing class QS_Account {
@@ -10,7 +12,7 @@ public inherited sharing class QS_Account {
     public static QS Selector {
         get {
             // default fields
-            return QS.of(QS_Account.sObjectType)
+            return QS.of(Account.sObjectType)
                 .fields(new List<sObjectField>{
                     Account.Id,
                     Account.Name

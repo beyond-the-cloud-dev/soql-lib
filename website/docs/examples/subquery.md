@@ -4,12 +4,14 @@ sidebar_position: 4
 
 # SUBQUERY
 
+Specify child relationship name and pass list of fields.
+
 ```apex
 public inherited sharing class QS_Account {
 
     public static QS Selector {
         get {
-            return QS.of(QS_Account.sObjectType)
+            return QS.of(Account.sObjectType)
                 .fields(new List<sObjectField>{
                     Account.Id,
                     Account.Name

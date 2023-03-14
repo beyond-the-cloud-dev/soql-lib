@@ -4,12 +4,12 @@ sidebar_position: 5
 
 # SCOPE
 
-```java
+```apex
 public inherited sharing class QS_Account {
 
     public static QS Selector {
         get {
-            return QS.of(QS_Account.sObjectType)
+            return QS.of(Account.sObjectType)
                 .fields(new List<sObjectField>{
                     Account.Id,
                     Account.Name

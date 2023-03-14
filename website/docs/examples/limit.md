@@ -9,7 +9,7 @@ public inherited sharing class QS_Account {
 
     public static QS Selector {
         get {
-            return QS.of(QS_Account.sObjectType)
+            return QS.of(Account.sObjectType)
                 .fields(new List<sObjectField>{
                     Account.Id,
                     Account.Name
@@ -20,9 +20,9 @@ public inherited sharing class QS_Account {
 
 public with sharing class MyController {
 
-    public static List<Account> getAccountsWithContacts() {
+    public static List<Account> getAccountsWithLimit(Integer amount) {
         return (List<Account>) QS_Account.Selector
-            .setLimit(10)
+            .setLimit(amount)
             .asList();
     }
 }

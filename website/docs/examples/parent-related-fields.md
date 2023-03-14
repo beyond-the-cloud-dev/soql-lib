@@ -4,13 +4,15 @@ sidebar_position: 2
 
 # SELECT Parent.Field
 
+Specify relationship name and pass parent object fields.
+
 ```apex
 public inherited sharing class QS_Account {
 
     public static QS Selector {
         get {
             // default fields
-            return QS.of(QS_Account.sObjectType)
+            return QS.of(Account.sObjectType)
                 .fields(new List<sObjectField>{
                     Account.Id,
                     Account.Name
