@@ -40,6 +40,16 @@ public inherited sharing class QS {
 
     // Fields
 
+    public QS fields(List<sObjectField> fields) {
+        builder.fields.retrive(fields);
+        return this;
+    }
+
+    public QS relatedFields(String relationshipPath, List<sObjectField> fields) {
+        builder.fields.retrive(relationshipPath, fields);
+        return this;
+    }
+
     public QS count() {
         builder.fields.count();
         executor.countQuery();
@@ -49,16 +59,6 @@ public inherited sharing class QS {
     public QS countAs(sObjectField field, String alias) {
         builder.fields.count(field, alias);
         executor.countQuery();
-        return this;
-    }
-
-    public QS fields(List<sObjectField> fields) {
-        builder.fields.retrive(fields);
-        return this;
-    }
-
-    public QS relatedFields(String relationshipPath, List<sObjectField> fields) {
-        builder.fields.retrive(relationshipPath, fields);
         return this;
     }
 
