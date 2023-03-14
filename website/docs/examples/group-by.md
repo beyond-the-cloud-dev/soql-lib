@@ -2,4 +2,6 @@
 sidebar_position: 7
 ---
 
-# Group By
+# GROUP BY
+
+TBD
