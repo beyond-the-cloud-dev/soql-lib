@@ -21,11 +21,11 @@ public class QB_Condition implements QB_ConditionClause {
         return field('RecordType.DeveloperName');
     }
 
-    public QB_Condition field(Schema.SObjectField field) {
+    public QB_Condition field(SObjectField field) {
         return field(field.getDescribe().getName());
     }
 
-    public QB_Condition relationship(String relationshipPath, Schema.SObjectField field) {
+    public QB_Condition relationship(String relationshipPath, SObjectField field) {
         return field(relationshipPath + '.' + field.getDescribe().getName());
     }
 

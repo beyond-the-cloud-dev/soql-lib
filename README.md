@@ -34,7 +34,6 @@ public inherited sharing class QS_Account {
 ```java
 public with sharing class ExampleController {
 
-
     public static List<Account> getAccountsInlineSoql(List<Id> accountIds) {
         return [
             SELECT Name, AccountNumber, BillingCity, BillingCountry, BillingCountryCode
