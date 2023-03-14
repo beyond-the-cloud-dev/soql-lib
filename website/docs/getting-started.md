@@ -3,7 +3,7 @@ sidebar_position: 1
 slug: '/'
 ---
 
-# Query Selector (QS) - Query Builder (QB)
+# Getting started
 
 Apex QS provides functional constructs for SOQL.
 
@@ -144,46 +144,6 @@ public List<Account> selectByName(Set<String> names){
 7. Selector framework should allow for mocking in unit tests.
 8. Selector framework should allow building query/adjust on the fly.
 
-## Architecture
-
-### SELECT fields, Parent.Field FROM SObject
-
-```apex
-public inherited sharing class QS_Account {
-
-    public static QS Selector {
-        get {
-            // default fields
-            return QS.of(QS_Account.sObjectType)
-                .fields(new List<sObjectField>{
-                    Account.Id,
-                    Account.Name
-                });
-        }
-    }
-}
-
-public with sharing class MyController {
-
-    public static List<Account> getAccounts() {
-        return (List<Account>) QS_Account.Selector
-            .fields(new List<sObjectField>{
-                Account.BillingCity,
-                Account.BillingState,
-                Account.BillingStreet,
-                Account.BillingCountry
-            }).asList();
-    }
-
-    public static List<Account> getAccountsWithCreatedBy() {
-        return (List<Account>) QS_Account.Selector
-            .relatedFields('CreatedBy', new List<sObjectField>{
-                User.Id,
-                User.Name
-            }).asList();
-    }
-}
-```
 
 ### SELECT Count(), Count(Field) alias FROM SObject
 
