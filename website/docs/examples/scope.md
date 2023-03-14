@@ -2,7 +2,7 @@
 sidebar_position: 5
 ---
 
-# Scope
+# SCOPE
 
 ```java
 public inherited sharing class QS_Account {

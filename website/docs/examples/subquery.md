@@ -2,7 +2,7 @@
 sidebar_position: 4
 ---
 
-# SubQuery
+# SUBQUERY
 
 ```apex
 public inherited sharing class QS_Account {

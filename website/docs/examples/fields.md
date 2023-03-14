@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Fields
+# SELECT fields
 
 ```apex
 public inherited sharing class QS_Account {

@@ -2,7 +2,7 @@
 sidebar_position: 3
 ---
 
-# Count
+# COUNT()
 
 ```apex
 public inherited sharing class QS_Account {

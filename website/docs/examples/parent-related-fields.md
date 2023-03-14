@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# Parent Related Fields
+# SELECT Parent.Field
 
 ```apex
 public inherited sharing class QS_Account {
