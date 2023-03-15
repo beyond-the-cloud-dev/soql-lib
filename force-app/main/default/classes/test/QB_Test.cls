@@ -451,4 +451,55 @@ public class QB_Test {
         Assert.areEqual('Test', binding.get('v1'));
         Assert.areEqual('Krakow', binding.get('v2'));
     }
+
+    // GROUP BY
+
+    @isTest
+    static void groupBy() {
+        String soql = QS.of(Lead.sObjectType)
+            .fields(new List<sObjectField>{
+                Lead.LeadSource
+            })
+            .groupBy(Lead.LeadSource)
+            .soql();
+
+        Assert.areEqual('SELECT LeadSource FROM Lead GROUP BY LeadSource', soql);
+    }
+
+    // ORDER BY
+
+    @isTest
+    static void orderBy() {
+        String soql = QS.of(Account.sObjectType)
+            .fields(new List<sObjectField>{
+                Account.Name, Account.BillingCity
+            })
+            .orderBy(Account.Industry).sortDesc().nullsLast()
+            .orderBy(Account.Id)
+            .soql();
+
+        Assert.areEqual('SELECT Name, BillingCity FROM Account ORDER BY Industry DESC NULLS LAST, Id ASC NULLS FIRST', soql);
+    }
+
+    // LIMIT
+
+    @isTest
+    static void setLimit() {
+        String soql = QS.of(Account.sObjectType)
+            .setLimit(100)
+            .soql();
+
+        Assert.areEqual('SELECT Id FROM Account LIMIT 100', soql);
+    }
+
+    // OFFSET
+
+    @isTest
+    static void setOffset() {
+        String soql = QS.of(Account.sObjectType)
+            .setOffset(100)
+            .soql();
+
+        Assert.areEqual('SELECT Id FROM Account OFFSET 100', soql);
+    }
 }
