@@ -216,6 +216,10 @@ public inherited sharing class QS {
         return this;
     }
 
+    public String soql() {
+        return builder.build();
+    }
+
     // Result
 
     public sObject asObject() {

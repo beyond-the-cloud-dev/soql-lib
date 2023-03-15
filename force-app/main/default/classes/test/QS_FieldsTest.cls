@@ -32,8 +32,6 @@ private class QS_FieldsTest {
             FROM Account
         ];
 
-        System.debug(LoggingLevel.DEBUG, ': ' + reference);
-
         Test.startTest();
         List<AggregateResult> actual = (List<AggregateResult>) QS.of(Account.sObjectType)
             .countAs(Account.Name, 'names')
