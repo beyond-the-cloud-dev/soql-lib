@@ -9,6 +9,7 @@ Apex QS provides functional constructs for SOQL.
 List<Account> accounts = (List<Account>) QS.of(Account.sObjectType).asList();
 ```
 
+
 Find more examples in the [documentation](https://btc-query-selector.vercel.app/).
 
 ## Guidelines
