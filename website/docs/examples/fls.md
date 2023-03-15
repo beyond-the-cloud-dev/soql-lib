@@ -2,7 +2,7 @@
 sidebar_position: 11
 ---
 
-# FLS
+# Field Level Security
 
 USER_MODE is a default option. You can set SYSTEM_MODE for all queries by adding `systemMode()` to selector class.
 

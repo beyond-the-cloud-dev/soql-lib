@@ -2,7 +2,7 @@
 sidebar_position: 5
 ---
 
-# SCOPE
+# USING SCOPE
 
 ```apex
 public inherited sharing class QS_Account {

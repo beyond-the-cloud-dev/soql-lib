@@ -2,7 +2,7 @@
 sidebar_position: 12
 ---
 
-# SHARING
+# Sharing
 
 `with inherited sharing` is a default option.
 

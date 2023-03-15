@@ -2,7 +2,7 @@
 sidebar_position: 15
 ---
 
-# RESULT
+# Result
 
 ```apex
 public inherited sharing class QS_Account {
@@ -20,7 +20,7 @@ public inherited sharing class QS_Account {
 
 public with sharing class MyController {
 
-    public static List<Account> getAccountsById(List<Id> accountIds) {
+    public static List<Account> getAccountsByIds(List<Id> accountIds) {
         return (List<Account>) QS_Account.Selector
             .whereAre(QS.Condition.id().inCollection(accountIds))
             .asList();

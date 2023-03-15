@@ -2,7 +2,7 @@
 sidebar_position: 14
 ---
 
-# DEBUG
+# Debug
 
 ```apex
 public inherited sharing class QS_Account {
