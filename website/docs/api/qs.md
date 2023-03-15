@@ -77,6 +77,10 @@ QS.of(Contact.sObjectType).relatedFields('Account', List<sObjectField>{
 
 ## count
 
+[COUNT()](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_count.htm#count_section_title)
+
+> `COUNT()` returns the number of rows that match the filtering conditions.
+
 **Signature**
 
 ```apex
@@ -86,10 +90,14 @@ QS count()
 **Example**
 
 ```apex
-
+QS.of(Account.sObjectType).count().asInteger()
 ```
 
 ## countAs
+
+[COUNT(fieldName)](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_count.htm#count_section_title)
+
+> `COUNT(fieldName)` returns the number of rows that match the filtering conditions and have a non-null value for fieldName.
 
 **Signature**
 
@@ -100,9 +108,16 @@ countAs(sObjectField field, String alias)
 **Example**
 
 ```apex
+QS_Account.Selector.countAs(Account.Name, 'names').asAggregated()
 ```
 
 ## subQuery
+
+[Using Relationship Queries](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_relationships_query_using.htm)
+
+> Use SOQL to query several relationship types.
+
+For more details check [`QB.Sub`](qb-sub.md) class.
 
 **Signature**
 
@@ -113,6 +128,13 @@ QS subQuery(QB_Sub subQuery)
 **Example**
 
 ```apex
+QS.of(Account.sObjectType)
+    .subQuery(QS.Sub.of('Contacts')
+        .fields(new List<sObjectField>{
+            Contact.Id,
+            Contact.Name
+        })
+    )
 ```
 
 ## scope
@@ -215,6 +237,12 @@ QS.of(Account.sObjectType).teamScope()
 
 ## whereAre
 
+[WHERE](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_conditionexpression.htm)
+
+> The condition expression in a `WHERE` clause of a SOQL query includes one or more field expressions. You can specify multiple field expressions in a condition expression by using logical operators.
+
+For more details check [`QB.ConditionsGroup`](qb-conditions-group.md) and [`QB.Condition`](qb-conition.md)
+
 **Signature**
 
 ```apex
@@ -224,11 +252,20 @@ QS whereAre(QB_ConditionClause conditions)
 **Example**
 
 ```apex
+QS.of(Account.sObjectType)
+    .whereAre(QS.ConditionsGroup
+        .add(QS.Condition.field(Account.Id).equal(accountId))
+        .add(QS.Condition.field(Account.Name).likeAnyBoth(accountName))
+        .order('1 OR 2')
+    )
 ```
 
 ## group by
 
+[GROUP BY](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_groupby.htm)
 ### groupBy
+
+> You can use the `GROUP BY` option in a SOQL query to avoid iterating through individual query results. That is, you specify a group of records instead of processing many individual records.
 
 **Signature**
 
@@ -239,6 +276,12 @@ QS groupBy(sObjectField field)
 **Example**
 
 ```apex
+QS.of(Lead.sObjectType)
+    .fields(new List<sObjectField>{
+        Lead.LeadSource
+    })
+    .groupBy(Lead.LeadSource)
+    .asAggregated();
 ```
 
 ### groupByRollup
