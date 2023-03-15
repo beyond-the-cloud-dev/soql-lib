@@ -220,6 +220,10 @@ public inherited sharing class QS {
         return builder.build();
     }
 
+    public Map<String, Object> binding() {
+        return binder.build();
+    }
+
     // Result
 
     public sObject asObject() {

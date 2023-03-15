@@ -220,136 +220,169 @@ public class QB_Test {
 
     @isTest
     static void id() {
-        String soql = QS.of(Account.sObjectType)
+        QS builder = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name, Account.BillingCity
             })
-            .whereAre(QS.Condition.id().isNotNull())
-            .soql();
+            .whereAre(QS.Condition.id().isNotNull());
 
+        String soql = builder.soql();
         Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE (Id != :v1)', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(null, binding.get('v1'));
     }
 
     @isTest
     static void equalString() {
-        String soql = QS.of(Account.sObjectType)
+        QS builder = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name, Account.BillingCity
             })
-            .whereAre(QS.Condition.field(Account.Name).equal('Test'))
-            .soql();
+            .whereAre(QS.Condition.field(Account.Name).equal('Test'));
 
+        String soql = builder.soql();
         Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE (Name = :v1)', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('Test', binding.get('v1'));
     }
 
     @isTest
     static void notEqualString() {
-        String soql = QS.of(Account.sObjectType)
+        QS builder = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name, Account.BillingCity
             })
-            .whereAre(QS.Condition.field(Account.Name).notEqual('Test'))
-            .soql();
+            .whereAre(QS.Condition.field(Account.Name).notEqual('Test'));
 
+        String soql = builder.soql();
         Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE (Name != :v1)', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('Test', binding.get('v1'));
     }
 
     @isTest
     static void lessThan() {
-        String soql = QS.of(Account.sObjectType)
+        QS builder = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name, Account.BillingCity
             })
-            .whereAre(QS.Condition.field(Account.NumberOfEmployees).lessThan(10))
-            .soql();
+            .whereAre(QS.Condition.field(Account.NumberOfEmployees).lessThan(10));
 
+        String soql = builder.soql();
         Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE (NumberOfEmployees < :v1)', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(10, binding.get('v1'));
     }
 
     @isTest
     static void greaterThan() {
-        String soql = QS.of(Account.sObjectType)
+        QS builder = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name, Account.BillingCity
             })
-            .whereAre(QS.Condition.field(Account.NumberOfEmployees).greaterThan(10))
-            .soql();
+            .whereAre(QS.Condition.field(Account.NumberOfEmployees).greaterThan(10));
 
+        String soql = builder.soql();
         Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE (NumberOfEmployees > :v1)', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(10, binding.get('v1'));
     }
 
     @isTest
     static void lessThanOrEqual() {
-        String soql = QS.of(Account.sObjectType)
+        QS builder = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name, Account.BillingCity
             })
-            .whereAre(QS.Condition.field(Account.NumberOfEmployees).lessThanOrEqual(10))
-            .soql();
+            .whereAre(QS.Condition.field(Account.NumberOfEmployees).lessThanOrEqual(10));
 
+        String soql = builder.soql();
         Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE (NumberOfEmployees <= :v1)', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(10, binding.get('v1'));
     }
 
     @isTest
     static void greaterThanOrEqual() {
-        String soql = QS.of(Account.sObjectType)
+        QS builder = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name, Account.BillingCity
             })
-            .whereAre(QS.Condition.field(Account.NumberOfEmployees).greaterThanOrEqual(10))
-            .soql();
+            .whereAre(QS.Condition.field(Account.NumberOfEmployees).greaterThanOrEqual(10));
 
+        String soql = builder.soql();
         Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE (NumberOfEmployees >= :v1)', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(10, binding.get('v1'));
     }
 
     @isTest
     static void likeAnyBoth() {
-        String soql = QS.of(Account.sObjectType)
+        QS builder = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name, Account.BillingCity
             })
-            .whereAre(QS.Condition.field(Account.Name).likeAnyBoth('Test'))
-            .soql();
+            .whereAre(QS.Condition.field(Account.Name).likeAnyBoth('Test'));
 
+        String soql = builder.soql();
         Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE (Name LIKE :v1)', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('%Test%', binding.get('v1'));
     }
 
     @isTest
     static void likeAnyLeft() {
-        String soql = QS.of(Account.sObjectType)
+        QS builder = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name, Account.BillingCity
             })
-            .whereAre(QS.Condition.field(Account.Name).likeAnyLeft('Test'))
-            .soql();
+            .whereAre(QS.Condition.field(Account.Name).likeAnyLeft('Test'));
 
+        String soql = builder.soql();
         Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE (Name LIKE :v1)', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('%Test', binding.get('v1'));
     }
 
     @isTest
     static void likeAnyRight() {
-        String soql = QS.of(Account.sObjectType)
+        QS builder = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name, Account.BillingCity
             })
-            .whereAre(QS.Condition.field(Account.Name).likeAnyRight('Test'))
-            .soql();
+            .whereAre(QS.Condition.field(Account.Name).likeAnyRight('Test'));
 
+        String soql = builder.soql();
         Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE (Name LIKE :v1)', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('Test%', binding.get('v1'));
     }
 
     @isTest
     static void inCollection() {
         List<String> names = new List<String>{ 'Test 1', 'Test 2' };
 
-        String soql = QS.of(Account.sObjectType)
+        QS builder = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name, Account.BillingCity
             })
-            .whereAre(QS.Condition.field(Account.Name).inCollection(names))
-            .soql();
+            .whereAre(QS.Condition.field(Account.Name).inCollection(names));
 
+        String soql = builder.soql();
         Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE (Name IN :v1)', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(names, binding.get('v1'));
     }
 
 
@@ -357,52 +390,65 @@ public class QB_Test {
     static void notIn() {
         List<String> names = new List<String>{ 'Test 1', 'Test 2' };
 
-        String soql = QS.of(Account.sObjectType)
+        QS builder = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name, Account.BillingCity
             })
-            .whereAre(QS.Condition.field(Account.Name).notIn(names))
-            .soql();
+            .whereAre(QS.Condition.field(Account.Name).notIn(names));
 
+        String soql = builder.soql();
         Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE (Name NOT IN :v1)', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(names, binding.get('v1'));
     }
 
     @isTest
     static void isNotNull() {
-        String soql = QS.of(Account.sObjectType)
+        QS builder = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name, Account.BillingCity
             })
-            .whereAre(QS.Condition.field(Account.Name).isNotNull())
-            .soql();
+            .whereAre(QS.Condition.field(Account.Name).isNotNull());
 
+        String soql = builder.soql();
         Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE (Name != :v1)', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(null, binding.get('v1'));
     }
 
     @isTest
     static void isNull() {
-        String soql = QS.of(Account.sObjectType)
+        QS builder = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name, Account.BillingCity
             })
-            .whereAre(QS.Condition.field(Account.Name).isNull())
-            .soql();
+            .whereAre(QS.Condition.field(Account.Name).isNull());
 
+        String soql = builder.soql();
         Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE (Name = :v1)', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(null, binding.get('v1'));
     }
 
     @isTest
     static void conditionsGroup() {
-        String soql = QS.of(Account.sObjectType)
+        QS builder = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name, Account.BillingCity
             })
             .whereAre(QS.ConditionsGroup
-                .add(QS.Condition.field(Account.Name).likeAnyRight('Test'))
-                .add(QS.Condition.field(Account.BillingCity).likeAnyRight('Krakow'))
-            )
-            .soql();
+                .add(QS.Condition.field(Account.Name).equal('Test'))
+                .add(QS.Condition.field(Account.BillingCity).equal('Krakow'))
+            );
 
-        Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE ((Name LIKE :v1 AND BillingCity LIKE :v2))', soql);
+        String soql = builder.soql();
+        Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE ((Name = :v1 AND BillingCity = :v2))', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('Test', binding.get('v1'));
+        Assert.areEqual('Krakow', binding.get('v2'));
     }
 }
