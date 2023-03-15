@@ -9,58 +9,9 @@ Apex QS provides functional constructs for SOQL.
 
 ## Examples
 
-```java
-public inherited sharing class QS_Account {
-
-    public static QS Selector {
-        get {
-            return QS.of(Account.sObjectType)
-                .fields(new List<sObjectField>{
-                    Account.Name,
-                    Account.AccountNumber
-                })
-                .withSharing()
-                .systemMode();
-        }
-    }
-
-    public static QS getByRecordType(String rtDevName) {
-        return Selector.fields(new List<sObjectField>{
-            Account.BillingCity,
-            Account.BillingCountry,
-            Account.BillingCountryCode
-        }).whereAre(QS.ConditionsGroup
-            .add(QS.Condition.recordTypeDeveloperName().equal(rtDevName))
-        );
-    }
-}
-```
-
-```java
-public with sharing class ExampleController {
-
-
-    public static List<Account> getAccountsInlineSoql(List<Id> accountIds) {
-        return [
-            SELECT Name, AccountNumber, BillingCity, BillingCountry, BillingCountryCode
-            FROM Account
-            WHERE Id IN :accountIds
-        ];
-    }
-
-    public static List<Account> getAccountsSelector(List<Id> accountIds) {
-        return (List<Account>) QS_Account.Selector
-            .fields(new List<sObjectField>{
-                Account.BillingCity,
-                Account.BillingCountry,
-                Account.BillingCountryCode
-            })
-            .whereAre(QS.Condition
-                .field(Account.Id).inCollection(accountIds)
-            )
-            .asList();
-    }
-}
+```apex
+//SELECT Id FROM Account
+List<Account> accounts = (List<Account>) QS.of(Account.sObjectType).asList();
 ```
 
 ## Guidelines
@@ -69,7 +20,7 @@ public with sharing class ExampleController {
 
 We should avoid constructions like that:
 
-```java
+```apex
 public with sharing AccountSelector extends fflib_SObjectSelector {
    public Schema.SObjectType getSObjectType(){
       return Account.sObjectType;

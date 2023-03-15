@@ -31,6 +31,9 @@ public class QB_Components {
         }
 
         public String build() {
+            if (queryFields.isEmpty()) {
+                return 'SELECT Id';
+            }
             return 'SELECT ' + String.join(new List<String>(queryFields), ', ');
         }
     }
