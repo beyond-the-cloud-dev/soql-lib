@@ -61,21 +61,21 @@ QS.of(Account.sObjectType)
     .whereAre(QS.Condition.field(Account.Name).equal('My Account'))
 ```
 
-### relationship
+### relatedField
 
 Specify parent field that should be used in the condition.
 
 **Signature**
 
 ```apex
-QB_Condition relationship(String relationshipPath, SObjectField field)
+QB_Condition relatedField(String relationshipPath, SObjectField field)
 ```
 
 **Example**
 
 ```apex
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.relationship('Account', Account.Name).equal('My Account'))
+    .whereAre(QS.Condition.relatedField('Account', Account.Name).equal('My Account'))
 ```
 
 ## comperators
@@ -315,4 +315,48 @@ QB_Condition notIn(List<Object> inList)
 ```apex
 QS.of(Contact.sObjectType)
     .whereAre(QS.Condition.field(Account.Id).notIn(accountIds))
+```
+
+## join query
+
+### inCollection
+
+- `WHERE Id IN (SELECT AccountId FROM Contact WHERE Name = 'My Contact')`
+
+**Signature**
+
+```apex
+QB_Condition inCollection(QB_Join joinQuery)
+```
+
+**Example**
+
+```apex
+QS.of(Contact.sObjectType)
+    .whereAre(QS.Condition.field(Account.Id).inCollection(
+        QS.Join.of(Contact.sObjectType)
+            .field(Contact.AccountId)
+            .whereAre(QS.Condition.field(Contact.Name).equal('My Contact'))
+    ))
+```
+
+### notIn
+
+- `WHERE Id NOT IN (SELECT AccountId FROM Contact WHERE Name = 'My Contact')`
+
+**Signature**
+
+```apex
+QB_Condition notIn(QB_Join joinQuery)
+```
+
+**Example**
+
+```apex
+QS.of(Contact.sObjectType)
+    .whereAre(QS.Condition.field(Account.Id).notIn(
+        QS.Join.of(Contact.sObjectType)
+            .field(Contact.AccountId)
+            .whereAre(QS.Condition.field(Contact.Name).equal('My Contact'))
+    ))
 ```
