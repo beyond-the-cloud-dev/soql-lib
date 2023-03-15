@@ -9,6 +9,8 @@ Apex QS provides functional constructs for SOQL.
 List<Account> accounts = (List<Account>) QS.of(Account.sObjectType).asList();
 ```
 
+Find more examples in the [documentation](https://btc-query-selector.vercel.app/).
+
 ## Guidelines
 
 1. Selector class should be small and contains only selector base configuration + very generic methods. Selector should allow building SOQL inline in the place of usage.
