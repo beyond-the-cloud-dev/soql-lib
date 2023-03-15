@@ -25,7 +25,7 @@ List<Account> accounts = (List<Account>) QS.of(Account.sObjectType)
 
 ## Guidelines
 
-1. Selector class should be small and contains only selector base configuration + very generic methods. Selector should allows building SOQL inline in the place of usage.
+1. Selector class should be small and contains only selector base configuration + very generic methods.
 
    We should avoid constructions like that:
 
@@ -54,9 +54,23 @@ List<Account> accounts = (List<Account>) QS.of(Account.sObjectType)
       // 500 more lines here
    }
    ```
+2. Selector should allows building SOQL inline in the place of usage, however default configuration should be provided by selector class `QS_Account`.
+   ```apex
+   public with sharing class MyController {
 
-2. Developers should be able to modify SOQL with fields, conditions, and other clauses as needed.
-3. Developers should not spend time on selector methods naming convention.
+      public static List<Account> getAccounts() {
+         return (List<Account>) QS_Account.Selector
+               .fields(new List<sObjectField>{
+                  Account.BillingCity,
+                  Account.BillingState,
+                  Account.BillingStreet,
+                  Account.BillingCountry
+               }).asList();
+      }
+   }
+   ```
+3. Developers should be able to modify SOQL with fields, conditions, and other clauses as needed.
+4. Developers should not spend time on selector methods naming convention.
    - How to name a method with 3 conditions? selectBySomethingAAndSomethingBAndSomehtingC?
    - What if an order should be passed as an argument?
 
@@ -88,9 +102,9 @@ List<Account> accounts = (List<Account>) QS.of(Account.sObjectType)
    }
    ```
 
-4. Avoid methods where the only difference is a list of fields, limit, order, etc.
-5. Selector framework should allow controlling FLS and sharing. If fflib_SObjectSelector is marked as `with sharing` it is applied to all methods. However, there are some cases where some methods should be `without sharing`? What we can do? A new selector, but `without sharing`? Not good enough.
-6. Selector framework should be able to do dynamic binding without constructions as below:
+5. Avoid methods where the only difference is a list of fields, limit, order, etc.
+6. Selector framework should allow controlling FLS and sharing. If fflib_SObjectSelector is marked as `with sharing` it is applied to all methods. However, there are some cases where some methods should be `without sharing`? What we can do? A new selector, but `without sharing`? Not good enough.
+7. Selector framework should be able to do dynamic binding without constructions as below:
 
    ```apex
    public List<Account> selectByName(Set<String> names){
@@ -100,8 +114,8 @@ List<Account> accounts = (List<Account>) QS.of(Account.sObjectType)
    }
    ```
 
-7. Selector framework should allow for mocking in unit tests.
-8. Selector framework should allow building query/adjust on the fly.
+8. Selector framework should allow for mocking in unit tests.
+9. Selector framework should allow building query/adjust on the fly.
 
 ## License notes
 
