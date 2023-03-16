@@ -1,12 +1,19 @@
 public class QB_ConditionsGroup implements QB_ConditionClause, QB_Part {
     private List<QB_ConditionClause> queryConditions = new List<QB_ConditionClause>();
     private String order = '';
+    private Boolean isTop = false;
 
-    public static QB_ConditionsGroup newGroup() {
-        return new QB_ConditionsGroup();
+    public static QB_ConditionsGroup newNestedGroup() {
+        return new QB_ConditionsGroup(false);
     }
 
-    private QB_ConditionsGroup() {}
+    public static QB_ConditionsGroup newParentGroup() {
+        return new QB_ConditionsGroup(true);
+    }
+
+    private QB_ConditionsGroup(Boolean isTop) {
+        this.isTop = isTop;
+    }
 
     public QB_ConditionsGroup add(QB_ConditionClause condition) {
         queryConditions.add(condition);
@@ -27,7 +34,11 @@ public class QB_ConditionsGroup implements QB_ConditionClause, QB_Part {
             setDefaultOrder();
         }
 
-        return 'WHERE ' + buildNested();
+        if (isTop) {
+            return 'WHERE ' + buildNested();
+        }
+
+        return buildNested();
     }
 
     private void setDefaultOrder() {
@@ -41,18 +52,16 @@ public class QB_ConditionsGroup implements QB_ConditionClause, QB_Part {
     }
 
     public String buildNested() {
-        String orderWithSpecialCharacters = addSpecialCharactersToOrder(order); // e.g (*1* AND (*2* OR *3*))
+        String conditions = addSpecialCharactersToOrder(order); // e.g (*1* AND (*2* OR *3*))
 
         for (Integer i = 0; i < queryConditions.size(); i++) {
-            String conditionNumber = addSpecialCharacters(String.valueOf(i + 1)); // e.g *1*
-
-            orderWithSpecialCharacters = orderWithSpecialCharacters.replace(
-                conditionNumber,
+            conditions = conditions.replace(
+                addSpecialCharacters(String.valueOf(i + 1)), // e.g *1*
                 queryConditions.get(i).build()
             );
         }
 
-        return orderWithSpecialCharacters.replaceFirst('WHERE ', '');
+        return conditions;
     }
 
     private String addSpecialCharactersToOrder(String order) {

@@ -22,7 +22,7 @@ public inherited sharing class QS {
 
     public static QB_ConditionsGroup ConditionsGroup {
         get {
-            return QB_ConditionsGroup.newGroup();
+            return QB_ConditionsGroup.newNestedGroup();
         }
     }
 
@@ -32,7 +32,7 @@ public inherited sharing class QS {
         }
     }
 
-    public static QB_Join JoinQuery {
+    public static QB_Join InnerJoin {
         get {
             return QB_Join.joinWithBinder(binder);
         }

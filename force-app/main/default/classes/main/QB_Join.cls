@@ -26,8 +26,8 @@ public with sharing class QB_Join implements QB_Part {
 
     // Where
 
-    public QB_Join whereAre(QB_ConditionsGroup conditions) {
-        builder.conditions.add(conditions);
+    public QB_Join whereAre(QB_ConditionClause condition) {
+        builder.conditions.add(condition);
         return this;
     }
 

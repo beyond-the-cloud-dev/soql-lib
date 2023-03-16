@@ -422,6 +422,45 @@ public class QB_Test {
         Assert.areEqual('Krakow', binding.get('v2'));
     }
 
+    @isTest
+    static void nestedConditionsGroup() {
+        QS builder = QS.of(Account.sObjectType)
+            .whereAre(QS.ConditionsGroup
+                .add(QS.Condition.field(Account.Name).equal('Test'))
+                .add(QS.Condition.field(Account.BillingCity).equal('Krakow'))
+                .add(QS.ConditionsGroup
+                    .add(QS.Condition.field(Account.Name).equal('Test 2'))
+                    .add(QS.Condition.field(Account.BillingCity).equal('Warsaw'))
+                    .order('1 OR 2')
+                )
+            );
+
+        String soql = builder.soql();
+        Assert.areEqual('SELECT Id FROM Account WHERE ((Name = :v1 AND BillingCity = :v2 AND (Name = :v3 OR BillingCity = :v4)))', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('Test', binding.get('v1'));
+        Assert.areEqual('Krakow', binding.get('v2'));
+        Assert.areEqual('Test 2', binding.get('v3'));
+        Assert.areEqual('Warsaw', binding.get('v4'));
+    }
+
+    @isTest
+    static void innerJoin() {
+        QS builder = QS.of(Account.sObjectType)
+            .whereAre(QS.Condition.field(Account.Id).inCollection(
+                QS.InnerJoin.of(Contact.sObjectType)
+                    .field(Contact.AccountId)
+                    .whereAre(QS.Condition.field(Contact.Name).equal('My Contact'))
+            ));
+
+        String soql = builder.soql();
+        Assert.areEqual('SELECT Id FROM Account WHERE (Id IN (SELECT AccountId FROM Contact WHERE (Name = :v1)))', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('My Contact', binding.get('v1'));
+    }
+
     // GROUP BY
 
     @isTest
