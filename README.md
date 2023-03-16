@@ -1,5 +1,12 @@
 # Query Selector (QS)
 
+![Deploy to Scratch Org and run tests](https://github.com/beyond-the-cloud-dev/query-selector/actions/workflows/ci.yml/badge.svg)
+
+[![codecov](https://codecov.io/gh/beyond-the-cloud-dev/query-selector/branch/main/graph/badge.svg)](https://codecov.io/gh/beyond-the-cloud-dev/query-selector)
+
+----
+
+
 Apex QS provides functional constructs for SOQL.
 
 ## Examples
@@ -92,6 +99,14 @@ public List<Account> selectByName(Set<String> names){
 
 7. Selector framework should allow for mocking in unit tests.
 8. Selector framework should allow building query/adjust on the fly.
+----
+
+## Deploy to Salesforce
+
+<a href="https://githubsfdeploy.herokuapp.com?owner=beyond-the-cloud-dev&repo=query-selector&ref=main">
+  <img alt="Deploy to Salesforce"
+       src="https://raw.githubusercontent.com/afawcett/githubsfdeploy/master/deploy.png">
+</a>
 
 ## License notes
 

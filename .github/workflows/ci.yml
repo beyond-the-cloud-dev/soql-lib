@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'force-app/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'force-app/**'
+
+  workflow_dispatch:
+
+jobs:
+  deploy-to-scratch-and-run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Salesforce CLI from binary
+        run: |
+          wget https://developer.salesforce.com/media/salesforce-cli/sfdx-linux-amd64.tar.xz
+          mkdir sfdx-cli
+          tar xJf sfdx-linux-amd64.tar.xz -C sfdx-cli --strip-components 1
+          sudo ./sfdx-cli/install
+
+      - name: Write the dev hub token into a file
+        run: 'echo ${{secrets.SFDX_AUTH_URL}} > devHubAuthToken'
+
+      - name: Authorize with the dev hub
+        run: sfdx force:auth:sfdxurl:store -f devHubAuthToken --setalias DevHub --setdefaultdevhubusername
+
+      - name: Create scratch org
+        run: sfdx force:org:create --definitionfile config/project-scratch-def.json --setalias ScratchOrg --wait 30 --durationdays 1 --setdefaultusername
+
+      - name: Push source
+        run: sfdx force:source:push --targetusername ScratchOrg
+
+      - name: Run tests
+        run: sf apex run test --target-org ScratchOrg --code-coverage --result-format human --output-dir ./tests/apex --suite-names "QB"
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          flags: Apex
+
+      - name: Delete scratch org
+        if: always()
+        run: sf org delete scratch --target-org ScratchOrg --no-prompt
