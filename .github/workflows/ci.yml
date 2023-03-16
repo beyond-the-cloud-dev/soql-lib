@@ -39,7 +39,7 @@ jobs:
         run: sfdx force:source:push --targetusername ScratchOrg
 
       - name: Run tests
-        run: sf apex run test --target-org ScratchOrg --code-coverage --result-format human --output-dir ./tests/apex --suite-names "QB"
+        run: sf apex run test --target-org ScratchOrg --code-coverage --result-format human --output-dir ./tests/apex --test-level RunLocalTests
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
