@@ -1,11 +1,10 @@
 public with sharing class ExampleController {
 
-    public static List<Account> getAccounts() {
+    public static List<Account> getAccounts(String accountName) {
         return (List<Account>) QS_Account.Selector
             .fields(new List<sObjectField>{
                 Account.BillingCity,
-                Account.BillingCountry,
-                Account.BillingCountryCode
+                Account.BillingCountry
             })
             .whereAre(QS.ConditionsGroup
                 .add(QS.Condition.field(Account.Id).equal('0013V00000WNCw4QAH'))
@@ -15,4 +14,3 @@ public with sharing class ExampleController {
             .asList();
     }
 }
-select id from account limit 10
