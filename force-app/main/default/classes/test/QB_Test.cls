@@ -193,27 +193,39 @@ public class QB_Test {
     // SCOPE
 
     @isTest
+    static void delegatedScope() {
+        String soql = QS.of(Task.sObjectType)
+            .delegatedScope()
+            .soql();
+
+        Assert.areEqual('SELECT Id FROM Task USING SCOPE DELEGATED', soql);
+    }
+
+    @isTest
     static void mineScope() {
         String soql = QS.of(Account.sObjectType)
-            .fields(new List<sObjectField>{
-                Account.Name, Account.BillingCity
-            })
             .mineScope()
             .soql();
 
-        Assert.areEqual('SELECT Name, BillingCity FROM Account USING SCOPE MINE', soql);
+        Assert.areEqual('SELECT Id FROM Account USING SCOPE MINE', soql);
+    }
+
+    @isTest
+    static void mineAndMyGroupsScope() {
+        String soql = QS.of(ProcessInstanceWorkItem.sObjectType)
+            .mineAndMyGroupsScope()
+            .soql();
+
+        Assert.areEqual('SELECT Id FROM ProcessInstanceWorkitem USING SCOPE MINE_AND_MY_GROUPS', soql);
     }
 
     @isTest
     static void teamScope() {
         String soql = QS.of(Account.sObjectType)
-            .fields(new List<sObjectField>{
-                Account.Name, Account.BillingCity
-            })
             .teamScope()
             .soql();
 
-        Assert.areEqual('SELECT Name, BillingCity FROM Account USING SCOPE TEAM', soql);
+        Assert.areEqual('SELECT Id FROM Account USING SCOPE TEAM', soql);
     }
 
     // WHERE
@@ -471,14 +483,20 @@ public class QB_Test {
     @isTest
     static void orderBy() {
         String soql = QS.of(Account.sObjectType)
-            .fields(new List<sObjectField>{
-                Account.Name, Account.BillingCity
-            })
             .orderBy(Account.Industry).sortDesc().nullsLast()
             .orderBy(Account.Id)
             .soql();
 
-        Assert.areEqual('SELECT Name, BillingCity FROM Account ORDER BY Industry DESC NULLS LAST, Id ASC NULLS FIRST', soql);
+        Assert.areEqual('SELECT Id FROM Account ORDER BY Industry DESC NULLS LAST, Id ASC NULLS FIRST', soql);
+    }
+
+    @isTest
+    static void orderByRelated() {
+        String soql = QS.of(Contact.sObjectType)
+            .orderByRelated('Account', Account.Name)
+            .soql();
+
+        Assert.areEqual('SELECT Id FROM Contact ORDER BY Account.Name ASC NULLS FIRST', soql);
     }
 
     // LIMIT
@@ -501,5 +519,43 @@ public class QB_Test {
             .soql();
 
         Assert.areEqual('SELECT Id FROM Account OFFSET 100', soql);
+    }
+
+    // FOR
+
+    @isTest
+    static void forReference() {
+        String soql = QS.of(Account.sObjectType)
+            .forReference()
+            .soql();
+
+        Assert.areEqual('SELECT Id FROM Account FOR REFERENCE', soql);
+    }
+
+    @isTest
+    static void forView() {
+        String soql = QS.of(Account.sObjectType)
+            .forView()
+            .soql();
+
+        Assert.areEqual('SELECT Id FROM Account FOR VIEW', soql);
+    }
+
+    @isTest
+    static void forUpdate() {
+        String soql = QS.of(Account.sObjectType)
+            .forUpdate()
+            .soql();
+
+        Assert.areEqual('SELECT Id FROM Account FOR UPDATE', soql);
+    }
+
+    @isTest
+    static void allRows() {
+        String soql = QS.of(Account.sObjectType)
+            .allRows()
+            .soql();
+
+        Assert.areEqual('SELECT Id FROM Account ALL ROWS', soql);
     }
 }
