@@ -19,12 +19,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Install Salesforce CLI from binary
-        run: |
-          wget https://developer.salesforce.com/media/salesforce-cli/sfdx-linux-amd64.tar.xz
-          mkdir sfdx-cli
-          tar xJf sfdx-linux-amd64.tar.xz -C sfdx-cli --strip-components 1
-          sudo ./sfdx-cli/install
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+
+      - name: Install Salesforce CLI with NPM
+        run: npm install sfdx-cli
 
       - name: Write the dev hub token into a file
         run: 'echo ${{secrets.SFDX_AUTH_URL}} > devHubAuthToken'
