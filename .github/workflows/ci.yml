@@ -25,7 +25,9 @@ jobs:
           node-version: 16.x
 
       - name: Install Salesforce CLI with NPM
-        run: npm install sfdx-cli
+        run: |
+          npm install sfdx-cli --global
+          npm install @salesforce/cli --global
 
       - name: Write the dev hub token into a file
         run: 'echo ${{secrets.SFDX_AUTH_URL}} > devHubAuthToken'
