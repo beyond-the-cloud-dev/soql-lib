@@ -41,7 +41,7 @@ Find more examples in the [documentation](https://btc-query-selector.vercel.app/
 3. **Build SOQL dynamically via builder** - Developer should be able to adjust query with specific fields, conditions, and other SOQL clauses.
 4. **Do not spend time on selector methods naming** - It can be difficult to find a proper name for method that builds a query. Selector class contains methods like `selectByFieldAAndFieldBWithDescOrder`. It can be avoided by building SOQL inline in a place of need.
 5. **Controll FLS ans sharing settings** - Selector should allow to control Field Level Security and sharing settings by the simple methods like `.systemMode()`, `.withSharing()`, `.withoutSharing()`.
-6. **All variables should be binded by default** - Selector should be able to bind variables dynamically without additional effort from developer side.
+6. **Auto binding** - Selector should be able to bind variables dynamically without additional effort from developer side.
 7. **Mock results in Unit Tests** - Selector should allow for mocking data in unit tests.
 
 ----
