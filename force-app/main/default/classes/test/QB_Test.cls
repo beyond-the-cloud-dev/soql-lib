@@ -220,6 +220,24 @@ public class QB_Test {
     }
 
     @isTest
+    static void myTerritoryScope() {
+        String soql = QS.of(Account.sObjectType)
+            .myTerritoryScope()
+            .soql();
+
+        Assert.areEqual('SELECT Id FROM Account USING SCOPE MY_TERRITORY', soql);
+    }
+
+    @isTest
+    static void myTeamTerritoryScope() {
+        String soql = QS.of(Account.sObjectType)
+            .myTeamTerritoryScope()
+            .soql();
+
+        Assert.areEqual('SELECT Id FROM Account USING SCOPE MY_TEAM_TERRITORY', soql);
+    }
+
+    @isTest
     static void teamScope() {
         String soql = QS.of(Account.sObjectType)
             .teamScope()
@@ -473,6 +491,19 @@ public class QB_Test {
             .soql();
 
         Assert.areEqual('SELECT LeadSource FROM Lead GROUP BY LeadSource', soql);
+    }
+
+    @isTest
+    static void groupByRollup() {
+        String soql = QS.of(Lead.sObjectType)
+            .fields(new List<sObjectField>{
+                Lead.LeadSource
+            })
+            .countAs(Lead.Name, 'cnt')
+            .groupByRollup(Lead.LeadSource)
+            .soql();
+
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(LeadSource)', soql);
     }
 
     // ORDER BY
