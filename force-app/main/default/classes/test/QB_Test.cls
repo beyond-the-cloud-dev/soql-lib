@@ -619,24 +619,9 @@ public class QB_Test {
 
     @isTest
     static void withoutSharing() {
-        insert new List<Case>{
-            new Case(Status = 'New', Origin = 'Web'),
-            new Case(Status = 'New', Origin = 'Web')
-        };
+        insertCases();
 
-        User standardUser = new User(
-            Alias = 'newUser',
-            Email = 'newuser@testorg.com',
-            EmailEncodingKey = 'UTF-8',
-            LastName = 'Testing',
-            LanguageLocaleKey = 'en_US',
-            LocaleSidKey = 'en_US',
-            ProfileId = [SELECT Id FROM Profile WHERE Name = 'Standard User'].Id,
-            TimeZoneSidKey = 'America/Los_Angeles',
-            UserName = 'queryselector@testorg.com'
-        );
-
-        System.runAs(standardUser) {
+        System.runAs(standardUser()) {
             List<Case> cases = QS.of(Case.sObjectType).systemMode().withoutSharing().asList();
             Assert.areEqual(2, cases.size());
         }
@@ -644,12 +629,23 @@ public class QB_Test {
 
     @isTest
     static void withSharing() {
+        insertCases();
+
+        System.runAs(standardUser()) {
+            List<Case> cases = QS.of(Case.sObjectType).systemMode().withSharing().asList();
+            Assert.areEqual(0, cases.size());
+        }
+    }
+
+    static void insertCases() {
         insert new List<Case>{
             new Case(Status = 'New', Origin = 'Web'),
             new Case(Status = 'New', Origin = 'Web')
         };
+    }
 
-        User standardUser = new User(
+    static User standardUser() {
+        return new User(
             Alias = 'newUser',
             Email = 'newuser@testorg.com',
             EmailEncodingKey = 'UTF-8',
@@ -660,11 +656,6 @@ public class QB_Test {
             TimeZoneSidKey = 'America/Los_Angeles',
             UserName = 'queryselector@testorg.com'
         );
-
-        System.runAs(standardUser) {
-            List<Case> cases = QS.of(Case.sObjectType).systemMode().withSharing().asList();
-            Assert.areEqual(0, cases.size());
-        }
     }
 
     @isTest
