@@ -45,7 +45,7 @@ public class QB_Test {
     static void subQueryFields() {
         String soql = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
-                Account.Name, Account.BillingCity
+                Account.Name
             })
             .subQuery(QS.Sub.of('Contacts')
                 .fields(new List<sObjectField>{
@@ -53,14 +53,14 @@ public class QB_Test {
                 })
             ).soql();
 
-        Assert.areEqual('SELECT Name, BillingCity , (SELECT Id, Name FROM Contacts) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts) FROM Account', soql);
     }
 
     @isTest
     static void subQueryRelatedFields() {
         String soql = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
-                Account.Name, Account.BillingCity
+                Account.Name
             })
             .subQuery(QS.Sub.of('Contacts')
                 .fields(new List<sObjectField>{
@@ -71,14 +71,14 @@ public class QB_Test {
                 })
             ).soql();
 
-        Assert.areEqual('SELECT Name, BillingCity , (SELECT Id, Name, CreatedBy.Id, CreatedBy.Name FROM Contacts) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name, CreatedBy.Id, CreatedBy.Name FROM Contacts) FROM Account', soql);
     }
 
     @isTest
     static void subQueryWhere() {
         String soql = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
-                Account.Name, Account.BillingCity
+                Account.Name
             })
             .subQuery(QS.Sub.of('Contacts')
                 .fields(new List<sObjectField>{
@@ -87,14 +87,14 @@ public class QB_Test {
                 .whereAre(QS.Condition.field(Contact.LastName).equal('Doe'))
             ).soql();
 
-        Assert.areEqual('SELECT Name, BillingCity , (SELECT Id, Name FROM Contacts WHERE (LastName = :v1)) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts WHERE (LastName = :v1)) FROM Account', soql);
     }
 
     @isTest
     static void subQueryOrderBy() {
         String soql = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
-                Account.Name, Account.BillingCity
+                Account.Name
             })
             .subQuery(QS.Sub.of('Contacts')
                 .fields(new List<sObjectField>{
@@ -105,14 +105,14 @@ public class QB_Test {
                 .nullsLast()
             ).soql();
 
-        Assert.areEqual('SELECT Name, BillingCity , (SELECT Id, Name FROM Contacts ORDER BY Name DESC NULLS LAST) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts ORDER BY Name DESC NULLS LAST) FROM Account', soql);
     }
 
     @isTest
     static void subQueryOrderByRelated() {
         String soql = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
-                Account.Name, Account.BillingCity
+                Account.Name
             })
             .subQuery(QS.Sub.of('Contacts')
                 .fields(new List<sObjectField>{
@@ -123,14 +123,14 @@ public class QB_Test {
                 .nullsLast()
             ).soql();
 
-        Assert.areEqual('SELECT Name, BillingCity , (SELECT Id, Name FROM Contacts ORDER BY CreatedBy.Name DESC NULLS LAST) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts ORDER BY CreatedBy.Name DESC NULLS LAST) FROM Account', soql);
     }
 
     @isTest
     static void subQuerySetLimit() {
         String soql = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
-                Account.Name, Account.BillingCity
+                Account.Name
             })
             .subQuery(QS.Sub.of('Contacts')
                 .fields(new List<sObjectField>{
@@ -139,14 +139,14 @@ public class QB_Test {
                 .setLimit(10)
             ).soql();
 
-        Assert.areEqual('SELECT Name, BillingCity , (SELECT Id, Name FROM Contacts LIMIT 10) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts LIMIT 10) FROM Account', soql);
     }
 
     @isTest
     static void subQuerySetOffset() {
         String soql = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
-                Account.Name, Account.BillingCity
+                Account.Name
             })
             .subQuery(QS.Sub.of('Contacts')
                 .fields(new List<sObjectField>{
@@ -155,14 +155,14 @@ public class QB_Test {
                 .setOffset(100)
             ).soql();
 
-        Assert.areEqual('SELECT Name, BillingCity , (SELECT Id, Name FROM Contacts OFFSET 100) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts OFFSET 100) FROM Account', soql);
     }
 
     @isTest
     static void subQueryForReference() {
         String soql = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
-                Account.Name, Account.BillingCity
+                Account.Name
             })
             .subQuery(QS.Sub.of('Contacts')
                 .fields(new List<sObjectField>{
@@ -171,14 +171,14 @@ public class QB_Test {
                 .forReference()
             ).soql();
 
-        Assert.areEqual('SELECT Name, BillingCity , (SELECT Id, Name FROM Contacts FOR REFERENCE) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts FOR REFERENCE) FROM Account', soql);
     }
 
     @isTest
     static void subQueryForView() {
         String soql = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
-                Account.Name, Account.BillingCity
+                Account.Name
             })
             .subQuery(QS.Sub.of('Contacts')
                 .fields(new List<sObjectField>{
@@ -187,7 +187,7 @@ public class QB_Test {
                 .forView()
             ).soql();
 
-        Assert.areEqual('SELECT Name, BillingCity , (SELECT Id, Name FROM Contacts FOR VIEW) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts FOR VIEW) FROM Account', soql);
     }
 
     // SCOPE
@@ -615,4 +615,69 @@ public class QB_Test {
         Assert.areEqual(accountIds, binding.get('v1'));
     }
 
+    // Functional
+
+    @isTest
+    static void withoutSharing() {
+        insert new List<Case>{
+            new Case(Status = 'New', Origin = 'Web'),
+            new Case(Status = 'New', Origin = 'Web')
+        };
+
+        User standardUser = new User(
+            Alias = 'newUser',
+            Email = 'newuser@testorg.com',
+            EmailEncodingKey = 'UTF-8',
+            LastName = 'Testing',
+            LanguageLocaleKey = 'en_US',
+            LocaleSidKey = 'en_US',
+            ProfileId = [SELECT Id FROM Profile WHERE Name = 'Standard User'].Id,
+            TimeZoneSidKey = 'America/Los_Angeles',
+            UserName = 'queryselector@testorg.com'
+        );
+
+        System.runAs(standardUser) {
+            List<Case> cases = QS.of(Case.sObjectType).systemMode().withoutSharing().asList();
+            Assert.areEqual(2, cases.size());
+        }
+    }
+
+    @isTest
+    static void withSharing() {
+        insert new List<Case>{
+            new Case(Status = 'New', Origin = 'Web'),
+            new Case(Status = 'New', Origin = 'Web')
+        };
+
+        User standardUser = new User(
+            Alias = 'newUser',
+            Email = 'newuser@testorg.com',
+            EmailEncodingKey = 'UTF-8',
+            LastName = 'Testing',
+            LanguageLocaleKey = 'en_US',
+            LocaleSidKey = 'en_US',
+            ProfileId = [SELECT Id FROM Profile WHERE Name = 'Standard User'].Id,
+            TimeZoneSidKey = 'America/Los_Angeles',
+            UserName = 'queryselector@testorg.com'
+        );
+
+        System.runAs(standardUser) {
+            List<Case> cases = QS.of(Case.sObjectType).systemMode().withSharing().asList();
+            Assert.areEqual(0, cases.size());
+        }
+    }
+
+    @isTest
+    static void mocking() {
+        List<Account> accounts = new List<Account>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        };
+
+        QS_Mock.setMock('mockingQuery', accounts);
+
+        List<Account> result = QS.of(Account.sObjectType).mocking('mockingQuery').asList();
+
+        Assert.areEqual(accounts, result);
+    }
 }
