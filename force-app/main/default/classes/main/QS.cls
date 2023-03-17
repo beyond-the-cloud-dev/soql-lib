@@ -245,10 +245,10 @@ public inherited sharing class QS {
     // Standard
 
     public sObject getById(Id recordId) {
-        return whereAre(QS.ConditionsGroup.add(QS.Condition.field(Account.Id).equal(recordId))).asObject();
+        return whereAre(QS.ConditionsGroup.add(QS.Condition.id().equal(recordId))).asObject();
     }
 
     public List<sObject> getByIds(List<Id> recordIds) {
-        return whereAre(QS.ConditionsGroup.add(QS.Condition.field(Account.Id).inCollection(recordIds))).asList();
+        return whereAre(QS.ConditionsGroup.add(QS.Condition.id().inCollection(recordIds))).asList();
     }
 }
