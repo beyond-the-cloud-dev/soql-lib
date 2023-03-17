@@ -59,10 +59,6 @@ public class QB_Components {
     public class QFrom implements QB_Part {
         private String objectApiName;
 
-        public QFrom(sObjectType objectType) {
-            objectApiName = objectType.getDescribe().getName();
-        }
-
         public QFrom(String objectType) {
             objectApiName = objectType;
         }
@@ -115,10 +111,6 @@ public class QB_Components {
             groupByFields.add('ROLLUP(' + field.getDescribe().getName() + ')');
         }
 
-        public void cube(sObjectField field) {
-            groupByFields.add('CUBE(' + field.getDescribe().getName() + ')');
-        }
-
         public String build() {
             return 'GROUP BY ' + String.join(new List<String>(groupByFields), ', ');
         }
@@ -163,10 +155,6 @@ public class QB_Components {
         public QOrderBy relatedField(String relationshipPath, sObjectField field) {
             orderField = relationshipPath + '.' + field.getDescribe().getName();
             return this;
-        }
-
-        public void grouping(sObjectField field) {
-            orderField = 'GROUPING(' + field.getDescribe().getName() + ')';
         }
 
         public void sortDesc() {

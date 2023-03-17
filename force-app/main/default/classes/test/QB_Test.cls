@@ -261,6 +261,30 @@ public class QB_Test {
     }
 
     @isTest
+    static void recordTypeDeveloperName() {
+        QS builder = QS.of(Account.sObjectType)
+            .whereAre(QS.Condition.recordTypeDeveloperName().isNotNull());
+
+        String soql = builder.soql();
+        Assert.areEqual('SELECT Id FROM Account WHERE (RecordType.DeveloperName != :v1)', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(null, binding.get('v1'));
+    }
+
+    @isTest
+    static void relatedField() {
+        QS builder = QS.of(Contact.sObjectType)
+            .whereAre(QS.Condition.relatedField('Account', Account.Name).equal('Test'));
+
+        String soql = builder.soql();
+        Assert.areEqual('SELECT Id FROM Contact WHERE (Account.Name = :v1)', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('Test', binding.get('v1'));
+    }
+
+    @isTest
     static void equalString() {
         QS builder = QS.of(Account.sObjectType)
             .whereAre(QS.Condition.field(Account.Name).equal('Test'));
@@ -464,7 +488,7 @@ public class QB_Test {
     }
 
     @isTest
-    static void innerJoin() {
+    static void inInnerJoin() {
         QS builder = QS.of(Account.sObjectType)
             .whereAre(QS.Condition.field(Account.Id).inCollection(
                 QS.InnerJoin.of(Contact.sObjectType)
@@ -474,6 +498,23 @@ public class QB_Test {
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE (Id IN (SELECT AccountId FROM Contact WHERE (Name = :v1)))', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('My Contact', binding.get('v1'));
+    }
+
+
+    @isTest
+    static void notInInnerJoin() {
+        QS builder = QS.of(Account.sObjectType)
+            .whereAre(QS.Condition.field(Account.Id).notIn(
+                QS.InnerJoin.of(Contact.sObjectType)
+                    .field(Contact.AccountId)
+                    .whereAre(QS.Condition.field(Contact.Name).equal('My Contact'))
+            ));
+
+        String soql = builder.soql();
+        Assert.areEqual('SELECT Id FROM Account WHERE (Id NOT IN (SELECT AccountId FROM Contact WHERE (Name = :v1)))', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual('My Contact', binding.get('v1'));
@@ -628,12 +669,32 @@ public class QB_Test {
     }
 
     @isTest
+    static void withoutSharingCount() {
+        insertCases();
+
+        System.runAs(standardUser()) {
+            Integer casesAmount = QS.of(Case.sObjectType).count().systemMode().withoutSharing().asInteger();
+            Assert.areEqual(2, casesAmount);
+        }
+    }
+
+    @isTest
     static void withSharing() {
         insertCases();
 
         System.runAs(standardUser()) {
             List<Case> cases = QS.of(Case.sObjectType).systemMode().withSharing().asList();
             Assert.areEqual(0, cases.size());
+        }
+    }
+
+    @isTest
+    static void withSharingCount() {
+        insertCases();
+
+        System.runAs(standardUser()) {
+            Integer casesAmount = QS.of(Case.sObjectType).count().systemMode().withSharing().asInteger();
+            Assert.areEqual(0, casesAmount);
         }
     }
 
@@ -670,5 +731,85 @@ public class QB_Test {
         List<Account> result = QS.of(Account.sObjectType).mocking('mockingQuery').asList();
 
         Assert.areEqual(accounts, result);
+    }
+
+    @isTest
+    static void mockingCount() {
+        QS_Mock.setCountMock('mockingQuery', 2);
+
+        Integer result = QS.of(Account.sObjectType).mocking('mockingQuery').asInteger();
+
+        Assert.areEqual(2, result);
+    }
+
+
+    @isTest
+    static void asObject() {
+        Account acc = new Account(Name = 'Test 1');
+
+        insert acc;
+
+        Account result = (Account) QS.of(Account.sObjectType).asObject();
+
+        Assert.areEqual(acc.Id, result.Id);
+    }
+
+    @isTest
+    static void asObjectCatchOutOfBounds() {
+        Account result = (Account) QS.of(Account.sObjectType).asObject();
+
+        Assert.areEqual(null, result);
+    }
+
+    @isTest
+    static void asList() {
+        List<Account> accounts = new List<Account>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        };
+
+        insert accounts;
+
+        List<Account> result = QS.of(Account.sObjectType).asList();
+
+        Assert.areEqual(accounts.size(), result.size());
+    }
+
+    @isTest
+    static void asAggregated() {
+        List<Account> accounts = new List<Account>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        };
+
+        insert accounts;
+
+        List<AggregateResult> result = QS.of(Account.sObjectType).countAs(Account.Name, 'names').asAggregated();
+
+        Assert.areEqual(accounts.size(), result[0].get('names'));
+    }
+
+    @isTest
+    static void asInteger() {
+        List<Account> accounts = new List<Account>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        };
+
+        insert accounts;
+
+        Integer result = QS.of(Account.sObjectType).count().asInteger();
+
+        Assert.areEqual(accounts.size(), result);
+    }
+
+    @isTest
+    static void preview() {
+        QS.of(Account.sObjectType).preview().asList();
+    }
+
+    @isTest
+    static void previewCount() {
+        QS.of(Account.sObjectType).count().preview().asInteger();
     }
 }

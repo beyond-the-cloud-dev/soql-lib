@@ -5,7 +5,7 @@ public inherited sharing class QB_Executor {
         WITHOUT_SHARING
     }
 
-    private SharingLevel sharingMode = SharingLevel.INHERITED; //
+    private SharingLevel sharingMode = SharingLevel.INHERITED;
     private AccessLevel accessMode = AccessLevel.USER_MODE; // The object permissions, field-level security, and sharing rules of the current user are enforced.
 
     private String query;

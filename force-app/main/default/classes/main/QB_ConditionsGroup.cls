@@ -1,7 +1,7 @@
 public class QB_ConditionsGroup implements QB_ConditionClause, QB_Part {
     private List<QB_ConditionClause> queryConditions = new List<QB_ConditionClause>();
     private String order = '';
-    private Boolean isTop = false;
+    private Boolean isParent = false;
 
     public static QB_ConditionsGroup newNestedGroup() {
         return new QB_ConditionsGroup(false);
@@ -11,8 +11,8 @@ public class QB_ConditionsGroup implements QB_ConditionClause, QB_Part {
         return new QB_ConditionsGroup(true);
     }
 
-    private QB_ConditionsGroup(Boolean isTop) {
-        this.isTop = isTop;
+    private QB_ConditionsGroup(Boolean isParent) {
+        this.isParent = isParent;
     }
 
     public QB_ConditionsGroup add(QB_ConditionClause condition) {
@@ -26,15 +26,11 @@ public class QB_ConditionsGroup implements QB_ConditionClause, QB_Part {
     }
 
     public String build() {
-        if (queryConditions.isEmpty()) {
-            return '';
-        }
-
         if (String.isEmpty(order)) {
             setDefaultOrder();
         }
 
-        if (isTop) {
+        if (isParent) {
             return 'WHERE ' + buildNested();
         }
 
