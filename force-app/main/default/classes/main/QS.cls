@@ -40,6 +40,11 @@ public inherited sharing class QS {
 
     // Fields
 
+    public QS field(sObjectField field) {
+        builder.fields.retrive(field);
+        return this;
+    }
+
     public QS fields(List<sObjectField> fields) {
         builder.fields.retrive(fields);
         return this;

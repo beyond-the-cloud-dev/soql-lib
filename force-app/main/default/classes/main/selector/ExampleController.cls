@@ -1,16 +1,10 @@
 public with sharing class ExampleController {
 
     public static List<Account> getAccounts(String accountName) {
-        return (List<Account>) QS_Account.Selector
-            .fields(new List<sObjectField>{
-                Account.BillingCity,
-                Account.BillingCountry
-            })
-            .whereAre(QS.ConditionsGroup
-                .add(QS.Condition.field(Account.Id).equal('0013V00000WNCw4QAH'))
-                .add(QS.Condition.field(Account.Name).likeAnyBoth(accountName))
-                .order('1 OR 2')
-             )
+        return QS_Account.Selector
+            .field(Account.BillingCity)
+            .field(Account.BillingCountry)
+            .whereAre(QS.Condition.field(Account.Name).likeAnyBoth(accountName))
             .asList();
     }
 }

@@ -5,7 +5,9 @@ public inherited sharing class QS_Account {
             return QS.of(Account.sObjectType).fields(new List<sObjectField>{
                 Account.Name,
                 Account.AccountNumber
-            });
+            })
+            .systemMode()
+            .withoutSharing();
         }
     }
 
