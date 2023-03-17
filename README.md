@@ -19,6 +19,13 @@ List<Account> accounts = (List<Account>) QS.of(Account.sObjectType).asList();
 
 Find more examples in the [documentation](https://btc-query-selector.vercel.app/).
 
+## Deploy to Salesforce
+
+<a href="https://githubsfdeploy.herokuapp.com?owner=beyond-the-cloud-dev&repo=query-selector&ref=main">
+  <img alt="Deploy to Salesforce"
+       src="https://raw.githubusercontent.com/afawcett/githubsfdeploy/master/deploy.png">
+</a>
+
 ## Guidelines
 
 1. Selector class should be small and contains only selector base configuration + very generic methods. Selector should allow building SOQL inline in the place of usage.
@@ -100,13 +107,6 @@ public List<Account> selectByName(Set<String> names){
 7. Selector framework should allow for mocking in unit tests.
 8. Selector framework should allow building query/adjust on the fly.
 ----
-
-## Deploy to Salesforce
-
-<a href="https://githubsfdeploy.herokuapp.com?owner=beyond-the-cloud-dev&repo=query-selector&ref=main">
-  <img alt="Deploy to Salesforce"
-       src="https://raw.githubusercontent.com/afawcett/githubsfdeploy/master/deploy.png">
-</a>
 
 ## License notes
 

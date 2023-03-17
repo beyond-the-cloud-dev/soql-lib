@@ -3,6 +3,10 @@ sidebar_position: 1
 slug: '/'
 ---
 
+![Deploy to Scratch Org and run tests](https://github.com/beyond-the-cloud-dev/query-selector/actions/workflows/ci.yml/badge.svg)
+
+[![codecov](https://codecov.io/gh/beyond-the-cloud-dev/query-selector/branch/main/graph/badge.svg)](https://codecov.io/gh/beyond-the-cloud-dev/query-selector)
+
 # Getting started
 
 Apex QS provides functional constructs for SOQL.
@@ -22,6 +26,14 @@ List<Account> accounts = (List<Account>) QS.of(Account.sObjectType)
    })
    .asList();
 ```
+
+## Deploy to Salesforce
+
+<a href="https://githubsfdeploy.herokuapp.com?owner=beyond-the-cloud-dev&repo=query-selector&ref=main">
+  <img alt="Deploy to Salesforce"
+       src="https://raw.githubusercontent.com/afawcett/githubsfdeploy/master/deploy.png">
+</a>
+
 
 ## Guidelines
 
