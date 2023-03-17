@@ -658,16 +658,15 @@ public class QB_Test {
 
     // Functional
 
-    // TODO Need private OWD model
-    // @isTest
-    // static void withoutSharing() {
-    //     insertCases();
+    @isTest
+    static void withoutSharing() {
+        insertCases();
 
-    //     System.runAs(standardUser()) {
-    //         List<Case> cases = QS.of(Case.sObjectType).systemMode().withoutSharing().asList();
-    //         Assert.areEqual(2, cases.size());
-    //     }
-    // }
+        System.runAs(standardUser()) {
+            List<Case> cases = QS.of(Case.sObjectType).systemMode().withoutSharing().asList();
+            Assert.areEqual(2, cases.size());
+        }
+    }
 
     @isTest
     static void withoutSharingCount() {
@@ -690,15 +689,16 @@ public class QB_Test {
     //     }
     // }
 
-    @isTest
-    static void withSharingCount() {
-        insertCases();
+    // TODO Need private OWD model
+    // @isTest
+    // static void withSharingCount() {
+    //     insertCases();
 
-        System.runAs(standardUser()) {
-            Integer casesAmount = QS.of(Case.sObjectType).count().systemMode().withSharing().asInteger();
-            Assert.areEqual(0, casesAmount);
-        }
-    }
+    //     System.runAs(standardUser()) {
+    //         Integer casesAmount = QS.of(Case.sObjectType).count().systemMode().withSharing().asInteger();
+    //         Assert.areEqual(0, casesAmount);
+    //     }
+    // }
 
     static void insertCases() {
         insert new List<Case>{
