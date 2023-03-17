@@ -120,11 +120,6 @@ public inherited sharing class QS {
         return this;
     }
 
-    public QS groupByCube(sObjectField field) {
-        builder.groupBy.cube(field);
-        return this;
-    }
-
     // Order By - ASC, NULLS FIRST by default
 
     public QS orderBy(sObjectField field) {
@@ -244,11 +239,11 @@ public inherited sharing class QS {
 
     // Standard
 
-    public sObject getById(Id recordId) {
-        return whereAre(QS.ConditionsGroup.add(QS.Condition.id().equal(recordId))).asObject();
+    public QS getById(Id recordId) {
+        return whereAre(QS.Condition.id().equal(recordId));
     }
 
-    public List<sObject> getByIds(List<Id> recordIds) {
-        return whereAre(QS.ConditionsGroup.add(QS.Condition.id().inCollection(recordIds))).asList();
+    public QS getByIds(List<Id> recordIds) {
+        return whereAre(QS.Condition.id().inCollection(recordIds));
     }
 }
