@@ -4,8 +4,12 @@
 
 [![codecov](https://codecov.io/gh/beyond-the-cloud-dev/query-selector/branch/main/graph/badge.svg)](https://codecov.io/gh/beyond-the-cloud-dev/query-selector)
 
-----
+<a href="https://githubsfdeploy.herokuapp.com?owner=beyond-the-cloud-dev&repo=query-selector&ref=main">
+  <img alt="Deploy to Salesforce"
+       src="https://raw.githubusercontent.com/afawcett/githubsfdeploy/master/deploy.png">
+</a>
 
+---
 
 Apex QS provides functional constructs for SOQL.
 
@@ -16,15 +20,7 @@ Apex QS provides functional constructs for SOQL.
 List<Account> accounts = (List<Account>) QS.of(Account.sObjectType).asList();
 ```
 
-
 Find more examples in the [documentation](https://btc-query-selector.vercel.app/).
-
-## Deploy to Salesforce
-
-<a href="https://githubsfdeploy.herokuapp.com?owner=beyond-the-cloud-dev&repo=query-selector&ref=main">
-  <img alt="Deploy to Salesforce"
-       src="https://raw.githubusercontent.com/afawcett/githubsfdeploy/master/deploy.png">
-</a>
 
 ## Guidelines
 

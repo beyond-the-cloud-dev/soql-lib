@@ -27,14 +27,6 @@ List<Account> accounts = (List<Account>) QS.of(Account.sObjectType)
    .asList();
 ```
 
-## Deploy to Salesforce
-
-<a href="https://githubsfdeploy.herokuapp.com?owner=beyond-the-cloud-dev&repo=query-selector&ref=main">
-  <img alt="Deploy to Salesforce"
-       src="https://raw.githubusercontent.com/afawcett/githubsfdeploy/master/deploy.png">
-</a>
-
-
 ## Guidelines
 
 1. Selector class should be small and contains only selector base configuration + very generic methods.
