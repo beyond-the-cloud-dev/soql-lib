@@ -10,6 +10,12 @@ public class QB_Components {
             queryFields.add('COUNT(' + field.getDescribe().getName() +') ' + alias);
         }
 
+        public void retrive(String fields) {
+            for (String field : fields.split(',')) {
+                queryFields.add(field);
+            }
+        }
+
         public void retrive(List<sObjectField> fields) {
             for (sObjectField field : fields) {
                 retrive(field);

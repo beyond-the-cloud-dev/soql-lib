@@ -50,6 +50,11 @@ public inherited sharing class QS {
         return this;
     }
 
+    public QS fields(String commaSeparatedFields) {
+        builder.fields.retrive(commaSeparatedFields);
+        return this;
+    }
+
     public QS relatedFields(String relationshipPath, List<sObjectField> fields) {
         builder.fields.retrive(relationshipPath, fields);
         return this;
