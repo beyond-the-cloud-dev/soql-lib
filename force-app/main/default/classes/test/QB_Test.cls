@@ -686,32 +686,37 @@ public class QB_Test {
         }
     }
 
-    // TODO Need private OWD model
-    // @isTest
-    // static void withSharing() {
-    //     insertCases();
+    @isTest
+    static void withSharing() {
+        insertTasks();
 
-    //     System.runAs(standardUser()) {
-    //         List<Case> cases = QS.of(Case.sObjectType).systemMode().withSharing().asList();
-    //         Assert.areEqual(0, cases.size());
-    //     }
-    // }
+        System.runAs(standardUser()) {
+            List<Task> tasks = QS.of(Task.sObjectType).systemMode().withSharing().asList();
+            Assert.areEqual(0, tasks.size());
+        }
+    }
 
-    // TODO Need private OWD model
-    // @isTest
-    // static void withSharingCount() {
-    //     insertCases();
+    @isTest
+    static void withSharingCount() {
+        insertTasks();
 
-    //     System.runAs(standardUser()) {
-    //         Integer casesAmount = QS.of(Case.sObjectType).count().systemMode().withSharing().asInteger();
-    //         Assert.areEqual(0, casesAmount);
-    //     }
-    // }
+        System.runAs(standardUser()) {
+            Integer tasksAmount = QS.of(Task.sObjectType).count().systemMode().withSharing().asInteger();
+            Assert.areEqual(0, tasksAmount);
+        }
+    }
 
     static void insertCases() {
         insert new List<Case>{
             new Case(Status = 'New', Origin = 'Web'),
             new Case(Status = 'New', Origin = 'Web')
+        };
+    }
+
+    static void insertTasks() {
+        insert new List<Task>{
+            new Task(Subject = 'Test'),
+            new Task(Subject = 'Test')
         };
     }
 
