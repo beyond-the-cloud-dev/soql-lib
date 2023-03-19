@@ -28,6 +28,14 @@ public class QB_Test {
     }
 
     @isTest
+    static void commaSeparatedFields() {
+        String soql = QS.of(Account.sObjectType)
+            .fields('Id, Name, BillingCity').soql();
+
+        Assert.areEqual('SELECT Id, Name, BillingCity FROM Account', soql);
+    }
+
+    @isTest
     static void relatedFields() {
         String soql = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{

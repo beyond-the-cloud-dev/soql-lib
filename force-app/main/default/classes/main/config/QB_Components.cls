@@ -11,7 +11,7 @@ public class QB_Components {
         }
 
         public void retrive(String fields) {
-            for (String field : fields.split(',')) {
+            for (String field : fields.deleteWhitespace().split(',')) {
                 queryFields.add(field);
             }
         }
