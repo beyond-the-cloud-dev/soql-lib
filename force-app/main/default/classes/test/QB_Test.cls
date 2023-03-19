@@ -18,6 +18,16 @@ public class QB_Test {
     }
 
     @isTest
+    static void field() {
+        String soql = QS.of(Account.sObjectType)
+            .field(Account.Name)
+            .field(Account.BillingCity)
+            .soql();
+
+        Assert.areEqual('SELECT Name, BillingCity FROM Account', soql);
+    }
+
+    @isTest
     static void fields() {
         String soql = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
