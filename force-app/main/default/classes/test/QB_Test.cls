@@ -105,7 +105,7 @@ public class QB_Test {
                 .whereAre(QS.Condition.field(Contact.LastName).equal('Doe'))
             ).soql();
 
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts WHERE (LastName = :v1)) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts WHERE LastName = :v1) FROM Account', soql);
     }
 
     @isTest
@@ -272,7 +272,7 @@ public class QB_Test {
             .whereAre(QS.Condition.id().isNotNull());
 
         String soql = builder.soql();
-        Assert.areEqual('SELECT Id FROM Account WHERE (Id != :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Id != :v1', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual(null, binding.get('v1'));
@@ -284,7 +284,7 @@ public class QB_Test {
             .whereAre(QS.Condition.recordTypeDeveloperName().isNotNull());
 
         String soql = builder.soql();
-        Assert.areEqual('SELECT Id FROM Account WHERE (RecordType.DeveloperName != :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE RecordType.DeveloperName != :v1', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual(null, binding.get('v1'));
@@ -296,7 +296,7 @@ public class QB_Test {
             .whereAre(QS.Condition.relatedField('Account', Account.Name).equal('Test'));
 
         String soql = builder.soql();
-        Assert.areEqual('SELECT Id FROM Contact WHERE (Account.Name = :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Contact WHERE Account.Name = :v1', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual('Test', binding.get('v1'));
@@ -308,7 +308,7 @@ public class QB_Test {
             .whereAre(QS.Condition.field(Account.Name).equal('Test'));
 
         String soql = builder.soql();
-        Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name = :v1', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual('Test', binding.get('v1'));
@@ -320,7 +320,7 @@ public class QB_Test {
             .whereAre(QS.Condition.field(Account.Name).notEqual('Test'));
 
         String soql = builder.soql();
-        Assert.areEqual('SELECT Id FROM Account WHERE (Name != :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name != :v1', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual('Test', binding.get('v1'));
@@ -332,7 +332,7 @@ public class QB_Test {
             .whereAre(QS.Condition.field(Account.NumberOfEmployees).lessThan(10));
 
         String soql = builder.soql();
-        Assert.areEqual('SELECT Id FROM Account WHERE (NumberOfEmployees < :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees < :v1', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual(10, binding.get('v1'));
@@ -344,7 +344,7 @@ public class QB_Test {
             .whereAre(QS.Condition.field(Account.NumberOfEmployees).greaterThan(10));
 
         String soql = builder.soql();
-        Assert.areEqual('SELECT Id FROM Account WHERE (NumberOfEmployees > :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees > :v1', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual(10, binding.get('v1'));
@@ -356,7 +356,7 @@ public class QB_Test {
             .whereAre(QS.Condition.field(Account.NumberOfEmployees).lessThanOrEqual(10));
 
         String soql = builder.soql();
-        Assert.areEqual('SELECT Id FROM Account WHERE (NumberOfEmployees <= :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees <= :v1', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual(10, binding.get('v1'));
@@ -368,7 +368,7 @@ public class QB_Test {
             .whereAre(QS.Condition.field(Account.NumberOfEmployees).greaterThanOrEqual(10));
 
         String soql = builder.soql();
-        Assert.areEqual('SELECT Id FROM Account WHERE (NumberOfEmployees >= :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees >= :v1', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual(10, binding.get('v1'));
@@ -380,7 +380,7 @@ public class QB_Test {
             .whereAre(QS.Condition.field(Account.Name).likeAnyBoth('Test'));
 
         String soql = builder.soql();
-        Assert.areEqual('SELECT Id FROM Account WHERE (Name LIKE :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual('%Test%', binding.get('v1'));
@@ -392,7 +392,7 @@ public class QB_Test {
             .whereAre(QS.Condition.field(Account.Name).likeAnyLeft('Test'));
 
         String soql = builder.soql();
-        Assert.areEqual('SELECT Id FROM Account WHERE (Name LIKE :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual('%Test', binding.get('v1'));
@@ -404,7 +404,7 @@ public class QB_Test {
             .whereAre(QS.Condition.field(Account.Name).likeAnyRight('Test'));
 
         String soql = builder.soql();
-        Assert.areEqual('SELECT Id FROM Account WHERE (Name LIKE :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual('Test%', binding.get('v1'));
@@ -418,7 +418,7 @@ public class QB_Test {
             .whereAre(QS.Condition.field(Account.Name).inCollection(names));
 
         String soql = builder.soql();
-        Assert.areEqual('SELECT Id FROM Account WHERE (Name IN :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name IN :v1', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual(names, binding.get('v1'));
@@ -436,7 +436,7 @@ public class QB_Test {
             .whereAre(QS.Condition.field(Account.Name).notIn(names));
 
         String soql = builder.soql();
-        Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE (Name NOT IN :v1)', soql);
+        Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE Name NOT IN :v1', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual(names, binding.get('v1'));
@@ -448,7 +448,7 @@ public class QB_Test {
             .whereAre(QS.Condition.field(Account.Name).isNotNull());
 
         String soql = builder.soql();
-        Assert.areEqual('SELECT Id FROM Account WHERE (Name != :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name != :v1', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual(null, binding.get('v1'));
@@ -460,7 +460,7 @@ public class QB_Test {
             .whereAre(QS.Condition.field(Account.Name).isNull());
 
         String soql = builder.soql();
-        Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name = :v1', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual(null, binding.get('v1'));
@@ -475,7 +475,7 @@ public class QB_Test {
             );
 
         String soql = builder.soql();
-        Assert.areEqual('SELECT Id FROM Account WHERE ((Name = :v1 AND BillingCity = :v2))', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 AND BillingCity = :v2)', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual('Test', binding.get('v1'));
@@ -496,7 +496,7 @@ public class QB_Test {
             );
 
         String soql = builder.soql();
-        Assert.areEqual('SELECT Id FROM Account WHERE ((Name = :v1 AND BillingCity = :v2 AND (Name = :v3 OR BillingCity = :v4)))', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 AND BillingCity = :v2 AND (Name = :v3 OR BillingCity = :v4))', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual('Test', binding.get('v1'));
@@ -515,7 +515,7 @@ public class QB_Test {
             ));
 
         String soql = builder.soql();
-        Assert.areEqual('SELECT Id FROM Account WHERE (Id IN (SELECT AccountId FROM Contact WHERE (Name = :v1)))', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Id IN (SELECT AccountId FROM Contact WHERE Name = :v1)', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual('My Contact', binding.get('v1'));
@@ -532,7 +532,7 @@ public class QB_Test {
             ));
 
         String soql = builder.soql();
-        Assert.areEqual('SELECT Id FROM Account WHERE (Id NOT IN (SELECT AccountId FROM Contact WHERE (Name = :v1)))', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Id NOT IN (SELECT AccountId FROM Contact WHERE Name = :v1)', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual('My Contact', binding.get('v1'));
@@ -655,7 +655,7 @@ public class QB_Test {
         QS builder = QS.of(Account.sObjectType).getById(accountId);
 
         String soql = builder.soql();
-        Assert.areEqual('SELECT Id FROM Account WHERE (Id = :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Id = :v1', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual(accountId, binding.get('v1'));
@@ -668,7 +668,7 @@ public class QB_Test {
         QS builder = QS.of(Account.sObjectType).getByIds(accountIds);
 
         String soql = builder.soql();
-        Assert.areEqual('SELECT Id FROM Account WHERE (Id IN :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Id IN :v1', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual(accountIds, binding.get('v1'));

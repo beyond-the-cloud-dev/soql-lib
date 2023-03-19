@@ -72,7 +72,11 @@ public class QB_ConditionsGroup implements QB_ConditionClause, QB_Part {
             );
         }
 
-        return '(' +formattedOrder  + ')'; // e.g (*1* AND (*2* OR *3*))
+        if (isParent) {
+            return formattedOrder;
+        }
+
+        return '(' + formattedOrder + ')'; // e.g (*1* AND (*2* OR *3*))
     }
 
     private String addSpecialCharacters(String condition) {
