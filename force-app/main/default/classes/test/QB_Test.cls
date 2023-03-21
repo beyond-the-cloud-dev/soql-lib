@@ -411,11 +411,11 @@ public class QB_Test {
     }
 
     @isTest
-    static void inCollection() {
+    static void isIn() {
         List<String> names = new List<String>{ 'Test 1', 'Test 2' };
 
         QS builder = QS.of(Account.sObjectType)
-            .whereAre(QS.Condition.field(Account.Name).inCollection(names));
+            .whereAre(QS.Condition.field(Account.Name).isIn(names));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Name IN :v1', soql);
@@ -426,14 +426,14 @@ public class QB_Test {
 
 
     @isTest
-    static void notIn() {
+    static void isNotIn() {
         List<String> names = new List<String>{ 'Test 1', 'Test 2' };
 
         QS builder = QS.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name, Account.BillingCity
             })
-            .whereAre(QS.Condition.field(Account.Name).notIn(names));
+            .whereAre(QS.Condition.field(Account.Name).isNotIn(names));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE Name NOT IN :v1', soql);
@@ -508,7 +508,7 @@ public class QB_Test {
     @isTest
     static void inInnerJoin() {
         QS builder = QS.of(Account.sObjectType)
-            .whereAre(QS.Condition.field(Account.Id).inCollection(
+            .whereAre(QS.Condition.field(Account.Id).isIn(
                 QS.InnerJoin.of(Contact.sObjectType)
                     .field(Contact.AccountId)
                     .whereAre(QS.Condition.field(Contact.Name).equal('My Contact'))
@@ -523,9 +523,9 @@ public class QB_Test {
 
 
     @isTest
-    static void notInInnerJoin() {
+    static void isNotInInnerJoin() {
         QS builder = QS.of(Account.sObjectType)
-            .whereAre(QS.Condition.field(Account.Id).notIn(
+            .whereAre(QS.Condition.field(Account.Id).isNotIn(
                 QS.InnerJoin.of(Contact.sObjectType)
                     .field(Contact.AccountId)
                     .whereAre(QS.Condition.field(Contact.Name).equal('My Contact'))

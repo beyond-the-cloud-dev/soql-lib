@@ -23,7 +23,7 @@ QS.of(Account.sObjectType)
     .whereAre(QS.Condition.id().equal(accountId))
 
 QS.of(Account.sObjectType)
-    .whereAre(QS.Condition.id().inCollection(accountIds))
+    .whereAre(QS.Condition.id().isIn(accountIds))
 ```
 
 ### recordTypeDeveloperName
@@ -283,31 +283,31 @@ QS.of(Contact.sObjectType)
     .whereAre(QS.Condition.field(Account.Name).likeAnyRight('My'))
 ```
 
-### inCollection
+### isIn
 
 - `WHERE Id IN :accountIds`
 
 **Signature**
 
 ```apex
-QB_Condition inCollection(List<Object> inList)
+QB_Condition isIn(List<Object> inList)
 ```
 
 **Example**
 
 ```apex
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.field(Account.Id).inCollection(accountIds))
+    .whereAre(QS.Condition.field(Account.Id).isIn(accountIds))
 ```
 
-### notIn
+### isNotIn
 
 - `WHERE Id NOT IN :accountIds`
 
 **Signature**
 
 ```apex
-QB_Condition notIn(List<Object> inList)
+QB_Condition isNotIn(List<Object> inList)
 ```
 
 **Example**
@@ -319,42 +319,42 @@ QS.of(Contact.sObjectType)
 
 ## join query
 
-### inCollection
+### isIn
 
 - `WHERE Id IN (SELECT AccountId FROM Contact WHERE Name = 'My Contact')`
 
 **Signature**
 
 ```apex
-QB_Condition inCollection(QB_Join joinQuery)
+QB_Condition isIn(QB_Join joinQuery)
 ```
 
 **Example**
 
 ```apex
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.field(Account.Id).inCollection(
+    .whereAre(QS.Condition.field(Account.Id).isIn(
         QS.Join.of(Contact.sObjectType)
             .field(Contact.AccountId)
             .whereAre(QS.Condition.field(Contact.Name).equal('My Contact'))
     ))
 ```
 
-### notIn
+### isNotIn
 
 - `WHERE Id NOT IN (SELECT AccountId FROM Contact WHERE Name = 'My Contact')`
 
 **Signature**
 
 ```apex
-QB_Condition notIn(QB_Join joinQuery)
+QB_Condition isNotIn(QB_Join joinQuery)
 ```
 
 **Example**
 
 ```apex
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.field(Account.Id).notIn(
+    .whereAre(QS.Condition.field(Account.Id).isNotIn(
         QS.Join.of(Contact.sObjectType)
             .field(Contact.AccountId)
             .whereAre(QS.Condition.field(Contact.Name).equal('My Contact'))

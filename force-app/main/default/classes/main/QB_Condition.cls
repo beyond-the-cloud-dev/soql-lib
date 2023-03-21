@@ -78,11 +78,11 @@ public class QB_Condition implements QB_ConditionClause {
         return set('LIKE', String.escapeSingleQuotes(value.trim()) + '%');
     }
 
-    public QB_Condition inCollection(List<Object> inList) {
+    public QB_Condition isIn(List<Object> inList) {
         return set('IN', inList);
     }
 
-    public QB_Condition notIn(List<Object> inList) {
+    public QB_Condition isNotIn(List<Object> inList) {
         return set('NOT IN', inList);
     }
 
@@ -92,11 +92,11 @@ public class QB_Condition implements QB_ConditionClause {
         return this;
     }
 
-    public QB_Condition inCollection(QB_Join joinQuery) {
+    public QB_Condition isIn(QB_Join joinQuery) {
         return set('IN', joinQuery);
     }
 
-    public QB_Condition notIn(QB_Join joinQuery) {
+    public QB_Condition isNotIn(QB_Join joinQuery) {
         return set('NOT IN', joinQuery);
     }
 

@@ -254,6 +254,6 @@ public inherited sharing class QS {
     }
 
     public QS getByIds(List<Id> recordIds) {
-        return whereAre(QS.Condition.id().inCollection(recordIds));
+        return whereAre(QS.Condition.id().isIn(recordIds));
     }
 }

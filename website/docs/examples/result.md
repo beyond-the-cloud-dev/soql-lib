@@ -22,7 +22,7 @@ public with sharing class MyController {
 
     public static List<Account> getAccountsByIds(List<Id> accountIds) {
         return (List<Account>) QS_Account.Selector
-            .whereAre(QS.Condition.id().inCollection(accountIds))
+            .whereAre(QS.Condition.id().isIn(accountIds))
             .asList();
     }
 
