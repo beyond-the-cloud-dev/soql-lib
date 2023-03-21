@@ -787,6 +787,27 @@ public class QB_Test {
     }
 
     @isTest
+    static void cache() {
+        List<Account> accounts = new List<Account>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        };
+
+        insert accounts;
+
+        List<Account> result = null;
+
+        for (Integer i=0 ; i<10 ; i++) {
+            result = QS.of(Account.sObjectType).cache().asList();
+        }
+
+        Integer queriesAmount = Limits.getQueries();
+
+        Assert.areEqual(accounts.size(), result.size());
+        Assert.areEqual(1, queriesAmount);
+    }
+
+    @isTest
     static void asList() {
         List<Account> accounts = new List<Account>{
             new Account(Name = 'Test 1'),
