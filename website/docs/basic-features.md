@@ -44,11 +44,15 @@ QS.of(Account.sObjectType).fields(new List<sObjectField> {
 
 Object permission and field-level security is controlled by the framework. Developer can change FLS settings match business requirements.
 
+### User mode
+
 By default all queries are in `AccessLevel.USER_MODE`.
 
 > The object permissions, field-level security, and sharing rules of the current user are enforced.
 
-Developer can change it by using `.systemMode()` = `AccessLevel.SYSTEM_MODE`.
+### System mode
+
+Developer can change it by using `.systemMode()` which apply `AccessLevel.SYSTEM_MODE`.
 
 > The object and field-level permissions of the current user are ignored, and the record sharing rules are controlled by the sharingMode.
 
@@ -67,9 +71,41 @@ QS.of(Account.sObjectType).fields(new List<sObjectField> {
 
 > Use the with sharing or without sharing keywords on a class to specify whether sharing rules must be enforced. Use the inherited sharing keyword on a class to run the class in the sharing mode of the class that called it.
 
-By default all queries will be executed `with sharing`, because of `AccessLevel.USER_MODE` which enforce also sharing rules.
+### with sharing
 
-Developer can control sharing rules by adding `.systemMode()` (record sharing rules are controlled by the sharingMode) and `.withSharing()`/`.withoutSharing()`.
+By default all queries will be executed `with sharing`, because of `AccessLevel.USER_MODE` which enforce sharing rules.
+
+`AccessLevel.USER_MODE` enforce object permissions and field-level security as well.
+
+Developer can skip FLS by adding `.systemMode()` and `.withSharing()`.
+
+```apex
+// Query executed in without sharing
+QS.of(Account.sObjectType).fields(new List<sObjectField> {
+    Account.Id, Account.Name
+})
+.systemMode()
+.withSharing()
+.asList();
+```
+
+### without sharing
+
+Developer can control sharing rules by adding `.systemMode()` (record sharing rules are controlled by the sharingMode) and `.withoutSharing()`.
+
+```apex
+// Query executed in with sharing
+QS.of(Account.sObjectType).fields(new List<sObjectField> {
+    Account.Id, Account.Name
+})
+.systemMode()
+.withoutSharing()
+.asList();
+```
+
+### inherited sharing
+
+Developer can control sharing rules by adding `.systemMode()` (record sharing rules are controlled by the sharingMode) by default it is `inherited sharing`.
 
 ```apex
 // Query executed in inherited sharing
@@ -80,81 +116,57 @@ QS.of(Account.sObjectType).fields(new List<sObjectField> {
 .asList();
 ```
 
+## Mocking
+
+TBD
+
+## Avoid duplicates
+
+Generic SOQLs can be keep in selector class.
+
 ```apex
-// Query executed in with sharing
-QS.of(Account.sObjectType).fields(new List<sObjectField> {
-    Account.Id, Account.Name
-})
-.systemMode()
-.withSharing()
-.asList();
+public inherited sharing class QS_Account {
+
+    public static QS Selector {
+        get {
+            return QS.of(Account.sObjectType).fields(new List<sObjectField>{
+                Account.Name,
+                Account.AccountNumber
+            })
+            .systemMode()
+            .withoutSharing();
+        }
+    }
+
+    public static QS getByRecordType(String rtDevName) {
+        return Selector.fields(new List<sObjectField>{
+            Account.BillingCity,
+            Account.BillingCountry
+        }).whereAre(QS.Condition.recordTypeDeveloperName().equal(rtDevName);
+    }
+
+    public static QS getById(Id accountId) {
+        return Selector.whereAre(QS.Condition.id().equal(accountId));
+    }
+}
 ```
 
-```apex
-// Query executed in without sharing
-QS.of(Account.sObjectType).fields(new List<sObjectField> {
-    Account.Id, Account.Name
-})
-.systemMode()
-.withoutSharing()
-.asList();
-```
+## Default configuration
 
-## FLS & Sharing
-
-Different combination for field-level security and sharing rules.
-
-### FLS & Sharing
-
-- The object permissions, field-level security - ✅
-- Sharing rules of the current user - ✅
+The selector class can provide default SOQL configuration like default fields, FLS settings, and sharing rules.
 
 ```apex
-QS.of(Account.sObjectType).fields(new List<sObjectField> {
-    Account.Id, Account.Name
-})
-.asList();
-```
+public inherited sharing class QS_Account {
 
-### !FLS & Sharing
-
-- The object permissions, field-level security - ❌
-- Sharing rules of the current user - ✅
-
-```apex
-QS.of(Account.sObjectType).fields(new List<sObjectField> {
-    Account.Id, Account.Name
-})
-.systemMode()
-.withSharing()
-.asList();
-```
-
-### FLS & !Sharing
-
-- The object permissions, field-level security - ✅
-- Sharing rules of the current user - ❌
-
-```apex
-QS.of(Account.sObjectType).fields(new List<sObjectField> {
-    Account.Id, Account.Name
-})
-.systemMode()
-.stripInaccessible()
-.withoutSharing()
-.asList();
-```
-
-### !FLS & !Sharing
-
-- The object permissions, field-level security - ❌
-- Sharing rules of the current user - ❌
-
-```apex
-QS.of(Account.sObjectType).fields(new List<sObjectField> {
-    Account.Id, Account.Name
-})
-.systemMode()
-.withoutSharing()
-.asList();
+    public static QS Selector {
+        get {
+            return QS.of(Account.sObjectType)
+                .fields(new List<sObjectField>{  // default fields
+                    Account.Id,
+                    Account.Name
+                })
+                .systemMode(); // default FLS mode
+        }
+    }
+}
 ```
