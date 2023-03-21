@@ -231,6 +231,11 @@ public inherited sharing class QS {
 
     // Result
 
+    public QS cache() {
+        executor.cache();
+        return this;
+    }
+
     public QS stripInaccessible() {
         return stripInaccessible(AccessType.READABLE);
     }

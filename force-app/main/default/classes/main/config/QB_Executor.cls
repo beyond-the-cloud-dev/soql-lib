@@ -13,6 +13,7 @@ public inherited sharing class QB_Executor {
     private String queryIdentifier;
     private Boolean withPreview = false;
     private Boolean isCountQuery = false;
+    private Boolean cacheResult = false;
     private Map<String, Object> binding;
 
     private static final Map<SharingLevel, DatabaseQuery> MODE_TO_EXECUTOR = new Map<SharingLevel, DatabaseQuery>{
@@ -40,6 +41,10 @@ public inherited sharing class QB_Executor {
 
     public void mocking(String identifier) {
         queryIdentifier = identifier;
+    }
+
+    public void cache() {
+        cacheResult = true;
     }
 
     public void countQuery() {
@@ -87,6 +92,19 @@ public inherited sharing class QB_Executor {
             return QS_Mock.getMock(queryIdentifier);
         }
 
+        if (QB_Cache.contains(query)) {
+            return QB_Cache.get(query);
+        }
+
+        if (cacheResult) {
+            QB_Cache.save(query, execute());
+            return QB_Cache.get(query);
+        }
+
+        return execute();
+    }
+
+    public List<sObject> execute() {
         if (accessType == null) {
             return MODE_TO_EXECUTOR.get(sharingMode).execute(query, binding, accessMode);
         }
