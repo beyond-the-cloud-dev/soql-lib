@@ -1,8 +1,8 @@
 ---
-sidebar_position: 1
+sidebar_position: 3
 ---
 
-# Overview
+# Basic Features
 
 ## Dynamic SOQL
 
@@ -29,7 +29,6 @@ QS.of(Account.sObjectType).fields(new List<sObjectField> {
 })
 .whereAre(QS.Condition.field(Account.Name).likeAnyBoth('Test'))
 .asList();
-
 ```
 
 ```apex
@@ -93,6 +92,65 @@ QS.of(Account.sObjectType).fields(new List<sObjectField> {
 
 ```apex
 // Query executed in without sharing
+QS.of(Account.sObjectType).fields(new List<sObjectField> {
+    Account.Id, Account.Name
+})
+.systemMode()
+.withoutSharing()
+.asList();
+```
+
+## FLS & Sharing
+
+Different combination for field-level security and sharing rules.
+
+### FLS & Sharing
+
+- The object permissions, field-level security - ✅
+- Sharing rules of the current user - ✅
+
+```apex
+QS.of(Account.sObjectType).fields(new List<sObjectField> {
+    Account.Id, Account.Name
+})
+.asList();
+```
+
+### !FLS & Sharing
+
+- The object permissions, field-level security - ❌
+- Sharing rules of the current user - ✅
+
+```apex
+QS.of(Account.sObjectType).fields(new List<sObjectField> {
+    Account.Id, Account.Name
+})
+.systemMode()
+.withSharing()
+.asList();
+```
+
+### FLS & !Sharing
+
+- The object permissions, field-level security - ✅
+- Sharing rules of the current user - ❌
+
+```apex
+QS.of(Account.sObjectType).fields(new List<sObjectField> {
+    Account.Id, Account.Name
+})
+.systemMode()
+.stripInaccessible()
+.withoutSharing()
+.asList();
+```
+
+### !FLS & !Sharing
+
+- The object permissions, field-level security - ❌
+- Sharing rules of the current user - ❌
+
+```apex
 QS.of(Account.sObjectType).fields(new List<sObjectField> {
     Account.Id, Account.Name
 })

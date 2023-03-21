@@ -5,7 +5,17 @@ slug: '/'
 
 # Introduction
 
-## Why you need it?
+[Learn Selector Layer Principles](https://trailhead.salesforce.com/content/learn/modules/apex_patterns_dsl/apex_patterns_dsl_learn_selector_l_principles)
+
+> A selector layer contains code responsible for querying records from the database. Although you can place SOQL queries in other layers, a few things can happen as the complexity of your code grows. ~ Salesforce
+
+In terms of Separation of Concerns, a Selector concerns itself with providing the following:
+- **Visibility, reusability, and maintainability** - The selector makes it easy to find and maintain database query logic.
+- **Predictability of queried data** - It must be clear what the selector is doing in the method name and what it’s returning.
+- **Security** - Provide a means for the caller to opt in or opt out (for system level scenarios) of security checks that enforce sharing and permissions applied to the current user context.
+- **Platform sympathy** - Make queries as optimal as possible, mainly expressing criteria via sets, thus encouraging the caller to be bulkified in its code when calling the selector methods.
+
+## Benefits
 
 ### Additional level of abstraction
 
@@ -133,7 +143,7 @@ public with sharing class MyController() {
 
 ### Default configuration
 
-Selector class can provide default SOQL configuration like default set of fields, FLS settings, sharing rules.
+Selector class can provide default SOQL configuration like set of fields, FLS settings, sharing rules.
 
 ```apex
 public inherited sharing class QS_Account {
