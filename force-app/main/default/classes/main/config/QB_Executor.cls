@@ -7,6 +7,7 @@ public inherited sharing class QB_Executor {
 
     private SharingLevel sharingMode = SharingLevel.INHERITED;
     private AccessLevel accessMode = AccessLevel.USER_MODE; // The object permissions, field-level security, and sharing rules of the current user are enforced.
+    private AccessType accessType;
 
     private String query;
     private String queryIdentifier;
@@ -26,6 +27,10 @@ public inherited sharing class QB_Executor {
 
     public void withoutSharing() {
         sharingMode = SharingLevel.WITHOUT_SHARING;
+    }
+
+    public void stripInaccessible(AccessType type) {
+        accessType = type;
     }
 
     public void systemMode() {
@@ -82,7 +87,14 @@ public inherited sharing class QB_Executor {
             return QS_Mock.getMock(queryIdentifier);
         }
 
-        return MODE_TO_EXECUTOR.get(sharingMode).execute(query, binding, accessMode);
+        if (accessType == null) {
+            return MODE_TO_EXECUTOR.get(sharingMode).execute(query, binding, accessMode);
+        }
+
+        return Security.stripInaccessible(
+            accessType,
+            MODE_TO_EXECUTOR.get(sharingMode).execute(query, binding, accessMode)
+        ).getRecords();
     }
 
     private void previewSoql() {

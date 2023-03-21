@@ -231,6 +231,15 @@ public inherited sharing class QS {
 
     // Result
 
+    public QS stripInaccessible() {
+        return stripInaccessible(AccessType.READABLE);
+    }
+
+    public QS stripInaccessible(AccessType accessType) {
+        executor.stripInaccessible(accessType);
+        return this;
+    }
+
     public sObject asObject() {
         return executor.evaluate(builder.build(), binder.build()).asObject();
     }
