@@ -63,3 +63,40 @@ QS.of(Account.sObjectType).fields(new List<sObjectField> {
 ```
 
 ## Control Sharings
+
+[Apex Sharing](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_classes_keywords_sharing.htm)
+
+> Use the with sharing or without sharing keywords on a class to specify whether sharing rules must be enforced. Use the inherited sharing keyword on a class to run the class in the sharing mode of the class that called it.
+
+By default all queries will be executed `with sharing`, because of `AccessLevel.USER_MODE` which enforce also sharing rules.
+
+Developer can control sharing rules by adding `.systemMode()` (record sharing rules are controlled by the sharingMode) and `.withSharing()`/`.withoutSharing()`.
+
+```apex
+// Query executed in inherited sharing
+QS.of(Account.sObjectType).fields(new List<sObjectField> {
+    Account.Id, Account.Name
+})
+.systemMode()
+.asList();
+```
+
+```apex
+// Query executed in with sharing
+QS.of(Account.sObjectType).fields(new List<sObjectField> {
+    Account.Id, Account.Name
+})
+.systemMode()
+.withSharing()
+.asList();
+```
+
+```apex
+// Query executed in without sharing
+QS.of(Account.sObjectType).fields(new List<sObjectField> {
+    Account.Id, Account.Name
+})
+.systemMode()
+.withoutSharing()
+.asList();
+```
