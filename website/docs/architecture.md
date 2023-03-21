@@ -1,6 +1,5 @@
 ---
-sidebar_position: 2
-slug: '/architecture'
+sidebar_position: 3
 ---
 
 # Architecture
