@@ -1,5 +1,5 @@
 @isTest
-public class Query_Test {
+public class QueryTest {
 
     // SELECT
 
