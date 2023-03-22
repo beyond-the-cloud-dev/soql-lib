@@ -1,8 +1,8 @@
 public inherited sharing class QS_Account {
 
-    public static QS Selector {
+    public static Query Selector {
         get {
-            return QS.of(Account.sObjectType).fields(new List<sObjectField>{
+            return Query.of(Account.sObjectType).fields(new List<sObjectField>{
                 Account.Name,
                 Account.AccountNumber
             })
@@ -11,12 +11,12 @@ public inherited sharing class QS_Account {
         }
     }
 
-    public static QS getByRecordType(String rtDevName) {
+    public static Query getByRecordType(String rtDevName) {
         return Selector.fields(new List<sObjectField>{
             Account.BillingCity,
             Account.BillingCountry
-        }).whereAre(QS.ConditionsGroup
-            .add(QS.Condition.recordTypeDeveloperName().equal(rtDevName))
+        }).whereAre(Query.ConditionsGroup
+            .add(Query.Condition.recordTypeDeveloperName().equal(rtDevName))
         );
     }
 }
