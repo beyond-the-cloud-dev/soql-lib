@@ -1,80 +1,80 @@
-public inherited sharing class SOQL implements Querable {
+public inherited sharing class Query implements Querable {
 
-    public static SOQL.QB_Sub Sub {
+    public static Query.QB_Sub Sub {
         get {
-            return new SOQL.QB_Sub(binder);
+            return new Query.QB_Sub(binder);
         }
     }
 
-    public static SOQL.QB_ConditionsGroup ConditionsGroup {
+    public static Query.QB_ConditionsGroup ConditionsGroup {
         get {
-            return new SOQL.QB_ConditionsGroup(false);
+            return new Query.QB_ConditionsGroup(false);
         }
     }
 
-    public static SOQL.QB_Condition Condition {
+    public static Query.QB_Condition Condition {
         get {
-            return new SOQL.QB_Condition(binder);
+            return new Query.QB_Condition(binder);
         }
     }
 
-    public static SOQL.QB_Join InnerJoin {
+    public static Query.QB_Join InnerJoin {
         get {
-            return new SOQL.QB_Join(binder);
+            return new Query.QB_Join(binder);
         }
     }
 
     public interface Querable {
-        SOQL of(sObjectType ofObject);
+        Query of(sObjectType ofObject);
 
-        SOQL field(sObjectField field);
-        SOQL fields(List<sObjectField> fields);
-        SOQL fields(String commaSeparatedFields);
-        SOQL relatedFields(String relationshipPath, List<sObjectField> fields);
-        SOQL count();
-        SOQL countAs(sObjectField field, String alias);
+        Query field(sObjectField field);
+        Query fields(List<sObjectField> fields);
+        Query fields(String commaSeparatedFields);
+        Query relatedFields(String relationshipPath, List<sObjectField> fields);
+        Query count();
+        Query countAs(sObjectField field, String alias);
 
-        SOQL subQuery(QB_Sub subQuery); //SOQL.Sub
+        Query subQuery(QB_Sub subQuery); //Query.Sub
 
-        SOQL delegatedScope();
-        SOQL mineScope();
-        SOQL mineAndMyGroupsScope();
-        SOQL myTerritoryScope();
-        SOQL myTeamTerritoryScope();
-        SOQL teamScope();
+        Query delegatedScope();
+        Query mineScope();
+        Query mineAndMyGroupsScope();
+        Query myTerritoryScope();
+        Query myTeamTerritoryScope();
+        Query teamScope();
 
-        SOQL whereAre(QB_ConditionClause conditions); //SOQL.ConditionsGroup or SOQL.Condition
+        Query whereAre(QB_ConditionClause conditions); //Query.ConditionsGroup or Query.Condition
 
-        SOQL groupBy(sObjectField field);
-        SOQL groupByRollup(sObjectField field);
+        Query groupBy(sObjectField field);
+        Query groupByRollup(sObjectField field);
 
-        SOQL orderBy(sObjectField field);
-        SOQL orderByRelated(String path, sObjectField field);
-        SOQL sortDesc();
-        SOQL nullsLast();
+        Query orderBy(sObjectField field);
+        Query orderByRelated(String path, sObjectField field);
+        Query sortDesc();
+        Query nullsLast();
 
-        SOQL setLimit(Integer amount);
+        Query setLimit(Integer amount);
 
-        SOQL offset(Integer startingRow);
+        Query offset(Integer startingRow);
 
-        SOQL forReference();
-        SOQL forView();
-        SOQL forUpdate();
-        SOQL allRows();
+        Query forReference();
+        Query forView();
+        Query forUpdate();
+        Query allRows();
 
-        SOQL systemMode();
+        Query systemMode();
 
-        SOQL withSharing();
-        SOQL withoutSharing();
+        Query withSharing();
+        Query withoutSharing();
 
-        SOQL mocking(String queryIdentifier);
+        Query mocking(String queryIdentifier);
         void setMock(String queryIdentifier, List<sObject> records);
         void setCountMock(String queryIdentifier, Integer amount);
 
-        SOQL preview();
+        Query preview();
 
-        SOQL stripInaccessible();
-        SOQL stripInaccessible(AccessType accessType);
+        Query stripInaccessible();
+        Query stripInaccessible(AccessType accessType);
 
         sObject asObject();
         List<sObject> asList();
@@ -83,53 +83,53 @@ public inherited sharing class SOQL implements Querable {
     }
 
     public interface SoqlSubQuery {
-        SOQL.QB_Sub of(String ofObject);
+        Query.QB_Sub of(String ofObject);
 
-        SOQL.QB_Sub fields(List<sObjectField> fields);
-        SOQL.QB_Sub relatedFields(String relationshipPath, List<sObjectField> fields);
+        Query.QB_Sub fields(List<sObjectField> fields);
+        Query.QB_Sub relatedFields(String relationshipPath, List<sObjectField> fields);
 
-        SOQL.QB_Sub whereAre(QB_ConditionClause conditions); //SOQL.ConditionsGroup or SOQL.Condition
+        Query.QB_Sub whereAre(QB_ConditionClause conditions); //Query.ConditionsGroup or Query.Condition
 
-        SOQL.QB_Sub orderBy(sObjectField field);
-        SOQL.QB_Sub orderByRelated(String path, sObjectField field);
-        SOQL.QB_Sub sortDesc();
-        SOQL.QB_Sub nullsLast();
+        Query.QB_Sub orderBy(sObjectField field);
+        Query.QB_Sub orderByRelated(String path, sObjectField field);
+        Query.QB_Sub sortDesc();
+        Query.QB_Sub nullsLast();
 
-        SOQL.QB_Sub setLimit(Integer amount);
+        Query.QB_Sub setLimit(Integer amount);
 
-        SOQL.QB_Sub offset(Integer startingRow);
+        Query.QB_Sub offset(Integer startingRow);
 
-        SOQL.QB_Sub forReference();
-        SOQL.QB_Sub forView();
+        Query.QB_Sub forReference();
+        Query.QB_Sub forView();
     }
 
     public interface SoqlCondition {
-        SOQL.QB_Condition id();
-        SOQL.QB_Condition recordTypeDeveloperName();
-        SOQL.QB_Condition field(SObjectField field);
-        SOQL.QB_Condition field(String field);
-        SOQL.QB_Condition relatedField(String relationshipPath, SObjectField field);
+        Query.QB_Condition id();
+        Query.QB_Condition recordTypeDeveloperName();
+        Query.QB_Condition field(SObjectField field);
+        Query.QB_Condition field(String field);
+        Query.QB_Condition relatedField(String relationshipPath, SObjectField field);
 
-        SOQL.QB_Condition isNull();
-        SOQL.QB_Condition isNotNull();
-        SOQL.QB_Condition equal(Object value);
-        SOQL.QB_Condition notEqual(Object value);
-        SOQL.QB_Condition lessThan(Object value);
-        SOQL.QB_Condition greaterThan(Object value);
-        SOQL.QB_Condition lessThanOrEqual(Object value);
-        SOQL.QB_Condition greaterThanOrEqual(Object value);
-        SOQL.QB_Condition likeAnyBoth(String value);
-        SOQL.QB_Condition likeAnyLeft(String value);
-        SOQL.QB_Condition likeAnyRight(String value);
-        SOQL.QB_Condition isIn(List<Object> inList);
-        SOQL.QB_Condition isNotIn(List<Object> inList);
-        SOQL.QB_Condition isIn(SOQL.QB_Join joinQuery); //SOQL.JoinQuery
-        SOQL.QB_Condition isNotIn(SOQL.QB_Join joinQuery); //SOQL.JoinQuery
+        Query.QB_Condition isNull();
+        Query.QB_Condition isNotNull();
+        Query.QB_Condition equal(Object value);
+        Query.QB_Condition notEqual(Object value);
+        Query.QB_Condition lessThan(Object value);
+        Query.QB_Condition greaterThan(Object value);
+        Query.QB_Condition lessThanOrEqual(Object value);
+        Query.QB_Condition greaterThanOrEqual(Object value);
+        Query.QB_Condition likeAnyBoth(String value);
+        Query.QB_Condition likeAnyLeft(String value);
+        Query.QB_Condition likeAnyRight(String value);
+        Query.QB_Condition isIn(List<Object> inList);
+        Query.QB_Condition isNotIn(List<Object> inList);
+        Query.QB_Condition isIn(Query.QB_Join joinQuery); //Query.JoinQuery
+        Query.QB_Condition isNotIn(Query.QB_Join joinQuery); //Query.JoinQuery
     }
 
     public interface SoqlConditionsGroup {
-        SOQL.QB_ConditionsGroup add(QB_ConditionClause condition); //SOQL.Condition or SOQL.QB_ConditionsGroup
-        SOQL.QB_ConditionsGroup order(String order);
+        Query.QB_ConditionsGroup add(QB_ConditionClause condition); //Query.Condition or Query.QB_ConditionsGroup
+        Query.QB_ConditionsGroup order(String order);
     }
 
     // Implementation details
@@ -142,11 +142,11 @@ public inherited sharing class SOQL implements Querable {
     private static Map<String, List<sObject>> mocks = new Map<String, List<sObject>>();
     private static Map<String, Integer> countMocks = new Map<String, Integer>();
 
-    public static SOQL of(sObjectType ofObject) {
-        return new SOQL(ofObject);
+    public static Query of(sObjectType ofObject) {
+        return new Query(ofObject);
     }
 
-    private SOQL(sObjectType ofObject) {
+    private Query(sObjectType ofObject) {
         binder = new QB_Binder();
         builder = new QB(ofObject);
         executor = new QB_Executor();
@@ -154,33 +154,33 @@ public inherited sharing class SOQL implements Querable {
 
     // Fields
 
-    public SOQL field(sObjectField field) {
+    public Query field(sObjectField field) {
         builder.fields.retrive(field);
         return this;
     }
 
-    public SOQL fields(List<sObjectField> fields) {
+    public Query fields(List<sObjectField> fields) {
         builder.fields.retrive(fields);
         return this;
     }
 
-    public SOQL fields(String commaSeparatedFields) {
+    public Query fields(String commaSeparatedFields) {
         builder.fields.retrive(commaSeparatedFields);
         return this;
     }
 
-    public SOQL relatedFields(String relationshipPath, List<sObjectField> fields) {
+    public Query relatedFields(String relationshipPath, List<sObjectField> fields) {
         builder.fields.retrive(relationshipPath, fields);
         return this;
     }
 
-    public SOQL count() {
+    public Query count() {
         builder.fields.count();
         executor.countQuery();
         return this;
     }
 
-    public SOQL countAs(sObjectField field, String alias) {
+    public Query countAs(sObjectField field, String alias) {
         builder.fields.count(field, alias);
         executor.countQuery();
         return this;
@@ -188,142 +188,142 @@ public inherited sharing class SOQL implements Querable {
 
     // SubQuery
 
-    public SOQL subQuery(SOQL.QB_Sub subQuery) {
+    public Query subQuery(Query.QB_Sub subQuery) {
         builder.subQueries.add(subQuery);
         return this;
     }
 
     // Scope
 
-    public SOQL delegatedScope() {
+    public Query delegatedScope() {
         builder.scope.delegated();
         return this;
     }
 
-    public SOQL mineScope() {
+    public Query mineScope() {
         builder.scope.mine();
         return this;
     }
 
-    public SOQL mineAndMyGroupsScope() {
+    public Query mineAndMyGroupsScope() {
         builder.scope.mineAndMyGroups();
         return this;
     }
 
-    public SOQL myTerritoryScope() {
+    public Query myTerritoryScope() {
         builder.scope.myTerritory();
         return this;
     }
 
-    public SOQL myTeamTerritoryScope() {
+    public Query myTeamTerritoryScope() {
         builder.scope.myTeamTerritory();
         return this;
     }
 
-    public SOQL teamScope() {
+    public Query teamScope() {
         builder.scope.team();
         return this;
     }
 
     // Where
 
-    public SOQL whereAre(QB_ConditionClause conditions) {
+    public Query whereAre(QB_ConditionClause conditions) {
         builder.conditions.add(conditions);
         return this;
     }
 
     // Group By
 
-    public SOQL groupBy(sObjectField field) {
+    public Query groupBy(sObjectField field) {
         builder.groupBy.field(field);
         return this;
     }
 
-    public SOQL groupByRollup(sObjectField field) {
+    public Query groupByRollup(sObjectField field) {
         builder.groupBy.rollup(field);
         return this;
     }
 
     // Order By - ASC, NULLS FIRST by default
 
-    public SOQL orderBy(sObjectField field) {
+    public Query orderBy(sObjectField field) {
         builder.orderBys.add(field);
         return this;
     }
 
-    public SOQL orderByRelated(String path, sObjectField field) {
+    public Query orderByRelated(String path, sObjectField field) {
         builder.orderBys.add(path, field);
         return this;
     }
 
-    public SOQL sortDesc() {
+    public Query sortDesc() {
         builder.orderBy.sortDesc();
         return this;
     }
 
-    public SOQL nullsLast() {
+    public Query nullsLast() {
         builder.orderBy.nullsLast();
         return this;
     }
 
     // Limit
 
-    public SOQL setLimit(Integer amount) {
+    public Query setLimit(Integer amount) {
         builder.soqlLimit.max(amount);
         return this;
     }
 
     // Offset
 
-    public SOQL offset(Integer startingRow) {
+    public Query offset(Integer startingRow) {
         builder.soqlOffset.fromRow(startingRow);
         return this;
     }
 
     // For
 
-    public SOQL forReference() {
+    public Query forReference() {
         builder.soqlFor.forReference();
         return this;
     }
 
-    public SOQL forView() {
+    public Query forView() {
         builder.soqlFor.forView();
         return this;
     }
 
-    public SOQL forUpdate() {
+    public Query forUpdate() {
         builder.soqlFor.forUpdate();
         return this;
     }
 
-    public SOQL allRows() {
+    public Query allRows() {
         builder.soqlFor.allRows();
         return this;
     }
 
     // FLS - User Mode by default
 
-    public SOQL systemMode() {
+    public Query systemMode() {
         executor.systemMode();
         return this;
     }
 
     // Sharing - inherited sharing by default
 
-    public SOQL withSharing() {
+    public Query withSharing() {
         executor.withSharing();
         return this;
     }
 
-    public SOQL withoutSharing() {
+    public Query withoutSharing() {
         executor.withoutSharing();
         return this;
     }
 
     // Mocking
 
-    public SOQL mocking(String queryIdentifier) {
+    public Query mocking(String queryIdentifier) {
         executor.mocking(queryIdentifier);
         return this;
     }
@@ -354,7 +354,7 @@ public inherited sharing class SOQL implements Querable {
 
     // Debug
 
-    public SOQL preview() {
+    public Query preview() {
         executor.preview();
         return this;
     }
@@ -369,11 +369,11 @@ public inherited sharing class SOQL implements Querable {
 
     // Result
 
-    public SOQL stripInaccessible() {
+    public Query stripInaccessible() {
         return stripInaccessible(AccessType.READABLE);
     }
 
-    public SOQL stripInaccessible(AccessType accessType) {
+    public Query stripInaccessible(AccessType accessType) {
         executor.stripInaccessible(accessType);
         return this;
     }
@@ -396,12 +396,12 @@ public inherited sharing class SOQL implements Querable {
 
     // Standard
 
-    public SOQL getById(Id recordId) {
-        return whereAre(SOQL.Condition.id().equal(recordId));
+    public Query getById(Id recordId) {
+        return whereAre(Query.Condition.id().equal(recordId));
     }
 
-    public SOQL getByIds(List<Id> recordIds) {
-        return whereAre(SOQL.Condition.id().isIn(recordIds));
+    public Query getByIds(List<Id> recordIds) {
+        return whereAre(Query.Condition.id().isIn(recordIds));
     }
 
     // Config
@@ -505,7 +505,7 @@ public inherited sharing class SOQL implements Querable {
         }
     }
 
-    public class QB_Condition implements SOQL.QB_ConditionClause, SOQL.SoqlCondition {
+    public class QB_Condition implements Query.QB_ConditionClause, Query.SoqlCondition {
         private String field;
         private String comperator;
         private Object value;
@@ -595,15 +595,15 @@ public inherited sharing class SOQL implements Querable {
             return this;
         }
 
-        public QB_Condition isIn(SOQL.QB_Join joinQuery) {
+        public QB_Condition isIn(Query.QB_Join joinQuery) {
             return set('IN', joinQuery);
         }
 
-        public QB_Condition isNotIn(SOQL.QB_Join joinQuery) {
+        public QB_Condition isNotIn(Query.QB_Join joinQuery) {
             return set('NOT IN', joinQuery);
         }
 
-        private QB_Condition set(String comperator, SOQL.QB_Join joinQuery) {
+        private QB_Condition set(String comperator, Query.QB_Join joinQuery) {
             this.joinQuery = joinQuery;
             this.comperator = comperator;
             return this;
@@ -618,8 +618,8 @@ public inherited sharing class SOQL implements Querable {
         }
     }
 
-    public class QB_ConditionsGroup implements SOQL.QB_ConditionClause, SOQL.QB_Part, SOQL.SoqlConditionsGroup {
-        private List<SOQL.QB_ConditionClause> queryConditions = new List<QB_ConditionClause>();
+    public class QB_ConditionsGroup implements Query.QB_ConditionClause, Query.QB_Part, Query.SoqlConditionsGroup {
+        private List<Query.QB_ConditionClause> queryConditions = new List<QB_ConditionClause>();
         private String order = '';
         private Boolean isParent = false;
 
@@ -627,12 +627,12 @@ public inherited sharing class SOQL implements Querable {
             this.isParent = isParent;
         }
 
-        public SOQL.QB_ConditionsGroup add(QB_ConditionClause condition) {
+        public Query.QB_ConditionsGroup add(QB_ConditionClause condition) {
             queryConditions.add(condition);
             return this;
         }
 
-        public SOQL.QB_ConditionsGroup order(String order) {
+        public Query.QB_ConditionsGroup order(String order) {
             this.order = order;
             return this;
         }
@@ -741,87 +741,87 @@ public inherited sharing class SOQL implements Querable {
             clauses.set(2, new QFrom(ofObject));
         }
 
-        public SOQL.QFields fields {
+        public Query.QFields fields {
             get {
-                return (SOQL.QFields) clauses[0];
+                return (Query.QFields) clauses[0];
             }
         }
 
-        public SOQL.QSubQueries subQueries {
+        public Query.QSubQueries subQueries {
             get {
                 if (clauses[1] == null) {
-                    clauses.set(1, new SOQL.QSubQueries());
+                    clauses.set(1, new Query.QSubQueries());
                 }
-                return (SOQL.QSubQueries) clauses[1];
+                return (Query.QSubQueries) clauses[1];
             }
         }
 
-        public SOQL.QScope scope {
+        public Query.QScope scope {
             get {
                 if (clauses[3] == null) {
-                    clauses.set(3, new SOQL.QScope());
+                    clauses.set(3, new Query.QScope());
                 }
-                return (SOQL.QScope) clauses[3];
+                return (Query.QScope) clauses[3];
             }
         }
 
-        public SOQL.QB_ConditionsGroup conditions {
+        public Query.QB_ConditionsGroup conditions {
             get {
                 if (clauses[4] == null) {
-                    clauses.set(4, new SOQL.QB_ConditionsGroup(true));
+                    clauses.set(4, new Query.QB_ConditionsGroup(true));
                 }
-                return (SOQL.QB_ConditionsGroup) clauses[4];
+                return (Query.QB_ConditionsGroup) clauses[4];
             }
         }
 
-        public SOQL.QGroupBy groupBy {
+        public Query.QGroupBy groupBy {
             get {
                 if (clauses[5] == null) {
-                    clauses.set(5, new SOQL.QGroupBy());
+                    clauses.set(5, new Query.QGroupBy());
                 }
-                return (SOQL.QGroupBy) clauses[5];
+                return (Query.QGroupBy) clauses[5];
             }
         }
 
-        public SOQL.QOrderBy orderBy {
+        public Query.QOrderBy orderBy {
             get {
                 return orderBys.recentOrderBy();
             }
         }
 
-        public SOQL.QOrderBys orderBys {
+        public Query.QOrderBys orderBys {
             get {
                 if (clauses[6] == null) {
-                    clauses.set(6, new SOQL.QOrderBys());
+                    clauses.set(6, new Query.QOrderBys());
                 }
-                return (SOQL.QOrderBys) clauses[6];
+                return (Query.QOrderBys) clauses[6];
             }
         }
 
-        public SOQL.QLimit soqlLimit {
+        public Query.QLimit soqlLimit {
             get {
                 if (clauses[7] == null) {
-                    clauses.set(7, new SOQL.QLimit());
+                    clauses.set(7, new Query.QLimit());
                 }
-                return (SOQL.QLimit) clauses[7];
+                return (Query.QLimit) clauses[7];
             }
         }
 
-        public SOQL.QOffset soqlOffset {
+        public Query.QOffset soqlOffset {
             get {
                 if (clauses[8] == null) {
-                    clauses.set(8, new SOQL.QOffset());
+                    clauses.set(8, new Query.QOffset());
                 }
-                return (SOQL.QOffset) clauses[8];
+                return (Query.QOffset) clauses[8];
             }
         }
 
-        public SOQL.QFor soqlFor {
+        public Query.QFor soqlFor {
             get {
                 if (clauses[9] == null) {
-                    clauses.set(9, new SOQL.QFor());
+                    clauses.set(9, new Query.QFor());
                 }
-                return (SOQL.QFor) clauses[9];
+                return (Query.QFor) clauses[9];
             }
         }
 
@@ -885,16 +885,16 @@ public inherited sharing class SOQL implements Querable {
     }
 
     public class QSubQueries implements QB_Part {
-        private List<SOQL.QB_Sub> subQueries = new List<SOQL.QB_Sub>();
+        private List<Query.QB_Sub> subQueries = new List<Query.QB_Sub>();
 
-        public void add(SOQL.QB_Sub subQuery) {
+        public void add(Query.QB_Sub subQuery) {
             subQueries.add(subQuery);
         }
 
         public String build() {
             List<String> subQueriesSoql = new List<String>();
 
-            for (SOQL.QB_Sub sub : subQueries) {
+            for (Query.QB_Sub sub : subQueries) {
                 subQueriesSoql.add('(' + sub.build() + ')');
             }
 
@@ -1088,7 +1088,7 @@ public inherited sharing class SOQL implements Querable {
     }
 
     public inherited sharing class QB_Executor {
-        private SharingLevel sharingMode = SharingLevel.INHERITED;
+        private Query.SharingLevel sharingMode = SharingLevel.INHERITED;
         private AccessLevel accessMode = AccessLevel.USER_MODE; // The object permissions, field-level security, and sharing rules of the current user are enforced.
         private AccessType accessType;
 
@@ -1098,10 +1098,10 @@ public inherited sharing class SOQL implements Querable {
         private Boolean isCountQuery = false;
         private Map<String, Object> binding;
 
-        private final Map<SharingLevel, DatabaseQuery> MODE_TO_EXECUTOR = new Map<SharingLevel, DatabaseQuery>{
-            SharingLevel.WITH_SHARING => new WithSharing(),
-            SharingLevel.WITHOUT_SHARING => new WithoutSharing(),
-            SharingLevel.INHERITED => new InheritedSharing()
+        private final Map<Query.SharingLevel, Query.DatabaseQuery> MODE_TO_EXECUTOR = new Map<Query.SharingLevel, Query.DatabaseQuery>{
+            SharingLevel.WITH_SHARING => new Query.WithSharing(),
+            SharingLevel.WITHOUT_SHARING => new Query.WithoutSharing(),
+            SharingLevel.INHERITED => new Query.InheritedSharing()
         };
 
         public void withSharing() {
