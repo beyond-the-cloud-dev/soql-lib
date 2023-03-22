@@ -68,6 +68,8 @@ public inherited sharing class SOQL implements Querable {
         SOQL withoutSharing();
 
         SOQL mocking(String queryIdentifier);
+        void setMock(String queryIdentifier, List<sObject> records);
+        void setCountMock(String queryIdentifier, Integer amount);
 
         SOQL preview();
 
@@ -130,10 +132,15 @@ public inherited sharing class SOQL implements Querable {
         SOQL.QB_ConditionsGroup order(String order);
     }
 
+    // Implementation details
+
     private static QB_Binder binder;
 
     private QB builder;
     private QB_Executor executor;
+
+    private static Map<String, List<sObject>> mocks = new Map<String, List<sObject>>();
+    private static Map<String, Integer> countMocks = new Map<String, Integer>();
 
     public static SOQL of(sObjectType ofObject) {
         return new SOQL(ofObject);
@@ -319,6 +326,30 @@ public inherited sharing class SOQL implements Querable {
     public SOQL mocking(String queryIdentifier) {
         executor.mocking(queryIdentifier);
         return this;
+    }
+
+    public static void setMock(String queryIdentifier, List<sObject> records) {
+        mocks.put(queryIdentifier, records);
+    }
+
+    public static void setCountMock(String queryIdentifier, Integer amount) {
+        countMocks.put(queryIdentifier, amount);
+    }
+
+    public static List<sObject> getMock(String queryIdentifier) {
+        return mocks.get(queryIdentifier);
+    }
+
+    public static Integer getCountMock(String queryIdentifier) {
+        return countMocks.get(queryIdentifier);
+    }
+
+    public static Boolean containsMock(String queryIdentifier) {
+        return mocks.get(queryIdentifier) != null;
+    }
+
+    public static Boolean containsCountMock(String queryIdentifier) {
+        return countMocks.get(queryIdentifier) != null;
     }
 
     // Debug
@@ -1122,8 +1153,8 @@ public inherited sharing class SOQL implements Querable {
                 previewBinding();
             }
 
-            if (SOQL_Mock.containsCountMock(queryIdentifier)) {
-                return SOQL_Mock.getCountMock(queryIdentifier);
+            if (countMocks.containsKey(queryIdentifier)) {
+                return countMocks.get(queryIdentifier);
             }
 
             return MODE_TO_EXECUTOR.get(sharingMode).executeCount(query, binding, accessMode);
@@ -1135,8 +1166,8 @@ public inherited sharing class SOQL implements Querable {
                 previewBinding();
             }
 
-            if (SOQL_Mock.containsMock(queryIdentifier)) {
-                return SOQL_Mock.getMock(queryIdentifier);
+            if (mocks.containsKey(queryIdentifier)) {
+                return mocks.get(queryIdentifier);
             }
 
             if (accessType == null) {

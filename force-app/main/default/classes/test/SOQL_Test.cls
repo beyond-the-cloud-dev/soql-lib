@@ -751,7 +751,7 @@ public class SOQL_Test {
             new Account(Name = 'Test 2')
         };
 
-        QS_Mock.setMock('mockingQuery', accounts);
+        SOQL.setMock('mockingQuery', accounts);
 
         List<Account> result = SOQL.of(Account.sObjectType).mocking('mockingQuery').asList();
 
@@ -760,7 +760,7 @@ public class SOQL_Test {
 
     @isTest
     static void mockingCount() {
-        QS_Mock.setCountMock('mockingQuery', 2);
+        SOQL.setCountMock('mockingQuery', 2);
 
         Integer result = SOQL.of(Account.sObjectType).mocking('mockingQuery').asInteger();
 
