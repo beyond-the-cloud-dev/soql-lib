@@ -132,6 +132,14 @@ public inherited sharing class Query implements Querable {
         Query.QB_ConditionsGroup order(String order);
     }
 
+    public interface SoqlJoin {
+        Query.QB_Join of(sObjectType ofObject);
+
+        Query.QB_Join field(sObjectField field);
+
+        Query.QB_Join whereAre(QB_ConditionClause conditions); //Query.ConditionsGroup or Query.Condition
+    }
+
     // Implementation details
 
     private static QB_Binder binder;
@@ -693,7 +701,7 @@ public inherited sharing class Query implements Querable {
         }
     }
 
-    public class QB_Join implements QB_Part {
+    public class QB_Join implements QB_Part, SoqlJoin {
         private QB builder;
         private QB_Binder binder;
 
