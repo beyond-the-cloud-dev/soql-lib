@@ -1,8 +1,8 @@
 public inherited sharing class QS_Account {
 
-    public static QS Selector {
+    public static SOQL Selector {
         get {
-            return QS.of(Account.sObjectType).fields(new List<sObjectField>{
+            return SOQL.of(Account.sObjectType).fields(new List<sObjectField>{
                 Account.Name,
                 Account.AccountNumber
             })
@@ -11,7 +11,7 @@ public inherited sharing class QS_Account {
         }
     }
 
-    public static QS getByRecordType(String rtDevName) {
+    public static SOQL getByRecordType(String rtDevName) {
         return Selector.fields(new List<sObjectField>{
             Account.BillingCity,
             Account.BillingCountry

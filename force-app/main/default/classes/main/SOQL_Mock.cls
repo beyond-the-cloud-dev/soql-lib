@@ -1,4 +1,4 @@
-public class QS_Mock {
+public class SOQL_Mock {
     private static Map<String, List<sObject>> mocks = new Map<String, List<sObject>>();
     private static Map<String, Integer> countMocks = new Map<String, Integer>();
 
