@@ -1,4 +1,4 @@
-public inherited sharing class Query implements Querable {
+public inherited sharing class SOQL implements Querable {
 
     public static SubQuery Sub {
         get {
@@ -25,56 +25,56 @@ public inherited sharing class Query implements Querable {
     }
 
     public interface Querable {
-        Query of(sObjectType ofObject);
+        SOQL of(sObjectType ofObject);
 
-        Query field(sObjectField field);
-        Query fields(List<sObjectField> fields);
-        Query fields(String commaSeparatedFields);
-        Query relatedFields(String relationshipPath, List<sObjectField> fields);
-        Query count();
-        Query countAs(sObjectField field, String alias);
+        SOQL field(sObjectField field);
+        SOQL fields(List<sObjectField> fields);
+        SOQL fields(String commaSeparatedFields);
+        SOQL relatedFields(String relationshipPath, List<sObjectField> fields);
+        SOQL count();
+        SOQL countAs(sObjectField field, String alias);
 
-        Query subQuery(SubQuery subQuery); //Sub
+        SOQL subQuery(SubQuery subQuery); //Sub
 
-        Query delegatedScope();
-        Query mineScope();
-        Query mineAndMyGroupsScope();
-        Query myTerritoryScope();
-        Query myTeamTerritoryScope();
-        Query teamScope();
+        SOQL delegatedScope();
+        SOQL mineScope();
+        SOQL mineAndMyGroupsScope();
+        SOQL myTerritoryScope();
+        SOQL myTeamTerritoryScope();
+        SOQL teamScope();
 
-        Query whereAre(ConditionClause conditions); //Query.ConditionsGroup or Query.Condition
+        SOQL whereAre(ConditionClause conditions); //SOQL.ConditionsGroup or SOQL.Condition
 
-        Query groupBy(sObjectField field);
-        Query groupByRollup(sObjectField field);
+        SOQL groupBy(sObjectField field);
+        SOQL groupByRollup(sObjectField field);
 
-        Query orderBy(sObjectField field);
-        Query orderByRelated(String path, sObjectField field);
-        Query sortDesc();
-        Query nullsLast();
+        SOQL orderBy(sObjectField field);
+        SOQL orderByRelated(String path, sObjectField field);
+        SOQL sortDesc();
+        SOQL nullsLast();
 
-        Query setLimit(Integer amount);
+        SOQL setLimit(Integer amount);
 
-        Query offset(Integer startingRow);
+        SOQL offset(Integer startingRow);
 
-        Query forReference();
-        Query forView();
-        Query forUpdate();
-        Query allRows();
+        SOQL forReference();
+        SOQL forView();
+        SOQL forUpdate();
+        SOQL allRows();
 
-        Query systemMode();
+        SOQL systemMode();
 
-        Query withSharing();
-        Query withoutSharing();
+        SOQL withSharing();
+        SOQL withoutSharing();
 
-        Query mocking(String queryIdentifier);
+        SOQL mocking(String queryIdentifier);
         void setMock(String queryIdentifier, List<sObject> records);
         void setCountMock(String queryIdentifier, Integer amount);
 
-        Query preview();
+        SOQL preview();
 
-        Query stripInaccessible();
-        Query stripInaccessible(AccessType accessType);
+        SOQL stripInaccessible();
+        SOQL stripInaccessible(AccessType accessType);
 
         sObject asObject();
         List<sObject> asList();
@@ -88,7 +88,7 @@ public inherited sharing class Query implements Querable {
         SubQuery fields(List<sObjectField> fields);
         SubQuery relatedFields(String relationshipPath, List<sObjectField> fields);
 
-        SubQuery whereAre(ConditionClause conditions); //Query.ConditionsGroup or Query.Condition
+        SubQuery whereAre(ConditionClause conditions); //SOQL.ConditionsGroup or SOQL.Condition
 
         SubQuery orderBy(sObjectField field);
         SubQuery orderByRelated(String path, sObjectField field);
@@ -123,12 +123,12 @@ public inherited sharing class Query implements Querable {
         Condition likeAnyRight(String value);
         Condition isIn(List<Object> inList);
         Condition isNotIn(List<Object> inList);
-        Condition isIn(JoinQuery joinQuery); //Query.JoinQuery
-        Condition isNotIn(JoinQuery joinQuery); //Query.JoinQuery
+        Condition isIn(JoinQuery joinQuery); //SOQL.JoinQuery
+        Condition isNotIn(JoinQuery joinQuery); //SOQL.JoinQuery
     }
 
     public interface SoqlConditionsGroup {
-        ConditionsGroup add(ConditionClause condition); //Query.Condition or Query.ConditionsGroup
+        ConditionsGroup add(ConditionClause condition); //SOQL.Condition or SOQL.ConditionsGroup
         ConditionsGroup order(String order);
     }
 
@@ -150,11 +150,11 @@ public inherited sharing class Query implements Querable {
     private static Map<String, List<sObject>> mocks = new Map<String, List<sObject>>();
     private static Map<String, Integer> countMocks = new Map<String, Integer>();
 
-    public static Query of(sObjectType ofObject) {
-        return new Query(ofObject);
+    public static SOQL of(sObjectType ofObject) {
+        return new SOQL(ofObject);
     }
 
-    private Query(sObjectType ofObject) {
+    private SOQL(sObjectType ofObject) {
         binder = new Binder();
         builder = new QB(ofObject);
         executor = new Executor();
@@ -162,33 +162,33 @@ public inherited sharing class Query implements Querable {
 
     // Fields
 
-    public Query field(sObjectField field) {
+    public SOQL field(sObjectField field) {
         builder.fields.retrive(field);
         return this;
     }
 
-    public Query fields(List<sObjectField> fields) {
+    public SOQL fields(List<sObjectField> fields) {
         builder.fields.retrive(fields);
         return this;
     }
 
-    public Query fields(String commaSeparatedFields) {
+    public SOQL fields(String commaSeparatedFields) {
         builder.fields.retrive(commaSeparatedFields);
         return this;
     }
 
-    public Query relatedFields(String relationshipPath, List<sObjectField> fields) {
+    public SOQL relatedFields(String relationshipPath, List<sObjectField> fields) {
         builder.fields.retrive(relationshipPath, fields);
         return this;
     }
 
-    public Query count() {
+    public SOQL count() {
         builder.fields.count();
         executor.countQuery();
         return this;
     }
 
-    public Query countAs(sObjectField field, String alias) {
+    public SOQL countAs(sObjectField field, String alias) {
         builder.fields.count(field, alias);
         executor.countQuery();
         return this;
@@ -196,142 +196,142 @@ public inherited sharing class Query implements Querable {
 
     // SubQuery
 
-    public Query subQuery(SubQuery subQuery) {
+    public SOQL subQuery(SubQuery subQuery) {
         builder.subQueries.add(subQuery);
         return this;
     }
 
     // Scope
 
-    public Query delegatedScope() {
+    public SOQL delegatedScope() {
         builder.scope.delegated();
         return this;
     }
 
-    public Query mineScope() {
+    public SOQL mineScope() {
         builder.scope.mine();
         return this;
     }
 
-    public Query mineAndMyGroupsScope() {
+    public SOQL mineAndMyGroupsScope() {
         builder.scope.mineAndMyGroups();
         return this;
     }
 
-    public Query myTerritoryScope() {
+    public SOQL myTerritoryScope() {
         builder.scope.myTerritory();
         return this;
     }
 
-    public Query myTeamTerritoryScope() {
+    public SOQL myTeamTerritoryScope() {
         builder.scope.myTeamTerritory();
         return this;
     }
 
-    public Query teamScope() {
+    public SOQL teamScope() {
         builder.scope.team();
         return this;
     }
 
     // Where
 
-    public Query whereAre(ConditionClause conditions) {
+    public SOQL whereAre(ConditionClause conditions) {
         builder.conditions.add(conditions);
         return this;
     }
 
     // Group By
 
-    public Query groupBy(sObjectField field) {
+    public SOQL groupBy(sObjectField field) {
         builder.groupBy.field(field);
         return this;
     }
 
-    public Query groupByRollup(sObjectField field) {
+    public SOQL groupByRollup(sObjectField field) {
         builder.groupBy.rollup(field);
         return this;
     }
 
     // Order By - ASC, NULLS FIRST by default
 
-    public Query orderBy(sObjectField field) {
+    public SOQL orderBy(sObjectField field) {
         builder.orderBys.add(field);
         return this;
     }
 
-    public Query orderByRelated(String path, sObjectField field) {
+    public SOQL orderByRelated(String path, sObjectField field) {
         builder.orderBys.add(path, field);
         return this;
     }
 
-    public Query sortDesc() {
+    public SOQL sortDesc() {
         builder.orderBy.sortDesc();
         return this;
     }
 
-    public Query nullsLast() {
+    public SOQL nullsLast() {
         builder.orderBy.nullsLast();
         return this;
     }
 
     // Limit
 
-    public Query setLimit(Integer amount) {
+    public SOQL setLimit(Integer amount) {
         builder.soqlLimit.max(amount);
         return this;
     }
 
     // Offset
 
-    public Query offset(Integer startingRow) {
+    public SOQL offset(Integer startingRow) {
         builder.soqlOffset.fromRow(startingRow);
         return this;
     }
 
     // For
 
-    public Query forReference() {
+    public SOQL forReference() {
         builder.soqlFor.forReference();
         return this;
     }
 
-    public Query forView() {
+    public SOQL forView() {
         builder.soqlFor.forView();
         return this;
     }
 
-    public Query forUpdate() {
+    public SOQL forUpdate() {
         builder.soqlFor.forUpdate();
         return this;
     }
 
-    public Query allRows() {
+    public SOQL allRows() {
         builder.soqlFor.allRows();
         return this;
     }
 
     // FLS - User Mode by default
 
-    public Query systemMode() {
+    public SOQL systemMode() {
         executor.systemMode();
         return this;
     }
 
     // Sharing - inherited sharing by default
 
-    public Query withSharing() {
+    public SOQL withSharing() {
         executor.withSharing();
         return this;
     }
 
-    public Query withoutSharing() {
+    public SOQL withoutSharing() {
         executor.withoutSharing();
         return this;
     }
 
     // Mocking
 
-    public Query mocking(String queryIdentifier) {
+    public SOQL mocking(String queryIdentifier) {
         executor.mocking(queryIdentifier);
         return this;
     }
@@ -362,7 +362,7 @@ public inherited sharing class Query implements Querable {
 
     // Debug
 
-    public Query preview() {
+    public SOQL preview() {
         executor.preview();
         return this;
     }
@@ -377,11 +377,11 @@ public inherited sharing class Query implements Querable {
 
     // Result
 
-    public Query stripInaccessible() {
+    public SOQL stripInaccessible() {
         return stripInaccessible(AccessType.READABLE);
     }
 
-    public Query stripInaccessible(AccessType accessType) {
+    public SOQL stripInaccessible(AccessType accessType) {
         executor.stripInaccessible(accessType);
         return this;
     }
@@ -404,11 +404,11 @@ public inherited sharing class Query implements Querable {
 
     // Standard
 
-    public Query getById(Id recordId) {
+    public SOQL getById(Id recordId) {
         return whereAre(Condition.id().equal(recordId));
     }
 
-    public Query getByIds(List<Id> recordIds) {
+    public SOQL getByIds(List<Id> recordIds) {
         return whereAre(Condition.id().isIn(recordIds));
     }
 
@@ -1200,11 +1200,11 @@ public inherited sharing class Query implements Querable {
         }
 
         private void previewSoql() {
-            System.debug('\n\n============ Query Preview ============\n' + query + '\n=======================================\n');
+            System.debug('\n\n============ SOQL Preview ============\n' + query + '\n=======================================\n');
         }
 
         private void previewBinding() {
-            System.debug('\n\n============ Query Binding ============\n' + JSON.serializePretty(binding) + '\n=======================================\n');
+            System.debug('\n\n============ SOQL Binding ============\n' + JSON.serializePretty(binding) + '\n=======================================\n');
         }
     }
 

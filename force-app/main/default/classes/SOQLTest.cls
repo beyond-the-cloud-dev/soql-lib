@@ -1,25 +1,25 @@
 @isTest
-public class QueryTest {
+public class SOQLTest {
 
     // SELECT
 
     @isTest
     static void count() {
-        String soql = Query.of(Account.sObjectType).count().soql();
+        String soql = SOQL.of(Account.sObjectType).count().soql();
 
         Assert.areEqual('SELECT COUNT() FROM Account', soql);
     }
 
     @isTest
     static void countAs() {
-        String soql = Query.of(Account.sObjectType).countAs(Account.Name, 'names').soql();
+        String soql = SOQL.of(Account.sObjectType).countAs(Account.Name, 'names').soql();
 
         Assert.areEqual('SELECT COUNT(Name) names FROM Account', soql);
     }
 
     @isTest
     static void field() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .field(Account.Name)
             .field(Account.BillingCity)
             .soql();
@@ -29,7 +29,7 @@ public class QueryTest {
 
     @isTest
     static void fields() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name, Account.BillingCity
             }).soql();
@@ -39,7 +39,7 @@ public class QueryTest {
 
     @isTest
     static void commaSeparatedFields() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .fields('Id, Name, BillingCity').soql();
 
         Assert.areEqual('SELECT Id, Name, BillingCity FROM Account', soql);
@@ -47,7 +47,7 @@ public class QueryTest {
 
     @isTest
     static void relatedFields() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name, Account.BillingCity
             })
@@ -61,11 +61,11 @@ public class QueryTest {
 
     @isTest
     static void subQueryFields() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name
             })
-            .subQuery(Query.Sub.of('Contacts')
+            .subQuery(SOQL.Sub.of('Contacts')
                 .fields(new List<sObjectField>{
                     Contact.Id, Contact.Name
                 })
@@ -76,11 +76,11 @@ public class QueryTest {
 
     @isTest
     static void subQueryRelatedFields() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name
             })
-            .subQuery(Query.Sub.of('Contacts')
+            .subQuery(SOQL.Sub.of('Contacts')
                 .fields(new List<sObjectField>{
                     Contact.Id, Contact.Name
                 })
@@ -94,15 +94,15 @@ public class QueryTest {
 
     @isTest
     static void subQueryWhere() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name
             })
-            .subQuery(Query.Sub.of('Contacts')
+            .subQuery(SOQL.Sub.of('Contacts')
                 .fields(new List<sObjectField>{
                     Contact.Id, Contact.Name
                 })
-                .whereAre(Query.Condition.field(Contact.LastName).equal('Doe'))
+                .whereAre(SOQL.Condition.field(Contact.LastName).equal('Doe'))
             ).soql();
 
         Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts WHERE LastName = :v1) FROM Account', soql);
@@ -110,11 +110,11 @@ public class QueryTest {
 
     @isTest
     static void subQueryOrderBy() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name
             })
-            .subQuery(Query.Sub.of('Contacts')
+            .subQuery(SOQL.Sub.of('Contacts')
                 .fields(new List<sObjectField>{
                     Contact.Id, Contact.Name
                 })
@@ -128,11 +128,11 @@ public class QueryTest {
 
     @isTest
     static void subQueryOrderByRelated() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name
             })
-            .subQuery(Query.Sub.of('Contacts')
+            .subQuery(SOQL.Sub.of('Contacts')
                 .fields(new List<sObjectField>{
                     Contact.Id, Contact.Name
                 })
@@ -146,11 +146,11 @@ public class QueryTest {
 
     @isTest
     static void subQuerySetLimit() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name
             })
-            .subQuery(Query.Sub.of('Contacts')
+            .subQuery(SOQL.Sub.of('Contacts')
                 .fields(new List<sObjectField>{
                     Contact.Id, Contact.Name
                 })
@@ -162,11 +162,11 @@ public class QueryTest {
 
     @isTest
     static void subQueryOffset() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name
             })
-            .subQuery(Query.Sub.of('Contacts')
+            .subQuery(SOQL.Sub.of('Contacts')
                 .fields(new List<sObjectField>{
                     Contact.Id, Contact.Name
                 })
@@ -178,11 +178,11 @@ public class QueryTest {
 
     @isTest
     static void subQueryForReference() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name
             })
-            .subQuery(Query.Sub.of('Contacts')
+            .subQuery(SOQL.Sub.of('Contacts')
                 .fields(new List<sObjectField>{
                     Contact.Id, Contact.Name
                 })
@@ -194,11 +194,11 @@ public class QueryTest {
 
     @isTest
     static void subQueryForView() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name
             })
-            .subQuery(Query.Sub.of('Contacts')
+            .subQuery(SOQL.Sub.of('Contacts')
                 .fields(new List<sObjectField>{
                     Contact.Id, Contact.Name
                 })
@@ -212,7 +212,7 @@ public class QueryTest {
 
     @isTest
     static void delegatedScope() {
-        String soql = Query.of(Task.sObjectType)
+        String soql = SOQL.of(Task.sObjectType)
             .delegatedScope()
             .soql();
 
@@ -221,7 +221,7 @@ public class QueryTest {
 
     @isTest
     static void mineScope() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .mineScope()
             .soql();
 
@@ -230,7 +230,7 @@ public class QueryTest {
 
     @isTest
     static void mineAndMyGroupsScope() {
-        String soql = Query.of(ProcessInstanceWorkItem.sObjectType)
+        String soql = SOQL.of(ProcessInstanceWorkItem.sObjectType)
             .mineAndMyGroupsScope()
             .soql();
 
@@ -239,7 +239,7 @@ public class QueryTest {
 
     @isTest
     static void myTerritoryScope() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .myTerritoryScope()
             .soql();
 
@@ -248,7 +248,7 @@ public class QueryTest {
 
     @isTest
     static void myTeamTerritoryScope() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .myTeamTerritoryScope()
             .soql();
 
@@ -257,7 +257,7 @@ public class QueryTest {
 
     @isTest
     static void teamScope() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .teamScope()
             .soql();
 
@@ -268,8 +268,8 @@ public class QueryTest {
 
     @isTest
     static void id() {
-        Query builder = Query.of(Account.sObjectType)
-            .whereAre(Query.Condition.id().isNotNull());
+        SOQL builder = SOQL.of(Account.sObjectType)
+            .whereAre(SOQL.Condition.id().isNotNull());
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Id != :v1', soql);
@@ -280,8 +280,8 @@ public class QueryTest {
 
     @isTest
     static void recordTypeDeveloperName() {
-        Query builder = Query.of(Account.sObjectType)
-            .whereAre(Query.Condition.recordTypeDeveloperName().isNotNull());
+        SOQL builder = SOQL.of(Account.sObjectType)
+            .whereAre(SOQL.Condition.recordTypeDeveloperName().isNotNull());
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE RecordType.DeveloperName != :v1', soql);
@@ -292,8 +292,8 @@ public class QueryTest {
 
     @isTest
     static void relatedField() {
-        Query builder = Query.of(Contact.sObjectType)
-            .whereAre(Query.Condition.relatedField('Account', Account.Name).equal('Test'));
+        SOQL builder = SOQL.of(Contact.sObjectType)
+            .whereAre(SOQL.Condition.relatedField('Account', Account.Name).equal('Test'));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Contact WHERE Account.Name = :v1', soql);
@@ -304,8 +304,8 @@ public class QueryTest {
 
     @isTest
     static void equalString() {
-        Query builder = Query.of(Account.sObjectType)
-            .whereAre(Query.Condition.field(Account.Name).equal('Test'));
+        SOQL builder = SOQL.of(Account.sObjectType)
+            .whereAre(SOQL.Condition.field(Account.Name).equal('Test'));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Name = :v1', soql);
@@ -316,8 +316,8 @@ public class QueryTest {
 
     @isTest
     static void notEqualString() {
-        Query builder = Query.of(Account.sObjectType)
-            .whereAre(Query.Condition.field(Account.Name).notEqual('Test'));
+        SOQL builder = SOQL.of(Account.sObjectType)
+            .whereAre(SOQL.Condition.field(Account.Name).notEqual('Test'));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Name != :v1', soql);
@@ -328,8 +328,8 @@ public class QueryTest {
 
     @isTest
     static void lessThan() {
-        Query builder = Query.of(Account.sObjectType)
-            .whereAre(Query.Condition.field(Account.NumberOfEmployees).lessThan(10));
+        SOQL builder = SOQL.of(Account.sObjectType)
+            .whereAre(SOQL.Condition.field(Account.NumberOfEmployees).lessThan(10));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees < :v1', soql);
@@ -340,8 +340,8 @@ public class QueryTest {
 
     @isTest
     static void greaterThan() {
-        Query builder = Query.of(Account.sObjectType)
-            .whereAre(Query.Condition.field(Account.NumberOfEmployees).greaterThan(10));
+        SOQL builder = SOQL.of(Account.sObjectType)
+            .whereAre(SOQL.Condition.field(Account.NumberOfEmployees).greaterThan(10));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees > :v1', soql);
@@ -352,8 +352,8 @@ public class QueryTest {
 
     @isTest
     static void lessThanOrEqual() {
-        Query builder = Query.of(Account.sObjectType)
-            .whereAre(Query.Condition.field(Account.NumberOfEmployees).lessThanOrEqual(10));
+        SOQL builder = SOQL.of(Account.sObjectType)
+            .whereAre(SOQL.Condition.field(Account.NumberOfEmployees).lessThanOrEqual(10));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees <= :v1', soql);
@@ -364,8 +364,8 @@ public class QueryTest {
 
     @isTest
     static void greaterThanOrEqual() {
-        Query builder = Query.of(Account.sObjectType)
-            .whereAre(Query.Condition.field(Account.NumberOfEmployees).greaterThanOrEqual(10));
+        SOQL builder = SOQL.of(Account.sObjectType)
+            .whereAre(SOQL.Condition.field(Account.NumberOfEmployees).greaterThanOrEqual(10));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees >= :v1', soql);
@@ -376,8 +376,8 @@ public class QueryTest {
 
     @isTest
     static void likeAnyBoth() {
-        Query builder = Query.of(Account.sObjectType)
-            .whereAre(Query.Condition.field(Account.Name).likeAnyBoth('Test'));
+        SOQL builder = SOQL.of(Account.sObjectType)
+            .whereAre(SOQL.Condition.field(Account.Name).likeAnyBoth('Test'));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
@@ -388,8 +388,8 @@ public class QueryTest {
 
     @isTest
     static void likeAnyLeft() {
-        Query builder = Query.of(Account.sObjectType)
-            .whereAre(Query.Condition.field(Account.Name).likeAnyLeft('Test'));
+        SOQL builder = SOQL.of(Account.sObjectType)
+            .whereAre(SOQL.Condition.field(Account.Name).likeAnyLeft('Test'));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
@@ -400,8 +400,8 @@ public class QueryTest {
 
     @isTest
     static void likeAnyRight() {
-        Query builder = Query.of(Account.sObjectType)
-            .whereAre(Query.Condition.field(Account.Name).likeAnyRight('Test'));
+        SOQL builder = SOQL.of(Account.sObjectType)
+            .whereAre(SOQL.Condition.field(Account.Name).likeAnyRight('Test'));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
@@ -414,8 +414,8 @@ public class QueryTest {
     static void isIn() {
         List<String> names = new List<String>{ 'Test 1', 'Test 2' };
 
-        Query builder = Query.of(Account.sObjectType)
-            .whereAre(Query.Condition.field(Account.Name).isIn(names));
+        SOQL builder = SOQL.of(Account.sObjectType)
+            .whereAre(SOQL.Condition.field(Account.Name).isIn(names));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Name IN :v1', soql);
@@ -429,11 +429,11 @@ public class QueryTest {
     static void isNotIn() {
         List<String> names = new List<String>{ 'Test 1', 'Test 2' };
 
-        Query builder = Query.of(Account.sObjectType)
+        SOQL builder = SOQL.of(Account.sObjectType)
             .fields(new List<sObjectField>{
                 Account.Name, Account.BillingCity
             })
-            .whereAre(Query.Condition.field(Account.Name).isNotIn(names));
+            .whereAre(SOQL.Condition.field(Account.Name).isNotIn(names));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE Name NOT IN :v1', soql);
@@ -444,8 +444,8 @@ public class QueryTest {
 
     @isTest
     static void isNotNull() {
-        Query builder = Query.of(Account.sObjectType)
-            .whereAre(Query.Condition.field(Account.Name).isNotNull());
+        SOQL builder = SOQL.of(Account.sObjectType)
+            .whereAre(SOQL.Condition.field(Account.Name).isNotNull());
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Name != :v1', soql);
@@ -456,8 +456,8 @@ public class QueryTest {
 
     @isTest
     static void isNull() {
-        Query builder = Query.of(Account.sObjectType)
-            .whereAre(Query.Condition.field(Account.Name).isNull());
+        SOQL builder = SOQL.of(Account.sObjectType)
+            .whereAre(SOQL.Condition.field(Account.Name).isNull());
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Name = :v1', soql);
@@ -468,10 +468,10 @@ public class QueryTest {
 
     @isTest
     static void conditionsGroup() {
-        Query builder = Query.of(Account.sObjectType)
-            .whereAre(Query.ConditionsGroup
-                .add(Query.Condition.field(Account.Name).equal('Test'))
-                .add(Query.Condition.field(Account.BillingCity).equal('Krakow'))
+        SOQL builder = SOQL.of(Account.sObjectType)
+            .whereAre(SOQL.ConditionsGroup
+                .add(SOQL.Condition.field(Account.Name).equal('Test'))
+                .add(SOQL.Condition.field(Account.BillingCity).equal('Krakow'))
             );
 
         String soql = builder.soql();
@@ -484,13 +484,14 @@ public class QueryTest {
 
     @isTest
     static void nestedConditionsGroup() {
-        Query builder = Query.of(Account.sObjectType)
-            .whereAre(Query.AndFilters
-                .add(Query.Filter.field(Account.Name).equal('Test'))
-                .add(Query.Filter.field(Account.BillingCity).equal('Krakow'))
-                .add(Query.OrFilters
-                    .add(Query.Filter.field(Account.Name).equal('Test 2'))
-                    .add(Query.Filter.field(Account.BillingCity).equal('Warsaw'))
+        SOQL builder = SOQL.of(Account.sObjectType)
+            .whereAre(SOQL.ConditionsGroup
+                .add(SOQL.Condition.field(Account.Name).equal('Test'))
+                .add(SOQL.Condition.field(Account.BillingCity).equal('Krakow'))
+                .add(SOQL.ConditionsGroup
+                    .add(SOQL.Condition.field(Account.Name).equal('Test 2'))
+                    .add(SOQL.Condition.field(Account.BillingCity).equal('Warsaw'))
+                    .order('1 OR 2')
                 )
             );
 
@@ -506,11 +507,11 @@ public class QueryTest {
 
     @isTest
     static void inInnerJoin() {
-        Query builder = Query.of(Account.sObjectType)
-            .whereAre(Query.Condition.field(Account.Id).isIn(
-                Query.InnerJoin.of(Contact.sObjectType)
+        SOQL builder = SOQL.of(Account.sObjectType)
+            .whereAre(SOQL.Condition.field(Account.Id).isIn(
+                SOQL.InnerJoin.of(Contact.sObjectType)
                     .field(Contact.AccountId)
-                    .whereAre(Query.Condition.field(Contact.Name).equal('My Contact'))
+                    .whereAre(SOQL.Condition.field(Contact.Name).equal('My Contact'))
             ));
 
         String soql = builder.soql();
@@ -523,11 +524,11 @@ public class QueryTest {
 
     @isTest
     static void isNotInInnerJoin() {
-        Query builder = Query.of(Account.sObjectType)
-            .whereAre(Query.Condition.field(Account.Id).isNotIn(
-                Query.InnerJoin.of(Contact.sObjectType)
+        SOQL builder = SOQL.of(Account.sObjectType)
+            .whereAre(SOQL.Condition.field(Account.Id).isNotIn(
+                SOQL.InnerJoin.of(Contact.sObjectType)
                     .field(Contact.AccountId)
-                    .whereAre(Query.Condition.field(Contact.Name).equal('My Contact'))
+                    .whereAre(SOQL.Condition.field(Contact.Name).equal('My Contact'))
             ));
 
         String soql = builder.soql();
@@ -541,7 +542,7 @@ public class QueryTest {
 
     @isTest
     static void groupBy() {
-        String soql = Query.of(Lead.sObjectType)
+        String soql = SOQL.of(Lead.sObjectType)
             .fields(new List<sObjectField>{
                 Lead.LeadSource
             })
@@ -553,7 +554,7 @@ public class QueryTest {
 
     @isTest
     static void groupByRollup() {
-        String soql = Query.of(Lead.sObjectType)
+        String soql = SOQL.of(Lead.sObjectType)
             .fields(new List<sObjectField>{
                 Lead.LeadSource
             })
@@ -568,7 +569,7 @@ public class QueryTest {
 
     @isTest
     static void orderBy() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .orderBy(Account.Industry).sortDesc().nullsLast()
             .orderBy(Account.Id)
             .soql();
@@ -578,7 +579,7 @@ public class QueryTest {
 
     @isTest
     static void orderByRelated() {
-        String soql = Query.of(Contact.sObjectType)
+        String soql = SOQL.of(Contact.sObjectType)
             .orderByRelated('Account', Account.Name)
             .soql();
 
@@ -589,7 +590,7 @@ public class QueryTest {
 
     @isTest
     static void setLimit() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .setLimit(100)
             .soql();
 
@@ -600,7 +601,7 @@ public class QueryTest {
 
     @isTest
     static void offset() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .offset(100)
             .soql();
 
@@ -611,7 +612,7 @@ public class QueryTest {
 
     @isTest
     static void forReference() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .forReference()
             .soql();
 
@@ -620,7 +621,7 @@ public class QueryTest {
 
     @isTest
     static void forView() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .forView()
             .soql();
 
@@ -629,7 +630,7 @@ public class QueryTest {
 
     @isTest
     static void forUpdate() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .forUpdate()
             .soql();
 
@@ -638,7 +639,7 @@ public class QueryTest {
 
     @isTest
     static void allRows() {
-        String soql = Query.of(Account.sObjectType)
+        String soql = SOQL.of(Account.sObjectType)
             .allRows()
             .soql();
 
@@ -651,7 +652,7 @@ public class QueryTest {
     static void getById() {
         Id accountId = '0013V00000WNCwCQAX';
 
-        Query builder = Query.of(Account.sObjectType).getById(accountId);
+        SOQL builder = SOQL.of(Account.sObjectType).getById(accountId);
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Id = :v1', soql);
@@ -664,7 +665,7 @@ public class QueryTest {
     static void getByIds() {
         List<Id> accountIds = new List<Id>{ '0013V00000WNCwCQAX' };
 
-        Query builder = Query.of(Account.sObjectType).getByIds(accountIds);
+        SOQL builder = SOQL.of(Account.sObjectType).getByIds(accountIds);
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Id IN :v1', soql);
@@ -680,7 +681,7 @@ public class QueryTest {
         insertCases();
 
         System.runAs(standardUser()) {
-            List<Case> cases = Query.of(Case.sObjectType).systemMode().withoutSharing().asList();
+            List<Case> cases = SOQL.of(Case.sObjectType).systemMode().withoutSharing().asList();
             Assert.areEqual(2, cases.size());
         }
     }
@@ -690,7 +691,7 @@ public class QueryTest {
         insertCases();
 
         System.runAs(standardUser()) {
-            Integer casesAmount = Query.of(Case.sObjectType).count().systemMode().withoutSharing().asInteger();
+            Integer casesAmount = SOQL.of(Case.sObjectType).count().systemMode().withoutSharing().asInteger();
             Assert.areEqual(2, casesAmount);
         }
     }
@@ -700,7 +701,7 @@ public class QueryTest {
         insertTasks();
 
         System.runAs(standardUser()) {
-            List<Task> tasks = Query.of(Task.sObjectType).systemMode().withSharing().asList();
+            List<Task> tasks = SOQL.of(Task.sObjectType).systemMode().withSharing().asList();
             Assert.areEqual(0, tasks.size());
         }
     }
@@ -710,7 +711,7 @@ public class QueryTest {
         insertTasks();
 
         System.runAs(standardUser()) {
-            Integer tasksAmount = Query.of(Task.sObjectType).count().systemMode().withSharing().asInteger();
+            Integer tasksAmount = SOQL.of(Task.sObjectType).count().systemMode().withSharing().asInteger();
             Assert.areEqual(0, tasksAmount);
         }
     }
@@ -750,18 +751,18 @@ public class QueryTest {
             new Account(Name = 'Test 2')
         };
 
-        Query.setMock('mockingQuery', accounts);
+        SOQL.setMock('mockingQuery', accounts);
 
-        List<Account> result = Query.of(Account.sObjectType).mocking('mockingQuery').asList();
+        List<Account> result = SOQL.of(Account.sObjectType).mocking('mockingQuery').asList();
 
         Assert.areEqual(accounts, result);
     }
 
     @isTest
     static void mockingCount() {
-        Query.setCountMock('mockingQuery', 2);
+        SOQL.setCountMock('mockingQuery', 2);
 
-        Integer result = Query.of(Account.sObjectType).mocking('mockingQuery').asInteger();
+        Integer result = SOQL.of(Account.sObjectType).mocking('mockingQuery').asInteger();
 
         Assert.areEqual(2, result);
     }
@@ -773,14 +774,14 @@ public class QueryTest {
 
         insert acc;
 
-        Account result = (Account) Query.of(Account.sObjectType).asObject();
+        Account result = (Account) SOQL.of(Account.sObjectType).asObject();
 
         Assert.areEqual(acc.Id, result.Id);
     }
 
     @isTest
     static void asObjectCatchOutOfBounds() {
-        Account result = (Account) Query.of(Account.sObjectType).asObject();
+        Account result = (Account) SOQL.of(Account.sObjectType).asObject();
 
         Assert.areEqual(null, result);
     }
@@ -794,7 +795,7 @@ public class QueryTest {
 
         insert accounts;
 
-        List<Account> result = Query.of(Account.sObjectType).asList();
+        List<Account> result = SOQL.of(Account.sObjectType).asList();
 
         Assert.areEqual(accounts.size(), result.size());
     }
@@ -808,7 +809,7 @@ public class QueryTest {
 
         insert accounts;
 
-        List<AggregateResult> result = Query.of(Account.sObjectType).countAs(Account.Name, 'names').asAggregated();
+        List<AggregateResult> result = SOQL.of(Account.sObjectType).countAs(Account.Name, 'names').asAggregated();
 
         Assert.areEqual(accounts.size(), result[0].get('names'));
     }
@@ -822,18 +823,18 @@ public class QueryTest {
 
         insert accounts;
 
-        Integer result = Query.of(Account.sObjectType).count().asInteger();
+        Integer result = SOQL.of(Account.sObjectType).count().asInteger();
 
         Assert.areEqual(accounts.size(), result);
     }
 
     @isTest
     static void preview() {
-        Query.of(Account.sObjectType).preview().asList();
+        SOQL.of(Account.sObjectType).preview().asList();
     }
 
     @isTest
     static void previewCount() {
-        Query.of(Account.sObjectType).count().preview().asInteger();
+        SOQL.of(Account.sObjectType).count().preview().asInteger();
     }
 }

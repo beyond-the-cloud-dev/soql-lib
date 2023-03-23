@@ -4,7 +4,7 @@ public with sharing class ExampleController {
         return QS_Account.Selector
             .field(Account.BillingCity)
             .field(Account.BillingCountry)
-            .whereAre(Query.Condition.field(Account.Name).likeAnyBoth(accountName))
+            .whereAre(SOQL.Condition.field(Account.Name).likeAnyBoth(accountName))
             .asList();
     }
 }
