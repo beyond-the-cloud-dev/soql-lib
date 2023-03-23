@@ -6,11 +6,11 @@ sidebar_position: 3
 
 ## Dynamic SOQL
 
-`QS.cls` class provide methods that allow build SOQL clauses dynamically.
+`SOQL.cls` class provide methods that allow build SOQL clauses dynamically.
 
 ```apex
 // SELECT Id FROM Account LIMIT 100
-QS.of(Account.sObjectType).fields(new List<sObjectField> {
+SOQL.of(Account.sObjectType).fields(new List<sObjectField> {
     Account.Id, Account.Name
 })
 .setLimit(100)
@@ -24,10 +24,10 @@ All variables used in `WHERE` condition are binded by default.
 
 ```apex
 // SELECT Id, Name FROM Account WHERE Name = :v1
-QS.of(Account.sObjectType).fields(new List<sObjectField> {
+SOQL.of(Account.sObjectType).fields(new List<sObjectField> {
     Account.Id, Account.Name
 })
-.whereAre(QS.Condition.field(Account.Name).likeAnyBoth('Test'))
+.whereAre(SOQL.Condition.field(Account.Name).likeAnyBoth('Test'))
 .asList();
 ```
 
@@ -58,7 +58,7 @@ Developer can change it by using `.systemMode()` which apply `AccessLevel.SYSTEM
 
 ```apex
 // SELECT Id FROM Account - skip FLS
-QS.of(Account.sObjectType).fields(new List<sObjectField> {
+SOQL.of(Account.sObjectType).fields(new List<sObjectField> {
     Account.Id, Account.Name
 })
 .systemMode()
@@ -81,7 +81,7 @@ Developer can skip FLS by adding `.systemMode()` and `.withSharing()`.
 
 ```apex
 // Query executed in without sharing
-QS.of(Account.sObjectType).fields(new List<sObjectField> {
+SOQL.of(Account.sObjectType).fields(new List<sObjectField> {
     Account.Id, Account.Name
 })
 .systemMode()
@@ -95,7 +95,7 @@ Developer can control sharing rules by adding `.systemMode()` (record sharing ru
 
 ```apex
 // Query executed in with sharing
-QS.of(Account.sObjectType).fields(new List<sObjectField> {
+SOQL.of(Account.sObjectType).fields(new List<sObjectField> {
     Account.Id, Account.Name
 })
 .systemMode()
@@ -109,7 +109,7 @@ Developer can control sharing rules by adding `.systemMode()` (record sharing ru
 
 ```apex
 // Query executed in inherited sharing
-QS.of(Account.sObjectType).fields(new List<sObjectField> {
+SOQL.of(Account.sObjectType).fields(new List<sObjectField> {
     Account.Id, Account.Name
 })
 .systemMode()
@@ -125,11 +125,11 @@ TBD
 Generic SOQLs can be keep in selector class.
 
 ```apex
-public inherited sharing class QS_Account {
+public inherited sharing class AccountSelector {
 
-    public static QS Selector {
+    public static SOQL Selector {
         get {
-            return QS.of(Account.sObjectType).fields(new List<sObjectField>{
+            return SOQL.of(Account.sObjectType).fields(new List<sObjectField>{
                 Account.Name,
                 Account.AccountNumber
             })
@@ -138,15 +138,15 @@ public inherited sharing class QS_Account {
         }
     }
 
-    public static QS getByRecordType(String rtDevName) {
+    public static SOQL getByRecordType(String rtDevName) {
         return Selector.fields(new List<sObjectField>{
             Account.BillingCity,
             Account.BillingCountry
-        }).whereAre(QS.Condition.recordTypeDeveloperName().equal(rtDevName);
+        }).whereAre(SOQL.Condition.recordTypeDeveloperName().equal(rtDevName);
     }
 
-    public static QS getById(Id accountId) {
-        return Selector.whereAre(QS.Condition.id().equal(accountId));
+    public static SOQL getById(Id accountId) {
+        return Selector.whereAre(SOQL.Condition.id().equal(accountId));
     }
 }
 ```
@@ -156,11 +156,11 @@ public inherited sharing class QS_Account {
 The selector class can provide default SOQL configuration like default fields, FLS settings, and sharing rules.
 
 ```apex
-public inherited sharing class QS_Account {
+public inherited sharing class AccountSelector {
 
-    public static QS Selector {
+    public static SOQL Selector {
         get {
-            return QS.of(Account.sObjectType)
+            return SOQL.of(Account.sObjectType)
                 .fields(new List<sObjectField>{  // default fields
                     Account.Id,
                     Account.Name

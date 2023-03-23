@@ -5,11 +5,11 @@ sidebar_position: 10
 # OFFSET
 
 ```apex
-public inherited sharing class QS_Account {
+public inherited sharing class AccountSelector {
 
-    public static QS Selector {
+    public static SOQL Query {
         get {
-            return QS.of(Account.sObjectType)
+            return SOQL.of(Account.sObjectType)
                 .fields(new List<sObjectField>{
                     Account.Id,
                     Account.Name
@@ -21,8 +21,8 @@ public inherited sharing class QS_Account {
 public with sharing class MyController {
 
     public static List<Account> getAccountsWithOffset(Integer startingRow) {
-        return (List<Account>) QS_Account.Selector
-            .setOffset(startingRow)
+        return (List<Account>) AccountSelector.Query
+            .offset(startingRow)
             .asList();
     }
 }

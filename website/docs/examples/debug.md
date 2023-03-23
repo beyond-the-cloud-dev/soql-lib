@@ -5,11 +5,11 @@ sidebar_position: 14
 # Debug
 
 ```apex
-public inherited sharing class QS_Account {
+public inherited sharing class AccountSelector {
 
-    public static QS Selector {
+    public static SOQL Query {
         get {
-            return QS.of(Account.sObjectType)
+            return SOQL.of(Account.sObjectType)
                 .fields(new List<sObjectField>{
                     Account.Id,
                     Account.Name
@@ -21,15 +21,15 @@ public inherited sharing class QS_Account {
 public with sharing class MyController {
 
     public static List<Account> getAccounts() {
-        return (List<Account>) QS_Account.Selector
+        return (List<Account>) AccountSelector.Query
             .fields(new List<sObjectField>{
                 Account.BillingCity,
                 Account.BillingCountry,
                 Account.BillingCountryCode
             })
-            .whereAre(QS.ConditionsGroup
-                .add(QS.Condition.field(Account.Id).equal('0013V00000WNCw4QAH'))
-                .add(QS.Condition.field(Account.Name).likeAnyBoth('Test'))
+            .whereAre(SOQL.ConditionsGroup
+                .add(SOQL.Condition.field(Account.Id).equal('0013V00000WNCw4QAH'))
+                .add(SOQL.Condition.field(Account.Name).likeAnyBoth('Test'))
                 .order('1 OR 2')
              )
             .preview()
@@ -44,7 +44,7 @@ You will see in debug logs:
 ============ Query Preview ============
 SELECT Name, AccountNumber, BillingCity, BillingCountry, BillingCountryCode
 FROM Account
-WHERE ((Id = :v1 OR Name LIKE :v2))
+WHERE (Id = :v1 OR Name LIKE :v2)
 =======================================
 
 ============ Query Binding ============

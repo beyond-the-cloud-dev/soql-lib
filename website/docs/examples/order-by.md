@@ -6,11 +6,11 @@ sidebar_position: 8
 
 
 ```apex
-public inherited sharing class QS_Account {
+public inherited sharing class AccountSelector {
 
-    public static QS Selector {
+    public static SOQL Query {
         get {
-            return QS.of(Lead.sObjectType)
+            return SOQL.of(Lead.sObjectType)
                  .fields(new List<sObjectField>{
                     Account.Id,
                     Account.Name,
@@ -23,7 +23,7 @@ public inherited sharing class QS_Account {
 public with sharing class MyController {
 
     public static List<Account> getAccounts() {
-        return (List<Account>) QS_Account.Selector
+        return (List<Account>) AccountSelector.Query
                 .orderBy(Account.Industry).sortDesc()
                 .orderBy(Account.Id)
                 .asList();

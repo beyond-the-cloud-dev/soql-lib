@@ -5,11 +5,11 @@ sidebar_position: 15
 # Result
 
 ```apex
-public inherited sharing class QS_Account {
+public inherited sharing class AccountSelector {
 
-    public static QS Selector {
+    public static SOQL Query {
         get {
-            return QS.of(Account.sObjectType)
+            return SOQL.of(Account.sObjectType)
                 .fields(new List<sObjectField>{
                     Account.Id,
                     Account.Name
@@ -21,14 +21,14 @@ public inherited sharing class QS_Account {
 public with sharing class MyController {
 
     public static List<Account> getAccountsByIds(List<Id> accountIds) {
-        return (List<Account>) QS_Account.Selector
-            .whereAre(QS.Condition.id().isIn(accountIds))
+        return AccountSelector.Query
+            .whereAre(SOQL.Condition.id().isIn(accountIds))
             .asList();
     }
 
     public static Account getAccountById(Id accountId) {
-        return (Account) QS_Account.Selector
-            .whereAre(QS.Condition.id().equal(accountId))
+        return (Account) AccountSelector.Query
+            .whereAre(SOQL.Condition.id().equal(accountId))
             .asObject();
     }
 }

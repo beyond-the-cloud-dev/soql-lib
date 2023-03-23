@@ -9,12 +9,12 @@ sidebar_position: 1
 You are able to add a default fields to selector class. More fields can be added in a place of usage.
 
 ```apex
-public inherited sharing class QS_Account {
+public inherited sharing class AccountSelector {
 
-    public static QS Selector {
+    public static SOQL Query {
         get {
             // default fields
-            return QS.of(Account.sObjectType)
+            return SOQL.of(Account.sObjectType)
                 .fields(new List<sObjectField>{
                     Account.Id,
                     Account.Name
@@ -26,7 +26,7 @@ public inherited sharing class QS_Account {
 public with sharing class MyController {
 
     public static List<Account> getAccounts() {
-        return (List<Account>) QS_Account.Selector
+        return (List<Account>) AccountSelector.Query
             .fields(new List<sObjectField>{
                 Account.BillingCity,
                 Account.BillingState,
@@ -42,12 +42,12 @@ public with sharing class MyController {
 Specify relationship name and pass parent object fields.
 
 ```apex
-public inherited sharing class QS_Account {
+public inherited sharing class AccountSelector {
 
-    public static QS Selector {
+    public static SOQL Query {
         get {
             // default fields
-            return QS.of(Account.sObjectType)
+            return SOQL.of(Account.sObjectType)
                 .fields(new List<sObjectField>{
                     Account.Id,
                     Account.Name
@@ -59,7 +59,7 @@ public inherited sharing class QS_Account {
 public with sharing class MyController {
 
     public static List<Account> getAccountsWithCreatedBy() {
-        return (List<Account>) QS_Account.Selector
+        return AccountSelector.Query
             .relatedFields('CreatedBy', new List<sObjectField>{
                 User.Id,
                 User.Name
@@ -71,11 +71,11 @@ public with sharing class MyController {
 ## Count
 
 ```apex
-public inherited sharing class QS_Account {
+public inherited sharing class AccountSelector {
 
-    public static QS Selector {
+    public static SOQL Query {
         get {
-            return QS.of(Account.sObjectType);
+            return SOQL.of(Account.sObjectType);
         }
     }
 }
@@ -83,11 +83,11 @@ public inherited sharing class QS_Account {
 public with sharing class MyController {
 
     public static Integer getAccountAmount() {
-        return QS_Account.Selector.count().asInteger();
+        return AccountSelector.Query.count().asInteger();
     }
 
     public static Integer getUniqueAccountNameAmount() {
-        return QS_Account.Selector.countAs(Account.Name, 'names').asAggregated()[0].names;
+        return AccountSelector.Query.countAs(Account.Name, 'names').asAggregated()[0].names;
     }
 }
 ```

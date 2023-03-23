@@ -5,11 +5,11 @@ sidebar_position: 7
 # GROUP BY
 
 ```apex
-public inherited sharing class QS_Lead {
+public inherited sharing class LeadSelector {
 
-    public static QS Selector {
+    public static SOQL Query {
         get {
-            return QS.of(Lead.sObjectType);
+            return SOQL.of(Lead.sObjectType);
         }
     }
 }
@@ -17,7 +17,7 @@ public inherited sharing class QS_Lead {
 public with sharing class MyController {
 
     public static List<AggregateResult> getGroupedLeads() {
-        return QS_Lead.Selector
+        return LeadSelector.Query
                 .fields(new List<sObjectField>{
                     Lead.LeadSource
                 });

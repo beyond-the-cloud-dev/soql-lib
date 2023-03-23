@@ -1,21 +1,21 @@
-# Query Selector (QS)
+# SOQL Builder
 
 
 ![Deploy to Scratch Org and run tests](https://github.com/beyond-the-cloud-dev/query-selector/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/gh/beyond-the-cloud-dev/query-selector/branch/main/graph/badge.svg)](https://codecov.io/gh/beyond-the-cloud-dev/query-selector)
 
-Apex QS provides functional constructs for SOQL.
+Apex SOQL provides functional constructs for SOQL.
 
 ## Examples
 
 ```apex
 // SELECT Id FROM Account
-List<Account> accounts = QS.of(Account.sObjectType).asList();
+List<Account> accounts = SOQL.of(Account.sObjectType).asList();
 ```
 
 ```apex
 // SELECT Id, Name, Industry FROM Account
-List<Account> accounts = QS.of(Account.sObjectType)
+List<Account> accounts = SOQL.of(Account.sObjectType)
    .fields(new List<sObjectField>{
       Account.Id, Account.Name, Account.Industry
    }).asList();

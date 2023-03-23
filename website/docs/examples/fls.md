@@ -7,11 +7,11 @@ sidebar_position: 11
 USER_MODE is a default option. You can set SYSTEM_MODE for all queries by adding `systemMode()` to selector class.
 
 ```apex
-public inherited sharing class QS_Account {
+public inherited sharing class AccountSelector {
 
-    public static QS Selector {
+    public static SOQL Query {
         get {
-            return QS.of(Account.sObjectType)
+            return SOQL.of(Account.sObjectType)
                 .fields(new List<sObjectField>{
                     Account.Id,
                     Account.Name
@@ -24,7 +24,7 @@ public inherited sharing class QS_Account {
 public with sharing class MyController {
 
     public static List<Account> getAccountInSystemMode() {
-        return (List<Account>) QS_Account.Selector
+        return (List<Account>) AccountSelector.Query
             .userMode() //override selector fls mode
             .asList();
     }

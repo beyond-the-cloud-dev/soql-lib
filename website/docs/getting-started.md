@@ -7,18 +7,18 @@ sidebar_position: 2
 ![Deploy to Scratch Org and run tests](https://github.com/beyond-the-cloud-dev/query-selector/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/gh/beyond-the-cloud-dev/query-selector/branch/main/graph/badge.svg)](https://codecov.io/gh/beyond-the-cloud-dev/query-selector)
 
-Apex QS provides functional constructs for SOQL.
+Apex SOQL provides functional constructs for SOQL.
 
 ## Examples
 
 ```apex
 //SELECT Id FROM Account
-List<Account> accounts = (List<Account>) QS.of(Account.sObjectType).asList();
+List<Account> accounts = (List<Account>) SOQL.of(Account.sObjectType).asList();
 ```
 
 ```apex
 //SELECT Id, Name, Industry, Country FROM Account
-List<Account> accounts = (List<Account>) QS.of(Account.sObjectType)
+List<Account> accounts = (List<Account>) SOQL.of(Account.sObjectType)
    .fields(new List<sObjectField>{
       Account.Id, Account.Name, Account.Industry, Account.Country
    })
@@ -31,7 +31,7 @@ List<Account> accounts = (List<Account>) QS.of(Account.sObjectType)
    - Huge classes are hard to manage.
    - A lot of merge conflicts.
    - Problems with methods naming.
-2. **Build SOQL inline in a place of need** - Business specific SOQLs should be build inline via `QS` builder in a place of need.
+2. **Build SOQL inline in a place of need** - Business specific SOQLs should be build inline via `SOQL` builder in a place of need.
    - Most of the queries on the project are case specific and are not generic. There is no need to keep them in Selector class.
 3. **Build SOQL dynamically via builder** - Developer should be able to adjust query with specific fields, conditions, and other SOQL clauses.
 4. **Do not spend time on selector methods naming** - It can be difficult to find a proper name for method that builds a query. Selector class contains methods like `selectByFieldAAndFieldBWithDescOrder`. It can be avoided by building SOQL inline in a place of need.
