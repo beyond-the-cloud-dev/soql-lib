@@ -24,6 +24,16 @@ public inherited sharing class SOQL implements Querable {
         }
     }
 
+    @TestVisible
+    private static void setMock(String queryIdentifier, List<sObject> records) {
+        mocks.put(queryIdentifier, records);
+    }
+
+    @TestVisible
+    private static void setCountMock(String queryIdentifier, Integer amount) {
+        countMocks.put(queryIdentifier, amount);
+    }
+
     public interface Querable {
         SOQL of(sObjectType ofObject);
 
@@ -68,8 +78,6 @@ public inherited sharing class SOQL implements Querable {
         SOQL withoutSharing();
 
         SOQL mocking(String queryIdentifier);
-        void setMock(String queryIdentifier, List<sObject> records);
-        void setCountMock(String queryIdentifier, Integer amount);
 
         SOQL preview();
 
@@ -82,7 +90,7 @@ public inherited sharing class SOQL implements Querable {
         Integer asInteger();
     }
 
-    public interface SoqlSubQuery {
+    public interface SoqlSubQuery { //SOQL.Sub
         SubQuery of(String ofObject);
 
         SubQuery fields(List<sObjectField> fields);
@@ -103,7 +111,7 @@ public inherited sharing class SOQL implements Querable {
         SubQuery forView();
     }
 
-    public interface SoqlCondition {
+    public interface SoqlCondition { //SOQL.Condition
         Condition id();
         Condition recordTypeDeveloperName();
         Condition field(SObjectField field);
@@ -127,12 +135,12 @@ public inherited sharing class SOQL implements Querable {
         Condition isNotIn(JoinQuery joinQuery); //SOQL.JoinQuery
     }
 
-    public interface SoqlConditionsGroup {
+    public interface SoqlConditionsGroup { //SOQL.ConditionsGroup
         ConditionsGroup add(ConditionClause condition); //SOQL.Condition or SOQL.ConditionsGroup
         ConditionsGroup order(String order);
     }
 
-    public interface SoqlJoin {
+    public interface SoqlJoin { //SOQL.InnerJoin
         JoinQuery of(sObjectType ofObject);
 
         JoinQuery field(sObjectField field);
@@ -336,14 +344,6 @@ public inherited sharing class SOQL implements Querable {
         return this;
     }
 
-    public static void setMock(String queryIdentifier, List<sObject> records) {
-        mocks.put(queryIdentifier, records);
-    }
-
-    public static void setCountMock(String queryIdentifier, Integer amount) {
-        countMocks.put(queryIdentifier, amount);
-    }
-
     public static List<sObject> getMock(String queryIdentifier) {
         return mocks.get(queryIdentifier);
     }
@@ -416,336 +416,6 @@ public inherited sharing class SOQL implements Querable {
 
     public interface QueryClause {
         String build();
-    }
-
-    public interface ConditionClause {
-        String build();
-    }
-
-    // SubQuery
-
-    public class SubQuery implements QueryClause, SoqlSubQuery {
-        private QB builder;
-        private Binder binder;
-
-        public SubQuery(Binder binder) {
-            this.binder = binder;
-        }
-
-        // From
-
-        public SubQuery of(String ofObject) {
-            builder = new QB(ofObject);
-            return this;
-        }
-
-        // Fields
-
-        public SubQuery fields(List<sObjectField> fields) {
-            builder.fields.retrive(fields);
-            return this;
-        }
-
-        public SubQuery relatedFields(String relationshipPath, List<sObjectField> fields) {
-            builder.fields.retrive(relationshipPath, fields);
-            return this;
-        }
-
-        // Where
-
-        public SubQuery whereAre(ConditionClause conditions) {
-            builder.conditions.add(conditions);
-            return this;
-        }
-
-        // Order By - ASC, NULLS FIRST by default
-
-        public SubQuery orderBy(sObjectField field) {
-            builder.orderBys.add(field);
-            return this;
-        }
-
-        public SubQuery orderByRelated(String path, sObjectField field) {
-            builder.orderBys.add(path, field);
-            return this;
-        }
-
-        public SubQuery sortDesc() {
-            builder.orderBy.sortDesc();
-            return this;
-        }
-
-        public SubQuery nullsLast() {
-            builder.orderBy.nullsLast();
-            return this;
-        }
-
-        // Limit
-
-        public SubQuery setLimit(Integer amount) {
-            builder.soqlLimit.max(amount);
-            return this;
-        }
-
-        // Offset
-
-        public SubQuery offset(Integer startingRow) {
-            builder.soqlOffset.fromRow(startingRow);
-            return this;
-        }
-
-        // For
-
-        public SubQuery forReference() {
-            builder.soqlFor.forReference();
-            return this;
-        }
-
-        public SubQuery forView() {
-            builder.soqlFor.forView();
-            return this;
-        }
-
-        // Build
-
-        public String build() {
-            return builder.build();
-        }
-    }
-
-    public class Condition implements ConditionClause, SoqlCondition {
-        private String field;
-        private String comperator;
-        private Object value;
-        private Binder binder;
-        private JoinQuery joinQuery;
-
-        public Condition(Binder binder) {
-            this.binder = binder;
-        }
-
-        public Condition id() {
-            return field('Id');
-        }
-
-        public Condition recordTypeDeveloperName() {
-            return field('RecordType.DeveloperName');
-        }
-
-        public Condition field(SObjectField field) {
-            return field(field.getDescribe().getName());
-        }
-
-        public Condition relatedField(String relationshipPath, SObjectField field) {
-            return field(relationshipPath + '.' + field.getDescribe().getName());
-        }
-
-        public Condition field(String field) {
-            this.field = field;
-            return this;
-        }
-
-        public Condition isNull() {
-            return equal(null);
-        }
-
-        public Condition isNotNull() {
-            return notEqual(null);
-        }
-
-        public Condition equal(Object value) {
-            return set('=', value);
-        }
-
-        public Condition notEqual(Object value) {
-            return set('!=', value);
-        }
-
-        public Condition lessThan(Object value) {
-            return set('<', value);
-        }
-
-        public Condition greaterThan(Object value) {
-            return set('>', value);
-        }
-
-        public Condition lessThanOrEqual(Object value) {
-            return set('<=', value);
-        }
-
-        public Condition greaterThanOrEqual(Object value) {
-            return set('>=', value);
-        }
-
-        public Condition likeAnyBoth(String value) {
-            return set('LIKE', '%' + String.escapeSingleQuotes(value.trim()) + '%');
-        }
-
-        public Condition likeAnyLeft(String value) {
-            return set('LIKE', '%' + String.escapeSingleQuotes(value.trim()));
-        }
-
-        public Condition likeAnyRight(String value) {
-            return set('LIKE', String.escapeSingleQuotes(value.trim()) + '%');
-        }
-
-        public Condition isIn(List<Object> inList) {
-            return set('IN', inList);
-        }
-
-        public Condition isNotIn(List<Object> inList) {
-            return set('NOT IN', inList);
-        }
-
-        private Condition set(String comperator, Object value) {
-            this.value = value;
-            this.comperator = comperator;
-            return this;
-        }
-
-        public Condition isIn(JoinQuery joinQuery) {
-            return set('IN', joinQuery);
-        }
-
-        public Condition isNotIn(JoinQuery joinQuery) {
-            return set('NOT IN', joinQuery);
-        }
-
-        private Condition set(String comperator, JoinQuery joinQuery) {
-            this.joinQuery = joinQuery;
-            this.comperator = comperator;
-            return this;
-        }
-
-        public String build() {
-            if (joinQuery != null) {
-                return field + ' ' + comperator + ' (' + joinQuery.build() + ')';
-            }
-
-            return field + ' ' + comperator + ' :' + binder.bind(value);
-        }
-    }
-
-    public class ConditionsGroup implements ConditionClause, QueryClause, SoqlConditionsGroup {
-        private List<ConditionClause> queryConditions = new List<ConditionClause>();
-        private String order = '';
-        private String connector = 'AND';
-        private Boolean isParent = false;
-
-        public ConditionsGroup(Boolean isParent) {
-            this.isParent = isParent;
-        }
-
-        public ConditionsGroup add(ConditionClause condition) {
-            queryConditions.add(condition);
-            return this;
-        }
-
-        public ConditionsGroup byAND() {
-            connector = 'AND';
-            return this;
-        }
-
-        public ConditionsGroup byOR() {
-            connector = 'OR';
-            return this;
-        }
-
-        public ConditionsGroup order(String order) {
-            this.order = order;
-            return this;
-        }
-
-        public String build() {
-            if (String.isEmpty(order)) {
-                setDefaultOrder();
-            }
-
-            if (isParent) {
-                return 'WHERE ' + buildNested();
-            }
-
-            return buildNested();
-        }
-
-        private void setDefaultOrder() {
-            List<String> defaultOrder = new List<String>();
-
-            for (Integer i = 0; i < queryConditions.size(); i++) {
-                defaultOrder.add(String.valueOf(i + 1));
-            }
-
-            order = String.join(defaultOrder, ' ' + connector + ' '); // e.g (1 AND 2 AND 3)
-        }
-
-        public String buildNested() {
-            String conditions = addSpecialCharactersToOrder(order); // e.g (*1* AND (*2* OR *3*))
-
-            for (Integer i = 0; i < queryConditions.size(); i++) {
-                conditions = conditions.replace(
-                    addSpecialCharacters(String.valueOf(i + 1)), // e.g *1*
-                    queryConditions.get(i).build()
-                );
-            }
-
-            return conditions;
-        }
-
-        private String addSpecialCharactersToOrder(String order) {
-            String formattedOrder = order;
-
-            for (Integer i = 0; i < queryConditions.size(); i++) {
-                String conditionNumber = String.valueOf(i + 1);
-
-                formattedOrder = formattedOrder.replace(conditionNumber, addSpecialCharacters(conditionNumber));
-            }
-
-            if (isParent) {
-                return formattedOrder;
-            }
-
-            return '(' + formattedOrder + ')'; // e.g (*1* AND (*2* OR *3*))
-        }
-
-        private String addSpecialCharacters(String condition) {
-            return '*' + condition.trim() + '*';
-        }
-    }
-
-    public class JoinQuery implements QueryClause, SoqlJoin {
-        private QB builder;
-        private Binder binder;
-
-        public JoinQuery(Binder binder) {
-            this.binder = binder;
-        }
-
-        // From
-
-        public JoinQuery of(sObjectType ofObject) {
-            builder = new QB(ofObject);
-            return this;
-        }
-
-        // Fields
-
-        public JoinQuery field(sObjectField field) {
-            builder.fields.retrive(field);
-            return this;
-        }
-
-        // Where
-
-        public JoinQuery whereAre(ConditionClause condition) {
-            builder.conditions.add(condition);
-            return this;
-        }
-
-        // Helper
-
-        public String build() {
-            return builder.build();
-        }
     }
 
     public class QB implements QueryClause {
@@ -903,6 +573,97 @@ public inherited sharing class SOQL implements Querable {
         }
     }
 
+     // SubQuery
+
+     public class SubQuery implements QueryClause, SoqlSubQuery {
+        private QB builder;
+        private Binder binder;
+
+        public SubQuery(Binder binder) {
+            this.binder = binder;
+        }
+
+        // From
+
+        public SubQuery of(String ofObject) {
+            builder = new QB(ofObject);
+            return this;
+        }
+
+        // Fields
+
+        public SubQuery fields(List<sObjectField> fields) {
+            builder.fields.retrive(fields);
+            return this;
+        }
+
+        public SubQuery relatedFields(String relationshipPath, List<sObjectField> fields) {
+            builder.fields.retrive(relationshipPath, fields);
+            return this;
+        }
+
+        // Where
+
+        public SubQuery whereAre(ConditionClause conditions) {
+            builder.conditions.add(conditions);
+            return this;
+        }
+
+        // Order By - ASC, NULLS FIRST by default
+
+        public SubQuery orderBy(sObjectField field) {
+            builder.orderBys.add(field);
+            return this;
+        }
+
+        public SubQuery orderByRelated(String path, sObjectField field) {
+            builder.orderBys.add(path, field);
+            return this;
+        }
+
+        public SubQuery sortDesc() {
+            builder.orderBy.sortDesc();
+            return this;
+        }
+
+        public SubQuery nullsLast() {
+            builder.orderBy.nullsLast();
+            return this;
+        }
+
+        // Limit
+
+        public SubQuery setLimit(Integer amount) {
+            builder.soqlLimit.max(amount);
+            return this;
+        }
+
+        // Offset
+
+        public SubQuery offset(Integer startingRow) {
+            builder.soqlOffset.fromRow(startingRow);
+            return this;
+        }
+
+        // For
+
+        public SubQuery forReference() {
+            builder.soqlFor.forReference();
+            return this;
+        }
+
+        public SubQuery forView() {
+            builder.soqlFor.forView();
+            return this;
+        }
+
+        // Build
+
+        public String build() {
+            return builder.build();
+        }
+    }
+
     public class QSubQueries implements QueryClause {
         private List<SubQuery> subQueries = new List<SubQuery>();
 
@@ -962,6 +723,245 @@ public inherited sharing class SOQL implements Querable {
 
         public String build() {
             return 'USING SCOPE ' + scope;
+        }
+    }
+
+    public interface ConditionClause {
+        String build();
+    }
+
+    public class ConditionsGroup implements ConditionClause, QueryClause, SoqlConditionsGroup {
+        private List<ConditionClause> queryConditions = new List<ConditionClause>();
+        private String order = '';
+        private String connector = 'AND';
+        private Boolean isParent = false;
+
+        public ConditionsGroup(Boolean isParent) {
+            this.isParent = isParent;
+        }
+
+        public ConditionsGroup add(ConditionClause condition) {
+            queryConditions.add(condition);
+            return this;
+        }
+
+        public ConditionsGroup byAND() {
+            connector = 'AND';
+            return this;
+        }
+
+        public ConditionsGroup byOR() {
+            connector = 'OR';
+            return this;
+        }
+
+        public ConditionsGroup order(String order) {
+            this.order = order;
+            return this;
+        }
+
+        public String build() {
+            if (String.isEmpty(order)) {
+                setDefaultOrder();
+            }
+
+            if (isParent) {
+                return 'WHERE ' + buildNested();
+            }
+
+            return buildNested();
+        }
+
+        private void setDefaultOrder() {
+            List<String> defaultOrder = new List<String>();
+
+            for (Integer i = 0; i < queryConditions.size(); i++) {
+                defaultOrder.add(String.valueOf(i + 1));
+            }
+
+            order = String.join(defaultOrder, ' ' + connector + ' '); // e.g (1 AND 2 AND 3)
+        }
+
+        public String buildNested() {
+            String conditions = addSpecialCharactersToOrder(order); // e.g (*1* AND (*2* OR *3*))
+
+            for (Integer i = 0; i < queryConditions.size(); i++) {
+                conditions = conditions.replace(
+                    addSpecialCharacters(String.valueOf(i + 1)), // e.g *1*
+                    queryConditions.get(i).build()
+                );
+            }
+
+            return conditions;
+        }
+
+        private String addSpecialCharactersToOrder(String order) {
+            String formattedOrder = order;
+
+            for (Integer i = 0; i < queryConditions.size(); i++) {
+                String conditionNumber = String.valueOf(i + 1);
+
+                formattedOrder = formattedOrder.replace(conditionNumber, addSpecialCharacters(conditionNumber));
+            }
+
+            if (isParent) {
+                return formattedOrder;
+            }
+
+            return '(' + formattedOrder + ')'; // e.g (*1* AND (*2* OR *3*))
+        }
+
+        private String addSpecialCharacters(String condition) {
+            return '*' + condition.trim() + '*';
+        }
+    }
+
+    public class Condition implements ConditionClause, SoqlCondition {
+        private String field;
+        private String comperator;
+        private Object value;
+        private Binder binder;
+        private JoinQuery joinQuery;
+
+        public Condition(Binder binder) {
+            this.binder = binder;
+        }
+
+        public Condition id() {
+            return field('Id');
+        }
+
+        public Condition recordTypeDeveloperName() {
+            return field('RecordType.DeveloperName');
+        }
+
+        public Condition field(SObjectField field) {
+            return field(field.getDescribe().getName());
+        }
+
+        public Condition relatedField(String relationshipPath, SObjectField field) {
+            return field(relationshipPath + '.' + field.getDescribe().getName());
+        }
+
+        public Condition field(String field) {
+            this.field = field;
+            return this;
+        }
+
+        public Condition isNull() {
+            return equal(null);
+        }
+
+        public Condition isNotNull() {
+            return notEqual(null);
+        }
+
+        public Condition equal(Object value) {
+            return set('=', value);
+        }
+
+        public Condition notEqual(Object value) {
+            return set('!=', value);
+        }
+
+        public Condition lessThan(Object value) {
+            return set('<', value);
+        }
+
+        public Condition greaterThan(Object value) {
+            return set('>', value);
+        }
+
+        public Condition lessThanOrEqual(Object value) {
+            return set('<=', value);
+        }
+
+        public Condition greaterThanOrEqual(Object value) {
+            return set('>=', value);
+        }
+
+        public Condition likeAnyBoth(String value) {
+            return set('LIKE', '%' + String.escapeSingleQuotes(value.trim()) + '%');
+        }
+
+        public Condition likeAnyLeft(String value) {
+            return set('LIKE', '%' + String.escapeSingleQuotes(value.trim()));
+        }
+
+        public Condition likeAnyRight(String value) {
+            return set('LIKE', String.escapeSingleQuotes(value.trim()) + '%');
+        }
+
+        public Condition isIn(List<Object> inList) {
+            return set('IN', inList);
+        }
+
+        public Condition isNotIn(List<Object> inList) {
+            return set('NOT IN', inList);
+        }
+
+        private Condition set(String comperator, Object value) {
+            this.value = value;
+            this.comperator = comperator;
+            return this;
+        }
+
+        public Condition isIn(JoinQuery joinQuery) {
+            return set('IN', joinQuery);
+        }
+
+        public Condition isNotIn(JoinQuery joinQuery) {
+            return set('NOT IN', joinQuery);
+        }
+
+        private Condition set(String comperator, JoinQuery joinQuery) {
+            this.joinQuery = joinQuery;
+            this.comperator = comperator;
+            return this;
+        }
+
+        public String build() {
+            if (joinQuery != null) {
+                return field + ' ' + comperator + ' (' + joinQuery.build() + ')';
+            }
+
+            return field + ' ' + comperator + ' :' + binder.bind(value);
+        }
+    }
+
+    public class JoinQuery implements QueryClause, SoqlJoin {
+        private QB builder;
+        private Binder binder;
+
+        public JoinQuery(Binder binder) {
+            this.binder = binder;
+        }
+
+        // From
+
+        public JoinQuery of(sObjectType ofObject) {
+            builder = new QB(ofObject);
+            return this;
+        }
+
+        // Fields
+
+        public JoinQuery field(sObjectField field) {
+            builder.fields.retrive(field);
+            return this;
+        }
+
+        // Where
+
+        public JoinQuery whereAre(ConditionClause condition) {
+            builder.conditions.add(condition);
+            return this;
+        }
+
+        // Helper
+
+        public String build() {
+            return builder.build();
         }
     }
 
