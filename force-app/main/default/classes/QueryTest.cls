@@ -485,13 +485,12 @@ public class QueryTest {
     @isTest
     static void nestedConditionsGroup() {
         Query builder = Query.of(Account.sObjectType)
-            .whereAre(Query.ConditionsGroup
-                .add(Query.Condition.field(Account.Name).equal('Test'))
-                .add(Query.Condition.field(Account.BillingCity).equal('Krakow'))
-                .add(Query.ConditionsGroup
-                    .add(Query.Condition.field(Account.Name).equal('Test 2'))
-                    .add(Query.Condition.field(Account.BillingCity).equal('Warsaw'))
-                    .order('1 OR 2')
+            .whereAre(Query.AndFilters
+                .add(Query.Filter.field(Account.Name).equal('Test'))
+                .add(Query.Filter.field(Account.BillingCity).equal('Krakow'))
+                .add(Query.OrFilters
+                    .add(Query.Filter.field(Account.Name).equal('Test 2'))
+                    .add(Query.Filter.field(Account.BillingCity).equal('Warsaw'))
                 )
             );
 

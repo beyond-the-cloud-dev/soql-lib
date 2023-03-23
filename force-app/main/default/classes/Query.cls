@@ -1,26 +1,26 @@
 public inherited sharing class Query implements Querable {
 
-    public static Query.QB_Sub Sub {
+    public static SubQuery Sub {
         get {
-            return new Query.QB_Sub(binder);
+            return new SubQuery(binder);
         }
     }
 
-    public static Query.QB_ConditionsGroup ConditionsGroup {
+    public static ConditionsGroup ConditionsGroup {
         get {
-            return new Query.QB_ConditionsGroup(false);
+            return new ConditionsGroup(false);
         }
     }
 
-    public static Query.QB_Condition Condition {
+    public static Condition Condition {
         get {
-            return new Query.QB_Condition(binder);
+            return new Condition(binder);
         }
     }
 
-    public static Query.QB_Join InnerJoin {
+    public static JoinQuery InnerJoin {
         get {
-            return new Query.QB_Join(binder);
+            return new JoinQuery(binder);
         }
     }
 
@@ -34,7 +34,7 @@ public inherited sharing class Query implements Querable {
         Query count();
         Query countAs(sObjectField field, String alias);
 
-        Query subQuery(QB_Sub subQuery); //Query.Sub
+        Query subQuery(SubQuery subQuery); //Sub
 
         Query delegatedScope();
         Query mineScope();
@@ -43,7 +43,7 @@ public inherited sharing class Query implements Querable {
         Query myTeamTerritoryScope();
         Query teamScope();
 
-        Query whereAre(QB_ConditionClause conditions); //Query.ConditionsGroup or Query.Condition
+        Query whereAre(ConditionClause conditions); //Query.ConditionsGroup or Query.Condition
 
         Query groupBy(sObjectField field);
         Query groupByRollup(sObjectField field);
@@ -83,69 +83,69 @@ public inherited sharing class Query implements Querable {
     }
 
     public interface SoqlSubQuery {
-        Query.QB_Sub of(String ofObject);
+        SubQuery of(String ofObject);
 
-        Query.QB_Sub fields(List<sObjectField> fields);
-        Query.QB_Sub relatedFields(String relationshipPath, List<sObjectField> fields);
+        SubQuery fields(List<sObjectField> fields);
+        SubQuery relatedFields(String relationshipPath, List<sObjectField> fields);
 
-        Query.QB_Sub whereAre(QB_ConditionClause conditions); //Query.ConditionsGroup or Query.Condition
+        SubQuery whereAre(ConditionClause conditions); //Query.ConditionsGroup or Query.Condition
 
-        Query.QB_Sub orderBy(sObjectField field);
-        Query.QB_Sub orderByRelated(String path, sObjectField field);
-        Query.QB_Sub sortDesc();
-        Query.QB_Sub nullsLast();
+        SubQuery orderBy(sObjectField field);
+        SubQuery orderByRelated(String path, sObjectField field);
+        SubQuery sortDesc();
+        SubQuery nullsLast();
 
-        Query.QB_Sub setLimit(Integer amount);
+        SubQuery setLimit(Integer amount);
 
-        Query.QB_Sub offset(Integer startingRow);
+        SubQuery offset(Integer startingRow);
 
-        Query.QB_Sub forReference();
-        Query.QB_Sub forView();
+        SubQuery forReference();
+        SubQuery forView();
     }
 
     public interface SoqlCondition {
-        Query.QB_Condition id();
-        Query.QB_Condition recordTypeDeveloperName();
-        Query.QB_Condition field(SObjectField field);
-        Query.QB_Condition field(String field);
-        Query.QB_Condition relatedField(String relationshipPath, SObjectField field);
+        Condition id();
+        Condition recordTypeDeveloperName();
+        Condition field(SObjectField field);
+        Condition field(String field);
+        Condition relatedField(String relationshipPath, SObjectField field);
 
-        Query.QB_Condition isNull();
-        Query.QB_Condition isNotNull();
-        Query.QB_Condition equal(Object value);
-        Query.QB_Condition notEqual(Object value);
-        Query.QB_Condition lessThan(Object value);
-        Query.QB_Condition greaterThan(Object value);
-        Query.QB_Condition lessThanOrEqual(Object value);
-        Query.QB_Condition greaterThanOrEqual(Object value);
-        Query.QB_Condition likeAnyBoth(String value);
-        Query.QB_Condition likeAnyLeft(String value);
-        Query.QB_Condition likeAnyRight(String value);
-        Query.QB_Condition isIn(List<Object> inList);
-        Query.QB_Condition isNotIn(List<Object> inList);
-        Query.QB_Condition isIn(Query.QB_Join joinQuery); //Query.JoinQuery
-        Query.QB_Condition isNotIn(Query.QB_Join joinQuery); //Query.JoinQuery
+        Condition isNull();
+        Condition isNotNull();
+        Condition equal(Object value);
+        Condition notEqual(Object value);
+        Condition lessThan(Object value);
+        Condition greaterThan(Object value);
+        Condition lessThanOrEqual(Object value);
+        Condition greaterThanOrEqual(Object value);
+        Condition likeAnyBoth(String value);
+        Condition likeAnyLeft(String value);
+        Condition likeAnyRight(String value);
+        Condition isIn(List<Object> inList);
+        Condition isNotIn(List<Object> inList);
+        Condition isIn(JoinQuery joinQuery); //Query.JoinQuery
+        Condition isNotIn(JoinQuery joinQuery); //Query.JoinQuery
     }
 
     public interface SoqlConditionsGroup {
-        Query.QB_ConditionsGroup add(QB_ConditionClause condition); //Query.Condition or Query.QB_ConditionsGroup
-        Query.QB_ConditionsGroup order(String order);
+        ConditionsGroup add(ConditionClause condition); //Query.Condition or Query.ConditionsGroup
+        ConditionsGroup order(String order);
     }
 
     public interface SoqlJoin {
-        Query.QB_Join of(sObjectType ofObject);
+        JoinQuery of(sObjectType ofObject);
 
-        Query.QB_Join field(sObjectField field);
+        JoinQuery field(sObjectField field);
 
-        Query.QB_Join whereAre(QB_ConditionClause conditions); //Query.ConditionsGroup or Query.Condition
+        JoinQuery whereAre(ConditionClause conditions); //ConditionsGroup or Condition
     }
 
     // Implementation details
 
-    private static QB_Binder binder;
+    private static Binder binder;
 
     private QB builder;
-    private QB_Executor executor;
+    private Executor executor;
 
     private static Map<String, List<sObject>> mocks = new Map<String, List<sObject>>();
     private static Map<String, Integer> countMocks = new Map<String, Integer>();
@@ -155,9 +155,9 @@ public inherited sharing class Query implements Querable {
     }
 
     private Query(sObjectType ofObject) {
-        binder = new QB_Binder();
+        binder = new Binder();
         builder = new QB(ofObject);
-        executor = new QB_Executor();
+        executor = new Executor();
     }
 
     // Fields
@@ -196,7 +196,7 @@ public inherited sharing class Query implements Querable {
 
     // SubQuery
 
-    public Query subQuery(Query.QB_Sub subQuery) {
+    public Query subQuery(SubQuery subQuery) {
         builder.subQueries.add(subQuery);
         return this;
     }
@@ -235,7 +235,7 @@ public inherited sharing class Query implements Querable {
 
     // Where
 
-    public Query whereAre(QB_ConditionClause conditions) {
+    public Query whereAre(ConditionClause conditions) {
         builder.conditions.add(conditions);
         return this;
     }
@@ -405,103 +405,103 @@ public inherited sharing class Query implements Querable {
     // Standard
 
     public Query getById(Id recordId) {
-        return whereAre(Query.Condition.id().equal(recordId));
+        return whereAre(Condition.id().equal(recordId));
     }
 
     public Query getByIds(List<Id> recordIds) {
-        return whereAre(Query.Condition.id().isIn(recordIds));
+        return whereAre(Condition.id().isIn(recordIds));
     }
 
     // Config
 
-    public interface QB_Part {
+    public interface QueryClause {
         String build();
     }
 
-    public interface QB_ConditionClause {
+    public interface ConditionClause {
         String build();
     }
 
     // SubQuery
 
-    public class QB_Sub implements QB_Part, SoqlSubQuery {
+    public class SubQuery implements QueryClause, SoqlSubQuery {
         private QB builder;
-        private QB_Binder binder;
+        private Binder binder;
 
-        public QB_Sub(QB_Binder binder) {
+        public SubQuery(Binder binder) {
             this.binder = binder;
         }
 
         // From
 
-        public QB_Sub of(String ofObject) {
+        public SubQuery of(String ofObject) {
             builder = new QB(ofObject);
             return this;
         }
 
         // Fields
 
-        public QB_Sub fields(List<sObjectField> fields) {
+        public SubQuery fields(List<sObjectField> fields) {
             builder.fields.retrive(fields);
             return this;
         }
 
-        public QB_Sub relatedFields(String relationshipPath, List<sObjectField> fields) {
+        public SubQuery relatedFields(String relationshipPath, List<sObjectField> fields) {
             builder.fields.retrive(relationshipPath, fields);
             return this;
         }
 
         // Where
 
-        public QB_Sub whereAre(QB_ConditionClause conditions) {
+        public SubQuery whereAre(ConditionClause conditions) {
             builder.conditions.add(conditions);
             return this;
         }
 
         // Order By - ASC, NULLS FIRST by default
 
-        public QB_Sub orderBy(sObjectField field) {
+        public SubQuery orderBy(sObjectField field) {
             builder.orderBys.add(field);
             return this;
         }
 
-        public QB_Sub orderByRelated(String path, sObjectField field) {
+        public SubQuery orderByRelated(String path, sObjectField field) {
             builder.orderBys.add(path, field);
             return this;
         }
 
-        public QB_Sub sortDesc() {
+        public SubQuery sortDesc() {
             builder.orderBy.sortDesc();
             return this;
         }
 
-        public QB_Sub nullsLast() {
+        public SubQuery nullsLast() {
             builder.orderBy.nullsLast();
             return this;
         }
 
         // Limit
 
-        public QB_Sub setLimit(Integer amount) {
+        public SubQuery setLimit(Integer amount) {
             builder.soqlLimit.max(amount);
             return this;
         }
 
         // Offset
 
-        public QB_Sub offset(Integer startingRow) {
+        public SubQuery offset(Integer startingRow) {
             builder.soqlOffset.fromRow(startingRow);
             return this;
         }
 
         // For
 
-        public QB_Sub forReference() {
+        public SubQuery forReference() {
             builder.soqlFor.forReference();
             return this;
         }
 
-        public QB_Sub forView() {
+        public SubQuery forView() {
             builder.soqlFor.forView();
             return this;
         }
@@ -513,105 +513,105 @@ public inherited sharing class Query implements Querable {
         }
     }
 
-    public class QB_Condition implements Query.QB_ConditionClause, Query.SoqlCondition {
+    public class Condition implements ConditionClause, SoqlCondition {
         private String field;
         private String comperator;
         private Object value;
-        private QB_Binder binder;
-        private QB_Join joinQuery;
+        private Binder binder;
+        private JoinQuery joinQuery;
 
-        public QB_Condition(QB_Binder binder) {
+        public Condition(Binder binder) {
             this.binder = binder;
         }
 
-        public QB_Condition id() {
+        public Condition id() {
             return field('Id');
         }
 
-        public QB_Condition recordTypeDeveloperName() {
+        public Condition recordTypeDeveloperName() {
             return field('RecordType.DeveloperName');
         }
 
-        public QB_Condition field(SObjectField field) {
+        public Condition field(SObjectField field) {
             return field(field.getDescribe().getName());
         }
 
-        public QB_Condition relatedField(String relationshipPath, SObjectField field) {
+        public Condition relatedField(String relationshipPath, SObjectField field) {
             return field(relationshipPath + '.' + field.getDescribe().getName());
         }
 
-        public QB_Condition field(String field) {
+        public Condition field(String field) {
             this.field = field;
             return this;
         }
 
-        public QB_Condition isNull() {
+        public Condition isNull() {
             return equal(null);
         }
 
-        public QB_Condition isNotNull() {
+        public Condition isNotNull() {
             return notEqual(null);
         }
 
-        public QB_Condition equal(Object value) {
+        public Condition equal(Object value) {
             return set('=', value);
         }
 
-        public QB_Condition notEqual(Object value) {
+        public Condition notEqual(Object value) {
             return set('!=', value);
         }
 
-        public QB_Condition lessThan(Object value) {
+        public Condition lessThan(Object value) {
             return set('<', value);
         }
 
-        public QB_Condition greaterThan(Object value) {
+        public Condition greaterThan(Object value) {
             return set('>', value);
         }
 
-        public QB_Condition lessThanOrEqual(Object value) {
+        public Condition lessThanOrEqual(Object value) {
             return set('<=', value);
         }
 
-        public QB_Condition greaterThanOrEqual(Object value) {
+        public Condition greaterThanOrEqual(Object value) {
             return set('>=', value);
         }
 
-        public QB_Condition likeAnyBoth(String value) {
+        public Condition likeAnyBoth(String value) {
             return set('LIKE', '%' + String.escapeSingleQuotes(value.trim()) + '%');
         }
 
-        public QB_Condition likeAnyLeft(String value) {
+        public Condition likeAnyLeft(String value) {
             return set('LIKE', '%' + String.escapeSingleQuotes(value.trim()));
         }
 
-        public QB_Condition likeAnyRight(String value) {
+        public Condition likeAnyRight(String value) {
             return set('LIKE', String.escapeSingleQuotes(value.trim()) + '%');
         }
 
-        public QB_Condition isIn(List<Object> inList) {
+        public Condition isIn(List<Object> inList) {
             return set('IN', inList);
         }
 
-        public QB_Condition isNotIn(List<Object> inList) {
+        public Condition isNotIn(List<Object> inList) {
             return set('NOT IN', inList);
         }
 
-        private QB_Condition set(String comperator, Object value) {
+        private Condition set(String comperator, Object value) {
             this.value = value;
             this.comperator = comperator;
             return this;
         }
 
-        public QB_Condition isIn(Query.QB_Join joinQuery) {
+        public Condition isIn(JoinQuery joinQuery) {
             return set('IN', joinQuery);
         }
 
-        public QB_Condition isNotIn(Query.QB_Join joinQuery) {
+        public Condition isNotIn(JoinQuery joinQuery) {
             return set('NOT IN', joinQuery);
         }
 
-        private QB_Condition set(String comperator, Query.QB_Join joinQuery) {
+        private Condition set(String comperator, JoinQuery joinQuery) {
             this.joinQuery = joinQuery;
             this.comperator = comperator;
             return this;
@@ -626,21 +626,32 @@ public inherited sharing class Query implements Querable {
         }
     }
 
-    public class QB_ConditionsGroup implements Query.QB_ConditionClause, Query.QB_Part, Query.SoqlConditionsGroup {
-        private List<Query.QB_ConditionClause> queryConditions = new List<QB_ConditionClause>();
+    public class ConditionsGroup implements ConditionClause, QueryClause, SoqlConditionsGroup {
+        private List<ConditionClause> queryConditions = new List<ConditionClause>();
         private String order = '';
+        private String connector = 'AND';
         private Boolean isParent = false;
 
-        public QB_ConditionsGroup(Boolean isParent) {
+        public ConditionsGroup(Boolean isParent) {
             this.isParent = isParent;
         }
 
-        public Query.QB_ConditionsGroup add(QB_ConditionClause condition) {
+        public ConditionsGroup add(ConditionClause condition) {
             queryConditions.add(condition);
             return this;
         }
 
-        public Query.QB_ConditionsGroup order(String order) {
+        public ConditionsGroup byAND() {
+            connector = 'AND';
+            return this;
+        }
+
+        public ConditionsGroup byOR() {
+            connector = 'OR';
+            return this;
+        }
+
+        public ConditionsGroup order(String order) {
             this.order = order;
             return this;
         }
@@ -664,7 +675,7 @@ public inherited sharing class Query implements Querable {
                 defaultOrder.add(String.valueOf(i + 1));
             }
 
-            order = String.join(defaultOrder, ' AND '); // e.g (1 AND 2 AND 3)
+            order = String.join(defaultOrder, ' ' + connector + ' '); // e.g (1 AND 2 AND 3)
         }
 
         public String buildNested() {
@@ -701,31 +712,31 @@ public inherited sharing class Query implements Querable {
         }
     }
 
-    public class QB_Join implements QB_Part, SoqlJoin {
+    public class JoinQuery implements QueryClause, SoqlJoin {
         private QB builder;
-        private QB_Binder binder;
+        private Binder binder;
 
-        public QB_Join(QB_Binder binder) {
+        public JoinQuery(Binder binder) {
             this.binder = binder;
         }
 
         // From
 
-        public QB_Join of(sObjectType ofObject) {
+        public JoinQuery of(sObjectType ofObject) {
             builder = new QB(ofObject);
             return this;
         }
 
         // Fields
 
-        public QB_Join field(sObjectField field) {
+        public JoinQuery field(sObjectField field) {
             builder.fields.retrive(field);
             return this;
         }
 
         // Where
 
-        public QB_Join whereAre(QB_ConditionClause condition) {
+        public JoinQuery whereAre(ConditionClause condition) {
             builder.conditions.add(condition);
             return this;
         }
@@ -737,8 +748,8 @@ public inherited sharing class Query implements Querable {
         }
     }
 
-    public class QB implements QB_Part {
-        private List<QB_Part> clauses = new QB_Part[10];
+    public class QB implements QueryClause {
+        private List<QueryClause> clauses = new QueryClause[10];
 
         public QB(sObjectType ofObject) {
             this(ofObject.getDescribe().getName());
@@ -749,94 +760,94 @@ public inherited sharing class Query implements Querable {
             clauses.set(2, new QFrom(ofObject));
         }
 
-        public Query.QFields fields {
+        public QFields fields {
             get {
-                return (Query.QFields) clauses[0];
+                return (QFields) clauses[0];
             }
         }
 
-        public Query.QSubQueries subQueries {
+        public QSubQueries subQueries {
             get {
                 if (clauses[1] == null) {
-                    clauses.set(1, new Query.QSubQueries());
+                    clauses.set(1, new QSubQueries());
                 }
-                return (Query.QSubQueries) clauses[1];
+                return (QSubQueries) clauses[1];
             }
         }
 
-        public Query.QScope scope {
+        public QScope scope {
             get {
                 if (clauses[3] == null) {
-                    clauses.set(3, new Query.QScope());
+                    clauses.set(3, new QScope());
                 }
-                return (Query.QScope) clauses[3];
+                return (QScope) clauses[3];
             }
         }
 
-        public Query.QB_ConditionsGroup conditions {
+        public ConditionsGroup conditions {
             get {
                 if (clauses[4] == null) {
-                    clauses.set(4, new Query.QB_ConditionsGroup(true));
+                    clauses.set(4, new ConditionsGroup(true));
                 }
-                return (Query.QB_ConditionsGroup) clauses[4];
+                return (ConditionsGroup) clauses[4];
             }
         }
 
-        public Query.QGroupBy groupBy {
+        public QGroupBy groupBy {
             get {
                 if (clauses[5] == null) {
-                    clauses.set(5, new Query.QGroupBy());
+                    clauses.set(5, new QGroupBy());
                 }
-                return (Query.QGroupBy) clauses[5];
+                return (QGroupBy) clauses[5];
             }
         }
 
-        public Query.QOrderBy orderBy {
+        public QOrderBy orderBy {
             get {
                 return orderBys.recentOrderBy();
             }
         }
 
-        public Query.QOrderBys orderBys {
+        public QOrderBys orderBys {
             get {
                 if (clauses[6] == null) {
-                    clauses.set(6, new Query.QOrderBys());
+                    clauses.set(6, new QOrderBys());
                 }
-                return (Query.QOrderBys) clauses[6];
+                return (QOrderBys) clauses[6];
             }
         }
 
-        public Query.QLimit soqlLimit {
+        public QLimit soqlLimit {
             get {
                 if (clauses[7] == null) {
-                    clauses.set(7, new Query.QLimit());
+                    clauses.set(7, new QLimit());
                 }
-                return (Query.QLimit) clauses[7];
+                return (QLimit) clauses[7];
             }
         }
 
-        public Query.QOffset soqlOffset {
+        public QOffset soqlOffset {
             get {
                 if (clauses[8] == null) {
-                    clauses.set(8, new Query.QOffset());
+                    clauses.set(8, new QOffset());
                 }
-                return (Query.QOffset) clauses[8];
+                return (QOffset) clauses[8];
             }
         }
 
-        public Query.QFor soqlFor {
+        public QFor soqlFor {
             get {
                 if (clauses[9] == null) {
-                    clauses.set(9, new Query.QFor());
+                    clauses.set(9, new QFor());
                 }
-                return (Query.QFor) clauses[9];
+                return (QFor) clauses[9];
             }
         }
 
         public String build() {
             List<String> soqlParts = new List<String>();
 
-            for (QB_Part clause : clauses) {
+            for (QueryClause clause : clauses) {
                 if (clause == null) {
                     continue;
                 }
@@ -847,7 +858,7 @@ public inherited sharing class Query implements Querable {
         }
     }
 
-    public class QFields implements QB_Part {
+    public class QFields implements QueryClause {
         private Set<String> queryFields = new Set<String>();
 
         public void count() {
@@ -892,17 +903,17 @@ public inherited sharing class Query implements Querable {
         }
     }
 
-    public class QSubQueries implements QB_Part {
-        private List<Query.QB_Sub> subQueries = new List<Query.QB_Sub>();
+    public class QSubQueries implements QueryClause {
+        private List<SubQuery> subQueries = new List<SubQuery>();
 
-        public void add(Query.QB_Sub subQuery) {
+        public void add(SubQuery subQuery) {
             subQueries.add(subQuery);
         }
 
         public String build() {
             List<String> subQueriesSoql = new List<String>();
 
-            for (Query.QB_Sub sub : subQueries) {
+            for (SubQuery sub : subQueries) {
                 subQueriesSoql.add('(' + sub.build() + ')');
             }
 
@@ -910,7 +921,7 @@ public inherited sharing class Query implements Querable {
         }
     }
 
-    public class QFrom implements QB_Part {
+    public class QFrom implements QueryClause {
         private String objectApiName;
 
         public QFrom(String objectType) {
@@ -922,7 +933,7 @@ public inherited sharing class Query implements Querable {
         }
     }
 
-    public class QScope implements QB_Part {
+    public class QScope implements QueryClause {
         private String scope = 'EVERYTHING';
 
         public void delegated() {
@@ -954,7 +965,7 @@ public inherited sharing class Query implements Querable {
         }
     }
 
-    public class QGroupBy implements QB_Part {
+    public class QGroupBy implements QueryClause {
         private Set<String> groupByFields = new Set<String>();
 
         public void field(sObjectField field) {
@@ -970,7 +981,7 @@ public inherited sharing class Query implements Querable {
         }
     }
 
-    public class QOrderBys implements QB_Part {
+    public class QOrderBys implements QueryClause {
         public List<QOrderBy> orderBys = new List<QOrderBy>();
 
         public void add(sObjectField field) {
@@ -996,7 +1007,7 @@ public inherited sharing class Query implements Querable {
         }
     }
 
-    public class QOrderBy implements QB_Part {
+    public class QOrderBy implements QueryClause {
         private String orderField;
         private String sortingOrder = 'ASC';
         private String nullsOrder = 'FIRST';
@@ -1024,7 +1035,7 @@ public inherited sharing class Query implements Querable {
         }
     }
 
-    public class QLimit implements QB_Part {
+    public class QLimit implements QueryClause {
         private Integer soqlLimit = 50000;
 
         public void max(Integer soqlLimit) {
@@ -1036,7 +1047,7 @@ public inherited sharing class Query implements Querable {
         }
     }
 
-    public class QOffset implements QB_Part {
+    public class QOffset implements QueryClause {
         private Integer soqlOffset = 2000;
 
         public void fromRow(Integer soqlOffset) {
@@ -1048,7 +1059,7 @@ public inherited sharing class Query implements Querable {
         }
     }
 
-    public class QFor implements QB_Part {
+    public class QFor implements QueryClause {
         private String forStatement;
 
         public void forReference() {
@@ -1072,7 +1083,7 @@ public inherited sharing class Query implements Querable {
         }
     }
 
-    public class QB_Binder {
+    public class Binder {
         private Integer bindIndex = 0;
         private Map<String, Object> binding = new Map<String, Object>();
 
@@ -1095,8 +1106,8 @@ public inherited sharing class Query implements Querable {
         WITHOUT_SHARING
     }
 
-    public inherited sharing class QB_Executor {
-        private Query.SharingLevel sharingMode = SharingLevel.INHERITED;
+    public inherited sharing class Executor {
+        private SharingLevel sharingMode = SharingLevel.INHERITED;
         private AccessLevel accessMode = AccessLevel.USER_MODE; // The object permissions, field-level security, and sharing rules of the current user are enforced.
         private AccessType accessType;
 
@@ -1106,10 +1117,10 @@ public inherited sharing class Query implements Querable {
         private Boolean isCountQuery = false;
         private Map<String, Object> binding;
 
-        private final Map<Query.SharingLevel, Query.DatabaseQuery> MODE_TO_EXECUTOR = new Map<Query.SharingLevel, Query.DatabaseQuery>{
-            SharingLevel.WITH_SHARING => new Query.WithSharing(),
-            SharingLevel.WITHOUT_SHARING => new Query.WithoutSharing(),
-            SharingLevel.INHERITED => new Query.InheritedSharing()
+        private final Map<SharingLevel, DatabaseQuery> MODE_TO_EXECUTOR = new Map<SharingLevel, DatabaseQuery>{
+            SharingLevel.WITH_SHARING => new WithSharing(),
+            SharingLevel.WITHOUT_SHARING => new WithoutSharing(),
+            SharingLevel.INHERITED => new InheritedSharing()
         };
 
         public void withSharing() {
@@ -1141,7 +1152,7 @@ public inherited sharing class Query implements Querable {
             withPreview = true;
         }
 
-        public QB_Executor evaluate(String query, Map<String, Object> binding) {
+        public Executor evaluate(String query, Map<String, Object> binding) {
             this.query = query;
             this.binding = binding;
             return this;
