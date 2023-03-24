@@ -145,7 +145,7 @@ public inherited sharing class SOQL implements Querable {
 
         JoinQuery field(sObjectField field);
 
-        JoinQuery whereAre(ConditionClause conditions); //ConditionsGroup or Condition
+        JoinQuery whereAre(ConditionClause conditions); //SOQL.Condition or SOQL.ConditionsGroup
     }
 
     // Implementation details
@@ -292,7 +292,7 @@ public inherited sharing class SOQL implements Querable {
     // Offset
 
     public SOQL offset(Integer startingRow) {
-        builder.soqlOffset.fromRow(startingRow);
+        builder.soqlOffset.offset(startingRow);
         return this;
     }
 
@@ -567,33 +567,27 @@ public inherited sharing class SOQL implements Querable {
             this.binder = binder;
         }
 
-        // From
-
-        public SubQuery of(String ofObject) {
+        public SubQuery of(String ofObject) { // FROM
             builder = new QB(ofObject);
             return this;
         }
 
-        // Fields
-
-        public SubQuery fields(List<sObjectField> fields) {
+        public SubQuery fields(List<sObjectField> fields) { // SELECT
             builder.fields.retrive(fields);
             return this;
         }
 
-        public SubQuery relatedFields(String relationshipPath, List<sObjectField> fields) {
+        public SubQuery relatedFields(String relationshipPath, List<sObjectField> fields) { // SELECT
             builder.fields.retrive(relationshipPath, fields);
             return this;
         }
 
-        // Where
-
-        public SubQuery whereAre(ConditionClause conditions) {
+        public SubQuery whereAre(ConditionClause conditions) { // WHERE
             builder.conditions.add(conditions);
             return this;
         }
 
-        // Order By - ASC, NULLS FIRST by default
+        // ORDER BY - ASC, NULLS FIRST by default
 
         public SubQuery orderBy(sObjectField field) {
             builder.orderBys.add(field);
@@ -615,21 +609,17 @@ public inherited sharing class SOQL implements Querable {
             return this;
         }
 
-        // Limit
-
-        public SubQuery setLimit(Integer amount) {
+        public SubQuery setLimit(Integer amount) { // LIMIT
             builder.soqlLimit.max(amount);
             return this;
         }
 
-        // Offset
-
-        public SubQuery offset(Integer startingRow) {
-            builder.soqlOffset.fromRow(startingRow);
+        public SubQuery offset(Integer startingRow) { // OFFSER
+            builder.soqlOffset.offset(startingRow);
             return this;
         }
 
-        // For
+        // FOR
 
         public SubQuery forReference() {
             builder.soqlFor.forReference();
@@ -640,8 +630,6 @@ public inherited sharing class SOQL implements Querable {
             builder.soqlFor.forView();
             return this;
         }
-
-        // Build
 
         public String build() {
             return builder.build();
@@ -921,28 +909,20 @@ public inherited sharing class SOQL implements Querable {
             this.binder = binder;
         }
 
-        // From
-
-        public JoinQuery of(sObjectType ofObject) {
+        public JoinQuery of(sObjectType ofObject) { // FROM
             builder = new QB(ofObject);
             return this;
         }
 
-        // Fields
-
-        public JoinQuery field(sObjectField field) {
+        public JoinQuery field(sObjectField field) { // SELECT
             builder.fields.retrive(field);
             return this;
         }
 
-        // Where
-
-        public JoinQuery whereAre(ConditionClause condition) {
+        public JoinQuery whereAre(ConditionClause condition) { // WHERE
             builder.conditions.add(condition);
             return this;
         }
-
-        // Helper
 
         public String build() {
             return builder.build();
@@ -1034,8 +1014,8 @@ public inherited sharing class SOQL implements Querable {
     public class QOffset implements QueryClause {
         private Integer soqlOffset = 2000;
 
-        public void fromRow(Integer soqlOffset) {
-            this.soqlOffset = soqlOffset;
+        public void offset(Integer fromRow) {
+            soqlOffset = fromRow;
         }
 
         public String build() {
@@ -1119,8 +1099,7 @@ public inherited sharing class SOQL implements Querable {
             accessType = type;
         }
 
-        public void systemMode() {
-            // The object and field-level permissions of the current user are ignored, and the record sharing rules are controlled by the sharingMode.
+        public void systemMode() { // The object and field-level permissions of the current user are ignored, and the record sharing rules are controlled by the sharingMode.
             accessMode = AccessLevel.SYSTEM_MODE;
         }
 
