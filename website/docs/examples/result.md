@@ -22,13 +22,13 @@ public with sharing class MyController {
 
     public static List<Account> getAccountsByIds(List<Id> accountIds) {
         return AccountSelector.Query
-            .whereAre(SOQL.Condition.id().isIn(accountIds))
+            .whereAre(SOQL.Filter.id().isIn(accountIds))
             .asList();
     }
 
     public static Account getAccountById(Id accountId) {
         return (Account) AccountSelector.Query
-            .whereAre(SOQL.Condition.id().equal(accountId))
+            .whereAre(SOQL.Filter.id().equal(accountId))
             .asObject();
     }
 }

@@ -27,9 +27,9 @@ public with sharing class MyController {
                 Account.BillingCountry,
                 Account.BillingCountryCode
             })
-            .whereAre(SOQL.ConditionsGroup
-                .add(SOQL.Condition.field(Account.Id).equal('0013V00000WNCw4QAH'))
-                .add(SOQL.Condition.field(Account.Name).likeAnyBoth('Test'))
+            .whereAre(SOQL.FiltersGroup
+                .add(SOQL.Filter.field(Account.Id).equal('0013V00000WNCw4QAH'))
+                .add(SOQL.Filter.field(Account.Name).likeAnyBoth('Test'))
                 .order('1 OR 2')
              )
             .preview()

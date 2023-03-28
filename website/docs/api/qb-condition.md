@@ -1,8 +1,8 @@
 ---
-sidebar_position: 4
+sidebar_position: 3
 ---
 
-# QB_Condition
+# Filter
 
 ## predefinied
 ### id
@@ -20,10 +20,10 @@ QB_Condition id()
 
 ```apex
 QS.of(Account.sObjectType)
-    .whereAre(QS.Condition.id().equal(accountId))
+    .whereAre(QS.Filter.id().equal(accountId))
 
 QS.of(Account.sObjectType)
-    .whereAre(QS.Condition.id().isIn(accountIds))
+    .whereAre(QS.Filter.id().isIn(accountIds))
 ```
 
 ### recordTypeDeveloperName
@@ -40,7 +40,7 @@ QB_Condition recordTypeDeveloperName()
 
 ```apex
 QS.of(Account.sObjectType)
-    .whereAre(QS.Condition.recordTypeDeveloperName().equal('Partner'))
+    .whereAre(QS.Filter.recordTypeDeveloperName().equal('Partner'))
 ```
 
 ## fields
@@ -58,7 +58,7 @@ QB_Condition field(SObjectField field)
 
 ```apex
 QS.of(Account.sObjectType)
-    .whereAre(QS.Condition.field(Account.Name).equal('My Account'))
+    .whereAre(QS.Filter.field(Account.Name).equal('My Account'))
 ```
 
 ### relatedField
@@ -75,7 +75,7 @@ QB_Condition relatedField(String relationshipPath, SObjectField field)
 
 ```apex
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.relatedField('Account', Account.Name).equal('My Account'))
+    .whereAre(QS.Filter.relatedField('Account', Account.Name).equal('My Account'))
 ```
 
 ## comperators
@@ -94,7 +94,7 @@ QB_Condition isNull()
 
 ```apex
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.field(Account.Industry).isNull())
+    .whereAre(QS.Filter.field(Account.Industry).isNull())
 ```
 
 ### isNotNull
@@ -111,7 +111,7 @@ QB_Condition isNotNull()
 
 ```apex
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.field(Account.Industry).isNotNull())
+    .whereAre(QS.Filter.field(Account.Industry).isNotNull())
 ```
 
 ### equal
@@ -130,13 +130,13 @@ QB_Condition equal(Object value)
 
 ```apex
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.field(Account.Name).equal('My Account'))
+    .whereAre(QS.Filter.field(Account.Name).equal('My Account'))
 
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.field(Account.NumberOfEmployees).equal(10))
+    .whereAre(QS.Filter.field(Account.NumberOfEmployees).equal(10))
 
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.field(Account.IsDeleted).equal(true))
+    .whereAre(QS.Filter.field(Account.IsDeleted).equal(true))
 ```
 
 ### notEqual
@@ -155,13 +155,13 @@ QB_Condition notEqual(Object value)
 
 ```apex
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.field(Account.Name).notEqual('My Account'))
+    .whereAre(QS.Filter.field(Account.Name).notEqual('My Account'))
 
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.field(Account.NumberOfEmployees).notEqual(10))
+    .whereAre(QS.Filter.field(Account.NumberOfEmployees).notEqual(10))
 
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.field(Account.IsDeleted).notEqual(true))
+    .whereAre(QS.Filter.field(Account.IsDeleted).notEqual(true))
 ```
 
 ### lessThan
@@ -178,7 +178,7 @@ QB_Condition lessThan(Object value)
 
 ```apex
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.field(Account.NumberOfEmployees).lessThan(10))
+    .whereAre(QS.Filter.field(Account.NumberOfEmployees).lessThan(10))
 ```
 
 ### greaterThan
@@ -195,7 +195,7 @@ QB_Condition greaterThan(Object value)
 
 ```apex
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.field(Account.NumberOfEmployees).greaterThan(10))
+    .whereAre(QS.Filter.field(Account.NumberOfEmployees).greaterThan(10))
 ```
 
 ### lessThanOrEqual
@@ -212,7 +212,7 @@ QB_Condition lessThanOrEqual(Object value)
 
 ```apex
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.field(Account.NumberOfEmployees).lessThanOrEqual(10))
+    .whereAre(QS.Filter.field(Account.NumberOfEmployees).lessThanOrEqual(10))
 ```
 
 ### greaterThanOrEqual
@@ -229,7 +229,7 @@ QB_Condition greaterThanOrEqual(Object value)
 
 ```apex
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.field(Account.NumberOfEmployees).greaterThanOrEqual(10))
+    .whereAre(QS.Filter.field(Account.NumberOfEmployees).greaterThanOrEqual(10))
 ```
 
 ### likeAnyBoth
@@ -246,7 +246,7 @@ QB_Condition likeAnyBoth(String value)
 
 ```apex
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.field(Account.Name).likeAnyBoth('My'))
+    .whereAre(QS.Filter.field(Account.Name).likeAnyBoth('My'))
 ```
 
 ### likeAnyLeft
@@ -263,7 +263,7 @@ QB_Condition likeAnyLeft(String value)
 
 ```apex
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.field(Account.Name).likeAnyLeft('My'))
+    .whereAre(QS.Filter.field(Account.Name).likeAnyLeft('My'))
 ```
 
 ### likeAnyRight
@@ -280,7 +280,7 @@ QB_Condition likeAnyRight(String value)
 
 ```apex
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.field(Account.Name).likeAnyRight('My'))
+    .whereAre(QS.Filter.field(Account.Name).likeAnyRight('My'))
 ```
 
 ### isIn
@@ -297,7 +297,7 @@ QB_Condition isIn(List<Object> inList)
 
 ```apex
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.field(Account.Id).isIn(accountIds))
+    .whereAre(QS.Filter.field(Account.Id).isIn(accountIds))
 ```
 
 ### isNotIn
@@ -314,7 +314,7 @@ QB_Condition isNotIn(List<Object> inList)
 
 ```apex
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.field(Account.Id).notIn(accountIds))
+    .whereAre(QS.Filter.field(Account.Id).notIn(accountIds))
 ```
 
 ## join query
@@ -333,10 +333,10 @@ QB_Condition isIn(QB_Join joinQuery)
 
 ```apex
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.field(Account.Id).isIn(
+    .whereAre(QS.Filter.field(Account.Id).isIn(
         QS.Join.of(Contact.sObjectType)
             .field(Contact.AccountId)
-            .whereAre(QS.Condition.field(Contact.Name).equal('My Contact'))
+            .whereAre(QS.Filter.field(Contact.Name).equal('My Contact'))
     ))
 ```
 
@@ -354,9 +354,9 @@ QB_Condition isNotIn(QB_Join joinQuery)
 
 ```apex
 QS.of(Contact.sObjectType)
-    .whereAre(QS.Condition.field(Account.Id).isNotIn(
+    .whereAre(QS.Filter.field(Account.Id).isNotIn(
         QS.Join.of(Contact.sObjectType)
             .field(Contact.AccountId)
-            .whereAre(QS.Condition.field(Contact.Name).equal('My Contact'))
+            .whereAre(QS.Filter.field(Contact.Name).equal('My Contact'))
     ))
 ```

@@ -1,10 +1,12 @@
-# SOQL Builder
-
+# SOQL Lib
 
 ![Deploy to Scratch Org and run tests](https://github.com/beyond-the-cloud-dev/query-selector/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/gh/beyond-the-cloud-dev/query-selector/branch/main/graph/badge.svg)](https://codecov.io/gh/beyond-the-cloud-dev/query-selector)
 
 Apex SOQL provides functional constructs for SOQL.
+
+
+Find more details in the [documentation](https://btc-query-selector.vercel.app/).
 
 ## Examples
 
@@ -20,9 +22,6 @@ List<Account> accounts = SOQL.of(Account.sObjectType)
       Account.Id, Account.Name, Account.Industry
    }).asList();
 ```
-
-Find more examples in the [documentation](https://btc-query-selector.vercel.app/).
-
 ## Deploy to Salesforce
 
 <a href="https://githubsfdeploy.herokuapp.com?owner=beyond-the-cloud-dev&repo=query-selector&ref=main">

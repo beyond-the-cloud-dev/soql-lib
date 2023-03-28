@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# QS
+# SOQL
 
 ## of
 
@@ -241,7 +241,7 @@ QS.of(Account.sObjectType).teamScope()
 
 > The condition expression in a `WHERE` clause of a SOQL query includes one or more field expressions. You can specify multiple field expressions in a condition expression by using logical operators.
 
-For more details check [`QB.ConditionsGroup`](qb-conditions-group.md) and [`QB.Condition`](qb-conition.md)
+For more details check [`QB.FiltersGroup`](qb-conditions-group.md) and [`QB.Filter`](qb-conition.md)
 
 **Signature**
 
@@ -253,9 +253,9 @@ QS whereAre(QB_ConditionClause conditions)
 
 ```apex
 QS.of(Account.sObjectType)
-    .whereAre(QS.ConditionsGroup
-        .add(QS.Condition.field(Account.Id).equal(accountId))
-        .add(QS.Condition.field(Account.Name).likeAnyBoth(accountName))
+    .whereAre(QS.FiltersGroup
+        .add(QS.Filter.field(Account.Id).equal(accountId))
+        .add(QS.Filter.field(Account.Name).likeAnyBoth(accountName))
         .order('1 OR 2')
     )
 ```

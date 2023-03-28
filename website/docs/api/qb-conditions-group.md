@@ -1,13 +1,13 @@
 ---
-sidebar_position: 3
+sidebar_position: 4
 ---
 
-# QB_ConditionsGroup
+# FiltersGroup
 
 ## add
 
 Allows to add multiple conditions.
-Add a [`QB.Condition`](qb-condition.md) or [`QB.ConditionsGroup`](qb-condition-group.md).
+Add a [`QB.Filter`](qb-condition.md) or [`QB.FiltersGroup`](qb-condition-group.md).
 
 **Signature**
 
@@ -19,22 +19,22 @@ QB_ConditionsGroup add(QB_ConditionClause condition)
 
 ```apex
 QS.of(Account.sObjectType)
-    .whereAre(QS.ConditionsGroup
-        .add(QB.Condition.field(Account.Name).equal('My Account'))
-        .add(QB.Condition.field(Account.NumberOfEmployees).greaterThanOrEqual(10))
+    .whereAre(QS.FiltersGroup
+        .add(QB.Filter.field(Account.Name).equal('My Account'))
+        .add(QB.Filter.field(Account.NumberOfEmployees).greaterThanOrEqual(10))
     )
 ```
 
 ```apex
 // build conditions on fly
-QB_ConditionsGroup group = QS.ConditionsGroup
-        .add(QB.Condition.field(Account.Name).equal('My Account'))
-        .add(QB.Condition.field(Account.NumberOfEmployees).greaterThanOrEqual(10))
+QB_ConditionsGroup group = QS.FiltersGroup
+        .add(QB.Filter.field(Account.Name).equal('My Account'))
+        .add(QB.Filter.field(Account.NumberOfEmployees).greaterThanOrEqual(10))
         .order('1 OR 2');
 
 QS.of(Account.sObjectType)
-    .whereAre(QS.ConditionsGroup
-        .add(QB.Condition.field(Account.Industry).equal('IT'))
+    .whereAre(QS.FiltersGroup
+        .add(QB.Filter.field(Account.Industry).equal('IT'))
         .add(group)
     )
 ```
@@ -54,10 +54,10 @@ QB_ConditionsGroup order(String order)
 
 ```apex
 QS.of(Account.sObjectType)
-    .whereAre(QS.ConditionsGroup
-        .add(QB.Condition.field(Account.Name).equal('My Account'))
-        .add(QB.Condition.field(Account.NumberOfEmployees).greaterThanOrEqual(10))
-        .add(QB.Condition.field(Account.Industry).equal('IT'))
+    .whereAre(QS.FiltersGroup
+        .add(QB.Filter.field(Account.Name).equal('My Account'))
+        .add(QB.Filter.field(Account.NumberOfEmployees).greaterThanOrEqual(10))
+        .add(QB.Filter.field(Account.Industry).equal('IT'))
         .order('(1 AND 2) OR (1 AND 3)')
     )
 ```

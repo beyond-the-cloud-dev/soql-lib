@@ -22,9 +22,9 @@ public with sharing class MyController {
 
     public static List<Account> getByIdOrName(Id accountId, String accountName) {
         return (List<Account>) AccountSelector.Query
-                .whereAre(SOQL.ConditionsGroup
-                    .add(SOQL.Condition.field(Account.Id).equal(accountId))
-                    .add(SOQL.Condition.field(Account.Name).likeAnyBoth(accountName))
+                .whereAre(SOQL.FiltersGroup
+                    .add(SOQL.Filter.field(Account.Id).equal(accountId))
+                    .add(SOQL.Filter.field(Account.Name).likeAnyBoth(accountName))
                     .order('1 OR 2')
                 )
                 .asList();

@@ -2,7 +2,7 @@
 sidebar_position: 5
 ---
 
-# QB_Join
+# JoinQuery
 
 ## of
 
@@ -41,7 +41,7 @@ QS.Join.of(Contact.sObjectType).field(Contact.Account.Id)
 
 > The condition expression in a `WHERE` clause of a SOQL query includes one or more field expressions. You can specify multiple field expressions in a condition expression by using logical operators.
 
-For more details check [`QB.ConditionsGroup`](qb-conditions-group.md) and [`QB.Condition`](qb-conition.md)
+For more details check [`QB.FiltersGroup`](qb-conditions-group.md) and [`QB.Filter`](qb-conition.md)
 
 **Signature**
 
@@ -53,5 +53,5 @@ static QB_Join whereAre(QB_ConditionsGroup conditions)
 
 ```apex
 QS.Join.of(Contact.sObjectType)
-    .whereAre(QS.Condition.field(Contact.Name).equal('My Contact'))
+    .whereAre(QS.Filter.field(Contact.Name).equal('My Contact'))
 ```

@@ -1,12 +1,12 @@
 public with sharing class ExampleController {
 
-    public static List<Account> getAccounts(String accountName) {
+    public static List<Account> getPartnerAccounts(String accountName) {
         return AccountSelector.Query
             .field(Account.BillingCity)
             .field(Account.BillingCountry)
             .whereAre(SOQL.FiltersGroup
                 .add(SOQL.Filter.field(Account.Name).likeAny(accountName))
-                .add(SOQL.Filter.field(Account.Name).likeAny(accountName))
+                .add(SOQL.Filter.recordType().equal('Partner'))
             )
             .asList();
     }

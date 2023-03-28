@@ -27,7 +27,7 @@ All variables used in `WHERE` condition are binded by default.
 SOQL.of(Account.sObjectType).fields(new List<sObjectField> {
     Account.Id, Account.Name
 })
-.whereAre(SOQL.Condition.field(Account.Name).likeAnyBoth('Test'))
+.whereAre(SOQL.Filter.field(Account.Name).likeAnyBoth('Test'))
 .asList();
 ```
 
@@ -118,7 +118,42 @@ SOQL.of(Account.sObjectType).fields(new List<sObjectField> {
 
 ## Mocking
 
-TBD
+```apex
+public with sharing class ExampleController {
+
+    public static List<Account> getPartnerAccounts(String accountName) {
+        return AccountSelector.Query
+            .field(Account.BillingCity)
+            .field(Account.BillingCountry)
+            .whereAre(SOQL.FiltersGroup
+                .add(SOQL.Filter.field(Account.Name).likeAny(accountName))
+                .add(SOQL.Filter.recordType().equal('Partner'))
+            )
+            .mocking('ExampleController.getPartnerAccounts')
+            .asList();
+    }
+}
+```
+
+```apex
+@isTest
+public class ExampleControllerTest {
+
+    public static List<Account> getPartnerAccounts(String accountName) {
+        List<Account> accounts = new List<Account>{
+            new Account(Name = 'MyAccount 1'),
+            new Account(Name = 'MyAccount 2')
+        };
+
+        SOQL.setMock('ExampleController.getPartnerAccounts', accounts);
+
+        // Test
+        List<Account> result = ExampleController.getAccounts('MyAccount');
+
+        Assert.areEqual(accounts, result);
+    }
+}
+```
 
 ## Avoid duplicates
 
@@ -142,11 +177,11 @@ public inherited sharing class AccountSelector {
         return Selector.fields(new List<sObjectField>{
             Account.BillingCity,
             Account.BillingCountry
-        }).whereAre(SOQL.Condition.recordTypeDeveloperName().equal(rtDevName);
+        }).whereAre(SOQL.Filter.recordTypeDeveloperName().equal(rtDevName);
     }
 
     public static SOQL getById(Id accountId) {
-        return Selector.whereAre(SOQL.Condition.id().equal(accountId));
+        return Selector.whereAre(SOQL.Filter.id().equal(accountId));
     }
 }
 ```
