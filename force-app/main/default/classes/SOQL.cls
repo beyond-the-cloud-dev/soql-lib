@@ -6,15 +6,15 @@ public inherited sharing class SOQL implements Querable {
         }
     }
 
-    public static ConditionsGroup ConditionsGroup {
+    public static FiltersGroup FiltersGroup {
         get {
-            return new ConditionsGroup(false);
+            return new FiltersGroup(false);
         }
     }
 
-    public static Condition Condition {
+    public static Filter Filter {
         get {
-            return new Condition(binder);
+            return new Filter(binder);
         }
     }
 
@@ -53,7 +53,7 @@ public inherited sharing class SOQL implements Querable {
         SOQL myTeamTerritoryScope();
         SOQL teamScope();
 
-        SOQL whereAre(ConditionClause conditions); //SOQL.ConditionsGroup or SOQL.Condition
+        SOQL whereAre(ConditionClause conditions); //SOQL.FiltersGroup or SOQL.Filter
 
         SOQL groupBy(sObjectField field);
         SOQL groupByRollup(sObjectField field);
@@ -96,7 +96,7 @@ public inherited sharing class SOQL implements Querable {
         SubQuery fields(List<sObjectField> fields);
         SubQuery relatedFields(String relationshipPath, List<sObjectField> fields);
 
-        SubQuery whereAre(ConditionClause conditions); //SOQL.ConditionsGroup or SOQL.Condition
+        SubQuery whereAre(ConditionClause conditions); //SOQL.FiltersGroup or SOQL.Filter
 
         SubQuery orderBy(sObjectField field);
         SubQuery orderByRelated(String path, sObjectField field);
@@ -111,33 +111,33 @@ public inherited sharing class SOQL implements Querable {
         SubQuery forView();
     }
 
-    public interface SoqlCondition { //SOQL.Condition
-        Condition id();
-        Condition recordTypeDeveloperName();
-        Condition field(SObjectField field);
-        Condition field(String field);
-        Condition relatedField(String relationshipPath, SObjectField field);
+    public interface SoqlCondition { //SOQL.Filter
+        Filter id();
+        Filter recordType();
+        Filter field(SObjectField field);
+        Filter field(String field);
+        Filter relatedField(String relationshipPath, SObjectField field);
 
-        Condition isNull();
-        Condition isNotNull();
-        Condition equal(Object value);
-        Condition notEqual(Object value);
-        Condition lessThan(Object value);
-        Condition greaterThan(Object value);
-        Condition lessThanOrEqual(Object value);
-        Condition greaterThanOrEqual(Object value);
-        Condition likeAnyBoth(String value);
-        Condition likeAnyLeft(String value);
-        Condition likeAnyRight(String value);
-        Condition isIn(List<Object> inList);
-        Condition isNotIn(List<Object> inList);
-        Condition isIn(JoinQuery joinQuery); //SOQL.JoinQuery
-        Condition isNotIn(JoinQuery joinQuery); //SOQL.JoinQuery
+        Filter isNull();
+        Filter isNotNull();
+        Filter equal(Object value);
+        Filter notEqual(Object value);
+        Filter lessThan(Object value);
+        Filter greaterThan(Object value);
+        Filter lessThanOrEqual(Object value);
+        Filter greaterThanOrEqual(Object value);
+        Filter likeAny(String value);
+        Filter likeAnyLeft(String value);
+        Filter likeAnyRight(String value);
+        Filter isIn(List<Object> inList);
+        Filter isNotIn(List<Object> inList);
+        Filter isIn(JoinQuery joinQuery); //SOQL.JoinQuery
+        Filter isNotIn(JoinQuery joinQuery); //SOQL.JoinQuery
     }
 
-    public interface SoqlConditionsGroup { //SOQL.ConditionsGroup
-        ConditionsGroup add(ConditionClause condition); //SOQL.Condition or SOQL.ConditionsGroup
-        ConditionsGroup order(String order);
+    public interface SoqlFiltersGroup { //SOQL.FiltersGroup
+        FiltersGroup add(ConditionClause condition); //SOQL.Filter or SOQL.FiltersGroup
+        FiltersGroup order(String order);
     }
 
     public interface SoqlJoin { //SOQL.InnerJoin
@@ -145,7 +145,7 @@ public inherited sharing class SOQL implements Querable {
 
         JoinQuery field(sObjectField field);
 
-        JoinQuery whereAre(ConditionClause conditions); //SOQL.Condition or SOQL.ConditionsGroup
+        JoinQuery whereAre(ConditionClause conditions); //SOQL.Filter or SOQL.FiltersGroup
     }
 
     // Implementation details
@@ -389,11 +389,11 @@ public inherited sharing class SOQL implements Querable {
     // Standard
 
     public SOQL getById(Id recordId) {
-        return whereAre(Condition.id().equal(recordId));
+        return whereAre(Filter.id().equal(recordId));
     }
 
     public SOQL getByIds(List<Id> recordIds) {
-        return whereAre(Condition.id().isIn(recordIds));
+        return whereAre(Filter.id().isIn(recordIds));
     }
 
     // Config
@@ -438,12 +438,12 @@ public inherited sharing class SOQL implements Querable {
             }
         }
 
-        public ConditionsGroup conditions {
+        public FiltersGroup conditions {
             get {
                 if (clauses[4] == null) {
-                    clauses.set(4, new ConditionsGroup(true));
+                    clauses.set(4, new FiltersGroup(true));
                 }
-                return (ConditionsGroup) clauses[4];
+                return (FiltersGroup) clauses[4];
             }
         }
 
@@ -702,32 +702,32 @@ public inherited sharing class SOQL implements Querable {
         String build();
     }
 
-    public class ConditionsGroup implements ConditionClause, QueryClause, SoqlConditionsGroup {
+    public class FiltersGroup implements ConditionClause, QueryClause, SoqlFiltersGroup {
         private List<ConditionClause> queryConditions = new List<ConditionClause>();
         private String order = '';
         private String connector = 'AND';
         private Boolean isParent = false;
 
-        public ConditionsGroup(Boolean isParent) {
+        public FiltersGroup(Boolean isParent) {
             this.isParent = isParent;
         }
 
-        public ConditionsGroup add(ConditionClause condition) {
+        public FiltersGroup add(ConditionClause condition) {
             queryConditions.add(condition);
             return this;
         }
 
-        public ConditionsGroup byAND() {
+        public FiltersGroup byAND() {
             connector = 'AND';
             return this;
         }
 
-        public ConditionsGroup byOR() {
+        public FiltersGroup byOR() {
             connector = 'OR';
             return this;
         }
 
-        public ConditionsGroup order(String order) {
+        public FiltersGroup order(String order) {
             this.order = order;
             return this;
         }
@@ -788,105 +788,105 @@ public inherited sharing class SOQL implements Querable {
         }
     }
 
-    public class Condition implements ConditionClause, SoqlCondition {
+    public class Filter implements ConditionClause, SoqlCondition {
         private String field;
         private String comperator;
         private Object value;
         private Binder binder;
         private JoinQuery joinQuery;
 
-        public Condition(Binder binder) {
+        public Filter(Binder binder) {
             this.binder = binder;
         }
 
-        public Condition id() {
+        public Filter id() {
             return field('Id');
         }
 
-        public Condition recordTypeDeveloperName() {
+        public Filter recordType() {
             return field('RecordType.DeveloperName');
         }
 
-        public Condition field(SObjectField field) {
+        public Filter field(SObjectField field) {
             return field(field.getDescribe().getName());
         }
 
-        public Condition relatedField(String relationshipPath, SObjectField field) {
+        public Filter relatedField(String relationshipPath, SObjectField field) {
             return field(relationshipPath + '.' + field.getDescribe().getName());
         }
 
-        public Condition field(String field) {
+        public Filter field(String field) {
             this.field = field;
             return this;
         }
 
-        public Condition isNull() {
+        public Filter isNull() {
             return equal(null);
         }
 
-        public Condition isNotNull() {
+        public Filter isNotNull() {
             return notEqual(null);
         }
 
-        public Condition equal(Object value) {
+        public Filter equal(Object value) {
             return set('=', value);
         }
 
-        public Condition notEqual(Object value) {
+        public Filter notEqual(Object value) {
             return set('!=', value);
         }
 
-        public Condition lessThan(Object value) {
+        public Filter lessThan(Object value) {
             return set('<', value);
         }
 
-        public Condition greaterThan(Object value) {
+        public Filter greaterThan(Object value) {
             return set('>', value);
         }
 
-        public Condition lessThanOrEqual(Object value) {
+        public Filter lessThanOrEqual(Object value) {
             return set('<=', value);
         }
 
-        public Condition greaterThanOrEqual(Object value) {
+        public Filter greaterThanOrEqual(Object value) {
             return set('>=', value);
         }
 
-        public Condition likeAnyBoth(String value) {
+        public Filter likeAny(String value) {
             return set('LIKE', '%' + String.escapeSingleQuotes(value.trim()) + '%');
         }
 
-        public Condition likeAnyLeft(String value) {
+        public Filter likeAnyLeft(String value) {
             return set('LIKE', '%' + String.escapeSingleQuotes(value.trim()));
         }
 
-        public Condition likeAnyRight(String value) {
+        public Filter likeAnyRight(String value) {
             return set('LIKE', String.escapeSingleQuotes(value.trim()) + '%');
         }
 
-        public Condition isIn(List<Object> inList) {
+        public Filter isIn(List<Object> inList) {
             return set('IN', inList);
         }
 
-        public Condition isNotIn(List<Object> inList) {
+        public Filter isNotIn(List<Object> inList) {
             return set('NOT IN', inList);
         }
 
-        private Condition set(String comperator, Object value) {
+        private Filter set(String comperator, Object value) {
             this.value = value;
             this.comperator = comperator;
             return this;
         }
 
-        public Condition isIn(JoinQuery joinQuery) {
+        public Filter isIn(JoinQuery joinQuery) {
             return set('IN', joinQuery);
         }
 
-        public Condition isNotIn(JoinQuery joinQuery) {
+        public Filter isNotIn(JoinQuery joinQuery) {
             return set('NOT IN', joinQuery);
         }
 
-        private Condition set(String comperator, JoinQuery joinQuery) {
+        private Filter set(String comperator, JoinQuery joinQuery) {
             this.joinQuery = joinQuery;
             this.comperator = comperator;
             return this;
