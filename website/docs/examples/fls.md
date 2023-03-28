@@ -24,7 +24,7 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static List<Account> getAccountInSystemMode() {
-        return (List<Account>) AccountSelector.Query
+        return AccountSelector.Query
             .userMode() //override selector fls mode
             .asList();
     }

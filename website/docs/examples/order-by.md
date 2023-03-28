@@ -23,7 +23,7 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static List<Account> getAccounts() {
-        return (List<Account>) AccountSelector.Query
+        return AccountSelector.Query
                 .orderBy(Account.Industry).sortDesc()
                 .orderBy(Account.Id)
                 .asList();

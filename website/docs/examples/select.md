@@ -26,7 +26,7 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static List<Account> getAccounts() {
-        return (List<Account>) AccountSelector.Query
+        return AccountSelector.Query
             .fields(new List<sObjectField>{
                 Account.BillingCity,
                 Account.BillingState,

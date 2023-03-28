@@ -21,7 +21,7 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static List<Account> getAccountsWithOffset(Integer startingRow) {
-        return (List<Account>) AccountSelector.Query
+        return AccountSelector.Query
             .offset(startingRow)
             .asList();
     }

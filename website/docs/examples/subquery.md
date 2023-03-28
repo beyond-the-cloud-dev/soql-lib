@@ -23,7 +23,7 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static List<Account> getAccountsWithContacts() {
-        return (List<Account>) AccountSelector.Query
+        return AccountSelector.Query
             .subQuery(SOQL.Sub.of('Contacts')
                 .fields(new List<sObjectField>{
                     Contact.Id,

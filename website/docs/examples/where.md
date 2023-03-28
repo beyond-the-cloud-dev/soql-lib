@@ -21,7 +21,7 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static List<Account> getByIdOrName(Id accountId, String accountName) {
-        return (List<Account>) AccountSelector.Query
+        return AccountSelector.Query
                 .whereAre(SOQL.FiltersGroup
                     .add(SOQL.Filter.field(Account.Id).equal(accountId))
                     .add(SOQL.Filter.field(Account.Name).likeAnyBoth(accountName))

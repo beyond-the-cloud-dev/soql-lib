@@ -1,4 +1,4 @@
-public inherited sharing class SOQL implements Querable {
+public inherited sharing class SOQL implements Queryable {
 
     public static SubQuery Sub {
         get {
@@ -34,7 +34,7 @@ public inherited sharing class SOQL implements Querable {
         countMocks.put(queryIdentifier, amount);
     }
 
-    public interface Querable {
+    public interface Queryable {
         SOQL of(sObjectType ofObject);
 
         SOQL field(sObjectField field);

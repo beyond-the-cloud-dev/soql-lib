@@ -21,13 +21,13 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static List<Account> getMineAccounts() {
-        return (List<Account>) AccountSelector.Query
+        return AccountSelector.Query
             .mineScope()
             .asList();
     }
 
     public static List<Account> getTeamAccounts() {
-        return (List<Account>) AccountSelector.Query
+        return AccountSelector.Query
             .myTeamScope()
             .asList();
     }
