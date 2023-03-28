@@ -102,7 +102,7 @@ public class SOQLTest {
                 .fields(new List<sObjectField>{
                     Contact.Id, Contact.Name
                 })
-                .whereAre(SOQL.Condition.field(Contact.LastName).equal('Doe'))
+                .whereAre(SOQL.Filter.field(Contact.LastName).equal('Doe'))
             ).soql();
 
         Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts WHERE LastName = :v1) FROM Account', soql);
@@ -269,7 +269,7 @@ public class SOQLTest {
     @isTest
     static void id() {
         SOQL builder = SOQL.of(Account.sObjectType)
-            .whereAre(SOQL.Condition.id().isNotNull());
+            .whereAre(SOQL.Filter.id().isNotNull());
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Id != :v1', soql);
@@ -279,9 +279,9 @@ public class SOQLTest {
     }
 
     @isTest
-    static void recordTypeDeveloperName() {
+    static void recordType() {
         SOQL builder = SOQL.of(Account.sObjectType)
-            .whereAre(SOQL.Condition.recordTypeDeveloperName().isNotNull());
+            .whereAre(SOQL.Filter.recordType().isNotNull());
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE RecordType.DeveloperName != :v1', soql);
@@ -293,7 +293,7 @@ public class SOQLTest {
     @isTest
     static void relatedField() {
         SOQL builder = SOQL.of(Contact.sObjectType)
-            .whereAre(SOQL.Condition.relatedField('Account', Account.Name).equal('Test'));
+            .whereAre(SOQL.Filter.relatedField('Account', Account.Name).equal('Test'));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Contact WHERE Account.Name = :v1', soql);
@@ -305,7 +305,7 @@ public class SOQLTest {
     @isTest
     static void equalString() {
         SOQL builder = SOQL.of(Account.sObjectType)
-            .whereAre(SOQL.Condition.field(Account.Name).equal('Test'));
+            .whereAre(SOQL.Filter.field(Account.Name).equal('Test'));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Name = :v1', soql);
@@ -317,7 +317,7 @@ public class SOQLTest {
     @isTest
     static void notEqualString() {
         SOQL builder = SOQL.of(Account.sObjectType)
-            .whereAre(SOQL.Condition.field(Account.Name).notEqual('Test'));
+            .whereAre(SOQL.Filter.field(Account.Name).notEqual('Test'));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Name != :v1', soql);
@@ -329,7 +329,7 @@ public class SOQLTest {
     @isTest
     static void lessThan() {
         SOQL builder = SOQL.of(Account.sObjectType)
-            .whereAre(SOQL.Condition.field(Account.NumberOfEmployees).lessThan(10));
+            .whereAre(SOQL.Filter.field(Account.NumberOfEmployees).lessThan(10));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees < :v1', soql);
@@ -341,7 +341,7 @@ public class SOQLTest {
     @isTest
     static void greaterThan() {
         SOQL builder = SOQL.of(Account.sObjectType)
-            .whereAre(SOQL.Condition.field(Account.NumberOfEmployees).greaterThan(10));
+            .whereAre(SOQL.Filter.field(Account.NumberOfEmployees).greaterThan(10));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees > :v1', soql);
@@ -353,7 +353,7 @@ public class SOQLTest {
     @isTest
     static void lessThanOrEqual() {
         SOQL builder = SOQL.of(Account.sObjectType)
-            .whereAre(SOQL.Condition.field(Account.NumberOfEmployees).lessThanOrEqual(10));
+            .whereAre(SOQL.Filter.field(Account.NumberOfEmployees).lessThanOrEqual(10));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees <= :v1', soql);
@@ -365,7 +365,7 @@ public class SOQLTest {
     @isTest
     static void greaterThanOrEqual() {
         SOQL builder = SOQL.of(Account.sObjectType)
-            .whereAre(SOQL.Condition.field(Account.NumberOfEmployees).greaterThanOrEqual(10));
+            .whereAre(SOQL.Filter.field(Account.NumberOfEmployees).greaterThanOrEqual(10));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees >= :v1', soql);
@@ -375,9 +375,9 @@ public class SOQLTest {
     }
 
     @isTest
-    static void likeAnyBoth() {
+    static void likeAny() {
         SOQL builder = SOQL.of(Account.sObjectType)
-            .whereAre(SOQL.Condition.field(Account.Name).likeAnyBoth('Test'));
+            .whereAre(SOQL.Filter.field(Account.Name).likeAny('Test'));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
@@ -389,7 +389,7 @@ public class SOQLTest {
     @isTest
     static void likeAnyLeft() {
         SOQL builder = SOQL.of(Account.sObjectType)
-            .whereAre(SOQL.Condition.field(Account.Name).likeAnyLeft('Test'));
+            .whereAre(SOQL.Filter.field(Account.Name).likeAnyLeft('Test'));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
@@ -401,7 +401,7 @@ public class SOQLTest {
     @isTest
     static void likeAnyRight() {
         SOQL builder = SOQL.of(Account.sObjectType)
-            .whereAre(SOQL.Condition.field(Account.Name).likeAnyRight('Test'));
+            .whereAre(SOQL.Filter.field(Account.Name).likeAnyRight('Test'));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
@@ -415,7 +415,7 @@ public class SOQLTest {
         List<String> names = new List<String>{ 'Test 1', 'Test 2' };
 
         SOQL builder = SOQL.of(Account.sObjectType)
-            .whereAre(SOQL.Condition.field(Account.Name).isIn(names));
+            .whereAre(SOQL.Filter.field(Account.Name).isIn(names));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Name IN :v1', soql);
@@ -433,7 +433,7 @@ public class SOQLTest {
             .fields(new List<sObjectField>{
                 Account.Name, Account.BillingCity
             })
-            .whereAre(SOQL.Condition.field(Account.Name).isNotIn(names));
+            .whereAre(SOQL.Filter.field(Account.Name).isNotIn(names));
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE Name NOT IN :v1', soql);
@@ -445,7 +445,7 @@ public class SOQLTest {
     @isTest
     static void isNotNull() {
         SOQL builder = SOQL.of(Account.sObjectType)
-            .whereAre(SOQL.Condition.field(Account.Name).isNotNull());
+            .whereAre(SOQL.Filter.field(Account.Name).isNotNull());
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Name != :v1', soql);
@@ -457,7 +457,7 @@ public class SOQLTest {
     @isTest
     static void isNull() {
         SOQL builder = SOQL.of(Account.sObjectType)
-            .whereAre(SOQL.Condition.field(Account.Name).isNull());
+            .whereAre(SOQL.Filter.field(Account.Name).isNull());
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Name = :v1', soql);
@@ -469,9 +469,9 @@ public class SOQLTest {
     @isTest
     static void conditionsGroup() {
         SOQL builder = SOQL.of(Account.sObjectType)
-            .whereAre(SOQL.ConditionsGroup
-                .add(SOQL.Condition.field(Account.Name).equal('Test'))
-                .add(SOQL.Condition.field(Account.BillingCity).equal('Krakow'))
+            .whereAre(SOQL.FiltersGroup
+                .add(SOQL.Filter.field(Account.Name).equal('Test'))
+                .add(SOQL.Filter.field(Account.BillingCity).equal('Krakow'))
             );
 
         String soql = builder.soql();
@@ -485,12 +485,12 @@ public class SOQLTest {
     @isTest
     static void nestedConditionsGroup() {
         SOQL builder = SOQL.of(Account.sObjectType)
-            .whereAre(SOQL.ConditionsGroup
-                .add(SOQL.Condition.field(Account.Name).equal('Test'))
-                .add(SOQL.Condition.field(Account.BillingCity).equal('Krakow'))
-                .add(SOQL.ConditionsGroup
-                    .add(SOQL.Condition.field(Account.Name).equal('Test 2'))
-                    .add(SOQL.Condition.field(Account.BillingCity).equal('Warsaw'))
+            .whereAre(SOQL.FiltersGroup
+                .add(SOQL.Filter.field(Account.Name).equal('Test'))
+                .add(SOQL.Filter.field(Account.BillingCity).equal('Krakow'))
+                .add(SOQL.FiltersGroup
+                    .add(SOQL.Filter.field(Account.Name).equal('Test 2'))
+                    .add(SOQL.Filter.field(Account.BillingCity).equal('Warsaw'))
                     .order('1 OR 2')
                 )
             );
@@ -508,10 +508,10 @@ public class SOQLTest {
     @isTest
     static void inInnerJoin() {
         SOQL builder = SOQL.of(Account.sObjectType)
-            .whereAre(SOQL.Condition.field(Account.Id).isIn(
+            .whereAre(SOQL.Filter.field(Account.Id).isIn(
                 SOQL.InnerJoin.of(Contact.sObjectType)
                     .field(Contact.AccountId)
-                    .whereAre(SOQL.Condition.field(Contact.Name).equal('My Contact'))
+                    .whereAre(SOQL.Filter.field(Contact.Name).equal('My Contact'))
             ));
 
         String soql = builder.soql();
@@ -525,10 +525,10 @@ public class SOQLTest {
     @isTest
     static void isNotInInnerJoin() {
         SOQL builder = SOQL.of(Account.sObjectType)
-            .whereAre(SOQL.Condition.field(Account.Id).isNotIn(
+            .whereAre(SOQL.Filter.field(Account.Id).isNotIn(
                 SOQL.InnerJoin.of(Contact.sObjectType)
                     .field(Contact.AccountId)
-                    .whereAre(SOQL.Condition.field(Contact.Name).equal('My Contact'))
+                    .whereAre(SOQL.Filter.field(Contact.Name).equal('My Contact'))
             ));
 
         String soql = builder.soql();
