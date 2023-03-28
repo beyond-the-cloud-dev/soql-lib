@@ -491,7 +491,7 @@ public class SOQLTest {
                 .add(SOQL.FiltersGroup
                     .add(SOQL.Filter.field(Account.Name).equal('Test 2'))
                     .add(SOQL.Filter.field(Account.BillingCity).equal('Warsaw'))
-                    .order('1 OR 2')
+                    .conditionLogic('1 OR 2')
                 )
             );
 

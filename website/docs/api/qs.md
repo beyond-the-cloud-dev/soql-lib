@@ -256,7 +256,7 @@ QS.of(Account.sObjectType)
     .whereAre(QS.FiltersGroup
         .add(QS.Filter.field(Account.Id).equal(accountId))
         .add(QS.Filter.field(Account.Name).likeAnyBoth(accountName))
-        .order('1 OR 2')
+        .conditionLogic('1 OR 2')
     )
 ```
 

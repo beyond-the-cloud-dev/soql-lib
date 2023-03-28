@@ -30,7 +30,7 @@ QS.of(Account.sObjectType)
 QB_ConditionsGroup group = QS.FiltersGroup
         .add(QB.Filter.field(Account.Name).equal('My Account'))
         .add(QB.Filter.field(Account.NumberOfEmployees).greaterThanOrEqual(10))
-        .order('1 OR 2');
+        .conditionLogic('1 OR 2');
 
 QS.of(Account.sObjectType)
     .whereAre(QS.FiltersGroup
@@ -47,7 +47,7 @@ When not specify all conditions will be with `AND`.
 **Signature**
 
 ```apex
-QB_ConditionsGroup order(String order)
+QB_ConditionsGroup conditionLogic(String order)
 ```
 
 **Example**
@@ -58,6 +58,6 @@ QS.of(Account.sObjectType)
         .add(QB.Filter.field(Account.Name).equal('My Account'))
         .add(QB.Filter.field(Account.NumberOfEmployees).greaterThanOrEqual(10))
         .add(QB.Filter.field(Account.Industry).equal('IT'))
-        .order('(1 AND 2) OR (1 AND 3)')
+        .conditionLogic('(1 AND 2) OR (1 AND 3)')
     )
 ```

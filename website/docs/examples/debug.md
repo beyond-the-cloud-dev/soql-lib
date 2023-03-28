@@ -30,7 +30,7 @@ public with sharing class MyController {
             .whereAre(SOQL.FiltersGroup
                 .add(SOQL.Filter.field(Account.Id).equal('0013V00000WNCw4QAH'))
                 .add(SOQL.Filter.field(Account.Name).likeAnyBoth('Test'))
-                .order('1 OR 2')
+                .conditionLogic('1 OR 2')
              )
             .preview()
             .asList();

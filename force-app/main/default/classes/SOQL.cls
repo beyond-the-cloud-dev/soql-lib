@@ -137,7 +137,7 @@ public inherited sharing class SOQL implements Queryable {
 
     public interface SoqlFiltersGroup { //SOQL.FiltersGroup
         FiltersGroup add(ConditionClause condition); //SOQL.Filter or SOQL.FiltersGroup
-        FiltersGroup order(String order);
+        FiltersGroup conditionLogic(String order);
     }
 
     public interface SoqlJoin { //SOQL.InnerJoin
@@ -727,7 +727,7 @@ public inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public FiltersGroup order(String order) {
+        public FiltersGroup conditionLogic(String order) {
             this.order = order;
             return this;
         }
