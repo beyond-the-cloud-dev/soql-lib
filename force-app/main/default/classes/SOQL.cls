@@ -24,16 +24,6 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    @TestVisible
-    private static void setMock(String queryIdentifier, List<sObject> records) {
-        mocks.put(queryIdentifier, records);
-    }
-
-    @TestVisible
-    private static void setCountMock(String queryIdentifier, Integer amount) {
-        countMocks.put(queryIdentifier, amount);
-    }
-
     public interface Queryable {
         SOQL of(sObjectType ofObject);
 
@@ -77,7 +67,7 @@ public inherited sharing class SOQL implements Queryable {
         SOQL withSharing();
         SOQL withoutSharing();
 
-        SOQL mocking(String queryIdentifier);
+        SOQL setMockingId(String queryIdentifier);
 
         SOQL preview();
 
@@ -155,9 +145,6 @@ public inherited sharing class SOQL implements Queryable {
     private QB builder;
     private Executor executor;
 
-    private static Map<String, List<sObject>> mocks = new Map<String, List<sObject>>();
-    private static Map<String, Integer> countMocks = new Map<String, Integer>();
-
     public static SOQL of(sObjectType ofObject) {
         return new SOQL(ofObject);
     }
@@ -165,7 +152,7 @@ public inherited sharing class SOQL implements Queryable {
     private SOQL(sObjectType ofObject) {
         binder = new Binder();
         builder = new QB(ofObject);
-        executor = new Executor();
+        executor = new Executor(ofObject);
     }
 
     // Fields
@@ -339,8 +326,8 @@ public inherited sharing class SOQL implements Queryable {
 
     // Mocking
 
-    public SOQL mocking(String queryIdentifier) {
-        executor.mocking(queryIdentifier);
+    public SOQL setMockingId(String queryIdentifier) {
+        executor.setMockingId(queryIdentifier);
         return this;
     }
 
@@ -1070,7 +1057,54 @@ public inherited sharing class SOQL implements Queryable {
         WITHOUT_SHARING
     }
 
-    public inherited sharing class Executor {
+    // Mocking
+
+    private static Map<String, List<sObject>> identifiedMocks = new Map<String, List<sObject>>();
+    private static Map<sObjectType, List<sObject>> sObjectTypeMocks = new Map<sObjectType, List<sObject>>();
+    private static Map<String, Integer> identifiedCountMocks = new Map<String, Integer>();
+    private static Map<sObjectType, Integer> sObjectTypeCountMocks = new Map<sObjectType, Integer>();
+
+    @TestVisible
+    private static void setMock(String queryIdentifier, sObject record) {
+        identifiedMocks.put(queryIdentifier, new List<sObject> { record });
+    }
+
+    @TestVisible
+    private static void setMock(String queryIdentifier, List<sObject> records) {
+        identifiedMocks.put(queryIdentifier, records);
+    }
+
+    @TestVisible
+    private static void setMock(sObjectType sObjectType, sObject record) {
+        sObjectTypeMocks.put(sObjectType, new List<sObject> { record });
+    }
+
+    @TestVisible
+    private static void setMock(sObjectType sObjectType, List<sObject> records) {
+        sObjectTypeMocks.put(sObjectType, records);
+    }
+
+    @TestVisible
+    private static void setCountMock(String queryIdentifier, Integer amount) {
+        identifiedCountMocks.put(queryIdentifier, amount);
+    }
+
+    @TestVisible
+    private static void setCountMock(sObjectType sObjectType, Integer amount) {
+        sObjectTypeCountMocks.put(sObjectType, amount);
+    }
+
+    private static Boolean isMocked(String queryIdentifier, sObjectType sObjectType){
+        return identifiedMocks.containsKey(queryIdentifier) || sObjectTypeMocks.containsKey(sObjectType);
+    }
+
+    private static Boolean isCountMocked(String queryIdentifier, sObjectType sObjectType){
+        return identifiedCountMocks.containsKey(queryIdentifier) || sObjectTypeCountMocks.containsKey(sObjectType);
+    }
+
+    private inherited sharing class Executor {
+        private sObjectType ofObject;
+
         private SharingLevel sharingMode = SharingLevel.INHERITED;
         private AccessLevel accessMode = AccessLevel.USER_MODE; // The object permissions, field-level security, and sharing rules of the current user are enforced.
         private AccessType accessType;
@@ -1080,6 +1114,10 @@ public inherited sharing class SOQL implements Queryable {
         private Boolean withPreview = false;
         private Boolean isCountQuery = false;
         private Map<String, Object> binding;
+
+        public Executor(sObjectType ofObject){
+            this.ofObject = ofObject;
+        }
 
         private final Map<SharingLevel, DatabaseQuery> MODE_TO_EXECUTOR = new Map<SharingLevel, DatabaseQuery>{
             SharingLevel.WITH_SHARING => new WithSharing(),
@@ -1103,7 +1141,7 @@ public inherited sharing class SOQL implements Queryable {
             accessMode = AccessLevel.SYSTEM_MODE;
         }
 
-        public void mocking(String identifier) {
+        public void setMockingId(String identifier) {
             queryIdentifier = identifier;
         }
 
@@ -1135,9 +1173,14 @@ public inherited sharing class SOQL implements Queryable {
                 previewBinding();
             }
 
-            if (countMocks.containsKey(queryIdentifier)) {
-                return countMocks.get(queryIdentifier);
+            if (identifiedCountMocks.containsKey(queryIdentifier)) {
+                return identifiedCountMocks.get(queryIdentifier);
             }
+
+            if(sObjectTypeCountMocks.containsKey(ofObject)){
+                return sObjectTypeCountMocks.get(ofObject);
+            }
+
 
             return MODE_TO_EXECUTOR.get(sharingMode).executeCount(query, binding, accessMode);
         }
@@ -1148,9 +1191,14 @@ public inherited sharing class SOQL implements Queryable {
                 previewBinding();
             }
 
-            if (mocks.containsKey(queryIdentifier)) {
-                return mocks.get(queryIdentifier);
+            if (identifiedMocks.containsKey(queryIdentifier)) {
+                return identifiedMocks.get(queryIdentifier);
             }
+
+            if(sObjectTypeMocks.containsKey(ofObject)){
+                return sObjectTypeMocks.get(ofObject);
+            }
+
 
             if (accessType == null) {
                 return MODE_TO_EXECUTOR.get(sharingMode).execute(query, binding, accessMode);
