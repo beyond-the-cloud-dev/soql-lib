@@ -7,7 +7,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula')
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'BTC Query Selector',
-  tagline: 'Apex QS provides functional constructs for SOQL.',
+  tagline: 'Apex SOQL provides functional constructs for SOQL.',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
@@ -21,8 +21,8 @@ const config = {
   organizationName: 'Beyond The Cloud', // Usually your GitHub org/user name.
   projectName: 'query-selector', // Usually your repo name.
 
-  onBrokenLinks: 'ignore',
-  onBrokenMarkdownLinks: 'warn',
+  onBrokenLinks: 'throw',
+  onBrokenMarkdownLinks: 'throw',
 
   // Even if you don't use internalization, you can use this field to set useful
   // metadata like html lang. For example, if your site is Chinese, you may want

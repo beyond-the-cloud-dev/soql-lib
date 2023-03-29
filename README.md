@@ -39,7 +39,7 @@ List<Account> accounts = SOQL.of(Account.sObjectType)
    - Huge classes are hard to manage.
    - A lot of merge conflicts.
    - Problems with methods naming.
-2. **Build SOQL inline in a place of need** - Business specific SOQLs should be build inline via `QS` builder in a place of need.
+2. **Build SOQL inline in a place of need** - Business specific SOQLs should be build inline via `SOQL` builder in a place of need.
    - Most of the queries on the project are case specific and are not generic. There is no need to keep them in Selector class.
 3. **Build SOQL dynamically via builder** - Developer should be able to adjust query with specific fields, conditions, and other SOQL clauses.
 4. **Do not spend time on selector methods naming** - It can be difficult to find a proper name for method that builds a query. Selector class contains methods like `selectByFieldAAndFieldBWithDescOrder`. It can be avoided by building SOQL inline in a place of need.

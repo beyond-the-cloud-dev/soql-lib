@@ -41,7 +41,7 @@ SOQL.InnerJoin.of(Contact.sObjectType).field(Contact.Account.Id)
 
 > The condition expression in a `WHERE` clause of a SOQL query includes one or more field expressions. You can specify multiple field expressions in a condition expression by using logical operators.
 
-For more details check [`QB.FiltersGroup`](qb-conditions-group.md) and [`QB.Filter`](qb-conition.md)
+For more details check [`QB.FiltersGroup`](soql-filters-group.md) and [`QB.Filter`](soql-filter.md)
 
 **Signature**
 

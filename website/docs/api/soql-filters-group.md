@@ -7,7 +7,7 @@ sidebar_position: 4
 ## add
 
 Allows to add multiple conditions.
-Add a [`QB.Filter`](qb-condition.md) or [`QB.FiltersGroup`](qb-condition-group.md).
+Add a [`QB.Filter`](soql-filter.md) or [`QB.FiltersGroup`](soql-filters-group.md).
 
 **Signature**
 

@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Filter
 
-## Predefinied
+## predefinied
 ### id
 
 - `WHERE Id = :accountId`
@@ -43,7 +43,7 @@ SOQL.of(Account.sObjectType)
     .whereAre(SOQL.Filter.recordType().equal('Partner'))
 ```
 
-## Fields
+## fields
 ### field
 
 Specify field that should be used in the condition.
@@ -78,7 +78,7 @@ SOQL.of(Contact.sObjectType)
     .whereAre(SOQL.Filter.relatedField('Account', Account.Name).equal('My Account'))
 ```
 
-## Comperators
+## comperators
 
 ### isNull
 
@@ -317,7 +317,7 @@ SOQL.of(Contact.sObjectType)
     .whereAre(SOQL.Filter.field(Account.Id).notIn(accountIds))
 ```
 
-## Join Query
+## join query
 
 ### isIn
 

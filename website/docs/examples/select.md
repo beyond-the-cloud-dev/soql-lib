@@ -26,6 +26,7 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static List<Account> getAccounts() {
+        //SELECT Id, Name, BillingCity, BillingState, BillingStreet, BillingCountry FROM Account
         return AccountSelector.Query
             .fields(new List<sObjectField>{
                 Account.BillingCity,
@@ -59,6 +60,7 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static List<Account> getAccountsWithCreatedBy() {
+        //SELECT Id, Name, CreatedBy.Id, CreatedBy.Name FROM Account
         return AccountSelector.Query
             .relatedFields('CreatedBy', new List<sObjectField>{
                 User.Id,
@@ -83,10 +85,12 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static Integer getAccountAmount() {
+        //SELECT COUNT() FROM Account
         return AccountSelector.Query.count().asInteger();
     }
 
     public static Integer getUniqueAccountNameAmount() {
+        //SELECT COUNT(Name) names FROM Account
         return AccountSelector.Query.countAs(Account.Name, 'names').asAggregated()[0].names;
     }
 }
