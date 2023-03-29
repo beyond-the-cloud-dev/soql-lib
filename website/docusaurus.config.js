@@ -73,10 +73,10 @@ const config = {
         ],
       },
       prism: {
-        additionalLanguages: ['apex', 'java'],
+        additionalLanguages: ['apex'],
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
-        defaultLanguage: 'java',
+        defaultLanguage: 'apex',
       },
     }),
 }
