@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Filter
 
-## predefinied
+## Predefinied
 ### id
 
 - `WHERE Id = :accountId`
@@ -13,37 +13,37 @@ sidebar_position: 3
 **Signature**
 
 ```apex
-QB_Condition id()
+Filter id()
 ```
 
 **Example**
 
 ```apex
-QS.of(Account.sObjectType)
-    .whereAre(QS.Filter.id().equal(accountId))
+SOQL.of(Account.sObjectType)
+    .whereAre(SOQL.Filter.id().equal(accountId))
 
-QS.of(Account.sObjectType)
-    .whereAre(QS.Filter.id().isIn(accountIds))
+SOQL.of(Account.sObjectType)
+    .whereAre(SOQL.Filter.id().isIn(accountIds))
 ```
 
-### recordTypeDeveloperName
+### recordType
 
 - `WHERE RecordType.DeveloperName = 'Partner'`
 
 **Signature**
 
 ```apex
-QB_Condition recordTypeDeveloperName()
+Filter recordType()
 ```
 
 **Example**
 
 ```apex
-QS.of(Account.sObjectType)
-    .whereAre(QS.Filter.recordTypeDeveloperName().equal('Partner'))
+SOQL.of(Account.sObjectType)
+    .whereAre(SOQL.Filter.recordType().equal('Partner'))
 ```
 
-## fields
+## Fields
 ### field
 
 Specify field that should be used in the condition.
@@ -51,14 +51,14 @@ Specify field that should be used in the condition.
 **Signature**
 
 ```apex
-QB_Condition field(SObjectField field)
+Filter field(SObjectField field)
 ```
 
 **Example**
 
 ```apex
-QS.of(Account.sObjectType)
-    .whereAre(QS.Filter.field(Account.Name).equal('My Account'))
+SOQL.of(Account.sObjectType)
+    .whereAre(SOQL.Filter.field(Account.Name).equal('My Account'))
 ```
 
 ### relatedField
@@ -68,17 +68,17 @@ Specify parent field that should be used in the condition.
 **Signature**
 
 ```apex
-QB_Condition relatedField(String relationshipPath, SObjectField field)
+Filter relatedField(String relationshipPath, SObjectField field)
 ```
 
 **Example**
 
 ```apex
-QS.of(Contact.sObjectType)
-    .whereAre(QS.Filter.relatedField('Account', Account.Name).equal('My Account'))
+SOQL.of(Contact.sObjectType)
+    .whereAre(SOQL.Filter.relatedField('Account', Account.Name).equal('My Account'))
 ```
 
-## comperators
+## Comperators
 
 ### isNull
 
@@ -87,14 +87,14 @@ QS.of(Contact.sObjectType)
 **Signature**
 
 ```apex
-QB_Condition isNull()
+Filter isNull()
 ```
 
 **Example**
 
 ```apex
-QS.of(Contact.sObjectType)
-    .whereAre(QS.Filter.field(Account.Industry).isNull())
+SOQL.of(Contact.sObjectType)
+    .whereAre(SOQL.Filter.field(Account.Industry).isNull())
 ```
 
 ### isNotNull
@@ -104,14 +104,14 @@ QS.of(Contact.sObjectType)
 **Signature**
 
 ```apex
-QB_Condition isNotNull()
+Filter isNotNull()
 ```
 
 **Example**
 
 ```apex
-QS.of(Contact.sObjectType)
-    .whereAre(QS.Filter.field(Account.Industry).isNotNull())
+SOQL.of(Contact.sObjectType)
+    .whereAre(SOQL.Filter.field(Account.Industry).isNotNull())
 ```
 
 ### equal
@@ -123,20 +123,20 @@ QS.of(Contact.sObjectType)
 **Signature**
 
 ```apex
-QB_Condition equal(Object value)
+Filter equal(Object value)
 ```
 
 **Example**
 
 ```apex
-QS.of(Contact.sObjectType)
-    .whereAre(QS.Filter.field(Account.Name).equal('My Account'))
+SOQL.of(Contact.sObjectType)
+    .whereAre(SOQL.Filter.field(Account.Name).equal('My Account'))
 
-QS.of(Contact.sObjectType)
-    .whereAre(QS.Filter.field(Account.NumberOfEmployees).equal(10))
+SOQL.of(Contact.sObjectType)
+    .whereAre(SOQL.Filter.field(Account.NumberOfEmployees).equal(10))
 
-QS.of(Contact.sObjectType)
-    .whereAre(QS.Filter.field(Account.IsDeleted).equal(true))
+SOQL.of(Contact.sObjectType)
+    .whereAre(SOQL.Filter.field(Account.IsDeleted).equal(true))
 ```
 
 ### notEqual
@@ -148,20 +148,20 @@ QS.of(Contact.sObjectType)
 **Signature**
 
 ```apex
-QB_Condition notEqual(Object value)
+Filter notEqual(Object value)
 ```
 
 **Example**
 
 ```apex
-QS.of(Contact.sObjectType)
-    .whereAre(QS.Filter.field(Account.Name).notEqual('My Account'))
+SOQL.of(Contact.sObjectType)
+    .whereAre(SOQL.Filter.field(Account.Name).notEqual('My Account'))
 
-QS.of(Contact.sObjectType)
-    .whereAre(QS.Filter.field(Account.NumberOfEmployees).notEqual(10))
+SOQL.of(Contact.sObjectType)
+    .whereAre(SOQL.Filter.field(Account.NumberOfEmployees).notEqual(10))
 
-QS.of(Contact.sObjectType)
-    .whereAre(QS.Filter.field(Account.IsDeleted).notEqual(true))
+SOQL.of(Contact.sObjectType)
+    .whereAre(SOQL.Filter.field(Account.IsDeleted).notEqual(true))
 ```
 
 ### lessThan
@@ -171,14 +171,14 @@ QS.of(Contact.sObjectType)
 **Signature**
 
 ```apex
-QB_Condition lessThan(Object value)
+Filter lessThan(Object value)
 ```
 
 **Example**
 
 ```apex
-QS.of(Contact.sObjectType)
-    .whereAre(QS.Filter.field(Account.NumberOfEmployees).lessThan(10))
+SOQL.of(Contact.sObjectType)
+    .whereAre(SOQL.Filter.field(Account.NumberOfEmployees).lessThan(10))
 ```
 
 ### greaterThan
@@ -188,14 +188,14 @@ QS.of(Contact.sObjectType)
 **Signature**
 
 ```apex
-QB_Condition greaterThan(Object value)
+Filter greaterThan(Object value)
 ```
 
 **Example**
 
 ```apex
-QS.of(Contact.sObjectType)
-    .whereAre(QS.Filter.field(Account.NumberOfEmployees).greaterThan(10))
+SOQL.of(Contact.sObjectType)
+    .whereAre(SOQL.Filter.field(Account.NumberOfEmployees).greaterThan(10))
 ```
 
 ### lessThanOrEqual
@@ -205,14 +205,14 @@ QS.of(Contact.sObjectType)
 **Signature**
 
 ```apex
-QB_Condition lessThanOrEqual(Object value)
+Filter lessThanOrEqual(Object value)
 ```
 
 **Example**
 
 ```apex
-QS.of(Contact.sObjectType)
-    .whereAre(QS.Filter.field(Account.NumberOfEmployees).lessThanOrEqual(10))
+SOQL.of(Contact.sObjectType)
+    .whereAre(SOQL.Filter.field(Account.NumberOfEmployees).lessThanOrEqual(10))
 ```
 
 ### greaterThanOrEqual
@@ -222,31 +222,31 @@ QS.of(Contact.sObjectType)
 **Signature**
 
 ```apex
-QB_Condition greaterThanOrEqual(Object value)
+Filter greaterThanOrEqual(Object value)
 ```
 
 **Example**
 
 ```apex
-QS.of(Contact.sObjectType)
-    .whereAre(QS.Filter.field(Account.NumberOfEmployees).greaterThanOrEqual(10))
+SOQL.of(Contact.sObjectType)
+    .whereAre(SOQL.Filter.field(Account.NumberOfEmployees).greaterThanOrEqual(10))
 ```
 
-### likeAnyBoth
+### likeAny
 
 - `WHERE Name LIKE '%My%'`
 
 **Signature**
 
 ```apex
-QB_Condition likeAnyBoth(String value)
+Filter likeAny(String value)
 ```
 
 **Example**
 
 ```apex
-QS.of(Contact.sObjectType)
-    .whereAre(QS.Filter.field(Account.Name).likeAnyBoth('My'))
+SOQL.of(Contact.sObjectType)
+    .whereAre(SOQL.Filter.field(Account.Name).likeAny('My'))
 ```
 
 ### likeAnyLeft
@@ -256,14 +256,14 @@ QS.of(Contact.sObjectType)
 **Signature**
 
 ```apex
-QB_Condition likeAnyLeft(String value)
+Filter likeAnyLeft(String value)
 ```
 
 **Example**
 
 ```apex
-QS.of(Contact.sObjectType)
-    .whereAre(QS.Filter.field(Account.Name).likeAnyLeft('My'))
+SOQL.of(Contact.sObjectType)
+    .whereAre(SOQL.Filter.field(Account.Name).likeAnyLeft('My'))
 ```
 
 ### likeAnyRight
@@ -273,14 +273,14 @@ QS.of(Contact.sObjectType)
 **Signature**
 
 ```apex
-QB_Condition likeAnyRight(String value)
+Filter likeAnyRight(String value)
 ```
 
 **Example**
 
 ```apex
-QS.of(Contact.sObjectType)
-    .whereAre(QS.Filter.field(Account.Name).likeAnyRight('My'))
+SOQL.of(Contact.sObjectType)
+    .whereAre(SOQL.Filter.field(Account.Name).likeAnyRight('My'))
 ```
 
 ### isIn
@@ -290,14 +290,14 @@ QS.of(Contact.sObjectType)
 **Signature**
 
 ```apex
-QB_Condition isIn(List<Object> inList)
+Filter isIn(List<Object> inList)
 ```
 
 **Example**
 
 ```apex
-QS.of(Contact.sObjectType)
-    .whereAre(QS.Filter.field(Account.Id).isIn(accountIds))
+SOQL.of(Contact.sObjectType)
+    .whereAre(SOQL.Filter.field(Account.Id).isIn(accountIds))
 ```
 
 ### isNotIn
@@ -307,17 +307,17 @@ QS.of(Contact.sObjectType)
 **Signature**
 
 ```apex
-QB_Condition isNotIn(List<Object> inList)
+Filter isNotIn(List<Object> inList)
 ```
 
 **Example**
 
 ```apex
-QS.of(Contact.sObjectType)
-    .whereAre(QS.Filter.field(Account.Id).notIn(accountIds))
+SOQL.of(Contact.sObjectType)
+    .whereAre(SOQL.Filter.field(Account.Id).notIn(accountIds))
 ```
 
-## join query
+## Join Query
 
 ### isIn
 
@@ -326,17 +326,17 @@ QS.of(Contact.sObjectType)
 **Signature**
 
 ```apex
-QB_Condition isIn(QB_Join joinQuery)
+Filter isIn(JoinQuery joinQuery)
 ```
 
 **Example**
 
 ```apex
-QS.of(Contact.sObjectType)
-    .whereAre(QS.Filter.field(Account.Id).isIn(
-        QS.Join.of(Contact.sObjectType)
+SOQL.of(Contact.sObjectType)
+    .whereAre(SOQL.Filter.field(Account.Id).isIn(
+        SOQL.InnerJoin.of(Contact.sObjectType)
             .field(Contact.AccountId)
-            .whereAre(QS.Filter.field(Contact.Name).equal('My Contact'))
+            .whereAre(SOQL.Filter.field(Contact.Name).equal('My Contact'))
     ))
 ```
 
@@ -347,16 +347,16 @@ QS.of(Contact.sObjectType)
 **Signature**
 
 ```apex
-QB_Condition isNotIn(QB_Join joinQuery)
+Filter isNotIn(JoinQuery joinQuery)
 ```
 
 **Example**
 
 ```apex
-QS.of(Contact.sObjectType)
-    .whereAre(QS.Filter.field(Account.Id).isNotIn(
-        QS.Join.of(Contact.sObjectType)
+SOQL.of(Contact.sObjectType)
+    .whereAre(SOQL.Filter.field(Account.Id).isNotIn(
+        SOQL.InnerJoin.of(Contact.sObjectType)
             .field(Contact.AccountId)
-            .whereAre(QS.Filter.field(Contact.Name).equal('My Contact'))
+            .whereAre(SOQL.Filter.field(Contact.Name).equal('My Contact'))
     ))
 ```

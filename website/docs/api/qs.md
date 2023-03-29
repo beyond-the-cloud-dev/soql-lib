@@ -17,8 +17,8 @@ static QS of(sObjectType ofObject)
 **Example**
 
 ```apex
-QS.of(Account.sObjectType)
-QS.of(Contact.sObjectType)
+SOQL.of(Account.sObjectType)
+SOQL.of(Contact.sObjectType)
 ```
 
 ## fields
@@ -36,13 +36,13 @@ QS fields(List<sObjectField> fields)
 **Example**
 
 ```apex
-QS.of(Account.sObjectType).fields(List<sObjectField>{
+SOQL.of(Account.sObjectType).fields(List<sObjectField>{
     Account.Id,
     Account.Name,
     Account.Industry
 })
 
-QS.of(Contact.sObjectType).fields(List<sObjectField>{
+SOQL.of(Contact.sObjectType).fields(List<sObjectField>{
     Contact.Id,
     Contact.FirstName,
     Contact.LastName
@@ -64,12 +64,12 @@ QS relatedFields(String relationshipPath, List<sObjectField> fields)
 **Example**
 
 ```apex
-QS.of(Account.sObjectType).relatedFields('CreatedBy', List<sObjectField>{
+SOQL.of(Account.sObjectType).relatedFields('CreatedBy', List<sObjectField>{
     User.Id,
     User.Name
 })
 
-QS.of(Contact.sObjectType).relatedFields('Account', List<sObjectField>{
+SOQL.of(Contact.sObjectType).relatedFields('Account', List<sObjectField>{
     Account.Id,
     Account.Name
 })
@@ -90,7 +90,7 @@ QS count()
 **Example**
 
 ```apex
-QS.of(Account.sObjectType).count().asInteger()
+SOQL.of(Account.sObjectType).count().asInteger()
 ```
 
 ## countAs
@@ -128,8 +128,8 @@ QS subQuery(QB_Sub subQuery)
 **Example**
 
 ```apex
-QS.of(Account.sObjectType)
-    .subQuery(QS.Sub.of('Contacts')
+SOQL.of(Account.sObjectType)
+    .subQuery(SOQL.Sub.of('Contacts')
         .fields(new List<sObjectField>{
             Contact.Id,
             Contact.Name
@@ -154,7 +154,7 @@ QS delegatedScope()
 **Example**
 
 ```apex
-QS.of(Task.sObjectType).delegatedScope()
+SOQL.of(Task.sObjectType).delegatedScope()
 ```
 
 ### mineScope
@@ -170,7 +170,7 @@ QS mineScope()
 **Example**
 
 ```apex
-QS.of(Account.sObjectType).mineScope()
+SOQL.of(Account.sObjectType).mineScope()
 ```
 
 ### mineAndMyGroupsScope
@@ -186,7 +186,7 @@ QS mineAndMyGroupsScope()
 **Example**
 
 ```apex
-QS.of(ProcessInstanceWorkItem.sObjectType).mineAndMyGroupsScope()
+SOQL.of(ProcessInstanceWorkItem.sObjectType).mineAndMyGroupsScope()
 ```
 
 ### myTerritoryScope
@@ -232,7 +232,7 @@ QS teamScope()
 **Example**
 
 ```apex
-QS.of(Account.sObjectType).teamScope()
+SOQL.of(Account.sObjectType).teamScope()
 ```
 
 ## whereAre
@@ -246,16 +246,16 @@ For more details check [`QB.FiltersGroup`](qb-conditions-group.md) and [`QB.Filt
 **Signature**
 
 ```apex
-QS whereAre(QB_ConditionClause conditions)
+QS whereAre(FilterClause conditions)
 ```
 
 **Example**
 
 ```apex
-QS.of(Account.sObjectType)
-    .whereAre(QS.FiltersGroup
-        .add(QS.Filter.field(Account.Id).equal(accountId))
-        .add(QS.Filter.field(Account.Name).likeAnyBoth(accountName))
+SOQL.of(Account.sObjectType)
+    .whereAre(SOQL.FiltersGroup
+        .add(SOQL.Filter.field(Account.Id).equal(accountId))
+        .add(SOQL.Filter.field(Account.Name).likeAny(accountName))
         .conditionLogic('1 OR 2')
     )
 ```
@@ -276,7 +276,7 @@ QS groupBy(sObjectField field)
 **Example**
 
 ```apex
-QS.of(Lead.sObjectType)
+SOQL.of(Lead.sObjectType)
     .fields(new List<sObjectField>{
         Lead.LeadSource
     })
@@ -327,7 +327,7 @@ QS orderBy(sObjectField field)
 **Example**
 
 ```apex
-QS.of(Account.sObjectType).orderBy(Account.Name)
+SOQL.of(Account.sObjectType).orderBy(Account.Name)
 ```
 
 ### orderByRelated
@@ -343,7 +343,7 @@ QS orderByRelated(String path, sObjectField field)
 **Example**
 
 ```apex
-QS.of(Contact.sObjectType).orderByRelated('Account', Account.Name)
+SOQL.of(Contact.sObjectType).orderByRelated('Account', Account.Name)
 ```
 
 ### sortDesc
@@ -359,7 +359,7 @@ QS sortDesc()
 **Example**
 
 ```apex
-QS.of(Account.sObjectType).orderBy(Account.Name).sortDesc()
+SOQL.of(Account.sObjectType).orderBy(Account.Name).sortDesc()
 ```
 
 ### nullsLast
@@ -375,7 +375,7 @@ QS nullsLast()
 **Example**
 
 ```apex
-QS.of(Account.sObjectType).orderBy(Account.Industry).nullsLast()
+SOQL.of(Account.sObjectType).orderBy(Account.Industry).nullsLast()
 ```
 
 ## setLimit
@@ -393,7 +393,7 @@ QS setLimit(Integer amount)
 **Example**
 
 ```apex
-QS.of(Account.sObjectType).setLimit(100)
+SOQL.of(Account.sObjectType).setLimit(100)
 ```
 
 ## setOffset
@@ -411,7 +411,7 @@ QS setOffset(Integer startingRow)
 **Example**
 
 ```apex
-QS.of(Account.sObjectType).setOffset(10)
+SOQL.of(Account.sObjectType).setOffset(10)
 ```
 
 ## for
@@ -431,7 +431,7 @@ QS forReference()
 **Example**
 
 ```apex
-QS.of(Contact.sObjectType).forReference()
+SOQL.of(Contact.sObjectType).forReference()
 ```
 
 ### forView
@@ -447,7 +447,7 @@ QS forView()
 **Example**
 
 ```apex
-QS.of(Contact.sObjectType).forView()
+SOQL.of(Contact.sObjectType).forView()
 ```
 
 ### forUpdate
@@ -463,7 +463,7 @@ QS forUpdate()
 **Example**
 
 ```apex
-QS.of(Contact.sObjectType).forUpdate()
+SOQL.of(Contact.sObjectType).forUpdate()
 ```
 
 ### allRows
@@ -498,8 +498,8 @@ QS systemMode()
 **Example**
 
 ```apex
-QS.of(Account.sObjectType).systemMode()
-QS.of(Contact.sObjectType).userMode()
+SOQL.of(Account.sObjectType).systemMode()
+SOQL.of(Contact.sObjectType).userMode()
 ```
 
 ## sharing
@@ -519,8 +519,8 @@ QS withSharing()
 **Example**
 
 ```apex
-QS.of(Account.sObjectType).withSharing()
-QS.of(Contact.sObjectType).withSharing()
+SOQL.of(Account.sObjectType).withSharing()
+SOQL.of(Contact.sObjectType).withSharing()
 ```
 
 ### withoutSharing
@@ -536,8 +536,8 @@ QS withoutSharing()
 **Example**
 
 ```apex
-QS.of(Account.sObjectType).withoutSharing()
-QS.of(Contact.sObjectType).withoutSharing()
+SOQL.of(Account.sObjectType).withoutSharing()
+SOQL.of(Contact.sObjectType).withoutSharing()
 ```
 
 ## mocking
@@ -564,8 +564,8 @@ QS preview()
 **Example**
 
 ```apex
-QS.of(Account.sObjectType).preview()
-QS.of(Contact.sObjectType).preview()
+SOQL.of(Account.sObjectType).preview()
+SOQL.of(Contact.sObjectType).preview()
 ```
 
 Query preview will be available in debug logs:

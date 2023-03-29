@@ -27,7 +27,7 @@ All variables used in `WHERE` condition are binded by default.
 SOQL.of(Account.sObjectType).fields(new List<sObjectField> {
     Account.Id, Account.Name
 })
-.whereAre(SOQL.Filter.field(Account.Name).likeAnyBoth('Test'))
+.whereAre(SOQL.Filter.field(Account.Name).likeAny('Test'))
 .asList();
 ```
 
@@ -177,7 +177,7 @@ public inherited sharing class AccountSelector {
         return Selector.fields(new List<sObjectField>{
             Account.BillingCity,
             Account.BillingCountry
-        }).whereAre(SOQL.Filter.recordTypeDeveloperName().equal(rtDevName);
+        }).whereAre(SOQL.Filter.recordType().equal(rtDevName);
     }
 
     public static SOQL getById(Id accountId) {

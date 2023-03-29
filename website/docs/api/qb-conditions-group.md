@@ -12,14 +12,14 @@ Add a [`QB.Filter`](qb-condition.md) or [`QB.FiltersGroup`](qb-condition-group.m
 **Signature**
 
 ```apex
-QB_ConditionsGroup add(QB_ConditionClause condition)
+FiltersGroup add(FilterClause condition)
 ```
 
 **Example**
 
 ```apex
-QS.of(Account.sObjectType)
-    .whereAre(QS.FiltersGroup
+SOQL.of(Account.sObjectType)
+    .whereAre(SOQL.FiltersGroup
         .add(QB.Filter.field(Account.Name).equal('My Account'))
         .add(QB.Filter.field(Account.NumberOfEmployees).greaterThanOrEqual(10))
     )
@@ -27,19 +27,19 @@ QS.of(Account.sObjectType)
 
 ```apex
 // build conditions on fly
-QB_ConditionsGroup group = QS.FiltersGroup
+FiltersGroup group = SOQL.FiltersGroup
         .add(QB.Filter.field(Account.Name).equal('My Account'))
         .add(QB.Filter.field(Account.NumberOfEmployees).greaterThanOrEqual(10))
         .conditionLogic('1 OR 2');
 
-QS.of(Account.sObjectType)
-    .whereAre(QS.FiltersGroup
+SOQL.of(Account.sObjectType)
+    .whereAre(SOQL.FiltersGroup
         .add(QB.Filter.field(Account.Industry).equal('IT'))
         .add(group)
     )
 ```
 
-## order
+## conditionLogic
 
 Set conditions order for SOQL query.
 When not specify all conditions will be with `AND`.
@@ -47,14 +47,14 @@ When not specify all conditions will be with `AND`.
 **Signature**
 
 ```apex
-QB_ConditionsGroup conditionLogic(String order)
+FiltersGroup conditionLogic(String order)
 ```
 
 **Example**
 
 ```apex
-QS.of(Account.sObjectType)
-    .whereAre(QS.FiltersGroup
+SOQL.of(Account.sObjectType)
+    .whereAre(SOQL.FiltersGroup
         .add(QB.Filter.field(Account.Name).equal('My Account'))
         .add(QB.Filter.field(Account.NumberOfEmployees).greaterThanOrEqual(10))
         .add(QB.Filter.field(Account.Industry).equal('IT'))

@@ -24,7 +24,7 @@ public with sharing class MyController {
         return AccountSelector.Query
                 .whereAre(SOQL.FiltersGroup
                     .add(SOQL.Filter.field(Account.Id).equal(accountId))
-                    .add(SOQL.Filter.field(Account.Name).likeAnyBoth(accountName))
+                    .add(SOQL.Filter.field(Account.Name).likeAny(accountName))
                     .conditionLogic('1 OR 2')
                 )
                 .asList();

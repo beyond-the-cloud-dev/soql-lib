@@ -53,7 +53,7 @@ public inherited sharing class SOQL implements Queryable {
         SOQL myTeamTerritoryScope();
         SOQL teamScope();
 
-        SOQL whereAre(ConditionClause conditions); //SOQL.FiltersGroup or SOQL.Filter
+        SOQL whereAre(FilterClause conditions); //SOQL.FiltersGroup or SOQL.Filter
 
         SOQL groupBy(sObjectField field);
         SOQL groupByRollup(sObjectField field);
@@ -96,7 +96,7 @@ public inherited sharing class SOQL implements Queryable {
         SubQuery fields(List<sObjectField> fields);
         SubQuery relatedFields(String relationshipPath, List<sObjectField> fields);
 
-        SubQuery whereAre(ConditionClause conditions); //SOQL.FiltersGroup or SOQL.Filter
+        SubQuery whereAre(FilterClause conditions); //SOQL.FiltersGroup or SOQL.Filter
 
         SubQuery orderBy(sObjectField field);
         SubQuery orderByRelated(String path, sObjectField field);
@@ -136,7 +136,7 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public interface SoqlFiltersGroup { //SOQL.FiltersGroup
-        FiltersGroup add(ConditionClause condition); //SOQL.Filter or SOQL.FiltersGroup
+        FiltersGroup add(FilterClause condition); //SOQL.Filter or SOQL.FiltersGroup
         FiltersGroup conditionLogic(String order);
     }
 
@@ -145,7 +145,7 @@ public inherited sharing class SOQL implements Queryable {
 
         JoinQuery field(sObjectField field);
 
-        JoinQuery whereAre(ConditionClause conditions); //SOQL.Filter or SOQL.FiltersGroup
+        JoinQuery whereAre(FilterClause conditions); //SOQL.Filter or SOQL.FiltersGroup
     }
 
     // Implementation details
@@ -243,7 +243,7 @@ public inherited sharing class SOQL implements Queryable {
 
     // Where
 
-    public SOQL whereAre(ConditionClause conditions) {
+    public SOQL whereAre(FilterClause conditions) {
         builder.conditions.add(conditions);
         return this;
     }
@@ -582,7 +582,7 @@ public inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public SubQuery whereAre(ConditionClause conditions) { // WHERE
+        public SubQuery whereAre(FilterClause conditions) { // WHERE
             builder.conditions.add(conditions);
             return this;
         }
@@ -698,12 +698,12 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public interface ConditionClause {
+    public interface FilterClause {
         String build();
     }
 
-    public class FiltersGroup implements ConditionClause, QueryClause, SoqlFiltersGroup {
-        private List<ConditionClause> queryConditions = new List<ConditionClause>();
+    public class FiltersGroup implements FilterClause, QueryClause, SoqlFiltersGroup {
+        private List<FilterClause> queryConditions = new List<FilterClause>();
         private String order = '';
         private String connector = 'AND';
         private Boolean isParent = false;
@@ -712,7 +712,7 @@ public inherited sharing class SOQL implements Queryable {
             this.isParent = isParent;
         }
 
-        public FiltersGroup add(ConditionClause condition) {
+        public FiltersGroup add(FilterClause condition) {
             queryConditions.add(condition);
             return this;
         }
@@ -788,7 +788,7 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public class Filter implements ConditionClause, SoqlCondition {
+    public class Filter implements FilterClause, SoqlCondition {
         private String field;
         private String comperator;
         private Object value;
@@ -919,7 +919,7 @@ public inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public JoinQuery whereAre(ConditionClause condition) { // WHERE
+        public JoinQuery whereAre(FilterClause condition) { // WHERE
             builder.conditions.add(condition);
             return this;
         }

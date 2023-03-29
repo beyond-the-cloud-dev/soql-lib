@@ -6,19 +6,19 @@ sidebar_position: 5
 
 ## of
 
-Conctructs an `QB_Join`.
+Conctructs an `JoinQuery`.
 
 **Signature**
 
 ```apex
-static QB_Join of(sObjectType ofObject)
+static JoinQuery of(sObjectType ofObject)
 ```
 
 **Example**
 
 ```apex
-QS.Join.of(Account.sObjectType)
-QS.Join.of(Contact.sObjectType)
+SOQL.InnerJoin.of(Account.sObjectType)
+SOQL.InnerJoin.of(Contact.sObjectType)
 ```
 
 ## field
@@ -28,16 +28,16 @@ QS.Join.of(Contact.sObjectType)
 **Signature**
 
 ```apex
-static QB_Join field(sObjectField field)
+static JoinQuery field(sObjectField field)
 ```
 
 **Example**
 
 ```apex
-QS.Join.of(Contact.sObjectType).field(Contact.Account.Id)
+SOQL.InnerJoin.of(Contact.sObjectType).field(Contact.Account.Id)
 ```
 
-## where
+## whereAre
 
 > The condition expression in a `WHERE` clause of a SOQL query includes one or more field expressions. You can specify multiple field expressions in a condition expression by using logical operators.
 
@@ -46,12 +46,12 @@ For more details check [`QB.FiltersGroup`](qb-conditions-group.md) and [`QB.Filt
 **Signature**
 
 ```apex
-static QB_Join whereAre(QB_ConditionsGroup conditions)
+static JoinQuery whereAre(FiltersGroup conditions)
 ```
 
 **Example**
 
 ```apex
-QS.Join.of(Contact.sObjectType)
-    .whereAre(QS.Filter.field(Contact.Name).equal('My Contact'))
+SOQL.InnerJoin.of(Contact.sObjectType)
+    .whereAre(SOQL.Filter.field(Contact.Name).equal('My Contact'))
 ```
