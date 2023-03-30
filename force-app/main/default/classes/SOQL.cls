@@ -1059,10 +1059,10 @@ public inherited sharing class SOQL implements Queryable {
 
     // Mocking
 
-    private static Map<String, List<sObject>> identifiedMocks = new Map<String, List<sObject>>();
-    private static Map<sObjectType, List<sObject>> sObjectTypeMocks = new Map<sObjectType, List<sObject>>();
-    private static Map<String, Integer> identifiedCountMocks = new Map<String, Integer>();
-    private static Map<sObjectType, Integer> sObjectTypeCountMocks = new Map<sObjectType, Integer>();
+    private static final Map<String, List<sObject>> identifiedMocks = new Map<String, List<sObject>>();
+    private static final Map<sObjectType, List<sObject>> sObjectTypeMocks = new Map<sObjectType, List<sObject>>();
+    private static final Map<String, Integer> identifiedCountMocks = new Map<String, Integer>();
+    private static final Map<sObjectType, Integer> sObjectTypeCountMocks = new Map<sObjectType, Integer>();
 
     @TestVisible
     private static void setMock(String queryIdentifier, sObject record) {
@@ -1094,12 +1094,23 @@ public inherited sharing class SOQL implements Queryable {
         sObjectTypeCountMocks.put(sObjectType, amount);
     }
 
-    private static Boolean isMocked(String queryIdentifier, sObjectType sObjectType){
-        return identifiedMocks.containsKey(queryIdentifier) || sObjectTypeMocks.containsKey(sObjectType);
+    @TestVisible
+    private static void setMock(String queryIdentifier, SObjectType sObjectType, String staticResource){
+        try {
+            identifiedMocks.put(queryIdentifier, Test.loadData(sObjectType, staticResource));
+        } catch (NullPointerException missingStaticResource){
+            identifiedMocks.put(queryIdentifier, new List<SObject>());
+            System.debug(LoggingLevel.ERROR, missingStaticResource.getMessage());
+        }
     }
-
-    private static Boolean isCountMocked(String queryIdentifier, sObjectType sObjectType){
-        return identifiedCountMocks.containsKey(queryIdentifier) || sObjectTypeCountMocks.containsKey(sObjectType);
+    @TestVisible
+    private static void setMock(SObjectType sObjectType, String staticResource){
+        try {
+            sObjectTypeMocks.put(sObjectType, Test.loadData(sObjectType, staticResource));
+        } catch (NullPointerException missingStaticResource) {
+            sObjectTypeMocks.put(sObjectType, new List<SObject>());
+            System.debug(LoggingLevel.ERROR, missingStaticResource.getMessage());
+        }
     }
 
     private inherited sharing class Executor {
