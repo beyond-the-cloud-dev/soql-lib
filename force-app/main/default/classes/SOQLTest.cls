@@ -830,7 +830,6 @@ public class SOQLTest {
         Assert.areEqual(3, result);
     }
 
-
     @isTest
     static void asObject() {
         Account acc = new Account(Name = 'Test 1');

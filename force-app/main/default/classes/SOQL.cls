@@ -1066,7 +1066,7 @@ public inherited sharing class SOQL implements Queryable {
 
     @TestVisible
     private static void setMock(String queryIdentifier, sObject record) {
-        identifiedMocks.put(queryIdentifier, new List<sObject> { record });
+        identifiedMocks.put(queryIdentifier, new List<sObject>{ record });
     }
 
     @TestVisible
@@ -1076,7 +1076,7 @@ public inherited sharing class SOQL implements Queryable {
 
     @TestVisible
     private static void setMock(sObjectType sObjectType, sObject record) {
-        sObjectTypeMocks.put(sObjectType, new List<sObject> { record });
+        sObjectTypeMocks.put(sObjectType, new List<sObject>{ record });
     }
 
     @TestVisible
@@ -1095,16 +1095,16 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     @TestVisible
-    private static void setMock(String queryIdentifier, SObjectType sObjectType, String staticResource){
+    private static void setMock(String queryIdentifier, SObjectType sObjectType, String staticResource) {
         try {
             identifiedMocks.put(queryIdentifier, Test.loadData(sObjectType, staticResource));
-        } catch (NullPointerException missingStaticResource){
+        } catch (NullPointerException missingStaticResource) {
             identifiedMocks.put(queryIdentifier, new List<SObject>());
             System.debug(LoggingLevel.ERROR, missingStaticResource.getMessage());
         }
     }
     @TestVisible
-    private static void setMock(SObjectType sObjectType, String staticResource){
+    private static void setMock(SObjectType sObjectType, String staticResource) {
         try {
             sObjectTypeMocks.put(sObjectType, Test.loadData(sObjectType, staticResource));
         } catch (NullPointerException missingStaticResource) {
@@ -1126,7 +1126,7 @@ public inherited sharing class SOQL implements Queryable {
         private Boolean isCountQuery = false;
         private Map<String, Object> binding;
 
-        public Executor(sObjectType ofObject){
+        public Executor(sObjectType ofObject) {
             this.ofObject = ofObject;
         }
 
@@ -1188,10 +1188,9 @@ public inherited sharing class SOQL implements Queryable {
                 return identifiedCountMocks.get(queryIdentifier);
             }
 
-            if(sObjectTypeCountMocks.containsKey(ofObject)){
+            if (sObjectTypeCountMocks.containsKey(ofObject)) {
                 return sObjectTypeCountMocks.get(ofObject);
             }
-
 
             return MODE_TO_EXECUTOR.get(sharingMode).executeCount(query, binding, accessMode);
         }
@@ -1206,10 +1205,9 @@ public inherited sharing class SOQL implements Queryable {
                 return identifiedMocks.get(queryIdentifier);
             }
 
-            if(sObjectTypeMocks.containsKey(ofObject)){
+            if (sObjectTypeMocks.containsKey(ofObject)) {
                 return sObjectTypeMocks.get(ofObject);
             }
-
 
             if (accessType == null) {
                 return MODE_TO_EXECUTOR.get(sharingMode).execute(query, binding, accessMode);
