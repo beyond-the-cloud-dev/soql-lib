@@ -28,13 +28,13 @@ SOQL.InnerJoin.of(Contact.sObjectType)
 **Signature**
 
 ```apex
-static JoinQuery field(sObjectField field)
+static JoinQuery with(sObjectField field)
 ```
 
 **Example**
 
 ```apex
-SOQL.InnerJoin.of(Contact.sObjectType).field(Contact.Account.Id)
+SOQL.InnerJoin.of(Contact.sObjectType).with(Contact.Account.Id)
 ```
 
 ## whereAre
@@ -53,5 +53,5 @@ static JoinQuery whereAre(FiltersGroup conditions)
 
 ```apex
 SOQL.InnerJoin.of(Contact.sObjectType)
-    .whereAre(SOQL.Filter.field(Contact.Name).equal('My Contact'))
+    .whereAre(SOQL.Filter.with(Contact.Name).equal('My Contact'))
 ```

@@ -20,7 +20,7 @@ List<Account> accounts = SOQL.of(Account.sObjectType).asList();
 ```apex
 //SELECT Id, Name, Industry, Country FROM Account
 List<Account> accounts = SOQL.of(Account.sObjectType)
-   .fields(new List<sObjectField>{
+   .with(new List<sObjectField>{
       Account.Id, Account.Name, Account.Industry, Account.Country
    }).asList();
 ```
@@ -52,7 +52,7 @@ SOQL Builder allows to build query dynamically and execute it.
 ```apex
 // SELECT Id, Name, Industry FROM Account
 List<Account> accounts = SOQL.of(Account.sObjectType)
-   .fields(new List<sObjectField>{
+   .with(new List<sObjectField>{
       Account.Id, Account.Name, Account.Industry
 }).asList();
 ```
@@ -95,7 +95,7 @@ Most of the SOQLs on the project are one-time queries executed for specific busi
 public with sharing class AccountSelector {
     public static SOQL Query {
         get {
-            return SOQL.of(Account.sObjectType).fields(new List<sObjectField>{
+            return SOQL.of(Account.sObjectType).with(new List<sObjectField>{
                 Account.Name,
                 Account.AccountNumber
             })
@@ -105,7 +105,7 @@ public with sharing class AccountSelector {
     }
 
     public static SOQL getByRecordType(String rt) {
-        return Query.fields(new List<sObjectField>{
+        return Query.with(new List<sObjectField>{
             Account.BillingCity,
             Account.BillingCountry
         }).whereAre(SOQL.Filter.recordType().equal(rt));
@@ -118,18 +118,18 @@ public with sharing class ExampleController {
 
     public static List<Account> getAccounts(String accountName) {
         return AccountSelector.Query
-            .field(Account.BillingCity)
-            .field(Account.BillingCountry)
+            .with(Account.BillingCity)
+            .with(Account.BillingCountry)
             .whereAre(SOQL.FiltersGroup
-                .add(SOQL.Filter.field(Account.Name).likeAny(accountName))
-                .add(SOQL.Filter.field(Account.Name).likeAny(accountName))
+                .add(SOQL.Filter.with(Account.Name).likeAny(accountName))
+                .add(SOQL.Filter.with(Account.Name).likeAny(accountName))
             )
             .asList();
     }
 
     public static List<Account> getAccountsByRecordType(String recordType) {
         return AccountSelector.getByRecordType(recordType)
-                .field(Account.ParentId)
+                .with(Account.ParentId)
                 .asList();
     }
 }

@@ -15,7 +15,7 @@ public inherited sharing class AccountSelector {
         get {
             // default fields
             return SOQL.of(Account.sObjectType)
-                .fields(new List<sObjectField>{
+                .with(new List<sObjectField>{
                     Account.Id,
                     Account.Name
                 });
@@ -28,7 +28,7 @@ public with sharing class MyController {
     public static List<Account> getAccounts() {
         //SELECT Id, Name, BillingCity, BillingState, BillingStreet, BillingCountry FROM Account
         return AccountSelector.Query
-            .fields(new List<sObjectField>{
+            .with(new List<sObjectField>{
                 Account.BillingCity,
                 Account.BillingState,
                 Account.BillingStreet,
@@ -49,7 +49,7 @@ public inherited sharing class AccountSelector {
         get {
             // default fields
             return SOQL.of(Account.sObjectType)
-                .fields(new List<sObjectField>{
+                .with(new List<sObjectField>{
                     Account.Id,
                     Account.Name
                 });
@@ -62,7 +62,7 @@ public with sharing class MyController {
     public static List<Account> getAccountsWithCreatedBy() {
         //SELECT Id, Name, CreatedBy.Id, CreatedBy.Name FROM Account
         return AccountSelector.Query
-            .relatedFields('CreatedBy', new List<sObjectField>{
+            .with('CreatedBy', new List<sObjectField>{
                 User.Id,
                 User.Name
             }).asList();
