@@ -1065,8 +1065,8 @@ public inherited sharing class SOQL implements Queryable {
     private static final Map<sObjectType, Integer> sObjectTypeCountMocks = new Map<sObjectType, Integer>();
 
     @TestVisible
-    private static void setMock(String queryIdentifier, sObject record) {
-        identifiedMocks.put(queryIdentifier, new List<sObject>{ record });
+    private static void setMock(String queryIdentifier, SObject record) {
+        setMock(queryIdentifier, new List<SObject>{ record });
     }
 
     @TestVisible
@@ -1075,8 +1075,8 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     @TestVisible
-    private static void setMock(sObjectType sObjectType, sObject record) {
-        sObjectTypeMocks.put(sObjectType, new List<sObject>{ record });
+    private static void setMock(SObjectType sObjectType, SObject record) {
+        setMock(sObjectType, new List<SObject>{ record });
     }
 
     @TestVisible
