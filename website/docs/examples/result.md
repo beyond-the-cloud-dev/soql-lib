@@ -31,5 +31,11 @@ public with sharing class MyController {
             .whereAre(SOQL.Filter.id().equal(accountId))
             .asObject();
     }
+
+    public static Integer countAccounts() {
+        return AccountSelector.Query
+            .count()
+            .asInteger();
+    }
 }
 ```

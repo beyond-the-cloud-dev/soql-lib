@@ -21,6 +21,11 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static List<Account> getAccountsWithLimit(Integer amount) {
+        /*
+        SELECT Id, Name
+        FROM Account
+        LIMIT amount
+        */
         return AccountSelector.Query
             .setLimit(amount)
             .asList();
