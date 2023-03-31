@@ -10,7 +10,7 @@ public inherited sharing class AccountSelector {
     public static SQOL Query {
         get {
             return SQOL.of(Account.sObjectType)
-                .fields(new List<sObjectField>{
+                .with(new List<sObjectField>{
                     Account.Id,
                     Account.Name
                 });

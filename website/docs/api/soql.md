@@ -26,7 +26,7 @@ SOQL.of(Contact.sObjectType).asList();
 
 ## select
 
-### fields
+### with fields
 
 [SELECT](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_fields.htm)
 
@@ -35,28 +35,28 @@ SOQL.of(Contact.sObjectType).asList();
 **Signature**
 
 ```apex
-SOQL fields(List<sObjectField> fields)
+SOQL with(List<sObjectField> fields)
 ```
 
 **Example**
 
 ```apex
 //SELECT Id, Name, Industry FROM Account
-SOQL.of(Account.sObjectType).fields(List<sObjectField>{
+SOQL.of(Account.sObjectType).with(List<sObjectField>{
     Account.Id,
     Account.Name,
     Account.Industry
 }).asList();
 
 //SELECT Id, FirstName, LastName FROM Contact
-SOQL.of(Contact.sObjectType).fields(List<sObjectField>{
+SOQL.of(Contact.sObjectType).with(List<sObjectField>{
     Contact.Id,
     Contact.FirstName,
     Contact.LastName
 }).asList();
 ```
 
-### relatedFields
+### with related fields
 
 [SELECT](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_fields.htm)
 
@@ -65,20 +65,20 @@ Allows to add parent field to a query.
 **Signature**
 
 ```apex
-SOQL relatedFields(String relationshipPath, List<sObjectField> fields)
+SOQL with(String relationshipPath, List<sObjectField> fields)
 ```
 
 **Example**
 
 ```apex
 //SELECT CreatedBy.Id, CreatedBy.Name FROM Account
-SOQL.of(Account.sObjectType).relatedFields('CreatedBy', List<sObjectField>{
+SOQL.of(Account.sObjectType).with('CreatedBy', List<sObjectField>{
     User.Id,
     User.Name
 }).asList();
 
 //SELECT Account.Id, Account.Name FROM Contact
-SOQL.of(Contact.sObjectType).relatedFields('Account', List<sObjectField>{
+SOQL.of(Contact.sObjectType).with('Account', List<sObjectField>{
     Account.Id,
     Account.Name
 }).asList();
@@ -122,7 +122,7 @@ countAs(sObjectField field, String alias)
 SOQL.of(Account.sObjectType).countAs(Account.Name, 'names').asAggregated();
 ```
 
-## subQuery
+## with
 
 [Using Relationship Queries](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_relationships_query_using.htm)
 
@@ -133,7 +133,7 @@ For more details check [`SOQL.SubQuery`](soql-sub.md) class.
 **Signature**
 
 ```apex
-SOQL subQuery(SOQL.SubQuery subQuery)
+SOQL with(SOQL.SubQuery subQuery)
 ```
 
 **Example**
@@ -141,8 +141,8 @@ SOQL subQuery(SOQL.SubQuery subQuery)
 ```apex
 //SELECT Id, (SELECT Id, Name FROM Contacts) FROM Account
 SOQL.of(Account.sObjectType)
-    .subQuery(SOQL.Sub.of('Contacts')
-        .fields(new List<sObjectField>{
+    .with(SOQL.SubQuery.of('Contacts')
+        .with(new List<sObjectField>{
             Contact.Id,
             Contact.Name
         })
@@ -273,8 +273,8 @@ SOQL whereAre(FilterClause conditions)
 //SELECT Id FROM Account WHERE Id = :accountId OR Name = '%MyAccount%'
 SOQL.of(Account.sObjectType)
     .whereAre(SOQL.FiltersGroup
-        .add(SOQL.Filter.field(Account.Id).equal(accountId))
-        .add(SOQL.Filter.field(Account.Name).likeAny('MyAccount'))
+        .add(SOQL.Filter.with(Account.Id).equal(accountId))
+        .add(SOQL.Filter.with(Account.Name).likeAny('MyAccount'))
         .conditionLogic('1 OR 2')
     ).asList();
 ```
@@ -297,7 +297,7 @@ SOQL groupBy(sObjectField field)
 ```apex
 //SELECT LeadSource FROM LEAD GROUP BY LeadSource
 SOQL.of(Lead.sObjectType)
-    .fields(new List<sObjectField>{
+    .with(new List<sObjectField>{
         Lead.LeadSource
     })
     .groupBy(Lead.LeadSource)

@@ -18,7 +18,7 @@ public with sharing class MyController {
 
     public static List<AggregateResult> getGroupedLeads() {
         return LeadSelector.Query
-                .fields(new List<sObjectField>{
+                .with(new List<sObjectField>{
                     Lead.LeadSource
                 });
                 .groupBy(Lead.LeadSource)
