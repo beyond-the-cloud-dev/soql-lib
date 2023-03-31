@@ -54,7 +54,7 @@ SOQL Builder allows to build query dynamically and execute it.
 List<Account> accounts = SOQL.of(Account.sObjectType)
    .with(new List<sObjectField>{
       Account.Id, Account.Name, Account.Industry
-}).asList();
+   }).asList();
 ```
 
 ### SOQL Selector

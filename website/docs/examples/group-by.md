@@ -17,10 +17,13 @@ public inherited sharing class LeadSelector {
 public with sharing class MyController {
 
     public static List<AggregateResult> getGroupedLeads() {
+        /*
+        SELECT LeadSource
+        FROM Lead
+        GROUP BY LeadSource
+        */
         return LeadSelector.Query
-                .with(new List<sObjectField>{
-                    Lead.LeadSource
-                });
+                .with(Lead.LeadSource)
                 .groupBy(Lead.LeadSource)
                 .asAggregated();
     }
