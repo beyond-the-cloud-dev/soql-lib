@@ -27,12 +27,12 @@ public inherited sharing class SOQL implements Queryable {
     public interface Queryable {
         SOQL of(sObjectType ofObject);
 
-        SOQL field(sObjectField field);
-        SOQL fields(List<sObjectField> fields);
+        SOQL field(SObjectField field);
+        SOQL fields(List<SObjectField> fields);
         SOQL fields(String commaSeparatedFields);
-        SOQL relatedFields(String relationshipPath, List<sObjectField> fields);
+        SOQL relatedFields(String relationshipPath, List<SObjectField> fields);
         SOQL count();
-        SOQL countAs(sObjectField field, String alias);
+        SOQL countAs(SObjectField field, String alias);
 
         SOQL subQuery(SubQuery subQuery); //Sub
 
@@ -45,11 +45,11 @@ public inherited sharing class SOQL implements Queryable {
 
         SOQL whereAre(FilterClause conditions); //SOQL.FiltersGroup or SOQL.Filter
 
-        SOQL groupBy(sObjectField field);
-        SOQL groupByRollup(sObjectField field);
+        SOQL groupBy(SObjectField field);
+        SOQL groupByRollup(SObjectField field);
 
-        SOQL orderBy(sObjectField field);
-        SOQL orderByRelated(String path, sObjectField field);
+        SOQL orderBy(SObjectField field);
+        SOQL orderByRelated(String path, SObjectField field);
         SOQL sortDesc();
         SOQL nullsLast();
 
@@ -74,8 +74,8 @@ public inherited sharing class SOQL implements Queryable {
         SOQL stripInaccessible();
         SOQL stripInaccessible(AccessType accessType);
 
-        sObject asObject();
-        List<sObject> asList();
+        SObject asObject();
+        List<SObject> asList();
         List<AggregateResult> asAggregated();
         Integer asInteger();
     }
@@ -83,13 +83,13 @@ public inherited sharing class SOQL implements Queryable {
     public interface SoqlSubQuery { //SOQL.Sub
         SubQuery of(String ofObject);
 
-        SubQuery fields(List<sObjectField> fields);
-        SubQuery relatedFields(String relationshipPath, List<sObjectField> fields);
+        SubQuery fields(List<SObjectField> fields);
+        SubQuery relatedFields(String relationshipPath, List<SObjectField> fields);
 
         SubQuery whereAre(FilterClause conditions); //SOQL.FiltersGroup or SOQL.Filter
 
-        SubQuery orderBy(sObjectField field);
-        SubQuery orderByRelated(String path, sObjectField field);
+        SubQuery orderBy(SObjectField field);
+        SubQuery orderByRelated(String path, SObjectField field);
         SubQuery sortDesc();
         SubQuery nullsLast();
 
@@ -133,7 +133,7 @@ public inherited sharing class SOQL implements Queryable {
     public interface SoqlJoin { //SOQL.InnerJoin
         JoinQuery of(sObjectType ofObject);
 
-        JoinQuery field(sObjectField field);
+        JoinQuery field(SObjectField field);
 
         JoinQuery whereAre(FilterClause conditions); //SOQL.Filter or SOQL.FiltersGroup
     }
@@ -157,12 +157,12 @@ public inherited sharing class SOQL implements Queryable {
 
     // Fields
 
-    public SOQL field(sObjectField field) {
+    public SOQL field(SObjectField field) {
         builder.fields.retrive(field);
         return this;
     }
 
-    public SOQL fields(List<sObjectField> fields) {
+    public SOQL fields(List<SObjectField> fields) {
         builder.fields.retrive(fields);
         return this;
     }
@@ -172,7 +172,7 @@ public inherited sharing class SOQL implements Queryable {
         return this;
     }
 
-    public SOQL relatedFields(String relationshipPath, List<sObjectField> fields) {
+    public SOQL relatedFields(String relationshipPath, List<SObjectField> fields) {
         builder.fields.retrive(relationshipPath, fields);
         return this;
     }
@@ -183,7 +183,7 @@ public inherited sharing class SOQL implements Queryable {
         return this;
     }
 
-    public SOQL countAs(sObjectField field, String alias) {
+    public SOQL countAs(SObjectField field, String alias) {
         builder.fields.count(field, alias);
         executor.countQuery();
         return this;
@@ -237,24 +237,24 @@ public inherited sharing class SOQL implements Queryable {
 
     // Group By
 
-    public SOQL groupBy(sObjectField field) {
+    public SOQL groupBy(SObjectField field) {
         builder.groupBy.field(field);
         return this;
     }
 
-    public SOQL groupByRollup(sObjectField field) {
+    public SOQL groupByRollup(SObjectField field) {
         builder.groupBy.rollup(field);
         return this;
     }
 
     // Order By - ASC, NULLS FIRST by default
 
-    public SOQL orderBy(sObjectField field) {
+    public SOQL orderBy(SObjectField field) {
         builder.orderBys.add(field);
         return this;
     }
 
-    public SOQL orderByRelated(String path, sObjectField field) {
+    public SOQL orderByRelated(String path, SObjectField field) {
         builder.orderBys.add(path, field);
         return this;
     }
@@ -357,11 +357,11 @@ public inherited sharing class SOQL implements Queryable {
         return this;
     }
 
-    public sObject asObject() {
-        return executor.evaluate(builder.build(), binder.build()).asObject();
+    public SObject asObject() {
+        return executor.evaluate(builder.build(), binder.build()).aSObject();
     }
 
-    public List<sObject> asList() {
+    public List<SObject> asList() {
         return executor.evaluate(builder.build(), binder.build()).asList();
     }
 
@@ -506,7 +506,7 @@ public inherited sharing class SOQL implements Queryable {
             queryFields.add('COUNT()');
         }
 
-        public void count(sObjectField field, String alias) {
+        public void count(SObjectField field, String alias) {
             queryFields.add('COUNT(' + field.getDescribe().getName() + ') ' + alias);
         }
 
@@ -516,23 +516,23 @@ public inherited sharing class SOQL implements Queryable {
             }
         }
 
-        public void retrive(List<sObjectField> fields) {
-            for (sObjectField field : fields) {
+        public void retrive(List<SObjectField> fields) {
+            for (SObjectField field : fields) {
                 retrive(field);
             }
         }
 
-        public void retrive(sObjectField field) {
+        public void retrive(SObjectField field) {
             queryFields.add(field.getDescribe().getName());
         }
 
-        public void retrive(String relationshipPath, List<sObjectField> fields) {
-            for (sObjectField field : fields) {
+        public void retrive(String relationshipPath, List<SObjectField> fields) {
+            for (SObjectField field : fields) {
                 retrive(relationshipPath, field);
             }
         }
 
-        public void retrive(String relationshipPath, sObjectField field) {
+        public void retrive(String relationshipPath, SObjectField field) {
             queryFields.add(relationshipPath + '.' + field.getDescribe().getName());
         }
 
@@ -559,12 +559,12 @@ public inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public SubQuery fields(List<sObjectField> fields) { // SELECT
+        public SubQuery fields(List<SObjectField> fields) { // SELECT
             builder.fields.retrive(fields);
             return this;
         }
 
-        public SubQuery relatedFields(String relationshipPath, List<sObjectField> fields) { // SELECT
+        public SubQuery relatedFields(String relationshipPath, List<SObjectField> fields) { // SELECT
             builder.fields.retrive(relationshipPath, fields);
             return this;
         }
@@ -576,12 +576,12 @@ public inherited sharing class SOQL implements Queryable {
 
         // ORDER BY - ASC, NULLS FIRST by default
 
-        public SubQuery orderBy(sObjectField field) {
+        public SubQuery orderBy(SObjectField field) {
             builder.orderBys.add(field);
             return this;
         }
 
-        public SubQuery orderByRelated(String path, sObjectField field) {
+        public SubQuery orderByRelated(String path, SObjectField field) {
             builder.orderBys.add(path, field);
             return this;
         }
@@ -901,7 +901,7 @@ public inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public JoinQuery field(sObjectField field) { // SELECT
+        public JoinQuery field(SObjectField field) { // SELECT
             builder.fields.retrive(field);
             return this;
         }
@@ -919,11 +919,11 @@ public inherited sharing class SOQL implements Queryable {
     public class QGroupBy implements QueryClause {
         private Set<String> groupByFields = new Set<String>();
 
-        public void field(sObjectField field) {
+        public void field(SObjectField field) {
             groupByFields.add(field.getDescribe().getName());
         }
 
-        public void rollup(sObjectField field) {
+        public void rollup(SObjectField field) {
             groupByFields.add('ROLLUP(' + field.getDescribe().getName() + ')');
         }
 
@@ -935,11 +935,11 @@ public inherited sharing class SOQL implements Queryable {
     public class QOrderBys implements QueryClause {
         public List<QOrderBy> orderBys = new List<QOrderBy>();
 
-        public void add(sObjectField field) {
+        public void add(SObjectField field) {
             orderBys.add(new QOrderBy().field(field));
         }
 
-        public void add(String relationshipPath, sObjectField field) {
+        public void add(String relationshipPath, SObjectField field) {
             orderBys.add(new QOrderBy().relatedField(relationshipPath, field));
         }
 
@@ -963,12 +963,12 @@ public inherited sharing class SOQL implements Queryable {
         private String sortingOrder = 'ASC';
         private String nullsOrder = 'FIRST';
 
-        public QOrderBy field(sObjectField field) {
+        public QOrderBy field(SObjectField field) {
             orderField = field.getDescribe().getName();
             return this;
         }
 
-        public QOrderBy relatedField(String relationshipPath, sObjectField field) {
+        public QOrderBy relatedField(String relationshipPath, SObjectField field) {
             orderField = relationshipPath + '.' + field.getDescribe().getName();
             return this;
         }
@@ -1059,10 +1059,10 @@ public inherited sharing class SOQL implements Queryable {
 
     // Mocking
 
-    private static final Map<String, List<sObject>> identifiedMocks = new Map<String, List<sObject>>();
-    private static final Map<sObjectType, List<sObject>> sObjectTypeMocks = new Map<sObjectType, List<sObject>>();
+    private static final Map<String, List<SObject>> identifiedMocks = new Map<String, List<SObject>>();
+    private static final Map<SObjectType, List<SObject>> sObjectTypeMocks = new Map<SObjectType, List<SObject>>();
     private static final Map<String, Integer> identifiedCountMocks = new Map<String, Integer>();
-    private static final Map<sObjectType, Integer> sObjectTypeCountMocks = new Map<sObjectType, Integer>();
+    private static final Map<SObjectType, Integer> sObjectTypeCountMocks = new Map<SObjectType, Integer>();
 
     @TestVisible
     private static void setMock(String queryIdentifier, SObject record) {
@@ -1070,7 +1070,7 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     @TestVisible
-    private static void setMock(String queryIdentifier, List<sObject> records) {
+    private static void setMock(String queryIdentifier, List<SObject> records) {
         identifiedMocks.put(queryIdentifier, records);
     }
 
@@ -1080,7 +1080,7 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     @TestVisible
-    private static void setMock(sObjectType sObjectType, List<sObject> records) {
+    private static void setMock(SObjectType sObjectType, List<SObject> records) {
         sObjectTypeMocks.put(sObjectType, records);
     }
 
@@ -1090,7 +1090,7 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     @TestVisible
-    private static void setCountMock(sObjectType sObjectType, Integer amount) {
+    private static void setCountMock(SObjectType sObjectType, Integer amount) {
         sObjectTypeCountMocks.put(sObjectType, amount);
     }
 
@@ -1170,7 +1170,7 @@ public inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public sObject asObject() {
+        public SObject asObject() {
             try {
                 return asList()[0];
             } catch (ListException e) {
@@ -1195,7 +1195,7 @@ public inherited sharing class SOQL implements Queryable {
             return MODE_TO_EXECUTOR.get(sharingMode).executeCount(query, binding, accessMode);
         }
 
-        public List<sObject> asList() {
+        public List<SObject> asList() {
             if (withPreview) {
                 previewSoql();
                 previewBinding();
@@ -1229,12 +1229,12 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     private interface DatabaseQuery {
-        List<sObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel);
+        List<SObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel);
         Integer executeCount(String query, Map<String, Object> binding, AccessLevel accessLevel);
     }
 
     private inherited sharing class InheritedSharing implements DatabaseQuery {
-        public List<sObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+        public List<SObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.queryWithBinds(query, binding, accessLevel);
         }
 
@@ -1244,7 +1244,7 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     private without sharing class WithoutSharing implements DatabaseQuery {
-        public List<sObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+        public List<SObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.queryWithBinds(query, binding, accessLevel);
         }
 
@@ -1254,7 +1254,7 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     private with sharing class WithSharing implements DatabaseQuery {
-        public List<sObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+        public List<SObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.queryWithBinds(query, binding, accessLevel);
         }
 
