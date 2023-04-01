@@ -26,6 +26,31 @@ SOQL.of(Contact.sObjectType).asList();
 
 ## select
 
+### with field
+
+**Signature**
+
+```apex
+SOQL with(sObjectField field)
+```
+
+**Example**
+
+```apex
+//SELECT Id, Name FROM Account
+SOQL.of(Account.sObjectType)
+    .with(Account.Id)
+    .with(Account.Name)
+    .asList();
+
+//SELECT Id, FirstName, LastName FROM Contact
+SOQL.of(Contact.sObjectType)
+    .with(Contact.Id)
+    .with(Contact.FirstName)
+    .with(Contact.LastName)
+    .asList();
+```
+
 ### with fields
 
 [SELECT](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_fields.htm)
@@ -42,18 +67,44 @@ SOQL with(List<sObjectField> fields)
 
 ```apex
 //SELECT Id, Name, Industry FROM Account
-SOQL.of(Account.sObjectType).with(List<sObjectField>{
-    Account.Id,
-    Account.Name,
-    Account.Industry
-}).asList();
+SOQL.of(Account.sObjectType)
+    .with(List<sObjectField>{
+        Account.Id,
+        Account.Name,
+        Account.Industry
+    }).asList();
 
 //SELECT Id, FirstName, LastName FROM Contact
-SOQL.of(Contact.sObjectType).with(List<sObjectField>{
-    Contact.Id,
-    Contact.FirstName,
-    Contact.LastName
-}).asList();
+SOQL.of(Contact.sObjectType)
+    .with(List<sObjectField>{
+        Contact.Id,
+        Contact.FirstName,
+        Contact.LastName
+    }).asList();
+```
+
+### with string fields
+
+**NOTE!** Apex do not have reference to String fields. Use it only for corner cases.
+
+**Signature**
+
+```apex
+SOQL with(String fields)
+```
+
+**Example**
+
+```apex
+//SELECT Id, Name, Industry FROM Account
+SOQL.of(Account.sObjectType)
+    .with('Id, Name, Industry')
+    .asList();
+
+//SELECT Id, FirstName, LastName FROM Contact
+SOQL.of(Contact.sObjectType)
+    .with('Id, FirstName, LastName')
+    .asList();
 ```
 
 ### with related fields
@@ -65,64 +116,28 @@ Allows to add parent field to a query.
 **Signature**
 
 ```apex
-SOQL with(String relationshipPath, List<sObjectField> fields)
+SOQL with(String relationshipName, List<sObjectField> fields)
 ```
 
 **Example**
 
 ```apex
 //SELECT CreatedBy.Id, CreatedBy.Name FROM Account
-SOQL.of(Account.sObjectType).with('CreatedBy', List<sObjectField>{
-    User.Id,
-    User.Name
-}).asList();
+SOQL.of(Account.sObjectType)
+    .with('CreatedBy', List<sObjectField>{
+        User.Id,
+        User.Name
+    }).asList();
 
 //SELECT Account.Id, Account.Name FROM Contact
-SOQL.of(Contact.sObjectType).with('Account', List<sObjectField>{
-    Account.Id,
-    Account.Name
-}).asList();
+SOQL.of(Contact.sObjectType)
+    .with('Account', List<sObjectField>{
+        Account.Id,
+        Account.Name
+    }).asList();
 ```
 
-### count
-
-[COUNT()](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_count.htm#count_section_title)
-
-> `COUNT()` returns the number of rows that match the filtering conditions.
-
-**Signature**
-
-```apex
-SOQL count()
-```
-
-**Example**
-
-```apex
-//SELECT COUNT() FROM Account
-SOQL.of(Account.sObjectType).count().asInteger();
-```
-
-### countAs
-
-[COUNT(fieldName)](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_count.htm#count_section_title)
-
-> `COUNT(fieldName)` returns the number of rows that match the filtering conditions and have a non-null value for fieldName.
-
-**Signature**
-
-```apex
-countAs(sObjectField field, String alias)
-```
-
-**Example**
-
-```apex
-//SELECT COUNT(Name) names FROM Account
-SOQL.of(Account.sObjectType).countAs(Account.Name, 'names').asAggregated();
-```
-
-## with
+### with subquery
 
 [Using Relationship Queries](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_relationships_query_using.htm)
 
@@ -149,6 +164,49 @@ SOQL.of(Account.sObjectType)
     ).asList();
 ```
 
+
+### count
+
+[COUNT()](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_count.htm#count_section_title)
+
+> `COUNT()` returns the number of rows that match the filtering conditions.
+
+**Signature**
+
+```apex
+SOQL count()
+```
+
+**Example**
+
+```apex
+//SELECT COUNT() FROM Account
+SOQL.of(Account.sObjectType)
+    .count()
+    .asInteger();
+```
+
+### countAs
+
+[COUNT(fieldName)](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_count.htm#count_section_title)
+
+> `COUNT(fieldName)` returns the number of rows that match the filtering conditions and have a non-null value for fieldName.
+
+**Signature**
+
+```apex
+countAs(sObjectField field, String alias)
+```
+
+**Example**
+
+```apex
+//SELECT COUNT(Name) names FROM Account
+SOQL.of(Account.sObjectType)
+    .countAs(Account.Name, 'names')
+    .asAggregated();
+```
+
 ## scope
 
 [USING SCOPE](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_using_scope.htm)
@@ -167,7 +225,9 @@ SOQL delegatedScope()
 
 ```apex
 //SELECT Id FROM Task USING SCOPE DELEGATED
-SOQL.of(Task.sObjectType).delegatedScope().asList();
+SOQL.of(Task.sObjectType)
+    .delegatedScope()
+    .asList();
 ```
 
 ### mineScope
@@ -184,7 +244,9 @@ SOQL mineScope()
 
 ```apex
 //SELECT Id FROM Account USING SCOPE MINE
-SOQL.of(Account.sObjectType).mineScope().asList();
+SOQL.of(Account.sObjectType)
+    .mineScope()
+    .asList();
 ```
 
 ### mineAndMyGroupsScope
@@ -201,7 +263,9 @@ SOQL mineAndMyGroupsScope()
 
 ```apex
 //SELECT Id FROM ProcessInstanceWorkItem USING SCOPE MINE_AND_MY_GROUPS
-SOQL.of(ProcessInstanceWorkItem.sObjectType).mineAndMyGroupsScope().asList();
+SOQL.of(ProcessInstanceWorkItem.sObjectType)
+    .mineAndMyGroupsScope()
+    .asList();
 ```
 
 ### myTerritoryScope
@@ -250,7 +314,9 @@ SOQL teamScope()
 
 ```apex
 //SELECT Id FROM Account USING SCOPE TEAM
-SOQL.of(Account.sObjectType).teamScope().asList();
+SOQL.of(Account.sObjectType)
+    .teamScope()
+    .asList();
 ```
 
 ## whereAre
@@ -297,9 +363,7 @@ SOQL groupBy(sObjectField field)
 ```apex
 //SELECT LeadSource FROM LEAD GROUP BY LeadSource
 SOQL.of(Lead.sObjectType)
-    .with(new List<sObjectField>{
-        Lead.LeadSource
-    })
+    .with(Lead.LeadSource)
     .groupBy(Lead.LeadSource)
     .asAggregated();
 ```
@@ -315,19 +379,11 @@ SOQL groupByRollup(sObjectField field)
 **Example**
 
 ```apex
-```
-
-### groupByCube
-
-**Signature**
-
-```apex
-SOQL groupByCube(sObjectField field)
-```
-
-**Example**
-
-```apex
+QS.of(Lead.sObjectType)
+    .with(Lead.LeadSource)
+    .countAs(Lead.Name, 'cnt')
+    .groupByRollup(Lead.LeadSource)
+    .asAggregated();
 ```
 
 ## order by
@@ -348,7 +404,9 @@ SOQL orderBy(sObjectField field)
 
 ```apex
 //SELECT Id FROM Account ORDER BY Name
-SOQL.of(Account.sObjectType).orderBy(Account.Name).asList();
+SOQL.of(Account.sObjectType)
+    .orderBy(Account.Name)
+    .asList();
 ```
 
 ### orderByRelated
@@ -365,7 +423,9 @@ SOQL orderByRelated(String path, sObjectField field)
 
 ```apex
 //SELECT Id FROM Contact ORDER BY Account.Name
-SOQL.of(Contact.sObjectType).orderByRelated('Account', Account.Name).asList();
+SOQL.of(Contact.sObjectType)
+    .orderByRelated('Account', Account.Name)
+    .asList();
 ```
 
 ### sortDesc
@@ -382,7 +442,10 @@ SOQL sortDesc()
 
 ```apex
 //SELECT Id FROM Account ORDER BY Name DESC
-SOQL.of(Account.sObjectType).orderBy(Account.Name).sortDesc().asList();
+SOQL.of(Account.sObjectType)
+    .orderBy(Account.Name)
+    .sortDesc()
+    .asList();
 ```
 
 ### nullsLast
@@ -399,7 +462,10 @@ SOQL nullsLast()
 
 ```apex
 //SELECT Id FROM Account ORDER BY Name NULLS LAST
-SOQL.of(Account.sObjectType).orderBy(Account.Industry).nullsLast().asList();
+SOQL.of(Account.sObjectType)
+    .orderBy(Account.Industry)
+    .nullsLast()
+    .asList();
 ```
 
 ## setLimit
@@ -418,7 +484,9 @@ SOQL setLimit(Integer amount)
 
 ```apex
 //SELECT Id FROM Account LIMIT 100
-SOQL.of(Account.sObjectType).setLimit(100).asList();
+SOQL.of(Account.sObjectType)
+    .setLimit(100)
+    .asList();
 ```
 
 ## offset
@@ -437,7 +505,9 @@ SOQL offset(Integer startingRow)
 
 ```apex
 //SELECT Id FROM Account OFFSET 10
-SOQL.of(Account.sObjectType).setOffset(10).asList();
+SOQL.of(Account.sObjectType)
+    .setOffset(10)
+    .asList();
 ```
 
 ## for
@@ -458,7 +528,9 @@ SOQL forReference()
 
 ```apex
 //SELECT Id FROM Contact FOR REFERENCE
-SOQL.of(Contact.sObjectType).forReference().asList();
+SOQL.of(Contact.sObjectType)
+    .forReference()
+    .asList();
 ```
 
 ### forView
@@ -475,7 +547,9 @@ SOQL forView()
 
 ```apex
 //SELECT Id FROM Contact FOR VIEW
-SOQL.of(Contact.sObjectType).forView().asList();
+SOQL.of(Contact.sObjectType)
+    .forView()
+    .asList();
 ```
 
 ### forUpdate
@@ -492,7 +566,9 @@ SOQL forUpdate()
 
 ```apex
 //SELECT Id FROM Contact FOR UPDATE
-SOQL.of(Contact.sObjectType).forUpdate().asList();
+SOQL.of(Contact.sObjectType)
+    .forUpdate()
+    .asList();
 ```
 
 ### allRows
@@ -528,8 +604,9 @@ SOQL systemMode()
 **Example**
 
 ```apex
-SOQL.of(Account.sObjectType).systemMode().asList();
-SOQL.of(Contact.sObjectType).userMode().asList();
+SOQL.of(Account.sObjectType)
+    .systemMode()
+    .asList();
 ```
 
 ## sharing
@@ -538,7 +615,7 @@ SOQL.of(Contact.sObjectType).userMode().asList();
 
 ### withSharing
 
-Execute query `with sharing`
+Execute query `with sharing`. System mode needs to be enabled.
 
 **Signature**
 
@@ -549,13 +626,15 @@ SOQL withSharing()
 **Example**
 
 ```apex
-SOQL.of(Account.sObjectType).withSharing().asList();
-SOQL.of(Contact.sObjectType).withSharing().asList();
+SOQL.of(Account.sObjectType)
+    .systemMode()
+    .withSharing()
+    .asList();
 ```
 
 ### withoutSharing
 
-Execute query `without sharing`
+Execute query `without sharing`. System mode needs to be enabled.
 
 **Signature**
 
@@ -566,8 +645,10 @@ SOQL withoutSharing()
 **Example**
 
 ```apex
-SOQL.of(Account.sObjectType).withoutSharing().asList();
-SOQL.of(Contact.sObjectType).withoutSharing().asList();
+SOQL.of(Account.sObjectType)
+    .systemMode()
+    .withoutSharing()
+    .asList();
 ```
 
 ## mocking
@@ -581,6 +662,15 @@ SOQL mocking(String queryIdentifier)
 **Example**
 
 ```apex
+SOQL.of(Account.sObjectType)
+    .mocking('MyQuery')
+    .asList();
+
+// In Unit Test
+SOQL.setMock('MyQuery', new List<Account>{
+    new Account(Name = 'MyAccount 1'),
+    new Account(Name = 'MyAccount 2')
+});
 ```
 
 ## preview
@@ -594,8 +684,9 @@ SOQL preview()
 **Example**
 
 ```apex
-SOQL.of(Account.sObjectType).preview().asList();
-SOQL.of(Contact.sObjectType).preview().asList();
+SOQL.of(Account.sObjectType)
+    .preview()
+    .asList();
 ```
 
 Query preview will be available in debug logs:
@@ -619,6 +710,8 @@ WHERE ((Id = :v1 OR Name LIKE :v2))
 
 ### asObject
 
+When no records found. Instead of `List index out of bounds: 0` null will be returned.
+
 **Signature**
 
 ```apex
@@ -628,6 +721,7 @@ sObject asObject()
 **Example**
 
 ```apex
+SOQL.of(Account.sObjectType).asObject();
 ```
 
 ### asList
@@ -641,6 +735,7 @@ List<sObject> asList()
 **Example**
 
 ```apex
+SOQL.of(Account.sObjectType).asList();
 ```
 
 ### asAggregated
@@ -654,6 +749,10 @@ List<AggregateResult> asAggregated()
 **Example**
 
 ```apex
+SOQL.of(Lead.sObjectType)
+    .with(Lead.LeadSource)
+    .groupBy(Lead.LeadSource)
+    .asAggregated()
 ```
 
 ### asInteger
@@ -667,4 +766,6 @@ Integer asInteger()
 **Example**
 
 ```apex
+//SELECT COUNT() FROM Account
+QS.of(Account.sObjectType).count().asInteger();
 ```

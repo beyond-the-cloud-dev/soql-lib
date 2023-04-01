@@ -37,5 +37,11 @@ public with sharing class MyController {
             .count()
             .asInteger();
     }
+
+    public static List<AggregateResult> getUniqueAccountNameAmount() {
+        return AccountSelector.Query
+            .countAs(Account.Name, 'names')
+            .asAggregated();
+    }
 }
 ```

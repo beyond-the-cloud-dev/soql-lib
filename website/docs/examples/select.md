@@ -99,7 +99,10 @@ public with sharing class MyController {
     }
 
     public static Integer getUniqueAccountNameAmount() {
-        //SELECT COUNT(Name) names FROM Account
+        /*
+        SELECT COUNT(Name) names
+        FROM Account
+        */
         return AccountSelector.Query.countAs(Account.Name, 'names').asAggregated()[0].names;
     }
 }
