@@ -753,7 +753,7 @@ public class SOQLTest {
 
         SOQL.setMock('mockingQuery', accounts);
 
-        List<Account> result = SOQL.of(Account.sObjectType).setMockingId('mockingQuery').asList();
+        List<Account> result = SOQL.of(Account.sObjectType).mockId('mockingQuery').asList();
 
         Assert.areEqual(accounts, result);
     }
@@ -764,70 +764,29 @@ public class SOQLTest {
 
         SOQL.setMock('mockingQuery', testAccount);
 
-        Account result = (Account) SOQL.of(Account.sObjectType).setMockingId('mockingQuery').asObject();
+        Account result = (Account) SOQL.of(Account.sObjectType).mockId('mockingQuery').asObject();
 
         Assert.areEqual(testAccount, result);
     }
 
     @isTest
     static void mockingStaticResource() {
-        SOQL.setMock('mockingQuery', Account.SObjectType, 'testAccounts');
+        SOQL.setMock('mockingQuery', 'testAccounts');
 
-        List<Account> result = SOQL.of(Account.sObjectType).setMockingId('mockingQuery').asList();
-
-        Assert.areEqual(new List<Account>(), result);
-    }
-
-    @isTest
-    static void mockingSObjectType() {
-        List<Account> accounts = new List<Account>{
-                new Account(Name = 'Test 1'),
-                new Account(Name = 'Test 2')
-        };
-
-        SOQL.setMock(Account.SObjectType, accounts);
-
-        List<Account> result = SOQL.of(Account.sObjectType).asList();
-
-        Assert.areEqual(accounts, result);
-    }
-
-    @isTest
-    static void mockingSObjectTypeSingleRecord() {
-        Account testAccount = new Account(Name = 'Test 1');
-
-        SOQL.setMock(Account.SObjectType, testAccount);
-
-        Account result = (Account) SOQL.of(Account.sObjectType).asObject();
-
-        Assert.areEqual(testAccount, result);
-    }
-
-    @isTest
-    static void mockingSObjectTypeStaticResource() {
-        SOQL.setMock(Account.SObjectType, 'testAccounts');
-
-        List<Account> result = SOQL.of(Account.sObjectType).asList();
-
-        Assert.areEqual(new List<Account>(), result);
+        try {
+            List<Account> result = SOQL.of(Account.sObjectType).mockId('mockingQuery').asList();
+        } catch (Exception missingStaticResource){
+            Assert.isInstanceOfType(missingStaticResource, NullPointerException.class);
+        }
     }
 
     @isTest
     static void mockingCount() {
         SOQL.setCountMock('mockingQuery', 2);
 
-        Integer result = SOQL.of(Account.sObjectType).setMockingId('mockingQuery').asInteger();
+        Integer result = SOQL.of(Account.sObjectType).mockId('mockingQuery').asInteger();
 
         Assert.areEqual(2, result);
-    }
-
-    @isTest
-    static void mockingCountSObjectType() {
-        SOQL.setCountMock(Account.SObjectType, 3);
-
-        Integer result = SOQL.of(Account.sObjectType).asInteger();
-
-        Assert.areEqual(3, result);
     }
 
     @isTest
