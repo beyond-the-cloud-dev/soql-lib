@@ -344,11 +344,11 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public SObject asObject() {
-        return executor.evaluate(builder.build(), binder.build()).asObject();
+        return executor.toObject(builder.build(), binder.build());
     }
 
     public List<SObject> asList() {
-        return executor.evaluate(builder.build(), binder.build()).asList();
+        return executor.toList(builder.build(), binder.build());
     }
 
     public List<AggregateResult> asAggregated() {
@@ -356,7 +356,7 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public Integer asInteger() {
-        return executor.evaluate(builder.build(), binder.build()).asInteger();
+        return executor.toInteger(builder.build(), binder.build());
     }
 
     public SOQL getById(Id recordId) {
@@ -1033,11 +1033,9 @@ public inherited sharing class SOQL implements Queryable {
         private AccessLevel accessMode = AccessLevel.USER_MODE; //The object permissions, field-level security, sharing rules are enforced.
         private AccessType accessType;
 
-        private String query;
         private String queryIdentifier;
         private Boolean withPreview = false;
         private Boolean isCountQuery = false;
-        private Map<String, Object> binding;
 
         private final Map<SharingLevel, DatabaseQuery> MODE_TO_EXECUTOR = new Map<SharingLevel, DatabaseQuery>{
             SharingLevel.WITH_SHARING => new WithSharing(),
@@ -1073,24 +1071,18 @@ public inherited sharing class SOQL implements Queryable {
             withPreview = true;
         }
 
-        public Executor evaluate(String query, Map<String, Object> binding) {
-            this.query = query;
-            this.binding = binding;
-            return this;
-        }
-
-        public SObject asObject() {
+        public SObject toObject(String query, Map<String, Object> binding) {
             try {
-                return asList()[0];
+                return toList(query, binding)[0];
             } catch (ListException e) {
                 return null; //List index out of bounds: 0
             }
         }
 
-        public Integer asInteger() {
+        public Integer toInteger(String query, Map<String, Object> binding) {
             if (withPreview) {
-                previewSoql();
-                previewBinding();
+                previewSoql(query);
+                previewBinding(binding);
             }
 
             if (countMocks.containsKey(queryIdentifier)) {
@@ -1100,10 +1092,10 @@ public inherited sharing class SOQL implements Queryable {
             return MODE_TO_EXECUTOR.get(sharingMode).executeCount(query, binding, accessMode);
         }
 
-        public List<SObject> asList() {
+        public List<SObject> toList(String query, Map<String, Object> binding) {
             if (withPreview) {
-                previewSoql();
-                previewBinding();
+                previewSoql(query);
+                previewBinding(binding);
             }
 
             if (mocks.containsKey(queryIdentifier)) {
@@ -1120,11 +1112,11 @@ public inherited sharing class SOQL implements Queryable {
             ).getRecords();
         }
 
-        private void previewSoql() {
+        private void previewSoql(String query) {
             System.debug('\n\n============ SOQL Preview ============\n' + query + '\n=======================================\n');
         }
 
-        private void previewBinding() {
+        private void previewBinding(Map<String, Object> binding) {
             System.debug('\n\n============ SOQL Binding ============\n' + JSON.serializePretty(binding) + '\n=======================================\n');
         }
     }
