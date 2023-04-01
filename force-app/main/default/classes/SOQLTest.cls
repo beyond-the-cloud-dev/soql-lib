@@ -46,7 +46,7 @@ public class SOQLTest {
     }
 
     @isTest
-    static void with() {
+    static void withRelatedFields() {
         String soql = SOQL.of(Account.sObjectType)
             .with(new List<sObjectField>{
                 Account.Name, Account.BillingCity
@@ -555,9 +555,7 @@ public class SOQLTest {
     @isTest
     static void groupByRollup() {
         String soql = SOQL.of(Lead.sObjectType)
-            .with(new List<sObjectField>{
-                Lead.LeadSource
-            })
+            .with(Lead.LeadSource)
             .countAs(Lead.Name, 'cnt')
             .groupByRollup(Lead.LeadSource)
             .soql();
