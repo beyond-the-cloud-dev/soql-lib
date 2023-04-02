@@ -16,12 +16,11 @@ SOQL of(sObjectType ofObject)
 
 **Example**
 
+```sql
+SELECT Id FROM Account
+```
 ```apex
-//SELECT Id FROM Account
 SOQL.of(Account.sObjectType).asList();
-
-//SELECT Id FROM Contact
-SOQL.of(Contact.sObjectType).asList();
 ```
 
 ## select
@@ -36,18 +35,14 @@ SOQL with(sObjectField field)
 
 **Example**
 
+```sql
+SELECT Id, Name
+FROM Account
+```
 ```apex
-//SELECT Id, Name FROM Account
 SOQL.of(Account.sObjectType)
     .with(Account.Id)
     .with(Account.Name)
-    .asList();
-
-//SELECT Id, FirstName, LastName FROM Contact
-SOQL.of(Contact.sObjectType)
-    .with(Contact.Id)
-    .with(Contact.FirstName)
-    .with(Contact.LastName)
     .asList();
 ```
 
@@ -65,6 +60,10 @@ SOQL with(List<sObjectField> fields)
 
 **Example**
 
+```sql
+SELECT Id, Name, Industry
+FROM Account
+```
 ```apex
 //SELECT Id, Name, Industry FROM Account
 SOQL.of(Account.sObjectType)
@@ -72,14 +71,6 @@ SOQL.of(Account.sObjectType)
         Account.Id,
         Account.Name,
         Account.Industry
-    }).asList();
-
-//SELECT Id, FirstName, LastName FROM Contact
-SOQL.of(Contact.sObjectType)
-    .with(List<sObjectField>{
-        Contact.Id,
-        Contact.FirstName,
-        Contact.LastName
     }).asList();
 ```
 
@@ -95,15 +86,13 @@ SOQL with(String fields)
 
 **Example**
 
+```sql
+SELECT Id, Name, Industry
+FROM Account
+```
 ```apex
-//SELECT Id, Name, Industry FROM Account
 SOQL.of(Account.sObjectType)
     .with('Id, Name, Industry')
-    .asList();
-
-//SELECT Id, FirstName, LastName FROM Contact
-SOQL.of(Contact.sObjectType)
-    .with('Id, FirstName, LastName')
     .asList();
 ```
 
@@ -121,19 +110,15 @@ SOQL with(String relationshipName, List<sObjectField> fields)
 
 **Example**
 
+```sql
+SELECT CreatedBy.Id, CreatedBy.Name
+FROM Account
+```
 ```apex
-//SELECT CreatedBy.Id, CreatedBy.Name FROM Account
 SOQL.of(Account.sObjectType)
     .with('CreatedBy', List<sObjectField>{
         User.Id,
         User.Name
-    }).asList();
-
-//SELECT Account.Id, Account.Name FROM Contact
-SOQL.of(Contact.sObjectType)
-    .with('Account', List<sObjectField>{
-        Account.Id,
-        Account.Name
     }).asList();
 ```
 
@@ -153,8 +138,13 @@ SOQL with(SOQL.SubQuery subQuery)
 
 **Example**
 
+```sql
+SELECT Id, (
+    SELECT Id, Name
+    FROM Contacts
+) FROM Account
+```
 ```apex
-//SELECT Id, (SELECT Id, Name FROM Contacts) FROM Account
 SOQL.of(Account.sObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .with(new List<sObjectField>{
@@ -163,7 +153,6 @@ SOQL.of(Account.sObjectType)
         })
     ).asList();
 ```
-
 
 ### count
 
@@ -179,8 +168,11 @@ SOQL count()
 
 **Example**
 
+```sql
+SELECT COUNT()
+FROM Account
+```
 ```apex
-//SELECT COUNT() FROM Account
 SOQL.of(Account.sObjectType)
     .count()
     .asInteger();
@@ -200,8 +192,10 @@ countAs(sObjectField field, String alias)
 
 **Example**
 
+```sql
+SELECT COUNT(Name) names FROM Account
+```
 ```apex
-//SELECT COUNT(Name) names FROM Account
 SOQL.of(Account.sObjectType)
     .countAs(Account.Name, 'names')
     .asAggregated();
@@ -223,8 +217,12 @@ SOQL delegatedScope()
 
 **Example**
 
+```sql
+SELECT Id
+FROM Task
+USING SCOPE DELEGATED
+```
 ```apex
-//SELECT Id FROM Task USING SCOPE DELEGATED
 SOQL.of(Task.sObjectType)
     .delegatedScope()
     .asList();
@@ -242,8 +240,12 @@ SOQL mineScope()
 
 **Example**
 
+```sql
+SELECT Id
+FROM Task
+USING SCOPE MINE
+```
 ```apex
-//SELECT Id FROM Account USING SCOPE MINE
 SOQL.of(Account.sObjectType)
     .mineScope()
     .asList();
@@ -261,8 +263,12 @@ SOQL mineAndMyGroupsScope()
 
 **Example**
 
+```sql
+SELECT Id
+FROM Task
+USING SCOPE MINE_AND_MY_GROUPS
+```
 ```apex
-//SELECT Id FROM ProcessInstanceWorkItem USING SCOPE MINE_AND_MY_GROUPS
 SOQL.of(ProcessInstanceWorkItem.sObjectType)
     .mineAndMyGroupsScope()
     .asList();
@@ -280,8 +286,13 @@ SOQL myTerritoryScope()
 
 **Example**
 
+```sql
+SELECT Id
+FROM X
+USING SCOPE MY_TERRITORY
+```
 ```apex
-//SELECT Id FROM X USING SCOPE MY_TERRITORY
+
 ```
 
 ### myTeamTerritoryScope
@@ -296,8 +307,12 @@ SOQL myTeamTerritoryScope()
 
 **Example**
 
+```sql
+SELECT Id
+FROM X
+USING SCOPE MY_TEAM_TERRITORY
+```
 ```apex
-//SELECT Id FROM X USING SCOPE MY_TEAM_TERRITORY
 ```
 
 ### teamScope
@@ -312,8 +327,10 @@ SOQL teamScope()
 
 **Example**
 
+```sql
+SELECT Id FROM Account USING SCOPE TEAM
+```
 ```apex
-//SELECT Id FROM Account USING SCOPE TEAM
 SOQL.of(Account.sObjectType)
     .teamScope()
     .asList();
@@ -335,8 +352,12 @@ SOQL whereAre(FilterClause conditions)
 
 **Example**
 
+```sql
+SELECT Id
+FROM Account
+WHERE Id = :accountId OR Name = '%MyAccount%'
+```
 ```apex
-//SELECT Id FROM Account WHERE Id = :accountId OR Name = '%MyAccount%'
 SOQL.of(Account.sObjectType)
     .whereAre(SOQL.FiltersGroup
         .add(SOQL.Filter.with(Account.Id).equal(accountId))
@@ -360,8 +381,12 @@ SOQL groupBy(sObjectField field)
 
 **Example**
 
+```sql
+SELECT LeadSource
+FROM Lead
+GROUP BY LeadSource
+```
 ```apex
-//SELECT LeadSource FROM LEAD GROUP BY LeadSource
 SOQL.of(Lead.sObjectType)
     .with(Lead.LeadSource)
     .groupBy(Lead.LeadSource)
@@ -378,6 +403,11 @@ SOQL groupByRollup(sObjectField field)
 
 **Example**
 
+```sql
+SELECT LeadSource, COUNT(Name) cnt
+FROM Lead
+GROUP BY ROLLUP(LeadSource)
+```
 ```apex
 QS.of(Lead.sObjectType)
     .with(Lead.LeadSource)
@@ -402,29 +432,37 @@ SOQL orderBy(sObjectField field)
 
 **Example**
 
+```sql
+SELECT Id
+FROM Account
+ORDER BY Name
+```
 ```apex
-//SELECT Id FROM Account ORDER BY Name
 SOQL.of(Account.sObjectType)
     .orderBy(Account.Name)
     .asList();
 ```
 
-### orderByRelated
+### orderBy related
 
 Order SOQL query by parent field.
 
 **Signature**
 
 ```apex
-SOQL orderByRelated(String path, sObjectField field)
+SOQL orderBy(String relationshipName, sObjectField field)
 ```
 
 **Example**
 
+```sql
+SELECT Id
+FROM Contact
+ORDER BY Account.Name
+```
 ```apex
-//SELECT Id FROM Contact ORDER BY Account.Name
 SOQL.of(Contact.sObjectType)
-    .orderByRelated('Account', Account.Name)
+    .orderBy('Account', Account.Name)
     .asList();
 ```
 
@@ -440,8 +478,12 @@ SOQL sortDesc()
 
 **Example**
 
+```sql
+SELECT Id
+FROM Account
+ORDER BY Name DESC
+```
 ```apex
-//SELECT Id FROM Account ORDER BY Name DESC
 SOQL.of(Account.sObjectType)
     .orderBy(Account.Name)
     .sortDesc()
@@ -460,8 +502,12 @@ SOQL nullsLast()
 
 **Example**
 
+```sql
+SELECT Id
+FROM Account
+ORDER BY Name NULLS LAST
+```
 ```apex
-//SELECT Id FROM Account ORDER BY Name NULLS LAST
 SOQL.of(Account.sObjectType)
     .orderBy(Account.Industry)
     .nullsLast()
@@ -482,8 +528,12 @@ SOQL setLimit(Integer amount)
 
 **Example**
 
+```sql
+SELECT Id
+FROM Account
+LIMIT 100
+```
 ```apex
-//SELECT Id FROM Account LIMIT 100
 SOQL.of(Account.sObjectType)
     .setLimit(100)
     .asList();
@@ -503,8 +553,12 @@ SOQL offset(Integer startingRow)
 
 **Example**
 
+```sql
+SELECT Id
+FROM Account
+OFFSET 10
+```
 ```apex
-//SELECT Id FROM Account OFFSET 10
 SOQL.of(Account.sObjectType)
     .setOffset(10)
     .asList();
@@ -526,8 +580,12 @@ SOQL forReference()
 
 **Example**
 
+```sql
+SELECT Id
+FROM Contact
+FOR REFERENCE
+```
 ```apex
-//SELECT Id FROM Contact FOR REFERENCE
 SOQL.of(Contact.sObjectType)
     .forReference()
     .asList();
@@ -545,8 +603,12 @@ SOQL forView()
 
 **Example**
 
+```sql
+SELECT Id
+FROM Contact
+FOR VIEW
+```
 ```apex
-//SELECT Id FROM Contact FOR VIEW
 SOQL.of(Contact.sObjectType)
     .forView()
     .asList();
@@ -564,8 +626,12 @@ SOQL forUpdate()
 
 **Example**
 
+```sql
+SELECT Id
+FROM Contact
+FOR UPDATE
+```
 ```apex
-//SELECT Id FROM Contact FOR UPDATE
 SOQL.of(Contact.sObjectType)
     .forUpdate()
     .asList();
@@ -581,8 +647,12 @@ SOQL allRows()
 
 **Example**
 
+```sql
+SELECT Id
+FROM X
+FOR ALL ROWS
+```
 ```apex
-//SELECT Id FROM X ALL ROWS
 ```
 
 ## fls
@@ -748,6 +818,13 @@ List<AggregateResult> asAggregated()
 
 **Example**
 
+
+```sql
+SELECT LeadSource
+FROM Lead
+GROUP BY LeadSource
+```
+
 ```apex
 SOQL.of(Lead.sObjectType)
     .with(Lead.LeadSource)
@@ -765,7 +842,9 @@ Integer asInteger()
 
 **Example**
 
+```sql
+SELECT COUNT() FROM Account
+```
 ```apex
-//SELECT COUNT() FROM Account
 QS.of(Account.sObjectType).count().asInteger();
 ```
