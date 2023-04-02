@@ -30,7 +30,7 @@ jobs:
           npm install @salesforce/cli --global
 
       - name: Write the dev hub token into a file
-        run: 'echo ${{secrets.SFDX_AUTH_URL}} > devHubAuthToken'
+        run: 'echo ${{secrets.SFDX_AUTH_URL_DEVHUB}} > devHubAuthToken'
 
       - name: Authorize with the dev hub
         run: sfdx force:auth:sfdxurl:store -f devHubAuthToken --setalias DevHub --setdefaultdevhubusername
