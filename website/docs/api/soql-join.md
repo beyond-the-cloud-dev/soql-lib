@@ -16,9 +16,21 @@ static JoinQuery of(sObjectType ofObject)
 
 **Example**
 
+```sql
+SELECT Id
+FROM Account
+WHERE Id IN (
+    SELECT AccountId
+    FROM Contact
+    WHERE Name = 'My Contact'
+)
+```
 ```apex
-SOQL.InnerJoin.of(Account.sObjectType)
-SOQL.InnerJoin.of(Contact.sObjectType)
+SOQL.of(Account.sObjectType)
+    .whereAre(SOQL.Filter.with(Account.Id).isIn(
+        SOQL.InnerJoin.of(Contact.sObjectType)
+            .with(Contact.AccountId)
+    )).asList();
 ```
 
 ## field
@@ -33,8 +45,20 @@ static JoinQuery with(sObjectField field)
 
 **Example**
 
+```sql
+SELECT Id
+FROM Account
+WHERE Id IN (
+    SELECT AccountId
+    FROM Contact
+)
+```
 ```apex
-SOQL.InnerJoin.of(Contact.sObjectType).with(Contact.Account.Id)
+SOQL.of(Account.sObjectType)
+    .whereAre(SOQL.Filter.with(Account.Id).isIn(
+        SOQL.InnerJoin.of(Contact.sObjectType)
+            .with(Contact.AccountId)
+    )).asList();
 ```
 
 ## whereAre
@@ -51,7 +75,20 @@ static JoinQuery whereAre(FiltersGroup conditions)
 
 **Example**
 
+```sql
+SELECT Id
+FROM Account
+WHERE Id IN (
+    SELECT AccountId
+    FROM Contact
+    WHERE Name = 'My Contact'
+)
+```
 ```apex
-SOQL.InnerJoin.of(Contact.sObjectType)
-    .whereAre(SOQL.Filter.with(Contact.Name).equal('My Contact'))
+SOQL.of(Account.sObjectType)
+    .whereAre(SOQL.Filter.with(Account.Id).isIn(
+        SOQL.InnerJoin.of(Contact.sObjectType)
+            .with(Contact.AccountId)
+            .whereAre(SOQL.Filter.with(Contact.Name).equal('My Contact'))
+    )).asList();
 ```

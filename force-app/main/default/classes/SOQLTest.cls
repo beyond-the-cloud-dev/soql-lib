@@ -150,7 +150,7 @@ public class SOQLTest {
                 .with(new List<sObjectField>{
                     Contact.Id, Contact.Name
                 })
-                .orderByRelated('CreatedBy', User.Name)
+                .orderBy('CreatedBy', User.Name)
                 .sortDesc()
                 .nullsLast()
             ).soql();
@@ -592,7 +592,7 @@ public class SOQLTest {
     @isTest
     static void orderByRelated() {
         String soql = SOQL.of(Contact.sObjectType)
-            .orderByRelated('Account', Account.Name)
+            .orderBy('Account', Account.Name)
             .soql();
 
         Assert.areEqual('SELECT Id FROM Contact ORDER BY Account.Name ASC NULLS FIRST', soql);

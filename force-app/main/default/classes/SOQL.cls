@@ -59,7 +59,7 @@ public inherited sharing class SOQL implements Queryable {
         SOQL groupByRollup(SObjectField field);
 
         SOQL orderBy(SObjectField field);
-        SOQL orderByRelated(String path, SObjectField field);
+        SOQL orderBy(String relationshipName, SObjectField field);
         SOQL sortDesc();
         SOQL nullsLast();
 
@@ -100,7 +100,7 @@ public inherited sharing class SOQL implements Queryable {
         SubQuery whereAre(FilterClause conditions); //SOQL.FiltersGroup or SOQL.Filter
 
         SubQuery orderBy(SObjectField field);
-        SubQuery orderByRelated(String relationshipName, SObjectField field);
+        SubQuery orderBy(String relationshipName, SObjectField field);
         SubQuery sortDesc();
         SubQuery nullsLast();
 
@@ -256,8 +256,8 @@ public inherited sharing class SOQL implements Queryable {
         return this;
     }
 
-    public SOQL orderByRelated(String path, SObjectField field) {
-        builder.orderBys.add(path, field);
+    public SOQL orderBy(String relationshipName, SObjectField field) {
+        builder.orderBys.add(relationshipName, field);
         return this;
     }
 
@@ -566,7 +566,7 @@ public inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public SubQuery orderByRelated(String relationshipName, SObjectField field) {
+        public SubQuery orderBy(String relationshipName, SObjectField field) {
             builder.orderBys.add(relationshipName, field);
             return this;
         }
