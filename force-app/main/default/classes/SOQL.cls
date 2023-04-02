@@ -100,7 +100,7 @@ public inherited sharing class SOQL implements Queryable {
         SubQuery whereAre(FilterClause conditions); //SOQL.FiltersGroup or SOQL.Filter
 
         SubQuery orderBy(SObjectField field);
-        SubQuery orderByRelated(String path, SObjectField field);
+        SubQuery orderByRelated(String relationshipName, SObjectField field);
         SubQuery sortDesc();
         SubQuery nullsLast();
 
@@ -566,8 +566,8 @@ public inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public SubQuery orderByRelated(String path, SObjectField field) {
-            builder.orderBys.add(path, field);
+        public SubQuery orderByRelated(String relationshipName, SObjectField field) {
+            builder.orderBys.add(relationshipName, field);
             return this;
         }
 
@@ -912,7 +912,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public void add(String relationshipName, SObjectField field) {
-            orderBys.add(new QOrderBy().relatedField(relationshipName, field));
+            orderBys.add(new QOrderBy().with(relationshipName, field));
         }
 
         public QOrderBy recentOrderBy() {
@@ -940,7 +940,7 @@ public inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public QOrderBy relatedField(String relationshipName, SObjectField field) {
+        public QOrderBy with(String relationshipName, SObjectField field) {
             orderField = relationshipName + '.' + field.getDescribe().getName();
             return this;
         }

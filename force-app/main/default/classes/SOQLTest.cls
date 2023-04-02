@@ -40,7 +40,8 @@ public class SOQLTest {
     @isTest
     static void withCommaSeparatedFields() {
         String soql = SOQL.of(Account.sObjectType)
-            .with('Id, Name, BillingCity').soql();
+            .with('Id, Name, BillingCity')
+            .soql();
 
         Assert.areEqual('SELECT Id, Name, BillingCity FROM Account', soql);
     }
@@ -58,6 +59,19 @@ public class SOQLTest {
     }
 
     // SubQuery
+
+    @isTest
+    static void subQueryField() {
+        String soql = SOQL.of(Account.sObjectType)
+            .with(new List<sObjectField>{
+                Account.Name
+            })
+            .with(SOQL.SubQuery.of('Contacts')
+                .with(Contact.Id)
+            ).soql();
+
+        Assert.areEqual('SELECT Name , (SELECT Id FROM Contacts) FROM Account', soql);
+    }
 
     @isTest
     static void subQueryFields() {
@@ -714,6 +728,33 @@ public class SOQLTest {
         }
     }
 
+    @isTest
+    static void stripInaccessible() {
+        insertTasks();
+
+        System.runAs(standardUser()) {
+            List<Task> tasks = SOQL.of(Task.sObjectType)
+                .with(Task.Type)
+                .systemMode()
+                .stripInaccessible()
+                .withoutSharing()
+                .asList();
+
+            Exception queryException = null;
+
+            try {
+                String inaccessibleFieldValue = tasks[0].Type;
+            } catch(Exception e) {
+                queryException = e;
+            }
+
+            Assert.areEqual(
+                'SObject row was retrieved via SOQL without querying the requested field: Task.Type',
+                queryException.getMessage()
+            );
+        }
+    }
+
     static void insertCases() {
         insert new List<Case>{
             new Case(Status = 'New', Origin = 'Web'),
@@ -723,8 +764,8 @@ public class SOQLTest {
 
     static void insertTasks() {
         insert new List<Task>{
-            new Task(Subject = 'Test'),
-            new Task(Subject = 'Test')
+            new Task(Subject = 'Test', Type = 'Other'),
+            new Task(Subject = 'Test', Type = 'Other')
         };
     }
 
