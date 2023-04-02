@@ -68,9 +68,7 @@ FROM Account
 //SELECT Id, Name, Industry FROM Account
 SOQL.of(Account.sObjectType)
     .with(List<sObjectField>{
-        Account.Id,
-        Account.Name,
-        Account.Industry
+        Account.Id, Account.Name, Account.Industry
     }).asList();
 ```
 
@@ -117,8 +115,7 @@ FROM Account
 ```apex
 SOQL.of(Account.sObjectType)
     .with('CreatedBy', List<sObjectField>{
-        User.Id,
-        User.Name
+        User.Id, User.Name
     }).asList();
 ```
 
@@ -148,8 +145,7 @@ SELECT Id, (
 SOQL.of(Account.sObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .with(new List<sObjectField>{
-            Contact.Id,
-            Contact.Name
+            Contact.Id, Contact.Name
         })
     ).asList();
 ```
@@ -685,7 +681,9 @@ SOQL.of(Account.sObjectType)
 
 ### withSharing
 
-Execute query `with sharing`. System mode needs to be enabled.
+Execute query `with sharing`.
+
+**Note!** System mode needs to be enabled by `.systemMode()`.
 
 **Signature**
 
@@ -704,7 +702,9 @@ SOQL.of(Account.sObjectType)
 
 ### withoutSharing
 
-Execute query `without sharing`. System mode needs to be enabled.
+Execute query `without sharing`.
+
+**Note!** System mode needs to be enabled by `.systemMode()`.
 
 **Signature**
 

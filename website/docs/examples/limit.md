@@ -4,6 +4,11 @@ sidebar_position: 9
 
 # LIMIT
 
+```sql
+SELECT Id, Name
+FROM Account
+LIMIT 1000
+```
 ```apex
 public inherited sharing class AccountSelector {
 
@@ -20,14 +25,9 @@ public inherited sharing class AccountSelector {
 
 public with sharing class MyController {
 
-    public static List<Account> getAccountsWithLimit(Integer amount) {
-        /*
-        SELECT Id, Name
-        FROM Account
-        LIMIT amount
-        */
+    public static List<Account> getAccountsWithLimit() {
         return AccountSelector.Query
-            .setLimit(amount)
+            .setLimit(1000)
             .asList();
     }
 }
