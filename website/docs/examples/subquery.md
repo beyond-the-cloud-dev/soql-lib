@@ -6,6 +6,11 @@ sidebar_position: 4
 
 Specify child relationship name and pass list of fields.
 
+```sql
+SELECT Id, Name, (
+    SELECT Id, Name FROM Contacts
+) FROM Account
+```
 ```apex
 public inherited sharing class AccountSelector {
 
@@ -23,11 +28,6 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static List<Account> getAccountsWithContacts() {
-        /*
-        SELECT Id, Name, (
-            SELECT Id, Name FROM Contacts
-        ) FROM Account
-        */
         return AccountSelector.Query
             .with(SOQL.SubQuery.of('Contacts')
                 .with(new List<sObjectField>{

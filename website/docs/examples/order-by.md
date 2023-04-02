@@ -4,7 +4,11 @@ sidebar_position: 8
 
 # ORDER BY
 
-
+```sql
+SELECT Id, Name, Industry
+FROM Account
+ORDER BY Industry DESC NULLS FIRST, Id ASC NULLS FIRST
+```
 ```apex
 public inherited sharing class AccountSelector {
 
@@ -23,11 +27,6 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static List<Account> getAccounts() {
-        /*
-        SELECT Id, Name, Industry
-        FROM Account
-        ORDER BY Industry DESC NULLS FIRST, Id ASC NULLS FIRST
-        */
         return AccountSelector.Query
                 .orderBy(Account.Industry).sortDesc()
                 .orderBy(Account.Id)
