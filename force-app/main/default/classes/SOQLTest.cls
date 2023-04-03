@@ -784,7 +784,7 @@ public class SOQLTest {
     }
 
     @isTest
-    static void mocking() {
+    static void mockId() {
         List<Account> accounts = new List<Account>{
             new Account(Name = 'Test 1'),
             new Account(Name = 'Test 2')
@@ -792,7 +792,7 @@ public class SOQLTest {
 
         SOQL.setMock('mockingQuery', accounts);
 
-        List<Account> result = SOQL.of(Account.sObjectType).mocking('mockingQuery').asList();
+        List<Account> result = SOQL.of(Account.sObjectType).mockId('mockingQuery').asList();
 
         Assert.areEqual(accounts, result);
     }
@@ -801,7 +801,7 @@ public class SOQLTest {
     static void mockingCount() {
         SOQL.setCountMock('mockingQuery', 2);
 
-        Integer result = SOQL.of(Account.sObjectType).mocking('mockingQuery').asInteger();
+        Integer result = SOQL.of(Account.sObjectType).mockId('mockingQuery').asInteger();
 
         Assert.areEqual(2, result);
     }

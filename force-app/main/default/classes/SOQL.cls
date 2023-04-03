@@ -77,7 +77,7 @@ public inherited sharing class SOQL implements Queryable {
         SOQL withSharing();
         SOQL withoutSharing();
 
-        SOQL mocking(String queryIdentifier);
+        SOQL mockId(String queryIdentifier);
 
         SOQL preview();
 
@@ -325,8 +325,8 @@ public inherited sharing class SOQL implements Queryable {
         return this;
     }
 
-    public SOQL mocking(String queryIdentifier) {
-        executor.mocking(queryIdentifier);
+    public SOQL mockId(String queryIdentifier) {
+        executor.mockId(queryIdentifier);
         return this;
     }
 
@@ -1059,7 +1059,7 @@ public inherited sharing class SOQL implements Queryable {
             accessMode = AccessLevel.SYSTEM_MODE;
         }
 
-        public void mocking(String identifier) {
+        public void mockId(String identifier) {
             queryIdentifier = identifier;
         }
 
