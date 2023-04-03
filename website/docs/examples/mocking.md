@@ -16,7 +16,7 @@ public with sharing class ExampleController {
                 .add(SOQL.Filter.with(Account.Name).likeAny(accountName))
                 .add(SOQL.Filter.recordType().equal('Partner'))
             )
-            .mocking('ExampleController.getPartnerAccounts')
+            .mockId('ExampleController.getPartnerAccounts')
             .asList();
     }
 }

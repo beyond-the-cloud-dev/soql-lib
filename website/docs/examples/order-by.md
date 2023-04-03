@@ -19,7 +19,7 @@ public inherited sharing class AccountSelector {
                     Account.Id,
                     Account.Name,
                     Account.Industry
-                });;
+                });
         }
     }
 }

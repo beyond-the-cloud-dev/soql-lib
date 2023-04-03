@@ -65,7 +65,6 @@ SELECT Id, Name, Industry
 FROM Account
 ```
 ```apex
-//SELECT Id, Name, Industry FROM Account
 SOQL.of(Account.sObjectType)
     .with(List<sObjectField>{
         Account.Id, Account.Name, Account.Industry
@@ -284,11 +283,13 @@ SOQL myTerritoryScope()
 
 ```sql
 SELECT Id
-FROM X
+FROM Opportunity
 USING SCOPE MY_TERRITORY
 ```
 ```apex
-
+SOQL.of(Opportunity.sObjectType)
+    .myTerritoryScope()
+    .asList();
 ```
 
 ### myTeamTerritoryScope
@@ -305,10 +306,13 @@ SOQL myTeamTerritoryScope()
 
 ```sql
 SELECT Id
-FROM X
+FROM Opportunity
 USING SCOPE MY_TEAM_TERRITORY
 ```
 ```apex
+SOQL.of(Opportunity.sObjectType)
+    .myTeamTerritoryScope()
+    .asList();
 ```
 
 ### teamScope
@@ -726,14 +730,14 @@ SOQL.of(Account.sObjectType)
 **Signature**
 
 ```apex
-SOQL mocking(String queryIdentifier)
+SOQL mockId(String queryIdentifier)
 ```
 
 **Example**
 
 ```apex
 SOQL.of(Account.sObjectType)
-    .mocking('MyQuery')
+    .mockId('MyQuery')
     .asList();
 
 // In Unit Test

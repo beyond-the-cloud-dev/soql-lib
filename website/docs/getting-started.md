@@ -20,14 +20,14 @@ List<Account> accounts = SOQL.of(Account.sObjectType).asList();
 ```apex
 //SELECT Id, Name, Industry, Country FROM Account
 List<Account> accounts = SOQL.of(Account.sObjectType)
-   .with(new List<sObjectField>{
+   .with(new List<SObjectField>{
       Account.Id, Account.Name, Account.Industry, Account.Country
    }).asList();
 ```
 
 ## Benefits
 
-1. **Additional level of abstraction** - The selector layer is an additional level of abstraction that gives you the possibility to control the execution of SQOL.
+1. **Additional level of abstraction** - The selector layer is an additional level of abstraction that gives you the possibility to control the execution of SOQL.
 2. **Mocking** - Selector classes give a possibility to mock return values in unit tests.
     - Mock external objects (__x) - External objects cannot be inserted in unit tests. You need to mock them.
     - Mock custom metadata - Custom metadata cannot be inserted in unit tests unless the developer uses the Metadata API. Mock can be a solution.
