@@ -658,34 +658,6 @@ public class SOQLTest {
         Assert.areEqual('SELECT Id FROM Account ALL ROWS', soql);
     }
 
-    // Predefinied
-
-    @isTest
-    static void getById() {
-        Id accountId = '0013V00000WNCwCQAX';
-
-        SOQL builder = SOQL.of(Account.sObjectType).getById(accountId);
-
-        String soql = builder.soql();
-        Assert.areEqual('SELECT Id FROM Account WHERE Id = :v1', soql);
-
-        Map<String, Object> binding = builder.binding();
-        Assert.areEqual(accountId, binding.get('v1'));
-    }
-
-    @isTest
-    static void getByIds() {
-        List<Id> accountIds = new List<Id>{ '0013V00000WNCwCQAX' };
-
-        SOQL builder = SOQL.of(Account.sObjectType).getByIds(accountIds);
-
-        String soql = builder.soql();
-        Assert.areEqual('SELECT Id FROM Account WHERE Id IN :v1', soql);
-
-        Map<String, Object> binding = builder.binding();
-        Assert.areEqual(accountIds, binding.get('v1'));
-    }
-
     // Functional
 
     @isTest

@@ -359,14 +359,6 @@ public inherited sharing class SOQL implements Queryable {
         return executor.toInteger(builder.build(), binder.build());
     }
 
-    public SOQL getById(Id recordId) {
-        return whereAre(Filter.id().equal(recordId));
-    }
-
-    public SOQL getByIds(List<Id> recordIds) {
-        return whereAre(Filter.id().isIn(recordIds));
-    }
-
     // Config
 
     public interface QueryClause {
