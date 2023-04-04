@@ -23,10 +23,11 @@ public with sharing class ExampleController {
 ```
 
 ```apex
-@isTest
+@IsTest
 public class ExampleControllerTest {
 
-    public static List<Account> getPartnerAccounts(String accountName) {
+    @IsTest
+    static void getPartnerAccounts(String accountName) {
         List<Account> accounts = new List<Account>{
             new Account(Name = 'MyAccount 1'),
             new Account(Name = 'MyAccount 2')
@@ -34,8 +35,9 @@ public class ExampleControllerTest {
 
         SOQL.setMock('ExampleController.getPartnerAccounts', accounts);
 
-        // Test
-        List<Account> result = ExampleController.getAccounts('MyAccount');
+        Test.startTest();
+        List<Account> result = ExampleController.getPartnerAccounts('MyAccount');
+        Test.stopTest;
 
         Assert.areEqual(accounts, result);
     }
