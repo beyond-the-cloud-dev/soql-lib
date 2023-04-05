@@ -658,6 +658,34 @@ public class SOQLTest {
         Assert.areEqual('SELECT Id FROM Account ALL ROWS', soql);
     }
 
+    // Predefinied
+
+    @isTest
+    static void getById() {
+        Id accountId = '0013V00000WNCwCQAX';
+
+        SOQL builder = SOQL.of(Account.sObjectType).byId(accountId);
+
+        String soql = builder.soql();
+        Assert.areEqual('SELECT Id FROM Account WHERE Id = :v1', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(accountId, binding.get('v1'));
+    }
+
+    @isTest
+    static void getByIds() {
+        List<Id> accountIds = new List<Id>{ '0013V00000WNCwCQAX' };
+
+        SOQL builder = SOQL.of(Account.sObjectType).byIds(accountIds);
+
+        String soql = builder.soql();
+        Assert.areEqual('SELECT Id FROM Account WHERE Id IN :v1', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(accountIds, binding.get('v1'));
+    }
+
     // Functional
 
     @isTest
@@ -757,10 +785,7 @@ public class SOQLTest {
 
     @isTest
     static void mockId() {
-        List<Account> accounts = new List<Account>{
-            new Account(Name = 'Test 1'),
-            new Account(Name = 'Test 2')
-        };
+        List<Account> accounts = getAccount();
 
         SOQL.setMock('mockingQuery', accounts);
 
@@ -799,10 +824,7 @@ public class SOQLTest {
 
     @isTest
     static void asList() {
-        List<Account> accounts = new List<Account>{
-            new Account(Name = 'Test 1'),
-            new Account(Name = 'Test 2')
-        };
+        List<Account> accounts = getAccount();
 
         insert accounts;
 
@@ -813,10 +835,7 @@ public class SOQLTest {
 
     @isTest
     static void asAggregated() {
-        List<Account> accounts = new List<Account>{
-            new Account(Name = 'Test 1'),
-            new Account(Name = 'Test 2')
-        };
+        List<Account> accounts = getAccount();
 
         insert accounts;
 
@@ -827,16 +846,35 @@ public class SOQLTest {
 
     @isTest
     static void asInteger() {
-        List<Account> accounts = new List<Account>{
-            new Account(Name = 'Test 1'),
-            new Account(Name = 'Test 2')
-        };
+        List<Account> accounts = getAccount();
 
         insert accounts;
 
         Integer result = SOQL.of(Account.sObjectType).count().asInteger();
 
         Assert.areEqual(accounts.size(), result);
+    }
+
+    @isTest
+    static void asMap() {
+        List<Account> accounts = getAccount();
+
+        insert accounts;
+
+        Map<Id, SObject> result = SOQL.of(Account.sObjectType).asMap();
+
+        Assert.areEqual(accounts.size(), result.size());
+
+        for (Account acc : accounts) {
+            Assert.isNotNull(result.get(acc.Id));
+        }
+    }
+
+    static List<Account> getAccount() {
+        return new List<Account>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        };
     }
 
     @isTest
