@@ -7,7 +7,7 @@ sidebar_position: 4
 ## add
 
 Allows to add multiple conditions.
-Add a [`QB.Filter`](soql-filter.md) or [`QB.FiltersGroup`](soql-filters-group.md).
+Add a [`SOQL.Filter`](soql-filter.md) or [`SOQL.FiltersGroup`](soql-filters-group.md).
 
 **Signature**
 
@@ -62,7 +62,6 @@ SELECT Id
 FROM Account
 WHERE (Name = 'My Account' AND NumberOfEmployees >= 10)
 OR (Name = 'My Account' AND Industry = 'IT')
-
 ```
 ```apex
 SOQL.of(Account.sObjectType)

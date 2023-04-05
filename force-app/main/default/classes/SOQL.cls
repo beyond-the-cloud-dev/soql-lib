@@ -88,6 +88,7 @@ public inherited sharing class SOQL implements Queryable {
         List<SObject> asList();
         List<AggregateResult> asAggregated();
         Integer asInteger();
+        Map<Id, SObject> asMap();
     }
 
     public interface SoqlSubQuery { //SOQL.SubQuery
@@ -357,6 +358,18 @@ public inherited sharing class SOQL implements Queryable {
 
     public Integer asInteger() {
         return executor.toInteger(builder.build(), binder.build());
+    }
+
+    public Map<Id, SObject> asMap() {
+        return new Map<Id, SObject>(asList());
+    }
+
+    public SOQL byId(Id recordId) {
+        return whereAre(Filter.id().equal(recordId));
+    }
+
+    public SOQL byIds(List<Id> recordIds) {
+        return whereAre(Filter.id().isIn(recordIds));
     }
 
     // Config

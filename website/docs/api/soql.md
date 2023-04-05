@@ -852,3 +852,64 @@ SELECT COUNT() FROM Account
 ```apex
 QS.of(Account.sObjectType).count().asInteger();
 ```
+
+### asMap
+
+**Signature**
+
+```apex
+Map<Id, SObject> asMap()
+```
+
+**Example**
+
+```apex
+SOQL.of(Account.sObjectType).asMap();
+```
+
+## predefined
+
+For all predefined methods SOQL instance is returned so you can still adjust query before execution.
+Add additional fields with [`.with`](#select).
+
+### byId
+
+**Signature**
+
+```apex
+SOQL byId(Id recordId)
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+WHERE Id = '1234'
+```
+```apex
+SOQL.of(Account.sObjectType)
+    .byId('1234')
+    .asObject();
+```
+
+### byIds
+
+**Signature**
+
+```apex
+SOQL byIds(List<Id> recordIds)
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+WHERE Id IN ('1234')
+```
+```apex
+SOQL.of(Account.sObjectType)
+    .byIds(new List<Id>{ '1234' })
+    .asList();
+```
