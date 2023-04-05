@@ -674,7 +674,20 @@ public class SOQLTest {
     }
 
     @isTest
-    static void getByIds() {
+    static void byIdsSet() {
+        Set<Id> accountIds = new Set<Id>{ '0013V00000WNCwCQAX' };
+
+        SOQL builder = SOQL.of(Account.sObjectType).byIds(accountIds);
+
+        String soql = builder.soql();
+        Assert.areEqual('SELECT Id FROM Account WHERE Id IN :v1', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(new List<Id>(accountIds), binding.get('v1'));
+    }
+
+    @isTest
+    static void byIdsList() {
         List<Id> accountIds = new List<Id>{ '0013V00000WNCwCQAX' };
 
         SOQL builder = SOQL.of(Account.sObjectType).byIds(accountIds);
