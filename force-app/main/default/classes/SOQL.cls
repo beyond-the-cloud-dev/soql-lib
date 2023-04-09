@@ -158,7 +158,7 @@ public inherited sharing class SOQL implements Queryable {
 
     private SOQL(SObjectType ofObject) {
         binder = new Binder();
-        builder = new QB(ofObject);
+        builder = new QueryBuilder(ofObject);
         executor = new Executor(ofObject);
     }
 
