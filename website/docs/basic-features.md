@@ -118,6 +118,8 @@ SOQL.of(Account.sObjectType).with(new List<SObjectField> {
 
 ## Mocking
 
+To mock SOQL query use `.mockId(id)` method to make it identifiable. If you mark more than one query with the same ID, all marked queries will return the same data.
+
 ```apex
 public with sharing class ExampleController {
 
@@ -134,6 +136,8 @@ public with sharing class ExampleController {
     }
 }
 ```
+
+Then in test simply pass data you want to get from Selector to `SOQL.setMock(id, data)` method. Acceptable formats are: `List<SObject>`, `SObject`, or `String` with name of static resource. Then during execution Selector will return desired data.
 
 ```apex
 @isTest
