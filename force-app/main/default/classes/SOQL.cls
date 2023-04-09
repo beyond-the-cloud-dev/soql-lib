@@ -1054,19 +1054,9 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     private class Mock {
-        private final Map<String, List<SObject>> mocks;
-        private final Map<String, String> staticResourceMocks;
-        private final Map<String, Integer> countMocks;
-
-        public Mock() {
-            mocks = new Map<String, List<SObject>>();
-            staticResourceMocks = new Map<String, String>();
-            countMocks = new Map<String, Integer>();
-        }
-
-        public void setMock(String mockId, SObject record) {
-            setMock(mockId, new List<SObject>{ record });
-        }
+        private final Map<String, List<SObject>> mocks = new Map<String, List<SObject>>();
+        private final Map<String, String> staticResourceMocks = new Map<String, String>();
+        private final Map<String, Integer> countMocks = new Map<String, Integer>();
 
         public void setMock(String mockId, List<SObject> records) {
             mocks.put(mockId, records);
@@ -1081,19 +1071,19 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public Boolean hasMock(String mockId) {
-            return mocks.containsKey(mockId) || staticResourceMocks.containsKey(mockId);
+            return mocks.containsKey(mockId);
         }
 
-        public List<SObject> getMocks(String mockId, SObjectType sObjectType) {
-            if (mocks.containsKey(mockId)) {
-                return mocks.get(mockId);
-            }
+        public Boolean hasStaticResourceMock(String mockId){
+            return staticResourceMocks.containsKey(mockId);
+        }
 
-            if (staticResourceMocks.containsKey(mockId)) {
-                return Test.loadData(sObjectType, staticResourceMocks.get(mockId));
-            }
+        public List<SObject> getMocks(String mockId) {
+            return mocks.get(mockId);
+        }
 
-            return null;
+        public List<SObject> getStaticResourceMocks(String mockId, SObjectType sObjectType){
+            return Test.loadData(sObjectType, staticResourceMocks.get(mockId));
         }
 
         public Boolean hasCountMock(String mockId) {
@@ -1182,7 +1172,11 @@ public inherited sharing class SOQL implements Queryable {
             }
 
             if (mock.hasMock(mockId)) {
-                return mock.getMocks(mockId, ofObject);
+                return mock.getMocks(mockId);
+            }
+
+            if (mock.hasStaticResourceMock(mockId)) {
+                return mock.getStaticResourceMocks(mockId, ofObject);
             }
 
             if (accessType == null) {
