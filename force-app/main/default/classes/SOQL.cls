@@ -1,6 +1,6 @@
 public inherited sharing class SOQL implements Queryable {
 
-    public static SubQuery Sub {
+    public static SubQuery SubQuery {
         get {
             return new SubQuery(binder);
         }
@@ -25,16 +25,16 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public interface Queryable {
-        SOQL of(sObjectType ofObject);
+        SOQL of(SObjectType ofObject);
 
-        SOQL field(SObjectField field);
-        SOQL fields(List<SObjectField> fields);
-        SOQL fields(String commaSeparatedFields);
-        SOQL relatedFields(String relationshipPath, List<SObjectField> fields);
+        SOQL with(SObjectField field);
+        SOQL with(List<SObjectField> fields);
+        SOQL with(String fields);
+        SOQL with(String relationshipName, List<SObjectField> fields);
+        SOQL with(SubQuery subQuery); //SOQL.SubQuery
+
         SOQL count();
         SOQL countAs(SObjectField field, String alias);
-
-        SOQL subQuery(SubQuery subQuery); //Sub
 
         SOQL delegatedScope();
         SOQL mineScope();
@@ -49,7 +49,7 @@ public inherited sharing class SOQL implements Queryable {
         SOQL groupByRollup(SObjectField field);
 
         SOQL orderBy(SObjectField field);
-        SOQL orderByRelated(String path, SObjectField field);
+        SOQL orderBy(String relationshipName, SObjectField field);
         SOQL sortDesc();
         SOQL nullsLast();
 
@@ -78,18 +78,24 @@ public inherited sharing class SOQL implements Queryable {
         List<SObject> asList();
         List<AggregateResult> asAggregated();
         Integer asInteger();
+        Map<Id, SObject> asMap();
+
+        SOQL byId(Id recordId);
+        SOQL byIds(Set<Id> recordIds);
+        SOQL byIds(List<Id> recordIds);
     }
 
-    public interface SoqlSubQuery { //SOQL.Sub
+    public interface SoqlSubQuery { //SOQL.SubQuery
         SubQuery of(String ofObject);
 
-        SubQuery fields(List<SObjectField> fields);
-        SubQuery relatedFields(String relationshipPath, List<SObjectField> fields);
+        SubQuery with(SObjectField field);
+        SubQuery with(List<SObjectField> fields);
+        SubQuery with(String relationshipName, List<SObjectField> fields);
 
         SubQuery whereAre(FilterClause conditions); //SOQL.FiltersGroup or SOQL.Filter
 
         SubQuery orderBy(SObjectField field);
-        SubQuery orderByRelated(String path, SObjectField field);
+        SubQuery orderBy(String relationshipName, SObjectField field);
         SubQuery sortDesc();
         SubQuery nullsLast();
 
@@ -101,12 +107,12 @@ public inherited sharing class SOQL implements Queryable {
         SubQuery forView();
     }
 
-    public interface SoqlCondition { //SOQL.Filter
+    public interface SoqlFilter { //SOQL.Filter
         Filter id();
         Filter recordType();
-        Filter field(SObjectField field);
-        Filter field(String field);
-        Filter relatedField(String relationshipPath, SObjectField field);
+        Filter with(SObjectField field);
+        Filter with(String field);
+        Filter with(String relationshipName, SObjectField field);
 
         Filter isNull();
         Filter isNotNull();
@@ -131,9 +137,9 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public interface SoqlJoin { //SOQL.InnerJoin
-        JoinQuery of(sObjectType ofObject);
+        JoinQuery of(SObjectType ofObject);
 
-        JoinQuery field(SObjectField field);
+        JoinQuery with(SObjectField field);
 
         JoinQuery whereAre(FilterClause conditions); //SOQL.Filter or SOQL.FiltersGroup
     }
@@ -143,14 +149,14 @@ public inherited sharing class SOQL implements Queryable {
     private static Binder binder;
     private static Mock mock = new Mock();
 
-    private QB builder;
+    private QueryBuilder builder;
     private Executor executor;
 
     public static SOQL of(sObjectType ofObject) {
         return new SOQL(ofObject);
     }
 
-    private SOQL(sObjectType ofObject) {
+    private SOQL(SObjectType ofObject) {
         binder = new Binder();
         builder = new QB(ofObject);
         executor = new Executor(ofObject);
@@ -158,23 +164,28 @@ public inherited sharing class SOQL implements Queryable {
 
     // Fields
 
-    public SOQL field(SObjectField field) {
+    public SOQL with(SObjectField field) {
         builder.fields.retrive(field);
         return this;
     }
 
-    public SOQL fields(List<SObjectField> fields) {
+    public SOQL with(List<SObjectField> fields) {
         builder.fields.retrive(fields);
         return this;
     }
 
-    public SOQL fields(String commaSeparatedFields) {
-        builder.fields.retrive(commaSeparatedFields);
+    public SOQL with(String fields) {
+        builder.fields.retrive(fields);
         return this;
     }
 
-    public SOQL relatedFields(String relationshipPath, List<SObjectField> fields) {
-        builder.fields.retrive(relationshipPath, fields);
+    public SOQL with(String relationshipName, List<SObjectField> fields) {
+        builder.fields.retrive(relationshipName, fields);
+        return this;
+    }
+
+    public SOQL with(SubQuery subQuery) {
+        builder.subQueries.add(subQuery);
         return this;
     }
 
@@ -189,15 +200,6 @@ public inherited sharing class SOQL implements Queryable {
         executor.countQuery();
         return this;
     }
-
-    // SubQuery
-
-    public SOQL subQuery(SubQuery subQuery) {
-        builder.subQueries.add(subQuery);
-        return this;
-    }
-
-    // Scope
 
     public SOQL delegatedScope() {
         builder.scope.delegated();
@@ -229,17 +231,13 @@ public inherited sharing class SOQL implements Queryable {
         return this;
     }
 
-    // Where
-
     public SOQL whereAre(FilterClause conditions) {
         builder.conditions.add(conditions);
         return this;
     }
 
-    // Group By
-
     public SOQL groupBy(SObjectField field) {
-        builder.groupBy.field(field);
+        builder.groupBy.with(field);
         return this;
     }
 
@@ -248,15 +246,13 @@ public inherited sharing class SOQL implements Queryable {
         return this;
     }
 
-    // Order By - ASC, NULLS FIRST by default
-
-    public SOQL orderBy(SObjectField field) {
+    public SOQL orderBy(SObjectField field) { //Order By - ASC, NULLS FIRST by default
         builder.orderBys.add(field);
         return this;
     }
 
-    public SOQL orderByRelated(String path, SObjectField field) {
-        builder.orderBys.add(path, field);
+    public SOQL orderBy(String relationshipName, SObjectField field) {
+        builder.orderBys.add(relationshipName, field);
         return this;
     }
 
@@ -270,21 +266,15 @@ public inherited sharing class SOQL implements Queryable {
         return this;
     }
 
-    // Limit
-
     public SOQL setLimit(Integer amount) {
         builder.soqlLimit.max(amount);
         return this;
     }
 
-    // Offset
-
     public SOQL offset(Integer startingRow) {
         builder.soqlOffset.offset(startingRow);
         return this;
     }
-
-    // For
 
     public SOQL forReference() {
         builder.soqlFor.forReference();
@@ -306,33 +296,34 @@ public inherited sharing class SOQL implements Queryable {
         return this;
     }
 
-    // FLS - User Mode by default
-
-    public SOQL systemMode() {
+    public SOQL systemMode() { //User Mode by default
         executor.systemMode();
         return this;
     }
 
-    // Sharing - inherited sharing by default
+    public SOQL stripInaccessible() {
+        return stripInaccessible(AccessType.READABLE);
+    }
 
-    public SOQL withSharing() {
+    public SOQL stripInaccessible(AccessType accessType) {
+        executor.stripInaccessible(accessType);
+        return this;
+    }
+
+    public SOQL withSharing() { //Works only when .systemMode() enabled
         executor.withSharing();
         return this;
     }
 
-    public SOQL withoutSharing() {
+    public SOQL withoutSharing() { //Works only when .systemMode() enabled
         executor.withoutSharing();
         return this;
     }
-
-    // Mocking
 
     public SOQL mockId(String id) {
         executor.mockId(id);
         return this;
     }
-
-    // Debug
 
     public SOQL preview() {
         executor.preview();
@@ -347,23 +338,12 @@ public inherited sharing class SOQL implements Queryable {
         return binder.build();
     }
 
-    // Result
-
-    public SOQL stripInaccessible() {
-        return stripInaccessible(AccessType.READABLE);
-    }
-
-    public SOQL stripInaccessible(AccessType accessType) {
-        executor.stripInaccessible(accessType);
-        return this;
-    }
-
     public SObject asObject() {
-        return executor.evaluate(builder.build(), binder.build()).aSObject();
+        return executor.toObject(builder.build(), binder.build());
     }
 
     public List<SObject> asList() {
-        return executor.evaluate(builder.build(), binder.build()).asList();
+        return executor.toList(builder.build(), binder.build());
     }
 
     public List<AggregateResult> asAggregated() {
@@ -371,16 +351,22 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public Integer asInteger() {
-        return executor.evaluate(builder.build(), binder.build()).asInteger();
+        return executor.toInteger(builder.build(), binder.build());
     }
 
-    // Standard
+    public Map<Id, SObject> asMap() {
+        return new Map<Id, SObject>(asList());
+    }
 
-    public SOQL getById(Id recordId) {
+    public SOQL byId(Id recordId) {
         return whereAre(Filter.id().equal(recordId));
     }
 
-    public SOQL getByIds(List<Id> recordIds) {
+    public SOQL byIds(Set<Id> recordIds) {
+        return byIds(new List<Id>(recordIds));
+    }
+
+    public SOQL byIds(List<Id> recordIds) {
         return whereAre(Filter.id().isIn(recordIds));
     }
 
@@ -390,14 +376,14 @@ public inherited sharing class SOQL implements Queryable {
         String build();
     }
 
-    public class QB implements QueryClause {
+    private class QueryBuilder implements QueryClause {
         private List<QueryClause> clauses = new QueryClause[10];
 
-        public QB(sObjectType ofObject) {
+        public QueryBuilder(SObjectType ofObject) {
             this(ofObject.getDescribe().getName());
         }
 
-        public QB(String ofObject) {
+        public QueryBuilder(String ofObject) {
             clauses.set(0, new QFields());
             clauses.set(2, new QFrom(ofObject));
         }
@@ -500,7 +486,7 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public class QFields implements QueryClause {
+    private class QFields implements QueryClause {
         private Set<String> queryFields = new Set<String>();
 
         public void count() {
@@ -545,45 +531,46 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-     // SubQuery
-
-     public class SubQuery implements QueryClause, SoqlSubQuery {
-        private QB builder;
+    public class SubQuery implements QueryClause, SoqlSubQuery {
+        private QueryBuilder builder;
         private Binder binder;
 
         public SubQuery(Binder binder) {
             this.binder = binder;
         }
 
-        public SubQuery of(String ofObject) { // FROM
-            builder = new QB(ofObject);
+        public SubQuery of(String ofObject) {
+            builder = new QueryBuilder(ofObject);
             return this;
         }
 
-        public SubQuery fields(List<SObjectField> fields) { // SELECT
+        public SubQuery with(SObjectField field) {
+            builder.fields.retrive(field);
+            return this;
+        }
+
+        public SubQuery with(List<SObjectField> fields) {
             builder.fields.retrive(fields);
             return this;
         }
 
-        public SubQuery relatedFields(String relationshipPath, List<SObjectField> fields) { // SELECT
-            builder.fields.retrive(relationshipPath, fields);
+        public SubQuery with(String relationshipName, List<SObjectField> fields) {
+            builder.fields.retrive(relationshipName, fields);
             return this;
         }
 
-        public SubQuery whereAre(FilterClause conditions) { // WHERE
+        public SubQuery whereAre(FilterClause conditions) {
             builder.conditions.add(conditions);
             return this;
         }
-
-        // ORDER BY - ASC, NULLS FIRST by default
 
         public SubQuery orderBy(SObjectField field) {
             builder.orderBys.add(field);
             return this;
         }
 
-        public SubQuery orderByRelated(String path, SObjectField field) {
-            builder.orderBys.add(path, field);
+        public SubQuery orderBy(String relationshipName, SObjectField field) {
+            builder.orderBys.add(relationshipName, field);
             return this;
         }
 
@@ -597,17 +584,15 @@ public inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public SubQuery setLimit(Integer amount) { // LIMIT
+        public SubQuery setLimit(Integer amount) {
             builder.soqlLimit.max(amount);
             return this;
         }
 
-        public SubQuery offset(Integer startingRow) { // OFFSER
+        public SubQuery offset(Integer startingRow) {
             builder.soqlOffset.offset(startingRow);
             return this;
         }
-
-        // FOR
 
         public SubQuery forReference() {
             builder.soqlFor.forReference();
@@ -624,7 +609,7 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public class QSubQueries implements QueryClause {
+    private class QSubQueries implements QueryClause {
         private List<SubQuery> subQueries = new List<SubQuery>();
 
         public void add(SubQuery subQuery) {
@@ -642,7 +627,7 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public class QFrom implements QueryClause {
+    private class QFrom implements QueryClause {
         private String objectApiName;
 
         public QFrom(String objectType) {
@@ -654,7 +639,7 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public class QScope implements QueryClause {
+    private class QScope implements QueryClause {
         private String scope = 'EVERYTHING';
 
         public void delegated() {
@@ -693,25 +678,14 @@ public inherited sharing class SOQL implements Queryable {
     public class FiltersGroup implements FilterClause, QueryClause, SoqlFiltersGroup {
         private List<FilterClause> queryConditions = new List<FilterClause>();
         private String order = '';
-        private String connector = 'AND';
-        private Boolean isParent = false;
+        private Boolean isMain = false;
 
-        public FiltersGroup(Boolean isParent) {
-            this.isParent = isParent;
+        public FiltersGroup(Boolean isMain) {
+            this.isMain = isMain;
         }
 
         public FiltersGroup add(FilterClause condition) {
             queryConditions.add(condition);
-            return this;
-        }
-
-        public FiltersGroup byAND() {
-            connector = 'AND';
-            return this;
-        }
-
-        public FiltersGroup byOR() {
-            connector = 'OR';
             return this;
         }
 
@@ -725,7 +699,7 @@ public inherited sharing class SOQL implements Queryable {
                 setDefaultOrder();
             }
 
-            if (isParent) {
+            if (isMain) {
                 return 'WHERE ' + buildNested();
             }
 
@@ -739,7 +713,7 @@ public inherited sharing class SOQL implements Queryable {
                 defaultOrder.add(String.valueOf(i + 1));
             }
 
-            order = String.join(defaultOrder, ' ' + connector + ' '); // e.g (1 AND 2 AND 3)
+            order = String.join(defaultOrder, ' AND '); // e.g (1 AND 2 AND 3)
         }
 
         public String buildNested() {
@@ -764,7 +738,7 @@ public inherited sharing class SOQL implements Queryable {
                 formattedOrder = formattedOrder.replace(conditionNumber, addSpecialCharacters(conditionNumber));
             }
 
-            if (isParent) {
+            if (isMain) {
                 return formattedOrder;
             }
 
@@ -776,7 +750,7 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public class Filter implements FilterClause, SoqlCondition {
+    public class Filter implements FilterClause, SoqlFilter {
         private String field;
         private String comperator;
         private Object value;
@@ -788,22 +762,22 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public Filter id() {
-            return field('Id');
+            return with('Id');
         }
 
         public Filter recordType() {
-            return field('RecordType.DeveloperName');
+            return with('RecordType.DeveloperName');
         }
 
-        public Filter field(SObjectField field) {
-            return field(field.getDescribe().getName());
+        public Filter with(SObjectField field) {
+            return with(field.getDescribe().getName());
         }
 
-        public Filter relatedField(String relationshipPath, SObjectField field) {
-            return field(relationshipPath + '.' + field.getDescribe().getName());
+        public Filter with(String relationshipName, SObjectField field) {
+            return with(relationshipName + '.' + field.getDescribe().getName());
         }
 
-        public Filter field(String field) {
+        public Filter with(String field) {
             this.field = field;
             return this;
         }
@@ -890,24 +864,24 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public class JoinQuery implements QueryClause, SoqlJoin {
-        private QB builder;
+        private QueryBuilder builder;
         private Binder binder;
 
         public JoinQuery(Binder binder) {
             this.binder = binder;
         }
 
-        public JoinQuery of(sObjectType ofObject) { // FROM
-            builder = new QB(ofObject);
+        public JoinQuery of(SObjectType ofObject) {
+            builder = new QueryBuilder(ofObject);
             return this;
         }
 
-        public JoinQuery field(SObjectField field) { // SELECT
+        public JoinQuery with(SObjectField field) {
             builder.fields.retrive(field);
             return this;
         }
 
-        public JoinQuery whereAre(FilterClause condition) { // WHERE
+        public JoinQuery whereAre(FilterClause condition) {
             builder.conditions.add(condition);
             return this;
         }
@@ -917,10 +891,10 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public class QGroupBy implements QueryClause {
+    private class QGroupBy implements QueryClause {
         private Set<String> groupByFields = new Set<String>();
 
-        public void field(SObjectField field) {
+        public void with(SObjectField field) {
             groupByFields.add(field.getDescribe().getName());
         }
 
@@ -933,15 +907,15 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public class QOrderBys implements QueryClause {
+    private class QOrderBys implements QueryClause {
         public List<QOrderBy> orderBys = new List<QOrderBy>();
 
         public void add(SObjectField field) {
-            orderBys.add(new QOrderBy().field(field));
+            orderBys.add(new QOrderBy().with(field));
         }
 
-        public void add(String relationshipPath, SObjectField field) {
-            orderBys.add(new QOrderBy().relatedField(relationshipPath, field));
+        public void add(String relationshipName, SObjectField field) {
+            orderBys.add(new QOrderBy().with(relationshipName, field));
         }
 
         public QOrderBy recentOrderBy() {
@@ -959,18 +933,18 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public class QOrderBy implements QueryClause {
+    private class QOrderBy implements QueryClause {
         private String orderField;
         private String sortingOrder = 'ASC';
         private String nullsOrder = 'FIRST';
 
-        public QOrderBy field(SObjectField field) {
+        public QOrderBy with(SObjectField field) {
             orderField = field.getDescribe().getName();
             return this;
         }
 
-        public QOrderBy relatedField(String relationshipPath, SObjectField field) {
-            orderField = relationshipPath + '.' + field.getDescribe().getName();
+        public QOrderBy with(String relationshipName, SObjectField field) {
+            orderField = relationshipName + '.' + field.getDescribe().getName();
             return this;
         }
 
@@ -987,7 +961,7 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public class QLimit implements QueryClause {
+    private class QLimit implements QueryClause {
         private Integer soqlLimit = 50000;
 
         public void max(Integer soqlLimit) {
@@ -999,7 +973,7 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public class QOffset implements QueryClause {
+    private class QOffset implements QueryClause {
         private Integer soqlOffset = 2000;
 
         public void offset(Integer fromRow) {
@@ -1011,7 +985,7 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public class QFor implements QueryClause {
+    private class QFor implements QueryClause {
         private String forStatement;
 
         public void forReference() {
@@ -1035,13 +1009,12 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public class Binder {
+    private class Binder {
         private Integer bindIndex = 0;
         private Map<String, Object> binding = new Map<String, Object>();
 
         public String bind(Object value) {
             bindIndex++;
-
             binding.put('v' + bindIndex, value);
 
             return 'v' + bindIndex;
@@ -1136,14 +1109,13 @@ public inherited sharing class SOQL implements Queryable {
         private sObjectType ofObject;
 
         private SharingLevel sharingMode = SharingLevel.INHERITED;
-        private AccessLevel accessMode = AccessLevel.USER_MODE; // The object permissions, field-level security, and sharing rules of the current user are enforced.
+        private AccessLevel accessMode = AccessLevel.USER_MODE; //The object permissions, field-level security, sharing rules are enforced.
         private AccessType accessType;
 
         private String query;
         private String mockId;
         private Boolean withPreview = false;
         private Boolean isCountQuery = false;
-        private Map<String, Object> binding;
 
         public Executor(sObjectType ofObject) {
             this.ofObject = ofObject;
@@ -1167,7 +1139,7 @@ public inherited sharing class SOQL implements Queryable {
             accessType = type;
         }
 
-        public void systemMode() { // The object and field-level permissions of the current user are ignored, and the record sharing rules are controlled by the sharingMode.
+        public void systemMode() { //The object permissions, field-level permissions are ignored, sharing rules are controlled by the sharingMode.
             accessMode = AccessLevel.SYSTEM_MODE;
         }
 
@@ -1183,24 +1155,18 @@ public inherited sharing class SOQL implements Queryable {
             withPreview = true;
         }
 
-        public Executor evaluate(String query, Map<String, Object> binding) {
-            this.query = query;
-            this.binding = binding;
-            return this;
-        }
-
-        public SObject asObject() {
+        public SObject toObject(String query, Map<String, Object> binding) {
             try {
-                return asList()[0];
+                return toList(query, binding)[0];
             } catch (ListException e) {
-                return null; // List index out of bounds: 0
+                return null; //List index out of bounds: 0
             }
         }
 
-        public Integer asInteger() {
+        public Integer toInteger(String query, Map<String, Object> binding) {
             if (withPreview) {
-                previewSoql();
-                previewBinding();
+                previewSoql(query);
+                previewBinding(binding);
             }
 
             if (mock.hasCountMock(mockId)) {
@@ -1210,10 +1176,10 @@ public inherited sharing class SOQL implements Queryable {
             return MODE_TO_EXECUTOR.get(sharingMode).executeCount(query, binding, accessMode);
         }
 
-        public List<SObject> asList() {
+        public List<SObject> toList(String query, Map<String, Object> binding) {
             if (withPreview) {
-                previewSoql();
-                previewBinding();
+                previewSoql(query);
+                previewBinding(binding);
             }
 
             if (mock.hasMock(mockId)) {
@@ -1230,11 +1196,11 @@ public inherited sharing class SOQL implements Queryable {
             ).getRecords();
         }
 
-        private void previewSoql() {
+        private void previewSoql(String query) {
             System.debug('\n\n============ SOQL Preview ============\n' + query + '\n=======================================\n');
         }
 
-        private void previewBinding() {
+        private void previewBinding(Map<String, Object> binding) {
             System.debug('\n\n============ SOQL Binding ============\n' + JSON.serializePretty(binding) + '\n=======================================\n');
         }
     }

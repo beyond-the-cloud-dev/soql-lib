@@ -10,7 +10,7 @@ public inherited sharing class AccountSelector {
     public static SOQL Query {
         get {
             return SOQL.of(Account.sObjectType)
-                .fields(new List<sObjectField>{
+                .with(new List<SObjectField>{
                     Account.Id,
                     Account.Name
                 });
@@ -22,14 +22,14 @@ public with sharing class MyController {
 
     public static List<Account> getAccounts() {
         return AccountSelector.Query
-            .fields(new List<sObjectField>{
+            .with(new List<SObjectField>{
                 Account.BillingCity,
                 Account.BillingCountry,
                 Account.BillingCountryCode
             })
             .whereAre(SOQL.FiltersGroup
-                .add(SOQL.Filter.field(Account.Id).equal('0013V00000WNCw4QAH'))
-                .add(SOQL.Filter.field(Account.Name).likeAny('Test'))
+                .add(SOQL.Filter.with(Account.Id).equal('0013V00000WNCw4QAH'))
+                .add(SOQL.Filter.with(Account.Name).likeAny('Test'))
                 .conditionLogic('1 OR 2')
              )
             .preview()

@@ -6,13 +6,15 @@ sidebar_position: 12
 
 `with sharing` is a default option option, because of `USER_MODE`.
 
+You can control sharing rules only in `.systemMode()`.
+
 ```apex
 public inherited sharing class AccountSelector {
 
     public static SOQL Query {
         get {
             return SOQL.of(Account.sObjectType)
-                .fields(new List<sObjectField>{
+                .with(new List<SObjectField>{
                     Account.Id,
                     Account.Name
                 });
@@ -24,7 +26,7 @@ public with sharing class MyController {
 
     public static List<Account> getAccountsWithSharing() {
         return AccountSelector.Query
-            .systemMode() // FLS will be not respected
+            .systemMode()
             .withSharing()
             .asList();
     }

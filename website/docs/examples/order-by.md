@@ -4,18 +4,22 @@ sidebar_position: 8
 
 # ORDER BY
 
-
+```sql
+SELECT Id, Name, Industry
+FROM Account
+ORDER BY Industry DESC NULLS FIRST, Id ASC NULLS FIRST
+```
 ```apex
 public inherited sharing class AccountSelector {
 
     public static SOQL Query {
         get {
             return SOQL.of(Lead.sObjectType)
-                 .fields(new List<sObjectField>{
+                 .with(new List<SObjectField>{
                     Account.Id,
                     Account.Name,
                     Account.Industry
-                });;
+                });
         }
     }
 }

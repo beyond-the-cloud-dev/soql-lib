@@ -16,9 +16,21 @@ static JoinQuery of(sObjectType ofObject)
 
 **Example**
 
+```sql
+SELECT Id
+FROM Account
+WHERE Id IN (
+    SELECT AccountId
+    FROM Contact
+    WHERE Name = 'My Contact'
+)
+```
 ```apex
-SOQL.InnerJoin.of(Account.sObjectType)
-SOQL.InnerJoin.of(Contact.sObjectType)
+SOQL.of(Account.sObjectType)
+    .whereAre(SOQL.Filter.with(Account.Id).isIn(
+        SOQL.InnerJoin.of(Contact.sObjectType)
+            .with(Contact.AccountId)
+    )).asList();
 ```
 
 ## field
@@ -28,20 +40,32 @@ SOQL.InnerJoin.of(Contact.sObjectType)
 **Signature**
 
 ```apex
-static JoinQuery field(sObjectField field)
+static JoinQuery with(SObjectField field)
 ```
 
 **Example**
 
+```sql
+SELECT Id
+FROM Account
+WHERE Id IN (
+    SELECT AccountId
+    FROM Contact
+)
+```
 ```apex
-SOQL.InnerJoin.of(Contact.sObjectType).field(Contact.Account.Id)
+SOQL.of(Account.sObjectType)
+    .whereAre(SOQL.Filter.with(Account.Id).isIn(
+        SOQL.InnerJoin.of(Contact.sObjectType)
+            .with(Contact.AccountId)
+    )).asList();
 ```
 
 ## whereAre
 
 > The condition expression in a `WHERE` clause of a SOQL query includes one or more field expressions. You can specify multiple field expressions in a condition expression by using logical operators.
 
-For more details check [`QB.FiltersGroup`](soql-filters-group.md) and [`QB.Filter`](soql-filter.md)
+For more details check [`SOQL.FiltersGroup`](soql-filters-group.md) and [`SOQL.Filter`](soql-filter.md)
 
 **Signature**
 
@@ -51,7 +75,20 @@ static JoinQuery whereAre(FiltersGroup conditions)
 
 **Example**
 
+```sql
+SELECT Id
+FROM Account
+WHERE Id IN (
+    SELECT AccountId
+    FROM Contact
+    WHERE Name = 'My Contact'
+)
+```
 ```apex
-SOQL.InnerJoin.of(Contact.sObjectType)
-    .whereAre(SOQL.Filter.field(Contact.Name).equal('My Contact'))
+SOQL.of(Account.sObjectType)
+    .whereAre(SOQL.Filter.with(Account.Id).isIn(
+        SOQL.InnerJoin.of(Contact.sObjectType)
+            .with(Contact.AccountId)
+            .whereAre(SOQL.Filter.with(Contact.Name).equal('My Contact'))
+    )).asList();
 ```

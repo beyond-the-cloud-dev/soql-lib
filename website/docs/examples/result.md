@@ -10,7 +10,7 @@ public inherited sharing class AccountSelector {
     public static SOQL Query {
         get {
             return SOQL.of(Account.sObjectType)
-                .fields(new List<sObjectField>{
+                .with(new List<SObjectField>{
                     Account.Id,
                     Account.Name
                 });
@@ -30,6 +30,18 @@ public with sharing class MyController {
         return (Account) AccountSelector.Query
             .whereAre(SOQL.Filter.id().equal(accountId))
             .asObject();
+    }
+
+    public static Integer countAccounts() {
+        return AccountSelector.Query
+            .count()
+            .asInteger();
+    }
+
+    public static List<AggregateResult> getUniqueAccountNameAmount() {
+        return AccountSelector.Query
+            .countAs(Account.Name, 'names')
+            .asAggregated();
     }
 }
 ```

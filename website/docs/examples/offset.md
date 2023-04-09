@@ -4,13 +4,18 @@ sidebar_position: 10
 
 # OFFSET
 
+```sql
+SELECT Id, Name
+FROM Account
+OFFSET 1000
+```
 ```apex
 public inherited sharing class AccountSelector {
 
     public static SOQL Query {
         get {
             return SOQL.of(Account.sObjectType)
-                .fields(new List<sObjectField>{
+                .with(new List<SObjectField>{
                     Account.Id,
                     Account.Name
                 });
@@ -20,9 +25,9 @@ public inherited sharing class AccountSelector {
 
 public with sharing class MyController {
 
-    public static List<Account> getAccountsWithOffset(Integer startingRow) {
+    public static List<Account> getAccountsWithOffset() {
         return AccountSelector.Query
-            .offset(startingRow)
+            .offset(1000)
             .asList();
     }
 }
