@@ -4,13 +4,22 @@ sidebar_position: 5
 
 # USING SCOPE
 
+```sql
+SELECT Id, Name
+FROM Account
+USING SCOPE MINE
+
+SELECT Id, Name
+FROM Account
+USING SCOPE TEAM
+```
 ```apex
 public inherited sharing class AccountSelector {
 
     public static SOQL Query {
         get {
             return SOQL.of(Account.sObjectType)
-                .fields(new List<sObjectField>{
+                .with(new List<SObjectField>{
                     Account.Id,
                     Account.Name
                 });

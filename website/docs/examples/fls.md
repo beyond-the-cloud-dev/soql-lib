@@ -4,7 +4,7 @@ sidebar_position: 11
 
 # Field Level Security
 
-USER_MODE is a default option. You can set SYSTEM_MODE for all queries by adding `systemMode()` to selector class.
+`USER_MODE` is a default option. You can set `SYSTEM_MODE` for all queries by adding `.systemMode()` to selector class.
 
 ```apex
 public inherited sharing class AccountSelector {
@@ -12,11 +12,11 @@ public inherited sharing class AccountSelector {
     public static SOQL Query {
         get {
             return SOQL.of(Account.sObjectType)
-                .fields(new List<sObjectField>{
+                .with(new List<SObjectField>{
                     Account.Id,
                     Account.Name
                 })
-                .systemMode(); //default fls mode
+                .systemMode(); //default FLS mode
         }
     }
 }
@@ -25,7 +25,7 @@ public with sharing class MyController {
 
     public static List<Account> getAccountInSystemMode() {
         return AccountSelector.Query
-            .userMode() //override selector fls mode
+            .userMode() //override selector FLS mode
             .asList();
     }
 }

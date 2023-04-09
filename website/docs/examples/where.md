@@ -4,13 +4,18 @@ sidebar_position: 6
 
 # WHERE
 
+```sql
+SELECT Id, Name
+FROM Account
+WHERE Id = :accountId OR Name LIKE :'%' + accountName + '%'
+```
 ```apex
 public inherited sharing class AccountSelector {
 
     public static SOQL Query {
         get {
             return SOQL.of(Account.sObjectType)
-                .fields(new List<sObjectField>{
+                .with(new List<SObjectField>{
                     Account.Id,
                     Account.Name
                 });
@@ -23,8 +28,8 @@ public with sharing class MyController {
     public static List<Account> getByIdOrName(Id accountId, String accountName) {
         return AccountSelector.Query
                 .whereAre(SOQL.FiltersGroup
-                    .add(SOQL.Filter.field(Account.Id).equal(accountId))
-                    .add(SOQL.Filter.field(Account.Name).likeAny(accountName))
+                    .add(SOQL.Filter.with(Account.Id).equal(accountId))
+                    .add(SOQL.Filter.with(Account.Name).likeAny(accountName))
                     .conditionLogic('1 OR 2')
                 )
                 .asList();

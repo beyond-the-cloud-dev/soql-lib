@@ -8,14 +8,17 @@ sidebar_position: 1
 
 You are able to add a default fields to selector class. More fields can be added in a place of usage.
 
+```sql
+SELECT Id, Name, BillingCity, BillingState, BillingStreet, BillingCountry
+FROM Account
+```
 ```apex
 public inherited sharing class AccountSelector {
 
     public static SOQL Query {
         get {
-            // default fields
             return SOQL.of(Account.sObjectType)
-                .fields(new List<sObjectField>{
+                .with(new List<SObjectField>{ //default fields
                     Account.Id,
                     Account.Name
                 });
@@ -26,9 +29,8 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static List<Account> getAccounts() {
-        //SELECT Id, Name, BillingCity, BillingState, BillingStreet, BillingCountry FROM Account
         return AccountSelector.Query
-            .fields(new List<sObjectField>{
+            .with(new List<SObjectField>{
                 Account.BillingCity,
                 Account.BillingState,
                 Account.BillingStreet,
@@ -42,14 +44,17 @@ public with sharing class MyController {
 
 Specify relationship name and pass parent object fields.
 
+```sql
+SELECT Id, Name, CreatedBy.Id, CreatedBy.Name
+FROM Account
+```
 ```apex
 public inherited sharing class AccountSelector {
 
     public static SOQL Query {
         get {
-            // default fields
-            return SOQL.of(Account.sObjectType)
-                .fields(new List<sObjectField>{
+            return SOQL.of(Account.sObjectType) //default fields
+                .with(new List<SObjectField>{
                     Account.Id,
                     Account.Name
                 });
@@ -60,9 +65,8 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static List<Account> getAccountsWithCreatedBy() {
-        //SELECT Id, Name, CreatedBy.Id, CreatedBy.Name FROM Account
         return AccountSelector.Query
-            .relatedFields('CreatedBy', new List<sObjectField>{
+            .with('CreatedBy', new List<SObjectField>{
                 User.Id,
                 User.Name
             }).asList();
@@ -72,6 +76,11 @@ public with sharing class MyController {
 
 ## Count
 
+```sql
+SELECT COUNT() FROM Account
+
+SELECT COUNT(Name) names FROM Account
+```
 ```apex
 public inherited sharing class AccountSelector {
 
@@ -85,12 +94,10 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static Integer getAccountAmount() {
-        //SELECT COUNT() FROM Account
         return AccountSelector.Query.count().asInteger();
     }
 
     public static Integer getUniqueAccountNameAmount() {
-        //SELECT COUNT(Name) names FROM Account
         return AccountSelector.Query.countAs(Account.Name, 'names').asAggregated()[0].names;
     }
 }

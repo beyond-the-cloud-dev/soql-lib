@@ -4,6 +4,11 @@ sidebar_position: 7
 
 # GROUP BY
 
+```sql
+SELECT LeadSource
+FROM Lead
+GROUP BY LeadSource
+```
 ```apex
 public inherited sharing class LeadSelector {
 
@@ -18,9 +23,7 @@ public with sharing class MyController {
 
     public static List<AggregateResult> getGroupedLeads() {
         return LeadSelector.Query
-                .fields(new List<sObjectField>{
-                    Lead.LeadSource
-                });
+                .with(Lead.LeadSource)
                 .groupBy(Lead.LeadSource)
                 .asAggregated();
     }

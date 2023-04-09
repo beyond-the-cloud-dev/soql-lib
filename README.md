@@ -18,7 +18,7 @@ List<Account> accounts = SOQL.of(Account.sObjectType).asList();
 ```apex
 // SELECT Id, Name, Industry FROM Account
 List<Account> accounts = SOQL.of(Account.sObjectType)
-   .fields(new List<sObjectField>{
+   .with(new List<SObjectField>{
       Account.Id, Account.Name, Account.Industry
    }).asList();
 ```

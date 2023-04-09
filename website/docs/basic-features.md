@@ -10,7 +10,7 @@ sidebar_position: 3
 
 ```apex
 // SELECT Id FROM Account LIMIT 100
-SOQL.of(Account.sObjectType).fields(new List<sObjectField> {
+SOQL.of(Account.sObjectType).with(new List<SObjectField> {
     Account.Id, Account.Name
 })
 .setLimit(100)
@@ -24,10 +24,10 @@ All variables used in `WHERE` condition are binded by default.
 
 ```apex
 // SELECT Id, Name FROM Account WHERE Name = :v1
-SOQL.of(Account.sObjectType).fields(new List<sObjectField> {
+SOQL.of(Account.sObjectType).with(new List<SObjectField> {
     Account.Id, Account.Name
 })
-.whereAre(SOQL.Filter.field(Account.Name).likeAny('Test'))
+.whereAre(SOQL.Filter.with(Account.Name).likeAny('Test'))
 .asList();
 ```
 
@@ -58,7 +58,7 @@ Developer can change it by using `.systemMode()` which apply `AccessLevel.SYSTEM
 
 ```apex
 // SELECT Id FROM Account - skip FLS
-SOQL.of(Account.sObjectType).fields(new List<sObjectField> {
+SOQL.of(Account.sObjectType).with(new List<SObjectField> {
     Account.Id, Account.Name
 })
 .systemMode()
@@ -81,7 +81,7 @@ Developer can skip FLS by adding `.systemMode()` and `.withSharing()`.
 
 ```apex
 // Query executed in without sharing
-SOQL.of(Account.sObjectType).fields(new List<sObjectField> {
+SOQL.of(Account.sObjectType).with(new List<SObjectField> {
     Account.Id, Account.Name
 })
 .systemMode()
@@ -95,7 +95,7 @@ Developer can control sharing rules by adding `.systemMode()` (record sharing ru
 
 ```apex
 // Query executed in with sharing
-SOQL.of(Account.sObjectType).fields(new List<sObjectField> {
+SOQL.of(Account.sObjectType).with(new List<SObjectField> {
     Account.Id, Account.Name
 })
 .systemMode()
@@ -109,7 +109,7 @@ Developer can control sharing rules by adding `.systemMode()` (record sharing ru
 
 ```apex
 // Query executed in inherited sharing
-SOQL.of(Account.sObjectType).fields(new List<sObjectField> {
+SOQL.of(Account.sObjectType).with(new List<SObjectField> {
     Account.Id, Account.Name
 })
 .systemMode()
@@ -123,13 +123,13 @@ public with sharing class ExampleController {
 
     public static List<Account> getPartnerAccounts(String accountName) {
         return AccountSelector.Query
-            .field(Account.BillingCity)
-            .field(Account.BillingCountry)
+            .with(Account.BillingCity)
+            .with(Account.BillingCountry)
             .whereAre(SOQL.FiltersGroup
-                .add(SOQL.Filter.field(Account.Name).likeAny(accountName))
+                .add(SOQL.Filter.with(Account.Name).likeAny(accountName))
                 .add(SOQL.Filter.recordType().equal('Partner'))
             )
-            .mocking('ExampleController.getPartnerAccounts')
+            .mockId('ExampleController.getPartnerAccounts')
             .asList();
     }
 }
@@ -162,9 +162,9 @@ Generic SOQLs can be keep in selector class.
 ```apex
 public inherited sharing class AccountSelector {
 
-    public static SOQL Selector {
+    public static SOQL Query {
         get {
-            return SOQL.of(Account.sObjectType).fields(new List<sObjectField>{
+            return SOQL.of(Account.sObjectType).with(new List<SObjectField>{
                 Account.Name,
                 Account.AccountNumber
             })
@@ -174,14 +174,14 @@ public inherited sharing class AccountSelector {
     }
 
     public static SOQL getByRecordType(String rtDevName) {
-        return Selector.fields(new List<sObjectField>{
+        return Query.with(new List<SObjectField>{
             Account.BillingCity,
             Account.BillingCountry
-        }).whereAre(SOQL.Filter.recordType().equal(rtDevName);
+        }).whereAre(SOQL.Filter.recordType().equal(rtDevName));
     }
 
     public static SOQL getById(Id accountId) {
-        return Selector.whereAre(SOQL.Filter.id().equal(accountId));
+        return Query.whereAre(SOQL.Filter.id().equal(accountId));
     }
 }
 ```
@@ -193,14 +193,13 @@ The selector class can provide default SOQL configuration like default fields, F
 ```apex
 public inherited sharing class AccountSelector {
 
-    public static SOQL Selector {
+    public static SOQL Query {
         get {
             return SOQL.of(Account.sObjectType)
-                .fields(new List<sObjectField>{  // default fields
+                .with(new List<SObjectField>{  // default fields
                     Account.Id,
                     Account.Name
-                })
-                .systemMode(); // default FLS mode
+                }).systemMode(); // default FLS mode
         }
     }
 }

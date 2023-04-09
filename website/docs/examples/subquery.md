@@ -6,13 +6,18 @@ sidebar_position: 4
 
 Specify child relationship name and pass list of fields.
 
+```sql
+SELECT Id, Name, (
+    SELECT Id, Name FROM Contacts
+) FROM Account
+```
 ```apex
 public inherited sharing class AccountSelector {
 
     public static SOQL Query {
         get {
             return SOQL.of(Account.sObjectType)
-                .fields(new List<sObjectField>{
+                .with(new List<SObjectField>{
                     Account.Id,
                     Account.Name
                 });
@@ -23,10 +28,9 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static List<Account> getAccountsWithContacts() {
-        //SELECT Id, Name, (SELECT Id, Name FROM Contacts) FROM Account
         return AccountSelector.Query
-            .subQuery(SOQL.Sub.of('Contacts')
-                .fields(new List<sObjectField>{
+            .with(SOQL.SubQuery.of('Contacts')
+                .with(new List<SObjectField>{
                     Contact.Id,
                     Contact.Name
                 })
