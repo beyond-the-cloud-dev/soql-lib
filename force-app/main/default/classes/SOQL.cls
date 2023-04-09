@@ -141,16 +141,7 @@ public inherited sharing class SOQL implements Queryable {
     // Implementation details
 
     private static Binder binder;
-    private static Mock mockInstance;
-    private static Mock mock {
-        get {
-            if(mockInstance == null){
-                mockInstance = new Mock();
-            }
-
-            return mockInstance;
-        }
-    }
+    private static Mock mock = new Mock();
 
     private QB builder;
     private Executor executor;
@@ -1094,49 +1085,49 @@ public inherited sharing class SOQL implements Queryable {
         private final Map<String, String> staticResourceMocks;
         private final Map<String, Integer> countMocks;
 
-        public Mock(){
+        public Mock() {
             mocks = new Map<String, List<SObject>>();
             staticResourceMocks = new Map<String, String>();
             countMocks = new Map<String, Integer>();
         }
 
-        public void setMock(String mockId, SObject record){
+        public void setMock(String mockId, SObject record) {
             setMock(mockId, new List<SObject>{ record });
         }
 
-        public void setMock(String mockId, List<SObject> records){
+        public void setMock(String mockId, List<SObject> records) {
             mocks.put(mockId, records);
         }
 
-        public void setCountMock(String mockId, Integer amount){
+        public void setCountMock(String mockId, Integer amount) {
             countMocks.put(mockId, amount);
         }
 
-        public void setStaticResourceMock(String mockId, String staticResourceName){
+        public void setStaticResourceMock(String mockId, String staticResourceName) {
             staticResourceMocks.put(mockId, staticResourceName);
         }
 
-        public Boolean hasMock(String mockId){
+        public Boolean hasMock(String mockId) {
             return mocks.containsKey(mockId) || staticResourceMocks.containsKey(mockId);
         }
 
-        public List<SObject> getMocks(String mockId, SObjectType sObjectType){
-            if(mocks.containsKey(mockId)){
+        public List<SObject> getMocks(String mockId, SObjectType sObjectType) {
+            if (mocks.containsKey(mockId)) {
                 return mocks.get(mockId);
             }
 
-            if(staticResourceMocks.containsKey(mockId)){
+            if (staticResourceMocks.containsKey(mockId)) {
                 return Test.loadData(sObjectType, staticResourceMocks.get(mockId));
             }
 
             return null;
         }
 
-        public Boolean hasCountMock(String mockId){
+        public Boolean hasCountMock(String mockId) {
             return countMocks.containsKey(mockId);
         }
 
-        public Integer getCountMock(String mockId){
+        public Integer getCountMock(String mockId) {
             return countMocks.get(mockId);
         }
     }
@@ -1225,7 +1216,7 @@ public inherited sharing class SOQL implements Queryable {
                 previewBinding();
             }
 
-            if(mock.hasMock(mockId)){
+            if (mock.hasMock(mockId)) {
                 return mock.getMocks(mockId, ofObject);
             }
 
