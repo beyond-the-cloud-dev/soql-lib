@@ -30,7 +30,7 @@ SOQL.of(Account.sObjectType).asList();
 **Signature**
 
 ```apex
-SOQL with(sObjectField field)
+SOQL with(SObjectField field)
 ```
 
 **Example**
@@ -55,7 +55,7 @@ SOQL.of(Account.sObjectType)
 **Signature**
 
 ```apex
-SOQL with(List<sObjectField> fields)
+SOQL with(List<SObjectField> fields)
 ```
 
 **Example**
@@ -66,7 +66,7 @@ FROM Account
 ```
 ```apex
 SOQL.of(Account.sObjectType)
-    .with(List<sObjectField>{
+    .with(List<SObjectField>{
         Account.Id, Account.Name, Account.Industry
     }).asList();
 ```
@@ -102,7 +102,7 @@ Allows to add parent field to a query.
 **Signature**
 
 ```apex
-SOQL with(String relationshipName, List<sObjectField> fields)
+SOQL with(String relationshipName, List<SObjectField> fields)
 ```
 
 **Example**
@@ -113,7 +113,7 @@ FROM Account
 ```
 ```apex
 SOQL.of(Account.sObjectType)
-    .with('CreatedBy', List<sObjectField>{
+    .with('CreatedBy', List<SObjectField>{
         User.Id, User.Name
     }).asList();
 ```
@@ -143,7 +143,7 @@ SELECT Id, (
 ```apex
 SOQL.of(Account.sObjectType)
     .with(SOQL.SubQuery.of('Contacts')
-        .with(new List<sObjectField>{
+        .with(new List<SObjectField>{
             Contact.Id, Contact.Name
         })
     ).asList();
@@ -182,7 +182,7 @@ SOQL.of(Account.sObjectType)
 **Signature**
 
 ```apex
-countAs(sObjectField field, String alias)
+countAs(SObjectField field, String alias)
 ```
 
 **Example**
@@ -376,7 +376,7 @@ SOQL.of(Account.sObjectType)
 **Signature**
 
 ```apex
-SOQL groupBy(sObjectField field)
+SOQL groupBy(SObjectField field)
 ```
 
 **Example**
@@ -398,7 +398,7 @@ SOQL.of(Lead.sObjectType)
 **Signature**
 
 ```apex
-SOQL groupByRollup(sObjectField field)
+SOQL groupByRollup(SObjectField field)
 ```
 
 **Example**
@@ -427,7 +427,7 @@ QS.of(Lead.sObjectType)
 **Signature**
 
 ```apex
-SOQL orderBy(sObjectField field)
+SOQL orderBy(SObjectField field)
 ```
 
 **Example**
@@ -450,7 +450,7 @@ Order SOQL query by parent field.
 **Signature**
 
 ```apex
-SOQL orderBy(String relationshipName, sObjectField field)
+SOQL orderBy(String relationshipName, SObjectField field)
 ```
 
 **Example**
@@ -639,6 +639,8 @@ SOQL.of(Contact.sObjectType)
 
 ### allRows
 
+> SOQL statements can use the ALL ROWS keywords to query all records in an organization, including deleted records and archived activities.
+
 **Signature**
 
 ```apex
@@ -648,11 +650,15 @@ SOQL allRows()
 **Example**
 
 ```sql
-SELECT Id
-FROM X
-FOR ALL ROWS
+SELECT COUNT()
+FROM Contact
+ALL ROWS
 ```
 ```apex
+SOQL.of(Contact.SObjectType)
+    .count()
+    .allRows()
+    .asList();
 ```
 
 ## fls

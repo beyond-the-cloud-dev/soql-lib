@@ -35,7 +35,7 @@ SOQL.of(Account.sObjectType)
 **Signature**
 
 ```apex
-SOQL with(sObjectField field)
+SOQL with(SObjectField field)
 ```
 
 **Example**
@@ -59,7 +59,7 @@ SOQL.of(Account.sObjectType)
 **Signature**
 
 ```apex
-SubQuery with(List<sObjectField> fields)
+SubQuery with(List<SObjectField> fields)
 ```
 
 **Example**
@@ -73,7 +73,7 @@ SELECT Id, (
 ```apex
 SOQL.of(Account.sObjectType)
     .with(SOQL.SubQuery.of('Contacts')
-        .with(new List<sObjectField>{
+        .with(new List<SObjectField>{
             Contact.Id, Contact.Name
         })
     )
@@ -85,7 +85,7 @@ SOQL.of(Account.sObjectType)
 **Signature**
 
 ```apex
-SubQuery with(String relationshipName, List<sObjectField> fields)
+SubQuery with(String relationshipName, List<SObjectField> fields)
 ```
 
 
@@ -143,7 +143,7 @@ SOQL.of(Account.sObjectType)
 **Signature**
 
 ```apex
-SubQuery orderBy(sObjectField field)
+SubQuery orderBy(SObjectField field)
 ```
 
 **Example**
@@ -170,7 +170,7 @@ Order SOQL query by parent field.
 **Signature**
 
 ```apex
-SubQuery orderBy(String relationshipName, sObjectField field)
+SubQuery orderBy(String relationshipName, SObjectField field)
 ```
 
 **Example**

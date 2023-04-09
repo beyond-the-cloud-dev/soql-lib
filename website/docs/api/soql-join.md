@@ -40,7 +40,7 @@ SOQL.of(Account.sObjectType)
 **Signature**
 
 ```apex
-static JoinQuery with(sObjectField field)
+static JoinQuery with(SObjectField field)
 ```
 
 **Example**

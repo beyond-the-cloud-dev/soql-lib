@@ -10,7 +10,7 @@ public inherited sharing class AccountSelector {
     public static SOQL Query {
         get {
             return SOQL.of(Account.sObjectType)
-                .with(new List<sObjectField>{
+                .with(new List<SObjectField>{
                     Account.Id,
                     Account.Name
                 });
@@ -22,7 +22,7 @@ public with sharing class MyController {
 
     public static List<Account> getAccounts() {
         return AccountSelector.Query
-            .with(new List<sObjectField>{
+            .with(new List<SObjectField>{
                 Account.BillingCity,
                 Account.BillingCountry,
                 Account.BillingCountryCode
