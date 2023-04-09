@@ -139,6 +139,7 @@ public with sharing class ExampleController {
 
 Then in test simply pass data you want to get from Selector to `SOQL.setMock(id, data)` method. Acceptable formats are: `List<SObject>`, `SObject`, or `String` with name of static resource. Then during execution Selector will return desired data.
 
+### List of records:
 ```apex
 @isTest
 public class ExampleControllerTest {
@@ -150,6 +151,38 @@ public class ExampleControllerTest {
         };
 
         SOQL.setMock('ExampleController.getPartnerAccounts', accounts);
+
+        // Test
+        List<Account> result = ExampleController.getAccounts('MyAccount');
+
+        Assert.areEqual(accounts, result);
+    }
+}
+```
+
+### Single record:
+```apex
+@isTest
+public class ExampleControllerTest {
+
+    public static List<Account> getPartnerAccounts(String accountName) {
+        SOQL.setMock('ExampleController.getPartnerAccounts', new Account(Name = 'MyAccount 1'));
+
+        // Test
+        List<Account> result = ExampleController.getAccounts('MyAccount');
+
+        Assert.areEqual(accounts, result);
+    }
+}
+```
+
+### Static resource:
+```apex
+@isTest
+public class ExampleControllerTest {
+
+    public static List<Account> getPartnerAccounts(String accountName) {
+        SOQL.setMock('ExampleController.getPartnerAccounts', 'ProjectAccounts');
 
         // Test
         List<Account> result = ExampleController.getAccounts('MyAccount');
