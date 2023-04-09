@@ -1112,7 +1112,6 @@ public inherited sharing class SOQL implements Queryable {
         private AccessLevel accessMode = AccessLevel.USER_MODE; //The object permissions, field-level security, sharing rules are enforced.
         private AccessType accessType;
 
-        private String query;
         private String mockId;
         private Boolean withPreview = false;
         private Boolean isCountQuery = false;
