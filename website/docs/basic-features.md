@@ -142,9 +142,10 @@ Then in test simply pass data you want to get from Selector to `SOQL.setMock(id,
 ### List of records
 ```apex
 @isTest
-public class ExampleControllerTest {
+private class ExampleControllerTest {
 
-    public static List<Account> getPartnerAccounts(String accountName) {
+    @isTest
+    static void getPartnerAccounts() {
         List<Account> accounts = new List<Account>{
             new Account(Name = 'MyAccount 1'),
             new Account(Name = 'MyAccount 2')
@@ -163,10 +164,11 @@ public class ExampleControllerTest {
 ### Single record
 ```apex
 @isTest
-public class ExampleControllerTest {
+private class ExampleControllerTest {
 
-    public static List<Account> getPartnerAccounts(String accountName) {
-        SOQL.setMock('ExampleController.getPartnerAccounts', new Account(Name = 'MyAccount 1'));
+    @isTest
+    static void getPartnerAccount() {
+        SOQL.setMock('ExampleController.getPartnerAccount', new Account(Name = 'MyAccount 1'));
 
         // Test
         Account result = (Account) ExampleController.getAccounts('MyAccount');
@@ -179,15 +181,31 @@ public class ExampleControllerTest {
 ### Static resource
 ```apex
 @isTest
-public class ExampleControllerTest {
+private class ExampleControllerTest {
 
-    public static List<Account> getPartnerAccounts(String accountName) {
+    @isTest
+    static void getPartnerAccounts() {
         SOQL.setMock('ExampleController.getPartnerAccounts', 'ProjectAccounts');
 
         // Test
         List<Account> result = ExampleController.getAccounts('MyAccount');
 
         Assert.areEqual(5, result.size());
+    }
+}
+```
+
+### Count Result
+@isTest
+private class ExampleControllerTest {
+
+    @isTest
+    static void getPartnerAccountsCount() {
+        SOQL.setCountMock('mockingQuery', 2);
+
+        Integer result = SOQL.of(Account.sObjectType).count().mockId('mockingQuery').asInteger();
+
+        Assert.areEqual(2, result);
     }
 }
 ```

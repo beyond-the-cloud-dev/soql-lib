@@ -1,5 +1,5 @@
 @isTest
-public class SOQLTest {
+private class SOQLTest {
 
     // SELECT
 
@@ -833,7 +833,7 @@ public class SOQLTest {
     static void mockingCount() {
         SOQL.setCountMock('mockingQuery', 2);
 
-        Integer result = SOQL.of(Account.sObjectType).mockId('mockingQuery').asInteger();
+        Integer result = SOQL.of(Account.sObjectType).count().mockId('mockingQuery').asInteger();
 
         Assert.areEqual(2, result);
     }
