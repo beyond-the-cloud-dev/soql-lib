@@ -24,7 +24,7 @@ FROM Account
 WHERE Id = :accountId
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.id().equal(accountId))
     .asList();
 ```
@@ -47,7 +47,7 @@ FROM Account
 WHERE RecordType.DeveloperName = 'Partner'
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.recordType().equal('Partner'))
     .asList();
 ```
@@ -71,7 +71,7 @@ FROM Account
 WHERE Name = 'My Account'
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Name).equal('My Account'))
     .asList();
 ```
@@ -94,7 +94,7 @@ FROM Contact
 WHERE Account.Name = 'My Account'
 ```
 ```apex
-SOQL.of(Contact.sObjectType)
+SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with('Account', Account.Name).equal('My Account'))
     .asList();
 ```
@@ -119,7 +119,7 @@ FROM Contact
 WHERE Account.Industry = NULL
 ```
 ```apex
-SOQL.of(Contact.sObjectType)
+SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Industry).isNull())
     .asList();
 ```
@@ -142,7 +142,7 @@ FROM Contact
 WHERE Account.Industry != NULL
 ```
 ```apex
-SOQL.of(Contact.sObjectType)
+SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Industry).isNotNull())
     .asList();
 ```
@@ -170,15 +170,15 @@ SELECT Id FROM Account WHERE IsDeleted = true
 ```
 
 ```apex
-SOQL.of(Contact.sObjectType)
+SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Name).equal('My Account'))
     .asList();
 
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).equal(10))
     .asList();
 
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.with(Account.IsDeleted).equal(true))
     .asList();
 ```
@@ -205,15 +205,15 @@ SELECT Id FROM Account WHERE NumberOfEmployees != 10
 SELECT Id FROM Account WHERE IsDeleted != true
 ```
 ```apex
-SOQL.of(Contact.sObjectType)
+SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Name).notEqual('My Account'))
     .asList();
 
-SOQL.of(Contact.sObjectType)
+SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).notEqual(10))
     .asList();
 
-SOQL.of(Contact.sObjectType)
+SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.IsDeleted).notEqual(true))
     .asList();
 ```
@@ -236,7 +236,7 @@ FROM Account
 WHERE NumberOfEmployees < 10
 ```
 ```apex
-SOQL.of(Contact.sObjectType)
+SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).lessThan(10))
     .asList();
 ```
@@ -259,7 +259,7 @@ FROM Account
 WHERE NumberOfEmployees > 10
 ```
 ```apex
-SOQL.of(Contact.sObjectType)
+SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).greaterThan(10))
     asList();
 ```
@@ -282,7 +282,7 @@ FROM Account
 WHERE NumberOfEmployees <= 10
 ```
 ```apex
-SOQL.of(Contact.sObjectType)
+SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).lessThanOrEqual(10))
     .asList();
 ```
@@ -305,7 +305,7 @@ FROM Account
 WHERE NumberOfEmployees >= 10
 ```
 ```apex
-SOQL.of(Contact.sObjectType)
+SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10))
     .asList();
 ```
@@ -328,7 +328,7 @@ FROM Account
 WHERE Name = '%My%'
 ```
 ```apex
-SOQL.of(Contact.sObjectType)
+SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Name).likeAny('My'))
     .asList();
 ```
@@ -351,7 +351,7 @@ FROM Account
 WHERE Name = '%My'
 ```
 ```apex
-SOQL.of(Contact.sObjectType)
+SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Name).likeAnyLeft('My'))
     .asList();
 ```
@@ -374,7 +374,7 @@ FROM Account
 WHERE Name = 'My%'
 ```
 ```apex
-SOQL.of(Contact.sObjectType)
+SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Name).likeAnyRight('My'))
     .asList();
 ```
@@ -397,7 +397,7 @@ FROM Account
 WHERE Id IN :accountIds
 ```
 ```apex
-SOQL.of(Contact.sObjectType)
+SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Id).isIn(accountIds))
     .asList();
 ```
@@ -420,7 +420,7 @@ FROM Account
 WHERE Id NOT IN :accountIds
 ```
 ```apex
-SOQL.of(Contact.sObjectType)
+SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Id).notIn(accountIds))
     .asList();
 ```
@@ -449,9 +449,9 @@ WHERE Id IN (
 )
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Id).isIn(
-        SOQL.InnerJoin.of(Contact.sObjectType)
+        SOQL.InnerJoin.of(Contact.SObjectType)
             .with(Contact.AccountId)
             .whereAre(SOQL.Filter.with(Contact.Name).equal('My Contact'))
     )).asList();
@@ -479,9 +479,9 @@ WHERE Id NOT IN (
 )
 ```
 ```apex
-SOQL.of(Contact.sObjectType)
+SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Id).isNotIn(
-        SOQL.InnerJoin.of(Contact.sObjectType)
+        SOQL.InnerJoin.of(Contact.SObjectType)
             .with(Contact.AccountId)
             .whereAre(SOQL.Filter.with(Contact.Name).equal('My Contact'))
     )).asList();

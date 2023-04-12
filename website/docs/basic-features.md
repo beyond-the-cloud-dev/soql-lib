@@ -10,7 +10,7 @@ sidebar_position: 3
 
 ```apex
 // SELECT Id FROM Account LIMIT 100
-SOQL.of(Account.sObjectType).with(new List<SObjectField> {
+SOQL.of(Account.SObjectType).with(new List<SObjectField> {
     Account.Id, Account.Name
 })
 .setLimit(100)
@@ -24,7 +24,7 @@ All variables used in `WHERE` condition are binded by default.
 
 ```apex
 // SELECT Id, Name FROM Account WHERE Name = :v1
-SOQL.of(Account.sObjectType).with(new List<SObjectField> {
+SOQL.of(Account.SObjectType).with(new List<SObjectField> {
     Account.Id, Account.Name
 })
 .whereAre(SOQL.Filter.with(Account.Name).likeAny('Test'))
@@ -58,7 +58,7 @@ Developer can change it by using `.systemMode()` which apply `AccessLevel.SYSTEM
 
 ```apex
 // SELECT Id FROM Account - skip FLS
-SOQL.of(Account.sObjectType).with(new List<SObjectField> {
+SOQL.of(Account.SObjectType).with(new List<SObjectField> {
     Account.Id, Account.Name
 })
 .systemMode()
@@ -81,7 +81,7 @@ Developer can skip FLS by adding `.systemMode()` and `.withSharing()`.
 
 ```apex
 // Query executed in without sharing
-SOQL.of(Account.sObjectType).with(new List<SObjectField> {
+SOQL.of(Account.SObjectType).with(new List<SObjectField> {
     Account.Id, Account.Name
 })
 .systemMode()
@@ -95,7 +95,7 @@ Developer can control sharing rules by adding `.systemMode()` (record sharing ru
 
 ```apex
 // Query executed in with sharing
-SOQL.of(Account.sObjectType).with(new List<SObjectField> {
+SOQL.of(Account.SObjectType).with(new List<SObjectField> {
     Account.Id, Account.Name
 })
 .systemMode()
@@ -109,7 +109,7 @@ Developer can control sharing rules by adding `.systemMode()` (record sharing ru
 
 ```apex
 // Query executed in inherited sharing
-SOQL.of(Account.sObjectType).with(new List<SObjectField> {
+SOQL.of(Account.SObjectType).with(new List<SObjectField> {
     Account.Id, Account.Name
 })
 .systemMode()
@@ -164,7 +164,7 @@ public inherited sharing class AccountSelector {
 
     public static SOQL Query {
         get {
-            return SOQL.of(Account.sObjectType).with(new List<SObjectField>{
+            return SOQL.of(Account.SObjectType).with(new List<SObjectField>{
                 Account.Name,
                 Account.AccountNumber
             })
@@ -179,10 +179,6 @@ public inherited sharing class AccountSelector {
             Account.BillingCountry
         }).whereAre(SOQL.Filter.recordType().equal(rtDevName));
     }
-
-    public static SOQL getById(Id accountId) {
-        return Query.whereAre(SOQL.Filter.id().equal(accountId));
-    }
 }
 ```
 
@@ -195,7 +191,7 @@ public inherited sharing class AccountSelector {
 
     public static SOQL Query {
         get {
-            return SOQL.of(Account.sObjectType)
+            return SOQL.of(Account.SObjectType)
                 .with(new List<SObjectField>{  // default fields
                     Account.Id,
                     Account.Name

@@ -30,7 +30,7 @@ SOQL Builder allows to build query dynamically and execute it.
 
 ```apex
 // SELECT Id, Name, Industry FROM Account
-List<Account> accounts = SOQL.of(Account.sObjectType)
+List<Account> accounts = SOQL.of(Account.SObjectType)
    .with(new List<SObjectField>{
       Account.Id, Account.Name, Account.Industry
    }).asList();
@@ -74,7 +74,7 @@ Most of the SOQLs on the project are one-time queries executed for specific busi
 public with sharing class AccountSelector {
     public static SOQL Query {
         get {
-            return SOQL.of(Account.sObjectType).with(new List<SObjectField>{
+            return SOQL.of(Account.SObjectType).with(new List<SObjectField>{
                 Account.Name,
                 Account.AccountNumber
             })

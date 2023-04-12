@@ -11,7 +11,7 @@ Conctructs an `SOQL`.
 **Signature**
 
 ```apex
-SOQL of(sObjectType ofObject)
+SOQL of(SObjectType ofObject)
 ```
 
 **Example**
@@ -20,7 +20,7 @@ SOQL of(sObjectType ofObject)
 SELECT Id FROM Account
 ```
 ```apex
-SOQL.of(Account.sObjectType).asList();
+SOQL.of(Account.SObjectType).asList();
 ```
 
 ## select
@@ -40,7 +40,7 @@ SELECT Id, Name
 FROM Account
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .with(Account.Id)
     .with(Account.Name)
     .asList();
@@ -65,7 +65,7 @@ SELECT Id, Name, Industry
 FROM Account
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .with(List<SObjectField>{
         Account.Id, Account.Name, Account.Industry
     }).asList();
@@ -88,7 +88,7 @@ SELECT Id, Name, Industry
 FROM Account
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .with('Id, Name, Industry')
     .asList();
 ```
@@ -112,7 +112,7 @@ SELECT CreatedBy.Id, CreatedBy.Name
 FROM Account
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .with('CreatedBy', List<SObjectField>{
         User.Id, User.Name
     }).asList();
@@ -141,7 +141,7 @@ SELECT Id, (
 ) FROM Account
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .with(new List<SObjectField>{
             Contact.Id, Contact.Name
@@ -168,7 +168,7 @@ SELECT COUNT()
 FROM Account
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .count()
     .asInteger();
 ```
@@ -191,7 +191,7 @@ countAs(SObjectField field, String alias)
 SELECT COUNT(Name) names FROM Account
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .countAs(Account.Name, 'names')
     .asAggregated();
 ```
@@ -218,7 +218,7 @@ FROM Task
 USING SCOPE DELEGATED
 ```
 ```apex
-SOQL.of(Task.sObjectType)
+SOQL.of(Task.SObjectType)
     .delegatedScope()
     .asList();
 ```
@@ -241,7 +241,7 @@ FROM Task
 USING SCOPE MINE
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .mineScope()
     .asList();
 ```
@@ -264,7 +264,7 @@ FROM Task
 USING SCOPE MINE_AND_MY_GROUPS
 ```
 ```apex
-SOQL.of(ProcessInstanceWorkItem.sObjectType)
+SOQL.of(ProcessInstanceWorkItem.SObjectType)
     .mineAndMyGroupsScope()
     .asList();
 ```
@@ -287,7 +287,7 @@ FROM Opportunity
 USING SCOPE MY_TERRITORY
 ```
 ```apex
-SOQL.of(Opportunity.sObjectType)
+SOQL.of(Opportunity.SObjectType)
     .myTerritoryScope()
     .asList();
 ```
@@ -310,7 +310,7 @@ FROM Opportunity
 USING SCOPE MY_TEAM_TERRITORY
 ```
 ```apex
-SOQL.of(Opportunity.sObjectType)
+SOQL.of(Opportunity.SObjectType)
     .myTeamTerritoryScope()
     .asList();
 ```
@@ -331,7 +331,7 @@ SOQL teamScope()
 SELECT Id FROM Account USING SCOPE TEAM
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .teamScope()
     .asList();
 ```
@@ -358,7 +358,7 @@ FROM Account
 WHERE Id = :accountId OR Name = '%MyAccount%'
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .whereAre(SOQL.FiltersGroup
         .add(SOQL.Filter.with(Account.Id).equal(accountId))
         .add(SOQL.Filter.with(Account.Name).likeAny('MyAccount'))
@@ -387,7 +387,7 @@ FROM Lead
 GROUP BY LeadSource
 ```
 ```apex
-SOQL.of(Lead.sObjectType)
+SOQL.of(Lead.SObjectType)
     .with(Lead.LeadSource)
     .groupBy(Lead.LeadSource)
     .asAggregated();
@@ -409,7 +409,7 @@ FROM Lead
 GROUP BY ROLLUP(LeadSource)
 ```
 ```apex
-QS.of(Lead.sObjectType)
+QS.of(Lead.SObjectType)
     .with(Lead.LeadSource)
     .countAs(Lead.Name, 'cnt')
     .groupByRollup(Lead.LeadSource)
@@ -438,7 +438,7 @@ FROM Account
 ORDER BY Name
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .orderBy(Account.Name)
     .asList();
 ```
@@ -461,7 +461,7 @@ FROM Contact
 ORDER BY Account.Name
 ```
 ```apex
-SOQL.of(Contact.sObjectType)
+SOQL.of(Contact.SObjectType)
     .orderBy('Account', Account.Name)
     .asList();
 ```
@@ -484,7 +484,7 @@ FROM Account
 ORDER BY Name DESC
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .orderBy(Account.Name)
     .sortDesc()
     .asList();
@@ -508,7 +508,7 @@ FROM Account
 ORDER BY Name NULLS LAST
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .orderBy(Account.Industry)
     .nullsLast()
     .asList();
@@ -534,7 +534,7 @@ FROM Account
 LIMIT 100
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .setLimit(100)
     .asList();
 ```
@@ -559,7 +559,7 @@ FROM Account
 OFFSET 10
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .setOffset(10)
     .asList();
 ```
@@ -586,7 +586,7 @@ FROM Contact
 FOR REFERENCE
 ```
 ```apex
-SOQL.of(Contact.sObjectType)
+SOQL.of(Contact.SObjectType)
     .forReference()
     .asList();
 ```
@@ -609,7 +609,7 @@ FROM Contact
 FOR VIEW
 ```
 ```apex
-SOQL.of(Contact.sObjectType)
+SOQL.of(Contact.SObjectType)
     .forView()
     .asList();
 ```
@@ -632,7 +632,7 @@ FROM Contact
 FOR UPDATE
 ```
 ```apex
-SOQL.of(Contact.sObjectType)
+SOQL.of(Contact.SObjectType)
     .forUpdate()
     .asList();
 ```
@@ -680,7 +680,7 @@ SOQL systemMode()
 **Example**
 
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .systemMode()
     .asList();
 ```
@@ -704,7 +704,7 @@ SOQL withSharing()
 **Example**
 
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .systemMode()
     .withSharing()
     .asList();
@@ -725,7 +725,7 @@ SOQL withoutSharing()
 **Example**
 
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .systemMode()
     .withoutSharing()
     .asList();
@@ -742,7 +742,7 @@ SOQL mockId(String queryIdentifier)
 **Example**
 
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .mockId('MyQuery')
     .asList();
 
@@ -764,7 +764,7 @@ SOQL preview()
 **Example**
 
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .preview()
     .asList();
 ```
@@ -801,7 +801,7 @@ sObject asObject()
 **Example**
 
 ```apex
-SOQL.of(Account.sObjectType).asObject();
+SOQL.of(Account.SObjectType).asObject();
 ```
 
 ### asList
@@ -815,7 +815,7 @@ List<sObject> asList()
 **Example**
 
 ```apex
-SOQL.of(Account.sObjectType).asList();
+SOQL.of(Account.SObjectType).asList();
 ```
 
 ### asAggregated
@@ -836,7 +836,7 @@ GROUP BY LeadSource
 ```
 
 ```apex
-SOQL.of(Lead.sObjectType)
+SOQL.of(Lead.SObjectType)
     .with(Lead.LeadSource)
     .groupBy(Lead.LeadSource)
     .asAggregated()
@@ -856,7 +856,7 @@ Integer asInteger()
 SELECT COUNT() FROM Account
 ```
 ```apex
-QS.of(Account.sObjectType).count().asInteger();
+QS.of(Account.SObjectType).count().asInteger();
 ```
 
 ### asMap
@@ -870,7 +870,7 @@ Map<Id, SObject> asMap()
 **Example**
 
 ```apex
-SOQL.of(Account.sObjectType).asMap();
+SOQL.of(Account.SObjectType).asMap();
 ```
 
 ## predefined
@@ -894,7 +894,7 @@ FROM Account
 WHERE Id = '1234'
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .byId('1234')
     .asObject();
 ```
@@ -915,7 +915,7 @@ FROM Account
 WHERE Id IN ('1234')
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .byIds(new List<Id>{ '1234' })
     .asList();
 ```

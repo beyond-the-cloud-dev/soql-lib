@@ -5,21 +5,21 @@ public class SOQLTest {
 
     @isTest
     static void count() {
-        String soql = SOQL.of(Account.sObjectType).count().soql();
+        String soql = SOQL.of(Account.SObjectType).count().soql();
 
         Assert.areEqual('SELECT COUNT() FROM Account', soql);
     }
 
     @isTest
     static void countAs() {
-        String soql = SOQL.of(Account.sObjectType).countAs(Account.Name, 'names').soql();
+        String soql = SOQL.of(Account.SObjectType).countAs(Account.Name, 'names').soql();
 
         Assert.areEqual('SELECT COUNT(Name) names FROM Account', soql);
     }
 
     @isTest
     static void withField() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .with(Account.Name)
             .with(Account.BillingCity)
             .soql();
@@ -29,7 +29,7 @@ public class SOQLTest {
 
     @isTest
     static void withFields() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .with(new List<SObjectField>{
                 Account.Name, Account.BillingCity
             }).soql();
@@ -39,7 +39,7 @@ public class SOQLTest {
 
     @isTest
     static void withCommaSeparatedFields() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .with('Id, Name, BillingCity')
             .soql();
 
@@ -48,7 +48,7 @@ public class SOQLTest {
 
     @isTest
     static void withRelatedFields() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .with(new List<SObjectField>{
                 Account.Name, Account.BillingCity
             })
@@ -62,7 +62,7 @@ public class SOQLTest {
 
     @isTest
     static void subQueryField() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .with(new List<SObjectField>{
                 Account.Name
             })
@@ -75,7 +75,7 @@ public class SOQLTest {
 
     @isTest
     static void subQueryFields() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .with(new List<SObjectField>{
                 Account.Name
             })
@@ -90,7 +90,7 @@ public class SOQLTest {
 
     @isTest
     static void subQueryRelatedFields() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .with(new List<SObjectField>{
                 Account.Name
             })
@@ -108,7 +108,7 @@ public class SOQLTest {
 
     @isTest
     static void subQueryWhere() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .with(new List<SObjectField>{
                 Account.Name
             })
@@ -124,7 +124,7 @@ public class SOQLTest {
 
     @isTest
     static void subQueryOrderBy() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .with(new List<SObjectField>{
                 Account.Name
             })
@@ -142,7 +142,7 @@ public class SOQLTest {
 
     @isTest
     static void subQueryOrderByRelated() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .with(new List<SObjectField>{
                 Account.Name
             })
@@ -160,7 +160,7 @@ public class SOQLTest {
 
     @isTest
     static void subQuerySetLimit() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .with(new List<SObjectField>{
                 Account.Name
             })
@@ -176,7 +176,7 @@ public class SOQLTest {
 
     @isTest
     static void subQueryOffset() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .with(new List<SObjectField>{
                 Account.Name
             })
@@ -192,7 +192,7 @@ public class SOQLTest {
 
     @isTest
     static void subQueryForReference() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .with(new List<SObjectField>{
                 Account.Name
             })
@@ -208,7 +208,7 @@ public class SOQLTest {
 
     @isTest
     static void subQueryForView() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .with(new List<SObjectField>{
                 Account.Name
             })
@@ -226,7 +226,7 @@ public class SOQLTest {
 
     @isTest
     static void delegatedScope() {
-        String soql = SOQL.of(Task.sObjectType)
+        String soql = SOQL.of(Task.SObjectType)
             .delegatedScope()
             .soql();
 
@@ -235,7 +235,7 @@ public class SOQLTest {
 
     @isTest
     static void mineScope() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .mineScope()
             .soql();
 
@@ -244,7 +244,7 @@ public class SOQLTest {
 
     @isTest
     static void mineAndMyGroupsScope() {
-        String soql = SOQL.of(ProcessInstanceWorkItem.sObjectType)
+        String soql = SOQL.of(ProcessInstanceWorkItem.SObjectType)
             .mineAndMyGroupsScope()
             .soql();
 
@@ -253,7 +253,7 @@ public class SOQLTest {
 
     @isTest
     static void myTerritoryScope() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .myTerritoryScope()
             .soql();
 
@@ -262,7 +262,7 @@ public class SOQLTest {
 
     @isTest
     static void myTeamTerritoryScope() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .myTeamTerritoryScope()
             .soql();
 
@@ -271,7 +271,7 @@ public class SOQLTest {
 
     @isTest
     static void teamScope() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .teamScope()
             .soql();
 
@@ -282,7 +282,7 @@ public class SOQLTest {
 
     @isTest
     static void id() {
-        SOQL builder = SOQL.of(Account.sObjectType)
+        SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.id().isNotNull());
 
         String soql = builder.soql();
@@ -294,7 +294,7 @@ public class SOQLTest {
 
     @isTest
     static void recordType() {
-        SOQL builder = SOQL.of(Account.sObjectType)
+        SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.recordType().isNotNull());
 
         String soql = builder.soql();
@@ -306,7 +306,7 @@ public class SOQLTest {
 
     @isTest
     static void withRelatedFieldFilter() {
-        SOQL builder = SOQL.of(Contact.sObjectType)
+        SOQL builder = SOQL.of(Contact.SObjectType)
             .whereAre(SOQL.Filter.with('Account', Account.Name).equal('Test'));
 
         String soql = builder.soql();
@@ -318,7 +318,7 @@ public class SOQLTest {
 
     @isTest
     static void equalString() {
-        SOQL builder = SOQL.of(Account.sObjectType)
+        SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).equal('Test'));
 
         String soql = builder.soql();
@@ -330,7 +330,7 @@ public class SOQLTest {
 
     @isTest
     static void notEqualString() {
-        SOQL builder = SOQL.of(Account.sObjectType)
+        SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).notEqual('Test'));
 
         String soql = builder.soql();
@@ -342,7 +342,7 @@ public class SOQLTest {
 
     @isTest
     static void lessThan() {
-        SOQL builder = SOQL.of(Account.sObjectType)
+        SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).lessThan(10));
 
         String soql = builder.soql();
@@ -354,7 +354,7 @@ public class SOQLTest {
 
     @isTest
     static void greaterThan() {
-        SOQL builder = SOQL.of(Account.sObjectType)
+        SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).greaterThan(10));
 
         String soql = builder.soql();
@@ -366,7 +366,7 @@ public class SOQLTest {
 
     @isTest
     static void lessThanOrEqual() {
-        SOQL builder = SOQL.of(Account.sObjectType)
+        SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).lessThanOrEqual(10));
 
         String soql = builder.soql();
@@ -378,7 +378,7 @@ public class SOQLTest {
 
     @isTest
     static void greaterThanOrEqual() {
-        SOQL builder = SOQL.of(Account.sObjectType)
+        SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10));
 
         String soql = builder.soql();
@@ -390,7 +390,7 @@ public class SOQLTest {
 
     @isTest
     static void likeAny() {
-        SOQL builder = SOQL.of(Account.sObjectType)
+        SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).likeAny('Test'));
 
         String soql = builder.soql();
@@ -402,7 +402,7 @@ public class SOQLTest {
 
     @isTest
     static void likeAnyLeft() {
-        SOQL builder = SOQL.of(Account.sObjectType)
+        SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).likeAnyLeft('Test'));
 
         String soql = builder.soql();
@@ -414,7 +414,7 @@ public class SOQLTest {
 
     @isTest
     static void likeAnyRight() {
-        SOQL builder = SOQL.of(Account.sObjectType)
+        SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).likeAnyRight('Test'));
 
         String soql = builder.soql();
@@ -428,7 +428,7 @@ public class SOQLTest {
     static void isIn() {
         List<String> names = new List<String>{ 'Test 1', 'Test 2' };
 
-        SOQL builder = SOQL.of(Account.sObjectType)
+        SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).isIn(names));
 
         String soql = builder.soql();
@@ -443,7 +443,7 @@ public class SOQLTest {
     static void isNotIn() {
         List<String> names = new List<String>{ 'Test 1', 'Test 2' };
 
-        SOQL builder = SOQL.of(Account.sObjectType)
+        SOQL builder = SOQL.of(Account.SObjectType)
             .with(new List<SObjectField>{
                 Account.Name, Account.BillingCity
             })
@@ -458,7 +458,7 @@ public class SOQLTest {
 
     @isTest
     static void isNotNull() {
-        SOQL builder = SOQL.of(Account.sObjectType)
+        SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).isNotNull());
 
         String soql = builder.soql();
@@ -470,7 +470,7 @@ public class SOQLTest {
 
     @isTest
     static void isNull() {
-        SOQL builder = SOQL.of(Account.sObjectType)
+        SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).isNull());
 
         String soql = builder.soql();
@@ -482,7 +482,7 @@ public class SOQLTest {
 
     @isTest
     static void conditionsGroup() {
-        SOQL builder = SOQL.of(Account.sObjectType)
+        SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.FiltersGroup
                 .add(SOQL.Filter.with(Account.Name).equal('Test'))
                 .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
@@ -498,7 +498,7 @@ public class SOQLTest {
 
     @isTest
     static void nestedConditionsGroup() {
-        SOQL builder = SOQL.of(Account.sObjectType)
+        SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.FiltersGroup
                 .add(SOQL.Filter.with(Account.Name).equal('Test'))
                 .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
@@ -521,9 +521,9 @@ public class SOQLTest {
 
     @isTest
     static void inInnerJoin() {
-        SOQL builder = SOQL.of(Account.sObjectType)
+        SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Id).isIn(
-                SOQL.InnerJoin.of(Contact.sObjectType)
+                SOQL.InnerJoin.of(Contact.SObjectType)
                     .with(Contact.AccountId)
                     .whereAre(SOQL.Filter.with(Contact.Name).equal('My Contact'))
             ));
@@ -538,9 +538,9 @@ public class SOQLTest {
 
     @isTest
     static void isNotInInnerJoin() {
-        SOQL builder = SOQL.of(Account.sObjectType)
+        SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Id).isNotIn(
-                SOQL.InnerJoin.of(Contact.sObjectType)
+                SOQL.InnerJoin.of(Contact.SObjectType)
                     .with(Contact.AccountId)
                     .whereAre(SOQL.Filter.with(Contact.Name).equal('My Contact'))
             ));
@@ -556,7 +556,7 @@ public class SOQLTest {
 
     @isTest
     static void groupBy() {
-        String soql = SOQL.of(Lead.sObjectType)
+        String soql = SOQL.of(Lead.SObjectType)
             .with(new List<SObjectField>{
                 Lead.LeadSource
             })
@@ -568,7 +568,7 @@ public class SOQLTest {
 
     @isTest
     static void groupByRollup() {
-        String soql = SOQL.of(Lead.sObjectType)
+        String soql = SOQL.of(Lead.SObjectType)
             .with(Lead.LeadSource)
             .countAs(Lead.Name, 'cnt')
             .groupByRollup(Lead.LeadSource)
@@ -581,7 +581,7 @@ public class SOQLTest {
 
     @isTest
     static void orderBy() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .orderBy(Account.Industry).sortDesc().nullsLast()
             .orderBy(Account.Id)
             .soql();
@@ -591,7 +591,7 @@ public class SOQLTest {
 
     @isTest
     static void orderByRelated() {
-        String soql = SOQL.of(Contact.sObjectType)
+        String soql = SOQL.of(Contact.SObjectType)
             .orderBy('Account', Account.Name)
             .soql();
 
@@ -602,7 +602,7 @@ public class SOQLTest {
 
     @isTest
     static void setLimit() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .setLimit(100)
             .soql();
 
@@ -613,7 +613,7 @@ public class SOQLTest {
 
     @isTest
     static void offset() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .offset(100)
             .soql();
 
@@ -624,7 +624,7 @@ public class SOQLTest {
 
     @isTest
     static void forReference() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .forReference()
             .soql();
 
@@ -633,7 +633,7 @@ public class SOQLTest {
 
     @isTest
     static void forView() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .forView()
             .soql();
 
@@ -642,7 +642,7 @@ public class SOQLTest {
 
     @isTest
     static void forUpdate() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .forUpdate()
             .soql();
 
@@ -651,7 +651,7 @@ public class SOQLTest {
 
     @isTest
     static void allRows() {
-        String soql = SOQL.of(Account.sObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .allRows()
             .soql();
 
@@ -664,7 +664,7 @@ public class SOQLTest {
     static void getById() {
         Id accountId = '0013V00000WNCwCQAX';
 
-        SOQL builder = SOQL.of(Account.sObjectType).byId(accountId);
+        SOQL builder = SOQL.of(Account.SObjectType).byId(accountId);
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Id = :v1', soql);
@@ -677,7 +677,7 @@ public class SOQLTest {
     static void byIdsSet() {
         Set<Id> accountIds = new Set<Id>{ '0013V00000WNCwCQAX' };
 
-        SOQL builder = SOQL.of(Account.sObjectType).byIds(accountIds);
+        SOQL builder = SOQL.of(Account.SObjectType).byIds(accountIds);
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Id IN :v1', soql);
@@ -690,7 +690,7 @@ public class SOQLTest {
     static void byIdsList() {
         List<Id> accountIds = new List<Id>{ '0013V00000WNCwCQAX' };
 
-        SOQL builder = SOQL.of(Account.sObjectType).byIds(accountIds);
+        SOQL builder = SOQL.of(Account.SObjectType).byIds(accountIds);
 
         String soql = builder.soql();
         Assert.areEqual('SELECT Id FROM Account WHERE Id IN :v1', soql);
@@ -706,7 +706,7 @@ public class SOQLTest {
         insertCases();
 
         System.runAs(standardUser()) {
-            List<Case> cases = SOQL.of(Case.sObjectType).systemMode().withoutSharing().asList();
+            List<Case> cases = SOQL.of(Case.SObjectType).systemMode().withoutSharing().asList();
             Assert.areEqual(2, cases.size());
         }
     }
@@ -716,7 +716,7 @@ public class SOQLTest {
         insertCases();
 
         System.runAs(standardUser()) {
-            Integer casesAmount = SOQL.of(Case.sObjectType).count().systemMode().withoutSharing().asInteger();
+            Integer casesAmount = SOQL.of(Case.SObjectType).count().systemMode().withoutSharing().asInteger();
             Assert.areEqual(2, casesAmount);
         }
     }
@@ -726,7 +726,7 @@ public class SOQLTest {
         insertTasks();
 
         System.runAs(standardUser()) {
-            List<Task> tasks = SOQL.of(Task.sObjectType).systemMode().withSharing().asList();
+            List<Task> tasks = SOQL.of(Task.SObjectType).systemMode().withSharing().asList();
             Assert.areEqual(0, tasks.size());
         }
     }
@@ -736,7 +736,7 @@ public class SOQLTest {
         insertTasks();
 
         System.runAs(standardUser()) {
-            Integer tasksAmount = SOQL.of(Task.sObjectType).count().systemMode().withSharing().asInteger();
+            Integer tasksAmount = SOQL.of(Task.SObjectType).count().systemMode().withSharing().asInteger();
             Assert.areEqual(0, tasksAmount);
         }
     }
@@ -746,7 +746,7 @@ public class SOQLTest {
         insertTasks();
 
         System.runAs(standardUser()) {
-            List<Task> tasks = SOQL.of(Task.sObjectType)
+            List<Task> tasks = SOQL.of(Task.SObjectType)
                 .with(Task.Type)
                 .systemMode()
                 .stripInaccessible()
@@ -802,7 +802,7 @@ public class SOQLTest {
 
         SOQL.setMock('mockingQuery', accounts);
 
-        List<Account> result = SOQL.of(Account.sObjectType).mockId('mockingQuery').asList();
+        List<Account> result = SOQL.of(Account.SObjectType).mockId('mockingQuery').asList();
 
         Assert.areEqual(accounts, result);
     }
@@ -811,7 +811,7 @@ public class SOQLTest {
     static void mockingCount() {
         SOQL.setCountMock('mockingQuery', 2);
 
-        Integer result = SOQL.of(Account.sObjectType).mockId('mockingQuery').asInteger();
+        Integer result = SOQL.of(Account.SObjectType).mockId('mockingQuery').asInteger();
 
         Assert.areEqual(2, result);
     }
@@ -823,14 +823,14 @@ public class SOQLTest {
 
         insert acc;
 
-        Account result = (Account) SOQL.of(Account.sObjectType).asObject();
+        Account result = (Account) SOQL.of(Account.SObjectType).asObject();
 
         Assert.areEqual(acc.Id, result.Id);
     }
 
     @isTest
     static void asObjectCatchOutOfBounds() {
-        Account result = (Account) SOQL.of(Account.sObjectType).asObject();
+        Account result = (Account) SOQL.of(Account.SObjectType).asObject();
 
         Assert.areEqual(null, result);
     }
@@ -841,7 +841,7 @@ public class SOQLTest {
 
         insert accounts;
 
-        List<Account> result = SOQL.of(Account.sObjectType).asList();
+        List<Account> result = SOQL.of(Account.SObjectType).asList();
 
         Assert.areEqual(accounts.size(), result.size());
     }
@@ -852,7 +852,7 @@ public class SOQLTest {
 
         insert accounts;
 
-        List<AggregateResult> result = SOQL.of(Account.sObjectType).countAs(Account.Name, 'names').asAggregated();
+        List<AggregateResult> result = SOQL.of(Account.SObjectType).countAs(Account.Name, 'names').asAggregated();
 
         Assert.areEqual(accounts.size(), result[0].get('names'));
     }
@@ -863,7 +863,7 @@ public class SOQLTest {
 
         insert accounts;
 
-        Integer result = SOQL.of(Account.sObjectType).count().asInteger();
+        Integer result = SOQL.of(Account.SObjectType).count().asInteger();
 
         Assert.areEqual(accounts.size(), result);
     }
@@ -874,7 +874,7 @@ public class SOQLTest {
 
         insert accounts;
 
-        Map<Id, SObject> result = SOQL.of(Account.sObjectType).asMap();
+        Map<Id, SObject> result = SOQL.of(Account.SObjectType).asMap();
 
         Assert.areEqual(accounts.size(), result.size());
 
@@ -892,11 +892,11 @@ public class SOQLTest {
 
     @isTest
     static void preview() {
-        SOQL.of(Account.sObjectType).preview().asList();
+        SOQL.of(Account.SObjectType).preview().asList();
     }
 
     @isTest
     static void previewCount() {
-        SOQL.of(Account.sObjectType).count().preview().asInteger();
+        SOQL.of(Account.SObjectType).count().preview().asInteger();
     }
 }

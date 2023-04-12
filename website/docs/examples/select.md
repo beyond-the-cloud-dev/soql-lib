@@ -17,7 +17,7 @@ public inherited sharing class AccountSelector {
 
     public static SOQL Query {
         get {
-            return SOQL.of(Account.sObjectType)
+            return SOQL.of(Account.SObjectType)
                 .with(new List<SObjectField>{ //default fields
                     Account.Id,
                     Account.Name
@@ -53,7 +53,7 @@ public inherited sharing class AccountSelector {
 
     public static SOQL Query {
         get {
-            return SOQL.of(Account.sObjectType) //default fields
+            return SOQL.of(Account.SObjectType) //default fields
                 .with(new List<SObjectField>{
                     Account.Id,
                     Account.Name
@@ -86,7 +86,7 @@ public inherited sharing class AccountSelector {
 
     public static SOQL Query {
         get {
-            return SOQL.of(Account.sObjectType);
+            return SOQL.of(Account.SObjectType);
         }
     }
 }
