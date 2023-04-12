@@ -74,12 +74,13 @@ Most of the SOQLs on the project are one-time queries executed for specific busi
 public with sharing class AccountSelector {
     public static SOQL Query {
         get {
-            return SOQL.of(Account.SObjectType).with(new List<SObjectField>{
-                Account.Name,
-                Account.AccountNumber
-            })
-            .systemMode()
-            .withoutSharing();
+            return SOQL.of(Account.SObjectType)
+                .with(new List<SObjectField>{
+                    Account.Name,
+                    Account.AccountNumber
+                })
+                .systemMode()
+                .withoutSharing();
         }
     }
 
