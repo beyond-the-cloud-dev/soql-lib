@@ -141,10 +141,10 @@ Then in test simply pass data you want to get from Selector to `SOQL.setMock(id,
 
 ### List of records
 ```apex
-@isTest
+@IsTest
 private class ExampleControllerTest {
 
-    @isTest
+    @IsTest
     static void getPartnerAccounts() {
         List<Account> accounts = new List<Account>{
             new Account(Name = 'MyAccount 1'),
@@ -163,10 +163,10 @@ private class ExampleControllerTest {
 
 ### Single record
 ```apex
-@isTest
+@IsTest
 private class ExampleControllerTest {
 
-    @isTest
+    @IsTest
     static void getPartnerAccount() {
         SOQL.setMock('ExampleController.getPartnerAccount', new Account(Name = 'MyAccount 1'));
 
@@ -180,10 +180,10 @@ private class ExampleControllerTest {
 
 ### Static resource
 ```apex
-@isTest
+@IsTest
 private class ExampleControllerTest {
 
-    @isTest
+    @IsTest
     static void getPartnerAccounts() {
         SOQL.setMock('ExampleController.getPartnerAccounts', 'ProjectAccounts');
 
@@ -196,10 +196,10 @@ private class ExampleControllerTest {
 ```
 
 ### Count Result
-@isTest
+@IsTest
 private class ExampleControllerTest {
 
-    @isTest
+    @IsTest
     static void getPartnerAccountsCount() {
         SOQL.setCountMock('mockingQuery', 2);
 
