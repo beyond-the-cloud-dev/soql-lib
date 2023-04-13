@@ -118,6 +118,8 @@ SOQL.of(Account.SObjectType).with(new List<SObjectField> {
 
 ## Mocking
 
+To mock SOQL query use `.mockId(id)` method to make it identifiable. If you mark more than one query with the same ID, all marked queries will return the same data.
+
 ```apex
 public with sharing class ExampleController {
 
@@ -135,11 +137,15 @@ public with sharing class ExampleController {
 }
 ```
 
+Then in test simply pass data you want to get from Selector to `SOQL.setMock(id, data)` method. Acceptable formats are: `List<SObject>`, `SObject`, or `String` with name of static resource. Then during execution Selector will return desired data.
+
+### List of records
 ```apex
 @isTest
-public class ExampleControllerTest {
+private class ExampleControllerTest {
 
-    public static List<Account> getPartnerAccounts(String accountName) {
+    @isTest
+    static void getPartnerAccounts() {
         List<Account> accounts = new List<Account>{
             new Account(Name = 'MyAccount 1'),
             new Account(Name = 'MyAccount 2')
@@ -151,6 +157,55 @@ public class ExampleControllerTest {
         List<Account> result = ExampleController.getAccounts('MyAccount');
 
         Assert.areEqual(accounts, result);
+    }
+}
+```
+
+### Single record
+```apex
+@isTest
+private class ExampleControllerTest {
+
+    @isTest
+    static void getPartnerAccount() {
+        SOQL.setMock('ExampleController.getPartnerAccount', new Account(Name = 'MyAccount 1'));
+
+        // Test
+        Account result = (Account) ExampleController.getAccounts('MyAccount');
+
+        Assert.areEqual('MyAccount 1', result.Name);
+    }
+}
+```
+
+### Static resource
+```apex
+@isTest
+private class ExampleControllerTest {
+
+    @isTest
+    static void getPartnerAccounts() {
+        SOQL.setMock('ExampleController.getPartnerAccounts', 'ProjectAccounts');
+
+        // Test
+        List<Account> result = ExampleController.getAccounts('MyAccount');
+
+        Assert.areEqual(5, result.size());
+    }
+}
+```
+
+### Count Result
+@isTest
+private class ExampleControllerTest {
+
+    @isTest
+    static void getPartnerAccountsCount() {
+        SOQL.setCountMock('mockingQuery', 2);
+
+        Integer result = SOQL.of(Account.sObjectType).count().mockId('mockingQuery').asInteger();
+
+        Assert.areEqual(2, result);
     }
 }
 ```

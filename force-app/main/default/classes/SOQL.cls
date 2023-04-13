@@ -24,16 +24,6 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    @TestVisible
-    private static void setMock(String queryIdentifier, List<SObject> records) {
-        mocks.put(queryIdentifier, records);
-    }
-
-    @TestVisible
-    private static void setCountMock(String queryIdentifier, Integer amount) {
-        countMocks.put(queryIdentifier, amount);
-    }
-
     public interface Queryable {
         SOQL of(SObjectType ofObject);
 
@@ -77,7 +67,7 @@ public inherited sharing class SOQL implements Queryable {
         SOQL withSharing();
         SOQL withoutSharing();
 
-        SOQL mockId(String queryIdentifier);
+        SOQL mockId(String id);
 
         SOQL preview();
 
@@ -157,22 +147,22 @@ public inherited sharing class SOQL implements Queryable {
     // Implementation details
 
     private static Binder binder;
+    private static Mock mock = new Mock();
 
     private QueryBuilder builder;
     private Executor executor;
 
-    private static Map<String, List<SObject>> mocks = new Map<String, List<SObject>>();
-    private static Map<String, Integer> countMocks = new Map<String, Integer>();
-
-    public static SOQL of(SObjectType ofObject) {
+    public static SOQL of(sObjectType ofObject) {
         return new SOQL(ofObject);
     }
 
     private SOQL(SObjectType ofObject) {
         binder = new Binder();
         builder = new QueryBuilder(ofObject);
-        executor = new Executor();
+        executor = new Executor(ofObject);
     }
+
+    // Fields
 
     public SOQL with(SObjectField field) {
         builder.fields.retrive(field);
@@ -330,8 +320,8 @@ public inherited sharing class SOQL implements Queryable {
         return this;
     }
 
-    public SOQL mockId(String queryIdentifier) {
-        executor.mockId(queryIdentifier);
+    public SOQL mockId(String id) {
+        executor.mockId(id);
         return this;
     }
 
@@ -1041,14 +1031,84 @@ public inherited sharing class SOQL implements Queryable {
         WITHOUT_SHARING
     }
 
+    // Mocking
+
+    @TestVisible
+    private static void setMock(String mockId, SObject record) {
+        setMock(mockId, new List<SObject>{ record });
+    }
+
+    @TestVisible
+    private static void setMock(String mockId, List<SObject> records) {
+        mock.setMock(mockId, records);
+    }
+
+    @TestVisible
+    private static void setCountMock(String mockId, Integer amount) {
+        mock.setCountMock(mockId, amount);
+    }
+
+    @TestVisible
+    private static void setMock(String mockId, String staticResource) {
+        mock.setStaticResourceMock(mockId, staticResource);
+    }
+
+    private class Mock {
+        private final Map<String, List<SObject>> mocks = new Map<String, List<SObject>>();
+        private final Map<String, String> staticResourceMocks = new Map<String, String>();
+        private final Map<String, Integer> countMocks = new Map<String, Integer>();
+
+        public void setMock(String mockId, List<SObject> records) {
+            mocks.put(mockId, records);
+        }
+
+        public void setCountMock(String mockId, Integer amount) {
+            countMocks.put(mockId, amount);
+        }
+
+        public void setStaticResourceMock(String mockId, String staticResourceName) {
+            staticResourceMocks.put(mockId, staticResourceName);
+        }
+
+        public Boolean hasMock(String mockId) {
+            return mocks.containsKey(mockId);
+        }
+
+        public Boolean hasStaticResourceMock(String mockId){
+            return staticResourceMocks.containsKey(mockId);
+        }
+
+        public List<SObject> getMocks(String mockId) {
+            return mocks.get(mockId);
+        }
+
+        public List<SObject> getStaticResourceMocks(String mockId, SObjectType sObjectType){
+            return Test.loadData(sObjectType, staticResourceMocks.get(mockId));
+        }
+
+        public Boolean hasCountMock(String mockId) {
+            return countMocks.containsKey(mockId);
+        }
+
+        public Integer getCountMock(String mockId) {
+            return countMocks.get(mockId);
+        }
+    }
+
     private inherited sharing class Executor {
+        private sObjectType ofObject;
+
         private SharingLevel sharingMode = SharingLevel.INHERITED;
         private AccessLevel accessMode = AccessLevel.USER_MODE; //The object permissions, field-level security, sharing rules are enforced.
         private AccessType accessType;
 
-        private String queryIdentifier;
+        private String mockId;
         private Boolean withPreview = false;
         private Boolean isCountQuery = false;
+
+        public Executor(sObjectType ofObject) {
+            this.ofObject = ofObject;
+        }
 
         private final Map<SharingLevel, DatabaseQuery> MODE_TO_EXECUTOR = new Map<SharingLevel, DatabaseQuery>{
             SharingLevel.WITH_SHARING => new WithSharing(),
@@ -1072,8 +1132,8 @@ public inherited sharing class SOQL implements Queryable {
             accessMode = AccessLevel.SYSTEM_MODE;
         }
 
-        public void mockId(String identifier) {
-            queryIdentifier = identifier;
+        public void mockId(String id) {
+            mockId = id;
         }
 
         public void countQuery() {
@@ -1098,8 +1158,8 @@ public inherited sharing class SOQL implements Queryable {
                 previewBinding(binding);
             }
 
-            if (countMocks.containsKey(queryIdentifier)) {
-                return countMocks.get(queryIdentifier);
+            if (mock.hasCountMock(mockId)) {
+                return mock.getCountMock(mockId);
             }
 
             return MODE_TO_EXECUTOR.get(sharingMode).executeCount(query, binding, accessMode);
@@ -1111,8 +1171,12 @@ public inherited sharing class SOQL implements Queryable {
                 previewBinding(binding);
             }
 
-            if (mocks.containsKey(queryIdentifier)) {
-                return mocks.get(queryIdentifier);
+            if (mock.hasMock(mockId)) {
+                return mock.getMocks(mockId);
+            }
+
+            if (mock.hasStaticResourceMock(mockId)) {
+                return mock.getStaticResourceMocks(mockId, ofObject);
             }
 
             if (accessType == null) {

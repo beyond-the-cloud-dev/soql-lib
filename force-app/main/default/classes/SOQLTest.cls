@@ -1,5 +1,5 @@
 @isTest
-public class SOQLTest {
+private class SOQLTest {
 
     // SELECT
 
@@ -808,14 +808,35 @@ public class SOQLTest {
     }
 
     @isTest
+    static void mockingSingleRecord() {
+        Account testAccount = new Account(Name = 'Test 1');
+
+        SOQL.setMock('mockingQuery', testAccount);
+
+        Account result = (Account) SOQL.of(Account.sObjectType).mockId('mockingQuery').asObject();
+
+        Assert.areEqual(testAccount, result);
+    }
+
+    @isTest
+    static void mockingStaticResource() {
+        SOQL.setMock('mockingQuery', 'testAccounts');
+
+        try {
+            List<Account> result = SOQL.of(Account.sObjectType).mockId('mockingQuery').asList();
+        } catch (Exception missingStaticResource){
+            Assert.isInstanceOfType(missingStaticResource, NullPointerException.class);
+        }
+    }
+
+    @isTest
     static void mockingCount() {
         SOQL.setCountMock('mockingQuery', 2);
 
-        Integer result = SOQL.of(Account.SObjectType).mockId('mockingQuery').asInteger();
+        Integer result = SOQL.of(Account.sObjectType).count().mockId('mockingQuery').asInteger();
 
         Assert.areEqual(2, result);
     }
-
 
     @isTest
     static void asObject() {

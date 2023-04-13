@@ -731,7 +731,7 @@ SOQL.of(Account.SObjectType)
     .asList();
 ```
 
-## mocking
+## mockId
 
 **Signature**
 
@@ -751,6 +751,86 @@ SOQL.setMock('MyQuery', new List<Account>{
     new Account(Name = 'MyAccount 1'),
     new Account(Name = 'MyAccount 2')
 });
+```
+
+## setMock
+
+**Signature**
+
+```apex
+SOQL setMock(String mockId, SObject record)
+```
+
+**Example**
+
+```apex
+SOQL.of(Account.sObjectType)
+    .mockId('MyQuery')
+    .asList();
+
+// In Unit Test
+SOQL.setMock('MyQuery', new Account(Name = 'MyAccount 1'));
+```
+
+## setMock
+
+**Signature**
+
+```apex
+SOQL setMock(String mockId, List<SObject> records)
+```
+
+**Example**
+
+```apex
+SOQL.of(Account.sObjectType)
+    .mockId('MyQuery')
+    .asList();
+
+// In Unit Test
+SOQL.setMock('MyQuery', new List<Account>{
+    new Account(Name = 'MyAccount 1'),
+    new Account(Name = 'MyAccount 2')
+});
+```
+
+## setMock
+
+**Signature**
+
+```apex
+SOQL setCountMock(String mockId, Integer amount)
+```
+
+**Example**
+
+```apex
+SOQL.of(Account.sObjectType)
+    .mockId('MyQuery')
+    .count()
+    .asInteger();
+
+// In Unit Test
+SOQL.setMock('MyQuery', 5);
+```
+
+## setMock
+
+**Signature**
+
+```apex
+SOQL setMock(String mockId, String staticResource)
+```
+
+**Example**
+
+```apex
+SOQL.of(Account.sObjectType)
+    .mockId('MyQuery')
+    .asList();
+
+// In Unit Test
+SOQL.setMock('MyQuery', 'MyStaticResource');
 ```
 
 ## preview
