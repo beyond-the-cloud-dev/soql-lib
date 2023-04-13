@@ -144,6 +144,28 @@ public inherited sharing class SOQL implements Queryable {
         JoinQuery whereAre(FilterClause conditions); //SOQL.Filter or SOQL.FiltersGroup
     }
 
+    // Mocking
+
+    @TestVisible
+    private static void setMock(String mockId, SObject record) {
+        setMock(mockId, new List<SObject>{ record });
+    }
+
+    @TestVisible
+    private static void setMock(String mockId, List<SObject> records) {
+        mock.setMock(mockId, records);
+    }
+
+    @TestVisible
+    private static void setCountMock(String mockId, Integer amount) {
+        mock.setCountMock(mockId, amount);
+    }
+
+    @TestVisible
+    private static void setMock(String mockId, String staticResource) {
+        mock.setStaticResourceMock(mockId, staticResource);
+    }
+
     // Implementation details
 
     private static Binder binder;
@@ -1033,26 +1055,6 @@ public inherited sharing class SOQL implements Queryable {
 
     // Mocking
 
-    @TestVisible
-    private static void setMock(String mockId, SObject record) {
-        setMock(mockId, new List<SObject>{ record });
-    }
-
-    @TestVisible
-    private static void setMock(String mockId, List<SObject> records) {
-        mock.setMock(mockId, records);
-    }
-
-    @TestVisible
-    private static void setCountMock(String mockId, Integer amount) {
-        mock.setCountMock(mockId, amount);
-    }
-
-    @TestVisible
-    private static void setMock(String mockId, String staticResource) {
-        mock.setStaticResourceMock(mockId, staticResource);
-    }
-
     private class Mock {
         private final Map<String, List<SObject>> mocks = new Map<String, List<SObject>>();
         private final Map<String, String> staticResourceMocks = new Map<String, String>();
@@ -1074,7 +1076,7 @@ public inherited sharing class SOQL implements Queryable {
             return mocks.containsKey(mockId);
         }
 
-        public Boolean hasStaticResourceMock(String mockId){
+        public Boolean hasStaticResourceMock(String mockId) {
             return staticResourceMocks.containsKey(mockId);
         }
 
@@ -1082,7 +1084,7 @@ public inherited sharing class SOQL implements Queryable {
             return mocks.get(mockId);
         }
 
-        public List<SObject> getStaticResourceMocks(String mockId, SObjectType sObjectType){
+        public List<SObject> getStaticResourceMocks(String mockId, SObjectType sObjectType) {
             return Test.loadData(sObjectType, staticResourceMocks.get(mockId));
         }
 
@@ -1096,7 +1098,7 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     private inherited sharing class Executor {
-        private sObjectType ofObject;
+        private SObjectType ofObject;
 
         private SharingLevel sharingMode = SharingLevel.INHERITED;
         private AccessLevel accessMode = AccessLevel.USER_MODE; //The object permissions, field-level security, sharing rules are enforced.
@@ -1106,7 +1108,7 @@ public inherited sharing class SOQL implements Queryable {
         private Boolean withPreview = false;
         private Boolean isCountQuery = false;
 
-        public Executor(sObjectType ofObject) {
+        public Executor(SObjectType ofObject) {
             this.ofObject = ofObject;
         }
 
