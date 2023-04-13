@@ -45,6 +45,7 @@ public inherited sharing class SOQL implements Queryable {
         SOQL teamScope();
 
         SOQL whereAre(FilterClause conditions); //SOQL.FiltersGroup or SOQL.Filter
+        SOQL whereAre(String conditions); //conditions to evaluate
 
         SOQL groupBy(SObjectField field);
         SOQL groupByRollup(SObjectField field);
@@ -254,6 +255,11 @@ public inherited sharing class SOQL implements Queryable {
 
     public SOQL whereAre(FilterClause conditions) {
         builder.conditions.add(conditions);
+        return this;
+    }
+
+    public SOQL whereAre(String conditions) {
+        builder.conditions.add(SOQL.Filter.evaluate(conditions));
         return this;
     }
 
@@ -778,9 +784,12 @@ public inherited sharing class SOQL implements Queryable {
     public class Filter implements FilterClause, SoqlFilter {
         private String field;
         private String comperator;
+
         private Object value;
-        private Binder binder;
         private JoinQuery joinQuery;
+
+        private Binder binder;
+        private String stringCondition;
 
         public Filter(Binder binder) {
             this.binder = binder;
@@ -879,7 +888,16 @@ public inherited sharing class SOQL implements Queryable {
             return this;
         }
 
+        public Filter evaluate(String condition) {
+            stringCondition = String.escapeSingleQuotes(condition);
+            return this;
+        }
+
         public String build() {
+            if (String.isNotEmpty(stringCondition)) {
+                return stringCondition;
+            }
+
             if (joinQuery != null) {
                 return field + ' ' + comperator + ' (' + joinQuery.build() + ')';
             }

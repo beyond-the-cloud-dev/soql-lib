@@ -552,6 +552,17 @@ private class SOQLTest {
         Assert.areEqual('My Contact', binding.get('v1'));
     }
 
+    @IsTest
+    static void evaluateConditions() {
+        //Test
+        String soql = SOQL.of(Account.SObjectType)
+            .whereAre('NumberOfEmployees >= 10 AND NumberOfEmployees <= 20')
+            .toString();
+
+        //Verify
+        Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees >= 10 AND NumberOfEmployees <= 20', soql);
+    }
+
     // GROUP BY
 
     @IsTest
