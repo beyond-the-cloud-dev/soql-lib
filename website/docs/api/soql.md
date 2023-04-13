@@ -731,7 +731,11 @@ SOQL.of(Account.SObjectType)
     .asList();
 ```
 
-## mockId
+## mocking
+
+### mockId
+
+Query needs unique id that allows for mocking.
 
 **Signature**
 
@@ -753,7 +757,7 @@ SOQL.setMock('MyQuery', new List<Account>{
 });
 ```
 
-## setMock
+### set record mock
 
 **Signature**
 
@@ -772,7 +776,7 @@ SOQL.of(Account.sObjectType)
 SOQL.setMock('MyQuery', new Account(Name = 'MyAccount 1'));
 ```
 
-## setMock
+### set list mock
 
 **Signature**
 
@@ -794,7 +798,7 @@ SOQL.setMock('MyQuery', new List<Account>{
 });
 ```
 
-## setMock
+### set count mock
 
 **Signature**
 
@@ -814,7 +818,7 @@ SOQL.of(Account.sObjectType)
 SOQL.setMock('MyQuery', 5);
 ```
 
-## setMock
+### set static resource mock
 
 **Signature**
 
