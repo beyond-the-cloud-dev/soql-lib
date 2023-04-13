@@ -144,8 +144,6 @@ public inherited sharing class SOQL implements Queryable {
         JoinQuery whereAre(FilterClause conditions); //SOQL.Filter or SOQL.FiltersGroup
     }
 
-    // Mocking
-
     @TestVisible
     private static void setMock(String mockId, SObject record) {
         setMock(mockId, new List<SObject>{ record });
