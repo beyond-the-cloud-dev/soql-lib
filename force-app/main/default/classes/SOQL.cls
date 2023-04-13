@@ -1107,15 +1107,15 @@ public inherited sharing class SOQL implements Queryable {
         private Boolean withPreview = false;
         private Boolean isCountQuery = false;
 
-        public Executor(SObjectType ofObject) {
-            this.ofObject = ofObject;
-        }
-
         private final Map<SharingLevel, DatabaseQuery> MODE_TO_EXECUTOR = new Map<SharingLevel, DatabaseQuery>{
             SharingLevel.WITH_SHARING => new WithSharing(),
             SharingLevel.WITHOUT_SHARING => new WithoutSharing(),
             SharingLevel.INHERITED => new InheritedSharing()
         };
+
+        public Executor(SObjectType ofObject) {
+            this.ofObject = ofObject;
+        }
 
         public void withSharing() {
             sharingMode = SharingLevel.WITH_SHARING;
