@@ -12,12 +12,12 @@ Find more details in the [documentation](https://btc-query-selector.vercel.app/)
 
 ```apex
 // SELECT Id FROM Account
-List<Account> accounts = SOQL.of(Account.sObjectType).asList();
+List<Account> accounts = SOQL.of(Account.SObjectType).asList();
 ```
 
 ```apex
 // SELECT Id, Name, Industry FROM Account
-List<Account> accounts = SOQL.of(Account.sObjectType)
+List<Account> accounts = SOQL.of(Account.SObjectType)
    .with(new List<SObjectField>{
       Account.Id, Account.Name, Account.Industry
    }).asList();

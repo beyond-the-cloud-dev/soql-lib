@@ -6,7 +6,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula')
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'BTC Query Selector',
+  title: 'BTC SOQL Lib',
   tagline: 'Apex SOQL provides functional constructs for SOQL.',
   favicon: 'img/favicon.ico',
 
@@ -52,12 +52,12 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       // Replace with your project's social card
-      image: 'img/docusaurus-social-card.jpg',
+      image: 'img/cloud-icon.png',
       navbar: {
-        title: 'BTC Query Selector',
+        title: 'BTC SOQL Lib',
         logo: {
-          alt: 'My Site Logo',
-          src: 'img/logo.svg',
+          alt: 'BTC SOQL Lib logo',
+          src: 'img/cloud-icon.png',
         },
         items: [
           {

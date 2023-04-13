@@ -1,7 +1,7 @@
 public with sharing class AccountSelector {
     public static SOQL Query {
         get {
-            return SOQL.of(Account.sObjectType).with(new List<SObjectField>{
+            return SOQL.of(Account.SObjectType).with(new List<SObjectField>{
                 Account.Name,
                 Account.AccountNumber
             })

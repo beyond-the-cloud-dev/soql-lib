@@ -11,7 +11,7 @@ Conctructs an `JoinQuery`.
 **Signature**
 
 ```apex
-static JoinQuery of(sObjectType ofObject)
+static JoinQuery of(SObjectType ofObject)
 ```
 
 **Example**
@@ -26,9 +26,9 @@ WHERE Id IN (
 )
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Id).isIn(
-        SOQL.InnerJoin.of(Contact.sObjectType)
+        SOQL.InnerJoin.of(Contact.SObjectType)
             .with(Contact.AccountId)
     )).asList();
 ```
@@ -54,9 +54,9 @@ WHERE Id IN (
 )
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Id).isIn(
-        SOQL.InnerJoin.of(Contact.sObjectType)
+        SOQL.InnerJoin.of(Contact.SObjectType)
             .with(Contact.AccountId)
     )).asList();
 ```
@@ -85,9 +85,9 @@ WHERE Id IN (
 )
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Id).isIn(
-        SOQL.InnerJoin.of(Contact.sObjectType)
+        SOQL.InnerJoin.of(Contact.SObjectType)
             .with(Contact.AccountId)
             .whereAre(SOQL.Filter.with(Contact.Name).equal('My Contact'))
     )).asList();

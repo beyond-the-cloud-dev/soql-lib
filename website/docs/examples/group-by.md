@@ -14,7 +14,7 @@ public inherited sharing class LeadSelector {
 
     public static SOQL Query {
         get {
-            return SOQL.of(Lead.sObjectType);
+            return SOQL.of(Lead.SObjectType);
         }
     }
 }

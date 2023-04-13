@@ -14,7 +14,7 @@ public inherited sharing class AccountSelector {
 
     public static SOQL Query {
         get {
-            return SOQL.of(Lead.sObjectType)
+            return SOQL.of(Lead.SObjectType)
                  .with(new List<SObjectField>{
                     Account.Id,
                     Account.Name,

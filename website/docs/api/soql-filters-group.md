@@ -23,7 +23,7 @@ FROM Account
 WHERE Name = 'My Account' AND NumberOfEmployees >= 10
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .whereAre(SOQL.FiltersGroup
         .add(QB.Filter.with(Account.Name).equal('My Account'))
         .add(QB.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10))
@@ -37,7 +37,7 @@ FiltersGroup group = SOQL.FiltersGroup
         .add(QB.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10))
         .conditionLogic('1 OR 2');
 
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .whereAre(SOQL.FiltersGroup
         .add(QB.Filter.with(Account.Industry).equal('IT'))
         .add(group)
@@ -64,7 +64,7 @@ WHERE (Name = 'My Account' AND NumberOfEmployees >= 10)
 OR (Name = 'My Account' AND Industry = 'IT')
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .whereAre(SOQL.FiltersGroup
         .add(QB.Filter.with(Account.Name).equal('My Account'))
         .add(QB.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10))

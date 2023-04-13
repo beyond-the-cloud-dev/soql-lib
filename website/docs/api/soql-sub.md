@@ -23,7 +23,7 @@ SELECT Id, (
 ) FROM Account
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts'))
     .asList();
 ```
@@ -47,7 +47,7 @@ SELECT Id, (
 ) FROM Account
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .with(Contact.Name)
     )
@@ -71,7 +71,7 @@ SELECT Id, (
 ) FROM Account
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .with(new List<SObjectField>{
             Contact.Id, Contact.Name
@@ -98,7 +98,7 @@ SELECT Id, (
 ) FROM Account
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .with('CreatedBy',
             User.Id, User.Name
@@ -127,7 +127,7 @@ SELECT Id, (
 ) FROM Account
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .whereAre(SOQL.FiltersGroup
             .add(SOQL.Filter.with(Contact.Id).equal(contactId))
@@ -156,7 +156,7 @@ SELECT Id, (
 ) FROM Account
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .orderBy(Contact.Name)
     )
@@ -183,7 +183,7 @@ SELECT Id, (
 ) FROM Account
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .orderBy('CreatedBy', User.Name)
     )
@@ -210,7 +210,7 @@ SELECT Id, (
 ) FROM Account
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .orderBy(Contact.Name)
         .sortDesc()
@@ -238,7 +238,7 @@ SELECT Id, (
 ) FROM Account
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .orderBy(Contact.Name)
         .nullsLast()
@@ -265,7 +265,7 @@ SELECT Id, (
 ) FROM Account
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .setLimit(100)
     )
@@ -290,7 +290,7 @@ SELECT Id, (
 ) FROM Account
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .offset(10)
     )
@@ -317,7 +317,7 @@ SELECT Id, (
 ) FROM Account
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .forReference()
     )
@@ -342,7 +342,7 @@ SELECT Id, (
 ) FROM Account
 ```
 ```apex
-SOQL.of(Account.sObjectType)
+SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .forView()
     )
