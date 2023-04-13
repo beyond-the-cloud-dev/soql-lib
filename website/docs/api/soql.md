@@ -757,7 +757,7 @@ SOQL.setMock('MyQuery', new List<Account>{
 });
 ```
 
-### set record mock
+### record mock
 
 **Signature**
 
@@ -776,7 +776,7 @@ SOQL.of(Account.sObjectType)
 SOQL.setMock('MyQuery', new Account(Name = 'MyAccount 1'));
 ```
 
-### set list mock
+### list mock
 
 **Signature**
 
@@ -798,7 +798,7 @@ SOQL.setMock('MyQuery', new List<Account>{
 });
 ```
 
-### set count mock
+### count mock
 
 **Signature**
 
@@ -818,7 +818,7 @@ SOQL.of(Account.sObjectType)
 SOQL.setMock('MyQuery', 5);
 ```
 
-### set static resource mock
+### static resource mock
 
 **Signature**
 
