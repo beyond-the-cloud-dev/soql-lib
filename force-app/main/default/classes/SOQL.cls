@@ -1230,12 +1230,14 @@ public inherited sharing class SOQL implements Queryable {
             return Database.getQueryLocatorWithBinds(query, binding, accessMode);
         }
 
+        @SuppressWarnings('PMD.AvoidDebugStatements')
         private void previewSoql(String query) {
-            System.debug('\n\n============ SOQL Preview ============\n' + query + '\n=======================================\n');
+            System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Preview ============\n' + query + '\n=======================================\n');
         }
 
+        @SuppressWarnings('PMD.AvoidDebugStatements')
         private void previewBinding(Map<String, Object> binding) {
-            System.debug('\n\n============ SOQL Binding ============\n' + JSON.serializePretty(binding) + '\n=======================================\n');
+            System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Binding ============\n' + JSON.serializePretty(binding) + '\n=======================================\n');
         }
     }
 
