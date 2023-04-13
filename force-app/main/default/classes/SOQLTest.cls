@@ -5,14 +5,14 @@ private class SOQLTest {
 
     @IsTest
     static void count() {
-        String soql = SOQL.of(Account.SObjectType).count().soql();
+        String soql = SOQL.of(Account.SObjectType).count().toString();
 
         Assert.areEqual('SELECT COUNT() FROM Account', soql);
     }
 
     @IsTest
     static void countAs() {
-        String soql = SOQL.of(Account.SObjectType).countAs(Account.Name, 'names').soql();
+        String soql = SOQL.of(Account.SObjectType).countAs(Account.Name, 'names').toString();
 
         Assert.areEqual('SELECT COUNT(Name) names FROM Account', soql);
     }
@@ -22,7 +22,7 @@ private class SOQLTest {
         String soql = SOQL.of(Account.SObjectType)
             .with(Account.Name)
             .with(Account.BillingCity)
-            .soql();
+            .toString();
 
         Assert.areEqual('SELECT Name, BillingCity FROM Account', soql);
     }
@@ -32,7 +32,7 @@ private class SOQLTest {
         String soql = SOQL.of(Account.SObjectType)
             .with(new List<SObjectField>{
                 Account.Name, Account.BillingCity
-            }).soql();
+            }).toString();
 
         Assert.areEqual('SELECT Name, BillingCity FROM Account', soql);
     }
@@ -41,7 +41,7 @@ private class SOQLTest {
     static void withCommaSeparatedFields() {
         String soql = SOQL.of(Account.SObjectType)
             .with('Id, Name, BillingCity')
-            .soql();
+            .toString();
 
         Assert.areEqual('SELECT Id, Name, BillingCity FROM Account', soql);
     }
@@ -54,7 +54,7 @@ private class SOQLTest {
             })
             .with('CreatedBy', new List<SObjectField>{
                 User.Id, User.Name
-            }).soql();
+            }).toString();
         Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name FROM Account', soql);
     }
 
@@ -68,7 +68,7 @@ private class SOQLTest {
             })
             .with(SOQL.SubQuery.of('Contacts')
                 .with(Contact.Id)
-            ).soql();
+            ).toString();
 
         Assert.areEqual('SELECT Name , (SELECT Id FROM Contacts) FROM Account', soql);
     }
@@ -83,7 +83,7 @@ private class SOQLTest {
                 .with(new List<SObjectField>{
                     Contact.Id, Contact.Name
                 })
-            ).soql();
+            ).toString();
 
         Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts) FROM Account', soql);
     }
@@ -101,7 +101,7 @@ private class SOQLTest {
                 .with('CreatedBy', new List<SObjectField>{
                     User.Id, User.Name
                 })
-            ).soql();
+            ).toString();
 
         Assert.areEqual('SELECT Name , (SELECT Id, Name, CreatedBy.Id, CreatedBy.Name FROM Contacts) FROM Account', soql);
     }
@@ -117,7 +117,7 @@ private class SOQLTest {
                     Contact.Id, Contact.Name
                 })
                 .whereAre(SOQL.Filter.with(Contact.LastName).equal('Doe'))
-            ).soql();
+            ).toString();
 
         Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts WHERE LastName = :v1) FROM Account', soql);
     }
@@ -135,7 +135,7 @@ private class SOQLTest {
                 .orderBy(Contact.Name)
                 .sortDesc()
                 .nullsLast()
-            ).soql();
+            ).toString();
 
         Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts ORDER BY Name DESC NULLS LAST) FROM Account', soql);
     }
@@ -153,7 +153,7 @@ private class SOQLTest {
                 .orderBy('CreatedBy', User.Name)
                 .sortDesc()
                 .nullsLast()
-            ).soql();
+            ).toString();
 
         Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts ORDER BY CreatedBy.Name DESC NULLS LAST) FROM Account', soql);
     }
@@ -169,7 +169,7 @@ private class SOQLTest {
                     Contact.Id, Contact.Name
                 })
                 .setLimit(10)
-            ).soql();
+            ).toString();
 
         Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts LIMIT 10) FROM Account', soql);
     }
@@ -185,7 +185,7 @@ private class SOQLTest {
                     Contact.Id, Contact.Name
                 })
                 .offset(100)
-            ).soql();
+            ).toString();
 
         Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts OFFSET 100) FROM Account', soql);
     }
@@ -201,7 +201,7 @@ private class SOQLTest {
                     Contact.Id, Contact.Name
                 })
                 .forReference()
-            ).soql();
+            ).toString();
 
         Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts FOR REFERENCE) FROM Account', soql);
     }
@@ -217,7 +217,7 @@ private class SOQLTest {
                     Contact.Id, Contact.Name
                 })
                 .forView()
-            ).soql();
+            ).toString();
 
         Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts FOR VIEW) FROM Account', soql);
     }
@@ -228,7 +228,7 @@ private class SOQLTest {
     static void delegatedScope() {
         String soql = SOQL.of(Task.SObjectType)
             .delegatedScope()
-            .soql();
+            .toString();
 
         Assert.areEqual('SELECT Id FROM Task USING SCOPE DELEGATED', soql);
     }
@@ -237,7 +237,7 @@ private class SOQLTest {
     static void mineScope() {
         String soql = SOQL.of(Account.SObjectType)
             .mineScope()
-            .soql();
+            .toString();
 
         Assert.areEqual('SELECT Id FROM Account USING SCOPE MINE', soql);
     }
@@ -246,7 +246,7 @@ private class SOQLTest {
     static void mineAndMyGroupsScope() {
         String soql = SOQL.of(ProcessInstanceWorkItem.SObjectType)
             .mineAndMyGroupsScope()
-            .soql();
+            .toString();
 
         Assert.areEqual('SELECT Id FROM ProcessInstanceWorkitem USING SCOPE MINE_AND_MY_GROUPS', soql);
     }
@@ -255,7 +255,7 @@ private class SOQLTest {
     static void myTerritoryScope() {
         String soql = SOQL.of(Account.SObjectType)
             .myTerritoryScope()
-            .soql();
+            .toString();
 
         Assert.areEqual('SELECT Id FROM Account USING SCOPE MY_TERRITORY', soql);
     }
@@ -264,7 +264,7 @@ private class SOQLTest {
     static void myTeamTerritoryScope() {
         String soql = SOQL.of(Account.SObjectType)
             .myTeamTerritoryScope()
-            .soql();
+            .toString();
 
         Assert.areEqual('SELECT Id FROM Account USING SCOPE MY_TEAM_TERRITORY', soql);
     }
@@ -273,7 +273,7 @@ private class SOQLTest {
     static void teamScope() {
         String soql = SOQL.of(Account.SObjectType)
             .teamScope()
-            .soql();
+            .toString();
 
         Assert.areEqual('SELECT Id FROM Account USING SCOPE TEAM', soql);
     }
@@ -285,7 +285,7 @@ private class SOQLTest {
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.id().isNotNull());
 
-        String soql = builder.soql();
+        String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE Id != :v1', soql);
 
         Map<String, Object> binding = builder.binding();
@@ -297,7 +297,7 @@ private class SOQLTest {
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.recordType().isNotNull());
 
-        String soql = builder.soql();
+        String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE RecordType.DeveloperName != :v1', soql);
 
         Map<String, Object> binding = builder.binding();
@@ -309,7 +309,7 @@ private class SOQLTest {
         SOQL builder = SOQL.of(Contact.SObjectType)
             .whereAre(SOQL.Filter.with('Account', Account.Name).equal('Test'));
 
-        String soql = builder.soql();
+        String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Contact WHERE Account.Name = :v1', soql);
 
         Map<String, Object> binding = builder.binding();
@@ -321,7 +321,7 @@ private class SOQLTest {
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).equal('Test'));
 
-        String soql = builder.soql();
+        String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE Name = :v1', soql);
 
         Map<String, Object> binding = builder.binding();
@@ -333,7 +333,7 @@ private class SOQLTest {
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).notEqual('Test'));
 
-        String soql = builder.soql();
+        String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE Name != :v1', soql);
 
         Map<String, Object> binding = builder.binding();
@@ -345,7 +345,7 @@ private class SOQLTest {
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).lessThan(10));
 
-        String soql = builder.soql();
+        String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees < :v1', soql);
 
         Map<String, Object> binding = builder.binding();
@@ -357,7 +357,7 @@ private class SOQLTest {
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).greaterThan(10));
 
-        String soql = builder.soql();
+        String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees > :v1', soql);
 
         Map<String, Object> binding = builder.binding();
@@ -369,7 +369,7 @@ private class SOQLTest {
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).lessThanOrEqual(10));
 
-        String soql = builder.soql();
+        String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees <= :v1', soql);
 
         Map<String, Object> binding = builder.binding();
@@ -381,7 +381,7 @@ private class SOQLTest {
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10));
 
-        String soql = builder.soql();
+        String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees >= :v1', soql);
 
         Map<String, Object> binding = builder.binding();
@@ -393,7 +393,7 @@ private class SOQLTest {
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).likeAny('Test'));
 
-        String soql = builder.soql();
+        String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
 
         Map<String, Object> binding = builder.binding();
@@ -405,7 +405,7 @@ private class SOQLTest {
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).likeAnyLeft('Test'));
 
-        String soql = builder.soql();
+        String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
 
         Map<String, Object> binding = builder.binding();
@@ -417,7 +417,7 @@ private class SOQLTest {
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).likeAnyRight('Test'));
 
-        String soql = builder.soql();
+        String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
 
         Map<String, Object> binding = builder.binding();
@@ -431,7 +431,7 @@ private class SOQLTest {
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).isIn(names));
 
-        String soql = builder.soql();
+        String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE Name IN :v1', soql);
 
         Map<String, Object> binding = builder.binding();
@@ -449,7 +449,7 @@ private class SOQLTest {
             })
             .whereAre(SOQL.Filter.with(Account.Name).isNotIn(names));
 
-        String soql = builder.soql();
+        String soql = builder.toString();
         Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE Name NOT IN :v1', soql);
 
         Map<String, Object> binding = builder.binding();
@@ -461,7 +461,7 @@ private class SOQLTest {
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).isNotNull());
 
-        String soql = builder.soql();
+        String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE Name != :v1', soql);
 
         Map<String, Object> binding = builder.binding();
@@ -473,7 +473,7 @@ private class SOQLTest {
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).isNull());
 
-        String soql = builder.soql();
+        String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE Name = :v1', soql);
 
         Map<String, Object> binding = builder.binding();
@@ -488,7 +488,7 @@ private class SOQLTest {
                 .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
             );
 
-        String soql = builder.soql();
+        String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 AND BillingCity = :v2)', soql);
 
         Map<String, Object> binding = builder.binding();
@@ -509,7 +509,7 @@ private class SOQLTest {
                 )
             );
 
-        String soql = builder.soql();
+        String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 AND BillingCity = :v2 AND (Name = :v3 OR BillingCity = :v4))', soql);
 
         Map<String, Object> binding = builder.binding();
@@ -528,7 +528,7 @@ private class SOQLTest {
                     .whereAre(SOQL.Filter.with(Contact.Name).equal('My Contact'))
             ));
 
-        String soql = builder.soql();
+        String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE Id IN (SELECT AccountId FROM Contact WHERE Name = :v1)', soql);
 
         Map<String, Object> binding = builder.binding();
@@ -545,7 +545,7 @@ private class SOQLTest {
                     .whereAre(SOQL.Filter.with(Contact.Name).equal('My Contact'))
             ));
 
-        String soql = builder.soql();
+        String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE Id NOT IN (SELECT AccountId FROM Contact WHERE Name = :v1)', soql);
 
         Map<String, Object> binding = builder.binding();
@@ -561,7 +561,7 @@ private class SOQLTest {
                 Lead.LeadSource
             })
             .groupBy(Lead.LeadSource)
-            .soql();
+            .toString();
 
         Assert.areEqual('SELECT LeadSource FROM Lead GROUP BY LeadSource', soql);
     }
@@ -572,7 +572,7 @@ private class SOQLTest {
             .with(Lead.LeadSource)
             .countAs(Lead.Name, 'cnt')
             .groupByRollup(Lead.LeadSource)
-            .soql();
+            .toString();
 
         Assert.areEqual('SELECT LeadSource, COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(LeadSource)', soql);
     }
@@ -584,7 +584,7 @@ private class SOQLTest {
         String soql = SOQL.of(Account.SObjectType)
             .orderBy(Account.Industry).sortDesc().nullsLast()
             .orderBy(Account.Id)
-            .soql();
+            .toString();
 
         Assert.areEqual('SELECT Id FROM Account ORDER BY Industry DESC NULLS LAST, Id ASC NULLS FIRST', soql);
     }
@@ -593,7 +593,7 @@ private class SOQLTest {
     static void orderByRelated() {
         String soql = SOQL.of(Contact.SObjectType)
             .orderBy('Account', Account.Name)
-            .soql();
+            .toString();
 
         Assert.areEqual('SELECT Id FROM Contact ORDER BY Account.Name ASC NULLS FIRST', soql);
     }
@@ -604,7 +604,7 @@ private class SOQLTest {
     static void setLimit() {
         String soql = SOQL.of(Account.SObjectType)
             .setLimit(100)
-            .soql();
+            .toString();
 
         Assert.areEqual('SELECT Id FROM Account LIMIT 100', soql);
     }
@@ -615,7 +615,7 @@ private class SOQLTest {
     static void offset() {
         String soql = SOQL.of(Account.SObjectType)
             .offset(100)
-            .soql();
+            .toString();
 
         Assert.areEqual('SELECT Id FROM Account OFFSET 100', soql);
     }
@@ -626,7 +626,7 @@ private class SOQLTest {
     static void forReference() {
         String soql = SOQL.of(Account.SObjectType)
             .forReference()
-            .soql();
+            .toString();
 
         Assert.areEqual('SELECT Id FROM Account FOR REFERENCE', soql);
     }
@@ -635,7 +635,7 @@ private class SOQLTest {
     static void forView() {
         String soql = SOQL.of(Account.SObjectType)
             .forView()
-            .soql();
+            .toString();
 
         Assert.areEqual('SELECT Id FROM Account FOR VIEW', soql);
     }
@@ -644,7 +644,7 @@ private class SOQLTest {
     static void forUpdate() {
         String soql = SOQL.of(Account.SObjectType)
             .forUpdate()
-            .soql();
+            .toString();
 
         Assert.areEqual('SELECT Id FROM Account FOR UPDATE', soql);
     }
@@ -653,7 +653,7 @@ private class SOQLTest {
     static void allRows() {
         String soql = SOQL.of(Account.SObjectType)
             .allRows()
-            .soql();
+            .toString();
 
         Assert.areEqual('SELECT Id FROM Account ALL ROWS', soql);
     }
@@ -666,7 +666,7 @@ private class SOQLTest {
 
         SOQL builder = SOQL.of(Account.SObjectType).byId(accountId);
 
-        String soql = builder.soql();
+        String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE Id = :v1', soql);
 
         Map<String, Object> binding = builder.binding();
@@ -679,7 +679,7 @@ private class SOQLTest {
 
         SOQL builder = SOQL.of(Account.SObjectType).byIds(accountIds);
 
-        String soql = builder.soql();
+        String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE Id IN :v1', soql);
 
         Map<String, Object> binding = builder.binding();
@@ -692,7 +692,7 @@ private class SOQLTest {
 
         SOQL builder = SOQL.of(Account.SObjectType).byIds(accountIds);
 
-        String soql = builder.soql();
+        String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE Id IN :v1', soql);
 
         Map<String, Object> binding = builder.binding();

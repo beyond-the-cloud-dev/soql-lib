@@ -1,3 +1,4 @@
+@SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.VariableNamingConventions')
 public inherited sharing class SOQL implements Queryable {
 
     public static SubQuery SubQuery {
@@ -350,7 +351,7 @@ public inherited sharing class SOQL implements Queryable {
         return this;
     }
 
-    public String soql() {
+    public override String toString() {
         return builder.build();
     }
 
