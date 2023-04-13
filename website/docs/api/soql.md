@@ -991,6 +991,10 @@ SOQL.of(Account.SObjectType)
 SOQL byIds(List<Id> recordIds)
 ```
 
+```apex
+SOQL byIds(Set<Id> recordIds)
+```
+
 **Example**
 
 ```sql
@@ -1001,5 +1005,10 @@ WHERE Id IN ('1234')
 ```apex
 SOQL.of(Account.SObjectType)
     .byIds(new List<Id>{ '1234' })
+    .asList();
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .byIds(new Set<Id>{ '1234' })
     .asList();
 ```
