@@ -29,6 +29,7 @@ public inherited sharing class SOQL implements Queryable {
         SOQL of(SObjectType ofObject);
 
         SOQL with(SObjectField field);
+        SOQL with(Set<SObjectField> fields);
         SOQL with(List<SObjectField> fields);
         SOQL with(String fields);
         SOQL with(String relationshipName, List<SObjectField> fields);
@@ -188,6 +189,11 @@ public inherited sharing class SOQL implements Queryable {
 
     public SOQL with(SObjectField field) {
         builder.fields.retrive(field);
+        return this;
+    }
+
+    public SOQL with(Set<SObjectField> fields) {
+        with(new List<SObjectField>(fields));
         return this;
     }
 

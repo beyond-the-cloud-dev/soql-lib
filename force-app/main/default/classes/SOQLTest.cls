@@ -28,7 +28,17 @@ private class SOQLTest {
     }
 
     @IsTest
-    static void withFields() {
+    static void withSetOfFields() {
+        String soql = SOQL.of(Account.SObjectType)
+            .with(new Set<SObjectField>{
+                Account.Name, Account.BillingCity
+            }).toString();
+
+        Assert.areEqual('SELECT Name, BillingCity FROM Account', soql);
+    }
+
+    @IsTest
+    static void withListOfFields() {
         String soql = SOQL.of(Account.SObjectType)
             .with(new List<SObjectField>{
                 Account.Name, Account.BillingCity
