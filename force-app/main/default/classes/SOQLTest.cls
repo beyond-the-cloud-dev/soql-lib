@@ -904,6 +904,18 @@ private class SOQLTest {
         }
     }
 
+    @IsTest
+    static void asQueryLocator() {
+        //Test
+        Database.QueryLocator queryLocator = SOQL.of(Account.SObjectType)
+            .with(Account.Id)
+            .with(Account.Name)
+            .asQueryLocator();
+
+        //Verify
+        Assert.areEqual('SELECT Id, Name FROM Account', queryLocator.getQuery());
+    }
+
     static List<Account> getAccount() {
         return new List<Account>{
             new Account(Name = 'Test 1'),

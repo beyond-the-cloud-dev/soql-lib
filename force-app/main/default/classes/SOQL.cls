@@ -379,6 +379,10 @@ public inherited sharing class SOQL implements Queryable {
         return new Map<Id, SObject>(asList());
     }
 
+    public Database.QueryLocator asQueryLocator() {
+        return executor.toQueryLocator(builder.build(), binder.build());
+    }
+
     public SOQL byId(Id recordId) {
         return whereAre(Filter.id().equal(recordId));
     }
@@ -1188,6 +1192,10 @@ public inherited sharing class SOQL implements Queryable {
                 accessType,
                 MODE_TO_EXECUTOR.get(sharingMode).execute(query, binding, accessMode)
             ).getRecords();
+        }
+
+        public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding) {
+            return Database.getQueryLocatorWithBinds(query, binding, accessMode);
         }
 
         private void previewSoql(String query) {
