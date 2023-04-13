@@ -265,7 +265,7 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public SOQL whereAre(String conditions) {
-        builder.conditions.add(SOQL.Filter.evaluate(conditions));
+        builder.conditions.evaluate(conditions);
         return this;
     }
 
@@ -519,7 +519,7 @@ public inherited sharing class SOQL implements Queryable {
                 soqlParts.add(clause.build());
             }
 
-            return String.join(new List<String>(soqlParts), ' ');
+            return String.join(new List<String>(soqlParts), ' ').trim();
         }
     }
 
@@ -714,6 +714,7 @@ public inherited sharing class SOQL implements Queryable {
 
     public class FiltersGroup implements FilterClause, QueryClause, SoqlFiltersGroup {
         private List<FilterClause> queryConditions = new List<FilterClause>();
+        private String stringConditions;
         private String order = '';
         private Boolean isMain = false;
 
@@ -726,21 +727,38 @@ public inherited sharing class SOQL implements Queryable {
             return this;
         }
 
+        public void evaluate(String conditions) {
+            if (String.isEmpty(conditions)) {
+                return;
+            }
+            stringConditions = String.escapeSingleQuotes(conditions);
+        }
+
         public FiltersGroup conditionLogic(String order) {
             this.order = order;
             return this;
         }
 
         public String build() {
+            if (String.isNotEmpty(stringConditions)) {
+                return 'WHERE ' + stringConditions;
+            }
+
             if (String.isEmpty(order)) {
                 setDefaultOrder();
             }
 
-            if (isMain) {
-                return 'WHERE ' + buildNested();
+            String conditions = buildNested();
+
+            if (String.isEmpty(conditions)) {
+                return '';
             }
 
-            return buildNested();
+            if (isMain) {
+                return 'WHERE ' + conditions;
+            }
+
+            return conditions;
         }
 
         private void setDefaultOrder() {
@@ -795,7 +813,6 @@ public inherited sharing class SOQL implements Queryable {
         private JoinQuery joinQuery;
 
         private Binder binder;
-        private String stringCondition;
 
         public Filter(Binder binder) {
             this.binder = binder;
@@ -894,16 +911,7 @@ public inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public Filter evaluate(String condition) {
-            stringCondition = String.escapeSingleQuotes(condition);
-            return this;
-        }
-
         public String build() {
-            if (String.isNotEmpty(stringCondition)) {
-                return stringCondition;
-            }
-
             if (joinQuery != null) {
                 return field + ' ' + comperator + ' (' + joinQuery.build() + ')';
             }

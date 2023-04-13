@@ -573,6 +573,17 @@ private class SOQLTest {
         Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees >= 10 AND NumberOfEmployees <= 20', soql);
     }
 
+    @IsTest
+    static void evaluateEmptyConditions() {
+        //Test
+        String soql = SOQL.of(Account.SObjectType)
+            .whereAre('')
+            .toString();
+
+        //Verify
+        Assert.areEqual('SELECT Id FROM Account', soql);
+    }
+
     // GROUP BY
 
     @IsTest
