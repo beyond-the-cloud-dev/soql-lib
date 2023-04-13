@@ -6,7 +6,7 @@
 Apex SOQL provides functional constructs for SOQL.
 
 
-Find more details in the [documentation](https://apex-soql-lib.vercel.app/).
+Find more details in the [documentation](https://soql-lib.vercel.app/).
 
 ## Examples
 
@@ -31,7 +31,7 @@ List<Account> accounts = SOQL.of(Account.SObjectType)
 
 ## Read the documentation
 
-[Query Selector documentation](https://apex-soql-lib.vercel.app/)
+[Query Selector documentation](https://soql-lib.vercel.app/)
 
 ## Assumptions
 
