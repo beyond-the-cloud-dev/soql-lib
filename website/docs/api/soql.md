@@ -957,6 +957,20 @@ Map<Id, SObject> asMap()
 SOQL.of(Account.SObjectType).asMap();
 ```
 
+### asQueryLocator
+
+**Signature**
+
+```apex
+Database.QueryLocator asQueryLocator()
+```
+
+**Example**
+
+```apex
+SOQL.of(Account.SObjectType).asQueryLocator();
+```
+
 ## predefined
 
 For all predefined methods SOQL instance is returned so you can still adjust query before execution.

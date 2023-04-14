@@ -82,6 +82,7 @@ public inherited sharing class SOQL implements Queryable {
         List<AggregateResult> asAggregated();
         Integer asInteger();
         Map<Id, SObject> asMap();
+        Database.QueryLocator asQueryLocator();
 
         SOQL byId(Id recordId);
         SOQL byIds(Set<Id> recordIds);
