@@ -2,7 +2,7 @@
 private class SOQLTest {
 
     @SuppressWarnings('PMD.AvoidHardcodingId')
-    private final String FAKE_ACCOUNT_ID = '0013V00000WNCwCQAX';
+    private static final Id FAKE_ACCOUNT_ID = '0013V00000WNCwCQAX';
 
     @IsTest
     static void count() {
@@ -797,7 +797,7 @@ private class SOQLTest {
         Assert.areEqual('SELECT Id FROM Account WHERE Id = :v1', soql);
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(accountId, binding.get('v1'));
+        Assert.areEqual(FAKE_ACCOUNT_ID, binding.get('v1'));
     }
 
     @IsTest
@@ -805,7 +805,6 @@ private class SOQLTest {
         Set<Id> accountIds = new Set<Id>{ FAKE_ACCOUNT_ID };
 
         SOQL builder = SOQL.of(Account.SObjectType).byIds(accountIds);
-
 
         //Verify
         String soql = builder.toString();

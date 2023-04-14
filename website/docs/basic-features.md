@@ -140,6 +140,7 @@ public with sharing class ExampleController {
 Then in test simply pass data you want to get from Selector to `SOQL.setMock(id, data)` method. Acceptable formats are: `List<SObject>`, `SObject`, or `String` with name of static resource. Then during execution Selector will return desired data.
 
 ### List of records
+
 ```apex
 @IsTest
 private class ExampleControllerTest {
@@ -162,6 +163,7 @@ private class ExampleControllerTest {
 ```
 
 ### Single record
+
 ```apex
 @IsTest
 private class ExampleControllerTest {
@@ -196,6 +198,8 @@ private class ExampleControllerTest {
 ```
 
 ### Count Result
+
+```
 @IsTest
 private class ExampleControllerTest {
 
