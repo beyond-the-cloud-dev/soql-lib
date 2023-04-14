@@ -1,4 +1,12 @@
-@SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.VariableNamingConventions')
+/**
+* PMD False Positives:
+* - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
+* - ExcessiveClassLength: It is a library and we tried to put everything into ONE class
+* - CyclomaticComplexity: It is a library and we tried to put everything into ONE class
+* - PropertyNamingConventions: It was intentional to make the lib more fluent and readable
+* - FieldDeclarationsShouldBeAtStart: Developer who uses lib should see what's important at start
+*/
+@SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.CyclomaticComplexity, PMD.PropertyNamingConventions, PMD.FieldDeclarationsShouldBeAtStart')
 public inherited sharing class SOQL implements Queryable {
 
     public static SubQuery SubQuery {
@@ -168,12 +176,10 @@ public inherited sharing class SOQL implements Queryable {
         mock.setStaticResourceMock(mockId, staticResource);
     }
 
-    // Implementation details
-
-    private static Binder binder;
     private static Mock mock = new Mock();
 
     private QueryBuilder builder;
+    private static Binder binder;
     private Executor executor;
 
     public static SOQL of(sObjectType ofObject) {
@@ -1144,6 +1150,7 @@ public inherited sharing class SOQL implements Queryable {
         private Boolean withPreview = false;
         private Boolean isCountQuery = false;
 
+        @SuppressWarnings('PMD.FieldNamingConventions')
         private final Map<SharingLevel, DatabaseQuery> MODE_TO_EXECUTOR = new Map<SharingLevel, DatabaseQuery>{
             SharingLevel.WITH_SHARING => new WithSharing(),
             SharingLevel.WITHOUT_SHARING => new WithoutSharing(),
@@ -1231,12 +1238,10 @@ public inherited sharing class SOQL implements Queryable {
             return Database.getQueryLocatorWithBinds(query, binding, accessMode);
         }
 
-        @SuppressWarnings('PMD.AvoidDebugStatements')
         private void previewSoql(String query) {
             System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Preview ============\n' + query + '\n=======================================\n');
         }
 
-        @SuppressWarnings('PMD.AvoidDebugStatements')
         private void previewBinding(Map<String, Object> binding) {
             System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Binding ============\n' + JSON.serializePretty(binding) + '\n=======================================\n');
         }
