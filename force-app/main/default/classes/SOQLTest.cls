@@ -1,3 +1,8 @@
+/**
+* PMD False Positives:
+* - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
+* - ApexUnitTestClassShouldHaveAsserts: PMD does not detect the Assert class
+*/
 @IsTest
 private class SOQLTest {
 
