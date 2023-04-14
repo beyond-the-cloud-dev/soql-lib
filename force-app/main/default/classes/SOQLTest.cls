@@ -901,8 +901,10 @@ private class SOQLTest {
 
             Exception queryException = null;
 
+            String inaccessibleFieldValue;
+
             try {
-                String inaccessibleFieldValue = tasks[0].Type;
+                inaccessibleFieldValue = tasks[0].Type;
             } catch(Exception e) {
                 queryException = e;
             }
@@ -971,10 +973,11 @@ private class SOQLTest {
 
     @IsTest
     static void mockingStaticResource() {
+        List<Account> result;
         try {
              //Test
             SOQL.setMock('mockingQuery', 'testAccounts');
-            List<Account> result = SOQL.of(Account.sObjectType).mockId('mockingQuery').asList();
+            result = SOQL.of(Account.sObjectType).mockId('mockingQuery').asList();
         } catch (Exception missingStaticResource) {
             //Verify
             Assert.isInstanceOfType(missingStaticResource, NullPointerException.class);
