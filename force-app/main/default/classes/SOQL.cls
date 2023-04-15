@@ -1,11 +1,13 @@
 /**
-* PMD False Positives:
-* - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
-* - ExcessiveClassLength: It is a library and we tried to put everything into ONE class
-* - CyclomaticComplexity: It is a library and we tried to put everything into ONE class
-* - PropertyNamingConventions: It was intentional to make the lib more fluent and readable
-* - FieldDeclarationsShouldBeAtStart: Developer who uses lib should see what's important at start
-*/
+ * Copyright (c), BeyondTheCloud.dev
+ * All rights reserved.
+ * PMD False Positives:
+ * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
+ * - ExcessiveClassLength: It is a library and we tried to put everything into ONE class
+ * - CyclomaticComplexity: It is a library and we tried to put everything into ONE class
+ * - PropertyNamingConventions: It was intentional to make the lib more fluent and readable
+ * - FieldDeclarationsShouldBeAtStart: Developer who uses lib should see what's important at start
+**/
 @SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.CyclomaticComplexity, PMD.PropertyNamingConventions, PMD.FieldDeclarationsShouldBeAtStart')
 public inherited sharing class SOQL implements Queryable {
 
