@@ -336,6 +336,8 @@ SOQL.of(Account.SObjectType)
     .asList();
 ```
 
+## where
+
 ## whereAre
 
 [WHERE](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_conditionexpression.htm)
@@ -366,7 +368,7 @@ SOQL.of(Account.SObjectType)
     ).asList();
 ```
 
-### evaluate
+### whereAre string
 
 Execute conditions passed as String.
 
