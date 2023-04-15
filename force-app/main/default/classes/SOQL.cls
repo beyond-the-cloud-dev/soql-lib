@@ -1,6 +1,7 @@
 /**
  * Copyright (c), BeyondTheCloud.dev
  * All rights reserved.
+ *
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
  * - ExcessiveClassLength: It is a library and we tried to put everything into ONE class
