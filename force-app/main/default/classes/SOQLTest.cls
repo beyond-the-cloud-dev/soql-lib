@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2023 BeyondTheCloud.Dev
- * All rights reserved.
+ * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
