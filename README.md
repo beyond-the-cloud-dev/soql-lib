@@ -52,4 +52,4 @@ List<Account> accounts = SOQL.of(Account.SObjectType)
 ## License notes
 
 - For proper license management each repository should contain LICENSE file similar to this one.
-- Each original class should contain copyright mark: © Copyright 2023, Beyond The Cloud Dev Authors
+- Each original class should contain copyright mark: Copyright (c) 2023 BeyondTheCloud.Dev

@@ -1,5 +1,5 @@
 /**
- * © Copyright 2023, BeyondTheCloud.dev
+ * Copyright (c) 2023 BeyondTheCloud.Dev
  * All rights reserved.
  *
  * PMD False Positives:
