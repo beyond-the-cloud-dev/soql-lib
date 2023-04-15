@@ -366,6 +366,29 @@ SOQL.of(Account.SObjectType)
     ).asList();
 ```
 
+### evaluate
+
+Execute conditions passed as String.
+
+**Signature**
+
+```apex
+SOQL whereAre(String conditions)
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+WHERE NumberOfEmployees >=10 AND NumberOfEmployees <= 20
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .whereAre('NumberOfEmployees >=10 AND NumberOfEmployees <= 20')
+    .asList();
+```
+
 ## group by
 
 [GROUP BY](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_groupby.htm)
