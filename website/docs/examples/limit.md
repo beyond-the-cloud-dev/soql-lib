@@ -14,7 +14,7 @@ LIMIT 1000
 ```apex
 public inherited sharing class AccountSelector {
 
-    public static SQOL Query {
+    public static SQOL query {
         get {
             return SQOL.of(Account.SObjectType)
                 .with(new List<SObjectField>{
@@ -28,7 +28,7 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static List<Account> getAccountsWithLimit() {
-        return AccountSelector.Query
+        return AccountSelector.query
             .setLimit(1000)
             .asList();
     }

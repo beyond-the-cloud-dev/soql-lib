@@ -14,7 +14,7 @@ SELECT Id, Name, (
 ```apex
 public inherited sharing class AccountSelector {
 
-    public static SOQL Query {
+    public static SOQL query {
         get {
             return SOQL.of(Account.SObjectType)
                 .with(new List<SObjectField>{
@@ -28,7 +28,7 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static List<Account> getAccountsWithContacts() {
-        return AccountSelector.Query
+        return AccountSelector.query
             .with(SOQL.SubQuery.of('Contacts')
                 .with(new List<SObjectField>{
                     Contact.Id,

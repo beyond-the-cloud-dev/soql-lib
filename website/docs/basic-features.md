@@ -124,7 +124,7 @@ To mock SOQL query use `.mockId(id)` method to make it identifiable. If you mark
 public with sharing class ExampleController {
 
     public static List<Account> getPartnerAccounts(String accountName) {
-        return AccountSelector.Query
+        return AccountSelector.query
             .with(Account.BillingCity)
             .with(Account.BillingCountry)
             .whereAre(SOQL.FiltersGroup
@@ -221,7 +221,7 @@ Generic SOQLs can be keep in selector class.
 ```apex
 public inherited sharing class AccountSelector {
 
-    public static SOQL Query {
+    public static SOQL query {
         get {
             return SOQL.of(Account.SObjectType).with(new List<SObjectField>{
                 Account.Name,
@@ -233,7 +233,7 @@ public inherited sharing class AccountSelector {
     }
 
     public static SOQL getByRecordType(String rtDevName) {
-        return Query.with(new List<SObjectField>{
+        return query.with(new List<SObjectField>{
             Account.BillingCity,
             Account.BillingCountry
         }).whereAre(SOQL.Filter.recordType().equal(rtDevName));
@@ -248,7 +248,7 @@ The selector class can provide default SOQL configuration like default fields, F
 ```apex
 public inherited sharing class AccountSelector {
 
-    public static SOQL Query {
+    public static SOQL query {
         get {
             return SOQL.of(Account.SObjectType)
                 .with(new List<SObjectField>{  // default fields

@@ -72,7 +72,7 @@ Most of the SOQLs on the project are one-time queries executed for specific busi
 
 ```apex
 public with sharing class AccountSelector {
-    public static SOQL Query {
+    public static SOQL query {
         get {
             return SOQL.of(Account.SObjectType)
                 .with(new List<SObjectField>{
@@ -85,7 +85,7 @@ public with sharing class AccountSelector {
     }
 
     public static SOQL getByRecordType(String rt) {
-        return Query.with(new List<SObjectField>{
+        return query.with(new List<SObjectField>{
             Account.BillingCity,
             Account.BillingCountry
         }).whereAre(SOQL.Filter.recordType().equal(rt));
@@ -97,7 +97,7 @@ public with sharing class AccountSelector {
 public with sharing class ExampleController {
 
     public static List<Account> getAccounts(String accountName) {
-        return AccountSelector.Query
+        return AccountSelector.query
             .with(Account.BillingCity)
             .with(Account.BillingCountry)
             .whereAre(SOQL.Filter.with(Account.Name).likeAny(accountName))

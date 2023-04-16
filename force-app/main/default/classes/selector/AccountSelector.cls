@@ -1,5 +1,5 @@
 public with sharing class AccountSelector {
-    public static SOQL Query {
+    public static SOQL query {
         get {
             return SOQL.of(Account.SObjectType)
                 .with(new List<SObjectField>{
@@ -12,7 +12,7 @@ public with sharing class AccountSelector {
     }
 
     public static SOQL getByRecordType(String rt) {
-        return Query.with(new List<SObjectField>{
+        return query.with(new List<SObjectField>{
             Account.BillingCity,
             Account.BillingCountry
         }).whereAre(SOQL.Filter.recordType().equal(rt));

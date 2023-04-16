@@ -9,7 +9,7 @@ See query String in debug logs.
 ```apex
 public inherited sharing class AccountSelector {
 
-    public static SOQL Query {
+    public static SOQL query {
         get {
             return SOQL.of(Account.SObjectType)
                 .with(new List<SObjectField>{
@@ -23,7 +23,7 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static List<Account> getAccounts() {
-        return AccountSelector.Query
+        return AccountSelector.query
             .with(new List<SObjectField>{
                 Account.BillingCity,
                 Account.BillingCountry,

@@ -11,7 +11,7 @@ Mock SOQL results in Unit Tests.
 public with sharing class ExampleController {
 
     public static List<Account> getAccountByName(String accountName) {
-        return AccountSelector.Query
+        return AccountSelector.query
             .with(Account.BillingCity)
             .with(Account.BillingCountry)
             .whereAre(SOQL.FilterGroup
@@ -47,7 +47,7 @@ public class ExampleControllerTest {
 public with sharing class ExampleController {
 
     public static List<Account> getPartnerAccounts(String accountName) {
-        return AccountSelector.Query
+        return AccountSelector.query
             .with(Account.BillingCity)
             .with(Account.BillingCountry)
             .whereAre(SOQL.FiltersGroup
@@ -88,7 +88,7 @@ public class ExampleControllerTest {
 public with sharing class ExampleController {
 
     public static List<Account> getPartnerAccountsCount(String accountName) {
-        return AccountSelector.Query
+        return AccountSelector.query
             .whereAre(SOQL.FiltersGroup
                 .add(SOQL.Filter.with(Account.Name).likeAny(accountName))
                 .add(SOQL.Filter.recordType().equal('Partner'))
@@ -124,7 +124,7 @@ public class ExampleControllerTest {
 public with sharing class ExampleController {
 
     public static List<Account> getPartnerAccounts(String accountName) {
-        return AccountSelector.Query
+        return AccountSelector.query
             .with(Account.BillingCity)
             .with(Account.BillingCountry)
             .whereAre(SOQL.FiltersGroup

@@ -17,7 +17,7 @@ FROM Account
 ```apex
 public inherited sharing class AccountSelector {
 
-    public static SOQL Query {
+    public static SOQL query {
         get {
             return SOQL.of(Account.SObjectType)
                 .with(new List<SObjectField>{ //default fields
@@ -31,7 +31,7 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static List<Account> getAccounts() {
-        return AccountSelector.Query
+        return AccountSelector.query
             .with(new List<SObjectField>{
                 Account.BillingCity,
                 Account.BillingState,
@@ -53,7 +53,7 @@ FROM Account
 ```apex
 public inherited sharing class AccountSelector {
 
-    public static SOQL Query {
+    public static SOQL query {
         get {
             return SOQL.of(Account.SObjectType) //default fields
                 .with(new List<SObjectField>{
@@ -67,7 +67,7 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static List<Account> getAccountsWithCreatedBy() {
-        return AccountSelector.Query
+        return AccountSelector.query
             .with('CreatedBy', new List<SObjectField>{
                 User.Id,
                 User.Name
@@ -86,7 +86,7 @@ SELECT COUNT(Name) names FROM Account
 ```apex
 public inherited sharing class AccountSelector {
 
-    public static SOQL Query {
+    public static SOQL query {
         get {
             return SOQL.of(Account.SObjectType);
         }
@@ -96,11 +96,11 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static Integer getAccountAmount() {
-        return AccountSelector.Query.count().asInteger();
+        return AccountSelector.query.count().asInteger();
     }
 
     public static Integer getUniqueAccountNameAmount() {
-        return AccountSelector.Query.countAs(Account.Name, 'names').asAggregated()[0].names;
+        return AccountSelector.query.countAs(Account.Name, 'names').asAggregated()[0].names;
     }
 }
 ```

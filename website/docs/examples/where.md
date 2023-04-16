@@ -14,7 +14,7 @@ WHERE Id = :accountId OR Name LIKE :'%' + accountName + '%'
 ```apex
 public inherited sharing class AccountSelector {
 
-    public static SOQL Query {
+    public static SOQL query {
         get {
             return SOQL.of(Account.SObjectType)
                 .with(new List<SObjectField>{
@@ -28,7 +28,7 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static List<Account> getByIdOrName(Id accountId, String accountName) {
-        return AccountSelector.Query
+        return AccountSelector.query
                 .whereAre(SOQL.FiltersGroup
                     .add(SOQL.Filter.id().equal(accountId))
                     .add(SOQL.Filter.with(Account.Name).likeAny(accountName))
