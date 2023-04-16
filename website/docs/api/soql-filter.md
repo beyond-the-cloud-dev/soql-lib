@@ -4,6 +4,8 @@ sidebar_position: 3
 
 # Filter
 
+Specify and adjust single condition.
+
 ## predefinied
 ### id
 

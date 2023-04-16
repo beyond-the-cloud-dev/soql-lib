@@ -4,6 +4,8 @@ sidebar_position: 4
 
 # FiltersGroup
 
+Create group of conditions.
+
 ## add
 
 Allows to add multiple conditions.

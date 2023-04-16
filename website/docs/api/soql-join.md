@@ -4,6 +4,8 @@ sidebar_position: 5
 
 # JoinQuery
 
+Construct join-query and use it in condition.
+
 ## of
 
 Conctructs an `JoinQuery`.

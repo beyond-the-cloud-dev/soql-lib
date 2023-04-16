@@ -4,6 +4,8 @@ sidebar_position: 2
 
 # SubQuery
 
+Construct sub-query with provided API.
+
 ## of
 
 Conctructs an `SubQuery`.

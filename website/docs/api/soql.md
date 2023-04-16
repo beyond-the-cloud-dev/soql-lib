@@ -4,6 +4,8 @@ sidebar_position: 1
 
 # SOQL
 
+The lib main class for query construction.
+
 ## of
 
 Conctructs an `SOQL`.
