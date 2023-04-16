@@ -4,6 +4,8 @@ sidebar_position: 15
 
 # Result
 
+Execut SOQL and get results.
+
 ```apex
 public inherited sharing class AccountSelector {
 

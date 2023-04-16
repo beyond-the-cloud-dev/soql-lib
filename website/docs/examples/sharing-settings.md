@@ -4,6 +4,8 @@ sidebar_position: 12
 
 # Sharing
 
+Control sharing rules behavior.
+
 `with sharing` is a default option option, because of `USER_MODE`.
 
 You can control sharing rules only in `.systemMode()`.

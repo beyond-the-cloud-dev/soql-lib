@@ -4,6 +4,8 @@ sidebar_position: 14
 
 # Debug
 
+See query String in debug logs.
+
 ```apex
 public inherited sharing class AccountSelector {
 

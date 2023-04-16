@@ -4,6 +4,8 @@ sidebar_position: 10
 
 # OFFSET
 
+Efficient way to handle large results sets.
+
 ```sql
 SELECT Id, Name
 FROM Account

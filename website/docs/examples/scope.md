@@ -4,6 +4,8 @@ sidebar_position: 5
 
 # USING SCOPE
 
+Get records within a specified scope.
+
 ```sql
 SELECT Id, Name
 FROM Account

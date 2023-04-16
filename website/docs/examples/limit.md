@@ -4,6 +4,8 @@ sidebar_position: 9
 
 # LIMIT
 
+Specify the maximum number of rows to return.
+
 ```sql
 SELECT Id, Name
 FROM Account

@@ -4,6 +4,8 @@ sidebar_position: 7
 
 # GROUP BY
 
+Group of records instead of processing many individual records.
+
 ```sql
 SELECT LeadSource
 FROM Lead

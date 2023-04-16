@@ -4,6 +4,8 @@ sidebar_position: 11
 
 # Field Level Security
 
+Enforce or bypass FLS.
+
 `USER_MODE` is a default option. You can set `SYSTEM_MODE` for all queries by adding `.systemMode()` to selector class.
 
 ```apex

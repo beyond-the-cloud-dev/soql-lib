@@ -4,6 +4,8 @@ sidebar_position: 8
 
 # ORDER BY
 
+Control the order of the query results.
+
 ```sql
 SELECT Id, Name, Industry
 FROM Account

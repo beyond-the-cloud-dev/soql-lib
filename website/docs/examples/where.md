@@ -4,6 +4,8 @@ sidebar_position: 6
 
 # WHERE
 
+The condition expression.
+
 ```sql
 SELECT Id, Name
 FROM Account

@@ -4,6 +4,8 @@ sidebar_position: 1
 
 # SELECT
 
+Specify fields that will be retrieved via query.
+
 ## Fields
 
 You are able to add a default fields to selector class. More fields can be added in a place of usage.
