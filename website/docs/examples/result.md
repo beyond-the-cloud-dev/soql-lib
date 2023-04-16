@@ -20,16 +20,22 @@ public inherited sharing class AccountSelector {
 
 public with sharing class MyController {
 
+    public static Account getAccountById(Id accountId) {
+        return (Account) AccountSelector.Query
+            .whereAre(SOQL.Filter.id().equal(accountId))
+            .asObject();
+    }
+
     public static List<Account> getAccountsByIds(List<Id> accountIds) {
         return AccountSelector.Query
             .whereAre(SOQL.Filter.id().isIn(accountIds))
             .asList();
     }
 
-    public static Account getAccountById(Id accountId) {
-        return (Account) AccountSelector.Query
-            .whereAre(SOQL.Filter.id().equal(accountId))
-            .asObject();
+    public static List<AggregateResult> getUniqueAccountNameAmount() {
+        return AccountSelector.Query
+            .countAs(Account.Name, 'names')
+            .asAggregated();
     }
 
     public static Integer countAccounts() {
@@ -38,10 +44,14 @@ public with sharing class MyController {
             .asInteger();
     }
 
-    public static List<AggregateResult> getUniqueAccountNameAmount() {
+    public static Map<Id, SObject> getAccountMap() {
         return AccountSelector.Query
-            .countAs(Account.Name, 'names')
-            .asAggregated();
+            .asMap();
+    }
+
+    public static Database.QueryLocator getAccountQueryLocator() {
+        return AccountSelector.Query
+            .asQueryLocator();
     }
 }
 ```
