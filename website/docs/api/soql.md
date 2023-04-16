@@ -340,7 +340,7 @@ SOQL.of(Account.SObjectType)
 
 ## where
 
-## whereAre
+### whereAre
 
 [WHERE](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_conditionexpression.htm)
 
