@@ -4,8 +4,10 @@
  *
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
- * - ApexUnitTestClassShouldHaveAsserts: PMD does not detect the Assert class
+ * - CognitiveComplexity: It is a library and we tried to put everything into ONE class
+ * - ApexDoc: Variable names are self-documented.
 **/
+@SuppressWarnings('PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.ApexDoc')
 @IsTest
 private class SOQLTest {
 
@@ -1099,12 +1101,14 @@ private class SOQLTest {
         };
     }
 
+    @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
     @IsTest
     static void preview() {
         //Test
         SOQL.of(Account.SObjectType).preview().asList();
     }
 
+    @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
     @IsTest
     static void previewCount() {
         //Test
