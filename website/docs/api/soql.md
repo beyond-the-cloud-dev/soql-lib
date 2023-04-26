@@ -1038,10 +1038,6 @@ SOQL byIds(List<Id> recordIds)
 ```
 
 ```apex
-SOQL byIds(List<Id> recordIds)
-```
-
-```apex
 SOQL byIds(List<SObject> records)
 ```
 
