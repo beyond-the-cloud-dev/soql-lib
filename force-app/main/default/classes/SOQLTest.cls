@@ -841,6 +841,22 @@ private class SOQLTest {
     }
 
     @IsTest
+    static void byIdsSObjects() {
+        //Prepare
+        List<Case> cases = insertCases();
+
+        //Test
+        SOQL builder = SOQL.of(Case.SObjectType).byIds(cases);
+
+        //Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Case WHERE Id IN :v1', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(cases, binding.get('v1'));
+    }
+
+    @IsTest
     static void withoutSharing() {
         //Prepare
         insertCases();
@@ -927,11 +943,13 @@ private class SOQLTest {
         }
     }
 
-    static void insertCases() {
-        insert new List<Case>{
+    static List<Case> insertCases() {
+        List<Case> cases = new List<Case>{
             new Case(Status = 'New', Origin = 'Web'),
             new Case(Status = 'New', Origin = 'Web')
         };
+        insert cases;
+        return cases;
     }
 
     static void insertTasks() {

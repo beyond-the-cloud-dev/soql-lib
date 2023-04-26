@@ -1028,12 +1028,21 @@ SOQL.of(Account.SObjectType)
 
 **Signature**
 
+
+```apex
+SOQL byIds(Set<Id> recordIds)
+```
+
 ```apex
 SOQL byIds(List<Id> recordIds)
 ```
 
 ```apex
-SOQL byIds(Set<Id> recordIds)
+SOQL byIds(List<Id> recordIds)
+```
+
+```apex
+SOQL byIds(List<SObject> records)
 ```
 
 **Example**
@@ -1043,13 +1052,22 @@ SELECT Id
 FROM Account
 WHERE Id IN ('1234')
 ```
+
+```apex
+SOQL.of(Account.SObjectType)
+    .byIds(new Set<Id>{ '1234' })
+    .asList();
+```
+
 ```apex
 SOQL.of(Account.SObjectType)
     .byIds(new List<Id>{ '1234' })
     .asList();
 ```
+
 ```apex
+List<Account> accounts = [SELECT Id FROM Account];
 SOQL.of(Account.SObjectType)
-    .byIds(new Set<Id>{ '1234' })
+    .byIds(accounts)
     .asList();
 ```

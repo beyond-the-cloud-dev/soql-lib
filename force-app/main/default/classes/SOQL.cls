@@ -100,6 +100,7 @@ public inherited sharing class SOQL implements Queryable {
         SOQL byId(Id recordId);
         SOQL byIds(Set<Id> recordIds);
         SOQL byIds(List<Id> recordIds);
+        SOQL byIds(List<SObject> records);
     }
 
     public interface SoqlSubQuery { //SOQL.SubQuery
@@ -417,6 +418,10 @@ public inherited sharing class SOQL implements Queryable {
 
     public SOQL byIds(List<Id> recordIds) {
         return whereAre(Filter.id().isIn(recordIds));
+    }
+
+    public SOQL byIds(List<SObject> records) {
+        return whereAre(Filter.id().isIn(records));
     }
 
     // Config
