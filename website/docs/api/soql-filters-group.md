@@ -27,21 +27,21 @@ WHERE Name = 'My Account' AND NumberOfEmployees >= 10
 ```apex
 SOQL.of(Account.SObjectType)
     .whereAre(SOQL.FiltersGroup
-        .add(QB.Filter.with(Account.Name).equal('My Account'))
-        .add(QB.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10))
+        .add(SOQL.Filter.with(Account.Name).equal('My Account'))
+        .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10))
     ).asList();
 ```
 
 ```apex
 // build conditions on fly
 FiltersGroup group = SOQL.FiltersGroup
-        .add(QB.Filter.with(Account.Name).equal('My Account'))
-        .add(QB.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10))
+        .add(SOQL.Filter.with(Account.Name).equal('My Account'))
+        .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10))
         .conditionLogic('1 OR 2');
 
 SOQL.of(Account.SObjectType)
     .whereAre(SOQL.FiltersGroup
-        .add(QB.Filter.with(Account.Industry).equal('IT'))
+        .add(SOQL.Filter.with(Account.Industry).equal('IT'))
         .add(group)
     ).asList();
 ```
@@ -68,9 +68,9 @@ OR (Name = 'My Account' AND Industry = 'IT')
 ```apex
 SOQL.of(Account.SObjectType)
     .whereAre(SOQL.FiltersGroup
-        .add(QB.Filter.with(Account.Name).equal('My Account'))
-        .add(QB.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10))
-        .add(QB.Filter.with(Account.Industry).equal('IT'))
+        .add(SOQL.Filter.with(Account.Name).equal('My Account'))
+        .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10))
+        .add(SOQL.Filter.with(Account.Industry).equal('IT'))
         .conditionLogic('(1 AND 2) OR (1 AND 3)')
     ).asList();
 ```
