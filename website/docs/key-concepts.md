@@ -33,7 +33,7 @@ SOQL Builder allows to build query dynamically and execute it.
 List<Account> accounts = SOQL.of(Account.SObjectType)
    .with(new List<SObjectField>{
       Account.Id, Account.Name, Account.Industry
-   }).asList();
+   }).toList();
 ```
 
 ### SOQL Selector
@@ -101,13 +101,13 @@ public with sharing class ExampleController {
             .with(Account.BillingCity)
             .with(Account.BillingCountry)
             .whereAre(SOQL.Filter.with(Account.Name).contains(accountName))
-            .asList();
+            .toList();
     }
 
     public static List<Account> getAccountsByRecordType(String recordType) {
         return AccountSelector.getByRecordType(recordType)
                 .with(Account.ParentId)
-                .asList();
+                .toList();
     }
 }
 ```

@@ -25,35 +25,35 @@ public with sharing class MyController {
     public static Account getAccountById(Id accountId) {
         return (Account) AccountSelector.query
             .whereAre(SOQL.Filter.id().equal(accountId))
-            .asObject();
+            .toObject();
     }
 
     public static List<Account> getAccountsByIds(List<Id> accountIds) {
         return AccountSelector.query
             .whereAre(SOQL.Filter.id().isIn(accountIds))
-            .asList();
+            .toList();
     }
 
     public static List<AggregateResult> getUniqueAccountNameAmount() {
         return AccountSelector.query
             .countAs(Account.Name, 'names')
-            .asAggregated();
+            .toAggregated();
     }
 
     public static Integer countAccounts() {
         return AccountSelector.query
             .count()
-            .asInteger();
+            .toInteger();
     }
 
     public static Map<Id, SObject> getAccountMap() {
         return AccountSelector.query
-            .asMap();
+            .toMap();
     }
 
     public static Database.QueryLocator getAccountQueryLocator() {
         return AccountSelector.query
-            .asQueryLocator();
+            .toQueryLocator();
     }
 }
 ```

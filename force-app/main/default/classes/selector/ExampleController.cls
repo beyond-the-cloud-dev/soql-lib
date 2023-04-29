@@ -5,15 +5,15 @@ public with sharing class ExampleController {
             .with(Account.BillingCity)
             .with(Account.BillingCountry)
             .whereAre(SOQL.FiltersGroup
-                .add(SOQL.Filter.with(Account.Name).contains(accountName))
+                .add(SOQL.Filter.name().contains(accountName))
                 .add(SOQL.Filter.recordType().equal('Partner'))
             )
-            .asList();
+            .toList();
     }
 
     public static List<Account> getAccountsByRecordType(String recordType) {
         return AccountSelector.getByRecordType(recordType)
                 .with(Account.ParentId)
-                .asList();
+                .toList();
     }
 }

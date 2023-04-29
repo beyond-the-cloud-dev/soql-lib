@@ -14,7 +14,7 @@ SOQL.of(Account.SObjectType).with(new List<SObjectField> {
     Account.Id, Account.Name
 })
 .setLimit(100)
-.asList();
+.toList();
 ```
 
 
@@ -28,7 +28,7 @@ SOQL.of(Account.SObjectType).with(new List<SObjectField> {
     Account.Id, Account.Name
 })
 .whereAre(SOQL.Filter.with(Account.Name).contains('Test'))
-.asList();
+.toList();
 ```
 
 ```apex
@@ -62,7 +62,7 @@ SOQL.of(Account.SObjectType).with(new List<SObjectField> {
     Account.Id, Account.Name
 })
 .systemMode()
-.asList();
+.toList();
 ```
 
 ## Control Sharings
@@ -86,7 +86,7 @@ SOQL.of(Account.SObjectType).with(new List<SObjectField> {
 })
 .systemMode()
 .withSharing()
-.asList();
+.toList();
 ```
 
 ### without sharing
@@ -100,7 +100,7 @@ SOQL.of(Account.SObjectType).with(new List<SObjectField> {
 })
 .systemMode()
 .withoutSharing()
-.asList();
+.toList();
 ```
 
 ### inherited sharing
@@ -113,7 +113,7 @@ SOQL.of(Account.SObjectType).with(new List<SObjectField> {
     Account.Id, Account.Name
 })
 .systemMode()
-.asList();
+.toList();
 ```
 
 ## Mocking
@@ -132,7 +132,7 @@ public with sharing class ExampleController {
                 .add(SOQL.Filter.recordType().equal('Partner'))
             )
             .mockId('ExampleController.getPartnerAccounts')
-            .asList();
+            .toList();
     }
 }
 ```
@@ -207,7 +207,7 @@ private class ExampleControllerTest {
     static void getPartnerAccountsCount() {
         SOQL.setCountMock('mockingQuery', 2);
 
-        Integer result = SOQL.of(Account.sObjectType).count().mockId('mockingQuery').asInteger();
+        Integer result = SOQL.of(Account.sObjectType).count().mockId('mockingQuery').toInteger();
 
         Assert.areEqual(2, result);
     }

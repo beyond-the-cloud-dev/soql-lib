@@ -910,7 +910,7 @@ private class SOQLTest {
 
         System.runAs(standardUser()) {
             //Test
-            List<Case> cases = SOQL.of(Case.SObjectType).systemMode().withoutSharing().asList();
+            List<Case> cases = SOQL.of(Case.SObjectType).systemMode().withoutSharing().toList();
 
             //Verify
             Assert.areEqual(2, cases.size());
@@ -924,7 +924,7 @@ private class SOQLTest {
 
         System.runAs(standardUser()) {
             //Test
-            Integer casesAmount = SOQL.of(Case.SObjectType).count().systemMode().withoutSharing().asInteger();
+            Integer casesAmount = SOQL.of(Case.SObjectType).count().systemMode().withoutSharing().toInteger();
 
             //Verify
             Assert.areEqual(2, casesAmount);
@@ -938,7 +938,7 @@ private class SOQLTest {
 
         System.runAs(standardUser()) {
             //Test
-            List<Task> tasks = SOQL.of(Task.SObjectType).systemMode().withSharing().asList();
+            List<Task> tasks = SOQL.of(Task.SObjectType).systemMode().withSharing().toList();
 
             //Verify
             Assert.areEqual(0, tasks.size());
@@ -951,7 +951,7 @@ private class SOQLTest {
 
         System.runAs(standardUser()) {
             //Test
-            Integer tasksAmount = SOQL.of(Task.SObjectType).count().systemMode().withSharing().asInteger();
+            Integer tasksAmount = SOQL.of(Task.SObjectType).count().systemMode().withSharing().toInteger();
 
             //Verify
             Assert.areEqual(0, tasksAmount);
@@ -970,7 +970,7 @@ private class SOQLTest {
                 .systemMode()
                 .stripInaccessible()
                 .withoutSharing()
-                .asList();
+                .toList();
 
             Exception queryException = null;
 
@@ -1027,7 +1027,7 @@ private class SOQLTest {
 
         //Test
         SOQL.setMock('mockingQuery', accounts);
-        List<Account> result = SOQL.of(Account.SObjectType).mockId('mockingQuery').asList();
+        List<Account> result = SOQL.of(Account.SObjectType).mockId('mockingQuery').toList();
 
         //Verify
         Assert.areEqual(accounts, result);
@@ -1040,7 +1040,7 @@ private class SOQLTest {
 
         //Test
         SOQL.setMock('mockingQuery', testAccount);
-        Account result = (Account) SOQL.of(Account.sObjectType).mockId('mockingQuery').asObject();
+        Account result = (Account) SOQL.of(Account.sObjectType).mockId('mockingQuery').toObject();
 
         //Verify
         Assert.areEqual(testAccount, result);
@@ -1052,7 +1052,7 @@ private class SOQLTest {
         try {
              //Test
             SOQL.setMock('mockingQuery', 'testAccounts');
-            result = SOQL.of(Account.sObjectType).mockId('mockingQuery').asList();
+            result = SOQL.of(Account.sObjectType).mockId('mockingQuery').toList();
         } catch (Exception missingStaticResource) {
             //Verify
             Assert.isInstanceOfType(missingStaticResource, NullPointerException.class);
@@ -1063,20 +1063,20 @@ private class SOQLTest {
     static void mockingCount() {
         //Test
         SOQL.setCountMock('mockingQuery', 2);
-        Integer result = SOQL.of(Account.sObjectType).count().mockId('mockingQuery').asInteger();
+        Integer result = SOQL.of(Account.sObjectType).count().mockId('mockingQuery').toInteger();
 
         //Verify
         Assert.areEqual(2, result);
     }
 
     @IsTest
-    static void asObject() {
+    static void toObject() {
         //Setup
         Account acc = new Account(Name = 'Test 1');
         insert acc;
 
         //Test
-        Account result = (Account) SOQL.of(Account.SObjectType).asObject();
+        Account result = (Account) SOQL.of(Account.SObjectType).toObject();
 
         //Verify
         Assert.areEqual(acc.Id, result.Id);
@@ -1085,59 +1085,59 @@ private class SOQLTest {
     @IsTest
     static void asObjectCatchOutOfBounds() {
         //Test
-        Account result = (Account) SOQL.of(Account.SObjectType).asObject();
+        Account result = (Account) SOQL.of(Account.SObjectType).toObject();
 
         //Verify
         Assert.areEqual(null, result);
     }
 
     @IsTest
-    static void asList() {
+    static void toList() {
         //Setup
         List<Account> accounts = getAccount();
         insert accounts;
 
         //Test
-        List<Account> result = SOQL.of(Account.SObjectType).asList();
+        List<Account> result = SOQL.of(Account.SObjectType).toList();
 
         //Verify
         Assert.areEqual(accounts.size(), result.size());
     }
 
     @IsTest
-    static void asAggregated() {
+    static void toAggregated() {
         //Setup
         List<Account> accounts = getAccount();
         insert accounts;
 
         //Test
-        List<AggregateResult> result = SOQL.of(Account.SObjectType).countAs(Account.Name, 'names').asAggregated();
+        List<AggregateResult> result = SOQL.of(Account.SObjectType).countAs(Account.Name, 'names').toAggregated();
 
         //Verify
         Assert.areEqual(accounts.size(), result[0].get('names'));
     }
 
     @IsTest
-    static void asInteger() {
+    static void toInteger() {
         //Setup
         List<Account> accounts = getAccount();
         insert accounts;
 
         //Test
-        Integer result = SOQL.of(Account.SObjectType).count().asInteger();
+        Integer result = SOQL.of(Account.SObjectType).count().toInteger();
 
         //Verify
         Assert.areEqual(accounts.size(), result);
     }
 
     @IsTest
-    static void asMap() {
+    static void toMap() {
         //Setup
         List<Account> accounts = getAccount();
         insert accounts;
 
         //Test
-        Map<Id, SObject> result = SOQL.of(Account.SObjectType).asMap();
+        Map<Id, SObject> result = SOQL.of(Account.SObjectType).toMap();
 
         //Verify
         Assert.areEqual(accounts.size(), result.size());
@@ -1147,12 +1147,12 @@ private class SOQLTest {
     }
 
     @IsTest
-    static void asQueryLocator() {
+    static void toQueryLocator() {
         //Test
         Database.QueryLocator queryLocator = SOQL.of(Account.SObjectType)
             .with(Account.Id)
             .with(Account.Name)
-            .asQueryLocator();
+            .toQueryLocator();
 
 
         //Verify
@@ -1170,13 +1170,13 @@ private class SOQLTest {
     @IsTest
     static void preview() {
         //Test
-        SOQL.of(Account.SObjectType).preview().asList();
+        SOQL.of(Account.SObjectType).preview().toList();
     }
 
     @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
     @IsTest
     static void previewCount() {
         //Test
-        SOQL.of(Account.SObjectType).count().preview().asInteger();
+        SOQL.of(Account.SObjectType).count().preview().toInteger();
     }
 }

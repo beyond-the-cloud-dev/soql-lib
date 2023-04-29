@@ -29,7 +29,7 @@ SOQL.of(Account.SObjectType)
     .whereAre(SOQL.FiltersGroup
         .add(SOQL.Filter.with(Account.Name).equal('My Account'))
         .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10))
-    ).asList();
+    ).toList();
 ```
 
 ```apex
@@ -43,7 +43,7 @@ SOQL.of(Account.SObjectType)
     .whereAre(SOQL.FiltersGroup
         .add(SOQL.Filter.with(Account.Industry).equal('IT'))
         .add(group)
-    ).asList();
+    ).toList();
 ```
 
 ## conditionLogic
@@ -72,5 +72,5 @@ SOQL.of(Account.SObjectType)
         .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10))
         .add(SOQL.Filter.with(Account.Industry).equal('IT'))
         .conditionLogic('(1 AND 2) OR (1 AND 3)')
-    ).asList();
+    ).toList();
 ```

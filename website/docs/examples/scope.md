@@ -34,13 +34,13 @@ public with sharing class MyController {
     public static List<Account> getMineAccounts() {
         return AccountSelector.query
             .mineScope()
-            .asList();
+            .toList();
     }
 
     public static List<Account> getTeamAccounts() {
         return AccountSelector.query
             .myTeamScope()
-            .asList();
+            .toList();
     }
 }
 ```

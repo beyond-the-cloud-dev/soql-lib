@@ -30,7 +30,7 @@ public with sharing class MyController {
     public static List<Account> getAccountsWithOffset() {
         return AccountSelector.query
             .offset(1000)
-            .asList();
+            .toList();
     }
 }
 ```

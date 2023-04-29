@@ -28,7 +28,7 @@ WHERE Id = :accountId
 ```apex
 SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.id().equal(accountId))
-    .asList();
+    .toList();
 ```
 
 ### recordType
@@ -51,7 +51,7 @@ WHERE RecordType.DeveloperName = 'Partner'
 ```apex
 SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.recordType().equal('Partner'))
-    .asList();
+    .toList();
 ```
 
 ### Name
@@ -74,7 +74,7 @@ WHERE Name = 'My Account'
 ```apex
 SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.name().equal('My Account'))
-    .asList();
+    .toList();
 ```
 ## fields
 ### with field
@@ -97,7 +97,7 @@ WHERE Name = 'My Account'
 ```apex
 SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Name).equal('My Account'))
-    .asList();
+    .toList();
 ```
 
 ### with related field
@@ -120,7 +120,7 @@ WHERE Account.Name = 'My Account'
 ```apex
 SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with('Account', Account.Name).equal('My Account'))
-    .asList();
+    .toList();
 ```
 
 ## comperators
@@ -145,7 +145,7 @@ WHERE Account.Industry = NULL
 ```apex
 SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Industry).isNull())
-    .asList();
+    .toList();
 ```
 
 ### isNotNull
@@ -168,7 +168,7 @@ WHERE Account.Industry != NULL
 ```apex
 SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Industry).isNotNull())
-    .asList();
+    .toList();
 ```
 
 ### equal
@@ -196,15 +196,15 @@ SELECT Id FROM Account WHERE IsDeleted = true
 ```apex
 SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Name).equal('My Account'))
-    .asList();
+    .toList();
 
 SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).equal(10))
-    .asList();
+    .toList();
 
 SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.with(Account.IsDeleted).equal(true))
-    .asList();
+    .toList();
 ```
 
 ### notEqual
@@ -231,15 +231,15 @@ SELECT Id FROM Account WHERE IsDeleted != true
 ```apex
 SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Name).notEqual('My Account'))
-    .asList();
+    .toList();
 
 SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).notEqual(10))
-    .asList();
+    .toList();
 
 SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.IsDeleted).notEqual(true))
-    .asList();
+    .toList();
 ```
 
 ### lessThan
@@ -262,7 +262,7 @@ WHERE NumberOfEmployees < 10
 ```apex
 SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).lessThan(10))
-    .asList();
+    .toList();
 ```
 
 ### greaterThan
@@ -285,7 +285,7 @@ WHERE NumberOfEmployees > 10
 ```apex
 SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).greaterThan(10))
-    asList();
+    toList();
 ```
 
 ### lessThanOrEqual
@@ -308,7 +308,7 @@ WHERE NumberOfEmployees <= 10
 ```apex
 SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).lessThanOrEqual(10))
-    .asList();
+    .toList();
 ```
 
 ### greaterThanOrEqual
@@ -331,7 +331,7 @@ WHERE NumberOfEmployees >= 10
 ```apex
 SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10))
-    .asList();
+    .toList();
 ```
 
 ### contains
@@ -354,7 +354,7 @@ WHERE Name = '%My%'
 ```apex
 SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Name).contains('My'))
-    .asList();
+    .toList();
 ```
 
 ### endsWith
@@ -377,7 +377,7 @@ WHERE Name = '%My'
 ```apex
 SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Name).endsWith('My'))
-    .asList();
+    .toList();
 ```
 
 ### startsWith
@@ -400,7 +400,7 @@ WHERE Name = 'My%'
 ```apex
 SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Name).startsWith('My'))
-    .asList();
+    .toList();
 ```
 
 ### isIn
@@ -423,7 +423,7 @@ WHERE Id IN :accountIds
 ```apex
 SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Id).isIn(accountIds))
-    .asList();
+    .toList();
 ```
 
 ### notIn
@@ -446,7 +446,7 @@ WHERE Id NOT IN :accountIds
 ```apex
 SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Id).notIn(accountIds))
-    .asList();
+    .toList();
 ```
 
 ## join query
@@ -478,7 +478,7 @@ SOQL.of(Account.SObjectType)
         SOQL.InnerJoin.of(Contact.SObjectType)
             .with(Contact.AccountId)
             .whereAre(SOQL.Filter.with(Contact.Name).equal('My Contact'))
-    )).asList();
+    )).toList();
 ```
 
 ### notIn
@@ -508,5 +508,5 @@ SOQL.of(Contact.SObjectType)
         SOQL.InnerJoin.of(Contact.SObjectType)
             .with(Contact.AccountId)
             .whereAre(SOQL.Filter.with(Contact.Name).equal('My Contact'))
-    )).asList();
+    )).toList();
 ```

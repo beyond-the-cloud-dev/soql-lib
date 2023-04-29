@@ -32,7 +32,7 @@ SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Id).isIn(
         SOQL.InnerJoin.of(Contact.SObjectType)
             .with(Contact.AccountId)
-    )).asList();
+    )).toList();
 ```
 
 ## field
@@ -60,7 +60,7 @@ SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Id).isIn(
         SOQL.InnerJoin.of(Contact.SObjectType)
             .with(Contact.AccountId)
-    )).asList();
+    )).toList();
 ```
 
 ## whereAre
@@ -92,5 +92,5 @@ SOQL.of(Account.SObjectType)
         SOQL.InnerJoin.of(Contact.SObjectType)
             .with(Contact.AccountId)
             .whereAre(SOQL.Filter.with(Contact.Name).equal('My Contact'))
-    )).asList();
+    )).toList();
 ```

@@ -32,7 +32,7 @@ public with sharing class MyController {
         return AccountSelector.query
                 .orderBy(Account.Industry).sortDesc()
                 .orderBy(Account.Id)
-                .asList();
+                .toList();
     }
 }
 ```

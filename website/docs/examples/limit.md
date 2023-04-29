@@ -30,7 +30,7 @@ public with sharing class MyController {
     public static List<Account> getAccountsWithLimit() {
         return AccountSelector.query
             .setLimit(1000)
-            .asList();
+            .toList();
     }
 }
 ```

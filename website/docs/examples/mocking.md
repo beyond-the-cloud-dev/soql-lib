@@ -19,7 +19,7 @@ public with sharing class ExampleController {
             )
             .setLimit(1)
             .mockId('ExampleController.getAccountByName')
-            .asObject();
+            .toObject();
     }
 }
 ```
@@ -55,7 +55,7 @@ public with sharing class ExampleController {
                 .add(SOQL.Filter.recordType().equal('Partner'))
             )
             .mockId('ExampleController.getPartnerAccounts')
-            .asList();
+            .toList();
     }
 }
 ```
@@ -95,7 +95,7 @@ public with sharing class ExampleController {
             )
             .count()
             .mockId('ExampleController.getPartnerAccountsCount')
-            .asInteger();
+            .toInteger();
     }
 }
 ```
@@ -132,7 +132,7 @@ public with sharing class ExampleController {
                 .add(SOQL.Filter.recordType().equal('Partner'))
             )
             .mockId('ExampleController.getPartnerAccounts')
-            .asList();
+            .toList();
     }
 }
 ```

@@ -34,7 +34,7 @@ public with sharing class MyController {
                     .add(SOQL.Filter.with(Account.Name).contains(accountName))
                     .conditionLogic('1 OR 2')
                 )
-                .asList();
+                .toList();
     }
 }
 ```

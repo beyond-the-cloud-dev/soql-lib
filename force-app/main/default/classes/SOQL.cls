@@ -90,12 +90,13 @@ public inherited sharing class SOQL implements Queryable {
         SOQL stripInaccessible();
         SOQL stripInaccessible(AccessType accessType);
 
-        SObject asObject();
-        List<SObject> asList();
-        List<AggregateResult> asAggregated();
-        Integer asInteger();
-        Map<Id, SObject> asMap();
-        Database.QueryLocator asQueryLocator();
+        String toString();
+        SObject toObject();
+        List<SObject> toList();
+        List<AggregateResult> toAggregated();
+        Integer toInteger();
+        Map<Id, SObject> toMap();
+        Database.QueryLocator toQueryLocator();
 
         SOQL byId(Id recordId);
         SOQL byIds(Set<Id> recordIds);
@@ -388,27 +389,27 @@ public inherited sharing class SOQL implements Queryable {
         return binder.build();
     }
 
-    public SObject asObject() {
+    public SObject toObject() {
         return executor.toObject(builder.build(), binder.build());
     }
 
-    public List<SObject> asList() {
+    public List<SObject> toList() {
         return executor.toList(builder.build(), binder.build());
     }
 
-    public List<AggregateResult> asAggregated() {
-        return (List<AggregateResult>) asList();
+    public List<AggregateResult> toAggregated() {
+        return (List<AggregateResult>) toList();
     }
 
-    public Integer asInteger() {
+    public Integer toInteger() {
         return executor.toInteger(builder.build(), binder.build());
     }
 
-    public Map<Id, SObject> asMap() {
-        return new Map<Id, SObject>(asList());
+    public Map<Id, SObject> toMap() {
+        return new Map<Id, SObject>(toList());
     }
 
-    public Database.QueryLocator asQueryLocator() {
+    public Database.QueryLocator toQueryLocator() {
         return executor.toQueryLocator(builder.build(), binder.build());
     }
 

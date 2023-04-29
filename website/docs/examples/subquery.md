@@ -34,7 +34,7 @@ public with sharing class MyController {
                     Contact.Id,
                     Contact.Name
                 })
-            ).asList();
+            ).toList();
     }
 }
 ```

@@ -35,7 +35,7 @@ public with sharing class MyController {
                 .conditionLogic('1 OR 2')
              )
             .preview()
-            .asList();
+            .toList();
     }
 }
 ```

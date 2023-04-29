@@ -27,7 +27,7 @@ SELECT Id, (
 ```apex
 SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts'))
-    .asList();
+    .toList();
 ```
 
 ## select
@@ -53,7 +53,7 @@ SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .with(Contact.Name)
     )
-    .asList();
+    .toList();
 ```
 
 ### with fields
@@ -79,7 +79,7 @@ SOQL.of(Account.SObjectType)
             Contact.Id, Contact.Name
         })
     )
-    .asList();
+    .toList();
 ```
 
 ### with related fields
@@ -106,7 +106,7 @@ SOQL.of(Account.SObjectType)
             User.Id, User.Name
         })
     )
-    .asList();
+    .toList();
 ```
 
 ## whereAre
@@ -137,7 +137,7 @@ SOQL.of(Account.SObjectType)
             .conditionLogic('1 OR 2')
         )
     )
-    .asList();
+    .toList();
 ```
 
 ## order by
@@ -162,7 +162,7 @@ SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .orderBy(Contact.Name)
     )
-    .asList();
+    .toList();
 ```
 
 ### orderBy related
@@ -189,7 +189,7 @@ SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .orderBy('CreatedBy', User.Name)
     )
-    .asList();
+    .toList();
 ```
 
 ### sortDesc
@@ -217,7 +217,7 @@ SOQL.of(Account.SObjectType)
         .orderBy(Contact.Name)
         .sortDesc()
     )
-    .asList();
+    .toList();
 ```
 
 ### nullsLast
@@ -245,7 +245,7 @@ SOQL.of(Account.SObjectType)
         .orderBy(Contact.Name)
         .nullsLast()
     )
-    .asList();
+    .toList();
 ```
 
 ## setLimit
@@ -271,7 +271,7 @@ SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .setLimit(100)
     )
-    .asList();
+    .toList();
 ```
 
 ## offset
@@ -296,7 +296,7 @@ SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .offset(10)
     )
-    .asList();
+    .toList();
 ```
 
 ## for
@@ -323,7 +323,7 @@ SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .forReference()
     )
-    .asList();
+    .toList();
 ```
 
 ### forView
@@ -348,5 +348,5 @@ SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .forView()
     )
-    .asList();
+    .toList();
 ```

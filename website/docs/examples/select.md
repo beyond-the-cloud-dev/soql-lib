@@ -37,7 +37,7 @@ public with sharing class MyController {
                 Account.BillingState,
                 Account.BillingStreet,
                 Account.BillingCountry
-            }).asList();
+            }).toList();
     }
 }
 ```
@@ -71,7 +71,7 @@ public with sharing class MyController {
             .with('CreatedBy', new List<SObjectField>{
                 User.Id,
                 User.Name
-            }).asList();
+            }).toList();
     }
 }
 ```
@@ -96,11 +96,11 @@ public inherited sharing class AccountSelector {
 public with sharing class MyController {
 
     public static Integer getAccountAmount() {
-        return AccountSelector.query.count().asInteger();
+        return AccountSelector.query.count().toInteger();
     }
 
     public static Integer getUniqueAccountNameAmount() {
-        return AccountSelector.query.countAs(Account.Name, 'names').asAggregated()[0].names;
+        return AccountSelector.query.countAs(Account.Name, 'names').toAggregated()[0].names;
     }
 }
 ```

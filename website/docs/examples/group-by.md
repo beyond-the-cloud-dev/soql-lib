@@ -27,7 +27,7 @@ public with sharing class MyController {
         return LeadSelector.query
                 .with(Lead.LeadSource)
                 .groupBy(Lead.LeadSource)
-                .asAggregated();
+                .toAggregated();
     }
 }
 ```

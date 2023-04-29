@@ -12,7 +12,7 @@ Find more details in the [documentation](https://soql-lib.vercel.app/).
 
 ```apex
 // SELECT Id FROM Account
-List<Account> accounts = SOQL.of(Account.SObjectType).asList();
+List<Account> accounts = SOQL.of(Account.SObjectType).toList();
 ```
 
 ```apex
@@ -20,7 +20,7 @@ List<Account> accounts = SOQL.of(Account.SObjectType).asList();
 List<Account> accounts = SOQL.of(Account.SObjectType)
    .with(new List<SObjectField>{
       Account.Id, Account.Name, Account.Industry
-   }).asList();
+   }).toList();
 ```
 ## Deploy to Salesforce
 

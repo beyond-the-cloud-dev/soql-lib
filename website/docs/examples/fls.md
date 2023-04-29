@@ -28,7 +28,7 @@ public with sharing class MyController {
     public static List<Account> getAccountInSystemMode() {
         return AccountSelector.query
             .userMode() //override selector FLS mode
-            .asList();
+            .toList();
     }
 }
 ```

@@ -22,7 +22,7 @@ SOQL of(SObjectType ofObject)
 SELECT Id FROM Account
 ```
 ```apex
-SOQL.of(Account.SObjectType).asList();
+SOQL.of(Account.SObjectType).toList();
 ```
 
 ## select
@@ -45,7 +45,7 @@ FROM Account
 SOQL.of(Account.SObjectType)
     .with(Account.Id)
     .with(Account.Name)
-    .asList();
+    .toList();
 ```
 
 ### with fields
@@ -70,7 +70,7 @@ FROM Account
 SOQL.of(Account.SObjectType)
     .with(List<SObjectField>{
         Account.Id, Account.Name, Account.Industry
-    }).asList();
+    }).toList();
 ```
 
 ### with string fields
@@ -92,7 +92,7 @@ FROM Account
 ```apex
 SOQL.of(Account.SObjectType)
     .with('Id, Name, Industry')
-    .asList();
+    .toList();
 ```
 
 ### with related fields
@@ -117,7 +117,7 @@ FROM Account
 SOQL.of(Account.SObjectType)
     .with('CreatedBy', List<SObjectField>{
         User.Id, User.Name
-    }).asList();
+    }).toList();
 ```
 
 ### with subquery
@@ -148,7 +148,7 @@ SOQL.of(Account.SObjectType)
         .with(new List<SObjectField>{
             Contact.Id, Contact.Name
         })
-    ).asList();
+    ).toList();
 ```
 
 ### count
@@ -172,7 +172,7 @@ FROM Account
 ```apex
 SOQL.of(Account.SObjectType)
     .count()
-    .asInteger();
+    .toInteger();
 ```
 
 ### countAs
@@ -195,7 +195,7 @@ SELECT COUNT(Name) names FROM Account
 ```apex
 SOQL.of(Account.SObjectType)
     .countAs(Account.Name, 'names')
-    .asAggregated();
+    .toAggregated();
 ```
 
 ## scope
@@ -222,7 +222,7 @@ USING SCOPE DELEGATED
 ```apex
 SOQL.of(Task.SObjectType)
     .delegatedScope()
-    .asList();
+    .toList();
 ```
 
 ### mineScope
@@ -245,7 +245,7 @@ USING SCOPE MINE
 ```apex
 SOQL.of(Account.SObjectType)
     .mineScope()
-    .asList();
+    .toList();
 ```
 
 ### mineAndMyGroupsScope
@@ -268,7 +268,7 @@ USING SCOPE MINE_AND_MY_GROUPS
 ```apex
 SOQL.of(ProcessInstanceWorkItem.SObjectType)
     .mineAndMyGroupsScope()
-    .asList();
+    .toList();
 ```
 
 ### myTerritoryScope
@@ -291,7 +291,7 @@ USING SCOPE MY_TERRITORY
 ```apex
 SOQL.of(Opportunity.SObjectType)
     .myTerritoryScope()
-    .asList();
+    .toList();
 ```
 
 ### myTeamTerritoryScope
@@ -314,7 +314,7 @@ USING SCOPE MY_TEAM_TERRITORY
 ```apex
 SOQL.of(Opportunity.SObjectType)
     .myTeamTerritoryScope()
-    .asList();
+    .toList();
 ```
 
 ### teamScope
@@ -335,7 +335,7 @@ SELECT Id FROM Account USING SCOPE TEAM
 ```apex
 SOQL.of(Account.SObjectType)
     .teamScope()
-    .asList();
+    .toList();
 ```
 
 ## where
@@ -367,7 +367,7 @@ SOQL.of(Account.SObjectType)
         .add(SOQL.Filter.with(Account.Id).equal(accountId))
         .add(SOQL.Filter.with(Account.Name).contains('MyAccount'))
         .conditionLogic('1 OR 2')
-    ).asList();
+    ).toList();
 ```
 
 ### whereAre string
@@ -390,7 +390,7 @@ WHERE NumberOfEmployees >=10 AND NumberOfEmployees <= 20
 ```apex
 SOQL.of(Account.SObjectType)
     .whereAre('NumberOfEmployees >=10 AND NumberOfEmployees <= 20')
-    .asList();
+    .toList();
 ```
 
 ## group by
@@ -417,7 +417,7 @@ GROUP BY LeadSource
 SOQL.of(Lead.SObjectType)
     .with(Lead.LeadSource)
     .groupBy(Lead.LeadSource)
-    .asAggregated();
+    .toAggregated();
 ```
 
 ### groupByRollup
@@ -440,7 +440,7 @@ QS.of(Lead.SObjectType)
     .with(Lead.LeadSource)
     .countAs(Lead.Name, 'cnt')
     .groupByRollup(Lead.LeadSource)
-    .asAggregated();
+    .toAggregated();
 ```
 
 ## order by
@@ -467,7 +467,7 @@ ORDER BY Name
 ```apex
 SOQL.of(Account.SObjectType)
     .orderBy(Account.Name)
-    .asList();
+    .toList();
 ```
 
 ### orderBy related
@@ -490,7 +490,7 @@ ORDER BY Account.Name
 ```apex
 SOQL.of(Contact.SObjectType)
     .orderBy('Account', Account.Name)
-    .asList();
+    .toList();
 ```
 
 ### sortDesc
@@ -514,7 +514,7 @@ ORDER BY Name DESC
 SOQL.of(Account.SObjectType)
     .orderBy(Account.Name)
     .sortDesc()
-    .asList();
+    .toList();
 ```
 
 ### nullsLast
@@ -538,7 +538,7 @@ ORDER BY Name NULLS LAST
 SOQL.of(Account.SObjectType)
     .orderBy(Account.Industry)
     .nullsLast()
-    .asList();
+    .toList();
 ```
 
 ## setLimit
@@ -563,7 +563,7 @@ LIMIT 100
 ```apex
 SOQL.of(Account.SObjectType)
     .setLimit(100)
-    .asList();
+    .toList();
 ```
 
 ## offset
@@ -588,7 +588,7 @@ OFFSET 10
 ```apex
 SOQL.of(Account.SObjectType)
     .setOffset(10)
-    .asList();
+    .toList();
 ```
 
 ## for
@@ -615,7 +615,7 @@ FOR REFERENCE
 ```apex
 SOQL.of(Contact.SObjectType)
     .forReference()
-    .asList();
+    .toList();
 ```
 
 ### forView
@@ -638,7 +638,7 @@ FOR VIEW
 ```apex
 SOQL.of(Contact.SObjectType)
     .forView()
-    .asList();
+    .toList();
 ```
 
 ### forUpdate
@@ -661,7 +661,7 @@ FOR UPDATE
 ```apex
 SOQL.of(Contact.SObjectType)
     .forUpdate()
-    .asList();
+    .toList();
 ```
 
 ### allRows
@@ -685,7 +685,7 @@ ALL ROWS
 SOQL.of(Contact.SObjectType)
     .count()
     .allRows()
-    .asList();
+    .toList();
 ```
 
 ## fls
@@ -709,7 +709,7 @@ SOQL systemMode()
 ```apex
 SOQL.of(Account.SObjectType)
     .systemMode()
-    .asList();
+    .toList();
 ```
 
 ## sharing
@@ -734,7 +734,7 @@ SOQL withSharing()
 SOQL.of(Account.SObjectType)
     .systemMode()
     .withSharing()
-    .asList();
+    .toList();
 ```
 
 ### withoutSharing
@@ -755,7 +755,7 @@ SOQL withoutSharing()
 SOQL.of(Account.SObjectType)
     .systemMode()
     .withoutSharing()
-    .asList();
+    .toList();
 ```
 
 ## mocking
@@ -775,7 +775,7 @@ SOQL mockId(String queryIdentifier)
 ```apex
 SOQL.of(Account.SObjectType)
     .mockId('MyQuery')
-    .asList();
+    .toList();
 
 // In Unit Test
 SOQL.setMock('MyQuery', new List<Account>{
@@ -797,7 +797,7 @@ SOQL setMock(String mockId, SObject record)
 ```apex
 SOQL.of(Account.sObjectType)
     .mockId('MyQuery')
-    .asList();
+    .toList();
 
 // In Unit Test
 SOQL.setMock('MyQuery', new Account(Name = 'MyAccount 1'));
@@ -816,7 +816,7 @@ SOQL setMock(String mockId, List<SObject> records)
 ```apex
 SOQL.of(Account.sObjectType)
     .mockId('MyQuery')
-    .asList();
+    .toList();
 
 // In Unit Test
 SOQL.setMock('MyQuery', new List<Account>{
@@ -839,7 +839,7 @@ SOQL setCountMock(String mockId, Integer amount)
 SOQL.of(Account.sObjectType)
     .mockId('MyQuery')
     .count()
-    .asInteger();
+    .toInteger();
 
 // In Unit Test
 SOQL.setMock('MyQuery', 5);
@@ -858,7 +858,7 @@ SOQL setMock(String mockId, String staticResource)
 ```apex
 SOQL.of(Account.sObjectType)
     .mockId('MyQuery')
-    .asList();
+    .toList();
 
 // In Unit Test
 SOQL.setMock('MyQuery', 'MyStaticResource');
@@ -877,7 +877,7 @@ SOQL preview()
 ```apex
 SOQL.of(Account.SObjectType)
     .preview()
-    .asList();
+    .toList();
 ```
 
 Query preview will be available in debug logs:
@@ -899,42 +899,42 @@ WHERE ((Id = :v1 OR Name LIKE :v2))
 
 ## result
 
-### asObject
+### toObject
 
 When no records found. Instead of `List index out of bounds: 0` null will be returned.
 
 **Signature**
 
 ```apex
-sObject asObject()
+sObject toObject()
 ```
 
 **Example**
 
 ```apex
-SOQL.of(Account.SObjectType).asObject();
+SOQL.of(Account.SObjectType).toObject();
 ```
 
-### asList
+### toList
 
 **Signature**
 
 ```apex
-List<sObject> asList()
+List<sObject> toList()
 ```
 
 **Example**
 
 ```apex
-SOQL.of(Account.SObjectType).asList();
+SOQL.of(Account.SObjectType).toList();
 ```
 
-### asAggregated
+### toAggregated
 
 **Signature**
 
 ```apex
-List<AggregateResult> asAggregated()
+List<AggregateResult> toAggregated()
 ```
 
 **Example**
@@ -950,15 +950,15 @@ GROUP BY LeadSource
 SOQL.of(Lead.SObjectType)
     .with(Lead.LeadSource)
     .groupBy(Lead.LeadSource)
-    .asAggregated()
+    .toAggregated()
 ```
 
-### asInteger
+### toInteger
 
 **Signature**
 
 ```apex
-Integer asInteger()
+Integer toInteger()
 ```
 
 **Example**
@@ -967,35 +967,35 @@ Integer asInteger()
 SELECT COUNT() FROM Account
 ```
 ```apex
-QS.of(Account.SObjectType).count().asInteger();
+QS.of(Account.SObjectType).count().toInteger();
 ```
 
-### asMap
+### toMap
 
 **Signature**
 
 ```apex
-Map<Id, SObject> asMap()
+Map<Id, SObject> toMap()
 ```
 
 **Example**
 
 ```apex
-SOQL.of(Account.SObjectType).asMap();
+SOQL.of(Account.SObjectType).toMap();
 ```
 
-### asQueryLocator
+### toQueryLocator
 
 **Signature**
 
 ```apex
-Database.QueryLocator asQueryLocator()
+Database.QueryLocator toQueryLocator()
 ```
 
 **Example**
 
 ```apex
-SOQL.of(Account.SObjectType).asQueryLocator();
+SOQL.of(Account.SObjectType).toQueryLocator();
 ```
 
 ## predefined
@@ -1021,7 +1021,7 @@ WHERE Id = '1234'
 ```apex
 SOQL.of(Account.SObjectType)
     .byId('1234')
-    .asObject();
+    .toObject();
 ```
 
 ### byIds
@@ -1052,18 +1052,18 @@ WHERE Id IN ('1234')
 ```apex
 SOQL.of(Account.SObjectType)
     .byIds(new Set<Id>{ '1234' })
-    .asList();
+    .toList();
 ```
 
 ```apex
 SOQL.of(Account.SObjectType)
     .byIds(new List<Id>{ '1234' })
-    .asList();
+    .toList();
 ```
 
 ```apex
 List<Account> accounts = [SELECT Id FROM Account];
 SOQL.of(Account.SObjectType)
     .byIds(accounts)
-    .asList();
+    .toList();
 ```

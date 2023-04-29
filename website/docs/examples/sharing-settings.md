@@ -30,14 +30,14 @@ public with sharing class MyController {
         return AccountSelector.query
             .systemMode()
             .withSharing()
-            .asList();
+            .toList();
     }
 
     public static List<Account> getAccountsWithoutSharing() {
         return AccountSelector.query
             .systemMode()
             .withoutSharing()
-            .asList();
+            .toList();
     }
 }
 ```
