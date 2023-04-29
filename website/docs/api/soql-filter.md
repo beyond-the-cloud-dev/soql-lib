@@ -54,6 +54,28 @@ SOQL.of(Account.SObjectType)
     .asList();
 ```
 
+### Name
+
+- `WHERE Name = 'My Account'`
+
+**Signature**
+
+```apex
+Filter name()
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+WHERE Name = 'My Account'
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.Filter.name().equal('My Account'))
+    .asList();
+```
 ## fields
 ### with field
 

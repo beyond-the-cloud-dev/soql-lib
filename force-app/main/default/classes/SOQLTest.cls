@@ -34,7 +34,7 @@ private class SOQLTest {
 
     @IsTest
     static void withField() {
-         //Test
+        //Test
         String soql = SOQL.of(Account.SObjectType)
             .with(Account.Name)
             .with(Account.BillingCity)
@@ -373,6 +373,20 @@ private class SOQLTest {
     }
 
     @IsTest
+    static void name() {
+        //Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.name().isNotNull());
+
+        //Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE Name != :v1', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(null, binding.get('v1'));
+    }
+
+    @IsTest
     static void withRelatedFieldFilter() {
         //Test
         SOQL builder = SOQL.of(Contact.SObjectType)
@@ -514,7 +528,7 @@ private class SOQLTest {
 
     @IsTest
     static void isIn() {
-        //Prepare
+        //Setup
         List<String> names = new List<String>{ 'Test 1', 'Test 2' };
 
         //Test
@@ -532,7 +546,7 @@ private class SOQLTest {
 
     @IsTest
     static void isNotIn() {
-        //Prepare
+        //Setup
         List<String> names = new List<String>{ 'Test 1', 'Test 2' };
 
         //Test
@@ -826,7 +840,7 @@ private class SOQLTest {
 
     @IsTest
     static void byIdsList() {
-        //Prepare
+        //Setup
         List<Id> accountIds = new List<Id>{ FAKE_ACCOUNT_ID };
 
         //Test
@@ -842,7 +856,7 @@ private class SOQLTest {
 
     @IsTest
     static void byIdsSObjects() {
-        //Prepare
+        //Setup
         List<Case> cases = insertCases();
 
         //Test
@@ -858,7 +872,7 @@ private class SOQLTest {
 
     @IsTest
     static void withoutSharing() {
-        //Prepare
+        //Setup
         insertCases();
 
         System.runAs(standardUser()) {
@@ -872,7 +886,7 @@ private class SOQLTest {
 
     @IsTest
     static void withoutSharingCount() {
-        //Prepare
+        //Setup
         insertCases();
 
         System.runAs(standardUser()) {
@@ -886,7 +900,7 @@ private class SOQLTest {
 
     @IsTest
     static void withSharing() {
-        //Prepare
+        //Setup
         insertTasks();
 
         System.runAs(standardUser()) {
@@ -913,7 +927,7 @@ private class SOQLTest {
 
     @IsTest
     static void stripInaccessible() {
-        //Prepare
+        //Setup
         insertTasks();
 
         System.runAs(standardUser()) {
@@ -975,7 +989,7 @@ private class SOQLTest {
 
     @IsTest
     static void mockId() {
-        //Prepare
+        //Setup
         List<Account> accounts = getAccount();
 
         //Test
@@ -988,7 +1002,7 @@ private class SOQLTest {
 
     @IsTest
     static void mockingSingleRecord() {
-        //Prepare
+        //Setup
         Account testAccount = new Account(Name = 'Test 1');
 
         //Test
@@ -1024,7 +1038,7 @@ private class SOQLTest {
 
     @IsTest
     static void asObject() {
-        //Prepare
+        //Setup
         Account acc = new Account(Name = 'Test 1');
         insert acc;
 
@@ -1046,7 +1060,7 @@ private class SOQLTest {
 
     @IsTest
     static void asList() {
-        //Prepare
+        //Setup
         List<Account> accounts = getAccount();
         insert accounts;
 
@@ -1059,7 +1073,7 @@ private class SOQLTest {
 
     @IsTest
     static void asAggregated() {
-        //Prepare
+        //Setup
         List<Account> accounts = getAccount();
         insert accounts;
 
@@ -1072,7 +1086,7 @@ private class SOQLTest {
 
     @IsTest
     static void asInteger() {
-        //Prepare
+        //Setup
         List<Account> accounts = getAccount();
         insert accounts;
 
@@ -1085,7 +1099,7 @@ private class SOQLTest {
 
     @IsTest
     static void asMap() {
-        //Prepare
+        //Setup
         List<Account> accounts = getAccount();
         insert accounts;
 

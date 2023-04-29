@@ -128,6 +128,7 @@ public inherited sharing class SOQL implements Queryable {
     public interface SoqlFilter { //SOQL.Filter
         Filter id();
         Filter recordType();
+        Filter name();
         Filter with(SObjectField field);
         Filter with(String field);
         Filter with(String relationshipName, SObjectField field);
@@ -841,6 +842,10 @@ public inherited sharing class SOQL implements Queryable {
 
         public Filter recordType() {
             return with('RecordType.DeveloperName');
+        }
+
+        public Filter name() {
+            return with('Name');
         }
 
         public Filter with(SObjectField field) {
