@@ -31,7 +31,7 @@ public with sharing class MyController {
             })
             .whereAre(SOQL.FiltersGroup
                 .add(SOQL.Filter.with(Account.Id).equal('0013V00000WNCw4QAH'))
-                .add(SOQL.Filter.with(Account.Name).likeAny('Test'))
+                .add(SOQL.Filter.with(Account.Name).contains('Test'))
                 .conditionLogic('1 OR 2')
              )
             .preview()

@@ -485,10 +485,10 @@ private class SOQLTest {
     }
 
     @IsTest
-    static void likeAny() {
+    static void contains() {
         //Test
         SOQL builder = SOQL.of(Account.SObjectType)
-            .whereAre(SOQL.Filter.with(Account.Name).likeAny('Test'));
+            .whereAre(SOQL.Filter.with(Account.Name).contains('Test'));
 
         //Verify
         String soql = builder.toString();
@@ -499,10 +499,10 @@ private class SOQLTest {
     }
 
     @IsTest
-    static void likeAnyLeft() {
+    static void endsWith() {
         //Test
         SOQL builder = SOQL.of(Account.SObjectType)
-            .whereAre(SOQL.Filter.with(Account.Name).likeAnyLeft('Test'));
+            .whereAre(SOQL.Filter.with(Account.Name).endsWith('Test'));
 
         //Verify
         String soql = builder.toString();
@@ -513,10 +513,10 @@ private class SOQLTest {
     }
 
     @IsTest
-    static void likeAnyRight() {
+    static void startsWith() {
         //Test
         SOQL builder = SOQL.of(Account.SObjectType)
-            .whereAre(SOQL.Filter.with(Account.Name).likeAnyRight('Test'));
+            .whereAre(SOQL.Filter.with(Account.Name).startsWith('Test'));
 
         //Verify
         String soql = builder.toString();
@@ -545,7 +545,7 @@ private class SOQLTest {
 
 
     @IsTest
-    static void isNotIn() {
+    static void notIn() {
         //Setup
         List<String> names = new List<String>{ 'Test 1', 'Test 2' };
 
@@ -554,7 +554,7 @@ private class SOQLTest {
             .with(new List<SObjectField>{
                 Account.Name, Account.BillingCity
             })
-            .whereAre(SOQL.Filter.with(Account.Name).isNotIn(names));
+            .whereAre(SOQL.Filter.with(Account.Name).notIn(names));
 
         //Verify
         String soql = builder.toString();
@@ -658,7 +658,7 @@ private class SOQLTest {
     static void isNotInInnerJoin() {
         //Test
         SOQL builder = SOQL.of(Account.SObjectType)
-            .whereAre(SOQL.Filter.with(Account.Id).isNotIn(
+            .whereAre(SOQL.Filter.with(Account.Id).notIn(
                 SOQL.InnerJoin.of(Contact.SObjectType)
                     .with(Contact.AccountId)
                     .whereAre(SOQL.Filter.with(Contact.Name).equal('My Contact'))

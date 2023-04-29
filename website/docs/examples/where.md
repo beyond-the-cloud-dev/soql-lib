@@ -31,7 +31,7 @@ public with sharing class MyController {
         return AccountSelector.query
                 .whereAre(SOQL.FiltersGroup
                     .add(SOQL.Filter.id().equal(accountId))
-                    .add(SOQL.Filter.with(Account.Name).likeAny(accountName))
+                    .add(SOQL.Filter.with(Account.Name).contains(accountName))
                     .conditionLogic('1 OR 2')
                 )
                 .asList();

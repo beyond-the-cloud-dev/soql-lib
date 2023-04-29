@@ -100,7 +100,7 @@ public with sharing class ExampleController {
         return AccountSelector.query
             .with(Account.BillingCity)
             .with(Account.BillingCountry)
-            .whereAre(SOQL.Filter.with(Account.Name).likeAny(accountName))
+            .whereAre(SOQL.Filter.with(Account.Name).contains(accountName))
             .asList();
     }
 

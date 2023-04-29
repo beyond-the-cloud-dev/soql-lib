@@ -334,14 +334,14 @@ SOQL.of(Contact.SObjectType)
     .asList();
 ```
 
-### likeAny
+### contains
 
 - `WHERE Name LIKE '%My%'`
 
 **Signature**
 
 ```apex
-Filter likeAny(String value)
+Filter contains(String value)
 ```
 
 **Example**
@@ -353,18 +353,18 @@ WHERE Name = '%My%'
 ```
 ```apex
 SOQL.of(Contact.SObjectType)
-    .whereAre(SOQL.Filter.with(Account.Name).likeAny('My'))
+    .whereAre(SOQL.Filter.with(Account.Name).contains('My'))
     .asList();
 ```
 
-### likeAnyLeft
+### endsWith
 
 - `WHERE Name LIKE '%My'`
 
 **Signature**
 
 ```apex
-Filter likeAnyLeft(String value)
+Filter endsWith(String value)
 ```
 
 **Example**
@@ -376,18 +376,18 @@ WHERE Name = '%My'
 ```
 ```apex
 SOQL.of(Contact.SObjectType)
-    .whereAre(SOQL.Filter.with(Account.Name).likeAnyLeft('My'))
+    .whereAre(SOQL.Filter.with(Account.Name).endsWith('My'))
     .asList();
 ```
 
-### likeAnyRight
+### startsWith
 
 - `WHERE Name LIKE 'My%'`
 
 **Signature**
 
 ```apex
-Filter likeAnyRight(String value)
+Filter startsWith(String value)
 ```
 
 **Example**
@@ -399,7 +399,7 @@ WHERE Name = 'My%'
 ```
 ```apex
 SOQL.of(Contact.SObjectType)
-    .whereAre(SOQL.Filter.with(Account.Name).likeAnyRight('My'))
+    .whereAre(SOQL.Filter.with(Account.Name).startsWith('My'))
     .asList();
 ```
 
@@ -426,14 +426,14 @@ SOQL.of(Contact.SObjectType)
     .asList();
 ```
 
-### isNotIn
+### notIn
 
 - `WHERE Id NOT IN :accountIds`
 
 **Signature**
 
 ```apex
-Filter isNotIn(List<Object> inList)
+Filter notIn(List<Object> inList)
 ```
 
 **Example**
@@ -481,14 +481,14 @@ SOQL.of(Account.SObjectType)
     )).asList();
 ```
 
-### isNotIn
+### notIn
 
 - `WHERE Id NOT IN (SELECT AccountId FROM Contact WHERE Name = 'My Contact')`
 
 **Signature**
 
 ```apex
-Filter isNotIn(JoinQuery joinQuery)
+Filter notIn(JoinQuery joinQuery)
 ```
 
 **Example**
@@ -504,7 +504,7 @@ WHERE Id NOT IN (
 ```
 ```apex
 SOQL.of(Contact.SObjectType)
-    .whereAre(SOQL.Filter.with(Account.Id).isNotIn(
+    .whereAre(SOQL.Filter.with(Account.Id).notIn(
         SOQL.InnerJoin.of(Contact.SObjectType)
             .with(Contact.AccountId)
             .whereAre(SOQL.Filter.with(Contact.Name).equal('My Contact'))

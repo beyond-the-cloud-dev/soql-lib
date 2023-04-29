@@ -27,7 +27,7 @@ All variables used in `WHERE` condition are binded by default.
 SOQL.of(Account.SObjectType).with(new List<SObjectField> {
     Account.Id, Account.Name
 })
-.whereAre(SOQL.Filter.with(Account.Name).likeAny('Test'))
+.whereAre(SOQL.Filter.with(Account.Name).contains('Test'))
 .asList();
 ```
 
@@ -128,7 +128,7 @@ public with sharing class ExampleController {
             .with(Account.BillingCity)
             .with(Account.BillingCountry)
             .whereAre(SOQL.FiltersGroup
-                .add(SOQL.Filter.with(Account.Name).likeAny(accountName))
+                .add(SOQL.Filter.with(Account.Name).contains(accountName))
                 .add(SOQL.Filter.recordType().equal('Partner'))
             )
             .mockId('ExampleController.getPartnerAccounts')

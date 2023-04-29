@@ -133,7 +133,7 @@ SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .whereAre(SOQL.FiltersGroup
             .add(SOQL.Filter.with(Contact.Id).equal(contactId))
-            .add(SOQL.Filter.with(Contact.Name).likeAny('John'))
+            .add(SOQL.Filter.with(Contact.Name).contains('John'))
             .conditionLogic('1 OR 2')
         )
     )

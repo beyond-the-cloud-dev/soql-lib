@@ -15,7 +15,7 @@ public with sharing class ExampleController {
             .with(Account.BillingCity)
             .with(Account.BillingCountry)
             .whereAre(SOQL.FilterGroup
-                .add(SOQL.Filter.with(Account.Name).likeAny(accountName))
+                .add(SOQL.Filter.with(Account.Name).contains(accountName))
             )
             .setLimit(1)
             .mockId('ExampleController.getAccountByName')
@@ -51,7 +51,7 @@ public with sharing class ExampleController {
             .with(Account.BillingCity)
             .with(Account.BillingCountry)
             .whereAre(SOQL.FiltersGroup
-                .add(SOQL.Filter.with(Account.Name).likeAny(accountName))
+                .add(SOQL.Filter.with(Account.Name).contains(accountName))
                 .add(SOQL.Filter.recordType().equal('Partner'))
             )
             .mockId('ExampleController.getPartnerAccounts')
@@ -90,7 +90,7 @@ public with sharing class ExampleController {
     public static List<Account> getPartnerAccountsCount(String accountName) {
         return AccountSelector.query
             .whereAre(SOQL.FiltersGroup
-                .add(SOQL.Filter.with(Account.Name).likeAny(accountName))
+                .add(SOQL.Filter.with(Account.Name).contains(accountName))
                 .add(SOQL.Filter.recordType().equal('Partner'))
             )
             .count()
@@ -128,7 +128,7 @@ public with sharing class ExampleController {
             .with(Account.BillingCity)
             .with(Account.BillingCountry)
             .whereAre(SOQL.FiltersGroup
-                .add(SOQL.Filter.with(Account.Name).likeAny(accountName))
+                .add(SOQL.Filter.with(Account.Name).contains(accountName))
                 .add(SOQL.Filter.recordType().equal('Partner'))
             )
             .mockId('ExampleController.getPartnerAccounts')

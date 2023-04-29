@@ -141,13 +141,13 @@ public inherited sharing class SOQL implements Queryable {
         Filter greaterThan(Object value);
         Filter lessThanOrEqual(Object value);
         Filter greaterThanOrEqual(Object value);
-        Filter likeAny(String value);
-        Filter likeAnyLeft(String value);
-        Filter likeAnyRight(String value);
+        Filter contains(String value);
+        Filter endsWith(String value);
+        Filter startsWith(String value);
         Filter isIn(List<Object> inList);
-        Filter isNotIn(List<Object> inList);
+        Filter notIn(List<Object> inList);
         Filter isIn(JoinQuery joinQuery); //SOQL.JoinQuery
-        Filter isNotIn(JoinQuery joinQuery); //SOQL.JoinQuery
+        Filter notIn(JoinQuery joinQuery); //SOQL.JoinQuery
     }
 
     public interface SoqlFiltersGroup { //SOQL.FiltersGroup
@@ -893,15 +893,15 @@ public inherited sharing class SOQL implements Queryable {
             return set('>=', value);
         }
 
-        public Filter likeAny(String value) {
+        public Filter contains(String value) {
             return set('LIKE', '%' + String.escapeSingleQuotes(value.trim()) + '%');
         }
 
-        public Filter likeAnyLeft(String value) {
+        public Filter endsWith(String value) {
             return set('LIKE', '%' + String.escapeSingleQuotes(value.trim()));
         }
 
-        public Filter likeAnyRight(String value) {
+        public Filter startsWith(String value) {
             return set('LIKE', String.escapeSingleQuotes(value.trim()) + '%');
         }
 
@@ -909,7 +909,7 @@ public inherited sharing class SOQL implements Queryable {
             return set('IN', inList);
         }
 
-        public Filter isNotIn(List<Object> inList) {
+        public Filter notIn(List<Object> inList) {
             return set('NOT IN', inList);
         }
 
@@ -923,7 +923,7 @@ public inherited sharing class SOQL implements Queryable {
             return set('IN', joinQuery);
         }
 
-        public Filter isNotIn(JoinQuery joinQuery) {
+        public Filter notIn(JoinQuery joinQuery) {
             return set('NOT IN', joinQuery);
         }
 

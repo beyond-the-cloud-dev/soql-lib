@@ -365,7 +365,7 @@ WHERE Id = :accountId OR Name = '%MyAccount%'
 SOQL.of(Account.SObjectType)
     .whereAre(SOQL.FiltersGroup
         .add(SOQL.Filter.with(Account.Id).equal(accountId))
-        .add(SOQL.Filter.with(Account.Name).likeAny('MyAccount'))
+        .add(SOQL.Filter.with(Account.Name).contains('MyAccount'))
         .conditionLogic('1 OR 2')
     ).asList();
 ```
