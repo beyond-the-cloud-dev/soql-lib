@@ -527,7 +527,24 @@ private class SOQLTest {
     }
 
     @IsTest
-    static void isIn() {
+    static void isInSet() {
+        //Setup
+        Set<String> names = new Set<String>{ 'Test 1', 'Test 2' };
+
+        //Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(Account.Name).isIn(names));
+
+        //Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE Name IN :v1', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(names, binding.get('v1'));
+    }
+
+    @IsTest
+    static void isInList() {
         //Setup
         List<String> names = new List<String>{ 'Test 1', 'Test 2' };
 
@@ -543,9 +560,25 @@ private class SOQLTest {
         Assert.areEqual(names, binding.get('v1'));
     }
 
+    @IsTest
+    static void isNotInSet() {
+        //Setup
+        Set<String> names = new Set<String>{ 'Test 1', 'Test 2' };
+
+        //Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(Account.Name).notIn(names));
+
+        //Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE Name NOT IN :v1', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(names, binding.get('v1'));
+    }
 
     @IsTest
-    static void notIn() {
+    static void notInList() {
         //Setup
         List<String> names = new List<String>{ 'Test 1', 'Test 2' };
 

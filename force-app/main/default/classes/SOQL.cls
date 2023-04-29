@@ -129,6 +129,7 @@ public inherited sharing class SOQL implements Queryable {
         Filter id();
         Filter recordType();
         Filter name();
+
         Filter with(SObjectField field);
         Filter with(String field);
         Filter with(String relationshipName, SObjectField field);
@@ -144,7 +145,9 @@ public inherited sharing class SOQL implements Queryable {
         Filter contains(String value);
         Filter endsWith(String value);
         Filter startsWith(String value);
+        Filter isIn(Set<String> inSet);
         Filter isIn(List<Object> inList);
+        Filter notIn(Set<String> inSet);
         Filter notIn(List<Object> inList);
         Filter isIn(JoinQuery joinQuery); //SOQL.JoinQuery
         Filter notIn(JoinQuery joinQuery); //SOQL.JoinQuery
@@ -905,8 +908,18 @@ public inherited sharing class SOQL implements Queryable {
             return set('LIKE', String.escapeSingleQuotes(value.trim()) + '%');
         }
 
+        //The Set collection type does not allow to implicitly cast Set<Object>
+        public Filter isIn(Set<String> inSet) {
+            return set('IN', inSet);
+        }
+
         public Filter isIn(List<Object> inList) {
             return set('IN', inList);
+        }
+
+        //The Set collection type does not allow to implicitly cast Set<Object>
+        public Filter notIn(Set<String> inSet) {
+            return set('NOT IN', inSet);
         }
 
         public Filter notIn(List<Object> inList) {
