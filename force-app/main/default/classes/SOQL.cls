@@ -137,6 +137,8 @@ public inherited sharing class SOQL implements Queryable {
 
         Filter isNull();
         Filter isNotNull();
+        Filter isTrue();
+        Filter isFalse();
         Filter equal(Object value);
         Filter notEqual(Object value);
         Filter lessThan(Object value);
@@ -150,6 +152,7 @@ public inherited sharing class SOQL implements Queryable {
         Filter isIn(List<Object> inList);
         Filter notIn(Set<String> inSet);
         Filter notIn(List<Object> inList);
+
         Filter isIn(JoinQuery joinQuery); //SOQL.JoinQuery
         Filter notIn(JoinQuery joinQuery); //SOQL.JoinQuery
     }
@@ -871,6 +874,14 @@ public inherited sharing class SOQL implements Queryable {
 
         public Filter isNotNull() {
             return notEqual(null);
+        }
+
+        public Filter isTrue() {
+            return equal(true);
+        }
+
+        public Filter isFalse() {
+            return equal(false);
         }
 
         public Filter equal(Object value) {

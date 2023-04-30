@@ -139,11 +139,11 @@ Filter isNull()
 
 ```sql
 SELECT Id
-FROM Contact
+FROM Account
 WHERE Account.Industry = NULL
 ```
 ```apex
-SOQL.of(Contact.SObjectType)
+SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Industry).isNull())
     .toList();
 ```
@@ -162,12 +162,58 @@ Filter isNotNull()
 
 ```sql
 SELECT Id
-FROM Contact
+FROM Account
 WHERE Account.Industry != NULL
 ```
 ```apex
-SOQL.of(Contact.SObjectType)
+SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Industry).isNotNull())
+    .toList();
+```
+
+### isTrue
+
+- `WHERE IsDeleted = TRUE`
+
+**Signature**
+
+```apex
+Filter isTrue()
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+WHERE Account.IsDeleted = TRUE
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.Filter.with(Account.IsDeleted).isTrue())
+    .toList();
+```
+
+### isFalse
+
+- `WHERE IsDeleted = FALSE`
+
+**Signature**
+
+```apex
+Filter isFalse()
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+WHERE Account.IsDeleted != NULL
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.Filter.with(Account.IsDeleted).isFalse())
     .toList();
 ```
 

@@ -598,6 +598,20 @@ private class SOQLTest {
     }
 
     @IsTest
+    static void isNull() {
+        //Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(Account.Name).isNull());
+
+        //Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE Name = :v1', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(null, binding.get('v1'));
+    }
+
+    @IsTest
     static void isNotNull() {
         //Test
         SOQL builder = SOQL.of(Account.SObjectType)
@@ -612,14 +626,28 @@ private class SOQLTest {
     }
 
     @IsTest
-    static void isNull() {
+    static void isTrue() {
         //Test
         SOQL builder = SOQL.of(Account.SObjectType)
-            .whereAre(SOQL.Filter.with(Account.Name).isNull());
+            .whereAre(SOQL.Filter.with(Account.IsDeleted).isTrue());
 
         //Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Name = :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE IsDeleted != :v1', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(null, binding.get('v1'));
+    }
+
+    @IsTest
+    static void isFalse() {
+        //Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(Account.IsDeleted).isFalse());
+
+        //Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE IsDeleted != :v1', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual(null, binding.get('v1'));
