@@ -24,9 +24,21 @@ private class SOQLTest {
     }
 
     @IsTest
-    static void countAs() {
+    static void countField() {
+        //Test
+        String soql = SOQL.of(Opportunity.SObjectType)
+            .count(Opportunity.Id)
+            .count(Opportunity.CampaignId)
+            .toString();
+
+        //Verify
+        Assert.areEqual('SELECT COUNT(Id), COUNT(CampaignId) FROM Opportunity', soql);
+    }
+
+    @IsTest
+    static void countWithAlias() {
          //Test
-        String soql = SOQL.of(Account.SObjectType).countAs(Account.Name, 'names').toString();
+        String soql = SOQL.of(Account.SObjectType).count(Account.Name, 'names').toString();
 
          //Verify
         Assert.areEqual('SELECT COUNT(Name) names FROM Account', soql);
@@ -774,7 +786,7 @@ private class SOQLTest {
         //Test
         String soql = SOQL.of(Lead.SObjectType)
             .with(Lead.LeadSource)
-            .countAs(Lead.Name, 'cnt')
+            .count(Lead.Name, 'cnt')
             .groupByRollup(Lead.LeadSource)
             .toString();
 
@@ -1155,7 +1167,7 @@ private class SOQLTest {
         insert accounts;
 
         //Test
-        List<AggregateResult> result = SOQL.of(Account.SObjectType).countAs(Account.Name, 'names').toAggregated();
+        List<AggregateResult> result = SOQL.of(Account.SObjectType).count(Account.Name, 'names').toAggregated();
 
         //Verify
         Assert.areEqual(accounts.size(), result[0].get('names'));

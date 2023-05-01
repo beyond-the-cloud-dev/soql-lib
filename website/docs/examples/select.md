@@ -100,7 +100,7 @@ public with sharing class MyController {
     }
 
     public static Integer getUniqueAccountNameAmount() {
-        return AccountSelector.query.countAs(Account.Name, 'names').toAggregated()[0].names;
+        return AccountSelector.query.count(Account.Name, 'names').toAggregated()[0].names;
     }
 }
 ```

@@ -49,7 +49,8 @@ public inherited sharing class SOQL implements Queryable {
         SOQL with(SubQuery subQuery); //SOQL.SubQuery
 
         SOQL count();
-        SOQL countAs(SObjectField field, String alias);
+        SOQL count(SObjectField field);
+        SOQL count(SObjectField field, String alias);
 
         SOQL delegatedScope();
         SOQL mineScope();
@@ -80,8 +81,8 @@ public inherited sharing class SOQL implements Queryable {
 
         SOQL systemMode();
 
-        SOQL withSharing();
-        SOQL withoutSharing();
+        SOQL withSharing(); //Works only when .systemMode() enabled
+        SOQL withoutSharing(); //Works only when .systemMode() enabled
 
         SOQL mockId(String id);
 
@@ -99,6 +100,7 @@ public inherited sharing class SOQL implements Queryable {
         Database.QueryLocator toQueryLocator();
 
         SOQL byId(Id recordId);
+        SOQL byId(SObject record);
         SOQL byIds(Set<Id> recordIds);
         SOQL byIds(List<Id> recordIds);
         SOQL byIds(List<SObject> records);
@@ -209,7 +211,7 @@ public inherited sharing class SOQL implements Queryable {
     // Fields
 
     public SOQL with(SObjectField field) {
-        builder.fields.retrive(field);
+        builder.fields.with(field);
         return this;
     }
 
@@ -219,17 +221,17 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public SOQL with(List<SObjectField> fields) {
-        builder.fields.retrive(fields);
+        builder.fields.with(fields);
         return this;
     }
 
     public SOQL with(String fields) {
-        builder.fields.retrive(fields);
+        builder.fields.with(fields);
         return this;
     }
 
     public SOQL with(String relationshipName, List<SObjectField> fields) {
-        builder.fields.retrive(relationshipName, fields);
+        builder.fields.with(relationshipName, fields);
         return this;
     }
 
@@ -243,7 +245,12 @@ public inherited sharing class SOQL implements Queryable {
         return this;
     }
 
-    public SOQL countAs(SObjectField field, String alias) {
+    public SOQL count(SObjectField field) {
+        builder.fields.count(field);
+        return this;
+    }
+
+    public SOQL count(SObjectField field, String alias) {
         builder.fields.count(field, alias);
         return this;
     }
@@ -362,12 +369,12 @@ public inherited sharing class SOQL implements Queryable {
         return this;
     }
 
-    public SOQL withSharing() { //Works only when .systemMode() enabled
+    public SOQL withSharing() {
         executor.withSharing();
         return this;
     }
 
-    public SOQL withoutSharing() { //Works only when .systemMode() enabled
+    public SOQL withoutSharing() {
         executor.withoutSharing();
         return this;
     }
@@ -413,6 +420,8 @@ public inherited sharing class SOQL implements Queryable {
     public Database.QueryLocator toQueryLocator() {
         return executor.toQueryLocator(builder.build(), binder.build());
     }
+
+    // Predefined
 
     public SOQL byId(Id recordId) {
         return whereAre(Filter.id().equal(recordId));
@@ -557,33 +566,37 @@ public inherited sharing class SOQL implements Queryable {
             queryFields.add('COUNT()');
         }
 
+        public void count(SObjectField field) {
+            queryFields.add('COUNT(' + field.getDescribe().getName() + ')');
+        }
+
         public void count(SObjectField field, String alias) {
             queryFields.add('COUNT(' + field.getDescribe().getName() + ') ' + alias);
         }
 
-        public void retrive(String fields) {
+        public void with(String fields) {
             for (String field : fields.deleteWhitespace().split(',')) {
                 queryFields.add(field);
             }
         }
 
-        public void retrive(List<SObjectField> fields) {
+        public void with(List<SObjectField> fields) {
             for (SObjectField field : fields) {
-                retrive(field);
+                with(field);
             }
         }
 
-        public void retrive(SObjectField field) {
+        public void with(SObjectField field) {
             queryFields.add(field.getDescribe().getName());
         }
 
-        public void retrive(String relationshipPath, List<SObjectField> fields) {
+        public void with(String relationshipPath, List<SObjectField> fields) {
             for (SObjectField field : fields) {
-                retrive(relationshipPath, field);
+                with(relationshipPath, field);
             }
         }
 
-        public void retrive(String relationshipPath, SObjectField field) {
+        public void with(String relationshipPath, SObjectField field) {
             queryFields.add(relationshipPath + '.' + field.getDescribe().getName());
         }
 
@@ -609,17 +622,17 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public SubQuery with(SObjectField field) {
-            builder.fields.retrive(field);
+            builder.fields.with(field);
             return this;
         }
 
         public SubQuery with(List<SObjectField> fields) {
-            builder.fields.retrive(fields);
+            builder.fields.with(fields);
             return this;
         }
 
         public SubQuery with(String relationshipName, List<SObjectField> fields) {
-            builder.fields.retrive(relationshipName, fields);
+            builder.fields.with(relationshipName, fields);
             return this;
         }
 
@@ -983,7 +996,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public JoinQuery with(SObjectField field) {
-            builder.fields.retrive(field);
+            builder.fields.with(field);
             return this;
         }
 

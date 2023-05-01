@@ -36,7 +36,7 @@ public with sharing class MyController {
 
     public static List<AggregateResult> getUniqueAccountNameAmount() {
         return AccountSelector.query
-            .countAs(Account.Name, 'names')
+            .count(Account.Name, 'names')
             .toAggregated();
     }
 

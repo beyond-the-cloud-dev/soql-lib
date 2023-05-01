@@ -175,16 +175,33 @@ SOQL.of(Account.SObjectType)
     .toInteger();
 ```
 
-### countAs
-
-[COUNT(fieldName)](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_count.htm#count_section_title)
-
-> `COUNT(fieldName)` returns the number of rows that match the filtering conditions and have a non-null value for fieldName.
+### count field
 
 **Signature**
 
 ```apex
-countAs(SObjectField field, String alias)
+count(SObjectField field)
+```
+
+**Example**
+
+```sql
+SELECT COUNT(Id), COUNT(CampaignId)
+FROM Opportunity
+```
+```apex
+ SOQL.of(Opportunity.SObjectType)
+    .count(Opportunity.Id)
+    .count(Opportunity.CampaignId)
+    .toAggregated();
+```
+
+### count with alias
+
+**Signature**
+
+```apex
+count(SObjectField field, String alias)
 ```
 
 **Example**
@@ -194,7 +211,7 @@ SELECT COUNT(Name) names FROM Account
 ```
 ```apex
 SOQL.of(Account.SObjectType)
-    .countAs(Account.Name, 'names')
+    .count(Account.Name, 'names')
     .toAggregated();
 ```
 
@@ -438,7 +455,7 @@ GROUP BY ROLLUP(LeadSource)
 ```apex
 QS.of(Lead.SObjectType)
     .with(Lead.LeadSource)
-    .countAs(Lead.Name, 'cnt')
+    .count(Lead.Name, 'cnt')
     .groupByRollup(Lead.LeadSource)
     .toAggregated();
 ```
