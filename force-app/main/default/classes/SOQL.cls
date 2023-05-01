@@ -46,7 +46,7 @@ public inherited sharing class SOQL implements Queryable {
         SOQL with(List<SObjectField> fields);
         SOQL with(String fields);
         SOQL with(String relationshipName, List<SObjectField> fields);
-        SOQL with(SubQuery subQuery); //SOQL.SubQuery
+        SOQL with(SubQuery subQuery); // SOQL.SubQuery
 
         SOQL count();
         SOQL count(SObjectField field);
@@ -59,8 +59,8 @@ public inherited sharing class SOQL implements Queryable {
         SOQL myTeamTerritoryScope();
         SOQL teamScope();
 
-        SOQL whereAre(FilterClause conditions); //SOQL.FiltersGroup or SOQL.Filter
-        SOQL whereAre(String conditions); //conditions to evaluate
+        SOQL whereAre(FilterClause conditions); // SOQL.FiltersGroup or SOQL.Filter
+        SOQL whereAre(String conditions); // conditions to evaluate
 
         SOQL groupBy(SObjectField field);
         SOQL groupByRollup(SObjectField field);
@@ -81,8 +81,8 @@ public inherited sharing class SOQL implements Queryable {
 
         SOQL systemMode();
 
-        SOQL withSharing(); //Works only when .systemMode() enabled
-        SOQL withoutSharing(); //Works only when .systemMode() enabled
+        SOQL withSharing(); // Works only when .systemMode() enabled
+        SOQL withoutSharing(); // Works only when .systemMode() enabled
 
         SOQL mockId(String id);
 
@@ -106,14 +106,14 @@ public inherited sharing class SOQL implements Queryable {
         SOQL byIds(List<SObject> records);
     }
 
-    public interface SoqlSubQuery { //SOQL.SubQuery
+    public interface SoqlSubQuery { // SOQL.SubQuery
         SubQuery of(String ofObject);
 
         SubQuery with(SObjectField field);
         SubQuery with(List<SObjectField> fields);
         SubQuery with(String relationshipName, List<SObjectField> fields);
 
-        SubQuery whereAre(FilterClause conditions); //SOQL.FiltersGroup or SOQL.Filter
+        SubQuery whereAre(FilterClause conditions); // SOQL.FiltersGroup or SOQL.Filter
 
         SubQuery orderBy(SObjectField field);
         SubQuery orderBy(String relationshipName, SObjectField field);
@@ -128,7 +128,7 @@ public inherited sharing class SOQL implements Queryable {
         SubQuery forView();
     }
 
-    public interface SoqlFilter { //SOQL.Filter
+    public interface SoqlFilter { // SOQL.Filter
         Filter id();
         Filter recordType();
         Filter name();
@@ -137,39 +137,39 @@ public inherited sharing class SOQL implements Queryable {
         Filter with(String field);
         Filter with(String relationshipName, SObjectField field);
 
-        Filter isNull();
-        Filter isNotNull();
-        Filter isTrue();
-        Filter isFalse();
-        Filter equal(Object value);
-        Filter notEqual(Object value);
-        Filter lessThan(Object value);
-        Filter greaterThan(Object value);
-        Filter lessThanOrEqual(Object value);
-        Filter greaterThanOrEqual(Object value);
-        Filter contains(String value);
-        Filter endsWith(String value);
-        Filter startsWith(String value);
-        Filter isIn(Set<String> inSet);
-        Filter isIn(List<Object> inList);
-        Filter notIn(Set<String> inSet);
-        Filter notIn(List<Object> inList);
+        Filter isNull(); // = NULL
+        Filter isNotNull(); // != NULL
+        Filter isTrue(); // = TRUE
+        Filter isFalse(); // = FALSE
+        Filter equal(Object value); // = :value
+        Filter notEqual(Object value); // != :value
+        Filter lessThan(Object value); // < :value
+        Filter greaterThan(Object value); // > :value
+        Filter lessThanOrEqual(Object value); // <= :value
+        Filter greaterThanOrEqual(Object value); // >= :value
+        Filter contains(String value); // = :'%' + value + '%'
+        Filter endsWith(String value); // = :'%' + value
+        Filter startsWith(String value); // = :value + '%'
+        Filter isIn(Set<String> inSet); // IN :inSet
+        Filter isIn(List<Object> inList); // IN :inList
+        Filter notIn(Set<String> inSet); // NOT IN :inSet
+        Filter notIn(List<Object> inList); // NOT IN :inList
 
-        Filter isIn(JoinQuery joinQuery); //SOQL.JoinQuery
-        Filter notIn(JoinQuery joinQuery); //SOQL.JoinQuery
+        Filter isIn(JoinQuery joinQuery); // SOQL.JoinQuery
+        Filter notIn(JoinQuery joinQuery); // SOQL.JoinQuery
     }
 
-    public interface SoqlFiltersGroup { //SOQL.FiltersGroup
-        FiltersGroup add(FilterClause condition); //SOQL.Filter or SOQL.FiltersGroup
+    public interface SoqlFiltersGroup { // SOQL.FiltersGroup
+        FiltersGroup add(FilterClause condition); // SOQL.Filter or SOQL.FiltersGroup
         FiltersGroup conditionLogic(String order);
     }
 
-    public interface SoqlJoin { //SOQL.InnerJoin
+    public interface SoqlJoin { // SOQL.InnerJoin
         JoinQuery of(SObjectType ofObject);
 
         JoinQuery with(SObjectField field);
 
-        JoinQuery whereAre(FilterClause conditions); //SOQL.Filter or SOQL.FiltersGroup
+        JoinQuery whereAre(FilterClause conditions); // SOQL.Filter or SOQL.FiltersGroup
     }
 
     @TestVisible
@@ -207,8 +207,6 @@ public inherited sharing class SOQL implements Queryable {
         builder = new QueryBuilder(ofObject);
         executor = new Executor(ofObject);
     }
-
-    // Fields
 
     public SOQL with(SObjectField field) {
         builder.fields.with(field);
@@ -305,7 +303,7 @@ public inherited sharing class SOQL implements Queryable {
         return this;
     }
 
-    public SOQL orderBy(SObjectField field) { //Order By - ASC, NULLS FIRST by default
+    public SOQL orderBy(SObjectField field) { // Order By - ASC, NULLS FIRST by default
         builder.orderBys.add(field);
         return this;
     }
@@ -355,7 +353,7 @@ public inherited sharing class SOQL implements Queryable {
         return this;
     }
 
-    public SOQL systemMode() { //User Mode by default
+    public SOQL systemMode() { // User Mode by default
         executor.systemMode();
         return this;
     }
@@ -420,8 +418,6 @@ public inherited sharing class SOQL implements Queryable {
     public Database.QueryLocator toQueryLocator() {
         return executor.toQueryLocator(builder.build(), binder.build());
     }
-
-    // Predefined
 
     public SOQL byId(Id recordId) {
         return whereAre(Filter.id().equal(recordId));
@@ -935,7 +931,7 @@ public inherited sharing class SOQL implements Queryable {
             return set('LIKE', String.escapeSingleQuotes(value.trim()) + '%');
         }
 
-        //The Set collection type does not allow to implicitly cast Set<Object>
+        // The Set collection type does not allow to implicitly cast Set<Object>
         public Filter isIn(Set<String> inSet) {
             return set('IN', inSet);
         }
@@ -944,7 +940,7 @@ public inherited sharing class SOQL implements Queryable {
             return set('IN', inList);
         }
 
-        //The Set collection type does not allow to implicitly cast Set<Object>
+        // The Set collection type does not allow to implicitly cast Set<Object>
         public Filter notIn(Set<String> inSet) {
             return set('NOT IN', inSet);
         }
@@ -1198,7 +1194,7 @@ public inherited sharing class SOQL implements Queryable {
         private SObjectType ofObject;
 
         private SharingLevel sharingMode = SharingLevel.INHERITED;
-        private AccessLevel accessMode = AccessLevel.USER_MODE; //The object permissions, field-level security, sharing rules are enforced.
+        private AccessLevel accessMode = AccessLevel.USER_MODE; // The object permissions, field-level security, sharing rules are enforced.
         private AccessType accessType;
 
         private String mockId;
@@ -1227,7 +1223,7 @@ public inherited sharing class SOQL implements Queryable {
             accessType = type;
         }
 
-        public void systemMode() { //The object permissions, field-level permissions are ignored, sharing rules are controlled by the sharingMode.
+        public void systemMode() { // The object permissions, field-level permissions are ignored, sharing rules are controlled by the sharingMode.
             accessMode = AccessLevel.SYSTEM_MODE;
         }
 
@@ -1243,7 +1239,7 @@ public inherited sharing class SOQL implements Queryable {
             try {
                 return toList(query, binding)[0];
             } catch (ListException e) {
-                return null; //List index out of bounds: 0
+                return null; // List index out of bounds: 0
             }
         }
 
