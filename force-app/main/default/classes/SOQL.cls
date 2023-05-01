@@ -81,8 +81,8 @@ public inherited sharing class SOQL implements Queryable {
 
         SOQL systemMode();
 
-        SOQL withSharing(); // Works only when .systemMode() enabled
-        SOQL withoutSharing(); // Works only when .systemMode() enabled
+        SOQL withSharing(); // Works only with .systemMode()
+        SOQL withoutSharing(); // Works only with .systemMode()
 
         SOQL mockId(String id);
 
@@ -147,9 +147,10 @@ public inherited sharing class SOQL implements Queryable {
         Filter greaterThan(Object value); // > :value
         Filter lessThanOrEqual(Object value); // <= :value
         Filter greaterThanOrEqual(Object value); // >= :value
-        Filter contains(String value); // = :'%' + value + '%'
-        Filter endsWith(String value); // = :'%' + value
-        Filter startsWith(String value); // = :value + '%'
+        Filter contains(List<String> values); // LIKE :values
+        Filter contains(String value); // LIKE :'%' + value + '%'
+        Filter endsWith(String value); // LIKE :'%' + value
+        Filter startsWith(String value); // LIKE :value + '%'
         Filter isIn(Set<String> inSet); // IN :inSet
         Filter isIn(List<Object> inList); // IN :inList
         Filter notIn(Set<String> inSet); // NOT IN :inSet
@@ -918,6 +919,10 @@ public inherited sharing class SOQL implements Queryable {
 
         public Filter greaterThanOrEqual(Object value) {
             return set('>=', value);
+        }
+
+        public Filter contains(List<String> values) {
+            return set('LIKE', values);
         }
 
         public Filter contains(String value) {

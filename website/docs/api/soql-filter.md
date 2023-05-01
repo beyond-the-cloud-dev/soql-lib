@@ -380,6 +380,31 @@ SOQL.of(Contact.SObjectType)
     .toList();
 ```
 
+### contains values
+
+- `WHERE Name LIKE ('My', 'Acc')`
+
+**Signature**
+
+```apex
+Filter contains(List<String> values)
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+WHERE Name LIKE ('My', 'Acc')
+```
+```apex
+List<String> names = new List<String>{ 'Acc', 'My' };
+
+SOQL.of(Contact.SObjectType)
+    .whereAre(SOQL.Filter.with(Account.Name).contains(names))
+    .toList();
+```
+
 ### contains
 
 - `WHERE Name LIKE '%My%'`

@@ -511,6 +511,23 @@ private class SOQLTest {
     }
 
     @IsTest
+    static void containsValues() {
+        // Setup
+        List<String> names = new List<String>{ 'Acc', 'My' };
+
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(Account.Name).contains(names));
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(names, binding.get('v1'));
+    }
+
+    @IsTest
     static void endsWith() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
