@@ -873,7 +873,7 @@ private class SOQLTest {
     }
 
     @IsTest
-    static void getById() {
+    static void byId() {
         //Test
         SOQL builder = SOQL.of(Account.SObjectType).byId(FAKE_ACCOUNT_ID);
 
@@ -883,6 +883,22 @@ private class SOQLTest {
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual(FAKE_ACCOUNT_ID, binding.get('v1'));
+    }
+
+    @IsTest
+    static void byIdSObject() {
+        //Setup
+        List<Case> cases = insertCases();
+
+        //Test
+        SOQL builder = SOQL.of(Case.SObjectType).byId(cases[0]);
+
+        //Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Case WHERE Id = :v1', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(cases[0], binding.get('v1'));
     }
 
     @IsTest

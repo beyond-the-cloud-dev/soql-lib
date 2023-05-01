@@ -91,10 +91,10 @@ public inherited sharing class SOQL implements Queryable {
         SOQL stripInaccessible(AccessType accessType);
 
         String toString();
+        Integer toInteger();
         SObject toObject();
         List<SObject> toList();
         List<AggregateResult> toAggregated();
-        Integer toInteger();
         Map<Id, SObject> toMap();
         Database.QueryLocator toQueryLocator();
 
@@ -382,12 +382,16 @@ public inherited sharing class SOQL implements Queryable {
         return this;
     }
 
+    public Map<String, Object> binding() {
+        return binder.build();
+    }
+
     public override String toString() {
         return builder.build();
     }
 
-    public Map<String, Object> binding() {
-        return binder.build();
+    public Integer toInteger() {
+        return executor.toInteger(builder.build(), binder.build());
     }
 
     public SObject toObject() {
@@ -402,10 +406,6 @@ public inherited sharing class SOQL implements Queryable {
         return (List<AggregateResult>) toList();
     }
 
-    public Integer toInteger() {
-        return executor.toInteger(builder.build(), binder.build());
-    }
-
     public Map<Id, SObject> toMap() {
         return new Map<Id, SObject>(toList());
     }
@@ -416,6 +416,10 @@ public inherited sharing class SOQL implements Queryable {
 
     public SOQL byId(Id recordId) {
         return whereAre(Filter.id().equal(recordId));
+    }
+
+    public SOQL byId(SObject record) {
+        return whereAre(Filter.id().equal(record));
     }
 
     public SOQL byIds(Set<Id> recordIds) {
@@ -1231,10 +1235,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public Integer toInteger(String query, Map<String, Object> binding) {
-            if (withPreview) {
-                previewSoql(query);
-                previewBinding(binding);
-            }
+            preview(query, binding);
 
             if (mock.hasCountMock(mockId)) {
                 return mock.getCountMock(mockId);
@@ -1244,10 +1245,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public List<SObject> toList(String query, Map<String, Object> binding) {
-            if (withPreview) {
-                previewSoql(query);
-                previewBinding(binding);
-            }
+            preview(query, binding);
 
             if (mock.hasMock(mockId)) {
                 return mock.getMocks(mockId);
@@ -1271,12 +1269,11 @@ public inherited sharing class SOQL implements Queryable {
             return Database.getQueryLocatorWithBinds(query, binding, accessMode);
         }
 
-        private void previewSoql(String query) {
-            System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Preview ============\n' + query + '\n=======================================\n');
-        }
-
-        private void previewBinding(Map<String, Object> binding) {
-            System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Binding ============\n' + JSON.serializePretty(binding) + '\n=======================================\n');
+        private void preview(String query, Map<String, Object> binding) {
+            if (withPreview) {
+                System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Preview ============\n' + query + '\n=======================================\n');
+                System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Binding ============\n' + JSON.serializePretty(binding) + '\n=======================================\n');
+            }
         }
     }
 

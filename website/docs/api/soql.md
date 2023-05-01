@@ -1011,6 +1011,10 @@ Add additional fields with [`.with`](#select).
 SOQL byId(Id recordId)
 ```
 
+```apex
+SOQL byId(SObject record)
+```
+
 **Example**
 
 ```sql
@@ -1022,6 +1026,12 @@ WHERE Id = '1234'
 SOQL.of(Account.SObjectType)
     .byId('1234')
     .toObject();
+```
+```apex
+Account account = [SELECT Id FROM Account LIMIT 1];
+SOQL.of(Account.SObjectType)
+    .byId(account)
+    .toList();
 ```
 
 ### byIds
