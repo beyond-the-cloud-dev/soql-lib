@@ -383,7 +383,8 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public SOQL preview() {
-        executor.preview();
+        System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Preview ============\n' + toString() + '\n=======================================\n');
+        System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Binding ============\n' + JSON.serializePretty(binding()) + '\n=======================================\n');
         return this;
     }
 
@@ -1198,7 +1199,6 @@ public inherited sharing class SOQL implements Queryable {
         private AccessType accessType;
 
         private String mockId;
-        private Boolean withPreview = false;
 
         @SuppressWarnings('PMD.FieldNamingConventions')
         private final Map<SharingLevel, DatabaseQuery> MODE_TO_EXECUTOR = new Map<SharingLevel, DatabaseQuery>{
@@ -1231,10 +1231,6 @@ public inherited sharing class SOQL implements Queryable {
             mockId = id;
         }
 
-        public void preview() {
-            withPreview = true;
-        }
-
         public SObject toObject(String query, Map<String, Object> binding) {
             try {
                 return toList(query, binding)[0];
@@ -1244,8 +1240,6 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public Integer toInteger(String query, Map<String, Object> binding) {
-            preview(query, binding);
-
             if (mock.hasCountMock(mockId)) {
                 return mock.getCountMock(mockId);
             }
@@ -1254,8 +1248,6 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public List<SObject> toList(String query, Map<String, Object> binding) {
-            preview(query, binding);
-
             if (mock.hasMock(mockId)) {
                 return mock.getMocks(mockId);
             }
@@ -1276,13 +1268,6 @@ public inherited sharing class SOQL implements Queryable {
 
         public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding) {
             return Database.getQueryLocatorWithBinds(query, binding, accessMode);
-        }
-
-        private void preview(String query, Map<String, Object> binding) {
-            if (withPreview) {
-                System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Preview ============\n' + query + '\n=======================================\n');
-                System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Binding ============\n' + JSON.serializePretty(binding) + '\n=======================================\n');
-            }
         }
     }
 
