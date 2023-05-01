@@ -633,10 +633,10 @@ private class SOQLTest {
 
         //Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE IsDeleted != :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE IsDeleted = :v1', soql);
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(null, binding.get('v1'));
+        Assert.isTrue((Boolean) binding.get('v1'));
     }
 
     @IsTest
@@ -647,10 +647,10 @@ private class SOQLTest {
 
         //Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE IsDeleted != :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE IsDeleted = :v1', soql);
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(null, binding.get('v1'));
+        Assert.isFalse((Boolean) binding.get('v1'));
     }
 
     @IsTest

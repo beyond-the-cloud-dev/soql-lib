@@ -240,13 +240,11 @@ public inherited sharing class SOQL implements Queryable {
 
     public SOQL count() {
         builder.fields.count();
-        executor.countQuery();
         return this;
     }
 
     public SOQL countAs(SObjectField field, String alias) {
         builder.fields.count(field, alias);
-        executor.countQuery();
         return this;
     }
 
@@ -1188,7 +1186,6 @@ public inherited sharing class SOQL implements Queryable {
 
         private String mockId;
         private Boolean withPreview = false;
-        private Boolean isCountQuery = false;
 
         @SuppressWarnings('PMD.FieldNamingConventions')
         private final Map<SharingLevel, DatabaseQuery> MODE_TO_EXECUTOR = new Map<SharingLevel, DatabaseQuery>{
@@ -1219,10 +1216,6 @@ public inherited sharing class SOQL implements Queryable {
 
         public void mockId(String id) {
             mockId = id;
-        }
-
-        public void countQuery() {
-            isCountQuery = true;
         }
 
         public void preview() {
