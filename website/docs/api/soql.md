@@ -363,7 +363,7 @@ SOQL.of(Account.SObjectType)
 
 > The condition expression in a `WHERE` clause of a SOQL query includes one or more field expressions. You can specify multiple field expressions in a condition expression by using logical operators.
 
-For more details check [`SOQL.FiltersGroup`](soql-filters-group.md) and [`SOQL.Filter`](soql-filter.md)
+For more details check [`SOQL.FilterGroup`](soql-filters-group.md) and [`SOQL.Filter`](soql-filter.md)
 
 **Signature**
 
@@ -380,7 +380,7 @@ WHERE Id = :accountId OR Name = '%MyAccount%'
 ```
 ```apex
 SOQL.of(Account.SObjectType)
-    .whereAre(SOQL.FiltersGroup
+    .whereAre(SOQL.FilterGroup
         .add(SOQL.Filter.with(Account.Id).equal(accountId))
         .add(SOQL.Filter.with(Account.Name).contains('MyAccount'))
         .conditionLogic('1 OR 2')

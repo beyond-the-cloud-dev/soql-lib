@@ -29,7 +29,7 @@ public with sharing class MyController {
                 Account.BillingCountry,
                 Account.BillingCountryCode
             })
-            .whereAre(SOQL.FiltersGroup
+            .whereAre(SOQL.FilterGroup
                 .add(SOQL.Filter.with(Account.Id).equal('0013V00000WNCw4QAH'))
                 .add(SOQL.Filter.with(Account.Name).contains('Test'))
                 .conditionLogic('1 OR 2')

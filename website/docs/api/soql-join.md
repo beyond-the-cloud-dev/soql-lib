@@ -67,12 +67,12 @@ SOQL.of(Account.SObjectType)
 
 > The condition expression in a `WHERE` clause of a SOQL query includes one or more field expressions. You can specify multiple field expressions in a condition expression by using logical operators.
 
-For more details check [`SOQL.FiltersGroup`](soql-filters-group.md) and [`SOQL.Filter`](soql-filter.md)
+For more details check [`SOQL.FilterGroup`](soql-filters-group.md) and [`SOQL.Filter`](soql-filter.md)
 
 **Signature**
 
 ```apex
-static JoinQuery whereAre(FiltersGroup conditions)
+static JoinQuery whereAre(FilterGroup conditions)
 ```
 
 **Example**

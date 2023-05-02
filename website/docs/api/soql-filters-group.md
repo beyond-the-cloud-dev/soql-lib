@@ -2,19 +2,19 @@
 sidebar_position: 4
 ---
 
-# FiltersGroup
+# FilterGroup
 
 Create group of conditions.
 
 ## add
 
 Allows to add multiple conditions.
-Add a [`SOQL.Filter`](soql-filter.md) or [`SOQL.FiltersGroup`](soql-filters-group.md).
+Add a [`SOQL.Filter`](soql-filter.md) or [`SOQL.FilterGroup`](soql-filters-group.md).
 
 **Signature**
 
 ```apex
-FiltersGroup add(FilterClause condition)
+FilterGroup add(FilterClause condition)
 ```
 
 **Example**
@@ -26,7 +26,7 @@ WHERE Name = 'My Account' AND NumberOfEmployees >= 10
 ```
 ```apex
 SOQL.of(Account.SObjectType)
-    .whereAre(SOQL.FiltersGroup
+    .whereAre(SOQL.FilterGroup
         .add(SOQL.Filter.with(Account.Name).equal('My Account'))
         .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10))
     ).toList();
@@ -34,13 +34,13 @@ SOQL.of(Account.SObjectType)
 
 ```apex
 // build conditions on fly
-FiltersGroup group = SOQL.FiltersGroup
+FilterGroup group = SOQL.FilterGroup
         .add(SOQL.Filter.with(Account.Name).equal('My Account'))
         .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10))
         .conditionLogic('1 OR 2');
 
 SOQL.of(Account.SObjectType)
-    .whereAre(SOQL.FiltersGroup
+    .whereAre(SOQL.FilterGroup
         .add(SOQL.Filter.with(Account.Industry).equal('IT'))
         .add(group)
     ).toList();
@@ -54,7 +54,7 @@ When not specify all conditions will be with `AND`.
 **Signature**
 
 ```apex
-FiltersGroup conditionLogic(String order)
+FilterGroup conditionLogic(String order)
 ```
 
 **Example**
@@ -67,7 +67,7 @@ OR (Name = 'My Account' AND Industry = 'IT')
 ```
 ```apex
 SOQL.of(Account.SObjectType)
-    .whereAre(SOQL.FiltersGroup
+    .whereAre(SOQL.FilterGroup
         .add(SOQL.Filter.with(Account.Name).equal('My Account'))
         .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10))
         .add(SOQL.Filter.with(Account.Industry).equal('IT'))

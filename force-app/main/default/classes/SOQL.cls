@@ -20,9 +20,9 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public static FiltersGroup FiltersGroup {
+    public static FilterGroup FilterGroup { // A group to nest more filters
         get {
-            return new FiltersGroup(false);
+            return new FilterGroup(false);
         }
     }
 
@@ -59,7 +59,7 @@ public inherited sharing class SOQL implements Queryable {
         SOQL myTeamTerritoryScope();
         SOQL teamScope();
 
-        SOQL whereAre(FilterClause conditions); // SOQL.FiltersGroup or SOQL.Filter
+        SOQL whereAre(FilterClause conditions); // SOQL.FilterGroup or SOQL.Filter
         SOQL whereAre(String conditions); // conditions to evaluate
 
         SOQL groupBy(SObjectField field);
@@ -113,7 +113,7 @@ public inherited sharing class SOQL implements Queryable {
         SubQuery with(List<SObjectField> fields);
         SubQuery with(String relationshipName, List<SObjectField> fields);
 
-        SubQuery whereAre(FilterClause conditions); // SOQL.FiltersGroup or SOQL.Filter
+        SubQuery whereAre(FilterClause conditions); // SOQL.FilterGroup or SOQL.Filter
 
         SubQuery orderBy(SObjectField field);
         SubQuery orderBy(String relationshipName, SObjectField field);
@@ -160,9 +160,9 @@ public inherited sharing class SOQL implements Queryable {
         Filter notIn(JoinQuery joinQuery); // SOQL.JoinQuery
     }
 
-    public interface SoqlFiltersGroup { // SOQL.FiltersGroup
-        FiltersGroup add(FilterClause condition); // SOQL.Filter or SOQL.FiltersGroup
-        FiltersGroup conditionLogic(String order);
+    public interface SoqlFiltersGroup { // SOQL.FilterGroup
+        FilterGroup add(FilterClause condition); // SOQL.Filter or SOQL.FilterGroup
+        FilterGroup conditionLogic(String order);
     }
 
     public interface SoqlJoin { // SOQL.InnerJoin
@@ -170,7 +170,7 @@ public inherited sharing class SOQL implements Queryable {
 
         JoinQuery with(SObjectField field);
 
-        JoinQuery whereAre(FilterClause conditions); // SOQL.Filter or SOQL.FiltersGroup
+        JoinQuery whereAre(FilterClause conditions); // SOQL.Filter or SOQL.FilterGroup
     }
 
     @TestVisible
@@ -483,12 +483,12 @@ public inherited sharing class SOQL implements Queryable {
             }
         }
 
-        public FiltersGroup conditions {
+        public FilterGroup conditions {
             get {
                 if (clauses[4] == null) {
-                    clauses.set(4, new FiltersGroup(true));
+                    clauses.set(4, new FilterGroup(true));
                 }
-                return (FiltersGroup) clauses[4];
+                return (FilterGroup) clauses[4];
             }
         }
 
@@ -748,17 +748,17 @@ public inherited sharing class SOQL implements Queryable {
         String build();
     }
 
-    public class FiltersGroup implements FilterClause, QueryClause, SoqlFiltersGroup {
+    public class FilterGroup implements FilterClause, QueryClause, SoqlFiltersGroup {
         private List<FilterClause> queryConditions = new List<FilterClause>();
         private String stringConditions;
         private String order = '';
         private Boolean isMain = false;
 
-        public FiltersGroup(Boolean isMain) {
+        public FilterGroup(Boolean isMain) {
             this.isMain = isMain;
         }
 
-        public FiltersGroup add(FilterClause condition) {
+        public FilterGroup add(FilterClause condition) {
             queryConditions.add(condition);
             return this;
         }
@@ -770,7 +770,7 @@ public inherited sharing class SOQL implements Queryable {
             stringConditions = String.escapeSingleQuotes(conditions);
         }
 
-        public FiltersGroup conditionLogic(String order) {
+        public FilterGroup conditionLogic(String order) {
             this.order = order;
             return this;
         }

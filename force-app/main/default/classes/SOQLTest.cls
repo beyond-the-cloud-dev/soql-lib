@@ -686,7 +686,7 @@ private class SOQLTest {
     static void conditionsGroup() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
-            .whereAre(SOQL.FiltersGroup
+            .whereAre(SOQL.FilterGroup
                 .add(SOQL.Filter.with(Account.Name).equal('Test'))
                 .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
             );
@@ -704,10 +704,10 @@ private class SOQLTest {
     static void nestedConditionsGroup() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
-            .whereAre(SOQL.FiltersGroup
+            .whereAre(SOQL.FilterGroup
                 .add(SOQL.Filter.with(Account.Name).equal('Test'))
                 .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
-                .add(SOQL.FiltersGroup
+                .add(SOQL.FilterGroup
                     .add(SOQL.Filter.with(Account.Name).equal('Test 2'))
                     .add(SOQL.Filter.with(Account.BillingCity).equal('Warsaw'))
                     .conditionLogic('1 OR 2')

@@ -111,7 +111,7 @@ SOQL.of(Account.SObjectType)
 
 ## whereAre
 
-For more details check [`SOQL.FiltersGroup`](soql-filters-group.md) and [`SOQL.Filter`](soql-filter.md)
+For more details check [`SOQL.FilterGroup`](soql-filters-group.md) and [`SOQL.Filter`](soql-filter.md)
 
 **Signature**
 
@@ -131,7 +131,7 @@ SELECT Id, (
 ```apex
 SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
-        .whereAre(SOQL.FiltersGroup
+        .whereAre(SOQL.FilterGroup
             .add(SOQL.Filter.with(Contact.Id).equal(contactId))
             .add(SOQL.Filter.with(Contact.Name).contains('John'))
             .conditionLogic('1 OR 2')

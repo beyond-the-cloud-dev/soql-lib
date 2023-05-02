@@ -29,7 +29,7 @@ public with sharing class MyController {
 
     public static List<Account> getByIdOrName(Id accountId, String accountName) {
         return AccountSelector.query
-                .whereAre(SOQL.FiltersGroup
+                .whereAre(SOQL.FilterGroup
                     .add(SOQL.Filter.id().equal(accountId))
                     .add(SOQL.Filter.with(Account.Name).contains(accountName))
                     .conditionLogic('1 OR 2')

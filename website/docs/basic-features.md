@@ -127,7 +127,7 @@ public with sharing class ExampleController {
         return AccountSelector.query
             .with(Account.BillingCity)
             .with(Account.BillingCountry)
-            .whereAre(SOQL.FiltersGroup
+            .whereAre(SOQL.FilterGroup
                 .add(SOQL.Filter.with(Account.Name).contains(accountName))
                 .add(SOQL.Filter.recordType().equal('Partner'))
             )
