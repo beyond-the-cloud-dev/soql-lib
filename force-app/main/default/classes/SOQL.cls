@@ -573,9 +573,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public void with(String fields) {
-            for (String field : fields.deleteWhitespace().split(',')) {
-                queryFields.add(field);
-            }
+            queryFields.addAll(fields.deleteWhitespace().split(','));
         }
 
         public void with(List<SObjectField> fields) {
@@ -827,7 +825,6 @@ public inherited sharing class SOQL implements Queryable {
 
             for (Integer i = 0; i < queryConditions.size(); i++) {
                 String conditionNumber = String.valueOf(i + 1);
-
                 formattedOrder = formattedOrder.replace(conditionNumber, addSpecialCharacters(conditionNumber));
             }
 
@@ -1083,7 +1080,7 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     private class QLimit implements QueryClause {
-        private Integer soqlLimit = 50000;
+        private Integer soqlLimit;
 
         public void max(Integer soqlLimit) {
             this.soqlLimit = soqlLimit;
@@ -1095,7 +1092,7 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     private class QOffset implements QueryClause {
-        private Integer soqlOffset = 2000;
+        private Integer soqlOffset;
 
         public void offset(Integer fromRow) {
             soqlOffset = fromRow;
