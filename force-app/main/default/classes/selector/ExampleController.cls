@@ -12,7 +12,7 @@ public with sharing class ExampleController {
     }
 
     public static List<Account> getAccountsByRecordType(String recordType) {
-        return AccountSelector.getByRecordType(recordType)
+        return AccountSelector.byRecordType(recordType)
                 .with(Account.ParentId)
                 .toList();
     }

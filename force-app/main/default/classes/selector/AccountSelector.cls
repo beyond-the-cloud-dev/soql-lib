@@ -11,7 +11,7 @@ public with sharing class AccountSelector {
         }
     }
 
-    public static SOQL getByRecordType(String rt) {
+    public static SOQL byRecordType(String rt) {
         return query.with(new List<SObjectField>{
             Account.BillingCity,
             Account.BillingCountry
