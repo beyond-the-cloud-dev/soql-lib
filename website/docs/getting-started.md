@@ -35,6 +35,7 @@ List<Account> accounts = SOQL.of(Account.SObjectType)
 4. **Control sharings rules** - The selector allows to execute of different methods in the same class in different sharing modes.
 5. **Avoid duplicates** - Generic SQOLs like `getById`, and `getByRecordType` can be stored in the selector class.
 6. **Default configuration** - The selector class can provide default SOQL configuration like default fields, FLS settings, and sharing rules.
+7. **Mocking** - The selector class has built in Mocking functionality that provides ability to dynamically return data in test execution
 
 ## License notes
 

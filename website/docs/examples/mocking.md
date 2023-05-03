@@ -7,6 +7,8 @@ sidebar_position: 13
 Mock SOQL results in Unit Tests.
 ## Mock Single Record
 
+Set mocking ID in Query declaration.
+
 ```apex
 public with sharing class ExampleController {
 
@@ -23,6 +25,8 @@ public with sharing class ExampleController {
     }
 }
 ```
+
+Pass single SObject record to SOQL class, and use mock ID to target query to be mocked.
 
 ```apex
 @IsTest
@@ -41,7 +45,12 @@ public class ExampleControllerTest {
     }
 }
 ```
+
+During execution Selector will return record that was set by `.setMock` method.
+
 ## Mock Multiple Records
+
+Set mocking ID in Query declaration.
 
 ```apex
 public with sharing class ExampleController {
@@ -59,6 +68,7 @@ public with sharing class ExampleController {
     }
 }
 ```
+Pass List of SObject records to SOQL class, and use mock ID to target query to be mocked.
 
 ```apex
 @IsTest
@@ -82,7 +92,11 @@ public class ExampleControllerTest {
 }
 ```
 
+During execution Selector will return List of records that was set by `.setMock` method.
+
 ## Mock Count Result
+
+Set mocking ID in Query declaration.
 
 ```apex
 public with sharing class ExampleController {
@@ -99,6 +113,7 @@ public with sharing class ExampleController {
     }
 }
 ```
+Pass Integer value to SOQL class, and use mock ID to target query to be mocked.
 
 ```apex
 @IsTest
@@ -118,7 +133,11 @@ public class ExampleControllerTest {
 }
 ```
 
+During execution Selector will return Integer count that was set by `.setMock` method.
+
 ## Mock with Static Resource
+
+Set mocking ID in Query declaration.
 
 ```apex
 public with sharing class ExampleController {
@@ -137,6 +156,8 @@ public with sharing class ExampleController {
 }
 ```
 
+Pass String value with name of Static Resource file with `.csv` records, and use mock ID to target query to be mocked.
+
 ```apex
 @IsTest
 public class ExampleControllerTest {
@@ -153,3 +174,5 @@ public class ExampleControllerTest {
     }
 }
 ```
+
+During execution Selector will return records from Static Resource that was set by `.setMock` method.
