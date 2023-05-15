@@ -32,7 +32,9 @@ public with sharing class AccountSelector implements SOQL.Selector {
             });
     }
 }
+```
 
+```apex
 public with sharing class ExampleController {
 
     @AuraEnabled
