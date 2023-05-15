@@ -92,6 +92,20 @@ private class SOQLTest {
     }
 
     @IsTest
+    static void withRelatedField() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(new List<SObjectField>{
+                Account.Name, Account.BillingCity
+            })
+            .with('CreatedBy', User.Name)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Name FROM Account', soql);
+    }
+
+    @IsTest
     static void withRelatedFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)

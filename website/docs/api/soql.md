@@ -95,11 +95,33 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
+### with related field
+
+Allows to add parent field to a query.
+
+**Signature**
+
+```apex
+SOQL with(String relationshipName, SObjectField field)
+```
+
+**Example**
+
+```sql
+SELECT CreatedBy.Name
+FROM Account
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .with('CreatedBy', User.Name)
+    .toList();
+```
+
 ### with related fields
 
 [SELECT](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_fields.htm)
 
-Allows to add parent field to a query.
+Allows to add parent fields to a query.
 
 **Signature**
 
