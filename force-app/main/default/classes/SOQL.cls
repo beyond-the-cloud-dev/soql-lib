@@ -38,6 +38,10 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
+    public interface Selector {
+        SOQL query();
+    }
+
     public interface Queryable {
         SOQL of(SObjectType ofObject);
 

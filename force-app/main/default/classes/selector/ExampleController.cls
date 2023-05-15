@@ -1,7 +1,7 @@
 public with sharing class ExampleController {
 
     public static List<Account> getPartnerAccounts(String accountName) {
-        return AccountSelector.query
+        return AccountSelector.query()
             .with(Account.BillingCity)
             .with(Account.BillingCountry)
             .whereAre(SOQL.FilterGroup

@@ -125,7 +125,7 @@ Mocked queries won't make any SOQL's and simply return data set in method defini
 public with sharing class ExampleController {
 
     public static List<Account> getPartnerAccounts(String accountName) {
-        return AccountSelector.query
+        return AccountSelector.query()
             .with(Account.BillingCity)
             .with(Account.BillingCountry)
             .whereAre(SOQL.FilterGroup
@@ -220,20 +220,19 @@ private class ExampleControllerTest {
 Generic SOQLs can be keep in selector class.
 
 ```apex
-public inherited sharing class AccountSelector {
+public inherited sharing class AccountSelector implements SOQL.Selector {
 
-    public static SOQL query {
-        get {
-            return SOQL.of(Account.SObjectType).with(new List<SObjectField>{
+    public static SOQL query() {
+        return SOQL.of(Account.SObjectType)
+            .with(new List<SObjectField>{
                 Account.Name,
                 Account.AccountNumber
             })
             .systemMode()
             .withoutSharing();
-        }
     }
 
-    public static SOQL getByRecordType(String rtDevName) {
+    public static SOQL byRecordType(String rtDevName) {
         return query.with(new List<SObjectField>{
             Account.BillingCity,
             Account.BillingCountry
@@ -247,16 +246,14 @@ public inherited sharing class AccountSelector {
 The selector class can provide default SOQL configuration like default fields, FLS settings, and sharing rules.
 
 ```apex
-public inherited sharing class AccountSelector {
+public inherited sharing class AccountSelector implements SOQL.Selector {
 
-    public static SOQL query {
-        get {
-            return SOQL.of(Account.SObjectType)
-                .with(new List<SObjectField>{  // default fields
-                    Account.Id,
-                    Account.Name
-                }).systemMode(); // default FLS mode
-        }
+    public static SOQL query() {
+        return SOQL.of(Account.SObjectType)
+            .with(new List<SObjectField>{  // default fields
+                Account.Id,
+                Account.Name
+            }).systemMode(); // default FLS mode
     }
 }
 ```

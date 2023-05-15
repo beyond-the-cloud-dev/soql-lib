@@ -12,23 +12,21 @@ FROM Account
 LIMIT 1000
 ```
 ```apex
-public inherited sharing class AccountSelector {
+public inherited sharing class AccountSelector implements SOQL.Selector {
 
-    public static SQOL query {
-        get {
-            return SQOL.of(Account.SObjectType)
-                .with(new List<SObjectField>{
-                    Account.Id,
-                    Account.Name
-                });
-        }
+    public static SQOL query() {
+        return SQOL.of(Account.SObjectType)
+            .with(new List<SObjectField>{
+                Account.Id,
+                Account.Name
+            });
     }
 }
 
 public with sharing class MyController {
 
     public static List<Account> getAccountsWithLimit() {
-        return AccountSelector.query
+        return AccountSelector.query()
             .setLimit(1000)
             .toList();
     }

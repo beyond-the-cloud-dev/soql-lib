@@ -15,23 +15,21 @@ SELECT Id, Name, BillingCity, BillingState, BillingStreet, BillingCountry
 FROM Account
 ```
 ```apex
-public inherited sharing class AccountSelector {
+public inherited sharing class AccountSelector implements SOQL.Selector {
 
-    public static SOQL query {
-        get {
-            return SOQL.of(Account.SObjectType)
-                .with(new List<SObjectField>{ //default fields
-                    Account.Id,
-                    Account.Name
-                });
-        }
+    public static SOQL query() {
+        return SOQL.of(Account.SObjectType)
+            .with(new List<SObjectField>{ //default fields
+                Account.Id,
+                Account.Name
+            });
     }
 }
 
 public with sharing class MyController {
 
     public static List<Account> getAccounts() {
-        return AccountSelector.query
+        return AccountSelector.query()
             .with(new List<SObjectField>{
                 Account.BillingCity,
                 Account.BillingState,
@@ -51,23 +49,21 @@ SELECT Id, Name, CreatedBy.Id, CreatedBy.Name
 FROM Account
 ```
 ```apex
-public inherited sharing class AccountSelector {
+public inherited sharing class AccountSelector implements SOQL.Selector {
 
-    public static SOQL query {
-        get {
-            return SOQL.of(Account.SObjectType) //default fields
-                .with(new List<SObjectField>{
-                    Account.Id,
-                    Account.Name
-                });
-        }
+    public static SOQL query() {
+        return SOQL.of(Account.SObjectType) //default fields
+            .with(new List<SObjectField>{
+                Account.Id,
+                Account.Name
+            });
     }
 }
 
 public with sharing class MyController {
 
     public static List<Account> getAccountsWithCreatedBy() {
-        return AccountSelector.query
+        return AccountSelector.query()
             .with('CreatedBy', new List<SObjectField>{
                 User.Id,
                 User.Name
@@ -84,23 +80,21 @@ SELECT COUNT() FROM Account
 SELECT COUNT(Name) names FROM Account
 ```
 ```apex
-public inherited sharing class AccountSelector {
+public inherited sharing class AccountSelector implements SOQL.Selector {
 
-    public static SOQL query {
-        get {
-            return SOQL.of(Account.SObjectType);
-        }
+    public static SOQL query() {
+        return SOQL.of(Account.SObjectType);
     }
 }
 
 public with sharing class MyController {
 
     public static Integer getAccountAmount() {
-        return AccountSelector.query.count().toInteger();
+        return AccountSelector.query().count().toInteger();
     }
 
     public static Integer getUniqueAccountNameAmount() {
-        return AccountSelector.query.count(Account.Name, 'names').toAggregated()[0].names;
+        return AccountSelector.query().count(Account.Name, 'names').toAggregated()[0].names;
     }
 }
 ```
