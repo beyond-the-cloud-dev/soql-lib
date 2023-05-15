@@ -71,17 +71,15 @@ Most of the SOQLs on the project are one-time queries executed for specific busi
 4. **Keep Selector Strengths** - Set default Selector configuration (default fields, sharing settings), keep generic methods.
 
 ```apex
-public with sharing class AccountSelector {
-    public static SOQL query {
-        get {
-            return SOQL.of(Account.SObjectType)
-                .with(new List<SObjectField>{
-                    Account.Name,
-                    Account.AccountNumber
-                })
-                .systemMode()
-                .withoutSharing();
-        }
+public with sharing class AccountSelector implements SOQL.Selector {
+    public static SOQL query() {
+        return SOQL.of(Account.SObjectType)
+            .with(new List<SObjectField>{
+                Account.Name,
+                Account.AccountNumber
+            })
+            .systemMode()
+            .withoutSharing();
     }
 
     public static SOQL getByRecordType(String rt) {
@@ -97,7 +95,7 @@ public with sharing class AccountSelector {
 public with sharing class ExampleController {
 
     public static List<Account> getAccounts(String accountName) {
-        return AccountSelector.query
+        return AccountSelector.query()
             .with(Account.BillingCity)
             .with(Account.BillingCountry)
             .whereAre(SOQL.Filter.with(Account.Name).contains(accountName))

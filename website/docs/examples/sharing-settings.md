@@ -11,30 +11,28 @@ Control sharing rules behavior.
 You can control sharing rules only in `.systemMode()`.
 
 ```apex
-public inherited sharing class AccountSelector {
+public inherited sharing class AccountSelector implements SOQL.Selector {
 
-    public static SOQL query {
-        get {
-            return SOQL.of(Account.SObjectType)
-                .with(new List<SObjectField>{
-                    Account.Id,
-                    Account.Name
-                });
-        }
+    public static SOQL query() {
+        return SOQL.of(Account.SObjectType)
+            .with(new List<SObjectField>{
+                Account.Id,
+                Account.Name
+            });
     }
 }
 
 public with sharing class MyController {
 
     public static List<Account> getAccountsWithSharing() {
-        return AccountSelector.query
+        return AccountSelector.query()
             .systemMode()
             .withSharing()
             .toList();
     }
 
     public static List<Account> getAccountsWithoutSharing() {
-        return AccountSelector.query
+        return AccountSelector.query()
             .systemMode()
             .withoutSharing()
             .toList();
