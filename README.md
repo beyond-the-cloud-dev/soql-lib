@@ -39,7 +39,9 @@ public with sharing class ExampleController {
 
     @AuraEnabled
     public static List<Account> getAccounts() {
-        return AccountSelector.query().toList();
+        return AccountSelector.query()
+            .with(Account.Industry)
+            .toList();
     }
 }
 ```
