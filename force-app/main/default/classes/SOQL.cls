@@ -91,7 +91,8 @@ public inherited sharing class SOQL implements Queryable {
 
         SOQL mockId(String id);
 
-        SOQL preview();
+        SOQL debugPreview();
+        SOQL exceptionPreview();
 
         SOQL stripInaccessible();
         SOQL stripInaccessible(AccessType accessType);
@@ -393,10 +394,18 @@ public inherited sharing class SOQL implements Queryable {
         return this;
     }
 
-    public SOQL preview() {
-        System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Preview ============\n' + toString() + '\n=======================================\n');
-        System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Binding ============\n' + JSON.serializePretty(binding()) + '\n=======================================\n');
+    public SOQL debugPreview() {
+        System.debug(LoggingLevel.ERROR, soqlLog());
         return this;
+    }
+
+    public SOQL exceptionPreview() {
+        throw new PreviewException(soqlLog());
+    }
+
+    private String soqlLog() {
+        return '\n============ SOQL Preview ============\n' + toString() + '\n======================================\n' +
+        '\n============ SOQL Binding ============\n' + JSON.serializePretty(binding()) + '\n======================================\n';
     }
 
     public Map<String, Object> binding() {
@@ -456,6 +465,8 @@ public inherited sharing class SOQL implements Queryable {
     public interface QueryClause {
         String build();
     }
+
+    public class PreviewException extends Exception {}
 
     private class QueryBuilder implements QueryClause {
         private List<QueryClause> clauses = new QueryClause[10];

@@ -1255,15 +1255,30 @@ private class SOQLTest {
 
     @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
     @IsTest
-    static void preview() {
+    static void debugPreview() {
         // Test
-        SOQL.of(Account.SObjectType).preview().toList();
+        SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.name().equal('Test'))
+            .debugPreview()
+            .toList();
     }
 
-    @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
     @IsTest
-    static void previewCount() {
+    static void exceptionPreview() {
+        // Setup
+        SOQL.PreviewException soqlException = null;
+
         // Test
-        SOQL.of(Account.SObjectType).count().preview().toInteger();
+        try {
+            SOQL.of(Account.SObjectType)
+                .whereAre(SOQL.Filter.name().equal('Test'))
+                .exceptionPreview()
+                .toList();
+        } catch(SOQL.PreviewException e) {
+            soqlException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(soqlException);
     }
 }
