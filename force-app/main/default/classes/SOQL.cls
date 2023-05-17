@@ -105,8 +105,8 @@ public inherited sharing class SOQL implements Queryable {
         Map<Id, SObject> toMap();
         Database.QueryLocator toQueryLocator();
 
-        SOQL byId(Id recordId);
         SOQL byId(SObject record);
+        SOQL byId(Id recordId);
         SOQL byIds(Set<Id> recordIds);
         SOQL byIds(List<Id> recordIds);
         SOQL byIds(List<SObject> records);
@@ -440,12 +440,12 @@ public inherited sharing class SOQL implements Queryable {
         return executor.toQueryLocator(builder.build(), binder.build());
     }
 
-    public SOQL byId(Id recordId) {
-        return whereAre(Filter.id().equal(recordId));
+    public SOQL byId(SObject record) {
+        return byId(record.Id);
     }
 
-    public SOQL byId(SObject record) {
-        return whereAre(Filter.id().equal(record));
+    public SOQL byId(Id recordId) {
+        return whereAre(Filter.id().equal(recordId));
     }
 
     public SOQL byIds(Set<Id> recordIds) {
