@@ -494,6 +494,8 @@ QS.of(Lead.SObjectType)
 
 ```apex
 SOQL orderBy(SObjectField field)
+SOQL orderBy(String field)
+SOQL orderBy(String field, String direction)
 ```
 
 **Example**
@@ -501,11 +503,21 @@ SOQL orderBy(SObjectField field)
 ```sql
 SELECT Id
 FROM Account
-ORDER BY Name
+ORDER BY Name DESC
 ```
 ```apex
 SOQL.of(Account.SObjectType)
     .orderBy(Account.Name)
+    .sortDesc()
+    .toList();
+
+SOQL.of(Account.SObjectType)
+    .orderBy('Name')
+    .sortDesc()
+    .toList();
+
+SOQL.of(Account.SObjectType)
+    .orderBy('Name', 'DESC')
     .toList();
 ```
 
