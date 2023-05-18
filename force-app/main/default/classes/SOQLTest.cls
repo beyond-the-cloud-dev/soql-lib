@@ -941,7 +941,7 @@ private class SOQLTest {
         Assert.areEqual('SELECT Id FROM Case WHERE Id = :v1', soql);
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(cases[0], binding.get('v1'));
+        Assert.areEqual(cases[0].Id, binding.get('v1'));
     }
 
     @IsTest
