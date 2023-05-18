@@ -715,6 +715,17 @@ private class SOQLTest {
     }
 
     @IsTest
+    static void emptyConditionsGroup() {
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.FilterGroup);
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account', soql);
+    }
+
+    @IsTest
     static void nestedConditionsGroup() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
@@ -823,6 +834,29 @@ private class SOQLTest {
 
         // Verify
         Assert.areEqual('SELECT LeadSource, COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(LeadSource)', soql);
+    }
+
+    @IsTest
+    static void orderByString() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .orderBy('Industry').sortDesc().nullsLast()
+            .orderBy('Id')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account ORDER BY Industry DESC NULLS LAST, Id ASC NULLS FIRST', soql);
+    }
+
+    @IsTest
+    static void orderByDynamic() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .orderBy('Industry', 'ASC')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account ORDER BY Industry ASC NULLS FIRST', soql);
     }
 
     @IsTest
@@ -941,7 +975,7 @@ private class SOQLTest {
         Assert.areEqual('SELECT Id FROM Case WHERE Id = :v1', soql);
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(cases[0], binding.get('v1'));
+        Assert.areEqual(cases[0].Id, binding.get('v1'));
     }
 
     @IsTest

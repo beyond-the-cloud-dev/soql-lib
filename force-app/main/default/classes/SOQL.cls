@@ -70,8 +70,10 @@ public inherited sharing class SOQL implements Queryable {
         SOQL groupBy(SObjectField field);
         SOQL groupByRollup(SObjectField field);
 
-        SOQL orderBy(SObjectField field);
-        SOQL orderBy(String relationshipName, SObjectField field);
+        SOQL orderBy(String field); // ASC, NULLS FIRST by default
+        SOQL orderBy(String field, String direction); // dynamic order by, NULLS FIRST by default
+        SOQL orderBy(SObjectField field); // ASC, NULLS FIRST by default
+        SOQL orderBy(String relationshipName, SObjectField field); // ASC, NULLS FIRST by default
         SOQL sortDesc();
         SOQL nullsLast();
 
@@ -104,8 +106,8 @@ public inherited sharing class SOQL implements Queryable {
         Map<Id, SObject> toMap();
         Database.QueryLocator toQueryLocator();
 
-        SOQL byId(Id recordId);
         SOQL byId(SObject record);
+        SOQL byId(Id recordId);
         SOQL byIds(Set<Id> recordIds);
         SOQL byIds(List<Id> recordIds);
         SOQL byIds(List<SObject> records);
@@ -314,13 +316,23 @@ public inherited sharing class SOQL implements Queryable {
         return this;
     }
 
+    public SOQL orderBy(String field) { // Order By - ASC, NULLS FIRST by default
+        builder.orderBys.add(new QOrderBy().with(field));
+        return this;
+    }
+
+    public SOQL orderBy(String field, String direction) { // NULLS FIRST by default
+        builder.orderBys.add(new QOrderBy().with(field).sortingOrder(direction));
+        return this;
+    }
+
     public SOQL orderBy(SObjectField field) { // Order By - ASC, NULLS FIRST by default
-        builder.orderBys.add(field);
+        builder.orderBys.add(new QOrderBy().with(field));
         return this;
     }
 
     public SOQL orderBy(String relationshipName, SObjectField field) {
-        builder.orderBys.add(relationshipName, field);
+        builder.orderBys.add(new QOrderBy().with(relationshipName, field));
         return this;
     }
 
@@ -431,12 +443,12 @@ public inherited sharing class SOQL implements Queryable {
         return executor.toQueryLocator(builder.build(), binder.build());
     }
 
-    public SOQL byId(Id recordId) {
-        return whereAre(Filter.id().equal(recordId));
+    public SOQL byId(SObject record) {
+        return byId(record.Id);
     }
 
-    public SOQL byId(SObject record) {
-        return whereAre(Filter.id().equal(record));
+    public SOQL byId(Id recordId) {
+        return whereAre(Filter.id().equal(recordId));
     }
 
     public SOQL byIds(Set<Id> recordIds) {
@@ -648,12 +660,12 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public SubQuery orderBy(SObjectField field) {
-            builder.orderBys.add(field);
+            builder.orderBys.add(new QOrderBy().with(field));
             return this;
         }
 
         public SubQuery orderBy(String relationshipName, SObjectField field) {
-            builder.orderBys.add(relationshipName, field);
+            builder.orderBys.add(new QOrderBy().with(relationshipName, field));
             return this;
         }
 
@@ -756,6 +768,7 @@ public inherited sharing class SOQL implements Queryable {
 
     public interface FilterClause {
         String build();
+        Boolean isEmpty();
     }
 
     public class FilterGroup implements FilterClause, QueryClause, SoqlFiltersGroup {
@@ -769,6 +782,9 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public FilterGroup add(FilterClause condition) {
+            if (condition.isEmpty()) {
+                return this;
+            }
             queryConditions.add(condition);
             return this;
         }
@@ -783,6 +799,10 @@ public inherited sharing class SOQL implements Queryable {
         public FilterGroup conditionLogic(String order) {
             this.order = order;
             return this;
+        }
+
+        public Boolean isEmpty() {
+            return queryConditions.isEmpty();
         }
 
         public String build() {
@@ -982,6 +1002,10 @@ public inherited sharing class SOQL implements Queryable {
             return this;
         }
 
+        public Boolean isEmpty() {
+            return String.isEmpty(field);
+        }
+
         public String build() {
             if (joinQuery != null) {
                 return field + ' ' + comperator + ' (' + joinQuery.build() + ')';
@@ -1038,12 +1062,8 @@ public inherited sharing class SOQL implements Queryable {
     private class QOrderBys implements QueryClause {
         public List<QOrderBy> orderBys = new List<QOrderBy>();
 
-        public void add(SObjectField field) {
-            orderBys.add(new QOrderBy().with(field));
-        }
-
-        public void add(String relationshipName, SObjectField field) {
-            orderBys.add(new QOrderBy().with(relationshipName, field));
+        public void add(QOrderBy orderBy) {
+            orderBys.add(orderBy);
         }
 
         public QOrderBy recentOrderBy() {
@@ -1066,6 +1086,11 @@ public inherited sharing class SOQL implements Queryable {
         private String sortingOrder = 'ASC';
         private String nullsOrder = 'FIRST';
 
+        public QOrderBy with(String field) {
+            orderField = field;
+            return this;
+        }
+
         public QOrderBy with(SObjectField field) {
             orderField = field.getDescribe().getName();
             return this;
@@ -1077,7 +1102,12 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public void sortDesc() {
-            sortingOrder = 'DESC';
+            sortingOrder('DESC');
+        }
+
+        public QOrderBy sortingOrder(String direction) {
+            sortingOrder = direction;
+            return this;
         }
 
         public void nullsLast() {
