@@ -1062,18 +1062,6 @@ public inherited sharing class SOQL implements Queryable {
     private class QOrderBys implements QueryClause {
         public List<QOrderBy> orderBys = new List<QOrderBy>();
 
-        // public void add(String field) {
-        //     orderBys.add(new QOrderBy().with(field));
-        // }
-
-        // public void add(SObjectField field) {
-        //     orderBys.add(new QOrderBy().with(field));
-        // }
-
-        // public void add(String relationshipName, SObjectField field) {
-        //     orderBys.add(new QOrderBy().with(relationshipName, field));
-        // }
-
         public void add(QOrderBy orderBy) {
             orderBys.add(orderBy);
         }
