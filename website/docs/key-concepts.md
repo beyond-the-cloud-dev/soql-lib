@@ -181,7 +181,7 @@ public with sharing class ExampleController {
 Create Selectors in your own way.
 
 ```apex
-public with sharing virtual class AccountSelector  {
+public with sharing virtual class AccountSelector {
     public static SOQL query {
         return SOQL.of(Account.SObjectType)
             .with(new List<SObjectField>{
@@ -203,7 +203,7 @@ public with sharing virtual class AccountSelector  {
 public with sharing class ExampleController {
 
     public static List<Account> getAccounts(String accountName) {
-        return AccountSelector().query
+        return AccountSelector.query
             .with(Account.BillingCity)
             .with(Account.BillingCountry)
             .whereAre(SOQL.Filter.with(Account.Name).contains(accountName))
