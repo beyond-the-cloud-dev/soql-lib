@@ -99,6 +99,7 @@ public inherited sharing class SOQL implements Queryable {
         SOQL stripInaccessible(AccessType accessType);
 
         String toString();
+        Object toField(SObjectField fieldToExtract);
         Integer toInteger();
         SObject toObject();
         List<SObject> toList();
@@ -417,6 +418,10 @@ public inherited sharing class SOQL implements Queryable {
 
     public override String toString() {
         return builder.build();
+    }
+
+    public Object toField(SObjectField fieldToExtract) {
+        return toObject().get(fieldToExtract.getDescribe().getName());
     }
 
     public Integer toInteger() {

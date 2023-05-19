@@ -1191,6 +1191,20 @@ private class SOQLTest {
     }
 
     @IsTest
+    static void toField() {
+        // Setup
+        String accountName = 'Test 1';
+        Account acc = new Account(Name = accountName);
+        insert acc;
+
+        // Test
+        String resultAccName = (String) SOQL.of(Account.SObjectType).with(Account.Name).byId(acc).toField(Account.Name);
+
+        // Verify
+        Assert.areEqual(accountName, resultAccName);
+    }
+
+    @IsTest
     static void toObject() {
         // Setup
         Account acc = new Account(Name = 'Test 1');
