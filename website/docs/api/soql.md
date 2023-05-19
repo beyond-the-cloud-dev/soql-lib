@@ -957,7 +957,7 @@ Extract field value from query result.
 **Signature**
 
 ```apex
-Object toField(SObjectField field)
+Object toField(SObjectField fieldToExtract)
 ```
 
 **Example**
