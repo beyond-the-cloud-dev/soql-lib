@@ -950,6 +950,39 @@ WHERE ((Id = :v1 OR Name LIKE :v2))
 
 ## result
 
+### toField
+
+Extract field value from query result.
+
+**Signature**
+
+```apex
+Object toField(SObjectField field)
+```
+
+**Example**
+
+```apex
+QS.of(Account.SObjectType).with(Account.Name).byId('1234').toField(Account.Name)
+```
+
+### toInteger
+
+**Signature**
+
+```apex
+Integer toInteger()
+```
+
+**Example**
+
+```sql
+SELECT COUNT() FROM Account
+```
+```apex
+QS.of(Account.SObjectType).count().toInteger();
+```
+
 ### toObject
 
 When no records found. Instead of `List index out of bounds: 0` null will be returned.
@@ -1002,23 +1035,6 @@ SOQL.of(Lead.SObjectType)
     .with(Lead.LeadSource)
     .groupBy(Lead.LeadSource)
     .toAggregated()
-```
-
-### toInteger
-
-**Signature**
-
-```apex
-Integer toInteger()
-```
-
-**Example**
-
-```sql
-SELECT COUNT() FROM Account
-```
-```apex
-QS.of(Account.SObjectType).count().toInteger();
 ```
 
 ### toMap
