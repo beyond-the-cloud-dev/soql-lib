@@ -963,7 +963,7 @@ Object toField(SObjectField field)
 **Example**
 
 ```apex
-QS.of(Account.SObjectType).with(Account.Name).byId('1234').toField(Account.Name)
+SOQL.of(Account.SObjectType).with(Account.Name).byId('1234').toField(Account.Name)
 ```
 
 ### toInteger
@@ -980,7 +980,7 @@ Integer toInteger()
 SELECT COUNT() FROM Account
 ```
 ```apex
-QS.of(Account.SObjectType).count().toInteger();
+SOQL.of(Account.SObjectType).count().toInteger();
 ```
 
 ### toObject
