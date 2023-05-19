@@ -421,7 +421,7 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public Object toField(SObjectField fieldToExtract) {
-        return toObject().get(fieldToExtract.getDescribe().getName());
+        return with(fieldToExtract).toObject().get(fieldToExtract.getDescribe().getName());
     }
 
     public Integer toInteger() {

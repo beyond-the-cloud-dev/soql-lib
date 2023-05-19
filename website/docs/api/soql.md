@@ -953,6 +953,7 @@ WHERE ((Id = :v1 OR Name LIKE :v2))
 ### toField
 
 Extract field value from query result.
+Field will be automatically added to the query fields.
 
 **Signature**
 
@@ -963,7 +964,7 @@ Object toField(SObjectField fieldToExtract)
 **Example**
 
 ```apex
-SOQL.of(Account.SObjectType).with(Account.Name).byId('1234').toField(Account.Name)
+SOQL.of(Account.SObjectType).byId('1234').toField(Account.Name)
 ```
 
 ### toInteger

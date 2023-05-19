@@ -1198,7 +1198,7 @@ private class SOQLTest {
         insert acc;
 
         // Test
-        String resultAccName = (String) SOQL.of(Account.SObjectType).with(Account.Name).byId(acc).toField(Account.Name);
+        String resultAccName = (String) SOQL.of(Account.SObjectType).byId(acc).toField(Account.Name);
 
         // Verify
         Assert.areEqual(accountName, resultAccName);
