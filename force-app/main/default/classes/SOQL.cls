@@ -588,6 +588,7 @@ public inherited sharing class SOQL implements Queryable {
 
     private class QFields implements QueryClause {
         private Set<String> queryFields = new Set<String>();
+        private Set<String> queryCounts = new Set<String>();
 
         public void count() {
             // COUNT() must be the only element in the SELECT list.
@@ -605,7 +606,7 @@ public inherited sharing class SOQL implements Queryable {
         public void count(String countSoql) {
             // clear all default fields to avoid "Field must be grouped or aggregated"
             queryFields.clear();
-            queryFields.add(countSoql);
+            queryCounts.add(countSoql);
         }
 
         public void with(String fields) {
@@ -633,11 +634,16 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public String build() {
-            if (queryFields.isEmpty()) {
+            if (queryFields.isEmpty() && queryCounts.isEmpty()) {
                 return 'SELECT Id';
             }
 
-            return 'SELECT ' + String.join(new List<String>(queryFields), ', ');
+            List<String> selectStatement = new List<String>();
+
+            selectStatement.addAll(queryCounts);
+            selectStatement.addAll(queryFields);
+
+            return 'SELECT ' + String.join(selectStatement, ', ');
         }
     }
 
