@@ -591,20 +591,21 @@ public inherited sharing class SOQL implements Queryable {
 
         public void count() {
             // COUNT() must be the only element in the SELECT list.
-            queryFields.clear();
-            queryFields.add('COUNT()');
+            count('COUNT()');
         }
 
         public void count(SObjectField field) {
-            // Field must be grouped or aggregated
-            queryFields.remove(field.getDescribe().getName());
-            queryFields.add('COUNT(' + field.getDescribe().getName() + ')');
+            count('COUNT(' + field.getDescribe().getName() + ')');
         }
 
         public void count(SObjectField field, String alias) {
-            // Field must be grouped or aggregated
-            queryFields.remove(field.getDescribe().getName());
-            queryFields.add('COUNT(' + field.getDescribe().getName() + ') ' + alias);
+            count('COUNT(' + field.getDescribe().getName() + ') ' + alias);
+        }
+
+        public void count(String countSoql) {
+            // clear all default fields to avoid "Field must be grouped or aggregated"
+            queryFields.clear();
+            queryFields.add(countSoql);
         }
 
         public void with(String fields) {

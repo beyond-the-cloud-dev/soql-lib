@@ -207,8 +207,9 @@ SOQL.of(Account.SObjectType)
 count(SObjectField field)
 ```
 
-**Note!** In order to prevent the "Field must be grouped or aggregated" error, any fields that are not included in the count but are the same will be automatically removed.
-eg. `SELECT COUNT(Id), Id FROM Account` - `Id` field will be removed.
+**Note!** To avoid the 'Field must be grouped or aggregated' error, any default fields will be automatically removed. For example, in the query `SELECT Id, Name, COUNT(Id) FROM Account`, the `Id` and `Name` fields will be removed.
+
+You can still specify additional fields, but they should be placed after the COUNT() function in the SELECT statement.
 
 **Example**
 
@@ -230,6 +231,10 @@ FROM Opportunity
 ```apex
 count(SObjectField field, String alias)
 ```
+
+**Note!** To avoid the 'Field must be grouped or aggregated' error, any default fields will be automatically removed. For example, in the query `SELECT Id, Name, COUNT(Id) FROM Account`, the `Id` and `Name` fields will be removed.
+
+You can still specify additional fields, but they should be placed after the COUNT() function in the SELECT statement.
 
 **Example**
 

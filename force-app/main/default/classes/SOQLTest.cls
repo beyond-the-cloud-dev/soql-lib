@@ -838,13 +838,13 @@ private class SOQLTest {
     static void groupByRollup() {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
-            .with(Lead.LeadSource)
             .count(Lead.Name, 'cnt')
+            .with(Lead.LeadSource)
             .groupByRollup(Lead.LeadSource)
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource, COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(LeadSource)', soql);
+        Assert.areEqual('SELECT COUNT(Name) cnt, LeadSource FROM Lead GROUP BY ROLLUP(LeadSource)', soql);
     }
 
     @IsTest
