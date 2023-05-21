@@ -155,7 +155,7 @@ public inherited sharing class SOQL implements Queryable {
         Filter greaterThan(Object value); // > :value
         Filter lessThanOrEqual(Object value); // <= :value
         Filter greaterThanOrEqual(Object value); // >= :value
-        Filter contains(List<String> values); // LIKE :values
+        Filter containsSome(List<String> values); // LIKE :values
         Filter contains(String value); // LIKE :'%' + value + '%'
         Filter endsWith(String value); // LIKE :'%' + value
         Filter startsWith(String value); // LIKE :value + '%'
@@ -166,6 +166,8 @@ public inherited sharing class SOQL implements Queryable {
 
         Filter isIn(JoinQuery joinQuery); // SOQL.JoinQuery
         Filter notIn(JoinQuery joinQuery); // SOQL.JoinQuery
+
+        Filter removeWhenNull();
     }
 
     public interface SoqlFiltersGroup { // SOQL.FilterGroup
@@ -586,17 +588,22 @@ public inherited sharing class SOQL implements Queryable {
 
     private class QFields implements QueryClause {
         private Set<String> queryFields = new Set<String>();
+        private Set<String> countQueries = new Set<String>();
 
         public void count() {
-            queryFields.add('COUNT()');
+            count('COUNT()');
         }
 
         public void count(SObjectField field) {
-            queryFields.add('COUNT(' + field.getDescribe().getName() + ')');
+            count('COUNT(' + field.getDescribe().getName() + ')');
         }
 
         public void count(SObjectField field, String alias) {
-            queryFields.add('COUNT(' + field.getDescribe().getName() + ') ' + alias);
+            count('COUNT(' + field.getDescribe().getName() + ') ' + alias);
+        }
+
+        public void count(String countSoql) {
+            countQueries.add(countSoql);
         }
 
         public void with(String fields) {
@@ -624,10 +631,15 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public String build() {
-            if (queryFields.isEmpty()) {
+            if (queryFields.isEmpty() && countQueries.isEmpty()) {
                 return 'SELECT Id';
             }
-            return 'SELECT ' + String.join(new List<String>(queryFields), ', ');
+
+            List<String> selectStatement = new List<String>();
+            selectStatement.addAll(countQueries);
+            selectStatement.addAll(queryFields);
+
+            return 'SELECT ' + String.join(selectStatement, ', ');
         }
     }
 
@@ -953,20 +965,24 @@ public inherited sharing class SOQL implements Queryable {
             return set('>=', value);
         }
 
-        public Filter contains(List<String> values) {
+        public Filter containsSome(List<String> values) {
             return set('LIKE', values);
         }
 
         public Filter contains(String value) {
-            return set('LIKE', '%' + String.escapeSingleQuotes(value.trim()) + '%');
+            return set('LIKE', '%' + formattedString(value) + '%');
         }
 
         public Filter endsWith(String value) {
-            return set('LIKE', '%' + String.escapeSingleQuotes(value.trim()));
+            return set('LIKE', '%' + formattedString(value));
         }
 
         public Filter startsWith(String value) {
-            return set('LIKE', String.escapeSingleQuotes(value.trim()) + '%');
+            return set('LIKE', formattedString(value) + '%');
+        }
+
+        private String formattedString(String value) {
+            return value == null ? value : String.escapeSingleQuotes(value.trim());
         }
 
         // The Set collection type does not allow to implicitly cast Set<Object>
@@ -1009,6 +1025,18 @@ public inherited sharing class SOQL implements Queryable {
 
         public Boolean isEmpty() {
             return String.isEmpty(field);
+        }
+
+        public Filter removeWhenNull() {
+            if (value == null || isLikeNull()) {
+                // Set field as empty to meet isEmpty and ignore condition
+                with('');
+            }
+            return this;
+        }
+
+        private Boolean isLikeNull() {
+            return value == 'null%' || value == '%null' || value == '%null%';
         }
 
         public String build() {

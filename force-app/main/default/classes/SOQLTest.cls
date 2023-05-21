@@ -531,7 +531,7 @@ private class SOQLTest {
 
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
-            .whereAre(SOQL.Filter.with(Account.Name).contains(names));
+            .whereAre(SOQL.Filter.with(Account.Name).containsSome(names));
 
         // Verify
         String soql = builder.toString();
@@ -810,6 +810,17 @@ private class SOQLTest {
     }
 
     @IsTest
+    static void removeWhenNull() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(Account.Name).contains(null).removeWhenNull())
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account', soql);
+    }
+
+    @IsTest
     static void groupBy() {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
@@ -827,13 +838,13 @@ private class SOQLTest {
     static void groupByRollup() {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
-            .with(Lead.LeadSource)
             .count(Lead.Name, 'cnt')
+            .with(Lead.LeadSource)
             .groupByRollup(Lead.LeadSource)
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource, COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(LeadSource)', soql);
+        Assert.areEqual('SELECT COUNT(Name) cnt, LeadSource FROM Lead GROUP BY ROLLUP(LeadSource)', soql);
     }
 
     @IsTest

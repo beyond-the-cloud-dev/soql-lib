@@ -387,7 +387,7 @@ SOQL.of(Contact.SObjectType)
 **Signature**
 
 ```apex
-Filter contains(List<String> values)
+Filter containsSome(List<String> values)
 ```
 
 **Example**
@@ -401,7 +401,7 @@ WHERE Name LIKE ('My', 'Acc')
 List<String> names = new List<String>{ 'Acc', 'My' };
 
 SOQL.of(Contact.SObjectType)
-    .whereAre(SOQL.Filter.with(Account.Name).contains(names))
+    .whereAre(SOQL.Filter.with(Account.Name).containsSome(names))
     .toList();
 ```
 
@@ -580,4 +580,30 @@ SOQL.of(Contact.SObjectType)
             .with(Contact.AccountId)
             .whereAre(SOQL.Filter.with(Contact.Name).equal('My Contact'))
     )).toList();
+```
+
+## additional
+
+### removeWhenNull
+
+Condition will be removed when filter's value is null.
+
+**Signature**
+
+```apex
+Filter removeWhenNull()
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+```
+```apex
+String accountName = null;
+
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.Filter.with(Account.Name).equal(accountName).removeWhenNull())
+    .toList();
 ```

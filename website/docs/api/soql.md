@@ -179,6 +179,8 @@ SOQL.of(Account.SObjectType)
 
 > `COUNT()` returns the number of rows that match the filtering conditions.
 
+**NOTE!** The count query will always be placed at the beginning of the query to ensure the logic is not broken when default fields are specified.
+
 **Signature**
 
 ```apex
