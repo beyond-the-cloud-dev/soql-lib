@@ -380,7 +380,7 @@ SOQL.of(Contact.SObjectType)
     .toList();
 ```
 
-### contains values
+### containsSome
 
 - `WHERE Name LIKE ('My', 'Acc')`
 
