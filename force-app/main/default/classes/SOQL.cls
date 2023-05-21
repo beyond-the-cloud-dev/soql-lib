@@ -588,22 +588,23 @@ public inherited sharing class SOQL implements Queryable {
 
     private class QFields implements QueryClause {
         private Set<String> queryFields = new Set<String>();
-        private Set<String> countQueries = new Set<String>();
 
         public void count() {
-            count('COUNT()');
+            // COUNT() must be the only element in the SELECT list.
+            queryFields.clear();
+            queryFields.add('COUNT()');
         }
 
         public void count(SObjectField field) {
-            count('COUNT(' + field.getDescribe().getName() + ')');
+            // Field must be grouped or aggregated
+            queryFields.remove(field.getDescribe().getName());
+            queryFields.add('COUNT(' + field.getDescribe().getName() + ')');
         }
 
         public void count(SObjectField field, String alias) {
-            count('COUNT(' + field.getDescribe().getName() + ') ' + alias);
-        }
-
-        public void count(String countSoql) {
-            countQueries.add(countSoql);
+            // Field must be grouped or aggregated
+            queryFields.remove(field.getDescribe().getName());
+            queryFields.add('COUNT(' + field.getDescribe().getName() + ') ' + alias);
         }
 
         public void with(String fields) {
@@ -631,15 +632,11 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public String build() {
-            if (queryFields.isEmpty() && countQueries.isEmpty()) {
+            if (queryFields.isEmpty()) {
                 return 'SELECT Id';
             }
 
-            List<String> selectStatement = new List<String>();
-            selectStatement.addAll(countQueries);
-            selectStatement.addAll(queryFields);
-
-            return 'SELECT ' + String.join(selectStatement, ', ');
+            return 'SELECT ' + String.join(new List<String>(queryFields), ', ');
         }
     }
 

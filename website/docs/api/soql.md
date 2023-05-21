@@ -179,7 +179,7 @@ SOQL.of(Account.SObjectType)
 
 > `COUNT()` returns the number of rows that match the filtering conditions.
 
-**NOTE!** The count query will always be placed at the beginning of the query to ensure the logic is not broken when default fields are specified.
+**Note!** COUNT() must be the only element in the SELECT list, any other fields will be automatically removed.
 
 **Signature**
 
@@ -206,6 +206,9 @@ SOQL.of(Account.SObjectType)
 ```apex
 count(SObjectField field)
 ```
+
+**Note!** In order to prevent the "Field must be grouped or aggregated" error, any fields that are not included in the count but are the same will be automatically removed.
+eg. `SELECT COUNT(Id), Id FROM Account` - `Id` field will be removed.
 
 **Example**
 
