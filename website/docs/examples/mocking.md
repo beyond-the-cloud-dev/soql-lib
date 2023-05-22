@@ -39,7 +39,7 @@ public class ExampleControllerTest {
 
         Test.startTest();
         Account result = (Account) ExampleController.getAccountByName(TEST_ACCOUNT_NAME);
-        Test.stopTest;
+        Test.stopTest();
 
         Assert.areEqual(TEST_ACCOUNT_NAME, result.Name);
     }
@@ -85,7 +85,7 @@ public class ExampleControllerTest {
 
         Test.startTest();
         List<Account> result = ExampleController.getPartnerAccounts('MyAccount');
-        Test.stopTest;
+        Test.stopTest();
 
         Assert.areEqual(accounts, result);
     }
@@ -126,7 +126,7 @@ public class ExampleControllerTest {
 
         Test.startTest();
         Integer result = ExampleController.getPartnerAccounts('MyAccount');
-        Test.stopTest;
+        Test.stopTest();
 
         Assert.areEqual(TEST_VALUE, result);
     }
@@ -168,7 +168,7 @@ public class ExampleControllerTest {
 
         Test.startTest();
         List<Account> result = ExampleController.getPartnerAccounts('MyAccount');
-        Test.stopTest;
+        Test.stopTest();
 
         Assert.isNotNull(result);
     }
