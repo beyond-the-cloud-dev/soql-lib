@@ -5,6 +5,11 @@ sidebar_position: 13
 # Mocking
 
 Mock SOQL results in Unit Tests.
+
+You need to mock external objects.
+
+> In Apex tests, use dynamic SOQL to query external objects. Tests that perform static SOQL queries of external objects fail. ~ Salesforce
+
 ## Mock Single Record
 
 Set mocking ID in Query declaration.
