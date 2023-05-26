@@ -6,7 +6,7 @@ sidebar_position: 3
 
 ## Dynamic SOQL
 
-`SOQL.cls` class provide methods that allow build SOQL clauses dynamically.
+`SOQL.cls` class provides methods for building SOQL clauses dynamically.
 
 ```apex
 // SELECT Id FROM Account LIMIT 100
@@ -20,7 +20,7 @@ SOQL.of(Account.SObjectType).with(new List<SObjectField> {
 
 ## Automatic binding
 
-All variables used in `WHERE` condition are binded by default.
+All variables used in the `WHERE` condition are automatically binded.
 
 ```apex
 // SELECT Id, Name FROM Account WHERE Name = :v1
@@ -42,17 +42,17 @@ SOQL.of(Account.SObjectType).with(new List<SObjectField> {
 
 [AccessLevel Class](https://developer.salesforce.com/docs/atlas.en-us.apexref.meta/apexref/apex_class_System_AccessLevel.htm)
 
-Object permission and field-level security is controlled by the framework. Developer can change FLS settings match business requirements.
+Object permissions and field-level security are controlled by the lib. Developers can change FLS settings to match business requirements.
 
 ### User mode
 
-By default all queries are in `AccessLevel.USER_MODE`.
+By default, all queries are executed in `AccessLevel.USER_MODE`.
 
 > The object permissions, field-level security, and sharing rules of the current user are enforced.
 
 ### System mode
 
-Developer can change it by using `.systemMode()` which apply `AccessLevel.SYSTEM_MODE`.
+Developers can change the mode to `AccessLevel.SYSTEM_MODE` by using the `.systemMode()` method.
 
 > The object and field-level permissions of the current user are ignored, and the record sharing rules are controlled by the sharingMode.
 
@@ -73,9 +73,9 @@ SOQL.of(Account.SObjectType).with(new List<SObjectField> {
 
 ### with sharing
 
-By default all queries will be executed `with sharing`, because of `AccessLevel.USER_MODE` which enforce sharing rules.
+By default, all queries are executed `with sharing`, enforced by `AccessLevel.USER_MODE`.
 
-`AccessLevel.USER_MODE` enforce object permissions and field-level security as well.
+`AccessLevel.USER_MODE` enforces object permissions and field-level security.
 
 Developer can skip FLS by adding `.systemMode()` and `.withSharing()`.
 
