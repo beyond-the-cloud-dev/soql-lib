@@ -68,7 +68,7 @@ FROM Account
 ```
 ```apex
 SOQL.of(Account.SObjectType)
-    .with(List<SObjectField>{
+    .with(new List<SObjectField>{
         Account.Id, Account.Name, Account.Industry
     }).toList();
 ```
@@ -137,7 +137,7 @@ FROM Account
 ```
 ```apex
 SOQL.of(Account.SObjectType)
-    .with('CreatedBy', List<SObjectField>{
+    .with('CreatedBy', new List<SObjectField>{
         User.Id, User.Name
     }).toList();
 ```
