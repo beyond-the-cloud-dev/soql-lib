@@ -9,7 +9,7 @@
 **/
 @SuppressWarnings('PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.ApexDoc')
 @IsTest
-private class SOQLTest {
+private class SOQL_Test {
 
     @SuppressWarnings('PMD.AvoidHardcodingId')
     private static final Id FAKE_ACCOUNT_ID = '0013V00000WNCwCQAX';
