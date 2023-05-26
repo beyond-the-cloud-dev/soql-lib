@@ -74,3 +74,31 @@ SOQL.of(Account.SObjectType)
         .conditionLogic('(1 AND 2) OR (1 AND 3)')
     ).toList();
 ```
+
+## anyConditionMatching
+
+When the [conditionLogic](#anyconditionmatching) is not specified, all conditions are joined using the `AND` operator by default.
+
+To change the default condition logic, you can utilize the `anyConditionMatching` method, which joins conditions using the `OR` operator.
+
+**Signature**
+
+```apex
+FilterGroup anyConditionMatching()
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+WHERE Name = 'My Account' OR NumberOfEmployees >= 10
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.FilterGroup
+        .add(SOQL.Filter.with(Account.Name).equal('My Account'))
+        .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10))
+        .anyConditionMatching()
+    ).toList();
+```

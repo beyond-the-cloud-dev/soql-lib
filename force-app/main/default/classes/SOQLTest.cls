@@ -725,6 +725,26 @@ private class SOQLTest {
         Assert.areEqual('SELECT Id FROM Account', soql);
     }
 
+
+    @IsTest
+    static void anyConditionMatching() {
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.FilterGroup
+                .add(SOQL.Filter.with(Account.Name).equal('Test'))
+                .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
+                .anyConditionMatching()
+            );
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 OR BillingCity = :v2)', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('Test', binding.get('v1'));
+        Assert.areEqual('Krakow', binding.get('v2'));
+    }
+
     @IsTest
     static void nestedConditionsGroup() {
         // Test

@@ -172,6 +172,7 @@ public inherited sharing class SOQL implements Queryable {
 
     public interface SoqlFiltersGroup { // SOQL.FilterGroup
         FilterGroup add(FilterClause condition); // SOQL.Filter or SOQL.FilterGroup
+        FilterGroup anyConditionMatching(); // Join with OR
         FilterGroup conditionLogic(String order);
     }
 
@@ -796,6 +797,7 @@ public inherited sharing class SOQL implements Queryable {
         private List<FilterClause> queryConditions = new List<FilterClause>();
         private String stringConditions;
         private String order = '';
+        private String connector = 'AND';
         private Boolean isMain = false;
 
         public FilterGroup(Boolean isMain) {
@@ -815,6 +817,11 @@ public inherited sharing class SOQL implements Queryable {
                 return;
             }
             stringConditions = String.escapeSingleQuotes(conditions);
+        }
+
+        public FilterGroup anyConditionMatching() {
+            connector = 'OR';
+            return this;
         }
 
         public FilterGroup conditionLogic(String order) {
@@ -855,7 +862,7 @@ public inherited sharing class SOQL implements Queryable {
                 defaultOrder.add(String.valueOf(i + 1));
             }
 
-            order = String.join(defaultOrder, ' AND '); // e.g (1 AND 2 AND 3)
+            order = String.join(defaultOrder, ' ' + connector + ' '); // e.g (1 AND 2 AND 3)
         }
 
         public String buildNested() {
