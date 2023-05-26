@@ -27,12 +27,16 @@ SOQL.of(Account.SObjectType).toList();
 
 ## select
 
-### with field
+### with field1 - field5
 
 **Signature**
 
 ```apex
 SOQL with(SObjectField field)
+SOQL with(SObjectField field1, SObjectField field2);
+SOQL with(SObjectField field1, SObjectField field2, SObjectField field3);
+SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
 ```
 
 **Example**
@@ -42,6 +46,10 @@ SELECT Id, Name
 FROM Account
 ```
 ```apex
+SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .toList();
+
 SOQL.of(Account.SObjectType)
     .with(Account.Id)
     .with(Account.Name)
@@ -95,7 +103,7 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
-### with related field
+### with related field1 - field5
 
 Allows to add parent field to a query.
 
@@ -103,6 +111,10 @@ Allows to add parent field to a query.
 
 ```apex
 SOQL with(String relationshipName, SObjectField field)
+SOQL with(String relationshipName, SObjectField field1, SObjectField field2);
+SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
+SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
 ```
 
 **Example**
@@ -114,6 +126,10 @@ FROM Account
 ```apex
 SOQL.of(Account.SObjectType)
     .with('CreatedBy', User.Name)
+    .toList();
+
+SOQL.of(Account.SObjectType)
+    .with('CreatedBy', User.Id, User.Name, User.Phone)
     .toList();
 ```
 

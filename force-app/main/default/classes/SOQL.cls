@@ -10,8 +10,9 @@
  * - PropertyNamingConventions: It was intentional to make the lib more fluent and readable
  * - FieldDeclarationsShouldBeAtStart: Developer who uses lib should see what's important at start
  * - ApexDoc: Variable names are self-documented.
+ * - ExcessiveParameterList - Make methods similar to native SOQL
 **/
-@SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.PropertyNamingConventions, PMD.FieldDeclarationsShouldBeAtStart, PMD.ApexDoc')
+@SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.PropertyNamingConventions, PMD.FieldDeclarationsShouldBeAtStart, PMD.ApexDoc, PMD.ExcessiveParameterList')
 public inherited sharing class SOQL implements Queryable {
 
     public static SubQuery SubQuery {
@@ -46,11 +47,22 @@ public inherited sharing class SOQL implements Queryable {
         SOQL of(SObjectType ofObject);
 
         SOQL with(SObjectField field);
+        SOQL with(SObjectField field1, SObjectField field2);
+        SOQL with(SObjectField field1, SObjectField field2, SObjectField field3);
+        SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+        SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         SOQL with(Set<SObjectField> fields);
         SOQL with(List<SObjectField> fields);
+
         SOQL with(String fields);
+
         SOQL with(String relationshipName, SObjectField field);
+        SOQL with(String relationshipName, SObjectField field1, SObjectField field2);
+        SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
+        SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+        SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         SOQL with(String relationshipName, List<SObjectField> fields);
+
         SOQL with(SubQuery subQuery); // SOQL.SubQuery
 
         SOQL count();
@@ -221,8 +233,23 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public SOQL with(SObjectField field) {
-        builder.fields.with(field);
-        return this;
+        return with(new List<SObjectField>{ field });
+    }
+
+    public SOQL with(SObjectField field1, SObjectField field2) {
+        return with(new List<SObjectField>{ field1, field2 });
+    }
+
+    public SOQL with(SObjectField field1, SObjectField field2, SObjectField field3) {
+        return with(new List<SObjectField>{ field1, field2, field3 });
+    }
+
+    public SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
+        return with(new List<SObjectField>{ field1, field2, field3, field4 });
+    }
+
+    public SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
+        return with(new List<SObjectField>{ field1, field2, field3, field4, field5 });
     }
 
     public SOQL with(Set<SObjectField> fields) {
@@ -241,8 +268,23 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public SOQL with(String relationshipName, SObjectField field) {
-        builder.fields.with(relationshipName, field);
-        return this;
+        return with(relationshipName, new List<SObjectField>{ field });
+    }
+
+    public SOQL with(String relationshipName, SObjectField field1, SObjectField field2) {
+        return with(relationshipName, new List<SObjectField>{ field1, field2 });
+    }
+
+    public SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3) {
+        return with(relationshipName, new List<SObjectField>{ field1, field2, field3 });
+    }
+
+    public SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
+        return with(relationshipName, new List<SObjectField>{ field1, field2, field3, field4 });
+    }
+
+    public SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
+        return with(relationshipName, new List<SObjectField>{ field1, field2, field3, field4, field5 });
     }
 
     public SOQL with(String relationshipName, List<SObjectField> fields) {

@@ -57,6 +57,50 @@ private class SOQLTest {
     }
 
     @IsTest
+    static void withTwoField() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Name, Account.BillingCity)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Name, BillingCity FROM Account', soql);
+    }
+
+    @IsTest
+    static void withThreeField() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Id, Account.Name, Account.BillingCity)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id, Name, BillingCity FROM Account', soql);
+    }
+
+    @IsTest
+    static void withFourField() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Id, Account.Name, Account.BillingCity, Account.AccountNumber)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id, Name, BillingCity, AccountNumber FROM Account', soql);
+    }
+
+    @IsTest
+    static void withFiveField() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Id, Account.Name, Account.BillingCity, Account.AccountNumber, Account.AccountSource)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id, Name, BillingCity, AccountNumber, AccountSource FROM Account', soql);
+    }
+
+    @IsTest
     static void withSetOfFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
@@ -103,6 +147,62 @@ private class SOQLTest {
 
         // Verify
         Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Name FROM Account', soql);
+    }
+
+    @IsTest
+    static void withTwoRelatedField() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(new List<SObjectField>{
+                Account.Name, Account.BillingCity
+            })
+            .with('CreatedBy', User.Id, User.Name)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name FROM Account', soql);
+    }
+
+    @IsTest
+    static void withThreeRelatedField() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(new List<SObjectField>{
+                Account.Name, Account.BillingCity
+            })
+            .with('CreatedBy', User.Id, User.Name, User.Alias)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias FROM Account', soql);
+    }
+
+    @IsTest
+    static void withFourRelatedField() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(new List<SObjectField>{
+                Account.Name, Account.BillingCity
+            })
+            .with('CreatedBy', User.Id, User.Name, User.Alias, User.City)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias, CreatedBy.City FROM Account', soql);
+    }
+
+    @IsTest
+    static void withFiveRelatedField() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(new List<SObjectField>{
+                Account.Name, Account.BillingCity
+            })
+            .with('CreatedBy', User.Id, User.Name, User.Alias, User.City, User.CompanyName)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias, CreatedBy.City, CreatedBy.CompanyName FROM Account', soql);
     }
 
     @IsTest
