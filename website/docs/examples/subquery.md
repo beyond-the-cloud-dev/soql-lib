@@ -16,10 +16,7 @@ public inherited sharing class AccountSelector implements SOQL.Selector {
 
     public static SOQL query() {
         return SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Id,
-                Account.Name
-            });
+            .with(Account.Id, Account.Name);
     }
 }
 
@@ -28,10 +25,7 @@ public with sharing class MyController {
     public static List<Account> getAccountsWithContacts() {
         return AccountSelector.query()
             .with(SOQL.SubQuery.of('Contacts')
-                .with(new List<SObjectField>{
-                    Contact.Id,
-                    Contact.Name
-                })
+                .with(Contact.Id, Contact.Name)
             ).toList();
     }
 }

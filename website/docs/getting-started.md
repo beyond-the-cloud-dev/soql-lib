@@ -8,7 +8,7 @@ sidebar_position: 2
 ![Deploy to Scratch Org and run tests](https://github.com/beyond-the-cloud-dev/query-selector/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/gh/beyond-the-cloud-dev/query-selector/branch/main/graph/badge.svg)](https://codecov.io/gh/beyond-the-cloud-dev/query-selector)
 
-Apex SOQL provides functional constructs for SOQL.
+The SOQL Lib provides functional constructs for SOQL queries in Apex.
 
 ## Examples
 
@@ -20,9 +20,8 @@ List<Account> accounts = SOQL.of(Account.SObjectType).toList();
 ```apex
 //SELECT Id, Name, Industry, Country FROM Account
 List<Account> accounts = SOQL.of(Account.SObjectType)
-   .with(new List<SObjectField>{
-      Account.Id, Account.Name, Account.Industry, Account.Country
-   }).toList();
+   .with(Account.Id, Account.Name, Account.Industry, Account.Country)
+   .toList();
 ```
 
 ## Benefits

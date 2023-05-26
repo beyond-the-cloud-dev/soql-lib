@@ -3,10 +3,9 @@
 ![Deploy to Scratch Org and run tests](https://github.com/beyond-the-cloud-dev/query-selector/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/gh/beyond-the-cloud-dev/query-selector/branch/main/graph/badge.svg)](https://codecov.io/gh/beyond-the-cloud-dev/query-selector)
 
-Apex SOQL provides functional constructs for SOQL.
+The SOQL Lib provides functional constructs for SOQL queries in Apex.
 
-
-Find more details in the [documentation](https://soql-lib.vercel.app/).
+For more details, please refer to the [documentation](https://soql-lib.vercel.app/).
 
 ## Examples
 
@@ -18,18 +17,15 @@ List<Account> accounts = SOQL.of(Account.SObjectType).toList();
 ```apex
 // SELECT Id, Name, Industry FROM Account
 List<Account> accounts = SOQL.of(Account.SObjectType)
-   .with(new List<SObjectField>{
-      Account.Id, Account.Name, Account.Industry
-   }).toList();
+   .with(Account.Id, Account.Name, Account.Industry)
+   .toList();
 ```
 
 ```apex
 public with sharing class AccountSelector implements SOQL.Selector {
     public static SOQL query() {
         return SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-               Account.Id, Account.Name
-            });
+            .with(Account.Id, Account.Name);
     }
 }
 ```
@@ -39,9 +35,7 @@ public with sharing class ExampleController {
 
     @AuraEnabled
     public static List<Account> getAccounts() {
-        return AccountSelector.query()
-            .with(Account.Industry)
-            .toList();
+        return AccountSelector.query().with(Account.Industry).toList();
     }
 }
 ```
@@ -61,7 +55,7 @@ public with sharing class ExampleController {
 
 ## Assumptions
 
-1. **Small Selector Classes** - The selector class should be small and contains ONLY query base configuration (fields, sharing settings) and very generic methods (`getById`, `getByRecordType`). Why?
+1. **Small Selector Classes** - The selector class should be small and contains ONLY query base configuration (fields, sharing settings) and very generic methods (`byId`, `byRecordType`). Why?
    - Huge classes are hard to manage.
    - A lot of merge conflicts.
    - Problems with methods naming.

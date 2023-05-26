@@ -238,6 +238,66 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void subQueryTwoFields() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(new List<SObjectField>{
+                Account.Name
+            })
+            .with(SOQL.SubQuery.of('Contacts')
+                .with(Contact.Id, Contact.Name)
+            ).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts) FROM Account', soql);
+    }
+
+    @IsTest
+    static void subQueryThreeFields() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(new List<SObjectField>{
+                Account.Name
+            })
+            .with(SOQL.SubQuery.of('Contacts')
+                .with(Contact.Id, Contact.Name, Contact.AccountId)
+            ).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Name , (SELECT Id, Name, AccountId FROM Contacts) FROM Account', soql);
+    }
+
+    @IsTest
+    static void subQueryFourFields() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(new List<SObjectField>{
+                Account.Name
+            })
+            .with(SOQL.SubQuery.of('Contacts')
+                .with(Contact.Id, Contact.Name, Contact.AccountId, Contact.Email)
+            ).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Name , (SELECT Id, Name, AccountId, Email FROM Contacts) FROM Account', soql);
+    }
+
+    @IsTest
+    static void subQueryFiveFields() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(new List<SObjectField>{
+                Account.Name
+            })
+            .with(SOQL.SubQuery.of('Contacts')
+                .with(Contact.Id, Contact.Name, Contact.AccountId, Contact.Email, Contact.Phone)
+            ).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Name , (SELECT Id, Name, AccountId, Email, Phone FROM Contacts) FROM Account', soql);
+    }
+
+    @IsTest
     static void subQueryFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)

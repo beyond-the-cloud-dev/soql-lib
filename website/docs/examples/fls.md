@@ -13,10 +13,7 @@ public inherited sharing class AccountSelector implements SOQL.Selector {
 
     public static SOQL query() {
         return SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Id,
-                Account.Name
-            })
+            .with(Account.Id, Account.Name)
             .systemMode(); //default FLS mode
     }
 }

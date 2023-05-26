@@ -130,6 +130,10 @@ public inherited sharing class SOQL implements Queryable {
         SubQuery of(String ofObject);
 
         SubQuery with(SObjectField field);
+        SubQuery with(SObjectField field1, SObjectField field2);
+        SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3);
+        SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+        SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         SubQuery with(List<SObjectField> fields);
         SubQuery with(String relationshipName, List<SObjectField> fields);
 
@@ -704,8 +708,23 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public SubQuery with(SObjectField field) {
-            builder.fields.with(field);
-            return this;
+            return with(new List<SObjectField>{ field });
+        }
+
+        public SubQuery with(SObjectField field1, SObjectField field2) {
+            return with(new List<SObjectField>{ field1, field2 });
+        }
+
+        public SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3) {
+            return with(new List<SObjectField>{ field1, field2, field3 });
+        }
+
+        public SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
+            return with(new List<SObjectField>{ field1, field2, field3, field4 });
+        }
+
+        public SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
+            return with(new List<SObjectField>{ field1, field2, field3, field4, field5 });
         }
 
         public SubQuery with(List<SObjectField> fields) {

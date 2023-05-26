@@ -16,10 +16,7 @@ public inherited sharing class AccountSelector implements SOQL.Selector {
 
     public static SQOL query() {
         return SQOL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Id,
-                Account.Name
-            });
+            .with(Account.Id, Account.Name);
     }
 }
 

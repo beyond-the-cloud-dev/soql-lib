@@ -33,9 +33,17 @@ SOQL.of(Account.SObjectType).toList();
 
 ```apex
 SOQL with(SObjectField field)
+```
+```apex
 SOQL with(SObjectField field1, SObjectField field2);
+```
+```apex
 SOQL with(SObjectField field1, SObjectField field2, SObjectField field3);
+```
+```apex
 SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+```
+```apex
 SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
 ```
 
@@ -62,6 +70,8 @@ SOQL.of(Account.SObjectType)
 
 > `SELECT` statement that specifies the fields to query. The fieldList in the `SELECT` statement specifies the list of one or more fields, separated by commas, that you want to retrieve.
 
+Use for more than 5 fields.
+
 **Signature**
 
 ```apex
@@ -71,13 +81,18 @@ SOQL with(List<SObjectField> fields)
 **Example**
 
 ```sql
-SELECT Id, Name, Industry
+SELECT Id, Name, Industry, AccountNumber, AnnualRevenue, BillingCity
 FROM Account
 ```
 ```apex
 SOQL.of(Account.SObjectType)
     .with(new List<SObjectField>{
-        Account.Id, Account.Name, Account.Industry
+        Account.Id,
+        Account.Name,
+        Account.Industry,
+        Account.AccountNumber,
+        Account.AnnualRevenue,
+        Account.BillingCity
     }).toList();
 ```
 
@@ -111,9 +126,17 @@ Allows to add parent field to a query.
 
 ```apex
 SOQL with(String relationshipName, SObjectField field)
+```
+```apex
 SOQL with(String relationshipName, SObjectField field1, SObjectField field2);
+```
+```apex
 SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
+```
+```apex
 SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+```
+```apex
 SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
 ```
 
@@ -138,6 +161,8 @@ SOQL.of(Account.SObjectType)
 [SELECT](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_fields.htm)
 
 Allows to add parent fields to a query.
+
+Use for more than 5 parent fields.
 
 **Signature**
 

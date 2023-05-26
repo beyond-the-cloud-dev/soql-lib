@@ -32,36 +32,24 @@ SOQL.of(Account.SObjectType)
 
 ## select
 
-### with field
+### with field1 - field5
 
 **Signature**
 
 ```apex
-SOQL with(SObjectField field)
-```
-
-**Example**
-
-```sql
-SELECT Id, (
-    SELECT Name
-    FROM Contacts
-) FROM Account
+SubQuery with(SObjectField field);
 ```
 ```apex
-SOQL.of(Account.SObjectType)
-    .with(SOQL.SubQuery.of('Contacts')
-        .with(Contact.Name)
-    )
-    .toList();
+SubQuery with(SObjectField field1, SObjectField field2);
 ```
-
-### with fields
-
-**Signature**
-
 ```apex
-SubQuery with(List<SObjectField> fields)
+SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3);
+```
+```apex
+SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+```
+```apex
+SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
 ```
 
 **Example**
@@ -75,8 +63,39 @@ SELECT Id, (
 ```apex
 SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
+        .with(Contact.Id, Contact.Name)
+    )
+    .toList();
+```
+
+### with fields
+
+Use for more than 5 fields.
+
+**Signature**
+
+```apex
+SubQuery with(List<SObjectField> fields)
+```
+
+**Example**
+
+```sql
+SELECT Id, (
+    SELECT Id, Name, Phone, RecordTypeId, Title, Salutation
+    FROM Contacts
+) FROM Account
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .with(SOQL.SubQuery.of('Contacts')
         .with(new List<SObjectField>{
-            Contact.Id, Contact.Name
+            Contact.Id,
+            Contact.Name,
+            Contact.Phone,
+            Contact.RecordTypeId,
+            Contact.Title,
+            Contact.Salutation
         })
     )
     .toList();
@@ -102,7 +121,7 @@ SELECT Id, (
 ```apex
 SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
-        .with('CreatedBy',
+        .with('CreatedBy', new List<SObjectField>{
             User.Id, User.Name
         })
     )
