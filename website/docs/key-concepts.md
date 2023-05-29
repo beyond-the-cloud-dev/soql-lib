@@ -84,19 +84,15 @@ Use `SOQL.Selector` and create `static` methods.
 public with sharing class AccountSelector implements SOQL.Selector {
     public static SOQL query() {
         return SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Name,
-                Account.AccountNumber
-            })
+            .with(Account.Name, Account.AccountNumber)
             .systemMode()
             .withoutSharing();
     }
 
     public static SOQL getByRecordType(String rt) {
-        return query.with(new List<SObjectField>{
-            Account.BillingCity,
-            Account.BillingCountry
-        }).whereAre(SOQL.Filter.recordType().equal(rt));
+        return query()
+            .with(Account.BillingCity, Account.BillingCountry)
+            .whereAre(SOQL.Filter.recordType().equal(rt));
     }
 }
 ```
@@ -106,9 +102,8 @@ public with sharing class ExampleController {
 
     public static List<Account> getAccounts(String accountName) {
         return AccountSelector.query()
-            .with(Account.BillingCity)
-            .with(Account.BillingCountry)
-            .whereAre(SOQL.Filter.with(Account.Name).contains(accountName))
+            .with(Account.BillingCity, Account.BillingCountry)
+            .whereAre(SOQL.Filter.name().contains(accountName))
             .toList();
     }
 
@@ -128,17 +123,13 @@ Very useful when you have different teams/streams who need different query confi
 public with sharing virtual class BaseAccountSelector implements SOQL.Selector {
     public virtual SOQL query() {
         return SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Id,
-                Account.Name
-            });
+            .with(Account.Id, Account.Name);
     }
 
     public SOQL byRecordType(String rt) {
-        return query().with(new List<SObjectField>{
-            Account.BillingCity,
-            Account.BillingCountry
-        }).whereAre(SOQL.Filter.recordType().equal(rt));
+        return query()
+            .with(Account.BillingCity, Account.BillingCountry)
+            .whereAre(SOQL.Filter.recordType().equal(rt));
     }
 }
 ```
@@ -147,10 +138,7 @@ public with sharing virtual class BaseAccountSelector implements SOQL.Selector {
 public with sharing class MyTeam_AccountSelector extends BaseAccountSelector implements SOQL.Selector {
     public override SOQL query() {
         return SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Id,
-                Account.AccountNumber
-            })
+            .with(Account.Id, Account.AccountNumber)
             .systemMode()
             .withoutSharing();
     }
@@ -162,9 +150,8 @@ public with sharing class ExampleController {
 
     public static List<Account> getAccounts(String accountName) {
         return new MyTeam_AccountSelector().query()
-            .with(Account.BillingCity)
-            .with(Account.BillingCountry)
-            .whereAre(SOQL.Filter.with(Account.Name).contains(accountName))
+            .with(Account.BillingCity, Account.BillingCountry)
+            .whereAre(SOQL.Filter.name().contains(accountName))
             .toList();
     }
 
@@ -184,17 +171,13 @@ Create Selectors in your own way.
 public with sharing virtual class AccountSelector {
     public static SOQL query {
         return SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Id,
-                Account.Name
-            });
+            .with(Account.Id, Account.Name);
     }
 
     public static SOQL byRecordType(String rt) {
-        return query.with(new List<SObjectField>{
-            Account.BillingCity,
-            Account.BillingCountry
-        }).whereAre(SOQL.Filter.recordType().equal(rt));
+        return query
+            .with(Account.BillingCity, Account.BillingCountry)
+            .whereAre(SOQL.Filter.recordType().equal(rt));
     }
 }
 ```
@@ -204,9 +187,8 @@ public with sharing class ExampleController {
 
     public static List<Account> getAccounts(String accountName) {
         return AccountSelector.query
-            .with(Account.BillingCity)
-            .with(Account.BillingCountry)
-            .whereAre(SOQL.Filter.with(Account.Name).contains(accountName))
+            .with(Account.BillingCity, Account.BillingCountry)
+            .whereAre(SOQL.Filter.name().contains(accountName))
             .toList();
     }
 

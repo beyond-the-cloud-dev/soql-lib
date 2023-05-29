@@ -10,11 +10,10 @@ sidebar_position: 3
 
 ```apex
 // SELECT Id FROM Account LIMIT 100
-SOQL.of(Account.SObjectType).with(new List<SObjectField> {
-    Account.Id, Account.Name
-})
-.setLimit(100)
-.toList();
+SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .setLimit(100)
+    .toList();
 ```
 
 
@@ -24,11 +23,10 @@ All variables used in the `WHERE` condition are automatically binded.
 
 ```apex
 // SELECT Id, Name FROM Account WHERE Name = :v1
-SOQL.of(Account.SObjectType).with(new List<SObjectField> {
-    Account.Id, Account.Name
-})
-.whereAre(SOQL.Filter.with(Account.Name).contains('Test'))
-.toList();
+SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .whereAre(SOQL.Filter.with(Account.Name).contains('Test'))
+    .toList();
 ```
 
 ```apex
@@ -58,11 +56,10 @@ Developers can change the mode to `AccessLevel.SYSTEM_MODE` by using the `.syste
 
 ```apex
 // SELECT Id FROM Account - skip FLS
-SOQL.of(Account.SObjectType).with(new List<SObjectField> {
-    Account.Id, Account.Name
-})
-.systemMode()
-.toList();
+SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .systemMode()
+    .toList();
 ```
 
 ## Control Sharings
@@ -81,12 +78,10 @@ Developer can skip FLS by adding `.systemMode()` and `.withSharing()`.
 
 ```apex
 // Query executed in without sharing
-SOQL.of(Account.SObjectType).with(new List<SObjectField> {
-    Account.Id, Account.Name
-})
-.systemMode()
-.withSharing()
-.toList();
+SOQL.of(Account.SObjectType).with(Account.Id, Account.Name)
+    .systemMode()
+    .withSharing()
+    .toList();
 ```
 
 ### without sharing
@@ -95,12 +90,11 @@ Developer can control sharing rules by adding `.systemMode()` (record sharing ru
 
 ```apex
 // Query executed in with sharing
-SOQL.of(Account.SObjectType).with(new List<SObjectField> {
-    Account.Id, Account.Name
-})
-.systemMode()
-.withoutSharing()
-.toList();
+SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .systemMode()
+    .withoutSharing()
+    .toList();
 ```
 
 ### inherited sharing
@@ -109,11 +103,10 @@ Developer can control sharing rules by adding `.systemMode()` (record sharing ru
 
 ```apex
 // Query executed in inherited sharing
-SOQL.of(Account.SObjectType).with(new List<SObjectField> {
-    Account.Id, Account.Name
-})
-.systemMode()
-.toList();
+SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .systemMode()
+    .toList();
 ```
 
 ## Mocking
@@ -126,8 +119,7 @@ public with sharing class ExampleController {
 
     public static List<Account> getPartnerAccounts(String accountName) {
         return AccountSelector.query()
-            .with(Account.BillingCity)
-            .with(Account.BillingCountry)
+            .with(Account.BillingCity, Account.BillingCountry)
             .whereAre(SOQL.FilterGroup
                 .add(SOQL.Filter.with(Account.Name).contains(accountName))
                 .add(SOQL.Filter.recordType().equal('Partner'))
@@ -224,19 +216,15 @@ public inherited sharing class AccountSelector implements SOQL.Selector {
 
     public static SOQL query() {
         return SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Name,
-                Account.AccountNumber
-            })
+            .with(Account.Name, Account.AccountNumber)
             .systemMode()
             .withoutSharing();
     }
 
     public static SOQL byRecordType(String rtDevName) {
-        return query.with(new List<SObjectField>{
-            Account.BillingCity,
-            Account.BillingCountry
-        }).whereAre(SOQL.Filter.recordType().equal(rtDevName));
+        return query()
+            .with(Account.BillingCity, Account.BillingCountry)
+            .whereAre(SOQL.Filter.recordType().equal(rtDevName));
     }
 }
 ```
@@ -250,10 +238,8 @@ public inherited sharing class AccountSelector implements SOQL.Selector {
 
     public static SOQL query() {
         return SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{  // default fields
-                Account.Id,
-                Account.Name
-            }).systemMode(); // default FLS mode
+            .with(Account.Id, Account.Name) // default fields
+            .systemMode(); // default FLS mode
     }
 }
 ```

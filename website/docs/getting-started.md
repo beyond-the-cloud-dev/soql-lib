@@ -20,9 +20,8 @@ List<Account> accounts = SOQL.of(Account.SObjectType).toList();
 ```apex
 //SELECT Id, Name, Industry, Country FROM Account
 List<Account> accounts = SOQL.of(Account.SObjectType)
-   .with(new List<SObjectField>{
-      Account.Id, Account.Name, Account.Industry, Account.Country
-   }).toList();
+   .with(Account.Id, Account.Name, Account.Industry, Account.Country)
+   .toList();
 ```
 
 ## Benefits

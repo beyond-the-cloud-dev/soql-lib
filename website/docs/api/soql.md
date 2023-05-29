@@ -27,12 +27,24 @@ SOQL.of(Account.SObjectType).toList();
 
 ## select
 
-### with field
+### with field1 - field5
 
 **Signature**
 
 ```apex
 SOQL with(SObjectField field)
+```
+```apex
+SOQL with(SObjectField field1, SObjectField field2);
+```
+```apex
+SOQL with(SObjectField field1, SObjectField field2, SObjectField field3);
+```
+```apex
+SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+```
+```apex
+SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
 ```
 
 **Example**
@@ -42,6 +54,10 @@ SELECT Id, Name
 FROM Account
 ```
 ```apex
+SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .toList();
+
 SOQL.of(Account.SObjectType)
     .with(Account.Id)
     .with(Account.Name)
@@ -54,6 +70,8 @@ SOQL.of(Account.SObjectType)
 
 > `SELECT` statement that specifies the fields to query. The fieldList in the `SELECT` statement specifies the list of one or more fields, separated by commas, that you want to retrieve.
 
+Use for more than 5 fields.
+
 **Signature**
 
 ```apex
@@ -63,13 +81,18 @@ SOQL with(List<SObjectField> fields)
 **Example**
 
 ```sql
-SELECT Id, Name, Industry
+SELECT Id, Name, Industry, AccountNumber, AnnualRevenue, BillingCity
 FROM Account
 ```
 ```apex
 SOQL.of(Account.SObjectType)
     .with(new List<SObjectField>{
-        Account.Id, Account.Name, Account.Industry
+        Account.Id,
+        Account.Name,
+        Account.Industry,
+        Account.AccountNumber,
+        Account.AnnualRevenue,
+        Account.BillingCity
     }).toList();
 ```
 
@@ -95,7 +118,7 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
-### with related field
+### with related field1 - field5
 
 Allows to add parent field to a query.
 
@@ -103,6 +126,18 @@ Allows to add parent field to a query.
 
 ```apex
 SOQL with(String relationshipName, SObjectField field)
+```
+```apex
+SOQL with(String relationshipName, SObjectField field1, SObjectField field2);
+```
+```apex
+SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
+```
+```apex
+SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+```
+```apex
+SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
 ```
 
 **Example**
@@ -115,6 +150,10 @@ FROM Account
 SOQL.of(Account.SObjectType)
     .with('CreatedBy', User.Name)
     .toList();
+
+SOQL.of(Account.SObjectType)
+    .with('CreatedBy', User.Id, User.Name, User.Phone)
+    .toList();
 ```
 
 ### with related fields
@@ -122,6 +161,8 @@ SOQL.of(Account.SObjectType)
 [SELECT](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_fields.htm)
 
 Allows to add parent fields to a query.
+
+Use for more than 5 parent fields.
 
 **Signature**
 

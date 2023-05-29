@@ -10,8 +10,9 @@
  * - PropertyNamingConventions: It was intentional to make the lib more fluent and readable
  * - FieldDeclarationsShouldBeAtStart: Developer who uses lib should see what's important at start
  * - ApexDoc: Variable names are self-documented.
+ * - ExcessiveParameterList - Make methods similar to native SOQL
 **/
-@SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.PropertyNamingConventions, PMD.FieldDeclarationsShouldBeAtStart, PMD.ApexDoc')
+@SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.PropertyNamingConventions, PMD.FieldDeclarationsShouldBeAtStart, PMD.ApexDoc, PMD.ExcessiveParameterList')
 public inherited sharing class SOQL implements Queryable {
 
     public static SubQuery SubQuery {
@@ -46,11 +47,22 @@ public inherited sharing class SOQL implements Queryable {
         SOQL of(SObjectType ofObject);
 
         SOQL with(SObjectField field);
+        SOQL with(SObjectField field1, SObjectField field2);
+        SOQL with(SObjectField field1, SObjectField field2, SObjectField field3);
+        SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+        SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         SOQL with(Set<SObjectField> fields);
         SOQL with(List<SObjectField> fields);
+
         SOQL with(String fields);
+
         SOQL with(String relationshipName, SObjectField field);
+        SOQL with(String relationshipName, SObjectField field1, SObjectField field2);
+        SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
+        SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+        SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         SOQL with(String relationshipName, List<SObjectField> fields);
+
         SOQL with(SubQuery subQuery); // SOQL.SubQuery
 
         SOQL count();
@@ -118,6 +130,10 @@ public inherited sharing class SOQL implements Queryable {
         SubQuery of(String ofObject);
 
         SubQuery with(SObjectField field);
+        SubQuery with(SObjectField field1, SObjectField field2);
+        SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3);
+        SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+        SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         SubQuery with(List<SObjectField> fields);
         SubQuery with(String relationshipName, List<SObjectField> fields);
 
@@ -225,9 +241,24 @@ public inherited sharing class SOQL implements Queryable {
         return this;
     }
 
+    public SOQL with(SObjectField field1, SObjectField field2) {
+        return with(field1).with(field2);
+    }
+
+    public SOQL with(SObjectField field1, SObjectField field2, SObjectField field3) {
+        return with(field1).with(field2).with(field3);
+    }
+
+    public SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
+        return with(field1).with(field2).with(field3).with(field4);
+    }
+
+    public SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
+        return with(field1).with(field2).with(field3).with(field4).with(field5);
+    }
+
     public SOQL with(Set<SObjectField> fields) {
-        with(new List<SObjectField>(fields));
-        return this;
+        return with(new List<SObjectField>(fields));
     }
 
     public SOQL with(List<SObjectField> fields) {
@@ -241,8 +272,23 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public SOQL with(String relationshipName, SObjectField field) {
-        builder.fields.with(relationshipName, field);
-        return this;
+        return with(relationshipName, new List<SObjectField>{ field });
+    }
+
+    public SOQL with(String relationshipName, SObjectField field1, SObjectField field2) {
+        return with(relationshipName, new List<SObjectField>{ field1, field2 });
+    }
+
+    public SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3) {
+        return with(relationshipName, new List<SObjectField>{ field1, field2, field3 });
+    }
+
+    public SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
+        return with(relationshipName, new List<SObjectField>{ field1, field2, field3, field4 });
+    }
+
+    public SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
+        return with(relationshipName, new List<SObjectField>{ field1, field2, field3, field4, field5 });
     }
 
     public SOQL with(String relationshipName, List<SObjectField> fields) {
@@ -616,7 +662,7 @@ public inherited sharing class SOQL implements Queryable {
 
         public void with(List<SObjectField> fields) {
             for (SObjectField field : fields) {
-                with(field);
+                queryFields.add(field.getDescribe().getName());
             }
         }
 
@@ -664,6 +710,22 @@ public inherited sharing class SOQL implements Queryable {
         public SubQuery with(SObjectField field) {
             builder.fields.with(field);
             return this;
+        }
+
+        public SubQuery with(SObjectField field1, SObjectField field2) {
+            return with(field1).with(field2);
+        }
+
+        public SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3) {
+            return with(field1).with(field2).with(field3);
+        }
+
+        public SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
+            return with(field1).with(field2).with(field3).with(field4);
+        }
+
+        public SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
+            return with(field1).with(field2).with(field3).with(field4).with(field5);
         }
 
         public SubQuery with(List<SObjectField> fields) {
@@ -1130,18 +1192,16 @@ public inherited sharing class SOQL implements Queryable {
         private String sortingOrder = 'ASC';
         private String nullsOrder = 'FIRST';
 
-        public QOrderBy with(String field) {
-            orderField = field;
-            return this;
-        }
-
         public QOrderBy with(SObjectField field) {
-            orderField = field.getDescribe().getName();
-            return this;
+            return with(field.getDescribe().getName());
         }
 
         public QOrderBy with(String relationshipName, SObjectField field) {
-            orderField = relationshipName + '.' + field.getDescribe().getName();
+            return with(relationshipName + '.' + field.getDescribe().getName());
+        }
+
+        public QOrderBy with(String field) {
+            orderField = field;
             return this;
         }
 
@@ -1227,12 +1287,6 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private enum SharingLevel {
-        INHERITED,
-        WITH_SHARING,
-        WITHOUT_SHARING
-    }
-
     // Mocking
 
     private class Mock {
@@ -1278,31 +1332,22 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     private inherited sharing class Executor {
-        private SObjectType ofObject;
-
-        private SharingLevel sharingMode = SharingLevel.INHERITED;
         private AccessLevel accessMode = AccessLevel.USER_MODE; // The object permissions, field-level security, sharing rules are enforced.
+        private DatabaseQuery sharingExecutor = new InheritedSharing();
+        private SObjectType ofObject;
         private AccessType accessType;
-
         private String mockId;
-
-        @SuppressWarnings('PMD.FieldNamingConventions')
-        private final Map<SharingLevel, DatabaseQuery> MODE_TO_EXECUTOR = new Map<SharingLevel, DatabaseQuery>{
-            SharingLevel.WITH_SHARING => new WithSharing(),
-            SharingLevel.WITHOUT_SHARING => new WithoutSharing(),
-            SharingLevel.INHERITED => new InheritedSharing()
-        };
 
         public Executor(SObjectType ofObject) {
             this.ofObject = ofObject;
         }
 
         public void withSharing() {
-            sharingMode = SharingLevel.WITH_SHARING;
+            sharingExecutor = new WithSharing();
         }
 
         public void withoutSharing() {
-            sharingMode = SharingLevel.WITHOUT_SHARING;
+            sharingExecutor = new WithoutSharing();
         }
 
         public void stripInaccessible(AccessType type) {
@@ -1330,7 +1375,7 @@ public inherited sharing class SOQL implements Queryable {
                 return mock.getCountMock(mockId);
             }
 
-            return MODE_TO_EXECUTOR.get(sharingMode).executeCount(query, binding, accessMode);
+            return sharingExecutor.executeCount(query, binding, accessMode);
         }
 
         public List<SObject> toList(String query, Map<String, Object> binding) {
@@ -1343,12 +1388,12 @@ public inherited sharing class SOQL implements Queryable {
             }
 
             if (accessType == null) {
-                return MODE_TO_EXECUTOR.get(sharingMode).execute(query, binding, accessMode);
+                return sharingExecutor.execute(query, binding, accessMode);
             }
 
             return Security.stripInaccessible(
                 accessType,
-                MODE_TO_EXECUTOR.get(sharingMode).execute(query, binding, accessMode)
+                sharingExecutor.execute(query, binding, accessMode)
             ).getRecords();
         }
 

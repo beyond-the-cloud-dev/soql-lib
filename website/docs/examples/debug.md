@@ -11,10 +11,7 @@ public inherited sharing class AccountSelector implements SOQL.Selector {
 
     public static SOQL query() {
         return SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Id,
-                Account.Name
-            });
+            .with(Account.Id, Account.Name);
     }
 }
 
@@ -22,14 +19,14 @@ public with sharing class MyController {
 
     public static List<Account> getAccounts() {
         return AccountSelector.query()
-            .with(new List<SObjectField>{
+            .with(
                 Account.BillingCity,
                 Account.BillingCountry,
                 Account.BillingCountryCode
-            })
+            )
             .whereAre(SOQL.FilterGroup
-                .add(SOQL.Filter.with(Account.Id).equal('0013V00000WNCw4QAH'))
-                .add(SOQL.Filter.with(Account.Name).contains('Test'))
+                .add(SOQL.Filter.id().equal('0013V00000WNCw4QAH'))
+                .add(SOQL.Filter.name().contains('Test'))
                 .conditionLogic('1 OR 2')
              )
             .preview()
