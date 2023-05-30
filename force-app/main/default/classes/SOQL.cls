@@ -883,11 +883,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public virtual String build() {
-            if (isEmpty()) {
-                return '';
-            }
-
-            return buildNested();
+            return '(' + buildNested() + ')';
         }
 
         private void setDefaultOrderWhenEmpty() {
@@ -924,11 +920,7 @@ public inherited sharing class SOQL implements Queryable {
                 order = order.replace(String.valueOf(i), conditionNumberWithSpecialCharacters(i));
             }
 
-            return wrappedGroupOrder(order); // e.g (*1* AND (*2* OR *3*))
-        }
-
-        private virtual String wrappedGroupOrder(String order) {
-            return '(' + order + ')';
+            return order; // e.g (*1* AND (*2* OR *3*))
         }
 
         private String conditionNumberWithSpecialCharacters(Integer conditionNumber) {
@@ -953,10 +945,6 @@ public inherited sharing class SOQL implements Queryable {
             }
 
             return 'WHERE ' + buildNested();
-        }
-
-        public override String wrappedGroupOrder(String order) {
-            return order;
         }
     }
 
