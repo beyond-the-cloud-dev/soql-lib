@@ -57,7 +57,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withTwoField() {
+    static void withTwoFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with(Account.Name, Account.BillingCity)
@@ -68,7 +68,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withThreeField() {
+    static void withThreeFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with(Account.Id, Account.Name, Account.BillingCity)
@@ -79,7 +79,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withFourField() {
+    static void withFourFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with(Account.Id, Account.Name, Account.BillingCity, Account.AccountNumber)
@@ -90,7 +90,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withFiveField() {
+    static void withFiveFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with(Account.Id, Account.Name, Account.BillingCity, Account.AccountNumber, Account.AccountSource)
@@ -150,7 +150,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withTwoRelatedField() {
+    static void withTwoRelatedFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with(new List<SObjectField>{
@@ -164,7 +164,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withThreeRelatedField() {
+    static void withThreeRelatedFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with(new List<SObjectField>{
@@ -178,7 +178,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withFourRelatedField() {
+    static void withFourRelatedFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with(new List<SObjectField>{
@@ -192,7 +192,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withFiveRelatedField() {
+    static void withFiveRelatedFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with(new List<SObjectField>{
