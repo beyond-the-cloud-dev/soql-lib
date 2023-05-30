@@ -23,7 +23,7 @@ public inherited sharing class SOQL implements Queryable {
 
     public static FilterGroup FilterGroup { // A group to nest more filters
         get {
-            return new FilterGroup(false);
+            return new FilterGroup();
         }
     }
 
@@ -559,12 +559,12 @@ public inherited sharing class SOQL implements Queryable {
             }
         }
 
-        public FilterGroup conditions {
+        public MainFilterGroup conditions {
             get {
                 if (clauses[4] == null) {
-                    clauses.set(4, new FilterGroup(true));
+                    clauses.set(4, new MainFilterGroup());
                 }
-                return (FilterGroup) clauses[4];
+                return (MainFilterGroup) clauses[4];
             }
         }
 
@@ -629,7 +629,7 @@ public inherited sharing class SOQL implements Queryable {
                 soqlParts.add(clause.build());
             }
 
-            return String.join(new List<String>(soqlParts), ' ').trim();
+            return String.join(soqlParts, ' ').trim();
         }
     }
 
@@ -662,7 +662,7 @@ public inherited sharing class SOQL implements Queryable {
 
         public void with(List<SObjectField> fields) {
             for (SObjectField field : fields) {
-                queryFields.add(field.getDescribe().getName());
+                with(field);
             }
         }
 
@@ -855,16 +855,10 @@ public inherited sharing class SOQL implements Queryable {
         Boolean isEmpty();
     }
 
-    public class FilterGroup implements FilterClause, QueryClause, SoqlFiltersGroup {
+    public virtual class FilterGroup implements FilterClause, QueryClause, SoqlFiltersGroup {
         private List<FilterClause> queryConditions = new List<FilterClause>();
-        private String stringConditions;
-        private String order = '';
+        private String order;
         private String connector = 'AND';
-        private Boolean isMain = false;
-
-        public FilterGroup(Boolean isMain) {
-            this.isMain = isMain;
-        }
 
         public FilterGroup add(FilterClause condition) {
             if (condition.isEmpty()) {
@@ -872,13 +866,6 @@ public inherited sharing class SOQL implements Queryable {
             }
             queryConditions.add(condition);
             return this;
-        }
-
-        public void evaluate(String conditions) {
-            if (String.isEmpty(conditions)) {
-                return;
-            }
-            stringConditions = String.escapeSingleQuotes(conditions);
         }
 
         public FilterGroup anyConditionMatching() {
@@ -895,44 +882,36 @@ public inherited sharing class SOQL implements Queryable {
             return queryConditions.isEmpty();
         }
 
-        public String build() {
-            if (String.isNotEmpty(stringConditions)) {
-                return 'WHERE ' + stringConditions;
-            }
-
-            if (String.isEmpty(order)) {
-                setDefaultOrder();
-            }
-
-            String conditions = buildNested();
-
-            if (String.isEmpty(conditions)) {
+        public virtual String build() {
+            if (isEmpty()) {
                 return '';
             }
 
-            if (isMain) {
-                return 'WHERE ' + conditions;
-            }
-
-            return conditions;
+            return buildNested();
         }
 
-        private void setDefaultOrder() {
+        private void setDefaultOrderWhenEmpty() {
+            if (String.isNotEmpty(order)) {
+                return;
+            }
+
             List<String> defaultOrder = new List<String>();
 
-            for (Integer i = 0; i < queryConditions.size(); i++) {
-                defaultOrder.add(String.valueOf(i + 1));
+            for (Integer i = 1; i <= queryConditions.size(); i++) {
+                defaultOrder.add(String.valueOf(i));
             }
 
             order = String.join(defaultOrder, ' ' + connector + ' '); // e.g (1 AND 2 AND 3)
         }
 
         public String buildNested() {
-            String conditions = addSpecialCharactersToOrder(order); // e.g (*1* AND (*2* OR *3*))
+            setDefaultOrderWhenEmpty();
+
+            String conditions = applySpecialCharactersToOrder(); // e.g (*1* AND (*2* OR *3*))
 
             for (Integer i = 0; i < queryConditions.size(); i++) {
                 conditions = conditions.replace(
-                    addSpecialCharacters(String.valueOf(i + 1)), // e.g *1*
+                    conditionNumberWithSpecialCharacters(i + 1), // e.g *1*
                     queryConditions.get(i).build()
                 );
             }
@@ -940,23 +919,44 @@ public inherited sharing class SOQL implements Queryable {
             return conditions;
         }
 
-        private String addSpecialCharactersToOrder(String order) {
-            String formattedOrder = order;
-
-            for (Integer i = 0; i < queryConditions.size(); i++) {
-                String conditionNumber = String.valueOf(i + 1);
-                formattedOrder = formattedOrder.replace(conditionNumber, addSpecialCharacters(conditionNumber));
+        private String applySpecialCharactersToOrder() {
+            for (Integer i = 1; i <= queryConditions.size(); i++) {
+                order = order.replace(String.valueOf(i), conditionNumberWithSpecialCharacters(i));
             }
 
-            if (isMain) {
-                return formattedOrder;
-            }
-
-            return '(' + formattedOrder + ')'; // e.g (*1* AND (*2* OR *3*))
+            return wrappedGroupOrder(order); // e.g (*1* AND (*2* OR *3*))
         }
 
-        private String addSpecialCharacters(String condition) {
-            return '*' + condition.trim() + '*';
+        private virtual String wrappedGroupOrder(String order) {
+            return '(' + order + ')';
+        }
+
+        private String conditionNumberWithSpecialCharacters(Integer conditionNumber) {
+            return '*' + conditionNumber + '*';
+        }
+    }
+
+    public class MainFilterGroup extends FilterGroup {
+        private String stringConditions;
+
+        public void evaluate(String conditions) {
+            stringConditions = String.escapeSingleQuotes(conditions);
+        }
+
+        public override String build() {
+            if (String.isNotEmpty(stringConditions)) {
+                return 'WHERE ' + stringConditions;
+            }
+
+            if (isEmpty()) {
+                return '';
+            }
+
+            return 'WHERE ' + buildNested();
+        }
+
+        public override String wrappedGroupOrder(String order) {
+            return order;
         }
     }
 
