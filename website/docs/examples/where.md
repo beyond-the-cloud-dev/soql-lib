@@ -27,7 +27,7 @@ public with sharing class MyController {
                 .whereAre(SOQL.FilterGroup
                     .add(SOQL.Filter.id().equal(accountId))
                     .add(SOQL.Filter.with(Account.Name).contains(accountName))
-                    .conditionLogic('1 OR 2')
+                    .anyConditionMatching() // OR
                 )
                 .toList();
     }

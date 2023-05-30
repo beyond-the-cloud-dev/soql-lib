@@ -27,7 +27,7 @@ public with sharing class MyController {
             .whereAre(SOQL.FilterGroup
                 .add(SOQL.Filter.id().equal('0013V00000WNCw4QAH'))
                 .add(SOQL.Filter.name().contains('Test'))
-                .conditionLogic('1 OR 2')
+                .anyConditionMatching()
              )
             .preview()
             .toList();

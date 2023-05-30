@@ -78,7 +78,8 @@ Developer can skip FLS by adding `.systemMode()` and `.withSharing()`.
 
 ```apex
 // Query executed in without sharing
-SOQL.of(Account.SObjectType).with(Account.Id, Account.Name)
+SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
     .systemMode()
     .withSharing()
     .toList();
@@ -121,7 +122,7 @@ public with sharing class ExampleController {
         return AccountSelector.query()
             .with(Account.BillingCity, Account.BillingCountry)
             .whereAre(SOQL.FilterGroup
-                .add(SOQL.Filter.with(Account.Name).contains(accountName))
+                .add(SOQL.Filter.name().contains(accountName))
                 .add(SOQL.Filter.recordType().equal('Partner'))
             )
             .mockId('ExampleController.getPartnerAccounts')

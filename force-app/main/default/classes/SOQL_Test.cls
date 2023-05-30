@@ -117,11 +117,16 @@ private class SOQL_Test {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with(new List<SObjectField>{
-                Account.Name, Account.BillingCity
+                Account.Id,
+                Account.Name,
+                Account.Industry,
+                Account.AccountNumber,
+                Account.AnnualRevenue,
+                Account.BillingCity
             }).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name, BillingCity FROM Account', soql);
+        Assert.areEqual('SELECT Id, Name, Industry, AccountNumber, AnnualRevenue, BillingCity FROM Account', soql);
     }
 
     @IsTest
@@ -139,9 +144,7 @@ private class SOQL_Test {
     static void withRelatedField() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Name, Account.BillingCity
-            })
+            .with(Account.Name, Account.BillingCity)
             .with('CreatedBy', User.Name)
             .toString();
 
@@ -153,9 +156,7 @@ private class SOQL_Test {
     static void withTwoRelatedFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Name, Account.BillingCity
-            })
+            .with(Account.Name, Account.BillingCity)
             .with('CreatedBy', User.Id, User.Name)
             .toString();
 
@@ -167,9 +168,7 @@ private class SOQL_Test {
     static void withThreeRelatedFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Name, Account.BillingCity
-            })
+            .with(Account.Name, Account.BillingCity)
             .with('CreatedBy', User.Id, User.Name, User.Alias)
             .toString();
 
@@ -181,9 +180,7 @@ private class SOQL_Test {
     static void withFourRelatedFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Name, Account.BillingCity
-            })
+            .with(Account.Name, Account.BillingCity)
             .with('CreatedBy', User.Id, User.Name, User.Alias, User.City)
             .toString();
 
@@ -195,9 +192,7 @@ private class SOQL_Test {
     static void withFiveRelatedFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Name, Account.BillingCity
-            })
+            .with(Account.Name, Account.BillingCity)
             .with('CreatedBy', User.Id, User.Name, User.Alias, User.City, User.CompanyName)
             .toString();
 
@@ -209,9 +204,7 @@ private class SOQL_Test {
     static void withRelatedFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Name, Account.BillingCity
-            })
+            .with(Account.Name, Account.BillingCity)
             .with('CreatedBy', new List<SObjectField>{
                 User.Id, User.Name
             }).toString();
@@ -226,9 +219,7 @@ private class SOQL_Test {
     static void subQueryField() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Name
-            })
+            .with(Account.Name)
             .with(SOQL.SubQuery.of('Contacts')
                 .with(Contact.Id)
             ).toString();
@@ -241,9 +232,7 @@ private class SOQL_Test {
     static void subQueryTwoFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Name
-            })
+            .with(Account.Name)
             .with(SOQL.SubQuery.of('Contacts')
                 .with(Contact.Id, Contact.Name)
             ).toString();
@@ -256,9 +245,7 @@ private class SOQL_Test {
     static void subQueryThreeFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Name
-            })
+            .with(Account.Name)
             .with(SOQL.SubQuery.of('Contacts')
                 .with(Contact.Id, Contact.Name, Contact.AccountId)
             ).toString();
@@ -271,9 +258,7 @@ private class SOQL_Test {
     static void subQueryFourFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Name
-            })
+            .with(Account.Name)
             .with(SOQL.SubQuery.of('Contacts')
                 .with(Contact.Id, Contact.Name, Contact.AccountId, Contact.Email)
             ).toString();
@@ -286,9 +271,7 @@ private class SOQL_Test {
     static void subQueryFiveFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Name
-            })
+            .with(Account.Name)
             .with(SOQL.SubQuery.of('Contacts')
                 .with(Contact.Id, Contact.Name, Contact.AccountId, Contact.Email, Contact.Phone)
             ).toString();
@@ -301,9 +284,7 @@ private class SOQL_Test {
     static void subQueryFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Name
-            })
+            .with(Account.Name)
             .with(SOQL.SubQuery.of('Contacts')
                 .with(new List<SObjectField>{
                     Contact.Id, Contact.Name
@@ -318,13 +299,9 @@ private class SOQL_Test {
     static void subQueryRelatedFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Name
-            })
+            .with(Account.Name)
             .with(SOQL.SubQuery.of('Contacts')
-                .with(new List<SObjectField>{
-                    Contact.Id, Contact.Name
-                })
+                .with(Contact.Id, Contact.Name)
                 .with('CreatedBy', new List<SObjectField>{
                     User.Id, User.Name
                 })
@@ -338,13 +315,9 @@ private class SOQL_Test {
     static void subQueryWhere() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Name
-            })
+            .with(Account.Name)
             .with(SOQL.SubQuery.of('Contacts')
-                .with(new List<SObjectField>{
-                    Contact.Id, Contact.Name
-                })
+                .with(Contact.Id, Contact.Name)
                 .whereAre(SOQL.Filter.with(Contact.LastName).equal('Doe'))
             ).toString();
 
@@ -356,13 +329,9 @@ private class SOQL_Test {
     static void subQueryOrderBy() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Name
-            })
+            .with(Account.Name)
             .with(SOQL.SubQuery.of('Contacts')
-                .with(new List<SObjectField>{
-                    Contact.Id, Contact.Name
-                })
+                .with(Contact.Id, Contact.Name)
                 .orderBy(Contact.Name)
                 .sortDesc()
                 .nullsLast()
@@ -376,13 +345,9 @@ private class SOQL_Test {
     static void subQueryOrderByRelated() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Name
-            })
+            .with(Account.Name)
             .with(SOQL.SubQuery.of('Contacts')
-                .with(new List<SObjectField>{
-                    Contact.Id, Contact.Name
-                })
+                .with(Contact.Id, Contact.Name)
                 .orderBy('CreatedBy', User.Name)
                 .sortDesc()
                 .nullsLast()
@@ -396,13 +361,9 @@ private class SOQL_Test {
     static void subQuerySetLimit() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Name
-            })
+            .with(Account.Name)
             .with(SOQL.SubQuery.of('Contacts')
-                .with(new List<SObjectField>{
-                    Contact.Id, Contact.Name
-                })
+                .with(Contact.Id, Contact.Name)
                 .setLimit(10)
             ).toString();
 
@@ -414,13 +375,9 @@ private class SOQL_Test {
     static void subQueryOffset() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Name
-            })
+            .with(Account.Name)
             .with(SOQL.SubQuery.of('Contacts')
-                .with(new List<SObjectField>{
-                    Contact.Id, Contact.Name
-                })
+                .with(Contact.Id, Contact.Name)
                 .offset(100)
             ).toString();
 
@@ -432,13 +389,9 @@ private class SOQL_Test {
     static void subQueryForReference() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Name
-            })
+            .with(Account.Name)
             .with(SOQL.SubQuery.of('Contacts')
-                .with(new List<SObjectField>{
-                    Contact.Id, Contact.Name
-                })
+                .with(Contact.Id, Contact.Name)
                 .forReference()
             ).toString();
 
@@ -450,13 +403,9 @@ private class SOQL_Test {
     static void subQueryForView() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Name
-            })
+            .with(Account.Name)
             .with(SOQL.SubQuery.of('Contacts')
-                .with(new List<SObjectField>{
-                    Contact.Id, Contact.Name
-                })
+                .with(Contact.Id, Contact.Name)
                 .forView()
             ).toString();
 
@@ -787,9 +736,7 @@ private class SOQL_Test {
 
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
-            .with(new List<SObjectField>{
-                Account.Name, Account.BillingCity
-            })
+            .with(Account.Name, Account.BillingCity)
             .whereAre(SOQL.Filter.with(Account.Name).notIn(names));
 
         // Verify
@@ -956,7 +903,7 @@ private class SOQL_Test {
             .whereAre(SOQL.Filter.with(Account.Id).notIn(
                 SOQL.InnerJoin.of(Contact.SObjectType)
                     .with(Contact.AccountId)
-                    .whereAre(SOQL.Filter.with(Contact.Name).equal('My Contact'))
+                    .whereAre(SOQL.Filter.name().equal('My Contact'))
             ));
 
         // Verify
@@ -1004,9 +951,7 @@ private class SOQL_Test {
     static void groupBy() {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
-            .with(new List<SObjectField>{
-                Lead.LeadSource
-            })
+            .with(Lead.LeadSource)
             .groupBy(Lead.LeadSource)
             .toString();
 
