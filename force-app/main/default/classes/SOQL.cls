@@ -51,18 +51,14 @@ public inherited sharing class SOQL implements Queryable {
         SOQL with(SObjectField field1, SObjectField field2, SObjectField field3);
         SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
         SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
-        SOQL with(Set<SObjectField> fields);
-        SOQL with(List<SObjectField> fields);
-
-        SOQL with(String fields);
-
+        SOQL with(List<SObjectField> fields); // For more than 5 fields
+        SOQL with(String fields); // Dynamic SOQL
         SOQL with(String relationshipName, SObjectField field);
         SOQL with(String relationshipName, SObjectField field1, SObjectField field2);
         SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
         SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
         SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
-        SOQL with(String relationshipName, List<SObjectField> fields);
-
+        SOQL with(String relationshipName, List<SObjectField> fields); // For more than 5 fields
         SOQL with(SubQuery subQuery); // SOQL.SubQuery
 
         SOQL count();
@@ -77,7 +73,7 @@ public inherited sharing class SOQL implements Queryable {
         SOQL teamScope();
 
         SOQL whereAre(FilterClause conditions); // SOQL.FilterGroup or SOQL.Filter
-        SOQL whereAre(String conditions); // conditions to evaluate
+        SOQL whereAre(String conditions); // Conditions to evaluate
 
         SOQL groupBy(SObjectField field);
         SOQL groupByRollup(SObjectField field);
@@ -134,7 +130,7 @@ public inherited sharing class SOQL implements Queryable {
         SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3);
         SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
         SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
-        SubQuery with(List<SObjectField> fields);
+        SubQuery with(List<SObjectField> fields); // For more than 5 fields
         SubQuery with(String relationshipName, List<SObjectField> fields);
 
         SubQuery whereAre(FilterClause conditions); // SOQL.FilterGroup or SOQL.Filter
@@ -177,18 +173,19 @@ public inherited sharing class SOQL implements Queryable {
         Filter startsWith(String value); // LIKE :value + '%'
         Filter isIn(Set<String> inSet); // IN :inSet
         Filter isIn(List<Object> inList); // IN :inList
+        Filter isIn(JoinQuery joinQuery); // SOQL.JoinQuery
         Filter notIn(Set<String> inSet); // NOT IN :inSet
         Filter notIn(List<Object> inList); // NOT IN :inList
-
-        Filter isIn(JoinQuery joinQuery); // SOQL.JoinQuery
         Filter notIn(JoinQuery joinQuery); // SOQL.JoinQuery
 
-        Filter removeWhenNull();
+        Filter removeWhenNull(); // Condition will be removed for value = null
     }
 
     public interface SoqlFiltersGroup { // SOQL.FilterGroup
         FilterGroup add(FilterClause condition); // SOQL.Filter or SOQL.FilterGroup
-        FilterGroup anyConditionMatching(); // Join with OR
+
+        FilterGroup anyConditionMatching(); // All group filters will be join by OR
+
         FilterGroup conditionLogic(String order);
     }
 
@@ -219,6 +216,8 @@ public inherited sharing class SOQL implements Queryable {
     private static void setMock(String mockId, String staticResource) {
         mock.setStaticResourceMock(mockId, staticResource);
     }
+
+    // Config
 
     private static Mock mock = new Mock();
 
@@ -255,10 +254,6 @@ public inherited sharing class SOQL implements Queryable {
 
     public SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
         return with(field1).with(field2).with(field3).with(field4).with(field5);
-    }
-
-    public SOQL with(Set<SObjectField> fields) {
-        return with(new List<SObjectField>(fields));
     }
 
     public SOQL with(List<SObjectField> fields) {
@@ -516,8 +511,6 @@ public inherited sharing class SOQL implements Queryable {
     public SOQL byIds(List<SObject> records) {
         return whereAre(Filter.id().isIn(records));
     }
-
-    // Config
 
     public interface QueryClause {
         String build();
