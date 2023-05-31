@@ -948,7 +948,7 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public virtual class Filter implements FilterClause, SoqlFilter {
+    public class Filter implements FilterClause, SoqlFilter {
         private String field;
         private String comperator;
         private Object value;
