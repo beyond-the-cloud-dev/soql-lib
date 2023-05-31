@@ -470,7 +470,7 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public Object toField(SObjectField fieldToExtract) {
-        return with(fieldToExtract).toObject().get(fieldToExtract.getDescribe().getName());
+        return with(fieldToExtract).toObject().get(fieldToExtract);
     }
 
     public Integer toInteger() {
@@ -643,11 +643,11 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public void count(SObjectField field) {
-            count('COUNT(' + field.getDescribe().getName() + ')');
+            count('COUNT(' + field + ')');
         }
 
         public void count(SObjectField field, String alias) {
-            count('COUNT(' + field.getDescribe().getName() + ') ' + alias);
+            count('COUNT(' + field + ') ' + alias);
         }
 
         public void count(String countSoql) {
@@ -677,7 +677,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public void with(String relationshipPath, SObjectField field) {
-            queryFields.add(relationshipPath + '.' + field.getDescribe().getName());
+            queryFields.add(relationshipPath + '.' + field);
         }
 
         public String build() {
@@ -978,7 +978,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public Filter with(String relationshipName, SObjectField field) {
-            return with(relationshipName + '.' + field.getDescribe().getName());
+            return with(relationshipName + '.' + field);
         }
 
         public Filter with(String field) {
@@ -1145,7 +1145,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public void rollup(SObjectField field) {
-            groupByFields.add('ROLLUP(' + field.getDescribe().getName() + ')');
+            groupByFields.add('ROLLUP(' + field + ')');
         }
 
         public String build() {
@@ -1185,7 +1185,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public QOrderBy with(String relationshipName, SObjectField field) {
-            return with(relationshipName + '.' + field.getDescribe().getName());
+            return with(relationshipName + '.' + field);
         }
 
         public QOrderBy with(String field) {
