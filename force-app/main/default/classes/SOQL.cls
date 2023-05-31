@@ -948,12 +948,11 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public class Filter implements FilterClause, SoqlFilter {
+    public virtual class Filter implements FilterClause, SoqlFilter {
         private String field;
         private String comperator;
-
         private Object value;
-        private JoinQuery joinQuery;
+
 
         private Binder binder;
 
@@ -1064,12 +1063,6 @@ public inherited sharing class SOQL implements Queryable {
             return set('NOT IN', inList);
         }
 
-        private Filter set(String comperator, Object value) {
-            this.value = value;
-            this.comperator = comperator;
-            return this;
-        }
-
         public Filter isIn(JoinQuery joinQuery) {
             return set('IN', joinQuery);
         }
@@ -1078,8 +1071,8 @@ public inherited sharing class SOQL implements Queryable {
             return set('NOT IN', joinQuery);
         }
 
-        private Filter set(String comperator, JoinQuery joinQuery) {
-            this.joinQuery = joinQuery;
+        private Filter set(String comperator, Object value) {
+            this.value = value;
             this.comperator = comperator;
             return this;
         }
@@ -1101,8 +1094,8 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public String build() {
-            if (joinQuery != null) {
-                return field + ' ' + comperator + ' (' + joinQuery.build() + ')';
+            if (value instanceOf JoinQuery) {
+                return field + ' ' + comperator + ' (' + ((JoinQuery) value).build() + ')';
             }
 
             return field + ' ' + comperator + ' :' + binder.bind(value);
