@@ -362,32 +362,32 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public SOQL orderBy(String field) { // Order By - ASC, NULLS FIRST by default
-        builder.orderBys.add(new QOrderBy().with(field));
+        builder.orderBys.newOrderBy().with(field);
         return this;
     }
 
     public SOQL orderBy(String field, String direction) { // NULLS FIRST by default
-        builder.orderBys.add(new QOrderBy().with(field).sortingOrder(direction));
+        builder.orderBys.newOrderBy().with(field).sortingOrder(direction);
         return this;
     }
 
     public SOQL orderBy(SObjectField field) { // Order By - ASC, NULLS FIRST by default
-        builder.orderBys.add(new QOrderBy().with(field));
+        builder.orderBys.newOrderBy().with(field);
         return this;
     }
 
     public SOQL orderBy(String relationshipName, SObjectField field) {
-        builder.orderBys.add(new QOrderBy().with(relationshipName, field));
+        builder.orderBys.newOrderBy().with(relationshipName, field);
         return this;
     }
 
     public SOQL sortDesc() {
-        builder.orderBy.sortDesc();
+        builder.latestOrderBy.sortDesc();
         return this;
     }
 
     public SOQL nullsLast() {
-        builder.orderBy.nullsLast();
+        builder.latestOrderBy.nullsLast();
         return this;
     }
 
@@ -570,7 +570,7 @@ public inherited sharing class SOQL implements Queryable {
             }
         }
 
-        public QOrderBy orderBy {
+        public QOrderBy latestOrderBy {
             get {
                 return orderBys.recentOrderBy();
             }
@@ -737,22 +737,22 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public SubQuery orderBy(SObjectField field) {
-            builder.orderBys.add(new QOrderBy().with(field));
+            builder.orderBys.newOrderBy().with(field);
             return this;
         }
 
         public SubQuery orderBy(String relationshipName, SObjectField field) {
-            builder.orderBys.add(new QOrderBy().with(relationshipName, field));
+            builder.orderBys.newOrderBy().with(relationshipName, field);
             return this;
         }
 
         public SubQuery sortDesc() {
-            builder.orderBy.sortDesc();
+            builder.latestOrderBy.sortDesc();
             return this;
         }
 
         public SubQuery nullsLast() {
-            builder.orderBy.nullsLast();
+            builder.latestOrderBy.nullsLast();
             return this;
         }
 
@@ -1141,8 +1141,9 @@ public inherited sharing class SOQL implements Queryable {
     private class QOrderBys implements QueryClause {
         public List<QOrderBy> orderBys = new List<QOrderBy>();
 
-        public void add(QOrderBy orderBy) {
-            orderBys.add(orderBy);
+        public QOrderBy newOrderBy() {
+            orderBys.add(new QOrderBy());
+            return recentOrderBy();
         }
 
         public QOrderBy recentOrderBy() {
