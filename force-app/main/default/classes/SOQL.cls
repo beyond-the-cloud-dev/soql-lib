@@ -1275,8 +1275,6 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    // Mocking
-
     private class Mock {
         private final Map<String, List<SObject>> mocks = new Map<String, List<SObject>>();
         private final Map<String, String> staticResourceMocks = new Map<String, String>();
