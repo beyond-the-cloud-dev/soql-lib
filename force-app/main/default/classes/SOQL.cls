@@ -953,7 +953,6 @@ public inherited sharing class SOQL implements Queryable {
         private String comperator;
         private Object value;
 
-
         private Binder binder;
 
         public Filter(Binder binder) {
