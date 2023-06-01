@@ -94,7 +94,7 @@ public inherited sharing class SOQL implements Queryable {
         Queryable forUpdate();
         Queryable allRows();
 
-        Queryable systemMode();
+        Queryable systemMode(); // USER_MODE by default
 
         Queryable withSharing(); // Works only with .systemMode()
         Queryable withoutSharing(); // Works only with .systemMode()
@@ -551,12 +551,12 @@ public inherited sharing class SOQL implements Queryable {
             }
         }
 
-        public MainFilterGroup conditions {
+        public QMainFilterGroup conditions {
             get {
                 if (clauses[4] == null) {
-                    clauses.set(4, new MainFilterGroup());
+                    clauses.set(4, new QMainFilterGroup());
                 }
-                return (MainFilterGroup) clauses[4];
+                return (QMainFilterGroup) clauses[4];
             }
         }
 
@@ -919,7 +919,7 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class MainFilterGroup extends QFilterGroup implements QueryClause {
+    private class QMainFilterGroup extends QFilterGroup implements QueryClause {
         private String stringConditions;
 
         public void evaluate(String conditions) {
