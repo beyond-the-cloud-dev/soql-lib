@@ -15,96 +15,102 @@
 @SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.PropertyNamingConventions, PMD.FieldDeclarationsShouldBeAtStart, PMD.ApexDoc, PMD.ExcessiveParameterList')
 public inherited sharing class SOQL implements Queryable {
 
-    public static SubQuery SubQuery {
+    public static ISubQuery SubQuery {
         get {
             return new SubQuery(binder);
         }
     }
 
-    public static FilterGroup FilterGroup { // A group to nest more filters
+    public static IFiltersGroup FilterGroup { // A group to nest more filters
         get {
             return new FilterGroup();
         }
     }
 
-    public static Filter Filter {
+    public static IFilter Filter {
         get {
             return new Filter(binder);
         }
     }
 
-    public static JoinQuery InnerJoin {
+    public static IInnerJoin InnerJoin {
         get {
             return new JoinQuery(binder);
         }
     }
 
     public interface Selector {
-        SOQL query();
+        Queryable query();
     }
 
     public interface Queryable {
-        SOQL of(SObjectType ofObject);
+        Queryable of(SObjectType ofObject);
 
-        SOQL with(SObjectField field);
-        SOQL with(SObjectField field1, SObjectField field2);
-        SOQL with(SObjectField field1, SObjectField field2, SObjectField field3);
-        SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
-        SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
-        SOQL with(List<SObjectField> fields); // For more than 5 fields
-        SOQL with(String fields); // Dynamic SOQL
-        SOQL with(String relationshipName, SObjectField field);
-        SOQL with(String relationshipName, SObjectField field1, SObjectField field2);
-        SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
-        SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
-        SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
-        SOQL with(String relationshipName, List<SObjectField> fields); // For more than 5 fields
-        SOQL with(SubQuery subQuery); // SOQL.SubQuery
+        Queryable with(SObjectField field);
+        Queryable with(SObjectField field1, SObjectField field2);
+        Queryable with(SObjectField field1, SObjectField field2, SObjectField field3);
+        Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+        Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
+        Queryable with(List<SObjectField> fields); // For more than 5 fields
+        Queryable with(String fields); // Dynamic SOQL
+        Queryable with(String relationshipName, SObjectField field);
+        Queryable with(String relationshipName, SObjectField field1, SObjectField field2);
+        Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
+        Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+        Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
+        Queryable with(String relationshipName, List<SObjectField> fields); // For more than 5 fields
+        Queryable with(ISubQuery subQuery); // SOQL.SubQuery
 
-        SOQL count();
-        SOQL count(SObjectField field);
-        SOQL count(SObjectField field, String alias);
+        Queryable count();
+        Queryable count(SObjectField field);
+        Queryable count(SObjectField field, String alias);
 
-        SOQL delegatedScope();
-        SOQL mineScope();
-        SOQL mineAndMyGroupsScope();
-        SOQL myTerritoryScope();
-        SOQL myTeamTerritoryScope();
-        SOQL teamScope();
+        Queryable delegatedScope();
+        Queryable mineScope();
+        Queryable mineAndMyGroupsScope();
+        Queryable myTerritoryScope();
+        Queryable myTeamTerritoryScope();
+        Queryable teamScope();
 
-        SOQL whereAre(FilterClause conditions); // SOQL.FilterGroup or SOQL.Filter
-        SOQL whereAre(String conditions); // Conditions to evaluate
+        Queryable whereAre(FilterClause conditions); // SOQL.FilterGroup or SOQL.Filter
+        Queryable whereAre(String conditions); // Conditions to evaluate
 
-        SOQL groupBy(SObjectField field);
-        SOQL groupByRollup(SObjectField field);
+        Queryable groupBy(SObjectField field);
+        Queryable groupByRollup(SObjectField field);
 
-        SOQL orderBy(String field); // ASC, NULLS FIRST by default
-        SOQL orderBy(String field, String direction); // dynamic order by, NULLS FIRST by default
-        SOQL orderBy(SObjectField field); // ASC, NULLS FIRST by default
-        SOQL orderBy(String relationshipName, SObjectField field); // ASC, NULLS FIRST by default
-        SOQL sortDesc();
-        SOQL nullsLast();
+        Queryable orderBy(String field); // ASC, NULLS FIRST by default
+        Queryable orderBy(String field, String direction); // dynamic order by, NULLS FIRST by default
+        Queryable orderBy(SObjectField field); // ASC, NULLS FIRST by default
+        Queryable orderBy(String relationshipName, SObjectField field); // ASC, NULLS FIRST by default
+        Queryable sortDesc();
+        Queryable nullsLast();
 
-        SOQL setLimit(Integer amount);
+        Queryable setLimit(Integer amount);
 
-        SOQL offset(Integer startingRow);
+        Queryable offset(Integer startingRow);
 
-        SOQL forReference();
-        SOQL forView();
-        SOQL forUpdate();
-        SOQL allRows();
+        Queryable forReference();
+        Queryable forView();
+        Queryable forUpdate();
+        Queryable allRows();
 
-        SOQL systemMode();
+        Queryable systemMode();
 
-        SOQL withSharing(); // Works only with .systemMode()
-        SOQL withoutSharing(); // Works only with .systemMode()
+        Queryable withSharing(); // Works only with .systemMode()
+        Queryable withoutSharing(); // Works only with .systemMode()
 
-        SOQL mockId(String id);
+        Queryable mockId(String id);
 
-        SOQL preview();
+        Queryable preview();
 
-        SOQL stripInaccessible();
-        SOQL stripInaccessible(AccessType accessType);
+        Queryable stripInaccessible();
+        Queryable stripInaccessible(AccessType accessType);
+
+        Queryable byId(SObject record);
+        Queryable byId(Id recordId);
+        Queryable byIds(Set<Id> recordIds);
+        Queryable byIds(List<Id> recordIds);
+        Queryable byIds(List<SObject> records);
 
         String toString();
         Object toField(SObjectField fieldToExtract);
@@ -114,87 +120,80 @@ public inherited sharing class SOQL implements Queryable {
         List<AggregateResult> toAggregated();
         Map<Id, SObject> toMap();
         Database.QueryLocator toQueryLocator();
-
-        SOQL byId(SObject record);
-        SOQL byId(Id recordId);
-        SOQL byIds(Set<Id> recordIds);
-        SOQL byIds(List<Id> recordIds);
-        SOQL byIds(List<SObject> records);
     }
 
-    public interface SoqlSubQuery { // SOQL.SubQuery
-        SubQuery of(String ofObject);
+    public interface ISubQuery { // SOQL.SubQuery
+        ISubQuery of(String ofObject);
 
-        SubQuery with(SObjectField field);
-        SubQuery with(SObjectField field1, SObjectField field2);
-        SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3);
-        SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
-        SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
-        SubQuery with(List<SObjectField> fields); // For more than 5 fields
-        SubQuery with(String relationshipName, List<SObjectField> fields);
+        ISubQuery with(SObjectField field);
+        ISubQuery with(SObjectField field1, SObjectField field2);
+        ISubQuery with(SObjectField field1, SObjectField field2, SObjectField field3);
+        ISubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+        ISubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
+        ISubQuery with(List<SObjectField> fields); // For more than 5 fields
+        ISubQuery with(String relationshipName, List<SObjectField> fields);
 
-        SubQuery whereAre(FilterClause conditions); // SOQL.FilterGroup or SOQL.Filter
+        ISubQuery whereAre(FilterClause conditions); // SOQL.FilterGroup or SOQL.Filter
 
-        SubQuery orderBy(SObjectField field);
-        SubQuery orderBy(String relationshipName, SObjectField field);
-        SubQuery sortDesc();
-        SubQuery nullsLast();
+        ISubQuery orderBy(SObjectField field);
+        ISubQuery orderBy(String relationshipName, SObjectField field);
+        ISubQuery sortDesc();
+        ISubQuery nullsLast();
 
-        SubQuery setLimit(Integer amount);
+        ISubQuery setLimit(Integer amount);
 
-        SubQuery offset(Integer startingRow);
+        ISubQuery offset(Integer startingRow);
 
-        SubQuery forReference();
-        SubQuery forView();
+        ISubQuery forReference();
+        ISubQuery forView();
     }
 
-    public interface SoqlFilter { // SOQL.Filter
-        Filter id();
-        Filter recordType();
-        Filter name();
+    public abstract class IFiltersGroup implements FilterClause { // SOQL.FilterGroup
+        public abstract IFiltersGroup add(FilterClause condition); // SOQL.Filter or SOQL.FilterGroup
 
-        Filter with(SObjectField field);
-        Filter with(String field);
-        Filter with(String relationshipName, SObjectField field);
+        public abstract IFiltersGroup anyConditionMatching(); // All group filters will be join by OR
 
-        Filter isNull(); // = NULL
-        Filter isNotNull(); // != NULL
-        Filter isTrue(); // = TRUE
-        Filter isFalse(); // = FALSE
-        Filter equal(Object value); // = :value
-        Filter notEqual(Object value); // != :value
-        Filter lessThan(Object value); // < :value
-        Filter greaterThan(Object value); // > :value
-        Filter lessThanOrEqual(Object value); // <= :value
-        Filter greaterThanOrEqual(Object value); // >= :value
-        Filter containsSome(List<String> values); // LIKE :values
-        Filter contains(String value); // LIKE :'%' + value + '%'
-        Filter endsWith(String value); // LIKE :'%' + value
-        Filter startsWith(String value); // LIKE :value + '%'
-        Filter isIn(Set<String> inSet); // IN :inSet
-        Filter isIn(List<Object> inList); // IN :inList
-        Filter isIn(JoinQuery joinQuery); // SOQL.JoinQuery
-        Filter notIn(Set<String> inSet); // NOT IN :inSet
-        Filter notIn(List<Object> inList); // NOT IN :inList
-        Filter notIn(JoinQuery joinQuery); // SOQL.JoinQuery
-
-        Filter removeWhenNull(); // Condition will be removed for value = null
+        public abstract IFiltersGroup conditionLogic(String order);
     }
 
-    public interface SoqlFiltersGroup { // SOQL.FilterGroup
-        FilterGroup add(FilterClause condition); // SOQL.Filter or SOQL.FilterGroup
+    public abstract class IFilter implements FilterClause { // SOQL.Filter
+        public abstract IFilter id();
+        public abstract IFilter recordType();
+        public abstract IFilter name();
+        public abstract IFilter with(SObjectField field);
+        public abstract IFilter with(String field);
+        public abstract IFilter with(String relationshipName, SObjectField field);
 
-        FilterGroup anyConditionMatching(); // All group filters will be join by OR
+        public abstract IFilter isNull(); // = NULL
+        public abstract IFilter isNotNull(); // != NULL
+        public abstract IFilter isTrue(); // = TRUE
+        public abstract IFilter isFalse(); // = FALSE
+        public abstract IFilter equal(Object value); // = :value
+        public abstract IFilter notEqual(Object value); // != :value
+        public abstract IFilter lessThan(Object value); // < :value
+        public abstract IFilter greaterThan(Object value); // > :value
+        public abstract IFilter lessThanOrEqual(Object value); // <= :value
+        public abstract IFilter greaterThanOrEqual(Object value); // >= :value
+        public abstract IFilter containsSome(List<String> values); // LIKE :values
+        public abstract IFilter contains(String value); // LIKE :'%' + value + '%'
+        public abstract IFilter endsWith(String value); // LIKE :'%' + value
+        public abstract IFilter startsWith(String value); // LIKE :value + '%'
+        public abstract IFilter isIn(Set<String> inSet); // IN :inSet
+        public abstract IFilter isIn(List<Object> inList); // IN :inList
+        public abstract IFilter isIn(IInnerJoin joinQuery); // SOQL.JoinQuery
+        public abstract IFilter notIn(Set<String> inSet); // NOT IN :inSet
+        public abstract IFilter notIn(List<Object> inList); // NOT IN :inList
+        public abstract IFilter notIn(IInnerJoin joinQuery); // SOQL.JoinQuery
 
-        FilterGroup conditionLogic(String order);
+        public abstract IFilter removeWhenNull(); // Condition will be removed for value = null
     }
 
-    public interface SoqlJoin { // SOQL.InnerJoin
-        JoinQuery of(SObjectType ofObject);
+    public interface IInnerJoin { // SOQL.InnerJoin
+        IInnerJoin of(SObjectType ofObject);
 
-        JoinQuery with(SObjectField field);
+        IInnerJoin with(SObjectField field);
 
-        JoinQuery whereAre(FilterClause conditions); // SOQL.Filter or SOQL.FilterGroup
+        IInnerJoin whereAre(FilterClause conditions); // SOQL.Filter or SOQL.FilterGroup
     }
 
     @TestVisible
@@ -291,7 +290,7 @@ public inherited sharing class SOQL implements Queryable {
         return this;
     }
 
-    public SOQL with(SubQuery subQuery) {
+    public SOQL with(ISubQuery subQuery) {
         builder.subQueries.add(subQuery);
         return this;
     }
@@ -461,7 +460,7 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public override String toString() {
-        return builder.build();
+        return builder.toString();
     }
 
     public Object toField(SObjectField fieldToExtract) {
@@ -469,15 +468,15 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public Integer toInteger() {
-        return executor.toInteger(builder.build(), binder.build());
+        return executor.toInteger(builder.toString(), binder.build());
     }
 
     public SObject toObject() {
-        return executor.toObject(builder.build(), binder.build());
+        return executor.toObject(builder.toString(), binder.build());
     }
 
     public List<SObject> toList() {
-        return executor.toList(builder.build(), binder.build());
+        return executor.toList(builder.toString(), binder.build());
     }
 
     public List<AggregateResult> toAggregated() {
@@ -489,7 +488,7 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public Database.QueryLocator toQueryLocator() {
-        return executor.toQueryLocator(builder.build(), binder.build());
+        return executor.toQueryLocator(builder.toString(), binder.build());
     }
 
     public SOQL byId(SObject record) {
@@ -513,7 +512,7 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public interface QueryClause {
-        String build();
+        String toString();
     }
 
     private class QueryBuilder implements QueryClause {
@@ -612,14 +611,14 @@ public inherited sharing class SOQL implements Queryable {
             }
         }
 
-        public String build() {
+        public override String toString() {
             List<String> soqlParts = new List<String>();
 
             for (QueryClause clause : clauses) {
                 if (clause == null) {
                     continue;
                 }
-                soqlParts.add(clause.build());
+                soqlParts.add(clause.toString());
             }
 
             return String.join(soqlParts, ' ').trim();
@@ -673,7 +672,7 @@ public inherited sharing class SOQL implements Queryable {
             queryFields.add(relationshipPath + '.' + field);
         }
 
-        public String build() {
+        public override String toString() {
             if (queryFields.isEmpty() && queryCounts.isEmpty()) {
                 return 'SELECT Id';
             }
@@ -687,7 +686,7 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public class SubQuery implements QueryClause, SoqlSubQuery {
+    private class SubQuery implements ISubQuery {
         private QueryBuilder builder;
         private Binder binder;
 
@@ -776,26 +775,26 @@ public inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public String build() {
-            return builder.build();
+        public override String toString() {
+            return builder.toString();
         }
     }
 
     private class QSubQueries implements QueryClause {
-        private List<SubQuery> subQueries = new List<SubQuery>();
+        private List<ISubQuery> subQueries = new List<ISubQuery>();
 
-        public void add(SubQuery subQuery) {
+        public void add(ISubQuery subQuery) {
             subQueries.add(subQuery);
         }
 
-        public String build() {
-            List<String> subQueriesSoql = new List<String>();
+        public override String toString() {
+            List<String> subQueriesStrings = new List<String>();
 
-            for (SubQuery sub : subQueries) {
-                subQueriesSoql.add('(' + sub.build() + ')');
+            for (ISubQuery sub : subQueries) {
+                subQueriesStrings.add('(' + sub + ')');
             }
 
-            return ', ' + String.join(subQueriesSoql, ', ');
+            return ', ' + String.join(subQueriesStrings, ', ');
         }
     }
 
@@ -806,7 +805,7 @@ public inherited sharing class SOQL implements Queryable {
             objectApiName = objectType;
         }
 
-        public String build() {
+        public override String toString() {
             return 'FROM ' + objectApiName;
         }
     }
@@ -838,22 +837,21 @@ public inherited sharing class SOQL implements Queryable {
             scope = 'TEAM';
         }
 
-        public String build() {
+        public override String toString() {
             return 'USING SCOPE ' + scope;
         }
     }
 
     public interface FilterClause {
-        String build();
         Boolean isEmpty();
     }
 
-    public virtual class FilterGroup implements FilterClause, QueryClause, SoqlFiltersGroup {
+    private virtual class FilterGroup extends IFiltersGroup {
         private List<FilterClause> queryConditions = new List<FilterClause>();
         private String order;
         private String connector = 'AND';
 
-        public FilterGroup add(FilterClause condition) {
+        public override IFiltersGroup add(FilterClause condition) {
             if (condition.isEmpty()) {
                 return this;
             }
@@ -861,12 +859,12 @@ public inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public FilterGroup anyConditionMatching() {
+        public override IFiltersGroup anyConditionMatching() {
             connector = 'OR';
             return this;
         }
 
-        public FilterGroup conditionLogic(String order) {
+        public override IFiltersGroup conditionLogic(String order) {
             this.order = order;
             return this;
         }
@@ -875,7 +873,7 @@ public inherited sharing class SOQL implements Queryable {
             return queryConditions.isEmpty();
         }
 
-        public virtual String build() {
+        public virtual override String toString() {
             return '(' + buildNested() + ')';
         }
 
@@ -901,7 +899,7 @@ public inherited sharing class SOQL implements Queryable {
             for (Integer i = 0; i < queryConditions.size(); i++) {
                 conditions = conditions.replace(
                     conditionNumberWithSpecialCharacters(i + 1), // e.g *1*
-                    queryConditions.get(i).build()
+                    queryConditions.get(i).toString()
                 );
             }
 
@@ -921,14 +919,14 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public class MainFilterGroup extends FilterGroup {
+    private class MainFilterGroup extends FilterGroup implements QueryClause {
         private String stringConditions;
 
         public void evaluate(String conditions) {
             stringConditions = String.escapeSingleQuotes(conditions);
         }
 
-        public override String build() {
+        public override String toString() {
             if (String.isNotEmpty(stringConditions)) {
                 return 'WHERE ' + stringConditions;
             }
@@ -941,7 +939,7 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public class Filter implements FilterClause, SoqlFilter {
+    private class Filter extends IFilter {
         private String field;
         private String comperator;
         private Object value;
@@ -952,84 +950,84 @@ public inherited sharing class SOQL implements Queryable {
             this.binder = binder;
         }
 
-        public Filter id() {
+        public override IFilter id() {
             return with('Id');
         }
 
-        public Filter recordType() {
+        public override IFilter recordType() {
             return with('RecordType.DeveloperName');
         }
 
-        public Filter name() {
+        public override IFilter name() {
             return with('Name');
         }
 
-        public Filter with(SObjectField field) {
+        public override IFilter with(SObjectField field) {
             return with(field.getDescribe().getName());
         }
 
-        public Filter with(String relationshipName, SObjectField field) {
+        public override IFilter with(String relationshipName, SObjectField field) {
             return with(relationshipName + '.' + field);
         }
 
-        public Filter with(String field) {
+        public override IFilter with(String field) {
             this.field = field;
             return this;
         }
 
-        public Filter isNull() {
+        public override IFilter isNull() {
             return equal(null);
         }
 
-        public Filter isNotNull() {
+        public override IFilter isNotNull() {
             return notEqual(null);
         }
 
-        public Filter isTrue() {
+        public override IFilter isTrue() {
             return equal(true);
         }
 
-        public Filter isFalse() {
+        public override IFilter isFalse() {
             return equal(false);
         }
 
-        public Filter equal(Object value) {
+        public override IFilter equal(Object value) {
             return set('=', value);
         }
 
-        public Filter notEqual(Object value) {
+        public override IFilter notEqual(Object value) {
             return set('!=', value);
         }
 
-        public Filter lessThan(Object value) {
+        public override IFilter lessThan(Object value) {
             return set('<', value);
         }
 
-        public Filter greaterThan(Object value) {
+        public override IFilter greaterThan(Object value) {
             return set('>', value);
         }
 
-        public Filter lessThanOrEqual(Object value) {
+        public override IFilter lessThanOrEqual(Object value) {
             return set('<=', value);
         }
 
-        public Filter greaterThanOrEqual(Object value) {
+        public override IFilter greaterThanOrEqual(Object value) {
             return set('>=', value);
         }
 
-        public Filter containsSome(List<String> values) {
+        public override IFilter containsSome(List<String> values) {
             return set('LIKE', values);
         }
 
-        public Filter contains(String value) {
+        public override IFilter contains(String value) {
             return set('LIKE', '%' + formattedString(value) + '%');
         }
 
-        public Filter endsWith(String value) {
+        public override IFilter endsWith(String value) {
             return set('LIKE', '%' + formattedString(value));
         }
 
-        public Filter startsWith(String value) {
+        public override IFilter startsWith(String value) {
             return set('LIKE', formattedString(value) + '%');
         }
 
@@ -1038,32 +1036,32 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         // The Set collection type does not allow to implicitly cast Set<Object>
-        public Filter isIn(Set<String> inSet) {
+        public override IFilter isIn(Set<String> inSet) {
             return set('IN', inSet);
         }
 
-        public Filter isIn(List<Object> inList) {
+        public override IFilter isIn(List<Object> inList) {
             return set('IN', inList);
         }
 
         // The Set collection type does not allow to implicitly cast Set<Object>
-        public Filter notIn(Set<String> inSet) {
+        public override IFilter notIn(Set<String> inSet) {
             return set('NOT IN', inSet);
         }
 
-        public Filter notIn(List<Object> inList) {
+        public override IFilter notIn(List<Object> inList) {
             return set('NOT IN', inList);
         }
 
-        public Filter isIn(JoinQuery joinQuery) {
+        public override IFilter isIn(IInnerJoin joinQuery) {
             return set('IN', joinQuery);
         }
 
-        public Filter notIn(JoinQuery joinQuery) {
+        public override IFilter notIn(IInnerJoin joinQuery) {
             return set('NOT IN', joinQuery);
         }
 
-        private Filter set(String comperator, Object value) {
+        private IFilter set(String comperator, Object value) {
             this.value = value;
             this.comperator = comperator;
             return this;
@@ -1073,7 +1071,7 @@ public inherited sharing class SOQL implements Queryable {
             return String.isEmpty(field);
         }
 
-        public Filter removeWhenNull() {
+        public override IFilter removeWhenNull() {
             if (value == null || isLikeNull()) {
                 // Set field as empty to meet isEmpty and ignore condition
                 with('');
@@ -1085,16 +1083,16 @@ public inherited sharing class SOQL implements Queryable {
             return value == 'null%' || value == '%null' || value == '%null%';
         }
 
-        public String build() {
+        public override String toString() {
             if (value instanceOf JoinQuery) {
-                return field + ' ' + comperator + ' (' + ((JoinQuery) value).build() + ')';
+                return field + ' ' + comperator + ' (' + ((JoinQuery) value).toString() + ')';
             }
 
             return field + ' ' + comperator + ' :' + binder.bind(value);
         }
     }
 
-    public class JoinQuery implements QueryClause, SoqlJoin {
+    private class JoinQuery implements IInnerJoin {
         private QueryBuilder builder;
         private Binder binder;
 
@@ -1117,8 +1115,8 @@ public inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public String build() {
-            return builder.build();
+        public override String toString() {
+            return builder.toString();
         }
     }
 
@@ -1133,7 +1131,7 @@ public inherited sharing class SOQL implements Queryable {
             groupByFields.add('ROLLUP(' + field + ')');
         }
 
-        public String build() {
+        public override String toString() {
             return 'GROUP BY ' + String.join(new List<String>(groupByFields), ', ');
         }
     }
@@ -1150,11 +1148,11 @@ public inherited sharing class SOQL implements Queryable {
             return orderBys.get(orderBys.size() - 1);
         }
 
-        public String build() {
+        public override String toString() {
             List<String> orderFields = new List<String>();
 
             for (QOrderBy orderBy : orderBys) {
-                orderFields.add(orderBy.build());
+                orderFields.add(orderBy.toString());
             }
 
             return 'ORDER BY ' + String.join(orderFields, ', ');
@@ -1192,7 +1190,7 @@ public inherited sharing class SOQL implements Queryable {
             nullsOrder = 'LAST';
         }
 
-        public String build() {
+        public override String toString() {
             return orderField + ' ' + sortingOrder + ' NULLS ' + nullsOrder;
         }
     }
@@ -1204,7 +1202,7 @@ public inherited sharing class SOQL implements Queryable {
             this.soqlLimit = soqlLimit;
         }
 
-        public String build() {
+        public override String toString() {
             return 'LIMIT ' + this.soqlLimit;
         }
     }
@@ -1216,7 +1214,7 @@ public inherited sharing class SOQL implements Queryable {
             soqlOffset = fromRow;
         }
 
-        public String build() {
+        public override String toString() {
             return 'OFFSET ' + soqlOffset;
         }
     }
@@ -1240,7 +1238,7 @@ public inherited sharing class SOQL implements Queryable {
             forStatement = 'ALL ROWS';
         }
 
-        public String build() {
+        public override String toString() {
             return forStatement;
         }
     }
