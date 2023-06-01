@@ -33,7 +33,7 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public static JoinQuery InnerJoin {
+    public static InnerJoin InnerJoin {
         get {
             return new QJoinQuery(binder);
         }
@@ -180,20 +180,20 @@ public inherited sharing class SOQL implements Queryable {
         public abstract Filter startsWith(String value); // LIKE :value + '%'
         public abstract Filter isIn(Set<String> inSet); // IN :inSet
         public abstract Filter isIn(List<Object> inList); // IN :inList
-        public abstract Filter isIn(JoinQuery joinQuery); // SOQL.JoinQuery
+        public abstract Filter isIn(InnerJoin joinQuery); // SOQL.InnerJoin
         public abstract Filter notIn(Set<String> inSet); // NOT IN :inSet
         public abstract Filter notIn(List<Object> inList); // NOT IN :inList
-        public abstract Filter notIn(JoinQuery joinQuery); // SOQL.JoinQuery
+        public abstract Filter notIn(InnerJoin joinQuery); // SOQL.InnerJoin
 
         public abstract Filter removeWhenNull(); // Condition will be removed for value = null
     }
 
-    public interface JoinQuery { // SOQL.InnerJoin
-        JoinQuery of(SObjectType ofObject);
+    public interface InnerJoin { // SOQL.InnerJoin
+        InnerJoin of(SObjectType ofObject);
 
-        JoinQuery with(SObjectField field);
+        InnerJoin with(SObjectField field);
 
-        JoinQuery whereAre(FilterClause conditions); // SOQL.Filter or SOQL.FilterGroup
+        InnerJoin whereAre(FilterClause conditions); // SOQL.Filter or SOQL.FilterGroup
     }
 
     @TestVisible
@@ -1053,11 +1053,11 @@ public inherited sharing class SOQL implements Queryable {
             return set('NOT IN', inList);
         }
 
-        public override Filter isIn(JoinQuery joinQuery) {
+        public override Filter isIn(InnerJoin joinQuery) {
             return set('IN', joinQuery);
         }
 
-        public override Filter notIn(JoinQuery joinQuery) {
+        public override Filter notIn(InnerJoin joinQuery) {
             return set('NOT IN', joinQuery);
         }
 
@@ -1084,15 +1084,15 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            if (value instanceOf JoinQuery) {
-                return field + ' ' + comperator + ' (' + ((JoinQuery) value).toString() + ')';
+            if (value instanceOf InnerJoin) {
+                return field + ' ' + comperator + ' (' + ((InnerJoin) value).toString() + ')';
             }
 
             return field + ' ' + comperator + ' :' + binder.bind(value);
         }
     }
 
-    private class QJoinQuery implements JoinQuery {
+    private class QJoinQuery implements InnerJoin {
         private QueryBuilder builder;
         private Binder binder;
 
