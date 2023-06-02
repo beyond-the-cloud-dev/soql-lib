@@ -1055,6 +1055,11 @@ public inherited sharing class SOQL implements Queryable {
             return set('IN', inList);
         }
 
+        public override Filter isIn(InnerJoin joinQuery) {
+            binder = null;
+            return set('IN', joinQuery);
+        }
+
         // The Set collection type does not allow to implicitly cast Set<Object>
         public override Filter notIn(Set<String> inSet) {
             return set('NOT IN', inSet);
@@ -1064,11 +1069,8 @@ public inherited sharing class SOQL implements Queryable {
             return set('NOT IN', inList);
         }
 
-        public override Filter isIn(InnerJoin joinQuery) {
-            return set('IN', joinQuery);
-        }
-
         public override Filter notIn(InnerJoin joinQuery) {
+            binder = null;
             return set('NOT IN', joinQuery);
         }
 
@@ -1095,8 +1097,8 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            if (value instanceOf InnerJoin) {
-                return field + ' ' + comperator + ' (' + ((InnerJoin) value).toString() + ')';
+            if (binder == null) {
+                return field + ' ' + comperator + ' ' + value;
             }
 
             return field + ' ' + comperator + ' :' + binder.bind(value);
@@ -1127,7 +1129,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            return builder.toString();
+            return '(' + builder.toString() + ')';
         }
     }
 
