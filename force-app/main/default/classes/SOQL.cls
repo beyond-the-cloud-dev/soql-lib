@@ -848,22 +848,19 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     private virtual class QFilterGroup extends FilterGroup {
-        private List<String> queryConditions = new List<String>();
+        private List<FilterClause> queryConditions = new List<FilterClause>();
         private String order;
         private String connector = 'AND';
+
+        public override FilterGroup add(String dynamicCondition) {
+            return add(new QStringFilter(dynamicCondition));
+        }
 
         public override FilterGroup add(FilterClause condition) {
             if (condition.isEmpty()) {
                 return this;
             }
-            return add(condition.toString());
-        }
-
-        public override FilterGroup add(String dynamicCondition) {
-            if (String.isEmpty(dynamicCondition)) {
-                return this;
-            }
-            queryConditions.add(dynamicCondition);
+            queryConditions.add(condition);
             return this;
         }
 
@@ -907,7 +904,7 @@ public inherited sharing class SOQL implements Queryable {
             for (Integer i = 0; i < queryConditions.size(); i++) {
                 conditions = conditions.replace(
                     conditionNumberWithSpecialCharacters(i + 1), // e.g *1*
-                    queryConditions.get(i)
+                    queryConditions.get(i).toString()
                 );
             }
 
@@ -934,6 +931,22 @@ public inherited sharing class SOQL implements Queryable {
             }
 
             return 'WHERE ' + buildNested();
+        }
+    }
+
+    private class QStringFilter implements FilterClause {
+        private String conditionString;
+
+        public QStringFilter(String dynamicCondition) {
+            conditionString = dynamicCondition;
+        }
+
+        public Boolean isEmpty() {
+            return String.isEmpty(conditionString);
+        }
+
+        public override String toString() {
+            return conditionString;
         }
     }
 
