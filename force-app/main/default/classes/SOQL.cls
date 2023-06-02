@@ -150,6 +150,7 @@ public inherited sharing class SOQL implements Queryable {
 
     public abstract class FilterGroup implements FilterClause { // SOQL.FilterGroup
         public abstract FilterGroup add(FilterClause condition); // SOQL.Filter or SOQL.FilterGroup
+        public abstract FilterGroup add(String dynamicCondition); // Pass condition as String
 
         public abstract FilterGroup anyConditionMatching(); // All group filters will be join by OR
 
@@ -346,7 +347,7 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public SOQL whereAre(String conditions) {
-        builder.conditions.evaluate(conditions);
+        builder.conditions.add(conditions);
         return this;
     }
 
@@ -851,6 +852,10 @@ public inherited sharing class SOQL implements Queryable {
         private String order;
         private String connector = 'AND';
 
+        public override FilterGroup add(String dynamicCondition) {
+            return add(new QStringFilter(dynamicCondition));
+        }
+
         public override FilterGroup add(FilterClause condition) {
             if (condition.isEmpty()) {
                 return this;
@@ -920,22 +925,28 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     private class QMainFilterGroup extends QFilterGroup implements QueryClause {
-        private String stringConditions;
-
-        public void evaluate(String conditions) {
-            stringConditions = String.escapeSingleQuotes(conditions);
-        }
-
         public override String toString() {
-            if (String.isNotEmpty(stringConditions)) {
-                return 'WHERE ' + stringConditions;
-            }
-
             if (isEmpty()) {
                 return '';
             }
 
             return 'WHERE ' + buildNested();
+        }
+    }
+
+    private class QStringFilter implements FilterClause {
+        private String conditionString;
+
+        public QStringFilter(String dynamicCondition) {
+            conditionString = dynamicCondition;
+        }
+
+        public Boolean isEmpty() {
+            return String.isEmpty(conditionString);
+        }
+
+        public override String toString() {
+            return conditionString;
         }
     }
 
