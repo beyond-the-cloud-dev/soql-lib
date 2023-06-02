@@ -72,7 +72,8 @@ public inherited sharing class SOQL implements Queryable {
         Queryable myTeamTerritoryScope();
         Queryable teamScope();
 
-        Queryable whereAre(FilterClause conditions); // SOQL.FilterGroup or SOQL.Filter
+        Queryable whereAre(Filter conditions); // SOQL.FilterGroup or SOQL.Filter
+        Queryable whereAre(FilterGroup conditions); // SOQL.FilterGroup or SOQL.Filter
         Queryable whereAre(String conditions); // Conditions to evaluate
 
         Queryable groupBy(SObjectField field);
@@ -133,6 +134,8 @@ public inherited sharing class SOQL implements Queryable {
         SubQuery with(List<SObjectField> fields); // For more than 5 fields
         SubQuery with(String relationshipName, List<SObjectField> fields);
 
+        SubQuery whereAre(Filter conditions); // SOQL.FilterGroup or SOQL.Filter
+        SubQuery whereAre(FilterGroup conditions); // SOQL.FilterGroup or SOQL.Filter
         SubQuery whereAre(FilterClause conditions); // SOQL.FilterGroup or SOQL.Filter
 
         SubQuery orderBy(SObjectField field);
@@ -148,44 +151,45 @@ public inherited sharing class SOQL implements Queryable {
         SubQuery forView();
     }
 
-    public abstract class FilterGroup implements FilterClause { // SOQL.FilterGroup
-        public abstract FilterGroup add(FilterClause condition); // SOQL.Filter or SOQL.FilterGroup
+    public interface FilterGroup {
+        FilterGroup add(Filter condition); // SOQL.Filter or SOQL.FilterGroup
+        FilterGroup add(FilterGroup condition); // SOQL.Filter or SOQL.FilterGroup
 
-        public abstract FilterGroup anyConditionMatching(); // All group filters will be join by OR
+        FilterGroup anyConditionMatching(); // All group filters will be join by OR
 
-        public abstract FilterGroup conditionLogic(String order);
+        FilterGroup conditionLogic(String order);
     }
 
-    public abstract class Filter implements FilterClause { // SOQL.Filter
-        public abstract Filter id();
-        public abstract Filter recordType();
-        public abstract Filter name();
-        public abstract Filter with(SObjectField field);
-        public abstract Filter with(String field);
-        public abstract Filter with(String relationshipName, SObjectField field);
+    public interface Filter {
+        Filter id();
+        Filter recordType();
+        Filter name();
+        Filter with(SObjectField field);
+        Filter with(String field);
+        Filter with(String relationshipName, SObjectField field);
 
-        public abstract Filter isNull(); // = NULL
-        public abstract Filter isNotNull(); // != NULL
-        public abstract Filter isTrue(); // = TRUE
-        public abstract Filter isFalse(); // = FALSE
-        public abstract Filter equal(Object value); // = :value
-        public abstract Filter notEqual(Object value); // != :value
-        public abstract Filter lessThan(Object value); // < :value
-        public abstract Filter greaterThan(Object value); // > :value
-        public abstract Filter lessThanOrEqual(Object value); // <= :value
-        public abstract Filter greaterThanOrEqual(Object value); // >= :value
-        public abstract Filter containsSome(List<String> values); // LIKE :values
-        public abstract Filter contains(String value); // LIKE :'%' + value + '%'
-        public abstract Filter endsWith(String value); // LIKE :'%' + value
-        public abstract Filter startsWith(String value); // LIKE :value + '%'
-        public abstract Filter isIn(Set<String> inSet); // IN :inSet
-        public abstract Filter isIn(List<Object> inList); // IN :inList
-        public abstract Filter isIn(InnerJoin joinQuery); // SOQL.InnerJoin
-        public abstract Filter notIn(Set<String> inSet); // NOT IN :inSet
-        public abstract Filter notIn(List<Object> inList); // NOT IN :inList
-        public abstract Filter notIn(InnerJoin joinQuery); // SOQL.InnerJoin
+        Filter isNull(); // = NULL
+        Filter isNotNull(); // != NULL
+        Filter isTrue(); // = TRUE
+        Filter isFalse(); // = FALSE
+        Filter equal(Object value); // = :value
+        Filter notEqual(Object value); // != :value
+        Filter lessThan(Object value); // < :value
+        Filter greaterThan(Object value); // > :value
+        Filter lessThanOrEqual(Object value); // <= :value
+        Filter greaterThanOrEqual(Object value); // >= :value
+        Filter containsSome(List<String> values); // LIKE :values
+        Filter contains(String value); // LIKE :'%' + value + '%'
+        Filter endsWith(String value); // LIKE :'%' + value
+        Filter startsWith(String value); // LIKE :value + '%'
+        Filter isIn(Set<String> inSet); // IN :inSet
+        Filter isIn(List<Object> inList); // IN :inList
+        Filter isIn(InnerJoin joinQuery); // SOQL.InnerJoin
+        Filter notIn(Set<String> inSet); // NOT IN :inSet
+        Filter notIn(List<Object> inList); // NOT IN :inList
+        Filter notIn(InnerJoin joinQuery); // SOQL.InnerJoin
 
-        public abstract Filter removeWhenNull(); // Condition will be removed for value = null
+        Filter removeWhenNull(); // Condition will be removed for value = null
     }
 
     public interface InnerJoin { // SOQL.InnerJoin
@@ -193,6 +197,8 @@ public inherited sharing class SOQL implements Queryable {
 
         InnerJoin with(SObjectField field);
 
+        InnerJoin whereAre(Filter conditions); // SOQL.Filter or SOQL.FilterGroup
+        InnerJoin whereAre(FilterGroup conditions); // SOQL.Filter or SOQL.FilterGroup
         InnerJoin whereAre(FilterClause conditions); // SOQL.Filter or SOQL.FilterGroup
     }
 
@@ -340,8 +346,13 @@ public inherited sharing class SOQL implements Queryable {
         return this;
     }
 
-    public SOQL whereAre(FilterClause conditions) {
-        builder.conditions.add(conditions);
+    public SOQL whereAre(Filter conditions) {
+        builder.conditions.add((FilterClause) conditions);
+        return this;
+    }
+
+    public SOQL whereAre(FilterGroup conditions) {
+        builder.conditions.add((FilterClause) conditions);
         return this;
     }
 
@@ -730,6 +741,14 @@ public inherited sharing class SOQL implements Queryable {
             return this;
         }
 
+        public QSubQuery whereAre(Filter condition) {
+            return whereAre((FilterClause) condition);
+        }
+
+        public QSubQuery whereAre(FilterGroup condition) {
+            return whereAre((FilterClause) condition);
+        }
+
         public QSubQuery whereAre(FilterClause conditions) {
             builder.conditions.add(conditions);
             return this;
@@ -846,12 +865,20 @@ public inherited sharing class SOQL implements Queryable {
         Boolean isEmpty();
     }
 
-    private virtual class QFilterGroup extends FilterGroup {
+    private virtual class QFilterGroup implements FilterClause, FilterGroup {
         private List<FilterClause> queryConditions = new List<FilterClause>();
         private String order;
         private String connector = 'AND';
 
-        public override FilterGroup add(FilterClause condition) {
+        public FilterGroup add(Filter condition){
+            return add((FilterClause) condition);
+        }
+
+        public FilterGroup add(FilterGroup condition){
+            return add((FilterClause) condition);
+        }
+
+        public FilterGroup add(FilterClause condition) {
             if (condition.isEmpty()) {
                 return this;
             }
@@ -859,12 +886,12 @@ public inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public override FilterGroup anyConditionMatching() {
+        public FilterGroup anyConditionMatching() {
             connector = 'OR';
             return this;
         }
 
-        public override FilterGroup conditionLogic(String order) {
+        public FilterGroup conditionLogic(String order) {
             this.order = order;
             return this;
         }
@@ -873,7 +900,7 @@ public inherited sharing class SOQL implements Queryable {
             return queryConditions.isEmpty();
         }
 
-        public virtual override String toString() {
+        public override virtual String toString() {
             return '(' + buildNested() + ')';
         }
 
@@ -939,7 +966,7 @@ public inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QFilter extends Filter {
+    private class QFilter implements FilterClause, Filter {
         private String field;
         private String comperator;
         private Object value;
@@ -950,84 +977,84 @@ public inherited sharing class SOQL implements Queryable {
             this.binder = binder;
         }
 
-        public override Filter id() {
+        public Filter id() {
             return with('Id');
         }
 
-        public override Filter recordType() {
+        public Filter recordType() {
             return with('RecordType.DeveloperName');
         }
 
-        public override Filter name() {
+        public Filter name() {
             return with('Name');
         }
 
-        public override Filter with(SObjectField field) {
+        public Filter with(SObjectField field) {
             return with(field.getDescribe().getName());
         }
 
-        public override Filter with(String relationshipName, SObjectField field) {
+        public Filter with(String relationshipName, SObjectField field) {
             return with(relationshipName + '.' + field);
         }
 
-        public override Filter with(String field) {
+        public Filter with(String field) {
             this.field = field;
             return this;
         }
 
-        public override Filter isNull() {
+        public Filter isNull() {
             return equal(null);
         }
 
-        public override Filter isNotNull() {
+        public Filter isNotNull() {
             return notEqual(null);
         }
 
-        public override Filter isTrue() {
+        public Filter isTrue() {
             return equal(true);
         }
 
-        public override Filter isFalse() {
+        public Filter isFalse() {
             return equal(false);
         }
 
-        public override Filter equal(Object value) {
+        public Filter equal(Object value) {
             return set('=', value);
         }
 
-        public override Filter notEqual(Object value) {
+        public Filter notEqual(Object value) {
             return set('!=', value);
         }
 
-        public override Filter lessThan(Object value) {
+        public Filter lessThan(Object value) {
             return set('<', value);
         }
 
-        public override Filter greaterThan(Object value) {
+        public Filter greaterThan(Object value) {
             return set('>', value);
         }
 
-        public override Filter lessThanOrEqual(Object value) {
+        public Filter lessThanOrEqual(Object value) {
             return set('<=', value);
         }
 
-        public override Filter greaterThanOrEqual(Object value) {
+        public Filter greaterThanOrEqual(Object value) {
             return set('>=', value);
         }
 
-        public override Filter containsSome(List<String> values) {
+        public Filter containsSome(List<String> values) {
             return set('LIKE', values);
         }
 
-        public override Filter contains(String value) {
+        public Filter contains(String value) {
             return set('LIKE', '%' + formattedString(value) + '%');
         }
 
-        public override Filter endsWith(String value) {
+        public Filter endsWith(String value) {
             return set('LIKE', '%' + formattedString(value));
         }
 
-        public override Filter startsWith(String value) {
+        public Filter startsWith(String value) {
             return set('LIKE', formattedString(value) + '%');
         }
 
@@ -1036,28 +1063,28 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         // The Set collection type does not allow to implicitly cast Set<Object>
-        public override Filter isIn(Set<String> inSet) {
+        public Filter isIn(Set<String> inSet) {
             return set('IN', inSet);
         }
 
-        public override Filter isIn(List<Object> inList) {
+        public Filter isIn(List<Object> inList) {
             return set('IN', inList);
         }
 
         // The Set collection type does not allow to implicitly cast Set<Object>
-        public override Filter notIn(Set<String> inSet) {
+        public Filter notIn(Set<String> inSet) {
             return set('NOT IN', inSet);
         }
 
-        public override Filter notIn(List<Object> inList) {
+        public Filter notIn(List<Object> inList) {
             return set('NOT IN', inList);
         }
 
-        public override Filter isIn(InnerJoin joinQuery) {
+        public Filter isIn(InnerJoin joinQuery) {
             return set('IN', joinQuery);
         }
 
-        public override Filter notIn(InnerJoin joinQuery) {
+        public Filter notIn(InnerJoin joinQuery) {
             return set('NOT IN', joinQuery);
         }
 
@@ -1071,7 +1098,7 @@ public inherited sharing class SOQL implements Queryable {
             return String.isEmpty(field);
         }
 
-        public override Filter removeWhenNull() {
+        public Filter removeWhenNull() {
             if (value == null || isLikeNull()) {
                 // Set field as empty to meet isEmpty and ignore condition
                 with('');
@@ -1108,6 +1135,14 @@ public inherited sharing class SOQL implements Queryable {
         public QJoinQuery with(SObjectField field) {
             builder.fields.with(field);
             return this;
+        }
+
+        public QJoinQuery whereAre(Filter condition) {
+            return whereAre((FilterClause) condition);
+        }
+
+        public QJoinQuery whereAre(FilterGroup condition) {
+            return whereAre((FilterClause) condition);
         }
 
         public QJoinQuery whereAre(FilterClause condition) {
