@@ -1054,16 +1054,21 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public override Filter isIn(InnerJoin joinQuery) {
-            return set('IN', joinQuery);
+            return setWithoutBinding('IN', joinQuery);
         }
 
         public override Filter notIn(InnerJoin joinQuery) {
-            return set('NOT IN', joinQuery);
+            return setWithoutBinding('NOT IN', joinQuery);
+        }
+
+        private Filter setWithoutBinding(String comperator, Object value) {
+            binder = null;
+            return set(comperator, value);
         }
 
         private Filter set(String comperator, Object value) {
-            this.value = value;
             this.comperator = comperator;
+            this.value = value;
             return this;
         }
 
@@ -1084,8 +1089,8 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            if (value instanceOf InnerJoin) {
-                return field + ' ' + comperator + ' (' + ((InnerJoin) value).toString() + ')';
+            if (binder == null) {
+                return field + ' ' + comperator + ' ' + value;
             }
 
             return field + ' ' + comperator + ' :' + binder.bind(value);
@@ -1116,7 +1121,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            return builder.toString();
+            return '(' + builder.toString() + ')';
         }
     }
 
