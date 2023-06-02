@@ -150,6 +150,7 @@ public inherited sharing class SOQL implements Queryable {
 
     public abstract class FilterGroup implements FilterClause { // SOQL.FilterGroup
         public abstract FilterGroup add(FilterClause condition); // SOQL.Filter or SOQL.FilterGroup
+        public abstract FilterGroup add(String dynamicCondition); // Pass condition as String
 
         public abstract FilterGroup anyConditionMatching(); // All group filters will be join by OR
 
@@ -346,7 +347,7 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public SOQL whereAre(String conditions) {
-        builder.conditions.evaluate(conditions);
+        builder.conditions.add(conditions);
         return this;
     }
 
@@ -847,7 +848,7 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     private virtual class QFilterGroup extends FilterGroup {
-        private List<FilterClause> queryConditions = new List<FilterClause>();
+        private List<String> queryConditions = new List<String>();
         private String order;
         private String connector = 'AND';
 
@@ -855,7 +856,14 @@ public inherited sharing class SOQL implements Queryable {
             if (condition.isEmpty()) {
                 return this;
             }
-            queryConditions.add(condition);
+            return add(condition.toString());
+        }
+
+        public override FilterGroup add(String dynamicCondition) {
+            if (String.isEmpty(dynamicCondition)) {
+                return this;
+            }
+            queryConditions.add(dynamicCondition);
             return this;
         }
 
@@ -899,7 +907,7 @@ public inherited sharing class SOQL implements Queryable {
             for (Integer i = 0; i < queryConditions.size(); i++) {
                 conditions = conditions.replace(
                     conditionNumberWithSpecialCharacters(i + 1), // e.g *1*
-                    queryConditions.get(i).toString()
+                    queryConditions.get(i)
                 );
             }
 
@@ -920,17 +928,7 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     private class QMainFilterGroup extends QFilterGroup implements QueryClause {
-        private String stringConditions;
-
-        public void evaluate(String conditions) {
-            stringConditions = String.escapeSingleQuotes(conditions);
-        }
-
         public override String toString() {
-            if (String.isNotEmpty(stringConditions)) {
-                return 'WHERE ' + stringConditions;
-            }
-
             if (isEmpty()) {
                 return '';
             }
