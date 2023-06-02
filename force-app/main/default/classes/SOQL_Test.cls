@@ -903,7 +903,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void evaluateConditions() {
+    static void evaluateStringConditions() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .whereAre('NumberOfEmployees >= 10 AND NumberOfEmployees <= 20')
@@ -922,6 +922,33 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual('SELECT Id FROM Account', soql);
+    }
+
+    @IsTest
+    static void evaluateStringConditionsAndGroup() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .whereAre('NumberOfEmployees >= 10 AND NumberOfEmployees <= 20')
+            .whereAre(SOQL.Filter.name().equal('My Contact'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees >= 10 AND NumberOfEmployees <= 20 AND Name = :v1', soql);
+    }
+
+    @IsTest
+    static void evaluateStringAndFilterInFilterGroup() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .whereAre(
+                SOQL.FilterGroup
+                    .add('NumberOfEmployees >= 10 AND NumberOfEmployees <= 20')
+                    .add(SOQL.Filter.name().equal('My Contact'))
+            )
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account WHERE (NumberOfEmployees >= 10 AND NumberOfEmployees <= 20 AND Name = :v1)', soql);
     }
 
     @IsTest
