@@ -596,10 +596,10 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void lessThanOrEqual() {
+    static void lessOrEqual() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
-            .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).lessThanOrEqual(10));
+            .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).lessOrEqual(10));
 
         // Verify
         String soql = builder.toString();
@@ -610,10 +610,10 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void greaterThanOrEqual() {
+    static void greaterOrEqual() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
-            .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10));
+            .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).greaterOrEqual(10));
 
         // Verify
         String soql = builder.toString();

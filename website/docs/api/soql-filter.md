@@ -334,14 +334,14 @@ SOQL.of(Contact.SObjectType)
     toList();
 ```
 
-### lessThanOrEqual
+### lessOrEqual
 
 - `WHERE NumberOfEmployees <= 10`
 
 **Signature**
 
 ```apex
-Filter lessThanOrEqual(Object value)
+Filter lessOrEqual(Object value)
 ```
 
 **Example**
@@ -353,18 +353,18 @@ WHERE NumberOfEmployees <= 10
 ```
 ```apex
 SOQL.of(Contact.SObjectType)
-    .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).lessThanOrEqual(10))
+    .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).lessOrEqual(10))
     .toList();
 ```
 
-### greaterThanOrEqual
+### greaterOrEqual
 
 - `WHERE NumberOfEmployees >= 10`
 
 **Signature**
 
 ```apex
-Filter greaterThanOrEqual(Object value)
+Filter greaterOrEqual(Object value)
 ```
 
 **Example**
@@ -376,7 +376,7 @@ WHERE NumberOfEmployees >= 10
 ```
 ```apex
 SOQL.of(Contact.SObjectType)
-    .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10))
+    .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).greaterOrEqual(10))
     .toList();
 ```
 

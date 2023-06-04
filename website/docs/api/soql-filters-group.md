@@ -28,7 +28,7 @@ WHERE Name = 'My Account' AND NumberOfEmployees >= 10
 SOQL.of(Account.SObjectType)
     .whereAre(SOQL.FilterGroup
         .add(SOQL.Filter.with(Account.Name).equal('My Account'))
-        .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10))
+        .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterOrEqual(10))
     ).toList();
 ```
 
@@ -36,7 +36,7 @@ SOQL.of(Account.SObjectType)
 // build conditions on fly
 FilterGroup group = SOQL.FilterGroup
         .add(SOQL.Filter.with(Account.Name).equal('My Account'))
-        .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10))
+        .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterOrEqual(10))
         .conditionLogic('1 OR 2');
 
 SOQL.of(Account.SObjectType)
@@ -69,7 +69,7 @@ OR (Name = 'My Account' AND Industry = 'IT')
 SOQL.of(Account.SObjectType)
     .whereAre(SOQL.FilterGroup
         .add(SOQL.Filter.with(Account.Name).equal('My Account'))
-        .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10))
+        .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterOrEqual(10))
         .add(SOQL.Filter.with(Account.Industry).equal('IT'))
         .conditionLogic('(1 AND 2) OR (1 AND 3)')
     ).toList();
@@ -98,7 +98,7 @@ WHERE Name = 'My Account' OR NumberOfEmployees >= 10
 SOQL.of(Account.SObjectType)
     .whereAre(SOQL.FilterGroup
         .add(SOQL.Filter.with(Account.Name).equal('My Account'))
-        .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterThanOrEqual(10))
+        .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterOrEqual(10))
         .anyConditionMatching()
     ).toList();
 ```

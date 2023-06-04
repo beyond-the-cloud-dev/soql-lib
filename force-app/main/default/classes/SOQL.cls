@@ -177,8 +177,8 @@ public inherited sharing class SOQL implements Queryable {
         Filter notEqual(Object value); // != :value
         Filter lessThan(Object value); // < :value
         Filter greaterThan(Object value); // > :value
-        Filter lessThanOrEqual(Object value); // <= :value
-        Filter greaterThanOrEqual(Object value); // >= :value
+        Filter lessOrEqual(Object value); // <= :value
+        Filter greaterOrEqual(Object value); // >= :value
         Filter containsSome(List<String> values); // LIKE :values
         Filter contains(String value); // LIKE :'%' + value + '%'
         Filter endsWith(String value); // LIKE :'%' + value
@@ -1075,11 +1075,11 @@ public inherited sharing class SOQL implements Queryable {
             return set('>', value);
         }
 
-        public Filter lessThanOrEqual(Object value) {
+        public Filter lessOrEqual(Object value) {
             return set('<=', value);
         }
 
-        public Filter greaterThanOrEqual(Object value) {
+        public Filter greaterOrEqual(Object value) {
             return set('>=', value);
         }
 
