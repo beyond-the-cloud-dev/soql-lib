@@ -808,6 +808,17 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void dateLiteral() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(Account.CreatedDate).greaterThan('LAST_N_QUARTERS:2'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account WHERE CreatedDate > LAST_N_QUARTERS:2', soql);
+    }
+
+    @IsTest
     static void conditionsGroup() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
