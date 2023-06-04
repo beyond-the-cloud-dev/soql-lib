@@ -300,7 +300,23 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void subQueryWhere() {
+    static void subQueryWhereFilterGroup() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Name)
+            .with(SOQL.SubQuery.of('Contacts')
+                .with(Contact.Id, Contact.Name)
+                .whereAre(SOQL.FilterGroup
+                    .add(SOQL.Filter.with(Contact.LastName).equal('Doe'))
+                )
+            ).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts WHERE (LastName = :v1)) FROM Account', soql);
+    }
+
+    @IsTest
+    static void subQueryWhereFilter() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with(Account.Name)
@@ -866,6 +882,26 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void innerJoinWithFilterGroup() {
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(Account.Id).isIn(
+                SOQL.InnerJoin.of(Contact.SObjectType)
+                    .with(Contact.AccountId)
+                    .whereAre(SOQL.FilterGroup
+                        .add(SOQL.Filter.with(Contact.Name).equal('My Contact'))
+                    )
+            ));
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE Id IN (SELECT AccountId FROM Contact WHERE (Name = :v1))', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('My Contact', binding.get('v1'));
+    }
+
+    @IsTest
     static void inInnerJoin() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
@@ -882,7 +918,6 @@ private class SOQL_Test {
         Map<String, Object> binding = builder.binding();
         Assert.areEqual('My Contact', binding.get('v1'));
     }
-
 
     @IsTest
     static void isNotInInnerJoin() {
