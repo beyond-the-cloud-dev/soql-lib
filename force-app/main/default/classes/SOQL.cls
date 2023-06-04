@@ -639,8 +639,8 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     private class QFields implements QueryClause {
-        private Set<String> queryFields = new Set<String>();
-        private Set<String> queryCounts = new Set<String>();
+        private Set<String> fields = new Set<String>();
+        private Set<String> counts = new Set<String>();
 
         public void count() {
             // COUNT() must be the only element in the SELECT list.
@@ -657,12 +657,12 @@ public inherited sharing class SOQL implements Queryable {
 
         public void count(String countSoql) {
             // clear all default fields to avoid "Field must be grouped or aggregated"
-            queryFields.clear();
-            queryCounts.add(countSoql);
+            fields.clear();
+            counts.add(countSoql);
         }
 
-        public void with(String fields) {
-            queryFields.addAll(fields.deleteWhitespace().split(','));
+        public void with(String stringFields) {
+            fields.addAll(stringFields.deleteWhitespace().split(','));
         }
 
         public void with(List<SObjectField> fields) {
@@ -672,7 +672,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public void with(SObjectField field) {
-            queryFields.add(field.getDescribe().getName());
+            fields.add(field.getDescribe().getName());
         }
 
         public void with(String relationshipPath, List<SObjectField> fields) {
@@ -682,18 +682,18 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public void with(String relationshipPath, SObjectField field) {
-            queryFields.add(relationshipPath + '.' + field);
+            fields.add(relationshipPath + '.' + field);
         }
 
         public override String toString() {
-            if (queryFields.isEmpty() && queryCounts.isEmpty()) {
+            if (fields.isEmpty() && counts.isEmpty()) {
                 return 'SELECT Id';
             }
 
             List<String> selectStatement = new List<String>();
 
-            selectStatement.addAll(queryCounts);
-            selectStatement.addAll(queryFields);
+            selectStatement.addAll(counts);
+            selectStatement.addAll(fields);
 
             return 'SELECT ' + String.join(selectStatement, ', ');
         }
@@ -1008,9 +1008,12 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     private class QFilter implements Filter {
+        private final List<DisplayType> TYPES_WITHOUT_BINDING = new List<DisplayType>{ DisplayType.DateTime };
+
         private String field;
         private String comperator;
         private Object value;
+        private DisplayType fieldType;
 
         private Binder binder;
 
@@ -1031,6 +1034,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public Filter with(SObjectField field) {
+            fieldType = field.getDescribe().getType();
             return with(field.getDescribe().getName());
         }
 
@@ -1154,7 +1158,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            if (binder == null) {
+            if (binder == null || TYPES_WITHOUT_BINDING.contains(fieldType)) {
                 return field + ' ' + comperator + ' ' + value;
             }
 
