@@ -252,15 +252,15 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public SOQL with(SObjectField field1, SObjectField field2, SObjectField field3) {
-        return with(field1).with(field2).with(field3);
+        return with(field1, field2).with(field3);
     }
 
     public SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
-        return with(field1).with(field2).with(field3).with(field4);
+        return with(field1, field2, field3).with(field4);
     }
 
     public SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
-        return with(field1).with(field2).with(field3).with(field4).with(field5);
+        return with(field1, field2, field3, field4).with(field5);
     }
 
     public SOQL with(List<SObjectField> fields) {
@@ -722,15 +722,15 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public QSubQuery with(SObjectField field1, SObjectField field2, SObjectField field3) {
-            return with(field1).with(field2).with(field3);
+            return with(field1, field2).with(field3);
         }
 
         public QSubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
-            return with(field1).with(field2).with(field3).with(field4);
+            return with(field1, field2, field3).with(field4);
         }
 
         public QSubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
-            return with(field1).with(field2).with(field3).with(field4).with(field5);
+            return with(field1, field2, field3, field4).with(field5);
         }
 
         public QSubQuery with(List<SObjectField> fields) {
