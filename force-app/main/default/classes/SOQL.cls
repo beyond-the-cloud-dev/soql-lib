@@ -1039,6 +1039,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public Filter with(String relationshipName, SObjectField field) {
+            fieldType = field.getDescribe().getType();
             return with(relationshipName + '.' + field);
         }
 
