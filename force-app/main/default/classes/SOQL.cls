@@ -937,11 +937,13 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         private String applySpecialCharactersToOrder() {
+            String orderWithSpecialCharacters = order;
+
             for (Integer i = 1; i <= queryConditions.size(); i++) {
-                order = order.replace(String.valueOf(i), conditionNumberWithSpecialCharacters(i));
+                orderWithSpecialCharacters = orderWithSpecialCharacters.replace(String.valueOf(i), conditionNumberWithSpecialCharacters(i));
             }
 
-            return order; // e.g (*1* AND (*2* OR *3*))
+            return orderWithSpecialCharacters; // e.g (*1* AND (*2* OR *3*))
         }
 
         private String conditionNumberWithSpecialCharacters(Integer conditionNumber) {
