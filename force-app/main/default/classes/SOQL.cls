@@ -1161,11 +1161,15 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            if (binder == null || TYPES_WITHOUT_BINDING.contains(fieldType)) {
+            if (buildWithoutBinding()) {
                 return field + ' ' + comperator + ' ' + value;
             }
 
             return field + ' ' + comperator + ' :' + binder.bind(value);
+        }
+
+        private Boolean buildWithoutBinding() {
+            return binder == null || (fieldType != null && TYPES_WITHOUT_BINDING.contains(fieldType));
         }
     }
 
