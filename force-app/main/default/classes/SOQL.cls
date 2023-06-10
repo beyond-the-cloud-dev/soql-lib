@@ -1218,7 +1218,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            return 'GROUP BY ' + String.join(new List<String>(groupByFields), ', ');
+            return 'GROUP BY ' + String.join(groupByFields, ', ');
         }
     }
 
