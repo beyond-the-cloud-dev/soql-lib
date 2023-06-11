@@ -109,8 +109,7 @@ public inherited sharing class SOQL implements Queryable {
 
         Queryable byId(SObject record);
         Queryable byId(Id recordId);
-        Queryable byIds(Set<Id> recordIds);
-        Queryable byIds(List<Id> recordIds);
+        Queryable byIds(Iterable<Id> recordIds); // List or Set
         Queryable byIds(List<SObject> records);
 
         String toString();
@@ -183,10 +182,10 @@ public inherited sharing class SOQL implements Queryable {
         Filter contains(String value); // LIKE :'%' + value + '%'
         Filter endsWith(String value); // LIKE :'%' + value
         Filter startsWith(String value); // LIKE :value + '%'
-        Filter isIn(Set<String> inSet); // IN :inSet
+        Filter isIn(Iterable<Object> iterable); // IN :inList or inSet
         Filter isIn(List<Object> inList); // IN :inList
         Filter isIn(InnerJoin joinQuery); // SOQL.InnerJoin
-        Filter notIn(Set<String> inSet); // NOT IN :inSet
+        Filter notIn(Iterable<Object> iterable); // NOT IN :inList or inSet
         Filter notIn(List<Object> inList); // NOT IN :inList
         Filter notIn(InnerJoin joinQuery); // SOQL.InnerJoin
 
@@ -512,11 +511,7 @@ public inherited sharing class SOQL implements Queryable {
         return whereAre(Filter.id().equal(recordId));
     }
 
-    public SOQL byIds(Set<Id> recordIds) {
-        return byIds(new List<Id>(recordIds));
-    }
-
-    public SOQL byIds(List<Id> recordIds) {
+    public SOQL byIds(Iterable<Id> recordIds) {
         return whereAre(Filter.id().isIn(recordIds));
     }
 
@@ -1110,13 +1105,8 @@ public inherited sharing class SOQL implements Queryable {
             return value == null ? value : String.escapeSingleQuotes(value.trim());
         }
 
-        // The Set collection type does not allow to implicitly cast Set<Object>
-        public Filter isIn(Set<String> inSet) {
-            return set('IN', inSet);
-        }
-
-        public Filter isIn(List<Object> inList) {
-            return set('IN', inList);
+        public Filter isIn(Iterable<Object> iterable) {
+            return set('IN', iterable);
         }
 
         public Filter isIn(InnerJoin joinQuery) {
@@ -1124,13 +1114,8 @@ public inherited sharing class SOQL implements Queryable {
             return set('IN', joinQuery);
         }
 
-        // The Set collection type does not allow to implicitly cast Set<Object>
-        public Filter notIn(Set<String> inSet) {
-            return set('NOT IN', inSet);
-        }
-
-        public Filter notIn(List<Object> inList) {
-            return set('NOT IN', inList);
+        public Filter notIn(Iterable<Object> iterable) {
+            return set('NOT IN', iterable);
         }
 
         public Filter notIn(InnerJoin joinQuery) {

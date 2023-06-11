@@ -717,7 +717,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void isNotInSet() {
+    static void notInSet() {
         // Setup
         Set<String> names = new Set<String>{ 'Test 1', 'Test 2' };
 
