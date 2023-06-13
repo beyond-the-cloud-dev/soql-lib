@@ -1186,7 +1186,7 @@ private class SOQL_Test {
         Assert.areEqual('SELECT Id FROM Account WHERE Id IN :v1', soql);
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(new List<Id>(accountIds), binding.get('v1'));
+        Assert.areEqual(accountIds, binding.get('v1'));
     }
 
     @IsTest
