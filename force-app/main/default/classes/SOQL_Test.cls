@@ -1402,6 +1402,17 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void toFieldWhenEmpty() {
+        // Test
+        String resultAccName = (String) SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.name().equal('Test'))
+            .toField(Account.Industry);
+
+        // Verify
+        Assert.isNull(resultAccName);
+    }
+
+    @IsTest
     static void toObject() {
         // Setup
         Account acc = new Account(Name = 'Test 1');
