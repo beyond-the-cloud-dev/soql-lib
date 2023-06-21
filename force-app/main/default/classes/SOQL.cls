@@ -17,7 +17,7 @@ public inherited sharing class SOQL implements Queryable {
 
     public static SubQuery SubQuery {
         get {
-            return new QSubQuery(binder);
+            return new QSubQuery();
         }
     }
 
@@ -29,13 +29,13 @@ public inherited sharing class SOQL implements Queryable {
 
     public static Filter Filter {
         get {
-            return new QFilter(binder);
+            return new QFilter();
         }
     }
 
     public static InnerJoin InnerJoin {
         get {
-            return new QJoinQuery(binder);
+            return new QJoinQuery();
         }
     }
 
@@ -227,9 +227,9 @@ public inherited sharing class SOQL implements Queryable {
     // Config
 
     private static Mock mock = new Mock();
+    private static Binder binder;
 
     private QueryBuilder builder;
-    private static Binder binder;
     private Executor executor;
 
     public static SOQL of(sObjectType ofObject) {
@@ -697,11 +697,6 @@ public inherited sharing class SOQL implements Queryable {
 
     private class QSubQuery implements SubQuery {
         private QueryBuilder builder;
-        private Binder binder;
-
-        public QSubQuery(Binder binder) {
-            this.binder = binder;
-        }
 
         public QSubQuery of(String ofObject) {
             builder = new QueryBuilder(ofObject);
@@ -1012,12 +1007,7 @@ public inherited sharing class SOQL implements Queryable {
         private String comperator;
         private Object value;
         private DisplayType fieldType;
-
-        private Binder binder;
-
-        public QFilter(Binder binder) {
-            this.binder = binder;
-        }
+        private Boolean skipBinding = false;
 
         public Filter id() {
             return with('Id');
@@ -1032,12 +1022,12 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public Filter with(SObjectField field) {
-            fieldType = field.getDescribe().getType();
+            skipBinding = TYPES_WITHOUT_BINDING.contains(field.getDescribe().getType());
             return with(field.getDescribe().getName());
         }
 
         public Filter with(String relationshipName, SObjectField field) {
-            fieldType = field.getDescribe().getType();
+            skipBinding = TYPES_WITHOUT_BINDING.contains(field.getDescribe().getType());
             return with(relationshipName + '.' + field);
         }
 
@@ -1115,7 +1105,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public Filter isIn(InnerJoin joinQuery) {
-            binder = null;
+            skipBinding = true;
             return set('IN', joinQuery);
         }
 
@@ -1124,7 +1114,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public Filter notIn(InnerJoin joinQuery) {
-            binder = null;
+            skipBinding = true;
             return set('NOT IN', joinQuery);
         }
 
@@ -1151,25 +1141,16 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            if (buildWithoutBinding()) {
+            if (skipBinding) {
                 return field + ' ' + comperator + ' ' + value;
             }
 
             return field + ' ' + comperator + ' :' + binder.bind(value);
         }
-
-        private Boolean buildWithoutBinding() {
-            return binder == null || (fieldType != null && TYPES_WITHOUT_BINDING.contains(fieldType));
-        }
     }
 
     private class QJoinQuery implements InnerJoin {
         private QueryBuilder builder;
-        private Binder binder;
-
-        public QJoinQuery(Binder binder) {
-            this.binder = binder;
-        }
 
         public QJoinQuery of(SObjectType ofObject) {
             builder = new QueryBuilder(ofObject);

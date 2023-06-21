@@ -833,7 +833,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void conditionsGroup() {
+    static void filtersGroup() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.FilterGroup
@@ -851,7 +851,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void emptyConditionsGroup() {
+    static void emptyFiltersGroup() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.FilterGroup);
@@ -861,6 +861,26 @@ private class SOQL_Test {
         Assert.areEqual('SELECT Id FROM Account', soql);
     }
 
+    @IsTest
+    static void dynamicFiltersGroup() {
+        // Setup
+        SOQL.FilterGroup filterGroup = SOQL.FilterGroup;
+
+        filterGroup.add(SOQL.Filter.with(Account.Name).equal('Test'));
+        filterGroup.add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'));
+
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(filterGroup);
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 AND BillingCity = :v2)', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('Test', binding.get('v1'));
+        Assert.areEqual('Krakow', binding.get('v2'));
+    }
 
     @IsTest
     static void anyConditionMatching() {
@@ -882,7 +902,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void nestedConditionsGroup() {
+    static void nestedFiltersGroup() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.FilterGroup
