@@ -182,6 +182,7 @@ public inherited sharing class SOQL implements Queryable {
         Filter contains(String value); // LIKE :'%' + value + '%'
         Filter endsWith(String value); // LIKE :'%' + value
         Filter startsWith(String value); // LIKE :value + '%'
+        Filter contains(String prefix, String value, String suffix); // custom LIKE
         Filter isIn(Iterable<Object> iterable); // IN :inList or inSet
         Filter isIn(List<Object> inList); // IN :inList
         Filter isIn(InnerJoin joinQuery); // SOQL.InnerJoin
@@ -1090,15 +1091,19 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public Filter contains(String value) {
-            return set('LIKE', '%' + formattedString(value) + '%');
+            return contains('%', formattedString(value), '%');
         }
 
         public Filter endsWith(String value) {
-            return set('LIKE', '%' + formattedString(value));
+            return contains('%', formattedString(value), '');
         }
 
         public Filter startsWith(String value) {
-            return set('LIKE', formattedString(value) + '%');
+            return contains('', formattedString(value), '%');
+        }
+
+        public Filter contains(String prefix, String value, String suffix) {
+            return set('LIKE', prefix + formattedString(value) + suffix);
         }
 
         private String formattedString(String value) {

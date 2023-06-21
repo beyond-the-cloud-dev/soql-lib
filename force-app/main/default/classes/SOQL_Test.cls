@@ -683,6 +683,20 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void customContains() {
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(Account.Name).contains('_', 'Test', '%'));
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('_Test%', binding.get('v1'));
+    }
+
+    @IsTest
     static void isInSet() {
         // Setup
         Set<String> names = new Set<String>{ 'Test 1', 'Test 2' };
