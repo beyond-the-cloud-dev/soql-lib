@@ -45,6 +45,7 @@ public inherited sharing class SOQL implements Queryable {
 
     public interface Queryable {
         Queryable of(SObjectType ofObject);
+        Queryable of(String ofObject); // Dynamic SOQL
 
         Queryable with(SObjectField field);
         Queryable with(SObjectField field1, SObjectField field2);
@@ -219,11 +220,6 @@ public inherited sharing class SOQL implements Queryable {
         mock.setCountMock(mockId, amount);
     }
 
-    @TestVisible
-    private static void setMock(String mockId, String staticResource) {
-        mock.setStaticResourceMock(mockId, staticResource);
-    }
-
     // Config
 
     private static Mock mock = new Mock();
@@ -233,13 +229,17 @@ public inherited sharing class SOQL implements Queryable {
     private Executor executor;
 
     public static SOQL of(sObjectType ofObject) {
+        return new SOQL(ofObject.getDescribe().getName());
+    }
+
+    public static SOQL of(String ofObject) {
         return new SOQL(ofObject);
     }
 
-    private SOQL(SObjectType ofObject) {
+    private SOQL(String ofObject) {
         binder = new Binder();
+        executor = new Executor();
         builder = new QueryBuilder(ofObject);
-        executor = new Executor(ofObject);
     }
 
     public SOQL with(SObjectField field) {
@@ -526,10 +526,6 @@ public inherited sharing class SOQL implements Queryable {
 
     private class QueryBuilder implements QueryClause {
         private List<QueryClause> clauses = new QueryClause[10];
-
-        public QueryBuilder(SObjectType ofObject) {
-            this(ofObject.getDescribe().getName());
-        }
 
         public QueryBuilder(String ofObject) {
             clauses.set(0, new QFields());
@@ -1153,7 +1149,7 @@ public inherited sharing class SOQL implements Queryable {
         private QueryBuilder builder;
 
         public QJoinQuery of(SObjectType ofObject) {
-            builder = new QueryBuilder(ofObject);
+            builder = new QueryBuilder(ofObject.getDescribe().getName());
             return this;
         }
 
@@ -1318,7 +1314,6 @@ public inherited sharing class SOQL implements Queryable {
 
     private class Mock {
         private final Map<String, List<SObject>> mocks = new Map<String, List<SObject>>();
-        private final Map<String, String> staticResourceMocks = new Map<String, String>();
         private final Map<String, Integer> countMocks = new Map<String, Integer>();
 
         public void setMock(String mockId, List<SObject> records) {
@@ -1329,28 +1324,16 @@ public inherited sharing class SOQL implements Queryable {
             countMocks.put(mockId, amount);
         }
 
-        public void setStaticResourceMock(String mockId, String staticResourceName) {
-            staticResourceMocks.put(mockId, staticResourceName);
-        }
-
         public Boolean hasMock(String mockId) {
             return mocks.containsKey(mockId);
         }
 
-        public Boolean hasStaticResourceMock(String mockId) {
-            return staticResourceMocks.containsKey(mockId);
+        public Boolean hasCountMock(String mockId) {
+            return countMocks.containsKey(mockId);
         }
 
         public List<SObject> getMocks(String mockId) {
             return mocks.get(mockId);
-        }
-
-        public List<SObject> getStaticResourceMocks(String mockId, SObjectType sObjectType) {
-            return Test.loadData(sObjectType, staticResourceMocks.get(mockId));
-        }
-
-        public Boolean hasCountMock(String mockId) {
-            return countMocks.containsKey(mockId);
         }
 
         public Integer getCountMock(String mockId) {
@@ -1361,13 +1344,8 @@ public inherited sharing class SOQL implements Queryable {
     private inherited sharing class Executor {
         private AccessLevel accessMode = AccessLevel.USER_MODE; // The object permissions, field-level security, sharing rules are enforced.
         private DatabaseQuery sharingExecutor = new InheritedSharing();
-        private SObjectType ofObject;
         private AccessType accessType;
         private String mockId;
-
-        public Executor(SObjectType ofObject) {
-            this.ofObject = ofObject;
-        }
 
         public void withSharing() {
             sharingExecutor = new WithSharing();
@@ -1408,10 +1386,6 @@ public inherited sharing class SOQL implements Queryable {
         public List<SObject> toList(String query, Map<String, Object> binding) {
             if (mock.hasMock(mockId)) {
                 return mock.getMocks(mockId);
-            }
-
-            if (mock.hasStaticResourceMock(mockId)) {
-                return mock.getStaticResourceMocks(mockId, ofObject);
             }
 
             if (accessType == null) {

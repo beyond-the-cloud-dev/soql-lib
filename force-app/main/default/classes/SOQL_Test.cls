@@ -15,6 +15,24 @@ private class SOQL_Test {
     private static final Id FAKE_ACCOUNT_ID = '0013V00000WNCwCQAX';
 
     @IsTest
+    static void ofSObjectType() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account', soql);
+    }
+
+    @IsTest
+    static void ofString() {
+        // Test
+        String soql = SOQL.of('Account').toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account', soql);
+    }
+
+    @IsTest
     static void count() {
         // Test
         String soql = SOQL.of(Account.SObjectType).count().toString();
@@ -1396,19 +1414,6 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(testAccount, result);
-    }
-
-    @IsTest
-    static void mockingStaticResource() {
-        List<Account> result;
-        try {
-             // Test
-            SOQL.setMock('mockingQuery', 'testAccounts');
-            result = SOQL.of(Account.sObjectType).mockId('mockingQuery').toList();
-        } catch (Exception missingStaticResource) {
-            // Verify
-            Assert.isInstanceOfType(missingStaticResource, NullPointerException.class);
-        }
     }
 
     @IsTest
