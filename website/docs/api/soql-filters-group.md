@@ -9,12 +9,14 @@ Create group of conditions.
 ## add
 
 Allows to add multiple conditions.
-Add a [`SOQL.Filter`](soql-filter.md) or [`SOQL.FilterGroup`](soql-filters-group.md).
+Add a [`SOQL.Filter`](soql-filter.md) or [`SOQL.FilterGroup`](soql-filters-group.md) or `String`.
 
 **Signature**
 
 ```apex
-FilterGroup add(FilterClause condition)
+FilterGroup add(FilterGroup filterGroup)
+FilterGroup add(Filter filter)
+FilterGroup add(String dynamicCondition)
 ```
 
 **Example**
