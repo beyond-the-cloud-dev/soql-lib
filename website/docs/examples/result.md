@@ -17,6 +17,12 @@ public inherited sharing class AccountSelector implements SOQL.Selector {
 
 public with sharing class MyController {
 
+    public static String getAccountName(Id accountId) {
+        return (String) AccountSelector.query()
+            .whereAre(SOQL.Filter.id().equal(accountId))
+            .toField(Account.Name);
+    }
+
     public static Account getAccountById(Id accountId) {
         return (Account) AccountSelector.query()
             .whereAre(SOQL.Filter.id().equal(accountId))
@@ -30,25 +36,19 @@ public with sharing class MyController {
     }
 
     public static List<AggregateResult> getUniqueAccountNameAmount() {
-        return AccountSelector.query()
-            .count(Account.Name, 'names')
-            .toAggregated();
+        return AccountSelector.query().count(Account.Name, 'names').toAggregated();
     }
 
     public static Integer countAccounts() {
-        return AccountSelector.query()
-            .count()
-            .toInteger();
+        return AccountSelector.query().count().toInteger();
     }
 
     public static Map<Id, SObject> getAccountMap() {
-        return AccountSelector.query()
-            .toMap();
+        return AccountSelector.query().toMap();
     }
 
     public static Database.QueryLocator getAccountQueryLocator() {
-        return AccountSelector.query()
-            .toQueryLocator();
+        return AccountSelector.query().toQueryLocator();
     }
 }
 ```
