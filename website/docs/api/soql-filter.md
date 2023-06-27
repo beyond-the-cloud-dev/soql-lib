@@ -648,6 +648,7 @@ SOQL builder = SOQL.of(AccountContactRelation.SObjectType)
     .with(AccountContactRelation.Id)
     .whereAre(SOQL.Filter.with(AccountContactRelation.Roles).excludesSome(roles));
  ```
+
 ## additional
 
 ### removeWhenNull
