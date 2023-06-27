@@ -190,6 +190,10 @@ public inherited sharing class SOQL implements Queryable {
         Filter notIn(Iterable<Object> iterable); // NOT IN :inList or inSet
         Filter notIn(List<Object> inList); // NOT IN :inList
         Filter notIn(InnerJoin joinQuery); // SOQL.InnerJoin
+        Filter includesAll(Iterable<String> values); // join with ;
+        Filter includesSome(Iterable<String> values); // join with ,
+        Filter excludesAll(Iterable<String> values); // join with ,
+        Filter excludesSome(Iterable<String> values);  // join with ;
 
         Filter removeWhenNull(); // Condition will be removed for value = null
 
@@ -1112,6 +1116,30 @@ public inherited sharing class SOQL implements Queryable {
         public Filter notIn(InnerJoin joinQuery) {
             skipBinding = true;
             return set('NOT IN', joinQuery);
+        }
+
+        public Filter includesAll(Iterable<String> iterable) {
+            //Bind expressions can't be used with other clauses, such as INCLUDES.
+            skipBinding = true;
+            return set('INCLUDES', '(\'' + String.join(iterable, ';') + '\')');
+        }
+
+        public Filter includesSome(Iterable<String> iterable) {
+            //Bind expressions can't be used with other clauses, such as INCLUDES.
+            skipBinding = true;
+            return set('INCLUDES', '(\'' + String.join(iterable, '\', \'') + '\')');
+        }
+
+        public Filter excludesAll(Iterable<String> iterable) {
+            //Bind expressions can't be used with other clauses, such as EXCLUDES.
+            skipBinding = true;
+            return set('EXCLUDES', '(\'' + String.join(iterable, '\', \'') + '\')');
+        }
+
+        public Filter excludesSome(Iterable<String> iterable) {
+            //Bind expressions can't be used with other clauses, such as EXCLUDES.
+            skipBinding = true;
+            return set('EXCLUDES', '(\'' + String.join(iterable, ';') + '\')');
         }
 
         private Filter set(String comperator, Object value) {
