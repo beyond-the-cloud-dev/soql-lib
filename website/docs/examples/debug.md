@@ -19,11 +19,7 @@ public with sharing class MyController {
 
     public static List<Account> getAccounts() {
         return AccountSelector.query()
-            .with(
-                Account.BillingCity,
-                Account.BillingCountry,
-                Account.BillingCountryCode
-            )
+            .with(Account.BillingCity, Account.BillingCountry, Account.BillingCountryCode)
             .whereAre(SOQL.FilterGroup
                 .add(SOQL.Filter.id().equal('0013V00000WNCw4QAH'))
                 .add(SOQL.Filter.name().contains('Test'))

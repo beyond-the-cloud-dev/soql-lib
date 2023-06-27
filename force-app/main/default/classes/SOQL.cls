@@ -17,7 +17,7 @@ public inherited sharing class SOQL implements Queryable {
 
     public static SubQuery SubQuery {
         get {
-            return new QSubQuery(binder);
+            return new QSubQuery();
         }
     }
 
@@ -29,13 +29,13 @@ public inherited sharing class SOQL implements Queryable {
 
     public static Filter Filter {
         get {
-            return new QFilter(binder);
+            return new QFilter();
         }
     }
 
     public static InnerJoin InnerJoin {
         get {
-            return new QJoinQuery(binder);
+            return new QJoinQuery();
         }
     }
 
@@ -45,6 +45,7 @@ public inherited sharing class SOQL implements Queryable {
 
     public interface Queryable {
         Queryable of(SObjectType ofObject);
+        Queryable of(String ofObject); // Dynamic SOQL
 
         Queryable with(SObjectField field);
         Queryable with(SObjectField field1, SObjectField field2);
@@ -109,8 +110,7 @@ public inherited sharing class SOQL implements Queryable {
 
         Queryable byId(SObject record);
         Queryable byId(Id recordId);
-        Queryable byIds(Set<Id> recordIds);
-        Queryable byIds(List<Id> recordIds);
+        Queryable byIds(Iterable<Id> recordIds); // List or Set
         Queryable byIds(List<SObject> records);
 
         String toString();
@@ -183,10 +183,11 @@ public inherited sharing class SOQL implements Queryable {
         Filter contains(String value); // LIKE :'%' + value + '%'
         Filter endsWith(String value); // LIKE :'%' + value
         Filter startsWith(String value); // LIKE :value + '%'
-        Filter isIn(Set<String> inSet); // IN :inSet
+        Filter contains(String prefix, String value, String suffix); // custom LIKE
+        Filter isIn(Iterable<Object> iterable); // IN :inList or inSet
         Filter isIn(List<Object> inList); // IN :inList
         Filter isIn(InnerJoin joinQuery); // SOQL.InnerJoin
-        Filter notIn(Set<String> inSet); // NOT IN :inSet
+        Filter notIn(Iterable<Object> iterable); // NOT IN :inList or inSet
         Filter notIn(List<Object> inList); // NOT IN :inList
         Filter notIn(InnerJoin joinQuery); // SOQL.InnerJoin
 
@@ -219,27 +220,26 @@ public inherited sharing class SOQL implements Queryable {
         mock.setCountMock(mockId, amount);
     }
 
-    @TestVisible
-    private static void setMock(String mockId, String staticResource) {
-        mock.setStaticResourceMock(mockId, staticResource);
-    }
-
     // Config
 
     private static Mock mock = new Mock();
+    private static Binder binder;
 
     private QueryBuilder builder;
-    private static Binder binder;
     private Executor executor;
 
     public static SOQL of(sObjectType ofObject) {
+        return new SOQL(ofObject.getDescribe().getName());
+    }
+
+    public static SOQL of(String ofObject) {
         return new SOQL(ofObject);
     }
 
-    private SOQL(SObjectType ofObject) {
+    private SOQL(String ofObject) {
         binder = new Binder();
+        executor = new Executor();
         builder = new QueryBuilder(ofObject);
-        executor = new Executor(ofObject);
     }
 
     public SOQL with(SObjectField field) {
@@ -477,7 +477,7 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public Object toField(SObjectField fieldToExtract) {
-        return with(fieldToExtract).toObject().get(fieldToExtract);
+        return with(fieldToExtract).toObject()?.get(fieldToExtract);
     }
 
     public Integer toInteger() {
@@ -512,11 +512,7 @@ public inherited sharing class SOQL implements Queryable {
         return whereAre(Filter.id().equal(recordId));
     }
 
-    public SOQL byIds(Set<Id> recordIds) {
-        return byIds(new List<Id>(recordIds));
-    }
-
-    public SOQL byIds(List<Id> recordIds) {
+    public SOQL byIds(Iterable<Id> recordIds) {
         return whereAre(Filter.id().isIn(recordIds));
     }
 
@@ -530,10 +526,6 @@ public inherited sharing class SOQL implements Queryable {
 
     private class QueryBuilder implements QueryClause {
         private List<QueryClause> clauses = new QueryClause[10];
-
-        public QueryBuilder(SObjectType ofObject) {
-            this(ofObject.getDescribe().getName());
-        }
 
         public QueryBuilder(String ofObject) {
             clauses.set(0, new QFields());
@@ -701,11 +693,6 @@ public inherited sharing class SOQL implements Queryable {
 
     private class QSubQuery implements SubQuery {
         private QueryBuilder builder;
-        private Binder binder;
-
-        public QSubQuery(Binder binder) {
-            this.binder = binder;
-        }
 
         public QSubQuery of(String ofObject) {
             builder = new QueryBuilder(ofObject);
@@ -1016,12 +1003,7 @@ public inherited sharing class SOQL implements Queryable {
         private String comperator;
         private Object value;
         private DisplayType fieldType;
-
-        private Binder binder;
-
-        public QFilter(Binder binder) {
-            this.binder = binder;
-        }
+        private Boolean skipBinding = false;
 
         public Filter id() {
             return with('Id');
@@ -1036,12 +1018,12 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public Filter with(SObjectField field) {
-            fieldType = field.getDescribe().getType();
+            skipBinding = TYPES_WITHOUT_BINDING.contains(field.getDescribe().getType());
             return with(field.getDescribe().getName());
         }
 
         public Filter with(String relationshipName, SObjectField field) {
-            fieldType = field.getDescribe().getType();
+            skipBinding = TYPES_WITHOUT_BINDING.contains(field.getDescribe().getType());
             return with(relationshipName + '.' + field);
         }
 
@@ -1095,46 +1077,40 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public Filter contains(String value) {
-            return set('LIKE', '%' + formattedString(value) + '%');
+            return contains('%', formattedString(value), '%');
         }
 
         public Filter endsWith(String value) {
-            return set('LIKE', '%' + formattedString(value));
+            return contains('%', formattedString(value), '');
         }
 
         public Filter startsWith(String value) {
-            return set('LIKE', formattedString(value) + '%');
+            return contains('', formattedString(value), '%');
+        }
+
+        public Filter contains(String prefix, String value, String suffix) {
+            return set('LIKE', prefix + formattedString(value) + suffix);
         }
 
         private String formattedString(String value) {
             return value == null ? value : String.escapeSingleQuotes(value.trim());
         }
 
-        // The Set collection type does not allow to implicitly cast Set<Object>
-        public Filter isIn(Set<String> inSet) {
-            return set('IN', inSet);
-        }
-
-        public Filter isIn(List<Object> inList) {
-            return set('IN', inList);
+        public Filter isIn(Iterable<Object> iterable) {
+            return set('IN', iterable);
         }
 
         public Filter isIn(InnerJoin joinQuery) {
-            binder = null;
+            skipBinding = true;
             return set('IN', joinQuery);
         }
 
-        // The Set collection type does not allow to implicitly cast Set<Object>
-        public Filter notIn(Set<String> inSet) {
-            return set('NOT IN', inSet);
-        }
-
-        public Filter notIn(List<Object> inList) {
-            return set('NOT IN', inList);
+        public Filter notIn(Iterable<Object> iterable) {
+            return set('NOT IN', iterable);
         }
 
         public Filter notIn(InnerJoin joinQuery) {
-            binder = null;
+            skipBinding = true;
             return set('NOT IN', joinQuery);
         }
 
@@ -1161,28 +1137,19 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            if (buildWithoutBinding()) {
+            if (skipBinding) {
                 return field + ' ' + comperator + ' ' + value;
             }
 
             return field + ' ' + comperator + ' :' + binder.bind(value);
         }
-
-        private Boolean buildWithoutBinding() {
-            return binder == null || (fieldType != null && TYPES_WITHOUT_BINDING.contains(fieldType));
-        }
     }
 
     private class QJoinQuery implements InnerJoin {
         private QueryBuilder builder;
-        private Binder binder;
-
-        public QJoinQuery(Binder binder) {
-            this.binder = binder;
-        }
 
         public QJoinQuery of(SObjectType ofObject) {
-            builder = new QueryBuilder(ofObject);
+            builder = new QueryBuilder(ofObject.getDescribe().getName());
             return this;
         }
 
@@ -1218,7 +1185,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            return 'GROUP BY ' + String.join(new List<String>(groupByFields), ', ');
+            return 'GROUP BY ' + String.join(groupByFields, ', ');
         }
     }
 
@@ -1347,7 +1314,6 @@ public inherited sharing class SOQL implements Queryable {
 
     private class Mock {
         private final Map<String, List<SObject>> mocks = new Map<String, List<SObject>>();
-        private final Map<String, String> staticResourceMocks = new Map<String, String>();
         private final Map<String, Integer> countMocks = new Map<String, Integer>();
 
         public void setMock(String mockId, List<SObject> records) {
@@ -1358,28 +1324,16 @@ public inherited sharing class SOQL implements Queryable {
             countMocks.put(mockId, amount);
         }
 
-        public void setStaticResourceMock(String mockId, String staticResourceName) {
-            staticResourceMocks.put(mockId, staticResourceName);
-        }
-
         public Boolean hasMock(String mockId) {
             return mocks.containsKey(mockId);
         }
 
-        public Boolean hasStaticResourceMock(String mockId) {
-            return staticResourceMocks.containsKey(mockId);
+        public Boolean hasCountMock(String mockId) {
+            return countMocks.containsKey(mockId);
         }
 
         public List<SObject> getMocks(String mockId) {
             return mocks.get(mockId);
-        }
-
-        public List<SObject> getStaticResourceMocks(String mockId, SObjectType sObjectType) {
-            return Test.loadData(sObjectType, staticResourceMocks.get(mockId));
-        }
-
-        public Boolean hasCountMock(String mockId) {
-            return countMocks.containsKey(mockId);
         }
 
         public Integer getCountMock(String mockId) {
@@ -1390,13 +1344,8 @@ public inherited sharing class SOQL implements Queryable {
     private inherited sharing class Executor {
         private AccessLevel accessMode = AccessLevel.USER_MODE; // The object permissions, field-level security, sharing rules are enforced.
         private DatabaseQuery sharingExecutor = new InheritedSharing();
-        private SObjectType ofObject;
         private AccessType accessType;
         private String mockId;
-
-        public Executor(SObjectType ofObject) {
-            this.ofObject = ofObject;
-        }
 
         public void withSharing() {
             sharingExecutor = new WithSharing();
@@ -1437,10 +1386,6 @@ public inherited sharing class SOQL implements Queryable {
         public List<SObject> toList(String query, Map<String, Object> binding) {
             if (mock.hasMock(mockId)) {
                 return mock.getMocks(mockId);
-            }
-
-            if (mock.hasStaticResourceMock(mockId)) {
-                return mock.getStaticResourceMocks(mockId, ofObject);
             }
 
             if (accessType == null) {

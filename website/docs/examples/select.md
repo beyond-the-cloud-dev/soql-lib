@@ -11,7 +11,7 @@ Specify fields that will be retrieved via query.
 You are able to add a default fields to selector class. More fields can be added in a place of usage.
 
 ```sql
-SELECT Id, Name, BillingCity, BillingState, BillingStreet, BillingCountry
+SELECT Id, Name, BillingCity, BillingState, BillingStreet
 FROM Account
 ```
 ```apex
@@ -27,12 +27,7 @@ public with sharing class MyController {
 
     public static List<Account> getAccounts() {
         return AccountSelector.query()
-            .with(
-                Account.BillingCity,
-                Account.BillingState,
-                Account.BillingStreet,
-                Account.BillingCountry
-            )
+            .with(Account.BillingCity, Account.BillingState, Account.BillingStreet)
             .toList();
     }
 }

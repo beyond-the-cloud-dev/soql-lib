@@ -947,25 +947,6 @@ SOQL.of(Account.sObjectType)
 SOQL.setMock('MyQuery', 5);
 ```
 
-### static resource mock
-
-**Signature**
-
-```apex
-SOQL setMock(String mockId, String staticResource)
-```
-
-**Example**
-
-```apex
-SOQL.of(Account.sObjectType)
-    .mockId('MyQuery')
-    .toList();
-
-// In Unit Test
-SOQL.setMock('MyQuery', 'MyStaticResource');
-```
-
 ## preview
 
 **Signature**

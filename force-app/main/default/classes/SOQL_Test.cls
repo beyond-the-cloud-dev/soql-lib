@@ -15,6 +15,24 @@ private class SOQL_Test {
     private static final Id FAKE_ACCOUNT_ID = '0013V00000WNCwCQAX';
 
     @IsTest
+    static void ofSObjectType() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account', soql);
+    }
+
+    @IsTest
+    static void ofString() {
+        // Test
+        String soql = SOQL.of('Account').toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account', soql);
+    }
+
+    @IsTest
     static void count() {
         // Test
         String soql = SOQL.of(Account.SObjectType).count().toString();
@@ -683,6 +701,20 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void customContains() {
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(Account.Name).contains('_', 'Test', '%'));
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('_Test%', binding.get('v1'));
+    }
+
+    @IsTest
     static void isInSet() {
         // Setup
         Set<String> names = new Set<String>{ 'Test 1', 'Test 2' };
@@ -717,7 +749,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void isNotInSet() {
+    static void notInSet() {
         // Setup
         Set<String> names = new Set<String>{ 'Test 1', 'Test 2' };
 
@@ -819,7 +851,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void conditionsGroup() {
+    static void filtersGroup() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.FilterGroup
@@ -837,7 +869,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void emptyConditionsGroup() {
+    static void emptyFiltersGroup() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.FilterGroup);
@@ -847,6 +879,26 @@ private class SOQL_Test {
         Assert.areEqual('SELECT Id FROM Account', soql);
     }
 
+    @IsTest
+    static void dynamicFiltersGroup() {
+        // Setup
+        SOQL.FilterGroup filterGroup = SOQL.FilterGroup;
+
+        filterGroup.add(SOQL.Filter.with(Account.Name).equal('Test'));
+        filterGroup.add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'));
+
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(filterGroup);
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 AND BillingCity = :v2)', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('Test', binding.get('v1'));
+        Assert.areEqual('Krakow', binding.get('v2'));
+    }
 
     @IsTest
     static void anyConditionMatching() {
@@ -868,7 +920,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void nestedConditionsGroup() {
+    static void nestedFiltersGroup() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.FilterGroup
@@ -1186,7 +1238,7 @@ private class SOQL_Test {
         Assert.areEqual('SELECT Id FROM Account WHERE Id IN :v1', soql);
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(new List<Id>(accountIds), binding.get('v1'));
+        Assert.areEqual(accountIds, binding.get('v1'));
     }
 
     @IsTest
@@ -1365,19 +1417,6 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void mockingStaticResource() {
-        List<Account> result;
-        try {
-             // Test
-            SOQL.setMock('mockingQuery', 'testAccounts');
-            result = SOQL.of(Account.sObjectType).mockId('mockingQuery').toList();
-        } catch (Exception missingStaticResource) {
-            // Verify
-            Assert.isInstanceOfType(missingStaticResource, NullPointerException.class);
-        }
-    }
-
-    @IsTest
     static void mockingCount() {
         // Test
         SOQL.setCountMock('mockingQuery', 2);
@@ -1399,6 +1438,17 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(accountName, resultAccName);
+    }
+
+    @IsTest
+    static void toFieldWhenEmpty() {
+        // Test
+        String resultAccName = (String) SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.name().equal('Test'))
+            .toField(Account.Industry);
+
+        // Verify
+        Assert.isNull(resultAccName);
     }
 
     @IsTest
