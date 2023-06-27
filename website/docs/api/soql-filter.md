@@ -413,6 +413,7 @@ SOQL.of(Contact.SObjectType)
 
 ```apex
 Filter contains(String value)
+Filter contains(String prefix, String value, String suffix);
 ```
 
 **Example**
@@ -425,6 +426,10 @@ WHERE Name = '%My%'
 ```apex
 SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Name).contains('My'))
+    .toList();
+
+SOQL.of(Contact.SObjectType)
+    .whereAre(SOQL.Filter.with(Account.Name).contains('_', 'My', '%'))
     .toList();
 ```
 

@@ -14,6 +14,7 @@ Conctructs an `SOQL`.
 
 ```apex
 SOQL of(SObjectType ofObject)
+SOQL of(String ofObject)
 ```
 
 **Example**
@@ -23,6 +24,9 @@ SELECT Id FROM Account
 ```
 ```apex
 SOQL.of(Account.SObjectType).toList();
+
+String ofObject = 'Account';
+SOQL.of(ofObject).toList();
 ```
 
 ## select
