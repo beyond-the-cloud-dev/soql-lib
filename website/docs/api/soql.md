@@ -1008,6 +1008,8 @@ String accountName = SOQL.of(Account.SObjectType).byId('1234').toValueOf(Account
 Extract field values from query result.
 Field will be automatically added to the query fields.
 
+SOQL Lib is using [Building a KeySet from any field](https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result) approach to get only one field.
+
 **Signature**
 
 ```apex

@@ -1485,6 +1485,21 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void toValuesOfWithDefaultFields() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        Set<String> accountNames = SOQL.of(Account.SObjectType)
+            .with(Account.Industry)
+            .byIds(accounts)
+            .toValuesOf(Account.Name);
+
+        // Verify
+        Assert.areEqual(2, accountNames.size());
+    }
+
+    @IsTest
     static void toValueOfWhenEmpty() {
         // Test
         String accountIndustry = (String) SOQL.of(Account.SObjectType)

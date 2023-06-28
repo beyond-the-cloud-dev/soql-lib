@@ -487,6 +487,7 @@ public inherited sharing class SOQL implements Queryable {
 
     public Set<String> toValuesOf(SObjectField fieldToExtract) {
         // https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
+        builder.fields.clearFields();
         return new Map<String, SObject>(with(fieldToExtract + ' Id').groupBy(fieldToExtract).toAggregated()).keySet();
     }
 
@@ -658,9 +659,13 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public void count(String countSoql) {
-            // clear all default fields to avoid "Field must be grouped or aggregated"
-            fields.clear();
+            clearFields();
             counts.add(countSoql);
+        }
+
+        public void clearFields() {
+            // Clear all default fields to avoid "Field must be grouped or aggregated"
+            fields.clear();
         }
 
         public void with(String stringFields) {
