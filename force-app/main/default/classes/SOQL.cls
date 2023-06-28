@@ -497,6 +497,7 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public SObject toObject() {
+        setLimit(1);
         return executor.toObject(builder.toString(), binder.getBindingMap());
     }
 

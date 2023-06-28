@@ -1041,7 +1041,9 @@ SOQL.of(Account.SObjectType).count().toInteger();
 
 ### toObject
 
-When no records found. Instead of `List index out of bounds: 0` null will be returned.
+When no records found instead of `List index out of bounds: 0` null will be returned.
+
+`LIMIT 1` is also added to the query to make query more efficient.
 
 **Signature**
 
