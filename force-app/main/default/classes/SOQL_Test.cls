@@ -784,6 +784,66 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void inlcudesAll() {
+        // Setup
+        List<String> roles = new List<String>{ 'Business User', 'Decision Maker' };
+
+        // Test
+        SOQL builder = SOQL.of(AccountContactRelation.SObjectType)
+            .with(AccountContactRelation.Id)
+            .whereAre(SOQL.Filter.with(AccountContactRelation.Roles).includesAll(roles));
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM AccountContactRelation WHERE Roles INCLUDES (\'Business User;Decision Maker\')', soql);
+    }
+
+    @IsTest
+    static void inlcudesSome() {
+        // Setup
+        List<String> roles = new List<String>{ 'Executive Sponsor', 'Economic Decision Maker' };
+
+        // Test
+        SOQL builder = SOQL.of(AccountContactRelation.SObjectType)
+            .with(AccountContactRelation.Id)
+            .whereAre(SOQL.Filter.with(AccountContactRelation.Roles).includesSome(roles));
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM AccountContactRelation WHERE Roles INCLUDES (\'Executive Sponsor\', \'Economic Decision Maker\')', soql);
+    }
+
+    @IsTest
+    static void excludesAll() {
+        // Setup
+        List<String> roles = new List<String>{ 'Technical Buyer', 'Economic Buyer' };
+
+        // Test
+        SOQL builder = SOQL.of(AccountContactRelation.SObjectType)
+            .with(AccountContactRelation.Id)
+            .whereAre(SOQL.Filter.with(AccountContactRelation.Roles).excludesAll(roles));
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM AccountContactRelation WHERE Roles EXCLUDES (\'Technical Buyer\', \'Economic Buyer\')', soql);
+    }
+
+    @IsTest
+    static void excludesSome() {
+        // Setup
+        List<String> roles = new List<String>{ 'Evaluator', 'Influencer' };
+
+        // Test
+        SOQL builder = SOQL.of(AccountContactRelation.SObjectType)
+            .with(AccountContactRelation.Id)
+            .whereAre(SOQL.Filter.with(AccountContactRelation.Roles).excludesSome(roles));
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM AccountContactRelation WHERE Roles EXCLUDES (\'Evaluator;Influencer\')', soql);
+    }
+
+    @IsTest
     static void isNull() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)

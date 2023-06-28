@@ -1,13 +1,20 @@
 {
   "orgName": "Beyond The Cloud Dev",
   "edition": "Developer",
-  "features": ["EnableSetPasswordInApi"],
+  "features": [
+    "EnableSetPasswordInApi",
+    "ContactsToMultipleAccounts",
+    "PersonAccounts"
+  ],
   "settings": {
     "lightningExperienceSettings": {
       "enableS1DesktopEnabled": true
     },
     "mobileSettings": {
       "enableS1EncryptedStoragePref2": false
+    },
+    "accountSettings": {
+      "enableRelateContactToMultipleAccounts": true
     }
   }
 }
