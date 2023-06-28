@@ -114,8 +114,9 @@ public inherited sharing class SOQL implements Queryable {
         Queryable byIds(List<SObject> records);
 
         String toString();
-        Object toField(SObjectField fieldToExtract);
-        Integer toInteger();
+        Object toValueOf(SObjectField fieldToExtract);
+        Set<String> toValuesOf(SObjectField fieldToExtract);
+        Integer toInteger(); // For COUNT query
         SObject toObject();
         List<SObject> toList();
         List<AggregateResult> toAggregated();
@@ -480,8 +481,13 @@ public inherited sharing class SOQL implements Queryable {
         return builder.toString();
     }
 
-    public Object toField(SObjectField fieldToExtract) {
+    public Object toValueOf(SObjectField fieldToExtract) {
         return with(fieldToExtract).toObject()?.get(fieldToExtract);
+    }
+
+    public Set<String> toValuesOf(SObjectField fieldToExtract) {
+        // https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
+        return new Map<String, SObject>(with(fieldToExtract + ' Id').groupBy(fieldToExtract).toAggregated()).keySet();
     }
 
     public Integer toInteger() {
@@ -658,7 +664,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public void with(String stringFields) {
-            fields.addAll(stringFields.deleteWhitespace().split(','));
+            fields.add(stringFields);
         }
 
         public void with(List<SObjectField> fields) {
@@ -1119,25 +1125,25 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public Filter includesAll(Iterable<String> iterable) {
-            //Bind expressions can't be used with other clauses, such as INCLUDES.
+            // Bind expressions can't be used with other clauses, such as INCLUDES.
             skipBinding = true;
             return set('INCLUDES', '(\'' + String.join(iterable, ';') + '\')');
         }
 
         public Filter includesSome(Iterable<String> iterable) {
-            //Bind expressions can't be used with other clauses, such as INCLUDES.
+            // Bind expressions can't be used with other clauses, such as INCLUDES.
             skipBinding = true;
             return set('INCLUDES', '(\'' + String.join(iterable, '\', \'') + '\')');
         }
 
         public Filter excludesAll(Iterable<String> iterable) {
-            //Bind expressions can't be used with other clauses, such as EXCLUDES.
+            // Bind expressions can't be used with other clauses, such as EXCLUDES.
             skipBinding = true;
             return set('EXCLUDES', '(\'' + String.join(iterable, '\', \'') + '\')');
         }
 
         public Filter excludesSome(Iterable<String> iterable) {
-            //Bind expressions can't be used with other clauses, such as EXCLUDES.
+            // Bind expressions can't be used with other clauses, such as EXCLUDES.
             skipBinding = true;
             return set('EXCLUDES', '(\'' + String.join(iterable, ';') + '\')');
         }

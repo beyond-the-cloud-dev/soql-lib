@@ -986,7 +986,7 @@ WHERE ((Id = :v1 OR Name LIKE :v2))
 
 ## result
 
-### toField
+### toValueOf
 
 Extract field value from query result.
 Field will be automatically added to the query fields.
@@ -994,13 +994,30 @@ Field will be automatically added to the query fields.
 **Signature**
 
 ```apex
-Object toField(SObjectField fieldToExtract)
+Object toValueOf(SObjectField fieldToExtract)
 ```
 
 **Example**
 
 ```apex
-SOQL.of(Account.SObjectType).byId('1234').toField(Account.Name)
+String accountName = SOQL.of(Account.SObjectType).byId('1234').toValueOf(Account.Name)
+```
+
+### toValuesOf
+
+Extract field values from query result.
+Field will be automatically added to the query fields.
+
+**Signature**
+
+```apex
+Set<String> toValuesOf(SObjectField fieldToExtract)
+```
+
+**Example**
+
+```apex
+Set<String> accountNames = SOQL.of(Account.SObjectType).byId('1234').toValuesOf(Account.Name)
 ```
 
 ### toInteger
