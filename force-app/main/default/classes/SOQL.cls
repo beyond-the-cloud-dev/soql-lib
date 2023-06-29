@@ -491,7 +491,7 @@ public inherited sharing class SOQL implements Queryable {
         try {
             builder.fields.clearAllFields();
             return with(fieldToExtract).toObject()?.get(fieldToExtract);
-        } catch (Exception e) {
+        } catch (QueryException e) {
             return null;
         }
     }
