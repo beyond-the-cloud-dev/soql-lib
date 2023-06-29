@@ -54,6 +54,7 @@ public inherited sharing class SOQL implements Queryable {
         Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         Queryable with(List<SObjectField> fields); // For more than 5 fields
         Queryable with(String fields); // Dynamic SOQL
+        Queryable with(SObjectField field, String alias); // Only aggregate expressions use field aliasing
         Queryable with(String relationshipName, SObjectField field);
         Queryable with(String relationshipName, SObjectField field1, SObjectField field2);
         Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
@@ -114,8 +115,9 @@ public inherited sharing class SOQL implements Queryable {
         Queryable byIds(List<SObject> records);
 
         String toString();
-        Object toField(SObjectField fieldToExtract);
-        Integer toInteger();
+        Object toValueOf(SObjectField fieldToExtract);
+        Set<String> toValuesOf(SObjectField fieldToExtract);
+        Integer toInteger(); // For COUNT query
         SObject toObject();
         List<SObject> toList();
         List<AggregateResult> toAggregated();
@@ -274,6 +276,11 @@ public inherited sharing class SOQL implements Queryable {
 
     public SOQL with(String fields) {
         builder.fields.with(fields);
+        return this;
+    }
+
+    public SOQL with(SObjectField field, String alias) {
+        builder.fields.with(field, alias);
         return this;
     }
 
@@ -480,8 +487,14 @@ public inherited sharing class SOQL implements Queryable {
         return builder.toString();
     }
 
-    public Object toField(SObjectField fieldToExtract) {
+    public Object toValueOf(SObjectField fieldToExtract) {
+        builder.fields.clearAllFields();
         return with(fieldToExtract).toObject()?.get(fieldToExtract);
+    }
+
+    public Set<String> toValuesOf(SObjectField fieldToExtract) {
+        // https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
+        return new Map<String, SObject>(with(fieldToExtract, 'Id').groupBy(fieldToExtract).toAggregated()).keySet();
     }
 
     public Integer toInteger() {
@@ -652,12 +665,19 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public void count(String countSoql) {
-            // clear all default fields to avoid "Field must be grouped or aggregated"
-            fields.clear();
+            // Clear all default fields to avoid "Field must be grouped or aggregated"
+            clearAllFields();
             counts.add(countSoql);
         }
 
+        public void with(SObjectField field, String alias) {
+            // Only aggregate expressions use field aliasing. Clear all default fields to avoid "Field must be grouped or aggregated"
+            clearAllFields();
+            fields.add(field + ' ' + alias);
+        }
+
         public void with(String stringFields) {
+            // To avoid field duplicates in query
             fields.addAll(stringFields.deleteWhitespace().split(','));
         }
 
@@ -679,6 +699,10 @@ public inherited sharing class SOQL implements Queryable {
 
         public void with(String relationshipPath, SObjectField field) {
             fields.add(relationshipPath + '.' + field);
+        }
+
+        public void clearAllFields() {
+            fields.clear();
         }
 
         public override String toString() {
@@ -1119,25 +1143,25 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public Filter includesAll(Iterable<String> iterable) {
-            //Bind expressions can't be used with other clauses, such as INCLUDES.
+            // Bind expressions can't be used with other clauses, such as INCLUDES.
             skipBinding = true;
             return set('INCLUDES', '(\'' + String.join(iterable, ';') + '\')');
         }
 
         public Filter includesSome(Iterable<String> iterable) {
-            //Bind expressions can't be used with other clauses, such as INCLUDES.
+            // Bind expressions can't be used with other clauses, such as INCLUDES.
             skipBinding = true;
             return set('INCLUDES', '(\'' + String.join(iterable, '\', \'') + '\')');
         }
 
         public Filter excludesAll(Iterable<String> iterable) {
-            //Bind expressions can't be used with other clauses, such as EXCLUDES.
+            // Bind expressions can't be used with other clauses, such as EXCLUDES.
             skipBinding = true;
             return set('EXCLUDES', '(\'' + String.join(iterable, '\', \'') + '\')');
         }
 
         public Filter excludesSome(Iterable<String> iterable) {
-            //Bind expressions can't be used with other clauses, such as EXCLUDES.
+            // Bind expressions can't be used with other clauses, such as EXCLUDES.
             skipBinding = true;
             return set('EXCLUDES', '(\'' + String.join(iterable, ';') + '\')');
         }

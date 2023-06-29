@@ -35,7 +35,7 @@ SOQL.of(Account.SObjectType)
     )).toList();
 ```
 
-## field
+## with
 
 > `SELECT` statement that specifies the fields to query.
 

@@ -986,7 +986,7 @@ WHERE ((Id = :v1 OR Name LIKE :v2))
 
 ## result
 
-### toField
+### toValueOf
 
 Extract field value from query result.
 Field will be automatically added to the query fields.
@@ -994,13 +994,32 @@ Field will be automatically added to the query fields.
 **Signature**
 
 ```apex
-Object toField(SObjectField fieldToExtract)
+Object toValueOf(SObjectField fieldToExtract)
 ```
 
 **Example**
 
 ```apex
-SOQL.of(Account.SObjectType).byId('1234').toField(Account.Name)
+String accountName = SOQL.of(Account.SObjectType).byId('1234').toValueOf(Account.Name)
+```
+
+### toValuesOf
+
+Extract field values from query result.
+Field will be automatically added to the query fields.
+
+SOQL Lib is using [Building a KeySet from any field](https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result) approach to get only one field.
+
+**Signature**
+
+```apex
+Set<String> toValuesOf(SObjectField fieldToExtract)
+```
+
+**Example**
+
+```apex
+Set<String> accountNames = SOQL.of(Account.SObjectType).byId('1234').toValuesOf(Account.Name)
 ```
 
 ### toInteger
@@ -1022,7 +1041,9 @@ SOQL.of(Account.SObjectType).count().toInteger();
 
 ### toObject
 
-When no records found. Instead of `List index out of bounds: 0` null will be returned.
+When no records found instead of `List index out of bounds: 0` null will be returned.
+
+`LIMIT 1` is also added to the query to make query more efficient.
 
 **Signature**
 

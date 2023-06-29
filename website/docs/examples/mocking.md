@@ -21,7 +21,6 @@ public with sharing class ExampleController {
         return AccountSelector.query()
             .with(Account.BillingCity, Account.BillingCountry)
             .whereAre(SOQL.Filter.name().contains(accountName))
-            .setLimit(1)
             .mockId('ExampleController.getAccountByName')
             .toObject();
     }
