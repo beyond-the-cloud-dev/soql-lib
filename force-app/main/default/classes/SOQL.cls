@@ -1480,7 +1480,7 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     private interface DatabaseQuery {
-        // toSObject to get System.QueryException: List has no rows for assignment to SObject or List has more than 1 row for assignment to SObject
+        // toSObject can throw System.QueryException: List has no rows for assignment to SObject or List has more than 1 row for assignment to SObject
         SObject toSObject(String query, Map<String, Object> binding, AccessLevel accessLevel);
         List<SObject> toSObjects(String query, Map<String, Object> binding, AccessLevel accessLevel);
         Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel);
