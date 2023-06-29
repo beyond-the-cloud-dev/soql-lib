@@ -1358,7 +1358,22 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withoutSharing() {
+    static void toObjectWithoutSharing() {
+        // Setup
+        Case testCase = new Case(Status = 'New', Origin = 'Web');
+        insert testCase;
+
+        System.runAs(standardUser()) {
+            // Test
+            Case resultCase = (Case) SOQL.of(Case.SObjectType).systemMode().withoutSharing().toObject();
+
+            // Verify
+            Assert.areEqual(testCase.Id, resultCase.Id);
+        }
+    }
+
+    @IsTest
+    static void toListWithoutSharing() {
         // Setup
         insertCases();
 
@@ -1372,7 +1387,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withoutSharingCount() {
+    static void toIntegerWithoutSharing() {
         // Setup
         insertCases();
 
@@ -1386,7 +1401,27 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withSharing() {
+    static void toObjectWithSharing() {
+        // Setup
+        insert new Task(Subject = 'Test', Type = 'Other');
+
+        Exception queryException = null;
+
+        System.runAs(standardUser()) {
+            // Test
+            try {
+                Task resultTask = (Task) SOQL.of(Task.SObjectType).systemMode().withSharing().toObject();
+            } catch (Exception e) {
+                queryException = e; // List has no rows for assignment to SObject
+            }
+
+            // Verify
+            Assert.isNotNull(queryException);
+        }
+    }
+
+    @IsTest
+    static void toListWithSharing() {
         // Setup
         insertTasks();
 
@@ -1400,7 +1435,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withSharingCount() {
+    static void toIntegerWithSharing() {
         insertTasks();
 
         System.runAs(standardUser()) {
@@ -1413,7 +1448,40 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void stripInaccessible() {
+    static void stripInaccessibleToObject() {
+        // Setup
+        Task testTask = new Task(Subject = 'Test', Type = 'Other');
+        insert testTask;
+
+        System.runAs(standardUser()) {
+            // Test
+            Task task = (Task) SOQL.of(Task.SObjectType)
+                .with(Task.Type)
+                .systemMode()
+                .stripInaccessible()
+                .withoutSharing()
+                .toObject();
+
+            Exception queryException = null;
+
+            String inaccessibleFieldValue;
+
+            try {
+                inaccessibleFieldValue = task.Type;
+            } catch(Exception e) {
+                queryException = e;
+            }
+
+            // Verify
+            Assert.areEqual(
+                'SObject row was retrieved via SOQL without querying the requested field: Task.Type',
+                queryException.getMessage()
+            );
+        }
+    }
+
+    @IsTest
+    static void stripInaccessibleToList() {
         // Setup
         insertTasks();
 
@@ -1524,7 +1592,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void toValueOfWhenEmpty() {
+    static void toValueOfWhenRecordNotExist() {
         // Test
         String accountIndustry = (String) SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.name().equal('Test'))
@@ -1548,12 +1616,36 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void asObjectCatchOutOfBounds() {
+    static void toObjectWithMultipleRows() {
+        // Setup
+        insertAccounts();
+        Exception queryException = null;
+
         // Test
-        Account result = (Account) SOQL.of(Account.SObjectType).toObject();
+        try {
+            Account result = (Account) SOQL.of(Account.SObjectType).toObject();
+        } catch (Exception e) {
+            queryException = e; // List has more than 1 row for assignment to SObject
+        }
 
         // Verify
-        Assert.areEqual(null, result);
+        Assert.isNotNull(queryException);
+    }
+
+    @IsTest
+    static void toObjectWithoutRows() {
+        // Setup
+        Exception queryException = null;
+
+        // Test
+        try {
+            Account result = (Account) SOQL.of(Account.SObjectType).toObject();
+        } catch (Exception e) {
+            queryException = e;  // List has no rows for assignment to SObject
+        }
+
+        // Verify
+        Assert.isNotNull(queryException);
     }
 
     @IsTest

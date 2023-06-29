@@ -1041,9 +1041,9 @@ SOQL.of(Account.SObjectType).count().toInteger();
 
 ### toObject
 
-When no records found instead of `List index out of bounds: 0` null will be returned.
+When list of records is greater than 1 the `List has more than 1 row for assignment to SObject` will occur.
 
-`LIMIT 1` is also added to the query to make query more efficient.
+When there is no record to assign the `List has no rows for assignment to SObject` will occur.
 
 **Signature**
 
