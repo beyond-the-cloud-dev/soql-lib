@@ -54,6 +54,7 @@ public inherited sharing class SOQL implements Queryable {
         Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         Queryable with(List<SObjectField> fields); // For more than 5 fields
         Queryable with(String fields); // Dynamic SOQL
+        Queryable with(SObjectField field, String alias); // Only aggregate expressions use field aliasing
         Queryable with(String relationshipName, SObjectField field);
         Queryable with(String relationshipName, SObjectField field1, SObjectField field2);
         Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
@@ -278,6 +279,11 @@ public inherited sharing class SOQL implements Queryable {
         return this;
     }
 
+    public SOQL with(SObjectField field, String alias) {
+        builder.fields.with(field, alias);
+        return this;
+    }
+
     public SOQL with(String relationshipName, SObjectField field) {
         return with(relationshipName, new List<SObjectField>{ field });
     }
@@ -488,8 +494,7 @@ public inherited sharing class SOQL implements Queryable {
 
     public Set<String> toValuesOf(SObjectField fieldToExtract) {
         // https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
-        builder.fields.clearAllFields();
-        return new Map<String, SObject>(with(fieldToExtract + ' Id').groupBy(fieldToExtract).toAggregated()).keySet();
+        return new Map<String, SObject>(with(fieldToExtract, 'Id').groupBy(fieldToExtract).toAggregated()).keySet();
     }
 
     public Integer toInteger() {
@@ -497,7 +502,6 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public SObject toObject() {
-        setLimit(1);
         return executor.toObject(builder.toString(), binder.getBindingMap());
     }
 
@@ -661,17 +665,20 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public void count(String countSoql) {
+            // Clear all default fields to avoid "Field must be grouped or aggregated"
             clearAllFields();
             counts.add(countSoql);
         }
 
-        public void clearAllFields() {
-            // Clear all default fields to avoid "Field must be grouped or aggregated"
-            fields.clear();
+        public void with(SObjectField field, String alias) {
+            // Only aggregate expressions use field aliasing. Clear all default fields to avoid "Field must be grouped or aggregated"
+            clearAllFields();
+            fields.add(field + ' ' + alias);
         }
 
         public void with(String stringFields) {
-            fields.add(stringFields);
+            // To avoid field duplicates in query
+            fields.addAll(stringFields.deleteWhitespace().split(','));
         }
 
         public void with(List<SObjectField> fields) {
@@ -692,6 +699,10 @@ public inherited sharing class SOQL implements Queryable {
 
         public void with(String relationshipPath, SObjectField field) {
             fields.add(relationshipPath + '.' + field);
+        }
+
+        public void clearAllFields() {
+            fields.clear();
         }
 
         public override String toString() {

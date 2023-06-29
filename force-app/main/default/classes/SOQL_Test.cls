@@ -147,6 +147,30 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void withFieldAlias() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Name, 'myAlias')
+            .groupBy(Account.Name)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Name myAlias FROM Account GROUP BY Name', soql);
+    }
+
+    @IsTest
+    static void withDuplicatedFields() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with('Id, Name, BillingCity')
+            .with(Account.Id, Account.Name)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id, Name, BillingCity FROM Account', soql);
+    }
+
+    @IsTest
     static void withRelatedField() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
