@@ -213,7 +213,7 @@ public inherited sharing class SOQL implements Queryable {
 
     @TestVisible
     private static void setMock(String mockId, SObject record) {
-        mock.setMock(mockId, record);
+        setMock(mockId, new List<SObject>{ record });
     }
 
     @TestVisible
@@ -1369,13 +1369,8 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     private class Mock {
-        private final Map<String, SObject> sObjectMocks = new Map<String, SObject>();
         private final Map<String, List<SObject>> sObjectsMocks = new Map<String, List<SObject>>();
         private final Map<String, Integer> countMocks = new Map<String, Integer>();
-
-        public void setMock(String mockId, SObject record) {
-            sObjectMocks.put(mockId, record);
-        }
 
         public void setMock(String mockId, List<SObject> records) {
             sObjectsMocks.put(mockId, records);
@@ -1385,11 +1380,7 @@ public inherited sharing class SOQL implements Queryable {
             countMocks.put(mockId, amount);
         }
 
-        public Boolean hasSObjectMock(String mockId) {
-            return sObjectMocks.containsKey(mockId);
-        }
-
-        public Boolean hasSObjectsMock(String mockId) {
+        public Boolean hasMock(String mockId) {
             return sObjectsMocks.containsKey(mockId);
         }
 
@@ -1398,7 +1389,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public SObject getSObjectMock(String mockId) {
-            return sObjectMocks.get(mockId);
+            return sObjectsMocks.get(mockId)[0];
         }
 
         public List<SObject> getSObjectsMock(String mockId) {
@@ -1437,7 +1428,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public SObject toObject(String query, Map<String, Object> binding) {
-            if (mock.hasSObjectMock(mockId)) {
+            if (mock.hasMock(mockId)) {
                 return mock.getSObjectMock(mockId);
             }
 
@@ -1452,7 +1443,7 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public List<SObject> toList(String query, Map<String, Object> binding) {
-            if (mock.hasSObjectsMock(mockId)) {
+            if (mock.hasMock(mockId)) {
                 return mock.getSObjectsMock(mockId);
             }
 
