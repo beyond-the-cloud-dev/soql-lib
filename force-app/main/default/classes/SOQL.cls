@@ -492,7 +492,7 @@ public inherited sharing class SOQL implements Queryable {
             builder.fields.clearAllFields();
             return with(fieldToExtract).toObject()?.get(fieldToExtract);
         } catch (QueryException e) {
-            return null;
+            return null; // List has no rows for assignment to SObject
         }
     }
 
