@@ -213,7 +213,7 @@ public inherited sharing class SOQL implements Queryable {
 
     @TestVisible
     private static void setMock(String mockId, SObject record) {
-        setMock(mockId, new List<SObject>{ record });
+        mock.setMock(mockId, record);
     }
 
     @TestVisible
@@ -488,8 +488,12 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public Object toValueOf(SObjectField fieldToExtract) {
-        builder.fields.clearAllFields();
-        return with(fieldToExtract).toObject()?.get(fieldToExtract);
+        try {
+            builder.fields.clearAllFields();
+            return with(fieldToExtract).toObject()?.get(fieldToExtract);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public Set<String> toValuesOf(SObjectField fieldToExtract) {
@@ -1365,27 +1369,40 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     private class Mock {
-        private final Map<String, List<SObject>> mocks = new Map<String, List<SObject>>();
+        private final Map<String, SObject> sObjectMocks = new Map<String, SObject>();
+        private final Map<String, List<SObject>> sObjectsMocks = new Map<String, List<SObject>>();
         private final Map<String, Integer> countMocks = new Map<String, Integer>();
 
+        public void setMock(String mockId, SObject record) {
+            sObjectMocks.put(mockId, record);
+        }
+
         public void setMock(String mockId, List<SObject> records) {
-            mocks.put(mockId, records);
+            sObjectsMocks.put(mockId, records);
         }
 
         public void setCountMock(String mockId, Integer amount) {
             countMocks.put(mockId, amount);
         }
 
-        public Boolean hasMock(String mockId) {
-            return mocks.containsKey(mockId);
+        public Boolean hasSObjectMock(String mockId) {
+            return sObjectMocks.containsKey(mockId);
+        }
+
+        public Boolean hasSObjectsMock(String mockId) {
+            return sObjectsMocks.containsKey(mockId);
         }
 
         public Boolean hasCountMock(String mockId) {
             return countMocks.containsKey(mockId);
         }
 
-        public List<SObject> getMocks(String mockId) {
-            return mocks.get(mockId);
+        public SObject getSObjectMock(String mockId) {
+            return sObjectMocks.get(mockId);
+        }
+
+        public List<SObject> getSObjectsMock(String mockId) {
+            return sObjectsMocks.get(mockId);
         }
 
         public Integer getCountMock(String mockId) {
@@ -1420,11 +1437,33 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public SObject toObject(String query, Map<String, Object> binding) {
-            try {
-                return toList(query, binding)[0];
-            } catch (ListException e) {
-                return null; // List index out of bounds: 0
+            if (mock.hasSObjectMock(mockId)) {
+                return mock.getSObjectMock(mockId);
             }
+
+            if (accessType == null) {
+                return sharingExecutor.toSObject(query, binding, accessMode);
+            }
+
+            return Security.stripInaccessible(
+                accessType,
+                new List<SObject>{ sharingExecutor.toSObject(query, binding, accessMode) }
+            ).getRecords()[0];
+        }
+
+        public List<SObject> toList(String query, Map<String, Object> binding) {
+            if (mock.hasSObjectsMock(mockId)) {
+                return mock.getSObjectsMock(mockId);
+            }
+
+            if (accessType == null) {
+                return sharingExecutor.toSObjects(query, binding, accessMode);
+            }
+
+            return Security.stripInaccessible(
+                accessType,
+                sharingExecutor.toSObjects(query, binding, accessMode)
+            ).getRecords();
         }
 
         public Integer toInteger(String query, Map<String, Object> binding) {
@@ -1432,22 +1471,7 @@ public inherited sharing class SOQL implements Queryable {
                 return mock.getCountMock(mockId);
             }
 
-            return sharingExecutor.executeCount(query, binding, accessMode);
-        }
-
-        public List<SObject> toList(String query, Map<String, Object> binding) {
-            if (mock.hasMock(mockId)) {
-                return mock.getMocks(mockId);
-            }
-
-            if (accessType == null) {
-                return sharingExecutor.execute(query, binding, accessMode);
-            }
-
-            return Security.stripInaccessible(
-                accessType,
-                sharingExecutor.execute(query, binding, accessMode)
-            ).getRecords();
+            return sharingExecutor.toInteger(query, binding, accessMode);
         }
 
         public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding) {
@@ -1456,36 +1480,50 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     private interface DatabaseQuery {
-        List<SObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel);
-        Integer executeCount(String query, Map<String, Object> binding, AccessLevel accessLevel);
+        // toSObject to get System.QueryException: List has no rows for assignment to SObject or List has more than 1 row for assignment to SObject
+        SObject toSObject(String query, Map<String, Object> binding, AccessLevel accessLevel);
+        List<SObject> toSObjects(String query, Map<String, Object> binding, AccessLevel accessLevel);
+        Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel);
     }
 
     private inherited sharing class InheritedSharing implements DatabaseQuery {
-        public List<SObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+        public SObject toSObject(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.queryWithBinds(query, binding, accessLevel);
         }
 
-        public Integer executeCount(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+        public List<SObject> toSObjects(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.queryWithBinds(query, binding, accessLevel);
+        }
+
+        public Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.countQueryWithBinds(query, binding, accessLevel);
         }
     }
 
     private without sharing class WithoutSharing implements DatabaseQuery {
-        public List<SObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+        public SObject toSObject(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.queryWithBinds(query, binding, accessLevel);
         }
 
-        public Integer executeCount(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+        public List<SObject> toSObjects(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.queryWithBinds(query, binding, accessLevel);
+        }
+
+        public Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.countQueryWithBinds(query, binding, accessLevel);
         }
     }
 
     private with sharing class WithSharing implements DatabaseQuery {
-        public List<SObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+        public SObject toSObject(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.queryWithBinds(query, binding, accessLevel);
         }
 
-        public Integer executeCount(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+        public List<SObject> toSObjects(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.queryWithBinds(query, binding, accessLevel);
+        }
+
+        public Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.countQueryWithBinds(query, binding, accessLevel);
         }
     }
