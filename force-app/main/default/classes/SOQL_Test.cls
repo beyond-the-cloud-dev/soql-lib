@@ -1405,18 +1405,12 @@ private class SOQL_Test {
         // Setup
         insert new Task(Subject = 'Test', Type = 'Other');
 
-        Exception queryException = null;
-
         System.runAs(standardUser()) {
             // Test
-            try {
-                Task resultTask = (Task) SOQL.of(Task.SObjectType).systemMode().withSharing().toObject();
-            } catch (Exception e) {
-                queryException = e; // List has no rows for assignment to SObject
-            }
+            Task resultTask = (Task) SOQL.of(Task.SObjectType).systemMode().withSharing().toObject();
 
             // Verify
-            Assert.isNotNull(queryException);
+            Assert.isNull(resultTask);
         }
     }
 
@@ -1634,18 +1628,12 @@ private class SOQL_Test {
 
     @IsTest
     static void toObjectWithoutRows() {
-        // Setup
-        Exception queryException = null;
-
         // Test
-        try {
-            Account result = (Account) SOQL.of(Account.SObjectType).toObject();
-        } catch (Exception e) {
-            queryException = e;  // List has no rows for assignment to SObject
-        }
+        // When List has no rows for assignment to SObject null will be returned
+        Account account = (Account) SOQL.of(Account.SObjectType).toObject();
 
         // Verify
-        Assert.isNotNull(queryException);
+        Assert.isNull(account);
     }
 
     @IsTest

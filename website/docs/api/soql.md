@@ -1010,6 +1010,8 @@ Field will be automatically added to the query fields.
 
 SOQL Lib is using [Building a KeySet from any field](https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result) approach to get only one field.
 
+Note! It does not work with Custom Metadata.
+
 **Signature**
 
 ```apex

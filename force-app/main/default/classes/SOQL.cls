@@ -488,12 +488,8 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public Object toValueOf(SObjectField fieldToExtract) {
-        try {
-            builder.fields.clearAllFields();
-            return with(fieldToExtract).toObject()?.get(fieldToExtract);
-        } catch (QueryException e) {
-            return null; // List has no rows for assignment to SObject
-        }
+        builder.fields.clearAllFields(); // other fields not needed
+        return with(fieldToExtract).toObject()?.get(fieldToExtract);
     }
 
     public Set<String> toValuesOf(SObjectField fieldToExtract) {
@@ -1388,10 +1384,6 @@ public inherited sharing class SOQL implements Queryable {
             return countMocks.containsKey(mockId);
         }
 
-        public SObject getSObjectMock(String mockId) {
-            return sObjectsMocks.get(mockId)[0];
-        }
-
         public List<SObject> getSObjectsMock(String mockId) {
             return sObjectsMocks.get(mockId);
         }
@@ -1428,18 +1420,19 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public SObject toObject(String query, Map<String, Object> binding) {
-            if (mock.hasMock(mockId)) {
-                return mock.getSObjectMock(mockId);
+            List<SObject> records = toList(query, binding);
+
+            if (records.size() > 1) {
+                QueryException e = new QueryException();
+                e.setMessage('List has more than 1 row for assignment to SObject');
+                throw e;
             }
 
-            if (accessType == null) {
-                return sharingExecutor.toSObject(query, binding, accessMode);
+            if (records.size() == 0) {
+                return null; // handle: List has no rows for assignment to SObject
             }
 
-            return Security.stripInaccessible(
-                accessType,
-                new List<SObject>{ sharingExecutor.toSObject(query, binding, accessMode) }
-            ).getRecords()[0];
+            return records[0];
         }
 
         public List<SObject> toList(String query, Map<String, Object> binding) {
@@ -1471,17 +1464,11 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     private interface DatabaseQuery {
-        // toSObject can throw System.QueryException: List has no rows for assignment to SObject or List has more than 1 row for assignment to SObject
-        SObject toSObject(String query, Map<String, Object> binding, AccessLevel accessLevel);
         List<SObject> toSObjects(String query, Map<String, Object> binding, AccessLevel accessLevel);
         Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel);
     }
 
     private inherited sharing class InheritedSharing implements DatabaseQuery {
-        public SObject toSObject(String query, Map<String, Object> binding, AccessLevel accessLevel) {
-            return Database.queryWithBinds(query, binding, accessLevel);
-        }
-
         public List<SObject> toSObjects(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.queryWithBinds(query, binding, accessLevel);
         }
@@ -1492,10 +1479,6 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     private without sharing class WithoutSharing implements DatabaseQuery {
-        public SObject toSObject(String query, Map<String, Object> binding, AccessLevel accessLevel) {
-            return Database.queryWithBinds(query, binding, accessLevel);
-        }
-
         public List<SObject> toSObjects(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.queryWithBinds(query, binding, accessLevel);
         }
@@ -1506,10 +1489,6 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     private with sharing class WithSharing implements DatabaseQuery {
-        public SObject toSObject(String query, Map<String, Object> binding, AccessLevel accessLevel) {
-            return Database.queryWithBinds(query, binding, accessLevel);
-        }
-
         public List<SObject> toSObjects(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.queryWithBinds(query, binding, accessLevel);
         }
