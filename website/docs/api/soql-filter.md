@@ -591,11 +591,22 @@ SOQL.of(Contact.SObjectType)
 
 ### includesAll
 
+- `WHERE Roles INCLUDES ('Business User;Decision Maker')`
+
+**Signature**
+
+```apex
+Filter includesAll(Iterable<String> iterable)
+```
+
+**Example**
+
 ```sql
 SELECT Id
 FROM AccountContactRelation
 WHERE Roles INCLUDES ('Business User;Decision Maker')
 ```
+
 ```apex
 List<String> roles = new List<String>{ 'Business User', 'Decision Maker' };
 
@@ -606,11 +617,22 @@ SOQL builder = SOQL.of(AccountContactRelation.SObjectType)
 
 ### includesSome
 
+- `WHERE Roles INCLUDES ('Business User', 'Decision Maker')`
+
+**Signature**
+
+```apex
+Filter includesSome(Iterable<String> iterable)
+```
+
+**Example**
+
 ```sql
 SELECT Id
 FROM AccountContactRelation
 WHERE Roles INCLUDES ('Business User', 'Decision Maker')
 ```
+
 ```apex
 List<String> roles = new List<String>{ 'Business User', 'Decision Maker' };
 
@@ -621,11 +643,22 @@ SOQL builder = SOQL.of(AccountContactRelation.SObjectType)
 
 ### excludesAll
 
+- `WHERE Roles EXCLUDES ('Business User', 'Decision Maker')`
+
+**Signature**
+
+```apex
+Filter excludesAll(Iterable<String> iterable)
+```
+
+**Example**
+
 ```sql
 SELECT Id
 FROM AccountContactRelation
 WHERE Roles EXCLUDES ('Business User', 'Decision Maker')
 ```
+
 ```apex
 List<String> roles = new List<String>{ 'Business User', 'Decision Maker' };
 
@@ -636,11 +669,22 @@ SOQL builder = SOQL.of(AccountContactRelation.SObjectType)
 
 ### excludesSome
 
+- `WHERE Roles EXCLUDES ('Business User;Decision Maker')`
+
+**Signature**
+
+```apex
+Filter excludesSome(Iterable<String> iterable)
+```
+
+**Example**
+
 ```sql
 SELECT Id
 FROM AccountContactRelation
 WHERE Roles EXCLUDES ('Business User;Decision Maker')
 ```
+
 ```apex
 List<String> roles = new List<String>{ 'Business User', 'Decision Maker' };
 

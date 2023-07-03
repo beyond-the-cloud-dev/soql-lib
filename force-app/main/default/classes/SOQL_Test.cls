@@ -136,10 +136,34 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withCommaSeparatedFields() {
+    static void withStringFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with('Id, Name, BillingCity')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id, Name, BillingCity FROM Account', soql);
+    }
+
+    @IsTest
+    static void withFieldAlias() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Name, 'myAlias')
+            .groupBy(Account.Name)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Name myAlias FROM Account GROUP BY Name', soql);
+    }
+
+    @IsTest
+    static void withDuplicatedFields() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with('Id, Name, BillingCity')
+            .with(Account.Id, Account.Name)
             .toString();
 
         // Verify
@@ -1334,7 +1358,22 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withoutSharing() {
+    static void toObjectWithoutSharing() {
+        // Setup
+        Case testCase = new Case(Status = 'New', Origin = 'Web');
+        insert testCase;
+
+        System.runAs(standardUser()) {
+            // Test
+            Case resultCase = (Case) SOQL.of(Case.SObjectType).systemMode().withoutSharing().toObject();
+
+            // Verify
+            Assert.areEqual(testCase.Id, resultCase.Id);
+        }
+    }
+
+    @IsTest
+    static void toListWithoutSharing() {
         // Setup
         insertCases();
 
@@ -1348,7 +1387,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withoutSharingCount() {
+    static void toIntegerWithoutSharing() {
         // Setup
         insertCases();
 
@@ -1362,7 +1401,21 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withSharing() {
+    static void toObjectWithSharing() {
+        // Setup
+        insert new Task(Subject = 'Test', Type = 'Other');
+
+        System.runAs(standardUser()) {
+            // Test
+            Task resultTask = (Task) SOQL.of(Task.SObjectType).systemMode().withSharing().toObject();
+
+            // Verify
+            Assert.isNull(resultTask);
+        }
+    }
+
+    @IsTest
+    static void toListWithSharing() {
         // Setup
         insertTasks();
 
@@ -1376,7 +1429,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withSharingCount() {
+    static void toIntegerWithSharing() {
         insertTasks();
 
         System.runAs(standardUser()) {
@@ -1389,7 +1442,40 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void stripInaccessible() {
+    static void stripInaccessibleToObject() {
+        // Setup
+        Task testTask = new Task(Subject = 'Test', Type = 'Other');
+        insert testTask;
+
+        System.runAs(standardUser()) {
+            // Test
+            Task task = (Task) SOQL.of(Task.SObjectType)
+                .with(Task.Type)
+                .systemMode()
+                .stripInaccessible()
+                .withoutSharing()
+                .toObject();
+
+            Exception queryException = null;
+
+            String inaccessibleFieldValue;
+
+            try {
+                inaccessibleFieldValue = task.Type;
+            } catch(Exception e) {
+                queryException = e;
+            }
+
+            // Verify
+            Assert.areEqual(
+                'SObject row was retrieved via SOQL without querying the requested field: Task.Type',
+                queryException.getMessage()
+            );
+        }
+    }
+
+    @IsTest
+    static void stripInaccessibleToList() {
         // Setup
         insertTasks();
 
@@ -1420,40 +1506,13 @@ private class SOQL_Test {
         }
     }
 
-    static List<Case> insertCases() {
-        List<Case> cases = new List<Case>{
-            new Case(Status = 'New', Origin = 'Web'),
-            new Case(Status = 'New', Origin = 'Web')
-        };
-        insert cases;
-        return cases;
-    }
-
-    static void insertTasks() {
-        insert new List<Task>{
-            new Task(Subject = 'Test', Type = 'Other'),
-            new Task(Subject = 'Test', Type = 'Other')
-        };
-    }
-
-    static User standardUser() {
-        return new User(
-            Alias = 'newUser',
-            Email = 'newuser@testorg.com',
-            EmailEncodingKey = 'UTF-8',
-            LastName = 'Testing',
-            LanguageLocaleKey = 'en_US',
-            LocaleSidKey = 'en_US',
-            ProfileId = [SELECT Id FROM Profile WHERE Name = 'Standard User'].Id,
-            TimeZoneSidKey = 'America/Los_Angeles',
-            UserName = 'queryselector@testorg.com'
-        );
-    }
-
     @IsTest
     static void mockId() {
         // Setup
-        List<Account> accounts = getAccount();
+        List<Account> accounts = new List<Account>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        };
 
         // Test
         SOQL.setMock('mockingQuery', accounts);
@@ -1487,28 +1546,54 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void toField() {
+    static void toValueOf() {
         // Setup
-        String accountName = 'Test 1';
-        Account acc = new Account(Name = accountName);
+        Account acc = new Account(Name = 'Test 1');
         insert acc;
 
         // Test
-        String resultAccName = (String) SOQL.of(Account.SObjectType).byId(acc).toField(Account.Name);
+        String resultAccName = (String) SOQL.of(Account.SObjectType).byId(acc).toValueOf(Account.Name);
 
         // Verify
-        Assert.areEqual(accountName, resultAccName);
+        Assert.areEqual('Test 1', resultAccName);
     }
 
     @IsTest
-    static void toFieldWhenEmpty() {
+    static void toValuesOf() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
         // Test
-        String resultAccName = (String) SOQL.of(Account.SObjectType)
-            .whereAre(SOQL.Filter.name().equal('Test'))
-            .toField(Account.Industry);
+        Set<String> accountNames = SOQL.of(Account.SObjectType).byIds(accounts).toValuesOf(Account.Name);
 
         // Verify
-        Assert.isNull(resultAccName);
+        Assert.areEqual(2, accountNames.size());
+    }
+
+    @IsTest
+    static void toValuesOfWithDefaultFields() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        Set<String> accountNames = SOQL.of(Account.SObjectType)
+            .with(Account.Industry)
+            .byIds(accounts)
+            .toValuesOf(Account.Name);
+
+        // Verify
+        Assert.areEqual(2, accountNames.size());
+    }
+
+    @IsTest
+    static void toValueOfWhenRecordNotExist() {
+        // Test
+        String accountIndustry = (String) SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.name().equal('Test'))
+            .toValueOf(Account.Industry);
+
+        // Verify
+        Assert.isNull(accountIndustry);
     }
 
     @IsTest
@@ -1525,19 +1610,36 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void asObjectCatchOutOfBounds() {
+    static void toObjectWithMultipleRows() {
+        // Setup
+        insertAccounts();
+        Exception queryException = null;
+
         // Test
-        Account result = (Account) SOQL.of(Account.SObjectType).toObject();
+        try {
+            Account result = (Account) SOQL.of(Account.SObjectType).toObject();
+        } catch (Exception e) {
+            queryException = e; // List has more than 1 row for assignment to SObject
+        }
 
         // Verify
-        Assert.areEqual(null, result);
+        Assert.isNotNull(queryException);
+    }
+
+    @IsTest
+    static void toObjectWithoutRows() {
+        // Test
+        // When List has no rows for assignment to SObject null will be returned
+        Account account = (Account) SOQL.of(Account.SObjectType).toObject();
+
+        // Verify
+        Assert.isNull(account);
     }
 
     @IsTest
     static void toList() {
         // Setup
-        List<Account> accounts = getAccount();
-        insert accounts;
+        List<Account> accounts = insertAccounts();
 
         // Test
         List<Account> result = SOQL.of(Account.SObjectType).toList();
@@ -1549,8 +1651,7 @@ private class SOQL_Test {
     @IsTest
     static void toAggregated() {
         // Setup
-        List<Account> accounts = getAccount();
-        insert accounts;
+        List<Account> accounts = insertAccounts();
 
         // Test
         List<AggregateResult> result = SOQL.of(Account.SObjectType).count(Account.Name, 'names').toAggregated();
@@ -1562,8 +1663,7 @@ private class SOQL_Test {
     @IsTest
     static void toInteger() {
         // Setup
-        List<Account> accounts = getAccount();
-        insert accounts;
+        List<Account> accounts = insertAccounts();
 
         // Test
         Integer result = SOQL.of(Account.SObjectType).count().toInteger();
@@ -1575,8 +1675,7 @@ private class SOQL_Test {
     @IsTest
     static void toMap() {
         // Setup
-        List<Account> accounts = getAccount();
-        insert accounts;
+        List<Account> accounts = insertAccounts();
 
         // Test
         Map<Id, SObject> result = SOQL.of(Account.SObjectType).toMap();
@@ -1601,11 +1700,43 @@ private class SOQL_Test {
         Assert.areEqual('SELECT Id, Name FROM Account', queryLocator.getQuery());
     }
 
-    static List<Account> getAccount() {
-        return new List<Account>{
+    static List<Account> insertAccounts() {
+        List<Account> accounts = new List<Account>{
             new Account(Name = 'Test 1'),
             new Account(Name = 'Test 2')
         };
+        insert accounts;
+        return accounts;
+    }
+
+    static List<Case> insertCases() {
+        List<Case> cases = new List<Case>{
+            new Case(Status = 'New', Origin = 'Web'),
+            new Case(Status = 'New', Origin = 'Web')
+        };
+        insert cases;
+        return cases;
+    }
+
+    static void insertTasks() {
+        insert new List<Task>{
+            new Task(Subject = 'Test', Type = 'Other'),
+            new Task(Subject = 'Test', Type = 'Other')
+        };
+    }
+
+    static User standardUser() {
+        return new User(
+            Alias = 'newUser',
+            Email = 'newuser@testorg.com',
+            EmailEncodingKey = 'UTF-8',
+            LastName = 'Testing',
+            LanguageLocaleKey = 'en_US',
+            LocaleSidKey = 'en_US',
+            ProfileId = [SELECT Id FROM Profile WHERE Name = 'Standard User'].Id,
+            TimeZoneSidKey = 'America/Los_Angeles',
+            UserName = 'queryselector@testorg.com'
+        );
     }
 
     @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')

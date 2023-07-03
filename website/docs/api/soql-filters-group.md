@@ -24,27 +24,40 @@ FilterGroup add(String dynamicCondition)
 ```sql
 SELECT Id
 FROM Account
-WHERE Name = 'My Account' AND NumberOfEmployees >= 10
-```
-```apex
-SOQL.of(Account.SObjectType)
-    .whereAre(SOQL.FilterGroup
-        .add(SOQL.Filter.with(Account.Name).equal('My Account'))
-        .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterOrEqual(10))
-    ).toList();
+WHERE
+    Industry = 'IT' AND
+    Name = 'My Account' AND
+    NumberOfEmployees >= 10
 ```
 
 ```apex
 // build conditions on fly
-FilterGroup group = SOQL.FilterGroup
-        .add(SOQL.Filter.with(Account.Name).equal('My Account'))
-        .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterOrEqual(10))
-        .conditionLogic('1 OR 2');
+SOQL.FilterGroup group = SOQL.FilterGroup
+        .add(SOQL.Filter.name().equal('My Account'))
+        .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterOrEqual(10));
 
 SOQL.of(Account.SObjectType)
     .whereAre(SOQL.FilterGroup
         .add(SOQL.Filter.with(Account.Industry).equal('IT'))
         .add(group)
+    ).toList();
+```
+
+```apex
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.FilterGroup
+        .add(SOQL.Filter.with(Account.Industry).equal('IT'))
+        .add(SOQL.Filter.name().equal('My Account'))
+        .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterOrEqual(10))
+    ).toList();
+```
+
+```apex
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.FilterGroup
+        .add(SOQL.Filter.with(Account.Industry).equal('IT'))
+        .add(SOQL.Filter.name().equal('My Account'))
+        .add('NumberOfEmployees >= 10')
     ).toList();
 ```
 
@@ -96,6 +109,7 @@ SELECT Id
 FROM Account
 WHERE Name = 'My Account' OR NumberOfEmployees >= 10
 ```
+
 ```apex
 SOQL.of(Account.SObjectType)
     .whereAre(SOQL.FilterGroup

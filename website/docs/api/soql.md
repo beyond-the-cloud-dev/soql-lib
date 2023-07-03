@@ -986,7 +986,7 @@ WHERE ((Id = :v1 OR Name LIKE :v2))
 
 ## result
 
-### toField
+### toValueOf
 
 Extract field value from query result.
 Field will be automatically added to the query fields.
@@ -994,13 +994,34 @@ Field will be automatically added to the query fields.
 **Signature**
 
 ```apex
-Object toField(SObjectField fieldToExtract)
+Object toValueOf(SObjectField fieldToExtract)
 ```
 
 **Example**
 
 ```apex
-SOQL.of(Account.SObjectType).byId('1234').toField(Account.Name)
+String accountName = SOQL.of(Account.SObjectType).byId('1234').toValueOf(Account.Name)
+```
+
+### toValuesOf
+
+Extract field values from query result.
+Field will be automatically added to the query fields.
+
+SOQL Lib is using [Building a KeySet from any field](https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result) approach to get only one field.
+
+Note! It does not work with Custom Metadata.
+
+**Signature**
+
+```apex
+Set<String> toValuesOf(SObjectField fieldToExtract)
+```
+
+**Example**
+
+```apex
+Set<String> accountNames = SOQL.of(Account.SObjectType).byId('1234').toValuesOf(Account.Name)
 ```
 
 ### toInteger
@@ -1022,7 +1043,9 @@ SOQL.of(Account.SObjectType).count().toInteger();
 
 ### toObject
 
-When no records found. Instead of `List index out of bounds: 0` null will be returned.
+When list of records is greater than 1 the `List has more than 1 row for assignment to SObject` will occur.
+
+When there is no record to assign the `List has no rows for assignment to SObject` will occur.
 
 **Signature**
 

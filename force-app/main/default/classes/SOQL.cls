@@ -54,6 +54,7 @@ public inherited sharing class SOQL implements Queryable {
         Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         Queryable with(List<SObjectField> fields); // For more than 5 fields
         Queryable with(String fields); // Dynamic SOQL
+        Queryable with(SObjectField field, String alias); // Only aggregate expressions use field aliasing
         Queryable with(String relationshipName, SObjectField field);
         Queryable with(String relationshipName, SObjectField field1, SObjectField field2);
         Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
@@ -114,8 +115,9 @@ public inherited sharing class SOQL implements Queryable {
         Queryable byIds(List<SObject> records);
 
         String toString();
-        Object toField(SObjectField fieldToExtract);
-        Integer toInteger();
+        Object toValueOf(SObjectField fieldToExtract);
+        Set<String> toValuesOf(SObjectField fieldToExtract);
+        Integer toInteger(); // For COUNT query
         SObject toObject();
         List<SObject> toList();
         List<AggregateResult> toAggregated();
@@ -274,6 +276,11 @@ public inherited sharing class SOQL implements Queryable {
 
     public SOQL with(String fields) {
         builder.fields.with(fields);
+        return this;
+    }
+
+    public SOQL with(SObjectField field, String alias) {
+        builder.fields.with(field, alias);
         return this;
     }
 
@@ -480,8 +487,14 @@ public inherited sharing class SOQL implements Queryable {
         return builder.toString();
     }
 
-    public Object toField(SObjectField fieldToExtract) {
+    public Object toValueOf(SObjectField fieldToExtract) {
+        builder.fields.clearAllFields(); // other fields not needed
         return with(fieldToExtract).toObject()?.get(fieldToExtract);
+    }
+
+    public Set<String> toValuesOf(SObjectField fieldToExtract) {
+        // https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
+        return new Map<String, SObject>(with(fieldToExtract, 'Id').groupBy(fieldToExtract).toAggregated()).keySet();
     }
 
     public Integer toInteger() {
@@ -652,12 +665,19 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public void count(String countSoql) {
-            // clear all default fields to avoid "Field must be grouped or aggregated"
-            fields.clear();
+            // Clear all default fields to avoid "Field must be grouped or aggregated"
+            clearAllFields();
             counts.add(countSoql);
         }
 
+        public void with(SObjectField field, String alias) {
+            // Only aggregate expressions use field aliasing. Clear all default fields to avoid "Field must be grouped or aggregated"
+            clearAllFields();
+            fields.add(field + ' ' + alias);
+        }
+
         public void with(String stringFields) {
+            // To avoid field duplicates in query
             fields.addAll(stringFields.deleteWhitespace().split(','));
         }
 
@@ -679,6 +699,10 @@ public inherited sharing class SOQL implements Queryable {
 
         public void with(String relationshipPath, SObjectField field) {
             fields.add(relationshipPath + '.' + field);
+        }
+
+        public void clearAllFields() {
+            fields.clear();
         }
 
         public override String toString() {
@@ -1119,25 +1143,25 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public Filter includesAll(Iterable<String> iterable) {
-            //Bind expressions can't be used with other clauses, such as INCLUDES.
+            // Bind expressions can't be used with other clauses, such as INCLUDES.
             skipBinding = true;
             return set('INCLUDES', '(\'' + String.join(iterable, ';') + '\')');
         }
 
         public Filter includesSome(Iterable<String> iterable) {
-            //Bind expressions can't be used with other clauses, such as INCLUDES.
+            // Bind expressions can't be used with other clauses, such as INCLUDES.
             skipBinding = true;
             return set('INCLUDES', '(\'' + String.join(iterable, '\', \'') + '\')');
         }
 
         public Filter excludesAll(Iterable<String> iterable) {
-            //Bind expressions can't be used with other clauses, such as EXCLUDES.
+            // Bind expressions can't be used with other clauses, such as EXCLUDES.
             skipBinding = true;
             return set('EXCLUDES', '(\'' + String.join(iterable, '\', \'') + '\')');
         }
 
         public Filter excludesSome(Iterable<String> iterable) {
-            //Bind expressions can't be used with other clauses, such as EXCLUDES.
+            // Bind expressions can't be used with other clauses, such as EXCLUDES.
             skipBinding = true;
             return set('EXCLUDES', '(\'' + String.join(iterable, ';') + '\')');
         }
@@ -1341,11 +1365,11 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     private class Mock {
-        private final Map<String, List<SObject>> mocks = new Map<String, List<SObject>>();
+        private final Map<String, List<SObject>> sObjectsMocks = new Map<String, List<SObject>>();
         private final Map<String, Integer> countMocks = new Map<String, Integer>();
 
         public void setMock(String mockId, List<SObject> records) {
-            mocks.put(mockId, records);
+            sObjectsMocks.put(mockId, records);
         }
 
         public void setCountMock(String mockId, Integer amount) {
@@ -1353,15 +1377,15 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public Boolean hasMock(String mockId) {
-            return mocks.containsKey(mockId);
+            return sObjectsMocks.containsKey(mockId);
         }
 
         public Boolean hasCountMock(String mockId) {
             return countMocks.containsKey(mockId);
         }
 
-        public List<SObject> getMocks(String mockId) {
-            return mocks.get(mockId);
+        public List<SObject> getSObjectsMock(String mockId) {
+            return sObjectsMocks.get(mockId);
         }
 
         public Integer getCountMock(String mockId) {
@@ -1396,11 +1420,34 @@ public inherited sharing class SOQL implements Queryable {
         }
 
         public SObject toObject(String query, Map<String, Object> binding) {
-            try {
-                return toList(query, binding)[0];
-            } catch (ListException e) {
-                return null; // List index out of bounds: 0
+            List<SObject> records = toList(query, binding);
+
+            if (records.size() > 1) {
+                QueryException e = new QueryException();
+                e.setMessage('List has more than 1 row for assignment to SObject');
+                throw e;
             }
+
+            if (records.size() == 0) {
+                return null; // handle: List has no rows for assignment to SObject
+            }
+
+            return records[0];
+        }
+
+        public List<SObject> toList(String query, Map<String, Object> binding) {
+            if (mock.hasMock(mockId)) {
+                return mock.getSObjectsMock(mockId);
+            }
+
+            if (accessType == null) {
+                return sharingExecutor.toSObjects(query, binding, accessMode);
+            }
+
+            return Security.stripInaccessible(
+                accessType,
+                sharingExecutor.toSObjects(query, binding, accessMode)
+            ).getRecords();
         }
 
         public Integer toInteger(String query, Map<String, Object> binding) {
@@ -1408,22 +1455,7 @@ public inherited sharing class SOQL implements Queryable {
                 return mock.getCountMock(mockId);
             }
 
-            return sharingExecutor.executeCount(query, binding, accessMode);
-        }
-
-        public List<SObject> toList(String query, Map<String, Object> binding) {
-            if (mock.hasMock(mockId)) {
-                return mock.getMocks(mockId);
-            }
-
-            if (accessType == null) {
-                return sharingExecutor.execute(query, binding, accessMode);
-            }
-
-            return Security.stripInaccessible(
-                accessType,
-                sharingExecutor.execute(query, binding, accessMode)
-            ).getRecords();
+            return sharingExecutor.toInteger(query, binding, accessMode);
         }
 
         public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding) {
@@ -1432,36 +1464,36 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     private interface DatabaseQuery {
-        List<SObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel);
-        Integer executeCount(String query, Map<String, Object> binding, AccessLevel accessLevel);
+        List<SObject> toSObjects(String query, Map<String, Object> binding, AccessLevel accessLevel);
+        Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel);
     }
 
     private inherited sharing class InheritedSharing implements DatabaseQuery {
-        public List<SObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+        public List<SObject> toSObjects(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.queryWithBinds(query, binding, accessLevel);
         }
 
-        public Integer executeCount(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+        public Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.countQueryWithBinds(query, binding, accessLevel);
         }
     }
 
     private without sharing class WithoutSharing implements DatabaseQuery {
-        public List<SObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+        public List<SObject> toSObjects(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.queryWithBinds(query, binding, accessLevel);
         }
 
-        public Integer executeCount(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+        public Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.countQueryWithBinds(query, binding, accessLevel);
         }
     }
 
     private with sharing class WithSharing implements DatabaseQuery {
-        public List<SObject> execute(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+        public List<SObject> toSObjects(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.queryWithBinds(query, binding, accessLevel);
         }
 
-        public Integer executeCount(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+        public Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.countQueryWithBinds(query, binding, accessLevel);
         }
     }
