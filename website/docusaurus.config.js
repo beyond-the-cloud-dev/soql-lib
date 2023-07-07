@@ -61,7 +61,7 @@ const config = {
         },
         items: [
           {
-            href: 'https://github.com/beyond-the-cloud-dev/query-selector',
+            href: 'https://github.com/beyond-the-cloud-dev/soql-lib',
             label: 'GitHub',
             position: 'right',
           },
@@ -71,6 +71,11 @@ const config = {
             position: 'right',
           },
         ],
+      },
+      colorMode: {
+        defaultMode: 'dark',
+        disableSwitch: false,
+        respectPrefersColorScheme: false,
       },
       prism: {
         additionalLanguages: ['apex'],
