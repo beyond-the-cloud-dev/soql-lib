@@ -243,8 +243,6 @@ private class SOQL_Test {
         Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name FROM Account', soql);
     }
 
-    // SubQuery
-
     @IsTest
     static void subQueryField() {
         // Test
@@ -339,6 +337,23 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual('SELECT Name , (SELECT Id, Name, CreatedBy.Id, CreatedBy.Name FROM Contacts) FROM Account', soql);
+    }
+
+    @IsTest
+    static void subQueryTwoLevels() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Name)
+            .with(SOQL.SubQuery.of('Contacts')
+                .with(Contact.LastName)
+                .with(SOQL.SubQuery.of('Assets')
+                    .with(Asset.AssetLevel)
+                )
+            )
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Name , (SELECT LastName , (SELECT AssetLevel FROM Assets) FROM Contacts) FROM Account', soql);
     }
 
     @IsTest

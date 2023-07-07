@@ -135,6 +135,7 @@ public inherited sharing class SOQL implements Queryable {
         SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         SubQuery with(List<SObjectField> fields); // For more than 5 fields
         SubQuery with(String relationshipName, List<SObjectField> fields);
+        SubQuery with(SubQuery subQuery); // SOQL.SubQuery
 
         SubQuery whereAre(FilterGroup filterGroup); // SOQL.FilterGroup
         SubQuery whereAre(Filter filter); // SOQL.Filter
@@ -722,88 +723,93 @@ public inherited sharing class SOQL implements Queryable {
     private class QSubQuery implements SubQuery {
         private QueryBuilder builder;
 
-        public QSubQuery of(String ofObject) {
+        public SubQuery of(String ofObject) {
             builder = new QueryBuilder(ofObject);
             return this;
         }
 
-        public QSubQuery with(SObjectField field) {
+        public SubQuery with(SObjectField field) {
             builder.fields.with(field);
             return this;
         }
 
-        public QSubQuery with(SObjectField field1, SObjectField field2) {
+        public SubQuery with(SObjectField field1, SObjectField field2) {
             return with(field1).with(field2);
         }
 
-        public QSubQuery with(SObjectField field1, SObjectField field2, SObjectField field3) {
+        public SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3) {
             return with(field1, field2).with(field3);
         }
 
-        public QSubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
+        public SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
             return with(field1, field2, field3).with(field4);
         }
 
-        public QSubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
+        public SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
             return with(field1, field2, field3, field4).with(field5);
         }
 
-        public QSubQuery with(List<SObjectField> fields) {
+        public SubQuery with(List<SObjectField> fields) {
             builder.fields.with(fields);
             return this;
         }
 
-        public QSubQuery with(String relationshipName, List<SObjectField> fields) {
+        public SubQuery with(String relationshipName, List<SObjectField> fields) {
             builder.fields.with(relationshipName, fields);
             return this;
         }
 
-        public QSubQuery whereAre(FilterGroup filterGroup) {
+        public SubQuery with(SubQuery subQuery) {
+            builder.subQueries.add(subQuery);
+            return this;
+        }
+
+        public SubQuery whereAre(FilterGroup filterGroup) {
             builder.conditions.add(filterGroup);
             return this;
         }
 
-        public QSubQuery whereAre(Filter filter) {
+        public SubQuery whereAre(Filter filter) {
             builder.conditions.add(filter);
             return this;
         }
 
-        public QSubQuery orderBy(SObjectField field) {
+        public SubQuery orderBy(SObjectField field) {
             builder.orderBys.newOrderBy().with(field);
             return this;
         }
 
-        public QSubQuery orderBy(String relationshipName, SObjectField field) {
+        public SubQuery orderBy(String relationshipName, SObjectField field) {
             builder.orderBys.newOrderBy().with(relationshipName, field);
             return this;
         }
 
-        public QSubQuery sortDesc() {
+        public SubQuery sortDesc() {
             builder.latestOrderBy.sortDesc();
             return this;
         }
 
-        public QSubQuery nullsLast() {
+        public SubQuery nullsLast() {
             builder.latestOrderBy.nullsLast();
             return this;
         }
 
-        public QSubQuery setLimit(Integer amount) {
+        public SubQuery setLimit(Integer amount) {
             builder.soqlLimit.max(amount);
             return this;
         }
 
-        public QSubQuery offset(Integer startingRow) {
+        public SubQuery offset(Integer startingRow) {
             builder.soqlOffset.offset(startingRow);
             return this;
         }
 
-        public QSubQuery forReference() {
+        public SubQuery forReference() {
             builder.soqlFor.forReference();
             return this;
         }
 
-        public QSubQuery forView() {
+        public SubQuery forView() {
             builder.soqlFor.forView();
             return this;
         }
@@ -1200,22 +1206,22 @@ public inherited sharing class SOQL implements Queryable {
     private class QJoinQuery implements InnerJoin {
         private QueryBuilder builder;
 
-        public QJoinQuery of(SObjectType ofObject) {
+        public InnerJoin of(SObjectType ofObject) {
             builder = new QueryBuilder(ofObject.getDescribe().getName());
             return this;
         }
 
-        public QJoinQuery with(SObjectField field) {
+        public InnerJoin with(SObjectField field) {
             builder.fields.with(field);
             return this;
         }
 
-        public QJoinQuery whereAre(FilterGroup filterGroup) {
+        public InnerJoin whereAre(FilterGroup filterGroup) {
             builder.conditions.add(filterGroup);
             return this;
         }
 
-        public QJoinQuery whereAre(Filter filter) {
+        public InnerJoin whereAre(Filter filter) {
             builder.conditions.add(filter);
             return this;
         }
