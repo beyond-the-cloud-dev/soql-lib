@@ -1206,22 +1206,22 @@ public inherited sharing class SOQL implements Queryable {
     private class QJoinQuery implements InnerJoin {
         private QueryBuilder builder;
 
-        public QJoinQuery of(SObjectType ofObject) {
+        public InnerJoin of(SObjectType ofObject) {
             builder = new QueryBuilder(ofObject.getDescribe().getName());
             return this;
         }
 
-        public QJoinQuery with(SObjectField field) {
+        public InnerJoin with(SObjectField field) {
             builder.fields.with(field);
             return this;
         }
 
-        public QJoinQuery whereAre(FilterGroup filterGroup) {
+        public InnerJoin whereAre(FilterGroup filterGroup) {
             builder.conditions.add(filterGroup);
             return this;
         }
 
-        public QJoinQuery whereAre(Filter filter) {
+        public InnerJoin whereAre(Filter filter) {
             builder.conditions.add(filter);
             return this;
         }
