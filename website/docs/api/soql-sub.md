@@ -128,6 +128,37 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
+### with subquery
+
+[Query Five Levels of Parent-to-Child Relationships in SOQL Queries](https://help.salesforce.com/s/articleView?id=release-notes.rn_api_soql_5level.htm&release=244&type=5
+
+> Use SOQL to query several relationship types.
+
+**Signature**
+
+```apex
+SubQuery with(SOQL.SubQuery subQuery)
+```
+
+**Example**
+
+```sql
+SELECT Name, (
+    SELECT LastName , (
+        SELECT AssetLevel FROM Assets
+    ) FROM Contacts
+) FROM Account
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .with(SOQL.SubQuery.of('Contacts')
+        .with(Contact.LastName)
+        .with(SOQL.SubQuery.of('Assets')
+            .with(Asset.AssetLevel)
+        )
+    ).toList();
+```
+
 ## whereAre
 
 For more details check [`SOQL.FilterGroup`](soql-filters-group.md) and [`SOQL.Filter`](soql-filter.md)
