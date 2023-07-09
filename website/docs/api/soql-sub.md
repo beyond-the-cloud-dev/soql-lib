@@ -130,7 +130,7 @@ SOQL.of(Account.SObjectType)
 
 ### with subquery
 
-[Query Five Levels of Parent-to-Child Relationships in SOQL Queries](https://help.salesforce.com/s/articleView?id=release-notes.rn_api_soql_5level.htm&release=244&type=5
+[Query Five Levels of Parent-to-Child Relationships in SOQL Queries](https://help.salesforce.com/s/articleView?id=release-notes.rn_api_soql_5level.htm&release=244&type=5)
 
 > Use SOQL to query several relationship types.
 
