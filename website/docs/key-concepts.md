@@ -80,7 +80,7 @@ Our Lib does NOT provide one method to build selectors. Select approach that mee
 Use `SOQL.Selector` and create `static` methods.
 
 ```apex
-public with sharing class AccountSelector implements SOQL.Selector {
+public with sharing class SOQL_Account implements SOQL.Selector {
     public static SOQL query() {
         return SOQL.of(Account.SObjectType)
             .with(Account.Name, Account.AccountNumber)
@@ -100,14 +100,14 @@ public with sharing class AccountSelector implements SOQL.Selector {
 public with sharing class ExampleController {
 
     public static List<Account> getAccounts(String accountName) {
-        return AccountSelector.query()
+        return SOQL_Account.query()
             .with(Account.BillingCity, Account.BillingCountry)
             .whereAre(SOQL.Filter.name().contains(accountName))
             .toList();
     }
 
     public static List<Account> getAccountsByRecordType(String recordType) {
-        return AccountSelector.byRecordType(recordType)
+        return SOQL_Account.byRecordType(recordType)
                 .with(Account.ParentId)
                 .toList();
     }
@@ -167,7 +167,7 @@ public with sharing class ExampleController {
 Create Selectors in your own way.
 
 ```apex
-public with sharing virtual class AccountSelector {
+public with sharing virtual class SOQL_Account {
     public static SOQL query {
         return SOQL.of(Account.SObjectType)
             .with(Account.Id, Account.Name);
@@ -185,14 +185,14 @@ public with sharing virtual class AccountSelector {
 public with sharing class ExampleController {
 
     public static List<Account> getAccounts(String accountName) {
-        return AccountSelector.query
+        return SOQL_Account.query
             .with(Account.BillingCity, Account.BillingCountry)
             .whereAre(SOQL.Filter.name().contains(accountName))
             .toList();
     }
 
     public static List<Account> getAccountsByRecordType(String recordType) {
-        return AccountSelector.byRecordType(recordType)
+        return SOQL_Account.byRecordType(recordType)
                 .with(Account.ParentId)
                 .toList();
     }

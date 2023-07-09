@@ -119,7 +119,7 @@ Mocked queries won't make any SOQL's and simply return data set in method defini
 public with sharing class ExampleController {
 
     public static List<Account> getPartnerAccounts(String accountName) {
-        return AccountSelector.query()
+        return SOQL_Account.query()
             .with(Account.BillingCity, Account.BillingCountry)
             .whereAre(SOQL.FilterGroup
                 .add(SOQL.Filter.name().contains(accountName))
@@ -214,7 +214,7 @@ private class ExampleControllerTest {
 Generic SOQLs can be keep in selector class.
 
 ```apex
-public inherited sharing class AccountSelector implements SOQL.Selector {
+public inherited sharing class SOQL_Account implements SOQL.Selector {
 
     public static SOQL query() {
         return SOQL.of(Account.SObjectType)
@@ -236,7 +236,7 @@ public inherited sharing class AccountSelector implements SOQL.Selector {
 The selector class can provide default SOQL configuration like default fields, FLS settings, and sharing rules.
 
 ```apex
-public inherited sharing class AccountSelector implements SOQL.Selector {
+public inherited sharing class SOQL_Account implements SOQL.Selector {
 
     public static SOQL query() {
         return SOQL.of(Account.SObjectType)

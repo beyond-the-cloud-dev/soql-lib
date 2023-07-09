@@ -12,7 +12,7 @@ FROM Account
 OFFSET 1000
 ```
 ```apex
-public inherited sharing class AccountSelector implements SOQL.Selector {
+public inherited sharing class SOQL_Account implements SOQL.Selector {
 
     public static SOQL query() {
         return SOQL.of(Account.SObjectType)
@@ -23,9 +23,7 @@ public inherited sharing class AccountSelector implements SOQL.Selector {
 public with sharing class MyController {
 
     public static List<Account> getAccountsWithOffset() {
-        return AccountSelector.query()
-            .offset(1000)
-            .toList();
+        return SOQL_Account.query().offset(1000).toList();
     }
 }
 ```

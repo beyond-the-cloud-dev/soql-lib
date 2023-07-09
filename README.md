@@ -22,7 +22,7 @@ List<Account> accounts = SOQL.of(Account.SObjectType)
 ```
 
 ```apex
-public with sharing class AccountSelector implements SOQL.Selector {
+public with sharing class SOQL_Account implements SOQL.Selector {
     public static SOQL query() {
         return SOQL.of(Account.SObjectType)
             .with(Account.Id, Account.Name);
@@ -35,7 +35,7 @@ public with sharing class ExampleController {
 
     @AuraEnabled
     public static List<Account> getAccounts() {
-        return AccountSelector.query().with(Account.Industry).toList();
+        return SOQL_Account.query().with(Account.Industry).toList();
     }
 }
 ```

@@ -1,4 +1,4 @@
-public inherited sharing class AccountSelector implements SOQL.Selector {
+public inherited sharing class SOQL_Account implements SOQL.Selector {
     public static SOQL query() {
         return SOQL.of(Account.SObjectType)
             .with(Account.Name, Account.AccountNumber)

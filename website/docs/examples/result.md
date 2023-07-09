@@ -7,7 +7,7 @@ sidebar_position: 15
 Execut SOQL and get results.
 
 ```apex
-public inherited sharing class AccountSelector implements SOQL.Selector {
+public inherited sharing class SOQL_Account implements SOQL.Selector {
 
     public static SOQL query {
         return SOQL.of(Account.SObjectType)
@@ -18,37 +18,41 @@ public inherited sharing class AccountSelector implements SOQL.Selector {
 public with sharing class MyController {
 
     public static String getAccountName(Id accountId) {
-        return (String) AccountSelector.query()
+        return (String) SOQL_Account.query()
             .whereAre(SOQL.Filter.id().equal(accountId))
-            .toField(Account.Name);
+            .toValueOf(Account.Name);
+    }
+
+    public static Set<String> getAccountIndustries() {
+        return SOQL_Account.query().toValuesOf(Account.Industry);
     }
 
     public static Account getAccountById(Id accountId) {
-        return (Account) AccountSelector.query()
+        return (Account) SOQL_Account.query()
             .whereAre(SOQL.Filter.id().equal(accountId))
             .toObject();
     }
 
     public static List<Account> getAccountsByIds(List<Id> accountIds) {
-        return AccountSelector.query()
+        return SOQL_Account.query()
             .whereAre(SOQL.Filter.id().isIn(accountIds))
             .toList();
     }
 
     public static List<AggregateResult> getUniqueAccountNameAmount() {
-        return AccountSelector.query().count(Account.Name, 'names').toAggregated();
+        return SOQL_Account.query().count(Account.Name, 'names').toAggregated();
     }
 
     public static Integer countAccounts() {
-        return AccountSelector.query().count().toInteger();
+        return SOQL_Account.query().count().toInteger();
     }
 
     public static Map<Id, SObject> getAccountMap() {
-        return AccountSelector.query().toMap();
+        return SOQL_Account.query().toMap();
     }
 
     public static Database.QueryLocator getAccountQueryLocator() {
-        return AccountSelector.query().toQueryLocator();
+        return SOQL_Account.query().toQueryLocator();
     }
 }
 ```

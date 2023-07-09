@@ -15,7 +15,7 @@ SELECT Id, Name, BillingCity, BillingState, BillingStreet
 FROM Account
 ```
 ```apex
-public inherited sharing class AccountSelector implements SOQL.Selector {
+public inherited sharing class SOQL_Account implements SOQL.Selector {
 
     public static SOQL query() {
         return SOQL.of(Account.SObjectType)
@@ -26,7 +26,7 @@ public inherited sharing class AccountSelector implements SOQL.Selector {
 public with sharing class MyController {
 
     public static List<Account> getAccounts() {
-        return AccountSelector.query()
+        return SOQL_Account.query()
             .with(Account.BillingCity, Account.BillingState, Account.BillingStreet)
             .toList();
     }
@@ -42,7 +42,7 @@ SELECT Id, Name, CreatedBy.Id, CreatedBy.Name
 FROM Account
 ```
 ```apex
-public inherited sharing class AccountSelector implements SOQL.Selector {
+public inherited sharing class SOQL_Account implements SOQL.Selector {
 
     public static SOQL query() {
         return SOQL.of(Account.SObjectType) //default fields
@@ -53,7 +53,7 @@ public inherited sharing class AccountSelector implements SOQL.Selector {
 public with sharing class MyController {
 
     public static List<Account> getAccountsWithCreatedBy() {
-        return AccountSelector.query()
+        return SOQL_Account.query()
             .with('CreatedBy', User.Id, User.Name)
             .toList();
     }
@@ -68,7 +68,7 @@ SELECT COUNT() FROM Account
 SELECT COUNT(Name) names FROM Account
 ```
 ```apex
-public inherited sharing class AccountSelector implements SOQL.Selector {
+public inherited sharing class SOQL_Account implements SOQL.Selector {
 
     public static SOQL query() {
         return SOQL.of(Account.SObjectType);
@@ -78,11 +78,11 @@ public inherited sharing class AccountSelector implements SOQL.Selector {
 public with sharing class MyController {
 
     public static Integer getAccountAmount() {
-        return AccountSelector.query().count().toInteger();
+        return SOQL_Account.query().count().toInteger();
     }
 
     public static Integer getUniqueAccountNameAmount() {
-        return AccountSelector.query().count(Account.Name, 'names').toAggregated()[0].names;
+        return SOQL_Account.query().count(Account.Name, 'names').toAggregated()[0].names;
     }
 }
 ```

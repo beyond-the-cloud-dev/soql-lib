@@ -12,7 +12,7 @@ SELECT Id, Name, (
 ) FROM Account
 ```
 ```apex
-public inherited sharing class AccountSelector implements SOQL.Selector {
+public inherited sharing class SOQL_Account implements SOQL.Selector {
 
     public static SOQL query() {
         return SOQL.of(Account.SObjectType)
@@ -23,7 +23,7 @@ public inherited sharing class AccountSelector implements SOQL.Selector {
 public with sharing class MyController {
 
     public static List<Account> getAccountsWithContacts() {
-        return AccountSelector.query()
+        return SOQL_Account.query()
             .with(SOQL.SubQuery.of('Contacts')
                 .with(Contact.Id, Contact.Name)
             ).toList();
@@ -43,7 +43,7 @@ SELECT Name, (
 ) FROM Account
 ```
 ```apex
-public inherited sharing class AccountSelector implements SOQL.Selector {
+public inherited sharing class SOQL_Account implements SOQL.Selector {
 
     public static SOQL query() {
         return SOQL.of(Account.SObjectType)
@@ -53,8 +53,8 @@ public inherited sharing class AccountSelector implements SOQL.Selector {
 
 public with sharing class MyController {
 
-    public static List<Account> getAccountsWithContacts() {
-        return AccountSelector.query()
+    public static List<Account> getAccountsWithContactsAndTheirAssets() {
+        return SOQL_Account.query()
             .with(SOQL.SubQuery.of('Contacts')
                 .with(Contact.LastName)
                 .with(SOQL.SubQuery.of('Assets')

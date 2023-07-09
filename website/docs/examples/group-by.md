@@ -12,7 +12,7 @@ FROM Lead
 GROUP BY LeadSource
 ```
 ```apex
-public inherited sharing class LeadSelector implements SOQL.Selector {
+public inherited sharing class SOQL_Lead implements SOQL.Selector {
 
     public static SOQL query() {
         return SOQL.of(Lead.SObjectType);
@@ -22,7 +22,7 @@ public inherited sharing class LeadSelector implements SOQL.Selector {
 public with sharing class MyController {
 
     public static List<AggregateResult> getGroupedLeads() {
-        return LeadSelector.query()
+        return SOQL_Lead.query()
                 .with(Lead.LeadSource)
                 .groupBy(Lead.LeadSource)
                 .toAggregated();

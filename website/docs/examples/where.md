@@ -12,7 +12,7 @@ FROM Account
 WHERE Id = :accountId OR Name LIKE :'%' + accountName + '%'
 ```
 ```apex
-public inherited sharing class AccountSelector implements SOQL.Selector {
+public inherited sharing class SOQL_Account implements SOQL.Selector {
 
     public static SOQL query()
         return SOQL.of(Account.SObjectType)
@@ -23,7 +23,7 @@ public inherited sharing class AccountSelector implements SOQL.Selector {
 public with sharing class MyController {
 
     public static List<Account> getByIdOrName(Id accountId, String accountName) {
-        return AccountSelector.query()
+        return SOQL_Account.query()
                 .whereAre(SOQL.FilterGroup
                     .add(SOQL.Filter.id().equal(accountId))
                     .add(SOQL.Filter.with(Account.Name).contains(accountName))

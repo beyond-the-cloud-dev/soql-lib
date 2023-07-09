@@ -18,7 +18,7 @@ Set mocking ID in Query declaration.
 public with sharing class ExampleController {
 
     public static List<Account> getAccountByName(String accountName) {
-        return AccountSelector.query()
+        return SOQL_Account.query()
             .with(Account.BillingCity, Account.BillingCountry)
             .whereAre(SOQL.Filter.name().contains(accountName))
             .mockId('ExampleController.getAccountByName')
@@ -57,7 +57,7 @@ Set mocking ID in Query declaration.
 public with sharing class ExampleController {
 
     public static List<Account> getPartnerAccounts(String accountName) {
-        return AccountSelector.query()
+        return SOQL_Account.query()
             .with(Account.BillingCity, Account.BillingCountry)
             .whereAre(SOQL.FilterGroup
                 .add(SOQL.Filter.name().contains(accountName))
@@ -102,7 +102,7 @@ Set mocking ID in Query declaration.
 public with sharing class ExampleController {
 
     public static List<Account> getPartnerAccountsCount(String accountName) {
-        return AccountSelector.query()
+        return SOQL_Account.query()
             .count()
             .whereAre(SOQL.FilterGroup
                 .add(SOQL.Filter.name().contains(accountName))
@@ -143,7 +143,7 @@ Set mocking ID in Query declaration.
 public with sharing class ExampleController {
 
     public static List<Account> getPartnerAccounts(String accountName) {
-        return AccountSelector.query()
+        return SOQL_Account.query()
             .with(Account.BillingCity, Account.BillingCountry)
             .whereAre(SOQL.FilterGroup
                 .add(SOQL.Filter.name().contains(accountName))

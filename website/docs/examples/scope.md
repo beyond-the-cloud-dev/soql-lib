@@ -16,7 +16,7 @@ FROM Account
 USING SCOPE TEAM
 ```
 ```apex
-public inherited sharing class AccountSelector implements SOQL.Selector {
+public inherited sharing class SOQL_Account implements SOQL.Selector {
 
     public static SOQL query() {
         return SOQL.of(Account.SObjectType)
@@ -27,13 +27,13 @@ public inherited sharing class AccountSelector implements SOQL.Selector {
 public with sharing class MyController {
 
     public static List<Account> getMineAccounts() {
-        return AccountSelector.query()
+        return SOQL_Account.query()
             .mineScope()
             .toList();
     }
 
     public static List<Account> getTeamAccounts() {
-        return AccountSelector.query()
+        return SOQL_Account.query()
             .myTeamScope()
             .toList();
     }
