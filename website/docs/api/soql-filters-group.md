@@ -33,8 +33,8 @@ WHERE
 ```apex
 // build conditions on fly
 SOQL.FilterGroup group = SOQL.FilterGroup
-        .add(SOQL.Filter.name().equal('My Account'))
-        .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterOrEqual(10));
+    .add(SOQL.Filter.name().equal('My Account'))
+    .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterOrEqual(10));
 
 SOQL.of(Account.SObjectType)
     .whereAre(SOQL.FilterGroup

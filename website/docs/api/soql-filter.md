@@ -96,7 +96,7 @@ WHERE Name = 'My Account'
 ```
 ```apex
 SOQL.of(Account.SObjectType)
-    .whereAre(SOQL.Filter.with(Account.Name).equal('My Account'))
+    .whereAre(SOQL.Filter.name().equal('My Account'))
     .toList();
 ```
 
@@ -241,7 +241,7 @@ SELECT Id FROM Account WHERE IsDeleted = true
 
 ```apex
 SOQL.of(Contact.SObjectType)
-    .whereAre(SOQL.Filter.with(Account.Name).equal('My Account'))
+    .whereAre(SOQL.Filter.name().equal('My Account'))
     .toList();
 
 SOQL.of(Account.SObjectType)
@@ -276,7 +276,7 @@ SELECT Id FROM Account WHERE IsDeleted != true
 ```
 ```apex
 SOQL.of(Contact.SObjectType)
-    .whereAre(SOQL.Filter.with(Account.Name).notEqual('My Account'))
+    .whereAre(SOQL.Filter.name().notEqual('My Account'))
     .toList();
 
 SOQL.of(Contact.SObjectType)
@@ -401,7 +401,7 @@ WHERE Name LIKE ('My', 'Acc')
 List<String> names = new List<String>{ 'Acc', 'My' };
 
 SOQL.of(Contact.SObjectType)
-    .whereAre(SOQL.Filter.with(Account.Name).containsSome(names))
+    .whereAre(SOQL.Filter.name().containsSome(names))
     .toList();
 ```
 
@@ -425,11 +425,11 @@ WHERE Name = '%My%'
 ```
 ```apex
 SOQL.of(Contact.SObjectType)
-    .whereAre(SOQL.Filter.with(Account.Name).contains('My'))
+    .whereAre(SOQL.Filter.name().contains('My'))
     .toList();
 
 SOQL.of(Contact.SObjectType)
-    .whereAre(SOQL.Filter.with(Account.Name).contains('_', 'My', '%'))
+    .whereAre(SOQL.Filter.name().contains('_', 'My', '%'))
     .toList();
 ```
 
@@ -452,7 +452,7 @@ WHERE Name = '%My'
 ```
 ```apex
 SOQL.of(Contact.SObjectType)
-    .whereAre(SOQL.Filter.with(Account.Name).endsWith('My'))
+    .whereAre(SOQL.Filter.name().endsWith('My'))
     .toList();
 ```
 
@@ -475,7 +475,7 @@ WHERE Name = 'My%'
 ```
 ```apex
 SOQL.of(Contact.SObjectType)
-    .whereAre(SOQL.Filter.with(Account.Name).startsWith('My'))
+    .whereAre(SOQL.Filter.name().startsWith('My'))
     .toList();
 ```
 
@@ -715,6 +715,6 @@ FROM Account
 String accountName = null;
 
 SOQL.of(Account.SObjectType)
-    .whereAre(SOQL.Filter.with(Account.Name).equal(accountName).removeWhenNull())
+    .whereAre(SOQL.Filter.name().equal(accountName).removeWhenNull())
     .toList();
 ```
