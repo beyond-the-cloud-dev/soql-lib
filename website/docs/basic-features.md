@@ -6,7 +6,7 @@ sidebar_position: 3
 
 ## Dynamic SOQL
 
-`SOQL.cls` class provides methods for building SOQL clauses dynamically.
+The `SOQL.cls` class provides methods for building SOQL clauses dynamically.
 
 ```apex
 // SELECT Id FROM Account LIMIT 100

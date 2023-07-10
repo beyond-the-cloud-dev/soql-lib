@@ -16,7 +16,7 @@ sidebar_position: 2
 4. **Do not spend time on selector methods naming** - It can be difficult to find a proper name for a method that builds a query. The selector class contains methods like `selectByFieldAAndFieldBWithDescOrder`. It can be avoided by building SOQL inline in a place of need.
 5. **Control FLS and sharing settings** - Selector should allow to control Field Level Security and sharing settings by simple methods like `.systemMode()`, `.withSharing()`, `.withoutSharing()`.
 6. **Auto binding** - The selector should be able to bind variables dynamically without additional effort from the developer side.
-7. **Mock results in Unit Tests** - Selector should allow for mocking data in unit tests.
+7. **Mock results in Unit Tests** - The selector should allow mocking data in unit tests.
 
 ## Concepts
 
@@ -44,7 +44,7 @@ List<Account> accounts = SOQL.of(Account.SObjectType)
 
 ### Old Approach
 
-[FFLIB Selector](https://github.com/apex-enterprise-patterns/fflib-apex-common/blob/master/sfdx-source/apex-common/main/classes/fflib_SObjectSelector.cls) concept assumes that all queries are be stored in Selector class.
+[FFLIB Selector](https://github.com/apex-enterprise-patterns/fflib-apex-common/blob/master/sfdx-source/apex-common/main/classes/fflib_SObjectSelector.cls) concept assumes that all queries  should be stored in the Selector class.
 
 - To avoid duplicates.
 - One place to manage all queries.
@@ -52,14 +52,14 @@ List<Account> accounts = SOQL.of(Account.SObjectType)
 **Issues**:
 - One-time queries (like aggregation, case specific) added to Selector.
 - Huge class with a lot of methods.
-- Queries are difficult for reuse.
+- Queries are difficult to reuse.
 - Similar methods with small differences like limit, offset.
 - Problem with naming methods.
 - Merge conflicts.
 
 ### New Approach
 
-SOQL Lib has slightly different approach.
+The SOQL Lib has a slightly different approach.
 
 **Assumption**:
 
@@ -67,13 +67,13 @@ Most of the SOQLs on the project are **one-time** queries executed for specific 
 
 **Solution**:
 1. **Small Selector Classes** - Selector class should be small and contains ONLY query base configuration (fields, sharing settings) and very generic methods (`byId`, `byRecordType`)
-2. **Build SOQL inline in a place of need** - Business specific SOQLs should be build inline via SOQL builder in a place of need.
-3. **Do not spend time on selector methods naming** - Queries are created inline, so not need to find a name.
+2. **Build SOQL inline in a place of need** - Business-specific SOQLs should be built inline via the SOQL builder in the place of need.
+3. **Do not spend time on selector methods naming** - Queries are created inline, so there's no need to find a name.
 4. **Keep Selector Strengths** - Set default Selector configuration (default fields, sharing settings), keep generic methods.
 
 ### Build Your Own Selector
 
-Our Lib does NOT provide one method to build selectors. Select approach that meet you needs. Below you will find a few examples:
+Our Lib does NOT provide one method to build selectors. Select the approach that meets your needs. Below you will find a few examples:
 
 #### Interface + static (Recommended)
 
@@ -116,7 +116,7 @@ public with sharing class ExampleController {
 
 #### Interface + non-static
 
-Very useful when you have different teams/streams who need different query configuration.
+Very useful when you have different teams/streams that need different query configurations.
 
 ```apex
 public with sharing virtual class BaseAccountSelector implements SOQL.Selector {
