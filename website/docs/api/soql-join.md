@@ -6,6 +6,17 @@ sidebar_position: 5
 
 Construct join-query and use it in condition.
 
+```apex
+public interface InnerJoin { // SOQL.InnerJoin
+    InnerJoin of(SObjectType ofObject);
+
+    InnerJoin with(SObjectField field);
+
+    InnerJoin whereAre(FilterGroup filterGroup); // SOQL.FilterGroup
+    InnerJoin whereAre(Filter filter); // SOQL.Filter
+}
+```
+
 ## of
 
 Conctructs an `JoinQuery`.

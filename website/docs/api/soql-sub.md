@@ -6,6 +6,36 @@ sidebar_position: 2
 
 Construct sub-query with provided API.
 
+```apex
+public interface SubQuery { // SOQL.SubQuery
+    SubQuery of(String ofObject);
+
+    SubQuery with(SObjectField field);
+    SubQuery with(SObjectField field1, SObjectField field2);
+    SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3);
+    SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+    SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
+    SubQuery with(List<SObjectField> fields); // For more than 5 fields
+    SubQuery with(String relationshipName, List<SObjectField> fields);
+    SubQuery with(SubQuery subQuery); // SOQL.SubQuery
+
+    SubQuery whereAre(FilterGroup filterGroup); // SOQL.FilterGroup
+    SubQuery whereAre(Filter filter); // SOQL.Filter
+
+    SubQuery orderBy(SObjectField field);
+    SubQuery orderBy(String relationshipName, SObjectField field);
+    SubQuery sortDesc();
+    SubQuery nullsLast();
+
+    SubQuery setLimit(Integer amount);
+
+    SubQuery offset(Integer startingRow);
+
+    SubQuery forReference();
+    SubQuery forView();
+}
+```
+
 ## of
 
 Conctructs an `SubQuery`.

@@ -6,6 +6,90 @@ sidebar_position: 1
 
 The lib main class for query construction.
 
+```apex
+public interface Queryable {
+    Queryable of(SObjectType ofObject);
+    Queryable of(String ofObject); // Dynamic SOQL
+
+    Queryable with(SObjectField field);
+    Queryable with(SObjectField field1, SObjectField field2);
+    Queryable with(SObjectField field1, SObjectField field2, SObjectField field3);
+    Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+    Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
+    Queryable with(List<SObjectField> fields); // For more than 5 fields
+    Queryable with(String fields); // Dynamic SOQL
+    Queryable with(SObjectField field, String alias); // Only aggregate expressions use field aliasing
+    Queryable with(String relationshipName, SObjectField field);
+    Queryable with(String relationshipName, SObjectField field1, SObjectField field2);
+    Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
+    Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+    Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
+    Queryable with(String relationshipName, List<SObjectField> fields); // For more than 5 fields
+    Queryable with(SubQuery subQuery); // SOQL.SubQuery
+
+    Queryable count();
+    Queryable count(SObjectField field);
+    Queryable count(SObjectField field, String alias);
+
+    Queryable delegatedScope();
+    Queryable mineScope();
+    Queryable mineAndMyGroupsScope();
+    Queryable myTerritoryScope();
+    Queryable myTeamTerritoryScope();
+    Queryable teamScope();
+
+    Queryable whereAre(FilterGroup filterGroup); // SOQL.FilterGroup
+    Queryable whereAre(Filter filter); // SOQL.Filter
+    Queryable whereAre(String conditions); // Conditions to evaluate
+
+    Queryable groupBy(SObjectField field);
+    Queryable groupByRollup(SObjectField field);
+
+    Queryable orderBy(String field); // ASC, NULLS FIRST by default
+    Queryable orderBy(String field, String direction); // dynamic order by, NULLS FIRST by default
+    Queryable orderBy(SObjectField field); // ASC, NULLS FIRST by default
+    Queryable orderBy(String relationshipName, SObjectField field); // ASC, NULLS FIRST by default
+    Queryable sortDesc();
+    Queryable nullsLast();
+
+    Queryable setLimit(Integer amount);
+
+    Queryable offset(Integer startingRow);
+
+    Queryable forReference();
+    Queryable forView();
+    Queryable forUpdate();
+    Queryable allRows();
+
+    Queryable systemMode(); // USER_MODE by default
+
+    Queryable withSharing(); // Works only with .systemMode()
+    Queryable withoutSharing(); // Works only with .systemMode()
+
+    Queryable mockId(String id);
+
+    Queryable preview();
+
+    Queryable stripInaccessible();
+    Queryable stripInaccessible(AccessType accessType);
+
+    Queryable byId(SObject record);
+    Queryable byId(Id recordId);
+    Queryable byIds(Iterable<Id> recordIds); // List or Set
+    Queryable byIds(List<SObject> records);
+
+    String toString();
+    Object toValueOf(SObjectField fieldToExtract);
+    Set<String> toValuesOf(SObjectField fieldToExtract);
+    Integer toInteger(); // For COUNT query
+    SObject toObject();
+    List<SObject> toList();
+    List<AggregateResult> toAggregated();
+    Map<Id, SObject> toMap();
+    Database.QueryLocator toQueryLocator();
+}
+```
+
 ## of
 
 Conctructs an `SOQL`.

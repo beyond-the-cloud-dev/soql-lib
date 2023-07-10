@@ -6,6 +6,45 @@ sidebar_position: 3
 
 Specify and adjust single condition.
 
+```apex
+public interface Filter { // SOQL.Filter
+    Filter id();
+    Filter recordType();
+    Filter name();
+    Filter with(SObjectField field);
+    Filter with(String field);
+    Filter with(String relationshipName, SObjectField field);
+
+    Filter isNull(); // = NULL
+    Filter isNotNull(); // != NULL
+    Filter isTrue(); // = TRUE
+    Filter isFalse(); // = FALSE
+    Filter equal(Object value); // = :value
+    Filter notEqual(Object value); // != :value
+    Filter lessThan(Object value); // < :value
+    Filter greaterThan(Object value); // > :value
+    Filter lessOrEqual(Object value); // <= :value
+    Filter greaterOrEqual(Object value); // >= :value
+    Filter containsSome(List<String> values); // LIKE :values
+    Filter contains(String value); // LIKE :'%' + value + '%'
+    Filter endsWith(String value); // LIKE :'%' + value
+    Filter startsWith(String value); // LIKE :value + '%'
+    Filter contains(String prefix, String value, String suffix); // custom LIKE
+    Filter isIn(Iterable<Object> iterable); // IN :inList or inSet
+    Filter isIn(List<Object> inList); // IN :inList
+    Filter isIn(InnerJoin joinQuery); // SOQL.InnerJoin
+    Filter notIn(Iterable<Object> iterable); // NOT IN :inList or inSet
+    Filter notIn(List<Object> inList); // NOT IN :inList
+    Filter notIn(InnerJoin joinQuery); // SOQL.InnerJoin
+    Filter includesAll(Iterable<String> values); // join with ;
+    Filter includesSome(Iterable<String> values); // join with ,
+    Filter excludesAll(Iterable<String> values); // join with ,
+    Filter excludesSome(Iterable<String> values);  // join with ;
+
+    Filter removeWhenNull(); // Condition will be removed for value = null
+}
+```
+
 ## predefinied
 ### id
 

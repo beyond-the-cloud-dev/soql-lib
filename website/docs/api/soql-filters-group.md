@@ -6,6 +6,17 @@ sidebar_position: 4
 
 Create group of conditions.
 
+```apex
+public interface FilterGroup { // SOQL.FilterGroup
+    FilterGroup add(FilterGroup filterGroup); // SOQL.FilterGroup
+    FilterGroup add(Filter filter); // SOQL.Filter
+    FilterGroup add(String dynamicCondition); // Pass condition as String
+
+    FilterGroup anyConditionMatching(); // All group filters will be join by OR
+    FilterGroup conditionLogic(String order);
+}
+```
+
 ## add
 
 Allows to add multiple conditions.
