@@ -23,9 +23,9 @@ public with sharing class MyController {
 
     public static List<AggregateResult> getGroupedLeads() {
         return SOQL_Lead.query()
-                .with(Lead.LeadSource)
-                .groupBy(Lead.LeadSource)
-                .toAggregated();
+            .with(Lead.LeadSource)
+            .groupBy(Lead.LeadSource)
+            .toAggregated();
     }
 }
 ```

@@ -16,7 +16,7 @@ public inherited sharing class SOQL_Account implements SOQL.Selector {
 
     public static SOQL query() {
         return SOQL.of(Account.SObjectType)
-                .with(Account.Id, Account.Name, Account.Industry);
+            .with(Account.Id, Account.Name, Account.Industry);
     }
 }
 
@@ -24,9 +24,9 @@ public with sharing class MyController {
 
     public static List<Account> getAccounts() {
         return SOQL_Account.query()
-                .orderBy(Account.Industry).sortDesc()
-                .orderBy(Account.Id)
-                .toList();
+            .orderBy(Account.Industry).sortDesc()
+            .orderBy(Account.Id)
+            .toList();
     }
 }
 ```

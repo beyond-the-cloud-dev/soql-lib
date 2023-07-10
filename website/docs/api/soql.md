@@ -177,13 +177,24 @@ SOQL with(String relationshipName, List<SObjectField> fields)
 **Example**
 
 ```sql
-SELECT CreatedBy.Id, CreatedBy.Name
+SELECT
+    CreatedBy.Id,
+    CreatedBy.Name,
+    CreatedBy.Phone,
+    CreatedBy.FirstName,
+    CreatedBy.LastName,
+    CreatedBy.Email
 FROM Account
 ```
 ```apex
 SOQL.of(Account.SObjectType)
     .with('CreatedBy', new List<SObjectField>{
-        User.Id, User.Name
+        User.Id,
+        User.Name,
+        User.Phone,
+        User.FirstName,
+        User.LastName,
+        User.Email
     }).toList();
 ```
 
@@ -212,9 +223,7 @@ SELECT Id, (
 ```apex
 SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
-        .with(new List<SObjectField>{
-            Contact.Id, Contact.Name
-        })
+        .with(Contact.Id, Contact.Name)
     ).toList();
 ```
 
@@ -1167,11 +1176,7 @@ SOQL.of(Account.SObjectType)
 
 
 ```apex
-SOQL byIds(Set<Id> recordIds)
-```
-
-```apex
-SOQL byIds(List<Id> recordIds)
+SOQL byIds(Iterable<Id> recordIds)
 ```
 
 ```apex
