@@ -182,7 +182,7 @@ private class ExampleControllerTest {
 
     @IsTest
     static void getPartnerAccounts() {
-        SOQL.setMock('ExampleController.getPartnerAccounts',  Test.loadData(Account.SObjectType, 'ProjectAccounts'));
+        SOQL.setMock('ExampleController.getPartnerAccounts', Test.loadData(Account.SObjectType, 'ProjectAccounts'));
 
         // Test
         List<Account> result = ExampleController.getAccounts('MyAccount');
