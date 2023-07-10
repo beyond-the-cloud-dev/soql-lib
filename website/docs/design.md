@@ -1,5 +1,5 @@
 ---
-slug: '/'
+slug: '/design'
 sidebar_position: 4
 ---
 
