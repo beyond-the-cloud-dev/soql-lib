@@ -186,7 +186,7 @@ SOQL.of(Account.SObjectType)
 
 ### with string fields
 
-**NOTE!** Apex do not have reference to String fields. Use it only for corner cases.
+**NOTE!** With String Apex does not create reference to field. Use `SObjectField` whenever it possible. Method below should be only use for dynamic queries.
 
 **Signature**
 
@@ -345,7 +345,7 @@ SOQL.of(Account.SObjectType)
 count(SObjectField field)
 ```
 
-**Note!** To avoid the 'Field must be grouped or aggregated' error, any default fields will be automatically removed. For example, in the query `SELECT Id, Name, COUNT(Id) FROM Account`, the `Id` and `Name` fields will be removed.
+**Note!** To avoid the `Field must be grouped or aggregated` error, any default fields will be automatically removed.
 
 You can still specify additional fields, but they should be placed after the COUNT() function in the SELECT statement.
 
@@ -370,7 +370,7 @@ FROM Opportunity
 count(SObjectField field, String alias)
 ```
 
-**Note!** To avoid the 'Field must be grouped or aggregated' error, any default fields will be automatically removed. For example, in the query `SELECT Id, Name, COUNT(Id) FROM Account`, the `Id` and `Name` fields will be removed.
+**Note!** To avoid the `Field must be grouped or aggregated` error, any default fields will be automatically removed.
 
 You can still specify additional fields, but they should be placed after the COUNT() function in the SELECT statement.
 
@@ -893,6 +893,8 @@ SOQL.of(Contact.SObjectType)
 
 By default AccessLevel is set as `USER_MODE`.
 
+More details you can find in [here](./../features/fls.md).
+
 ### systemMode
 
 > Execution mode in which the the object and field-level permissions of the current user are ignored, and the record sharing rules are controlled by the class sharing keywords.
@@ -914,6 +916,8 @@ SOQL.of(Account.SObjectType)
 ## sharing
 
 [Using the with sharing, without sharing, and inherited sharing Keywords](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_classes_keywords_sharing.htm)
+
+More details you can find in [here](./../features/sharing.md).
 
 ### withSharing
 
