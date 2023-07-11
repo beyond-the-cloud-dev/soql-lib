@@ -18,9 +18,7 @@ public inherited sharing class SOQL_Account implements SOQL.Selector {
 public with sharing class MyController {
 
     public static String getAccountName(Id accountId) {
-        return (String) SOQL_Account.query()
-            .whereAre(SOQL.Filter.id().equal(accountId))
-            .toValueOf(Account.Name);
+        return (String) SOQL_Account.query().byId(accountId).toValueOf(Account.Name);
     }
 
     public static Set<String> getAccountIndustries() {

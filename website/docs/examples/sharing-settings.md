@@ -21,6 +21,10 @@ public inherited sharing class SOQL_Account implements SOQL.Selector {
 
 public with sharing class MyController {
 
+    public static List<Account> getAccountsInheritedSharing() {
+        return SOQL_Account.query().systemMode().toList();
+    }
+
     public static List<Account> getAccountsWithSharing() {
         return SOQL_Account.query().systemMode().withSharing().toList();
     }

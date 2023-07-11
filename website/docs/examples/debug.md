@@ -35,7 +35,7 @@ You will see in debug logs:
 
 ```
 ============ Query Preview ============
-SELECT Name, AccountNumber, BillingCity, BillingCountry, BillingCountryCode
+SELECT Id, Name, BillingCity, BillingCountry, BillingCountryCode
 FROM Account
 WHERE (Id = :v1 OR Name LIKE :v2)
 =======================================
