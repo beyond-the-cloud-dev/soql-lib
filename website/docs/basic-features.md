@@ -149,7 +149,7 @@ private class ExampleControllerTest {
         SOQL.setMock('ExampleController.getPartnerAccounts', accounts);
 
         // Test
-        List<Account> result = ExampleController.getAccounts('MyAccount');
+        List<Account> result = ExampleController.getPartnerAccounts('MyAccount');
 
         Assert.areEqual(accounts, result);
     }
@@ -167,7 +167,7 @@ private class ExampleControllerTest {
         SOQL.setMock('ExampleController.getPartnerAccount', new Account(Name = 'MyAccount 1'));
 
         // Test
-        Account result = (Account) ExampleController.getAccounts('MyAccount');
+        Account result = (Account) ExampleController.getPartnerAccounts('MyAccount');
 
         Assert.areEqual('MyAccount 1', result.Name);
     }
@@ -185,7 +185,7 @@ private class ExampleControllerTest {
         SOQL.setMock('ExampleController.getPartnerAccounts', Test.loadData(Account.SObjectType, 'ProjectAccounts'));
 
         // Test
-        List<Account> result = ExampleController.getAccounts('MyAccount');
+        List<Account> result = ExampleController.getPartnerAccounts('MyAccount');
 
         Assert.areEqual(5, result.size());
     }
