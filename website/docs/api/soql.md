@@ -1097,7 +1097,7 @@ Object toValueOf(SObjectField fieldToExtract)
 **Example**
 
 ```apex
-String accountName = SOQL.of(Account.SObjectType).byId('1234').toValueOf(Account.Name)
+String accountName = (String) SOQL.of(Account.SObjectType).byId('1234').toValueOf(Account.Name)
 ```
 
 ### toValuesOf

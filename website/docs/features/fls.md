@@ -16,7 +16,7 @@ none (by default) | `USER_MODE` | enforced
 
 ## Default
 
-`USER_MODE` is a enabled by default. It means that **the object permissions, field-level security**, sharing rules **are enforced**.
+`USER_MODE` is a enabled by default. It means that **the object permissions, field-level security**, as well as sharing rules, **are enforced**.
 
 ```apex
 public inherited sharing class SOQL_Account implements SOQL.Selector {
@@ -27,8 +27,8 @@ public inherited sharing class SOQL_Account implements SOQL.Selector {
 }
 ```
 
-The object permissions, field-level security, sharing rules are enforced.
-Access to `Account` object and fields: `Account.Name`, `Account.AccountNumber` will be checked.
+The object permissions, field-level security, and sharing rules are enforced.
+Access to the `Account` object and fields (`Account.Name` and `Account.AccountNumber`) will be checked.
 
 ```apex
 public without sharing class ExampleController {
@@ -42,7 +42,7 @@ public without sharing class ExampleController {
 
 ### System Mode
 
-Developer can disable `USER_MODE` and enable `SYSTEM_MODE` via `.systemMode()` method.
+Developer can disable `USER_MODE` and enable `SYSTEM_MODE` using `.systemMode()` method.
 
 ```apex
 public inherited sharing class SOQL_Account implements SOQL.Selector {
@@ -54,7 +54,7 @@ public inherited sharing class SOQL_Account implements SOQL.Selector {
 }
 ```
 
-The object permissions, field-level permissions are ignored.
+The object permissions and field-level permissions are ignored.
 
 ```apex
 public without sharing class ExampleController {
@@ -66,9 +66,9 @@ public without sharing class ExampleController {
 
 ### Strip Inaccessible
 
-`USER_MODE` enforced not only object and field-level security, but also sharing rules (`with sharing`).
-You can be in the case, where you need object and field-level security, but want to ignore sharing rules (`without sharing`).
-To achieve it use `.systemMode()`, `.withoutSharing()` and `.stripInaccessible()`.
+`USER_MODE` enforces not only object and field-level security but also sharing rules (`with sharing`).
+You may encounter situations where you need object and field-level security but want to ignore sharing rules (`without sharing`).
+To achieve this, use `.systemMode()`, `.withoutSharing()` and `.stripInaccessible()`.
 
 ```apex
 public inherited sharing class SOQL_Account implements SOQL.Selector {
@@ -82,7 +82,7 @@ public inherited sharing class SOQL_Account implements SOQL.Selector {
 }
 ```
 
-The object permissions, field-level permissions are forced, but sharing rules are ignored.
+The object permissions and field-level permissions are enforced, but sharing rules are ignored.
 
 ```apex
 public without sharing class ExampleController {

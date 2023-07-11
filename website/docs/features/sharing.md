@@ -17,7 +17,7 @@ none (by default) | `USER_MODE` | `with sharing`
 
 ## Default
 
-`USER_MODE` is a enabled by default. It means that the object permissions, field-level security, **sharing rules are enforced**.
+`USER_MODE` is a enabled by default. It means that the object permissions, field-level security and **sharing rules are enforced**.
 
 ```apex
 public inherited sharing class SOQL_Account implements SOQL.Selector {
@@ -28,7 +28,7 @@ public inherited sharing class SOQL_Account implements SOQL.Selector {
 }
 ```
 
-The object permissions, field-level security, sharing rules are enforced. Class sharing mode is ignored (`without sharing`).
+The object permissions, field-level security, and sharing rules are enforced. Class sharing mode is ignored (`without sharing`).
 
 ```apex
 public without sharing class ExampleController {
@@ -40,12 +40,12 @@ public without sharing class ExampleController {
 
 ## Customize
 
-Developer can control sharing mode: `inherited sharing`, `with sharing` and `without sharing` only in the `SYSTEM_MODE`.
-`SYSTEM_MODE` can be enabled via `.systemMode()` method.
+Developers can control the sharing mode (`inherited sharing`, `with sharing`, and `without sharing`) only in `SYSTEM_MODE`.
+`SYSTEM_MODE` can be enabled via the `.systemMode()` method.
 
 ### Inherited Sharing
 
-**NOTE!** To make it working always set `inherited sharing` in your selector class.
+**NOTE!** To make it work, always set `inherited sharing` in your selector class.
 
 ```apex
 public inherited sharing class SOQL_Account implements SOQL.Selector {
@@ -57,7 +57,7 @@ public inherited sharing class SOQL_Account implements SOQL.Selector {
 }
 ```
 
-The object permissions, field-level permissions are ignored, sharing rules are controlled by the sharing mode (`without sharing`).
+The object permissions and field-level permissions are ignored. Sharing rules are controlled by the sharing mode (`without sharing`).
 
 ```apex
 public without sharing class ExampleController {
@@ -69,7 +69,7 @@ public without sharing class ExampleController {
 
 ### With Sharing
 
-You can force sharing mode to all of your queries.
+You can force the sharing mode for all of your queries.
 
 ```apex
 public inherited sharing class SOQL_Account implements SOQL.Selector {
@@ -82,7 +82,7 @@ public inherited sharing class SOQL_Account implements SOQL.Selector {
 }
 ```
 
-The object permissions, field-level permissions are ignored, sharing rules are controlled by the sharing mode specified in `query()` method (`.withSharing()`).
+The object permissions and field-level permissions are ignored. Sharing rules are controlled by the sharing mode specified in the `query()` method (`.withSharing()`).
 
 ```apex
 public with sharing class ExampleController {
@@ -95,7 +95,7 @@ public with sharing class ExampleController {
 
 ### Without Sharing
 
-You can force sharing mode to all of your queries.
+You can force the sharing mode for all of your queries.
 
 ```apex
 public inherited sharing class SOQL_Account implements SOQL.Selector {
@@ -108,7 +108,7 @@ public inherited sharing class SOQL_Account implements SOQL.Selector {
 }
 ```
 
-The object permissions, field-level permissions are ignored, sharing rules are controlled by the sharing mode specified in `query()` method (`.withoutSharing()`).
+The object permissions and field-level permissions are ignored. Sharing rules are controlled by the sharing mode specified in the `query()` method (`.withoutSharing()`).
 
 ```apex
 public with sharing class ExampleController {
