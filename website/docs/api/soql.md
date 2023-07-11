@@ -893,7 +893,7 @@ SOQL.of(Contact.SObjectType)
 
 By default AccessLevel is set as `USER_MODE`.
 
-More details you can find in [here](./../features/fls.md).
+More details you can find in [here](../advanced-usage/fls.md)
 
 ### systemMode
 
@@ -917,7 +917,7 @@ SOQL.of(Account.SObjectType)
 
 [Using the with sharing, without sharing, and inherited sharing Keywords](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_classes_keywords_sharing.htm)
 
-More details you can find in [here](./../features/sharing.md).
+More details you can find in [here](../advanced-usage/sharing.md).
 
 ### withSharing
 
