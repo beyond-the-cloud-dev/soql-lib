@@ -42,7 +42,7 @@ private class ExampleControllerTest {
         SOQL.setMock('ExampleController.getPartnerAccounts', accounts);
 
         // Test
-        List<Account> result = ExampleController.getAccounts('MyAccount');
+        List<Account> result = ExampleController.getPartnerAccounts('MyAccount');
 
         Assert.areEqual(accounts, result);
     }

@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# Key Concepts
+# Overview
 
 ## Assumptions
 
