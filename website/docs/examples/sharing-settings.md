@@ -31,4 +31,4 @@ public with sharing class MyController {
 }
 ```
 
-More about Field-Level Security you can find in [here](../advanced-usage/sharing.md).
+More about Sharings you can find in [here](../advanced-usage/sharing.md).

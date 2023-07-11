@@ -28,15 +28,11 @@ public with sharing class MyController {
     }
 
     public static Account getAccountById(Id accountId) {
-        return (Account) SOQL_Account.query()
-            .whereAre(SOQL.Filter.id().equal(accountId))
-            .toObject();
+        return (Account) SOQL_Account.query().byId(accountId).toObject();
     }
 
     public static List<Account> getAccountsByIds(List<Id> accountIds) {
-        return SOQL_Account.query()
-            .whereAre(SOQL.Filter.id().isIn(accountIds))
-            .toList();
+        return SOQL_Account.query().byIds(accountIds).toList();
     }
 
     public static List<AggregateResult> getUniqueAccountNameAmount() {
