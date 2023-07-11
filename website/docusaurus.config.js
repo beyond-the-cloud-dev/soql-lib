@@ -19,7 +19,7 @@ const config = {
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'Beyond The Cloud', // Usually your GitHub org/user name.
-  projectName: 'query-selector', // Usually your repo name.
+  projectName: 'soql-lib', // Usually your repo name.
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'throw',
