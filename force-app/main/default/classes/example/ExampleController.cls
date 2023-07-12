@@ -34,7 +34,9 @@ public with sharing class ExampleController {
 
     @AuraEnabled
     public static List<Account> getAccountsByRecordType(String recordType) {
-        return new SOQL_Account().byRecordType(recordType)
+        return new SOQL_Account()
+            .byRecordType(recordType)
+            .byIndustry('IT')
             .with(Account.Industry, Account.AccountSource)
             .toList();
     }

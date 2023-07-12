@@ -73,7 +73,7 @@ Most of the SOQLs on the project are **one-time** queries executed for specific 
 
 ### Build Your Own Selector
 
-Our Lib does NOT provide one method to build selectors. Select the approach that meets your needs. Below you will find a few examples:
+SOQL-Lib is agile, so you can adjust the solution according to your needs. We don't force one approach over another, you can choose your own. Here are our propositions:
 
 #### Composition - implements Interface + static
 
@@ -177,7 +177,9 @@ public with sharing class ExampleController {
 
     @AuraEnabled
     public static List<Account> getAccountsByRecordType(String recordType) {
-        return new SOQL_Account().byRecordType(recordType)
+        return new SOQL_Account()
+            .byRecordType(recordType)
+            .byIndustry('IT')
             .with(Account.Industry, Account.AccountSource)
             .toList();
     }
