@@ -31,7 +31,7 @@ jobs:
         run: sf org login sfdx-url --sfdx-url-file devHubAuthToken --alias DevHub --set-default-dev-hub
 
       - name: Create scratch org
-        run: sf org create scratch --definition-file config/project-scratch-def.json --alias ScratchOrg --wait 30 --duration-days 1 --set-default
+        run: sf org create scratch --definition-file config/project-scratch-def.json --alias ScratchOrg --wait 30 --duration-days 1 --set-default --json
 
       - name: Push source
         run: sf project deploy start --target-org ScratchOrg --wait 30
