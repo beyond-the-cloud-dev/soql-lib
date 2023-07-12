@@ -1,7 +1,7 @@
 public inherited sharing class SOQL_Contact implements SOQL.Selector {
     public static SOQL query() {
         // default settings
-        return new SOQL(Contact.SObjectType)
+        return SOQL.of(Contact.SObjectType)
             .with(Contact.Id, Contact.Name, Contact.AccountId)
             .systemMode()
             .withoutSharing();
