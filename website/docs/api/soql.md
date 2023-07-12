@@ -8,9 +8,6 @@ The lib main class for query construction.
 
 ```apex
 public interface Queryable {
-    Queryable of(SObjectType ofObject);
-    Queryable of(String ofObject); // Dynamic SOQL
-
     Queryable with(SObjectField field);
     Queryable with(SObjectField field1, SObjectField field2);
     Queryable with(SObjectField field1, SObjectField field2, SObjectField field3);

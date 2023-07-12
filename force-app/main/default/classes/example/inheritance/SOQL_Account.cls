@@ -1,0 +1,30 @@
+public inherited sharing class SOQL_Account extends SOQL {
+    public SOQL_Account() {
+        super(Account.SObjectType);
+        // default settings
+        with(Account.Id, Account.Name, Account.Type)
+        .systemMode()
+        .withoutSharing();
+    }
+
+    public SOQL_Account byRecordType(String rt) {
+        whereAre(Filter.recordType().equal(rt));
+        return this;
+    }
+
+    public SOQL_Account byIndustry(String industry) {
+        with(Account.Industry)
+            .whereAre(Filter.with(Account.Industry).equal(industry));
+        return this;
+    }
+
+    public SOQL_Account byParentId(Id parentId) {
+        with(Account.ParentId)
+            .whereAre(Filter.with(Account.ParentId).equal(parentId));
+        return this;
+    }
+
+    public String toIndustry(Id accountId) {
+        return (String) byId(accountId).toValueOf(Account.Industry);
+    }
+}

@@ -73,25 +73,34 @@ Most of the SOQLs on the project are **one-time** queries executed for specific 
 
 ### Build Your Own Selector
 
-Our Lib does NOT provide one method to build selectors. Select the approach that meets your needs. Below you will find a few examples:
+SOQL-Lib is agile, so you can adjust the solution according to your needs. We don't force one approach over another, you can choose your own. Here are our propositions:
 
-#### Interface + static (Recommended)
+#### Composition - implements Interface + static
 
 Use `SOQL.Selector` and create `static` methods.
 
 ```apex
-public with sharing class SOQL_Account implements SOQL.Selector {
+public inherited sharing class SOQL_Contact implements SOQL.Selector {
     public static SOQL query() {
-        return SOQL.of(Account.SObjectType)
-            .with(Account.Name, Account.AccountNumber)
+        // default settings
+        return new SOQL(Contact.SObjectType)
+            .with(Contact.Id, Contact.Name, Contact.AccountId)
             .systemMode()
             .withoutSharing();
     }
 
     public static SOQL byRecordType(String rt) {
         return query()
-            .with(Account.BillingCity, Account.BillingCountry)
             .whereAre(SOQL.Filter.recordType().equal(rt));
+    }
+
+    public static SOQL byAccountId(Id accountId) {
+        return query()
+            .whereAre(SOQL.Filter.with(Contact.AccountId).equal(accountId));
+    }
+
+    public static String toName(Id contactId) {
+        return (String) query().byId(contactId).toValueOf(Contact.Name);
     }
 }
 ```
@@ -99,22 +108,90 @@ public with sharing class SOQL_Account implements SOQL.Selector {
 ```apex
 public with sharing class ExampleController {
 
-    public static List<Account> getAccounts(String accountName) {
-        return SOQL_Account.query()
-            .with(Account.BillingCity, Account.BillingCountry)
-            .whereAre(SOQL.Filter.name().contains(accountName))
+    @AuraEnabled
+    public static List<Contact> getContactsByRecordType(String recordType) {
+        return SOQL_Contact.byRecordType(recordType)
+            .with(Contact.Email, Contact.Title)
             .toList();
     }
 
-    public static List<Account> getAccountsByRecordType(String recordType) {
-        return SOQL_Account.byRecordType(recordType)
-                .with(Account.ParentId)
-                .toList();
+    @AuraEnabled
+    public static List<Contact> getContactsRelatedToAccount(Id accountId) {
+        return SOQL_Contact.byAccountId(accountId).toList();
+    }
+
+    @AuraEnabled
+    public static String getContactName(Id contactId) {
+        return SOQL_Contact.toName(contactId);
     }
 }
 ```
 
-#### Interface + non-static
+#### Inheritance - extends SOQL
+
+```apex
+public inherited sharing class SOQL_Account extends SOQL {
+    public SOQL_Account() {
+        super(Account.SObjectType);
+        // default settings
+        with(Account.Id, Account.Name, Account.Type)
+        .systemMode()
+        .withoutSharing();
+    }
+
+    public SOQL_Account byRecordType(String rt) {
+        whereAre(Filter.recordType().equal(rt));
+        return this;
+    }
+
+    public SOQL_Account byIndustry(String industry) {
+        with(Account.Industry)
+            .whereAre(Filter.with(Account.Industry).equal(industry));
+        return this;
+    }
+
+    public SOQL_Account byParentId(Id parentId) {
+        with(Account.ParentId)
+            .whereAre(Filter.with(Account.ParentId).equal(parentId));
+        return this;
+    }
+
+    public String toIndustry(Id accountId) {
+        return (String) byId(accountId).toValueOf(Account.Industry);
+    }
+}
+```
+
+```apex
+public with sharing class ExampleController {
+    @AuraEnabled
+    public static List<Account> getPartnerAccounts(String accountName) {
+        return new SOQL_Account()
+            .with(Account.BillingCity, Account.BillingCountry)
+            .whereAre(SOQL.FilterGroup
+                .add(SOQL.Filter.name().contains(accountName))
+                .add(SOQL.Filter.recordType().equal('Partner'))
+            )
+            .toList();
+    }
+
+    @AuraEnabled
+    public static List<Account> getAccountsByRecordType(String recordType) {
+        return new SOQL_Account()
+            .byRecordType(recordType)
+            .byIndustry('IT')
+            .with(Account.Industry, Account.AccountSource)
+            .toList();
+    }
+
+    @AuraEnabled
+    public static String getAccountIndustry(Id accountId) {
+        return new SOQL_Account().toIndustry(accountId);
+    }
+}
+```
+
+#### Composition - implements Interface + non-static
 
 Very useful when you have different teams/streams that need different query configurations.
 

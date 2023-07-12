@@ -13,7 +13,7 @@
  * - ExcessiveParameterList - Make methods similar to native SOQL
 **/
 @SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.PropertyNamingConventions, PMD.FieldDeclarationsShouldBeAtStart, PMD.ApexDoc, PMD.ExcessiveParameterList')
-public inherited sharing class SOQL implements Queryable {
+public virtual inherited sharing class SOQL implements Queryable {
 
     public static SubQuery SubQuery {
         get {
@@ -44,9 +44,6 @@ public inherited sharing class SOQL implements Queryable {
     }
 
     public interface Queryable {
-        Queryable of(SObjectType ofObject);
-        Queryable of(String ofObject); // Dynamic SOQL
-
         Queryable with(SObjectField field);
         Queryable with(SObjectField field1, SObjectField field2);
         Queryable with(SObjectField field1, SObjectField field2, SObjectField field3);
@@ -235,15 +232,19 @@ public inherited sharing class SOQL implements Queryable {
     private QueryBuilder builder;
     private Executor executor;
 
-    public static SOQL of(sObjectType ofObject) {
-        return new SOQL(ofObject.getDescribe().getName());
+    public static SOQL of(SObjectType ofObject) {
+        return new SOQL(ofObject);
     }
 
     public static SOQL of(String ofObject) {
         return new SOQL(ofObject);
     }
 
-    private SOQL(String ofObject) {
+    public SOQL(SObjectType ofObject) {
+        this(ofObject.getDescribe().getName());
+    }
+
+    public SOQL(String ofObject) {
         binder = new Binder();
         executor = new Executor();
         builder = new QueryBuilder(ofObject);
