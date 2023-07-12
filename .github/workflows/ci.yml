@@ -18,24 +18,23 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 18.x
 
       - name: Install Salesforce CLI with NPM
         run: |
-          npm install sfdx-cli --global --force
-          npm install @salesforce/cli --global --force
+          npm install @salesforce/cli --global
 
       - name: Write the dev hub token into a file
         run: 'echo ${{secrets.SFDX_AUTH_URL_DEVHUB}} > devHubAuthToken'
 
       - name: Authorize with the dev hub
-        run: sfdx force:auth:sfdxurl:store -f devHubAuthToken --setalias DevHub --setdefaultdevhubusername
+        run: sf org login sfdx-url --sfdx-url-file devHubAuthToken --alias DevHub --set-default-dev-hub
 
       - name: Create scratch org
-        run: sfdx force:org:create --definitionfile config/project-scratch-def.json --setalias ScratchOrg --wait 30 --durationdays 1 --setdefaultusername
+        run: sf org create scratch --definition-file config/project-scratch-def.json --alias ScratchOrg --wait 30 --duration-days 1 --set-default
 
       - name: Push source
-        run: sfdx force:source:push --targetusername ScratchOrg
+        run: sf project deploy start --target-org ScratchOrg --wait 30
 
       - name: Run tests
         run: sf apex run test --target-org ScratchOrg --code-coverage --result-format human --output-dir ./tests/apex --test-level RunLocalTests --wait 30
