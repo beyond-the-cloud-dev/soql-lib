@@ -3,8 +3,8 @@ public inherited sharing class SOQL_Account extends SOQL {
         super(Account.SObjectType);
         // default settings
         with(Account.Id, Account.Name, Account.Type)
-        .systemMode()
-        .withoutSharing();
+            .systemMode()
+            .withoutSharing();
     }
 
     public SOQL_Account byRecordType(String rt) {

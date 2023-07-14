@@ -21,26 +21,71 @@ List<Account> accounts = SOQL.of(Account.SObjectType)
    .toList();
 ```
 
+**Composition**
+
 ```apex
-public with sharing class SOQL_Account implements SOQL.Selector {
+public inherited sharing class SOQL_Contact implements SOQL.Selector {
     public static SOQL query() {
-        return SOQL.of(Account.SObjectType)
-            .with(Account.Id, Account.Name);
+        // default settings
+        return SOQL.of(Contact.SObjectType)
+            .with(Contact.Id, Contact.Name, Contact.AccountId)
+            .systemMode()
+            .withoutSharing();
+    }
+
+    public static SOQL byRecordType(String rt) {
+        return query()
+            .whereAre(SOQL.Filter.recordType().equal(rt));
+    }
+
+    public static SOQL byAccountId(Id accountId) {
+        return query()
+            .whereAre(SOQL.Filter.with(Contact.AccountId).equal(accountId));
     }
 }
 ```
+
+**Inheritance**
+
+```apex
+public inherited sharing class SOQL_Account extends SOQL {
+    public SOQL_Account() {
+        super(Account.SObjectType);
+        // default settings
+        with(Account.Id, Account.Name, Account.Type)
+            .systemMode()
+            .withoutSharing();
+    }
+
+    public SOQL_Account byRecordType(String rt) {
+        whereAre(Filter.recordType().equal(rt));
+        return this;
+    }
+
+    public SOQL_Account byParentId(Id parentId) {
+        with(Account.ParentId)
+            .whereAre(Filter.with(Account.ParentId).equal(parentId));
+        return this;
+    }
+}
+
+```
+
+**Usage**
 
 ```apex
 public with sharing class ExampleController {
+    @AuraEnabled
+    public static List<Contact> getContacts() {
+        return SOQL_Contact.query().with(Contact.Email).toList();
+    }
 
     @AuraEnabled
-    public static List<Account> getAccounts() {
-        return SOQL_Account.query().with(Account.Industry).toList();
+    public static List<Account> getAccounts(Id parentId) {
+        return new SOQL_Account().byParentId(parentId).with(Account.Industry).toList();
     }
 }
 ```
-
-
 
 ## Deploy to Salesforce
 

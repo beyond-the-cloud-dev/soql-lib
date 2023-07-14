@@ -83,7 +83,7 @@ Use `SOQL.Selector` and create `static` methods.
 public inherited sharing class SOQL_Contact implements SOQL.Selector {
     public static SOQL query() {
         // default settings
-        return new SOQL(Contact.SObjectType)
+        return SOQL.of(Contact.SObjectType)
             .with(Contact.Id, Contact.Name, Contact.AccountId)
             .systemMode()
             .withoutSharing();
@@ -135,8 +135,8 @@ public inherited sharing class SOQL_Account extends SOQL {
         super(Account.SObjectType);
         // default settings
         with(Account.Id, Account.Name, Account.Type)
-        .systemMode()
-        .withoutSharing();
+            .systemMode()
+            .withoutSharing();
     }
 
     public SOQL_Account byRecordType(String rt) {
