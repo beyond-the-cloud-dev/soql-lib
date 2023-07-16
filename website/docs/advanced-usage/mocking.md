@@ -101,3 +101,28 @@ private class ExampleControllerTest {
     }
 }
 ```
+
+### Sub-Query
+
+To mock a sub-query create a JSON String with expected data and deserialize it to expected SObjectType. Then pass this data do SOQL class using `.setMock` method.
+
+```
+@IsTest
+static void checkMocking() {
+    List<Account> mocks = (List<Account>) JSON.deserialize(
+        '[{ "Name": "Account Name", "Contacts": { "totalSize": 1, "done": true, "records": [{ "Name": "Contact Name", "Email": "contact.email@address.com" }] }  }],
+        List<Account>.class
+    );
+
+    List<Account> accounts;
+
+    Test.startTest();
+    SOQL.setMock('AccountsController.getAccountsWithContacts', mocks);
+    accounts = AccountsController.getAccountsWithContacts();
+    Test.stopTest();
+
+    Assert.isNotNull(accounts);
+    Assert.isNotNull(accounts[0].contacts);
+    Assert.areEqual(1, accounts[0].contacts.size());
+}
+```
