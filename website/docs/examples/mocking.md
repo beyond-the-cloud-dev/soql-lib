@@ -175,3 +175,48 @@ public class ExampleControllerTest {
 ```
 
 During execution Selector will return records from Static Resource that was set by `.setMock` method.
+
+
+## Mock Sub-Query
+
+Set mocking ID in Query declaration.
+
+```
+public without sharing class AccountsController {
+    public static List<Account> getAccountsWithContacts() {
+        return SOQL.of(Account.SObjectType)
+            .with(Account.Name)
+            .with(
+                SOQL.SubQuery.of('Contacts')
+                    .with(Contact.Id, Contact.Name, Contact.AccountId, Contact.Email)
+            )
+            .mockId('AccountsController.getAccountsWithContacts')
+            .toList();
+    }
+}
+```
+
+Deserialize desired data from JSON format to selected SObjectType. And pass data in form of single record or list of records.
+
+```
+@IsTest
+static void checkMocking() {
+    List<Account> mocks = (List<Account>) JSON.deserialize(
+        '[{ "Name": "Account Name", "Contacts": { "totalSize": 1, "done": true, "records": [{ "Name": "Contact Name", "Email": "contact.email@address.com" }] }  }],
+        List<Account>.class
+    );
+
+    List<Account> accounts;
+
+    Test.startTest();
+    SOQL.setMock('AccountsController.getAccountsWithContacts', mocks);
+    accounts = AccountsController.getAccountsWithContacts();
+    Test.stopTest();
+
+    Assert.isNotNull(accounts);
+    Assert.isNotNull(accounts[0].contacts);
+    Assert.areEqual(1, accounts[0].contacts.size());
+}
+```
+
+During execution Selector will ignore filters and return data set by a mock.
