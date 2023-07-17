@@ -21,6 +21,8 @@ List<Account> accounts = SOQL.of(Account.SObjectType)
    .toList();
 ```
 
+## Selector
+
 ```apex
 public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selector {
     public static SOQL_Contact query() {
@@ -46,8 +48,6 @@ public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selecto
     }
 }
 ```
-
-**Usage**
 
 ```apex
 public with sharing class ExampleController {
