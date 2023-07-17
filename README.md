@@ -21,54 +21,30 @@ List<Account> accounts = SOQL.of(Account.SObjectType)
    .toList();
 ```
 
-**Composition**
-
 ```apex
-public inherited sharing class SOQL_Contact implements SOQL.Selector {
-    public static SOQL query() {
+public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selector {
+    public static SOQL_Contact query() {
+        return new SOQL_Contact();
+    }
+
+    private SOQL_Contact() {
+        super(Contact.SObjectType);
         // default settings
-        return SOQL.of(Contact.SObjectType)
-            .with(Contact.Id, Contact.Name, Contact.AccountId)
+        with(Contact.Id, Contact.Name, Contact.AccountId)
             .systemMode()
             .withoutSharing();
     }
 
-    public static SOQL byRecordType(String rt) {
-        return query()
-            .whereAre(SOQL.Filter.recordType().equal(rt));
-    }
-
-    public static SOQL byAccountId(Id accountId) {
-        return query()
-            .whereAre(SOQL.Filter.with(Contact.AccountId).equal(accountId));
-    }
-}
-```
-
-**Inheritance**
-
-```apex
-public inherited sharing class SOQL_Account extends SOQL {
-    public SOQL_Account() {
-        super(Account.SObjectType);
-        // default settings
-        with(Account.Id, Account.Name, Account.Type)
-            .systemMode()
-            .withoutSharing();
-    }
-
-    public SOQL_Account byRecordType(String rt) {
+    public SOQL_Contact byRecordType(String rt) {
         whereAre(Filter.recordType().equal(rt));
         return this;
     }
 
-    public SOQL_Account byParentId(Id parentId) {
-        with(Account.ParentId)
-            .whereAre(Filter.with(Account.ParentId).equal(parentId));
+    public SOQL_Contact byAccountId(Id accountId) {
+        whereAre(Filter.with(Contact.AccountId).equal(accountId));
         return this;
     }
 }
-
 ```
 
 **Usage**
@@ -76,13 +52,12 @@ public inherited sharing class SOQL_Account extends SOQL {
 ```apex
 public with sharing class ExampleController {
     @AuraEnabled
-    public static List<Contact> getContacts() {
-        return SOQL_Contact.query().with(Contact.Email).toList();
-    }
-
-    @AuraEnabled
-    public static List<Account> getAccounts(Id parentId) {
-        return new SOQL_Account().byParentId(parentId).with(Account.Industry).toList();
+    public static List<Contact> getAccountContacts(Id accountId) {
+        return SOQL_Contact.query()
+            .byRecordType('Partner')
+            .byAccountId(accountId)
+            .with(Contact.Email)
+            .toList();
     }
 }
 ```
