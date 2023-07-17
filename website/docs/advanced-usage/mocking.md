@@ -104,13 +104,55 @@ private class ExampleControllerTest {
 
 ### Sub-Query
 
-To mock a sub-query create a JSON String with expected data and deserialize it to expected SObjectType. Then pass this data do SOQL class using `.setMock` method.
+To mock a sub-query we need to use deserialization mechanism. There are two approaches, using JSON string or Serialization/Deserialization.
+Then after deserialization to desired SObjectType, pass the data to SOQL by calling `.setMock` method.
+
+
+_Using JSON String_
+
+By passing simple String, it is possible to write non-writable fields, like `Name` on Contact object.
 
 ```
 @IsTest
-static void checkMocking() {
+static void getAccountsWithContacts() {
     List<Account> mocks = (List<Account>) JSON.deserialize(
         '[{ "Name": "Account Name", "Contacts": { "totalSize": 1, "done": true, "records": [{ "Name": "Contact Name", "Email": "contact.email@address.com" }] }  }],
+        List<Account>.class
+    );
+
+    List<Account> accounts;
+
+    Test.startTest();
+    SOQL.setMock('AccountsController.getAccountsWithContacts', mocks);
+    accounts = AccountsController.getAccountsWithContacts();
+    Test.stopTest();
+
+    Assert.isNotNull(accounts);
+    Assert.isNotNull(accounts[0].contacts);
+    Assert.areEqual(1, accounts[0].contacts.size());
+}
+```
+
+_Using Serialization/Deserialization_
+
+Using this approach it is possible to bind data with additional logic, like using Test Data Factory.
+
+```
+@IsTest
+static void getAccountsWithContacts() {
+    List<Account> mocks = (List<Account>) JSON.deserialize(
+        JSON.serialize(
+            new List<Map<String, Object>>{
+                new Map<String, Object>{
+                    'Name' => 'Account Name',
+                    'Contacts' => new Map<String, Object>{
+                        'totalSize' => 1,
+                        'done' => true,
+                        'records' => new List<Contact>{ new Contact(FirstName = 'Contact', LastName = 'Name', Email = 'contact.email@address.com') }
+                    }
+                }
+            }
+        ),
         List<Account>.class
     );
 

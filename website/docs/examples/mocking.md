@@ -199,9 +199,43 @@ Deserialize desired data from JSON format to selected SObjectType. And pass data
 
 ```
 @IsTest
-static void checkMocking() {
+static void getAccountsWithContacts() {
     List<Account> mocks = (List<Account>) JSON.deserialize(
         '[{ "Name": "Account Name", "Contacts": { "totalSize": 1, "done": true, "records": [{ "Name": "Contact Name", "Email": "contact.email@address.com" }] }  }],
+        List<Account>.class
+    );
+
+    List<Account> accounts;
+
+    Test.startTest();
+    SOQL.setMock('AccountsController.getAccountsWithContacts', mocks);
+    accounts = AccountsController.getAccountsWithContacts();
+    Test.stopTest();
+
+    Assert.isNotNull(accounts);
+    Assert.isNotNull(accounts[0].contacts);
+    Assert.areEqual(1, accounts[0].contacts.size());
+}
+```
+
+Or create data with Test Data Factory and Serialize/Deserialize it to use as a Mock.
+
+```
+@IsTest
+static void getAccountsWithContacts() {
+    List<Account> mocks = (List<Account>) JSON.deserialize(
+        JSON.serialize(
+            new List<Map<String, Object>>{
+                new Map<String, Object>{
+                    'Name' => 'Account Name',
+                    'Contacts' => new Map<String, Object>{
+                        'totalSize' => 1,
+                        'done' => true,
+                        'records' => new List<Contact>{ new Contact(FirstName = 'Contact', LastName = 'Name', Email = 'contact.email@address.com') }
+                    }
+                }
+            }
+        ),
         List<Account>.class
     );
 
