@@ -744,7 +744,7 @@ Note! It does not work when [SOQL.FilterGroup.conditionLogic()](./soql-filters-g
 **Signature**
 
 ```apex
- Filter removeWhen(Boolean logicExpression);
+ Filter ignoreWhen(Boolean logicExpression);
 ```
 
 **Example**
