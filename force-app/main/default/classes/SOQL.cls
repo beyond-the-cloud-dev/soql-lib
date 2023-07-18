@@ -195,7 +195,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Filter excludesAll(Iterable<String> values); // join with ,
         Filter excludesSome(Iterable<String> values);  // join with ;
 
-        Filter removeWhen(Boolean logicExpression); // Condition will be removed when logicExpression is true
+        Filter ignoreWhen(Boolean logicExpression); // Condition will be removed when logicExpression evaluates to true
         Filter removeWhenNull(); // Condition will be removed for value = null
 
         Boolean hasValue();
@@ -1185,14 +1185,14 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Filter removeWhenNull() {
-            return removeWhen(value == null || isLikeNull());
+            return ignoreWhen(value == null || isLikeNull());
         }
 
         private Boolean isLikeNull() {
             return value == 'null%' || value == '%null' || value == '%null%';
         }
 
-        public Filter removeWhen(Boolean logicExpression) {
+        public Filter ignoreWhen(Boolean logicExpression) {
             if (logicExpression) {
                 // Set field as empty to meet hasValue and ignore condition
                 with('');

@@ -1149,17 +1149,20 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void removeWhen() {
+    static void ignoreWhen() {
         // Setup
         String accountName = '';
 
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .whereAre(SOQL.Filter.with(Account.Name).contains(accountName).removeWhen(String.isEmpty(accountName)))
+            .whereAre(SOQL.FilterGroup
+                .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
+                .add(SOQL.Filter.name().contains(accountName).ignoreWhen(String.isEmpty(accountName)))
+            )
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE (BillingCity = :v1)', soql);
     }
 
     @IsTest
