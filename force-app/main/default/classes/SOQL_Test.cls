@@ -1149,6 +1149,23 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void ignoreWhen() {
+        // Setup
+        String accountName = '';
+
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.FilterGroup
+                .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
+                .add(SOQL.Filter.name().contains(accountName).ignoreWhen(String.isEmpty(accountName)))
+            )
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account WHERE (BillingCity = :v1)', soql);
+    }
+
+    @IsTest
     static void removeWhenNull() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
