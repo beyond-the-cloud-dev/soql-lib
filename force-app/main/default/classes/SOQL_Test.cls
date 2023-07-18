@@ -1149,6 +1149,20 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void removeWhen() {
+        // Setup
+        String accountName = '';
+
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(Account.Name).contains(accountName).removeWhen(String.isEmpty(accountName)))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account', soql);
+    }
+
+    @IsTest
     static void removeWhenNull() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
