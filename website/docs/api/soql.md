@@ -75,6 +75,7 @@ public interface Queryable {
     Queryable byIds(Iterable<Id> recordIds); // List or Set
     Queryable byIds(List<SObject> records);
 
+    Boolean doExist();
     String toString();
     Object toValueOf(SObjectField fieldToExtract);
     Set<String> toValuesOf(SObjectField fieldToExtract);
@@ -1079,6 +1080,18 @@ WHERE ((Id = :v1 OR Name LIKE :v2))
 ```
 
 ## result
+
+### doExist
+
+```apex
+Boolean doExist()
+```
+
+**Example**
+
+```apex
+Boolean isRecordExist = SOQL.of(Account.SObjectType).byId('1234').doExist();
+```
 
 ### toValueOf
 

@@ -1578,6 +1578,19 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void doExist() {
+        // Setup
+        Account acc = new Account(Name = 'Test 1');
+        insert acc;
+
+        // Test
+        Boolean isRecordExist = SOQL.of(Account.SObjectType).byId(acc).doExist();
+
+        // Verify
+        Assert.isTrue(isRecordExist);
+    }
+
+    @IsTest
     static void toValueOf() {
         // Setup
         Account acc = new Account(Name = 'Test 1');
