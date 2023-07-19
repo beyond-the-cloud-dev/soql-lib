@@ -1166,17 +1166,6 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void removeWhenNull() {
-        // Test
-        String soql = SOQL.of(Account.SObjectType)
-            .whereAre(SOQL.Filter.with(Account.Name).contains(null).removeWhenNull())
-            .toString();
-
-        // Verify
-        Assert.areEqual('SELECT Id FROM Account', soql);
-    }
-
-    @IsTest
     static void groupBy() {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
