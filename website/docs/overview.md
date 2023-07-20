@@ -79,7 +79,7 @@ SOQL-Lib is agile, so you can adjust the solution according to your needs. We do
 
 ```apex
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
-    public SOQL_Account query() {
+    public static SOQL_Account query() {
         return new SOQL_Account();
     }
 
