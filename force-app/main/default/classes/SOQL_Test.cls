@@ -1149,14 +1149,20 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void removeWhenNull() {
+    static void ignoreWhen() {
+        // Setup
+        String accountName = '';
+
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .whereAre(SOQL.Filter.with(Account.Name).contains(null).removeWhenNull())
+            .whereAre(SOQL.FilterGroup
+                .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
+                .add(SOQL.Filter.name().contains(accountName).ignoreWhen(String.isEmpty(accountName)))
+            )
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE (BillingCity = :v1)', soql);
     }
 
     @IsTest
@@ -1558,6 +1564,19 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(2, result);
+    }
+
+    @IsTest
+    static void doExist() {
+        // Setup
+        Account acc = new Account(Name = 'Test 1');
+        insert acc;
+
+        // Test
+        Boolean isRecordExist = SOQL.of(Account.SObjectType).byId(acc).doExist();
+
+        // Verify
+        Assert.isTrue(isRecordExist);
     }
 
     @IsTest

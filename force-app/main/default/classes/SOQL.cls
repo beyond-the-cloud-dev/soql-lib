@@ -111,6 +111,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable byIds(Iterable<Id> recordIds); // List or Set
         Queryable byIds(List<SObject> records);
 
+        Boolean doExist();
         String toString();
         Object toValueOf(SObjectField fieldToExtract);
         Set<String> toValuesOf(SObjectField fieldToExtract);
@@ -195,7 +196,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Filter excludesAll(Iterable<String> values); // join with ,
         Filter excludesSome(Iterable<String> values);  // join with ;
 
-        Filter removeWhenNull(); // Condition will be removed for value = null
+        Filter ignoreWhen(Boolean logicExpression); // Condition will be removed when logicExpression evaluates to true
 
         Boolean hasValue();
     }
@@ -483,6 +484,11 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public Map<String, Object> binding() {
         return binder.getBindingMap();
+    }
+
+    public Boolean doExist() {
+        builder.fields.clearAllFields(); // other fields not needed
+        return toList().size() > 0;
     }
 
     public override String toString() {
@@ -1183,16 +1189,12 @@ public virtual inherited sharing class SOQL implements Queryable {
             return String.isNotEmpty(field);
         }
 
-        public Filter removeWhenNull() {
-            if (value == null || isLikeNull()) {
+        public Filter ignoreWhen(Boolean logicExpression) {
+            if (logicExpression) {
                 // Set field as empty to meet hasValue and ignore condition
                 with('');
             }
             return this;
-        }
-
-        private Boolean isLikeNull() {
-            return value == 'null%' || value == '%null' || value == '%null%';
         }
 
         public override String toString() {

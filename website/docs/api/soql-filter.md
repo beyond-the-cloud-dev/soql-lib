@@ -41,7 +41,7 @@ public interface Filter { // SOQL.Filter
     Filter excludesAll(Iterable<String> values); // join with ,
     Filter excludesSome(Iterable<String> values);  // join with ;
 
-    Filter removeWhenNull(); // Condition will be removed for value = null
+    Filter ignoreWhen(Boolean logicExpression); // Condition will be removed when logicExpression evaluates to true
 }
 ```
 
@@ -734,14 +734,16 @@ SOQL builder = SOQL.of(AccountContactRelation.SObjectType)
 
 ## additional
 
-### removeWhenNull
+### ignoreWhen
 
-Condition will be removed when filter's value is null.
+Condition will be removed when logic expression will evaluate to true.
+
+Note! It does not work when [SOQL.FilterGroup.conditionLogic()](./soql-filters-group.md#conditionlogic) was used.
 
 **Signature**
 
 ```apex
-Filter removeWhenNull()
+ Filter ignoreWhen(Boolean logicExpression);
 ```
 
 **Example**
@@ -749,11 +751,15 @@ Filter removeWhenNull()
 ```sql
 SELECT Id
 FROM Account
+WHERE BillingCity = 'Krakow'
 ```
 ```apex
-String accountName = null;
+String accountName = '';
 
 SOQL.of(Account.SObjectType)
-    .whereAre(SOQL.Filter.name().equal(accountName).removeWhenNull())
+    .whereAre(SOQL.FilterGroup
+        .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
+        .add(SOQL.Filter.name().contains(accountName).ignoreWhen(String.isEmpty(accountName)))
+    )
     .toList();
 ```
