@@ -27,4 +27,4 @@ Or just copy [`SOQL.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/
 
 You are ready to build your selector classes.
 
-Go to the [Build Your Selector](./selector.md) section to see more details.
+Go to the [Build Your Selector](./build-your-selector.md) section to see more details.
