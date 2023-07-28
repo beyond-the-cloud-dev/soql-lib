@@ -7,11 +7,14 @@ sidebar_position: 14
 See query String in debug logs.
 
 ```apex
-public inherited sharing class SOQL_Account implements SOQL.Selector {
+public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
+    public static SOQL_Account query() {
+        return new SOQL_Account();
+    }
 
-    public static SOQL query() {
-        return SOQL.of(Account.SObjectType)
-            .with(Account.Id, Account.Name);
+    private SOQL_Account() {
+        super(Account.SObjectType);
+        with(Account.Id, Account.Name);
     }
 }
 

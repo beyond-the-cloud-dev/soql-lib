@@ -1,9 +1,9 @@
 ---
 slug: '/'
-sidebar_position: 2
+sidebar_position: 10
 ---
 
-# Get started
+# Getting Started
 
 Read about the SOQL Lib in [blog post](https://beyondthecloud.dev/blog/soql-lib).
 
@@ -15,15 +15,56 @@ The SOQL Lib provides functional constructs for SOQL queries in Apex.
 ## Examples
 
 ```apex
-//SELECT Id FROM Account
+// SELECT Id FROM Account
 List<Account> accounts = SOQL.of(Account.SObjectType).toList();
 ```
 
 ```apex
-//SELECT Id, Name, Industry, Country FROM Account
+// SELECT Id, Name, Industry FROM Account
 List<Account> accounts = SOQL.of(Account.SObjectType)
-   .with(Account.Id, Account.Name, Account.Industry, Account.Country)
+   .with(Account.Id, Account.Name, Account.Industry)
    .toList();
+```
+
+## Selector
+
+```apex
+public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selector {
+    public static SOQL_Contact query() {
+        return new SOQL_Contact();
+    }
+
+    private SOQL_Contact() {
+        super(Contact.SObjectType);
+        // default settings
+        with(Contact.Id, Contact.Name, Contact.AccountId)
+            .systemMode()
+            .withoutSharing();
+    }
+
+    public SOQL_Contact byRecordType(String rt) {
+        whereAre(Filter.recordType().equal(rt));
+        return this;
+    }
+
+    public SOQL_Contact byAccountId(Id accountId) {
+        whereAre(Filter.with(Contact.AccountId).equal(accountId));
+        return this;
+    }
+}
+```
+
+```apex
+public with sharing class ExampleController {
+    @AuraEnabled
+    public static List<Contact> getAccountContacts(Id accountId) {
+        return SOQL_Contact.query()
+            .byRecordType('Partner')
+            .byAccountId(accountId)
+            .with(Contact.Email)
+            .toList();
+    }
+}
 ```
 
 ## Benefits

@@ -20,10 +20,14 @@ none (by default) | `USER_MODE` | `with sharing`
 `USER_MODE` is a enabled by default. It means that the object permissions, field-level security and **sharing rules are enforced**.
 
 ```apex
-public inherited sharing class SOQL_Account implements SOQL.Selector {
-    public static SOQL query() {
-        return SOQL.of(Account.SObjectType)
-            .with(Account.Name, Account.AccountNumber);
+public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
+    public static SOQL_Account query() {
+        return new SOQL_Account();
+    }
+
+    private SOQL_Account() {
+        super(Account.SObjectType);
+        with(Account.Name, Account.AccountNumber);
     }
 }
 ```
@@ -48,10 +52,14 @@ Developers can control the sharing mode (`inherited sharing`, `with sharing`, an
 **NOTE!** To make it work, always set `inherited sharing` in your selector class.
 
 ```apex
-public inherited sharing class SOQL_Account implements SOQL.Selector {
-    public static SOQL query() {
-        return SOQL.of(Account.SObjectType)
-            .with(Account.Name, Account.AccountNumber)
+public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
+    public static SOQL_Account query() {
+        return new SOQL_Account();
+    }
+
+    private SOQL_Account() {
+        super(Account.SObjectType);
+        with(Account.Name, Account.AccountNumber)
             .systemMode();
     }
 }
@@ -72,10 +80,14 @@ public without sharing class ExampleController {
 You can force the sharing mode for all of your queries.
 
 ```apex
-public inherited sharing class SOQL_Account implements SOQL.Selector {
-    public static SOQL query() {
-        return SOQL.of(Account.SObjectType)
-            .with(Account.Name, Account.AccountNumber)
+public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
+    public static SOQL_Account query() {
+        return new SOQL_Account();
+    }
+
+    private SOQL_Account() {
+        super(Account.SObjectType);
+        with(Account.Name, Account.AccountNumber)
             .systemMode()
             .withSharing();
     }
@@ -98,10 +110,14 @@ public with sharing class ExampleController {
 You can force the sharing mode for all of your queries.
 
 ```apex
-public inherited sharing class SOQL_Account implements SOQL.Selector {
-    public static SOQL query() {
-        return SOQL.of(Account.SObjectType)
-            .with(Account.Name, Account.AccountNumber)
+public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
+    public static SOQL_Account query() {
+        return new SOQL_Account();
+    }
+
+    private SOQL_Account() {
+        super(Account.SObjectType);
+        with(Account.Name, Account.AccountNumber)
             .systemMode()
             .withoutSharing();
     }

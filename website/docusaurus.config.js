@@ -61,6 +61,30 @@ const config = {
         },
         items: [
           {
+            type: 'docSidebar',
+            position: 'left',
+            sidebarId: 'docs',
+            label: 'Docs',
+          },
+          {
+            type: 'docSidebar',
+            position: 'left',
+            sidebarId: 'api',
+            label: 'API',
+          },
+          {
+            type: 'docSidebar',
+            position: 'left',
+            sidebarId: 'examples',
+            label: 'Showcase',
+          },
+          {
+            type: 'docSidebar',
+            position: 'left',
+            sidebarId: 'advanced',
+            label: 'Advanced',
+          },
+          {
             href: 'https://github.com/beyond-the-cloud-dev/soql-lib',
             label: 'GitHub',
             position: 'right',

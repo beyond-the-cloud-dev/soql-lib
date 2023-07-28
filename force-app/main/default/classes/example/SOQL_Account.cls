@@ -1,5 +1,9 @@
-public inherited sharing class SOQL_Account extends SOQL {
-    public SOQL_Account() {
+public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
+    public static SOQL_Account query() {
+        return new SOQL_Account();
+    }
+
+    private SOQL_Account() {
         super(Account.SObjectType);
         // default settings
         with(Account.Id, Account.Name, Account.Type)

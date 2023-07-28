@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 30
 ---
 
 # Basic Features
@@ -214,34 +214,58 @@ private class ExampleControllerTest {
 Generic SOQLs can be keep in selector class.
 
 ```apex
-public inherited sharing class SOQL_Account implements SOQL.Selector {
+public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
+    public static SOQL_Account query() {
+        return new SOQL_Account();
+    }
 
-    public static SOQL query() {
-        return SOQL.of(Account.SObjectType)
-            .with(Account.Name, Account.AccountNumber)
+    private SOQL_Account() {
+        super(Account.SObjectType);
+        // default settings
+        with(Account.Id, Account.Name, Account.Type)
             .systemMode()
             .withoutSharing();
     }
 
-    public static SOQL byRecordType(String rtDevName) {
-        return query()
-            .with(Account.BillingCity, Account.BillingCountry)
-            .whereAre(SOQL.Filter.recordType().equal(rtDevName));
+    public SOQL_Account byRecordType(String rt) {
+        whereAre(Filter.recordType().equal(rt));
+        return this;
+    }
+
+    public SOQL_Account byIndustry(String industry) {
+        with(Account.Industry)
+            .whereAre(Filter.with(Account.Industry).equal(industry));
+        return this;
+    }
+
+    public SOQL_Account byParentId(Id parentId) {
+        with(Account.ParentId)
+            .whereAre(Filter.with(Account.ParentId).equal(parentId));
+        return this;
+    }
+
+    public String toIndustry(Id accountId) {
+        return (String) byId(accountId).toValueOf(Account.Industry);
     }
 }
 ```
 
 ## Default configuration
 
-The selector class can provide default SOQL configuration like default fields, FLS settings, and sharing rules.
+The selector class can provide default SOQL configuration like default fields, FLS settings, and sharing rules that will be applied to all queries.
 
 ```apex
-public inherited sharing class SOQL_Account implements SOQL.Selector {
+public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
+    public static SOQL_Account query() {
+        return new SOQL_Account();
+    }
 
-    public static SOQL query() {
-        return SOQL.of(Account.SObjectType)
-            .with(Account.Id, Account.Name) // default fields
-            .systemMode(); // default FLS mode
+    private SOQL_Account() {
+        super(Account.SObjectType);
+        // default configuration
+        with(Account.Id, Account.Name, Account.Type)
+            .systemMode()
+            .withoutSharing();
     }
 }
 ```

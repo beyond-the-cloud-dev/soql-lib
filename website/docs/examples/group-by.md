@@ -12,10 +12,13 @@ FROM Lead
 GROUP BY LeadSource
 ```
 ```apex
-public inherited sharing class SOQL_Lead implements SOQL.Selector {
+public inherited sharing class SOQL_Lead extends SOQL implements SOQL.Selector {
+    public static SOQL_Lead query() {
+        return new SOQL_Lead();
+    }
 
-    public static SOQL query() {
-        return SOQL.of(Lead.SObjectType);
+    private SOQL_Lead() {
+        super(Lead.SObjectType);
     }
 }
 
