@@ -6,18 +6,23 @@ sidebar_position: 4
 
 Create group of conditions.
 
-```apex
-public interface FilterGroup { // SOQL.FilterGroup
-    FilterGroup add(FilterGroup filterGroup); // SOQL.FilterGroup
-    FilterGroup add(Filter filter); // SOQL.Filter
-    FilterGroup add(String dynamicCondition); // Pass condition as String
+## Methods
 
-    FilterGroup anyConditionMatching(); // All group filters will be join by OR
-    FilterGroup conditionLogic(String order);
-}
-```
+The following are methods for `FilterGroup`.
 
-## add
+[**ADD CONDITION**](#add-condition)
+
+- [`add(FilterGroup filterGroup)`](#add)
+- [`add(Filter filter)`](#add)
+- [`add(String dynamicCondition)`](#add)
+
+[**ORDER**](#order)
+
+- [`anyConditionMatching()`](#anyconditionmatching)
+- [`conditionLogic(String order)`](#conditionlogic)
+
+## ADD CONDITION
+### add
 
 Allows to add multiple conditions.
 Add a [`SOQL.Filter`](soql-filter.md) or [`SOQL.FilterGroup`](soql-filters-group.md) or `String`.
@@ -72,7 +77,8 @@ SOQL.of(Account.SObjectType)
     ).toList();
 ```
 
-## conditionLogic
+## ORDER
+### conditionLogic
 
 Set conditions order for SOQL query.
 When not specify all conditions will be with `AND`.
@@ -101,7 +107,7 @@ SOQL.of(Account.SObjectType)
     ).toList();
 ```
 
-## anyConditionMatching
+### anyConditionMatching
 
 When the [conditionLogic](#anyconditionmatching) is not specified, all conditions are joined using the `AND` operator by default.
 

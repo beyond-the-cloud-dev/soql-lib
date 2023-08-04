@@ -6,37 +6,55 @@ sidebar_position: 2
 
 Construct sub-query with provided API.
 
-```apex
-public interface SubQuery { // SOQL.SubQuery
-    SubQuery of(String ofObject);
+## Methods
 
-    SubQuery with(SObjectField field);
-    SubQuery with(SObjectField field1, SObjectField field2);
-    SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3);
-    SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
-    SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
-    SubQuery with(List<SObjectField> fields); // For more than 5 fields
-    SubQuery with(String relationshipName, List<SObjectField> fields);
-    SubQuery with(SubQuery subQuery); // SOQL.SubQuery
+The following are methods for `SubQuery`.
 
-    SubQuery whereAre(FilterGroup filterGroup); // SOQL.FilterGroup
-    SubQuery whereAre(Filter filter); // SOQL.Filter
+[**INIT**](#init)
 
-    SubQuery orderBy(SObjectField field);
-    SubQuery orderBy(String relationshipName, SObjectField field);
-    SubQuery sortDesc();
-    SubQuery nullsLast();
+- [`of(String ofObject)`](#of)
 
-    SubQuery setLimit(Integer amount);
+[**SELECT**](#select)
 
-    SubQuery offset(Integer startingRow);
+- [`with(SObjectField field)`](#with-fields)
+- [`with(SObjectField field1, SObjectField field2)`](#with-field1---field5)
+- [`with(SObjectField field1, SObjectField field2, SObjectField field3)`](#with-field1---field5)
+- [`with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4)`](#with-field1---field5)
+- [`with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5)`](#with-field1---field5)
+- [`with(List<SObjectField> fields)`](#with-fields)
+- [`with(String relationshipName, List<SObjectField> fields)`](#with-related-fields)
 
-    SubQuery forReference();
-    SubQuery forView();
-}
-```
+[**SUBQUERY**](#sub-query)
 
-## of
+- [`with(SubQuery subQuery)`](#with-subquery)
+
+[**WHERE**](#where)
+
+- [`whereAre(FilterGroup filterGroup)`](#whereare)
+- [`whereAre(Filter filter)`](#whereare)
+
+[**ORDER BY**](#order-by)
+
+- [`orderBy(SObjectField field)`](#order-by)
+- [`orderBy(String relationshipName, SObjectField field)`](#orderby-related)
+- [`sortDesc()`](#sortdesc)
+- [`nullsLast()`](#nullslast)
+
+[**LIMIT**](#limit)
+
+- [`setLimit(Integer amount)`](#setlimit)
+
+[**OFFSET**](#offset)
+
+- [`offset(Integer startingRow)`](#offset)
+
+[**FOR**](#for)
+
+- [`forReference()`](#forreference)
+- [`forView()`](#forview)
+
+## INIT
+### of
 
 Conctructs an `SubQuery`.
 
@@ -60,7 +78,7 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
-## select
+## SELECT
 
 ### with field1 - field5
 
@@ -158,6 +176,7 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
+## SUB-QUERY
 ### with subquery
 
 [Query Five Levels of Parent-to-Child Relationships in SOQL Queries](https://help.salesforce.com/s/articleView?id=release-notes.rn_api_soql_5level.htm&release=244&type=5)
@@ -189,7 +208,8 @@ SOQL.of(Account.SObjectType)
     ).toList();
 ```
 
-## whereAre
+## WHERE
+### whereAre
 
 For more details check [`SOQL.FilterGroup`](soql-filters-group.md) and [`SOQL.Filter`](soql-filter.md)
 
@@ -220,7 +240,8 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
-## order by
+## ORDER BY
+### order by
 
 **Signature**
 
@@ -328,7 +349,8 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
-## setLimit
+## LIMIT
+### setLimit
 
 
 **Signature**
@@ -354,7 +376,8 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
-## offset
+## OFFSET
+### offset
 
 **Signature**
 
@@ -379,7 +402,7 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
-## for
+## FOR
 
 ### forReference
 
