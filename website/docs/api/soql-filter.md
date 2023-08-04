@@ -6,46 +6,52 @@ sidebar_position: 3
 
 Specify and adjust single condition.
 
-```apex
-public interface Filter { // SOQL.Filter
-    Filter id();
-    Filter recordType();
-    Filter name();
-    Filter with(SObjectField field);
-    Filter with(String field);
-    Filter with(String relationshipName, SObjectField field);
+## Methods
 
-    Filter isNull(); // = NULL
-    Filter isNotNull(); // != NULL
-    Filter isTrue(); // = TRUE
-    Filter isFalse(); // = FALSE
-    Filter equal(Object value); // = :value
-    Filter notEqual(Object value); // != :value
-    Filter lessThan(Object value); // < :value
-    Filter greaterThan(Object value); // > :value
-    Filter lessOrEqual(Object value); // <= :value
-    Filter greaterOrEqual(Object value); // >= :value
-    Filter containsSome(List<String> values); // LIKE :values
-    Filter contains(String value); // LIKE :'%' + value + '%'
-    Filter endsWith(String value); // LIKE :'%' + value
-    Filter startsWith(String value); // LIKE :value + '%'
-    Filter contains(String prefix, String value, String suffix); // custom LIKE
-    Filter isIn(Iterable<Object> iterable); // IN :inList or inSet
-    Filter isIn(List<Object> inList); // IN :inList
-    Filter isIn(InnerJoin joinQuery); // SOQL.InnerJoin
-    Filter notIn(Iterable<Object> iterable); // NOT IN :inList or inSet
-    Filter notIn(List<Object> inList); // NOT IN :inList
-    Filter notIn(InnerJoin joinQuery); // SOQL.InnerJoin
-    Filter includesAll(Iterable<String> values); // join with ;
-    Filter includesSome(Iterable<String> values); // join with ,
-    Filter excludesAll(Iterable<String> values); // join with ,
-    Filter excludesSome(Iterable<String> values);  // join with ;
+The following are methods for `Filter`.
 
-    Filter ignoreWhen(Boolean logicExpression); // Condition will be removed when logicExpression evaluates to true
-}
-```
+[**FIELDS**](#fields)
 
-## predefinied
+- [`id()`](#id)
+- [`recordType()`](#recordtype)
+- [`name()`](#name)
+- [`with(SObjectField field)`](#with-sobject-field)
+- [`with(String field)`](#with-string-field)
+- [`with(String relationshipName, SObjectField field)`](#with-related-field)
+
+[**COMPERATORS**](#comperators)
+
+- [`isNull()`](#isnull)
+- [`isNotNull()`](#isnotnull)
+- [`isTrue()`](#istrue)
+- [`isFalse()`](#isfalse)
+- [`equal(Object value)`](#equal)
+- [`notEqual(Object value)`](#notequal)
+- [`lessThan(Object value)`](#lessthan)
+- [`greaterThan(Object value)`](#greaterthan)
+- [`lessOrEqual(Object value)`](#lessorequal)
+- [`greaterOrEqual(Object value)`](#greaterorequal)
+- [`containsSome(List<String> values)`](#containssome)
+- [`contains(String value)`](#contains)
+- [`endsWith(String value)`](#endswith)
+- [`startsWith(String value)`](#startswith)
+- [`contains(String prefix, String value, String suffix)`](#contains)
+- [`isIn(Iterable<Object> iterable)`](#isin)
+- [`isIn(List<Object> inList)`](#isin)
+- [`isIn(InnerJoin joinQuery)`](#isin-join-query)
+- [`notIn(Iterable<Object> iterable)`](#notin)
+- [`notIn(List<Object> inList)`](#notin)
+- [`notIn(InnerJoin joinQuery)`](#notin-join-query)
+- [`includesAll(Iterable<String> values)`](#includesall)
+- [`includesSome(Iterable<String> values)`](#includessome)
+- [`excludesAll(Iterable<String> values)`](#excludesall)
+- [`excludesSome(Iterable<String> values)`](#excludessome)
+
+[**ADDITIONAL**](#additional)
+
+- [`ignoreWhen(Boolean logicExpression)`](#ignorewhen)
+
+## FIELDS
 ### id
 
 - `WHERE Id = :accountId`
@@ -115,8 +121,8 @@ SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.name().equal('My Account'))
     .toList();
 ```
-## fields
-### with field
+
+### with sobject field
 
 Specify field that should be used in the condition.
 
@@ -136,6 +142,29 @@ WHERE Name = 'My Account'
 ```apex
 SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.name().equal('My Account'))
+    .toList();
+```
+
+### with string field
+
+Specify fields that should be used in the condition.
+
+**Signature**
+
+```apex
+Filter with(String field)
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+WHERE Name = 'My Account'
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.Filter.with('Name').equal('My Account'))
     .toList();
 ```
 
@@ -162,7 +191,7 @@ SOQL.of(Contact.SObjectType)
     .toList();
 ```
 
-## comperators
+## COMPERATORS
 
 ### isNull
 
@@ -565,8 +594,7 @@ SOQL.of(Contact.SObjectType)
 ```
 
 ## join query
-
-### isIn
+### isIn join query
 
 - `WHERE Id IN (SELECT AccountId FROM Contact WHERE Name = 'My Contact')`
 
@@ -596,7 +624,7 @@ SOQL.of(Account.SObjectType)
     )).toList();
 ```
 
-### notIn
+### notIn join query
 
 - `WHERE Id NOT IN (SELECT AccountId FROM Contact WHERE Name = 'My Contact')`
 
@@ -732,7 +760,7 @@ SOQL builder = SOQL.of(AccountContactRelation.SObjectType)
     .whereAre(SOQL.Filter.with(AccountContactRelation.Roles).excludesSome(roles));
  ```
 
-## additional
+## ADDITIONAL
 
 ### ignoreWhen
 

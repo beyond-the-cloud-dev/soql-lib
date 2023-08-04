@@ -6,89 +6,124 @@ sidebar_position: 1
 
 The lib main class for query construction.
 
-```apex
-public interface Queryable {
-    Queryable with(SObjectField field);
-    Queryable with(SObjectField field1, SObjectField field2);
-    Queryable with(SObjectField field1, SObjectField field2, SObjectField field3);
-    Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
-    Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
-    Queryable with(List<SObjectField> fields); // For more than 5 fields
-    Queryable with(String fields); // Dynamic SOQL
-    Queryable with(SObjectField field, String alias); // Only aggregate expressions use field aliasing
-    Queryable with(String relationshipName, SObjectField field);
-    Queryable with(String relationshipName, SObjectField field1, SObjectField field2);
-    Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
-    Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
-    Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
-    Queryable with(String relationshipName, List<SObjectField> fields); // For more than 5 fields
-    Queryable with(SubQuery subQuery); // SOQL.SubQuery
+## Methods
 
-    Queryable count();
-    Queryable count(SObjectField field);
-    Queryable count(SObjectField field, String alias);
+The following are methods for `SOQL`.
 
-    Queryable delegatedScope();
-    Queryable mineScope();
-    Queryable mineAndMyGroupsScope();
-    Queryable myTerritoryScope();
-    Queryable myTeamTerritoryScope();
-    Queryable teamScope();
+[**INIT**](#init)
 
-    Queryable whereAre(FilterGroup filterGroup); // SOQL.FilterGroup
-    Queryable whereAre(Filter filter); // SOQL.Filter
-    Queryable whereAre(String conditions); // Conditions to evaluate
+- [`of(SObjectType ofObject)`](#of)
+- [`of(String ofObject)`](#of)
 
-    Queryable groupBy(SObjectField field);
-    Queryable groupByRollup(SObjectField field);
+[**SELECT**](#select)
 
-    Queryable orderBy(String field); // ASC, NULLS FIRST by default
-    Queryable orderBy(String field, String direction); // dynamic order by, NULLS FIRST by default
-    Queryable orderBy(SObjectField field); // ASC, NULLS FIRST by default
-    Queryable orderBy(String relationshipName, SObjectField field); // ASC, NULLS FIRST by default
-    Queryable sortDesc();
-    Queryable nullsLast();
+- [`with(SObjectField field)`](#with-fields)
+- [`with(SObjectField field1, SObjectField field2)`](#with-field1---field5)
+- [`with(SObjectField field1, SObjectField field2, SObjectField field3)`](#with-field1---field5)
+- [`with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4)`](#with-field1---field5)
+- [`with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5)`](#with-field1---field5)
+- [`with(List<SObjectField> fields)`](#with-fields)
+- [`with(String fields)`](#with-string-fields)
+- [`with(String relationshipName, SObjectField field)`](#with-related-field1---field5)
+- [`with(String relationshipName, SObjectField field1, SObjectField field2)`](#with-related-field1---field5)
+- [`with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3)`](#with-related-field1---field5)
+- [`with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4)`](#with-related-field1---field5)
+- [`with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5)`](#with-related-field1---field5)
+- [`with(String relationshipName, List<SObjectField> fields)`](#with-related-fields)
 
-    Queryable setLimit(Integer amount);
+[**COUNT**](#count)
 
-    Queryable offset(Integer startingRow);
+- [`count()`](#count)
+- [`count(SObjectField field)`](#count-field)
+- [`count(SObjectField field, String alias)`](#count-with-alias)
 
-    Queryable forReference();
-    Queryable forView();
-    Queryable forUpdate();
-    Queryable allRows();
+[**SUBQUERY**](#sub-query)
 
-    Queryable systemMode(); // USER_MODE by default
+- [`with(SubQuery subQuery)`](#with-subquery)
 
-    Queryable withSharing(); // Works only with .systemMode()
-    Queryable withoutSharing(); // Works only with .systemMode()
+[**USING SCOPE**](#using-scope)
 
-    Queryable mockId(String id);
+- [`delegatedScope()`](#delegatedscope)
+- [`mineScope()`](#minescope)
+- [`mineAndMyGroupsScope()`](#mineandmygroupsscope)
+- [`myTerritoryScope()`](#myterritoryscope)
+- [`myTeamTerritoryScope()`](#myteamterritoryscope)
+- [`teamScope()`](#teamscope)
 
-    Queryable preview();
+[**WHERE**](#where)
 
-    Queryable stripInaccessible();
-    Queryable stripInaccessible(AccessType accessType);
+- [`whereAre(FilterGroup filterGroup)`](#whereare)
+- [`whereAre(Filter filter)`](#whereare)
 
-    Queryable byId(SObject record);
-    Queryable byId(Id recordId);
-    Queryable byIds(Iterable<Id> recordIds); // List or Set
-    Queryable byIds(List<SObject> records);
+[**GROUP BY**](#group-by)
 
-    Boolean doExist();
-    String toString();
-    Object toValueOf(SObjectField fieldToExtract);
-    Set<String> toValuesOf(SObjectField fieldToExtract);
-    Integer toInteger(); // For COUNT query
-    SObject toObject();
-    List<SObject> toList();
-    List<AggregateResult> toAggregated();
-    Map<Id, SObject> toMap();
-    Database.QueryLocator toQueryLocator();
-}
-```
+- [`groupBy(SObjectField field)`](#group-by)
+- [`groupByRollup(SObjectField field)`](#groupbyrollup)
 
-## of
+[**ORDER BY**](#order-by)
+
+- [`orderBy(SObjectField field)`](#order-by)
+- [`orderBy(String field)`](#order-by)
+- [`orderBy(String field, String direction)`](#order-by)
+- [`orderBy(String relationshipName, SObjectField field)`](#orderby-related)
+- [`sordDesc()`](#sortdesc)
+- [`nullsLast()`](#nullslast)
+
+[**LIMIT**](#limit)
+
+- [`setLimit(Integer amount)`](#setlimit)
+
+[**OFFSET**](#offset)
+
+- [`offset(Integer startingRow)`](#offset)
+
+[**FOR**](#for)
+
+- [`forReference()`](#forreference)
+- [`forView()`](#forview)
+- [`forUpdate()`](#forupdate)
+- [`allRows()`](#allrows)
+
+[**FIELD-LEVEL SECURITY**](#field-level-security)
+
+- [`systemMode()`](#systemmode)
+- [`stripInaccessible()`](#stripinaccessible)
+- [`stripInaccessible(AccessType accessType)`](#stripinaccessible)
+
+[**SHARING MODE**](#sharing-mode)
+
+- [`withSharing()`](#withsharing)
+- [`withoutSharing()`](#withoutsharing)
+
+[**MOCKING**](#mocking)
+
+- [`mockId(String id)`](#mockid)
+
+[**DEBUGGING**](#debugging)
+
+- [`preview()`](#preview)
+
+[**PREDEFINIED**](#predefinied)
+
+- [`byId(SObject record)`](#byid)
+- [`byId(Id recordId)`](#byid)
+- [`byIds(Iterable<Id> recordIds)`](#byids)
+- [`byIds(List<SObject> records)`](#byids)
+
+[**RESULT**](#result)
+
+- [`doExist()`](#doexist)
+- [`toValueOf(SObjectField fieldToExtract)`](#tovalueof)
+- [`toValuesOf(SObjectField fieldToExtract)`](#tovaluesof)
+- [`toInteger()`](#tointeger)
+- [`toObject()`](#toobject)
+- [`toList()`](#tolist)
+- [`toAggregated()`](#toaggregated)
+- [`toMap()`](#tomap)
+- [`toQueryLocator()`](#toquerylocator)
+
+## INIT
+### of
 
 Conctructs an `SOQL`.
 
@@ -111,7 +146,7 @@ String ofObject = 'Account';
 SOQL.of(ofObject).toList();
 ```
 
-## select
+## SELECT
 
 ### with field1 - field5
 
@@ -280,6 +315,8 @@ SOQL.of(Account.SObjectType)
     }).toList();
 ```
 
+## SUB-QUERY
+
 ### with subquery
 
 [Using Relationship Queries](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_relationships_query_using.htm)
@@ -308,6 +345,8 @@ SOQL.of(Account.SObjectType)
         .with(Contact.Id, Contact.Name)
     ).toList();
 ```
+
+## COUNT-QUERY
 
 ### count
 
@@ -383,7 +422,7 @@ SOQL.of(Account.SObjectType)
     .toAggregated();
 ```
 
-## scope
+## USING SCOPE
 
 [USING SCOPE](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_using_scope.htm)
 
@@ -523,7 +562,7 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
-## where
+## WHERE
 
 ### whereAre
 
@@ -578,7 +617,7 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
-## group by
+## GROUP BY
 
 [GROUP BY](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_groupby.htm)
 ### groupBy
@@ -628,7 +667,7 @@ QS.of(Lead.SObjectType)
     .toAggregated();
 ```
 
-## order by
+## ORDER BY
 
 [ORDER BY](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_orderby.htm)
 
@@ -738,7 +777,8 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
-## setLimit
+## LIMIT
+### setLimit
 
 - [LIMIT](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_limit.htm)
 
@@ -763,7 +803,8 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
-## offset
+## OFFSET
+### offset
 
 - [OFFSET](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_offset.htm)
 
@@ -788,7 +829,7 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
-## for
+## FOR
 
 - [FOR VIEW and FOR REFERENCE](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_for_view_for_reference.htm)
 - [FOR UPDATE](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_for_update.htm)
@@ -885,7 +926,7 @@ SOQL.of(Contact.SObjectType)
     .toList();
 ```
 
-## fls
+## FIELD-LEVEL SECURITY
 
 [AccessLevel Class](https://developer.salesforce.com/docs/atlas.en-us.apexref.meta/apexref/apex_class_System_AccessLevel.htm#apex_class_System_AccessLevel)
 
@@ -911,7 +952,28 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
-## sharing
+### stripInaccessible
+
+`USER_MODE` enforces not only object and field-level security but also sharing rules (`with sharing`). You may encounter situations where you need object and field-level security but want to ignore sharing rules (`without sharing`). To achieve this, use `.systemMode()`, `.withoutSharing()` and `.stripInaccessible()`.
+
+Read more about `stripInaccessible` in [advanced](../advanced-usage/fls.md#strip-inaccessible).
+
+**Signature**
+
+```apex
+SOQL stripInaccessible()
+SOQL stripInaccessible(AccessType accessType)
+```
+
+```apex
+SOQL.of(Account.SObjectType)
+    .systemMode()
+    .withoutSharing()
+    .stripInaccessible()
+    .toList();
+```
+
+## SHARING MODE
 
 [Using the with sharing, without sharing, and inherited sharing Keywords](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_classes_keywords_sharing.htm)
 
@@ -959,7 +1021,7 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
-## mocking
+## MOCKING
 
 ### mockId
 
@@ -1046,7 +1108,8 @@ SOQL.of(Account.sObjectType)
 SOQL.setMock('MyQuery', 5);
 ```
 
-## preview
+## DEBUGGING
+### preview
 
 **Signature**
 
@@ -1079,7 +1142,83 @@ WHERE ((Id = :v1 OR Name LIKE :v2))
 =======================================
 ```
 
-## result
+## PREDEFINIED
+
+For all predefined methods SOQL instance is returned so you can still adjust query before execution.
+Add additional fields with [`.with`](#select).
+
+### byId
+
+**Signature**
+
+```apex
+SOQL byId(Id recordId)
+```
+
+```apex
+SOQL byId(SObject record)
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+WHERE Id = '1234'
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .byId('1234')
+    .toObject();
+```
+```apex
+Account account = [SELECT Id FROM Account LIMIT 1];
+SOQL.of(Account.SObjectType)
+    .byId(account)
+    .toList();
+```
+
+### byIds
+
+**Signature**
+
+
+```apex
+SOQL byIds(Iterable<Id> recordIds)
+```
+
+```apex
+SOQL byIds(List<SObject> records)
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+WHERE Id IN ('1234')
+```
+
+```apex
+SOQL.of(Account.SObjectType)
+    .byIds(new Set<Id>{ '1234' })
+    .toList();
+```
+
+```apex
+SOQL.of(Account.SObjectType)
+    .byIds(new List<Id>{ '1234' })
+    .toList();
+```
+
+```apex
+List<Account> accounts = [SELECT Id FROM Account];
+SOQL.of(Account.SObjectType)
+    .byIds(accounts)
+    .toList();
+```
+
+## RESULT
 
 ### doExist
 
@@ -1230,80 +1369,4 @@ Database.QueryLocator toQueryLocator()
 
 ```apex
 SOQL.of(Account.SObjectType).toQueryLocator();
-```
-
-## predefined
-
-For all predefined methods SOQL instance is returned so you can still adjust query before execution.
-Add additional fields with [`.with`](#select).
-
-### byId
-
-**Signature**
-
-```apex
-SOQL byId(Id recordId)
-```
-
-```apex
-SOQL byId(SObject record)
-```
-
-**Example**
-
-```sql
-SELECT Id
-FROM Account
-WHERE Id = '1234'
-```
-```apex
-SOQL.of(Account.SObjectType)
-    .byId('1234')
-    .toObject();
-```
-```apex
-Account account = [SELECT Id FROM Account LIMIT 1];
-SOQL.of(Account.SObjectType)
-    .byId(account)
-    .toList();
-```
-
-### byIds
-
-**Signature**
-
-
-```apex
-SOQL byIds(Iterable<Id> recordIds)
-```
-
-```apex
-SOQL byIds(List<SObject> records)
-```
-
-**Example**
-
-```sql
-SELECT Id
-FROM Account
-WHERE Id IN ('1234')
-```
-
-```apex
-SOQL.of(Account.SObjectType)
-    .byIds(new Set<Id>{ '1234' })
-    .toList();
-```
-
-```apex
-SOQL.of(Account.SObjectType)
-    .byIds(new List<Id>{ '1234' })
-    .toList();
-```
-
-```apex
-List<Account> accounts = [SELECT Id FROM Account];
-SOQL.of(Account.SObjectType)
-    .byIds(accounts)
-    .toList();
 ```

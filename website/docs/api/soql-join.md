@@ -6,18 +6,25 @@ sidebar_position: 5
 
 Construct join-query and use it in condition.
 
-```apex
-public interface InnerJoin { // SOQL.InnerJoin
-    InnerJoin of(SObjectType ofObject);
+## Methods
 
-    InnerJoin with(SObjectField field);
+The following are methods for `FilterGroup`.
 
-    InnerJoin whereAre(FilterGroup filterGroup); // SOQL.FilterGroup
-    InnerJoin whereAre(Filter filter); // SOQL.Filter
-}
-```
+[**INIT**](#init)
 
-## of
+- [`of(SObjectType ofObject)`](#of)
+
+[**SELECT**](#select)
+
+- [`with(SObjectField field)`](#with)
+
+[**WHERE**](#where)
+
+- [`whereAre(FilterGroup filterGroup)`](#whereare)
+- [`whereAre(Filter filter)`](#whereare)
+
+## INIT
+### of
 
 Conctructs an `JoinQuery`.
 
@@ -46,7 +53,8 @@ SOQL.of(Account.SObjectType)
     )).toList();
 ```
 
-## with
+## SELECT
+### with
 
 > `SELECT` statement that specifies the fields to query.
 
@@ -74,7 +82,8 @@ SOQL.of(Account.SObjectType)
     )).toList();
 ```
 
-## whereAre
+## WHERE
+### whereAre
 
 > The condition expression in a `WHERE` clause of a SOQL query includes one or more field expressions. You can specify multiple field expressions in a condition expression by using logical operators.
 
