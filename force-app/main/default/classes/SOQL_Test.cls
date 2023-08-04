@@ -942,7 +942,7 @@ private class SOQL_Test {
     static void dateLiteral() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .whereAre(SOQL.Filter.with(Account.CreatedDate).greaterThan('LAST_N_QUARTERS:2'))
+            .whereAre(SOQL.Filter.with(Account.CreatedDate).greaterThan('LAST_N_QUARTERS:2').asDateLiteral())
             .toString();
 
         // Verify
