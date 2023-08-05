@@ -194,7 +194,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Filter includesAll(Iterable<String> values); // join with ;
         Filter includesSome(Iterable<String> values); // join with ,
         Filter excludesAll(Iterable<String> values); // join with ,
-        Filter excludesSome(Iterable<String> values);  // join with ;
+        Filter excludesSome(Iterable<String> values); // join with ;
 
         Filter ignoreWhen(Boolean logicExpression); // Condition will be removed when logicExpression evaluates to true
 
@@ -1180,9 +1180,17 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         private Filter set(String comperator, Object value) {
+            if (value instanceof String && isDateLiteral((String) value)) {
+                this.skipBinding = true;
+            }
+
             this.value = value;
             this.comperator = comperator;
             return this;
+        }
+
+        private Boolean isDateLiteral(String value) {
+            return DATE_LITERALS.contains(value.split(';')[0].capitalize());
         }
 
         public Boolean hasValue() {
@@ -1506,4 +1514,51 @@ public virtual inherited sharing class SOQL implements Queryable {
             return Database.countQueryWithBinds(query, binding, accessLevel);
         }
     }
+
+    private static final List<String> DATE_LITERALS = new List<String>{
+        'YESTERDAY',
+        'TODAY',
+        'TOMORROW',
+        'LAST_WEEK',
+        'THIS_WEEK',
+        'NEXT_WEEK',
+        'LAST_MONTH',
+        'THIS_MONTH',
+        'NEXT_MONTH',
+        'LAST_90_DAYS',
+        'NEXT_90_DAYS',
+        'LAST_N_DAYS',
+        'NEXT_N_DAYS',
+        'N_DAYS_AGO',
+        'NEXT_N_WEEKS',
+        'LAST_N_WEEKS',
+        'N_WEEKS_AGO',
+        'NEXT_N_MONTHS',
+        'LAST_N_MONTHS',
+        'N_MONTHS_AGO',
+        'THIS_QUARTER',
+        'LAST_QUARTER',
+        'NEXT_QUARTER',
+        'NEXT_N_QUARTERS',
+        'LAST_N_QUARTERS',
+        'N_QUARTERS_AGO',
+        'THIS_YEAR',
+        'LAST_YEAR',
+        'NEXT_YEAR',
+        'NEXT_N_YEARS',
+        'LAST_N_YEARS',
+        'N_YEARS_AGO',
+        'THIS_FISCAL_QUARTER',
+        'LAST_FISCAL_QUARTER',
+        'NEXT_FISCAL_QUARTER',
+        'NEXT_N_FISCAL_​QUARTERS',
+        'LAST_N_FISCAL_​QUARTERS',
+        'N_FISCAL_QUARTERS_AGO',
+        'THIS_FISCAL_YEAR',
+        'LAST_FISCAL_YEAR',
+        'NEXT_FISCAL_YEAR',
+        'NEXT_N_FISCAL_​YEARS',
+        'LAST_N_FISCAL_​YEARS',
+        'N_FISCAL_YEARS_AGO'
+    };
 }
