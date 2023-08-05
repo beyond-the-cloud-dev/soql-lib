@@ -109,7 +109,7 @@ SOQL.of(Account.SObjectType)
 
 ### anyConditionMatching
 
-When the [conditionLogic](#anyconditionmatching) is not specified, all conditions are joined using the `AND` operator by default.
+When the [conditionLogic](#conditionlogic) is not specified, all conditions are joined using the `AND` operator by default.
 
 To change the default condition logic, you can utilize the `anyConditionMatching` method, which joins conditions using the `OR` operator.
 

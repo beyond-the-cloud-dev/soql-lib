@@ -1000,7 +1000,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void anyConditionMatching() {
+    static void anyConditionMatchingForInnerGroup() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.FilterGroup
@@ -1012,6 +1012,40 @@ private class SOQL_Test {
         // Verify
         String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 OR BillingCity = :v2)', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('Test', binding.get('v1'));
+        Assert.areEqual('Krakow', binding.get('v2'));
+    }
+
+    @IsTest
+    static void anyConditionMatchingForMainGroup() {
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(Account.Name).equal('Test'))
+            .whereAre(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
+            .anyConditionMatching();
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE Name = :v1 OR BillingCity = :v2', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('Test', binding.get('v1'));
+        Assert.areEqual('Krakow', binding.get('v2'));
+    }
+
+    @IsTest
+    static void conditionLogicForMainGroup() {
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(Account.Name).equal('Test'))
+            .whereAre(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
+            .conditionLogic('1 OR 2');
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE Name = :v1 OR BillingCity = :v2', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual('Test', binding.get('v1'));
