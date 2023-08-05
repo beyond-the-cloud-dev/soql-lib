@@ -875,11 +875,11 @@ private class SOQL_Test {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .with(Account.Id)
-            .whereAre(SOQL.Filter.with(Account.Industry).includesAll(industries));
+            .whereAre(SOQL.Filter.with(Account.Industry).includesSome(industries));
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Industry INCLUDES (\'Banking;Biotechnology\')', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Industry INCLUDES (\'Banking\', \'Biotechnology\')', soql);
     }
 
     @IsTest
@@ -894,13 +894,13 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Industry INCLUDES (\'Chemicals\', \'Communications\')', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Industry EXCLUDES (\'Chemicals\', \'Communications\')', soql);
     }
 
     @IsTest
     static void excludesSome() {
         // Setup
-        List<String> industries = new List<String>{ 'Construction', 'Consulting	' };
+        List<String> industries = new List<String>{ 'Construction', 'Consulting' };
 
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
@@ -909,7 +909,7 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Industry INCLUDES (\'Construction\', \'Consulting\')', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Industry EXCLUDES (\'Construction;Consulting\')', soql);
     }
 
     @IsTest
