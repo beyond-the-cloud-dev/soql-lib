@@ -54,6 +54,8 @@ The following are methods for `SOQL`.
 
 - [`whereAre(FilterGroup filterGroup)`](#whereare)
 - [`whereAre(Filter filter)`](#whereare)
+- [conditionLogic(String order)](#conditionlogic)
+- [anyConditionMatching()](#anyconditionmatching);
 
 [**GROUP BY**](#group-by)
 
@@ -614,6 +616,58 @@ WHERE NumberOfEmployees >=10 AND NumberOfEmployees <= 20
 ```apex
 SOQL.of(Account.SObjectType)
     .whereAre('NumberOfEmployees >=10 AND NumberOfEmployees <= 20')
+    .toList();
+```
+
+### conditionLogic
+
+Set conditions order for SOQL query. When not specify all conditions will be with `AND`.
+
+**Signature**
+
+```apex
+SOQL conditionLogic(String order)
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+WHERE Name = 'Test' AND BillingCity = 'Krakow'
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.Filter.with(Account.Name).equal('Test'))
+    .whereAre(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
+    .conditionLogic('1 OR 2')
+    .toList();
+```
+
+### anyConditionMatching
+
+When the [conditionLogic](#conditionlogic) is not specified, all conditions are joined using the `AND` operator by default.
+
+To change the default condition logic, you can utilize the `anyConditionMatching` method, which joins conditions using the `OR` operator.
+
+**Signature**
+
+```apex
+SOQL anyConditionMatching()
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+WHERE Name = 'Test' AND BillingCity = 'Krakow'
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.Filter.with(Account.Name).equal('Test'))
+    .whereAre(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
+    .anyConditionMatching()
     .toList();
 ```
 

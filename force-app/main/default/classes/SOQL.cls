@@ -74,6 +74,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable whereAre(FilterGroup filterGroup); // SOQL.FilterGroup
         Queryable whereAre(Filter filter); // SOQL.Filter
         Queryable whereAre(String conditions); // Conditions to evaluate
+        Queryable conditionLogic(String order);
+        Queryable anyConditionMatching();
 
         Queryable groupBy(SObjectField field);
         Queryable groupByRollup(SObjectField field);
@@ -374,6 +376,16 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public SOQL whereAre(String conditions) {
         builder.conditions.add(conditions);
+        return this;
+    }
+
+    public SOQL conditionLogic(String conditionLogic) {
+        builder.conditions.conditionLogic(conditionLogic);
+        return this;
+    }
+
+    public SOQL anyConditionMatching() {
+        builder.conditions.anyConditionMatching();
         return this;
     }
 
