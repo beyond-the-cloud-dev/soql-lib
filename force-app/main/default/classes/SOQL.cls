@@ -198,6 +198,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Filter excludesAll(Iterable<String> values); // join with ,
         Filter excludesSome(Iterable<String> values);  // join with ;
 
+        Filter asDateLiteral();
         Filter ignoreWhen(Boolean logicExpression); // Condition will be removed when logicExpression evaluates to true
 
         Boolean hasValue();
@@ -1050,8 +1051,6 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class QFilter implements Filter {
-        private final List<DisplayType> TYPES_WITHOUT_BINDING = new List<DisplayType>{ DisplayType.DateTime };
-
         private String field;
         private String comperator;
         private Object value;
@@ -1071,12 +1070,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Filter with(SObjectField field) {
-            skipBinding = TYPES_WITHOUT_BINDING.contains(field.getDescribe().getType());
             return with(field.getDescribe().getName());
         }
 
         public Filter with(String relationshipName, SObjectField field) {
-            skipBinding = TYPES_WITHOUT_BINDING.contains(field.getDescribe().getType());
             return with(relationshipName + '.' + field);
         }
 
@@ -1206,6 +1203,12 @@ public virtual inherited sharing class SOQL implements Queryable {
                 // Set field as empty to meet hasValue and ignore condition
                 with('');
             }
+            return this;
+        }
+
+        public Filter asDateLiteral() {
+            // Date Literals can't be binded
+            skipBinding = true;
             return this;
         }
 
