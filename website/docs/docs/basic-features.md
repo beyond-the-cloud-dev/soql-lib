@@ -269,3 +269,46 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
     }
 }
 ```
+
+## Dynamic conditions
+
+Build your conditions in a dynamic way.
+
+**Ignore condition**
+
+Ignore condition when logic expression evaluate to true.
+
+```apex
+// SELECT Id FROM Account WHERE BillingCity = 'Krakow'
+
+String accountName = '';
+
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.FilterGroup
+        .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
+        .add(SOQL.Filter.name().contains(accountName).ignoreWhen(String.isEmpty(accountName)))
+    ).toList();
+```
+
+**Filter Group**
+
+Create [SOQL.FilterGroup](../api/soql-filters-group.md) and assign conditions dynamically based on your own criteria.
+
+```apex
+public List<Account> getAccounts() {
+    SOQL.FilterGroup filterGroup;
+
+    if (UserInfo.getUserType() == 'PowerPartner')
+        filterGroup = SOQL.FilterGroup
+            .add(SOQL.Filter.with(Account.Name).equal('Test'));
+            .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'));
+    } else {
+        filterGroup = SOQL.FilterGroup
+            .add(SOQL.Filter.with(Account.Name).equal('Other Test'));
+    }
+
+    return SOQL.of(Account.SObjectType)
+        .whereAre(filterGroup)
+        .toList();
+}
+```
