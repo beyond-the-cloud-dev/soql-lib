@@ -184,9 +184,13 @@ public virtual inherited sharing class SOQL implements Queryable {
         Filter greaterOrEqual(Object value); // >= :value
         Filter containsSome(List<String> values); // LIKE :values
         Filter contains(String value); // LIKE :'%' + value + '%'
+        Filter notContains(String value); //NOT field LIKE :'%' + value + '%'
         Filter endsWith(String value); // LIKE :'%' + value
+        Filter notEndsWith(String value); // NOT field LIKE :'%' + value
         Filter startsWith(String value); // LIKE :value + '%'
+        Filter notStartsWith(String value); // NOT field LIKE :value + '%'
         Filter contains(String prefix, String value, String suffix); // custom LIKE
+        Filter notContains(String prefix, String value, String suffix); // custom NOT field LIKE
         Filter isIn(Iterable<Object> iterable); // IN :inList or inSet
         Filter isIn(List<Object> inList); // IN :inList
         Filter isIn(InnerJoin joinQuery); // SOQL.InnerJoin
@@ -1054,6 +1058,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         private String field;
         private String comperator;
         private Object value;
+        private String wrapper = '{0}';
         private DisplayType fieldType;
         private Boolean skipBinding = false;
 
@@ -1130,16 +1135,32 @@ public virtual inherited sharing class SOQL implements Queryable {
             return contains('%', formattedString(value), '%');
         }
 
+        public Filter notContains(String value) {
+            return notLike().contains(value);
+        }
+
         public Filter endsWith(String value) {
             return contains('%', formattedString(value), '');
+        }
+
+        public Filter notEndsWith(String value) {
+            return notLike().endsWith(value);
         }
 
         public Filter startsWith(String value) {
             return contains('', formattedString(value), '%');
         }
 
+        public Filter notStartsWith(String value) {
+            return notLike().startsWith(value);
+        }
+
         public Filter contains(String prefix, String value, String suffix) {
             return set('LIKE', prefix + formattedString(value) + suffix);
+        }
+
+        public Filter notContains(String prefix, String value, String suffix) {
+            return notLike().contains(prefix, value, suffix);
         }
 
         private String formattedString(String value) {
@@ -1153,6 +1174,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         public Filter isIn(InnerJoin joinQuery) {
             skipBinding = true;
             return set('IN', joinQuery);
+        }
+
+        private Filter notLike() {
+            this.wrapper = '(NOT {0})';
+            return this;
         }
 
         public Filter notIn(Iterable<Object> iterable) {
@@ -1214,10 +1240,10 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public override String toString() {
             if (skipBinding) {
-                return field + ' ' + comperator + ' ' + value;
+                return String.format(wrapper, new List<String> { field + ' ' + comperator + ' ' + value });
             }
 
-            return field + ' ' + comperator + ' :' + binder.bind(value);
+            return String.format(wrapper, new List<String> { field + ' ' + comperator + ' :' + binder.bind(value) });
         }
     }
 

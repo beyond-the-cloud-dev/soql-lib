@@ -695,6 +695,20 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void notContains() {
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(Account.Name).notContains('Test'));
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE (NOT Name LIKE :v1)', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('%Test%', binding.get('v1'));
+    }
+
+    @IsTest
     static void containsValues() {
         // Setup
         List<String> names = new List<String>{ 'Acc', 'My' };
@@ -726,6 +740,20 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void notEndsWith() {
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(Account.Name).notEndsWith('Test'));
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE (NOT Name LIKE :v1)', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('%Test', binding.get('v1'));
+    }
+
+    @IsTest
     static void startsWith() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
@@ -734,6 +762,20 @@ private class SOQL_Test {
         // Verify
         String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('Test%', binding.get('v1'));
+    }
+    
+    @IsTest
+    static void notStartsWith() {
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(Account.Name).notStartsWith('Test'));
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE (NOT Name LIKE :v1)', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual('Test%', binding.get('v1'));
@@ -748,6 +790,20 @@ private class SOQL_Test {
         // Verify
         String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('_Test%', binding.get('v1'));
+    }
+
+    @IsTest
+    static void customNotContains() {
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(Account.Name).notContains('_', 'Test', '%'));
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE (NOT Name LIKE :v1)', soql);
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual('_Test%', binding.get('v1'));

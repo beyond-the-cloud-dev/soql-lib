@@ -33,9 +33,13 @@ The following are methods for `Filter`.
 - [`greaterOrEqual(Object value)`](#greaterorequal)
 - [`containsSome(List<String> values)`](#containssome)
 - [`contains(String value)`](#contains)
+- [`notContains(String value)`](#notcontains)
 - [`endsWith(String value)`](#endswith)
+- [`notEndsWith(String value)`](#notendswith)
 - [`startsWith(String value)`](#startswith)
+- [`notStartsWith(String value)`](#notstartswith)
 - [`contains(String prefix, String value, String suffix)`](#contains)
+- [`notContains(String prefix, String value, String suffix)`](#notcontains)
 - [`isIn(Iterable<Object> iterable)`](#isin)
 - [`isIn(List<Object> inList)`](#isin)
 - [`isIn(InnerJoin joinQuery)`](#isin-join-query)
@@ -502,6 +506,34 @@ SOQL.of(Contact.SObjectType)
     .toList();
 ```
 
+### notcontains
+
+- `WHERE NOT Name LIKE '%My%'`
+
+**Signature**
+
+```apex
+Filter notContains(String value)
+Filter notContains(String prefix, String value, String suffix);
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+WHERE NOT Name LIKE '%My%'
+```
+```apex
+SOQL.of(Contact.SObjectType)
+    .whereAre(SOQL.Filter.name().notContains('My'))
+    .toList();
+
+SOQL.of(Contact.SObjectType)
+    .whereAre(SOQL.Filter.name().notContains('_', 'My', '%'))
+    .toList();
+```
+
 ### endsWith
 
 - `WHERE Name LIKE '%My'`
@@ -525,6 +557,29 @@ SOQL.of(Contact.SObjectType)
     .toList();
 ```
 
+### notEndsWith
+
+- `WHERE NOT Name LIKE '%My'`
+
+**Signature**
+
+```apex
+Filter notEndsWith(String value)
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+WHERE NOT Name LIKE '%My'
+```
+```apex
+SOQL.of(Contact.SObjectType)
+    .whereAre(SOQL.Filter.name().notEndsWith('My'))
+    .toList();
+```
+
 ### startsWith
 
 - `WHERE Name LIKE 'My%'`
@@ -545,6 +600,29 @@ WHERE Name = 'My%'
 ```apex
 SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.name().startsWith('My'))
+    .toList();
+```
+
+### notStartsWith
+
+- `WHERE NOT Name LIKE 'My%'`
+
+**Signature**
+
+```apex
+Filter notStartsWith(String value)
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+WHERE NOT Name LIKE 'My%'
+```
+```apex
+SOQL.of(Contact.SObjectType)
+    .whereAre(SOQL.Filter.name().notStartsWith('My'))
     .toList();
 ```
 
