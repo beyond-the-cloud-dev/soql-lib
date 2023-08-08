@@ -939,47 +939,31 @@ public virtual inherited sharing class SOQL implements Queryable {
             return '(' + buildNested() + ')';
         }
 
-        private void setDefaultOrderWhenEmpty() {
+        private void setDefaultOrderWhenNotSpecified() {
             if (String.isNotEmpty(order)) {
                 return;
             }
 
             List<String> defaultOrder = new List<String>();
 
-            for (Integer i = 1; i <= queryConditions.size(); i++) {
-                defaultOrder.add(String.valueOf(i));
+            for (Integer i = 0; i < queryConditions.size(); i++) {
+                defaultOrder.add(String.valueOf(i + 1));
             }
 
-            order = String.join(defaultOrder, ' ' + connector + ' '); // e.g (1 AND 2 AND 3)
+            order = String.join(defaultOrder, ' ' + connector + ' ');
         }
 
         public String buildNested() {
-            setDefaultOrderWhenEmpty();
+            setDefaultOrderWhenNotSpecified(); // e.g (0 AND 1 AND 2)
+            addSpecialCharactersToOrder(); // e.g ({0} AND ({1} AND {2}))
 
-            String conditions = applySpecialCharactersToOrder(); // e.g (*1* AND (*2* OR *3*))
+            return String.format(order, queryConditions);
+        }
 
+        private void addSpecialCharactersToOrder() {
             for (Integer i = 0; i < queryConditions.size(); i++) {
-                conditions = conditions.replace(
-                    conditionNumberWithSpecialCharacters(i + 1), // e.g *1*
-                    queryConditions.get(i).toString()
-                );
+                order = order.replace(String.valueOf(i + 1), '{' + i + '}');
             }
-
-            return conditions;
-        }
-
-        private String applySpecialCharactersToOrder() {
-            String orderWithSpecialCharacters = order;
-
-            for (Integer i = 1; i <= queryConditions.size(); i++) {
-                orderWithSpecialCharacters = orderWithSpecialCharacters.replace(String.valueOf(i), conditionNumberWithSpecialCharacters(i));
-            }
-
-            return orderWithSpecialCharacters; // e.g (*1* AND (*2* OR *3*))
-        }
-
-        private String conditionNumberWithSpecialCharacters(Integer conditionNumber) {
-            return '*' + conditionNumber + '*';
         }
     }
 
@@ -1133,7 +1117,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         public Filter endsWith(String value) {
             return contains('%', formattedString(value), '');
         }
-        
+
         public Filter notEndsWith(String value) {
             return notLike().endsWith(value);
         }
@@ -1222,12 +1206,12 @@ public virtual inherited sharing class SOQL implements Queryable {
             }
             return this;
         }
-        
+
         public override String toString() {
             if (skipBinding) {
                 return String.format(wrapper, new List<String> { field + ' ' + comperator + ' ' + value });
             }
-            
+
             return String.format(wrapper, new List<String> { field + ' ' + comperator + ' :' + binder.bind(value) });
         }
     }
