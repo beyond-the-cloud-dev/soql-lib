@@ -1047,7 +1047,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         private String field;
         private String comperator;
         private Object value;
-        private String notLike;
+        private String wrapper = '{0}';
         private DisplayType fieldType;
         private Boolean skipBinding = false;
 
@@ -1167,8 +1167,8 @@ public virtual inherited sharing class SOQL implements Queryable {
             return set('IN', joinQuery);
         }
 
-        public Filter notLike() {
-            this.notLike = 'NOT';
+        private Filter notLike() {
+            this.wrapper = '(NOT {0})';
             return this;
         }
 
@@ -1225,16 +1225,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         
         public override String toString() {
             if (skipBinding) {
-                return wrapWithNotOperator(field + ' ' + comperator + ' ' + value);
+                return String.format(wrapper, new List<String> { field + ' ' + comperator + ' ' + value });
             }
             
-            return wrapWithNotOperator(field + ' ' + comperator + ' :' + binder.bind(value));
-        }
-        
-        private String wrapWithNotOperator(String filterExpression) {
-            return String.isEmpty(notLike) 
-                ? filterExpression 
-                : String.format('({0} {1})', new List<String> { notLike, filterExpression });
+            return String.format(wrapper, new List<String> { field + ' ' + comperator + ' :' + binder.bind(value) });
         }
     }
 
