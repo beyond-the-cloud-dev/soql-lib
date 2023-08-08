@@ -1216,6 +1216,12 @@ public virtual inherited sharing class SOQL implements Queryable {
             return this;
         }
 
+        public Filter asDateLiteral() {
+            // Date Literals can't be binded
+            skipBinding = true;
+            return this;
+        }
+
         public override String toString() {
             if (skipBinding) {
                 return String.format(wrapper, new List<String> { field + ' ' + comperator + ' ' + value });
