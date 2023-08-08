@@ -2,7 +2,7 @@
 sidebar_position: 12
 ---
 
-# Sharing
+# SHARING MODE
 
 Control sharing rules behavior.
 

@@ -53,6 +53,7 @@ The following are methods for `Filter`.
 
 [**ADDITIONAL**](#additional)
 
+- [`asDateLiteral()`](#asdateliteral)
 - [`ignoreWhen(Boolean logicExpression)`](#ignorewhen)
 
 ## FIELDS
@@ -840,6 +841,34 @@ SOQL builder = SOQL.of(AccountContactRelation.SObjectType)
 
 ## ADDITIONAL
 
+### asDateLiteral
+
+[Date Literals](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_dateformats.htm)
+
+SOQL Lib automatically binds all variables; however, Date Literals cannot be binded.
+To skip binding for Date Literals, add `asDateLiteral()` to your `Filter`.
+
+**Signature**
+
+```apex
+Filter asDateLiteral();
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+WHERE CreatedDate > 'LAST_90_DAYS'
+```
+```apex
+String accountName = '';
+
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.Filter.with(Account.CreatedDate).greaterThan('LAST_90_DAYS').asDateLiteral());
+    .toList();
+```
+
 ### ignoreWhen
 
 Condition will be removed when logic expression will evaluate to true.
@@ -849,7 +878,7 @@ Note! It does not work when [SOQL.FilterGroup.conditionLogic()](./soql-filters-g
 **Signature**
 
 ```apex
- Filter ignoreWhen(Boolean logicExpression);
+Filter ignoreWhen(Boolean logicExpression);
 ```
 
 **Example**

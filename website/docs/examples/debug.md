@@ -2,7 +2,7 @@
 sidebar_position: 14
 ---
 
-# Debug
+# DEBUGGING
 
 See query String in debug logs.
 
