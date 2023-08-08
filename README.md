@@ -5,7 +5,9 @@
 
 The SOQL Lib provides functional constructs for SOQL queries in Apex.
 
-For more details, please refer to the [documentation](https://soql-lib.vercel.app/). You may also find [this blog post](https://beyondthecloud.dev/blog/soql-lib) about SOQL Lib interesting
+For more details, please refer to the [documentation](https://soql-lib.vercel.app/).
+
+You may also find [this blog post](https://beyondthecloud.dev/blog/soql-lib) about SOQL Lib interesting.
 
 ## Examples
 
@@ -22,6 +24,8 @@ List<Account> accounts = SOQL.of(Account.SObjectType)
 ```
 
 ## Selector
+
+Read [how to build your selector class](https://soql-lib.vercel.app/building-your-selector).
 
 ```apex
 public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selector {
@@ -69,23 +73,32 @@ public with sharing class ExampleController {
        src="https://raw.githubusercontent.com/afawcett/githubsfdeploy/master/deploy.png">
 </a>
 
-## Read the documentation
+## Documentation
 
-[Query Selector documentation](https://soql-lib.vercel.app/)
+[SOQL Lib documentation](https://soql-lib.vercel.app/)
 
-## Assumptions
+## Features
 
-1. **Small Selector Classes** - The selector class should be small and contains ONLY query base configuration (fields, sharing settings) and very generic methods (`byId`, `byRecordType`). Why?
-   - Huge classes are hard to manage.
-   - A lot of merge conflicts.
-   - Problems with methods naming.
-2. **Build SOQL inline in a place of need** - Business-specific SOQLs should be built inline via `SOQL` builder in a place of need.
-   - Most of the queries on the project are case-specific and are not generic. There is no need to keep them in the Selector class.
-3. **Build SOQL dynamically via builder** - Developers should be able to adjust queries with specific fields, conditions, and other SOQL clauses.
-4. **Do not spend time on selector methods naming** - It can be difficult to find a proper name for a method that builds a query. The selector class contains methods like `selectByFieldAAndFieldBWithDescOrder`. It can be avoided by building SOQL inline in a place of need.
-5. **Control FLS and sharing settings** - Selector should allow to control Field Level Security and sharing settings by simple methods like `.systemMode()`, `.withSharing()`, `.withoutSharing()`.
-6. **Auto binding** - The selector should be able to bind variables dynamically without additional effort from the developer side.
-7. **Mock results in Unit Tests** - Selector should allow for mocking data in unit tests.
+Read about the features in the [documentation](https://soql-lib.vercel.app/docs/basic-features).
+
+1. **Dynamic SOQL**
+2. **Automatic binding**
+3. **Control FLS**
+- 3.1 **User Mode**
+- 3.2 **System Mode**
+- 3.3 **stripInaccessible**
+4. **Control Sharings Mode**
+- 4.1 **with sharing**
+- 4.2 **without sharing**
+- 4.3 **inherited sharing**
+5. **Mocking**
+- 5.1 **Mock list of records**
+- 5.2 **Mock single record**
+- 5.3 **Mock with static resources**
+- 5.4 **Mock count result**
+6. **Avoid query duplicates**
+7. **The default configuration for all queries**
+8. **Dynamic conditions**
 
 ----
 
