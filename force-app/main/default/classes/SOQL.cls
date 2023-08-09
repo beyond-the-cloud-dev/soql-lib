@@ -1045,7 +1045,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         private String comperator;
         private Object value;
         private String wrapper = '{0}';
-        private DisplayType fieldType;
         private Boolean skipBinding = false;
 
         public Filter id() {
