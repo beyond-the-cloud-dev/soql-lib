@@ -21,7 +21,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public static FilterGroup FilterGroup { // A group to nest more filters
+    public static FilterGroup FilterGroup {
         get {
             return new QFilterGroup();
         }
@@ -44,80 +44,80 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public interface Queryable {
+        // SELECT
         Queryable with(SObjectField field);
         Queryable with(SObjectField field1, SObjectField field2);
         Queryable with(SObjectField field1, SObjectField field2, SObjectField field3);
         Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
         Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
-        Queryable with(List<SObjectField> fields); // For more than 5 fields
-        Queryable with(String fields); // Dynamic SOQL
-        Queryable with(SObjectField field, String alias); // Only aggregate expressions use field aliasing
+        Queryable with(List<SObjectField> fields);
+        Queryable with(String fields);
+        Queryable with(SObjectField field, String alias);
         Queryable with(String relationshipName, SObjectField field);
         Queryable with(String relationshipName, SObjectField field1, SObjectField field2);
         Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
         Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
         Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
-        Queryable with(String relationshipName, List<SObjectField> fields); // For more than 5 fields
-        Queryable with(SubQuery subQuery); // SOQL.SubQuery
-
+        Queryable with(String relationshipName, List<SObjectField> fields);
+        Queryable with(SubQuery subQuery);
+        // COUNT
         Queryable count();
         Queryable count(SObjectField field);
         Queryable count(SObjectField field, String alias);
-
+        // USING SCOPE
         Queryable delegatedScope();
         Queryable mineScope();
         Queryable mineAndMyGroupsScope();
         Queryable myTerritoryScope();
         Queryable myTeamTerritoryScope();
         Queryable teamScope();
-
-        Queryable whereAre(FilterGroup filterGroup); // SOQL.FilterGroup
-        Queryable whereAre(Filter filter); // SOQL.Filter
-        Queryable whereAre(String conditions); // Conditions to evaluate
+        // WHERE
+        Queryable whereAre(FilterGroup filterGroup);
+        Queryable whereAre(Filter filter);
+        Queryable whereAre(String conditions);
         Queryable conditionLogic(String order);
         Queryable anyConditionMatching();
-
+        // GROUP BY
         Queryable groupBy(SObjectField field);
         Queryable groupByRollup(SObjectField field);
-
-        Queryable orderBy(String field); // ASC, NULLS FIRST by default
-        Queryable orderBy(String field, String direction); // dynamic order by, NULLS FIRST by default
-        Queryable orderBy(SObjectField field); // ASC, NULLS FIRST by default
-        Queryable orderBy(String relationshipName, SObjectField field); // ASC, NULLS FIRST by default
+        // ORDER BY
+        Queryable orderBy(String field);
+        Queryable orderBy(String field, String direction);
+        Queryable orderBy(SObjectField field);
+        Queryable orderBy(String relationshipName, SObjectField field);
         Queryable sortDesc();
         Queryable nullsLast();
-
+        // LIMIT
         Queryable setLimit(Integer amount);
-
+        // OFFSET
         Queryable offset(Integer startingRow);
-
+        // FOR
         Queryable forReference();
         Queryable forView();
         Queryable forUpdate();
         Queryable allRows();
-
-        Queryable systemMode(); // USER_MODE by default
-
-        Queryable withSharing(); // Works only with .systemMode()
-        Queryable withoutSharing(); // Works only with .systemMode()
-
-        Queryable mockId(String id);
-
-        Queryable preview();
-
+        // FIELD-LEVEL SECURITY
+        Queryable systemMode();
         Queryable stripInaccessible();
         Queryable stripInaccessible(AccessType accessType);
-
+        // SHARING MODE
+        Queryable withSharing();
+        Queryable withoutSharing();
+        // MOCKING
+        Queryable mockId(String id);
+        // DEBUGGING
+        Queryable preview();
+        // PREDEFINIED
         Queryable byId(SObject record);
         Queryable byId(Id recordId);
-        Queryable byIds(Iterable<Id> recordIds); // List or Set
+        Queryable byIds(Iterable<Id> recordIds);
         Queryable byIds(List<SObject> records);
-
+        // RESULT
         Boolean doExist();
         String toString();
         Object toValueOf(SObjectField fieldToExtract);
         Set<String> toValuesOf(SObjectField fieldToExtract);
-        Integer toInteger(); // For COUNT query
+        Integer toInteger();
         SObject toObject();
         List<SObject> toList();
         List<AggregateResult> toAggregated();
@@ -125,96 +125,98 @@ public virtual inherited sharing class SOQL implements Queryable {
         Database.QueryLocator toQueryLocator();
     }
 
-    public interface SubQuery { // SOQL.SubQuery
+    public interface SubQuery {
         SubQuery of(String ofObject);
-
+        // SELECT
         SubQuery with(SObjectField field);
         SubQuery with(SObjectField field1, SObjectField field2);
         SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3);
         SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
         SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
-        SubQuery with(List<SObjectField> fields); // For more than 5 fields
+        SubQuery with(List<SObjectField> fields);
         SubQuery with(String relationshipName, List<SObjectField> fields);
-        SubQuery with(SubQuery subQuery); // SOQL.SubQuery
-
-        SubQuery whereAre(FilterGroup filterGroup); // SOQL.FilterGroup
-        SubQuery whereAre(Filter filter); // SOQL.Filter
-
+        SubQuery with(SubQuery subQuery);
+        // WHERE
+        SubQuery whereAre(FilterGroup filterGroup);
+        SubQuery whereAre(Filter filter);
+        //ORDER BY
         SubQuery orderBy(SObjectField field);
         SubQuery orderBy(String relationshipName, SObjectField field);
         SubQuery sortDesc();
         SubQuery nullsLast();
-
+        // LIMIT
         SubQuery setLimit(Integer amount);
-
+        // OFFSET
         SubQuery offset(Integer startingRow);
-
+        // FOR
         SubQuery forReference();
         SubQuery forView();
     }
 
-    public interface FilterGroup { // SOQL.FilterGroup
-        FilterGroup add(FilterGroup filterGroup); // SOQL.FilterGroup
-        FilterGroup add(Filter filter); // SOQL.Filter
-        FilterGroup add(String dynamicCondition); // Pass condition as String
-
-        FilterGroup anyConditionMatching(); // All group filters will be join by OR
+    public interface FilterGroup {
+        // ADD CONDITION
+        FilterGroup add(FilterGroup filterGroup);
+        FilterGroup add(Filter filter);
+        FilterGroup add(String dynamicCondition);
+        // ORDER
+        FilterGroup anyConditionMatching();
         FilterGroup conditionLogic(String order);
 
         Boolean hasValues();
     }
 
-    public interface Filter { // SOQL.Filter
+    public interface Filter {
+        // FIELDS
         Filter id();
         Filter recordType();
         Filter name();
         Filter with(SObjectField field);
         Filter with(String field);
         Filter with(String relationshipName, SObjectField field);
-
-        Filter isNull(); // = NULL
-        Filter isNotNull(); // != NULL
-        Filter isTrue(); // = TRUE
-        Filter isFalse(); // = FALSE
-        Filter equal(Object value); // = :value
-        Filter notEqual(Object value); // != :value
-        Filter lessThan(Object value); // < :value
-        Filter greaterThan(Object value); // > :value
-        Filter lessOrEqual(Object value); // <= :value
-        Filter greaterOrEqual(Object value); // >= :value
-        Filter containsSome(List<String> values); // LIKE :values
-        Filter contains(String value); // LIKE :'%' + value + '%'
-        Filter notContains(String value); //NOT field LIKE :'%' + value + '%'
-        Filter endsWith(String value); // LIKE :'%' + value
-        Filter notEndsWith(String value); // NOT field LIKE :'%' + value
-        Filter startsWith(String value); // LIKE :value + '%'
-        Filter notStartsWith(String value); // NOT field LIKE :value + '%'
-        Filter contains(String prefix, String value, String suffix); // custom LIKE
-        Filter notContains(String prefix, String value, String suffix); // custom NOT field LIKE
-        Filter isIn(Iterable<Object> iterable); // IN :inList or inSet
-        Filter isIn(List<Object> inList); // IN :inList
-        Filter isIn(InnerJoin joinQuery); // SOQL.InnerJoin
-        Filter notIn(Iterable<Object> iterable); // NOT IN :inList or inSet
-        Filter notIn(List<Object> inList); // NOT IN :inList
-        Filter notIn(InnerJoin joinQuery); // SOQL.InnerJoin
-        Filter includesAll(Iterable<String> values); // join with ;
-        Filter includesSome(Iterable<String> values); // join with ,
-        Filter excludesAll(Iterable<String> values); // join with ,
-        Filter excludesSome(Iterable<String> values);  // join with ;
-
+        // COMPERATORS
+        Filter isNull();
+        Filter isNotNull();
+        Filter isTrue();
+        Filter isFalse();
+        Filter equal(Object value);
+        Filter notEqual(Object value);
+        Filter lessThan(Object value);
+        Filter greaterThan(Object value);
+        Filter lessOrEqual(Object value);
+        Filter greaterOrEqual(Object value);
+        Filter containsSome(List<String> values);
+        Filter contains(String value);
+        Filter notContains(String value);
+        Filter endsWith(String value);
+        Filter notEndsWith(String value);
+        Filter startsWith(String value);
+        Filter notStartsWith(String value);
+        Filter contains(String prefix, String value, String suffix);
+        Filter notContains(String prefix, String value, String suffix);
+        Filter isIn(Iterable<Object> iterable);
+        Filter isIn(List<Object> inList);
+        Filter isIn(InnerJoin joinQuery);
+        Filter notIn(Iterable<Object> iterable);
+        Filter notIn(List<Object> inList);
+        Filter notIn(InnerJoin joinQuery);
+        Filter includesAll(Iterable<String> values);
+        Filter includesSome(Iterable<String> values);
+        Filter excludesAll(Iterable<String> values);
+        Filter excludesSome(Iterable<String> values);
+        // ADDITIONAL
         Filter asDateLiteral();
-        Filter ignoreWhen(Boolean logicExpression); // Condition will be removed when logicExpression evaluates to true
+        Filter ignoreWhen(Boolean logicExpression);
 
         Boolean hasValue();
     }
 
-    public interface InnerJoin { // SOQL.InnerJoin
+    public interface InnerJoin {
         InnerJoin of(SObjectType ofObject);
 
         InnerJoin with(SObjectField field);
 
-        InnerJoin whereAre(FilterGroup filterGroup); // SOQL.FilterGroup
-        InnerJoin whereAre(Filter filter); // SOQL.Filter
+        InnerJoin whereAre(FilterGroup filterGroup);
+        InnerJoin whereAre(Filter filter);
     }
 
     @TestVisible
@@ -404,17 +406,17 @@ public virtual inherited sharing class SOQL implements Queryable {
         return this;
     }
 
-    public SOQL orderBy(String field) { // Order By - ASC, NULLS FIRST by default
+    public SOQL orderBy(String field) {
         builder.orderBys.newOrderBy().with(field);
         return this;
     }
 
-    public SOQL orderBy(String field, String direction) { // NULLS FIRST by default
+    public SOQL orderBy(String field, String direction) {
         builder.orderBys.newOrderBy().with(field).sortingOrder(direction);
         return this;
     }
 
-    public SOQL orderBy(SObjectField field) { // Order By - ASC, NULLS FIRST by default
+    public SOQL orderBy(SObjectField field) {
         builder.orderBys.newOrderBy().with(field);
         return this;
     }
@@ -464,7 +466,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         return this;
     }
 
-    public SOQL systemMode() { // User Mode by default
+    public SOQL systemMode() {
         executor.systemMode();
         return this;
     }
