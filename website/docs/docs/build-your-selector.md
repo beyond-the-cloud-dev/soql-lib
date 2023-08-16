@@ -10,7 +10,7 @@ Check examples in the [repository](https://github.com/beyond-the-cloud-dev/soql-
 
 SOQL-Lib is agile, so you can adjust the solution according to your needs. We don't force one approach over another, you can choose your own. Here are our propositions:
 
-#### A - Inheritance - extends SOQL, implements Interface + static
+## A - Inheritance - extends SOQL, implements Interface + static
 
 ```apex
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
@@ -54,11 +54,9 @@ public with sharing class ExampleController {
     @AuraEnabled
     public static List<Account> getPartnerAccounts(String accountName) {
         return SOQL_Account.query()
+            .byRecordType('Partner')
+            .whereAre(SOQL.Filter.name().contains(accountName))
             .with(Account.BillingCity, Account.BillingCountry)
-            .whereAre(SOQL.FilterGroup
-                .add(SOQL.Filter.name().contains(accountName))
-                .add(SOQL.Filter.recordType().equal('Partner'))
-            )
             .toList();
     }
 
@@ -78,7 +76,7 @@ public with sharing class ExampleController {
 }
 ```
 
-#### B - Composition - implements Interface + static
+## B - Composition - implements Interface + static
 
 Use `SOQL.Selector` and create `static` methods.
 
@@ -130,7 +128,7 @@ public with sharing class ExampleController {
 }
 ```
 
-#### C - Inheritance - extends SOQL + non-static
+## C - Inheritance - extends SOQL + non-static
 
 ```apex
 public inherited sharing class SOQL_Account extends SOQL {
@@ -194,7 +192,7 @@ public with sharing class ExampleController {
 }
 ```
 
-#### D - Composition - implements Interface + non-static
+## D - Composition - implements Interface + non-static
 
 Very useful when you have different teams/streams that need different query configurations.
 
@@ -242,7 +240,7 @@ public with sharing class ExampleController {
 }
 ```
 
-#### E - Custom
+## E - Custom
 
 Create Selectors in your own way.
 
@@ -279,7 +277,7 @@ public with sharing class ExampleController {
 }
 ```
 
-#### F - FFLib Approach
+## F - FFLib Approach
 
 ```apex
 
