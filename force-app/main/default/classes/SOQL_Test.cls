@@ -766,7 +766,7 @@ private class SOQL_Test {
         Map<String, Object> binding = builder.binding();
         Assert.areEqual('Test%', binding.get('v1'));
     }
-    
+
     @IsTest
     static void notStartsWith() {
         // Test
@@ -881,61 +881,61 @@ private class SOQL_Test {
     @IsTest
     static void inlcudesAll() {
         // Setup
-        List<String> roles = new List<String>{ 'Business User', 'Decision Maker' };
+        List<String> ratings = new List<String>{ 'Hot', 'Warm' };
 
         // Test
-        SOQL builder = SOQL.of(AccountContactRelation.SObjectType)
-            .with(AccountContactRelation.Id)
-            .whereAre(SOQL.Filter.with(AccountContactRelation.Roles).includesAll(roles));
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .with(Account.Id)
+            .whereAre(SOQL.Filter.with(Account.Rating).includesAll(ratings));
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM AccountContactRelation WHERE Roles INCLUDES (\'Business User;Decision Maker\')', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Rating INCLUDES (\'Hot;Warm\')', soql);
     }
 
     @IsTest
     static void inlcudesSome() {
         // Setup
-        List<String> roles = new List<String>{ 'Executive Sponsor', 'Economic Decision Maker' };
+        List<String> ratings = new List<String>{ 'Hot', 'Warm' };
 
         // Test
-        SOQL builder = SOQL.of(AccountContactRelation.SObjectType)
-            .with(AccountContactRelation.Id)
-            .whereAre(SOQL.Filter.with(AccountContactRelation.Roles).includesSome(roles));
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .with(Account.Id)
+            .whereAre(SOQL.Filter.with(Account.Rating).includesSome(ratings));
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM AccountContactRelation WHERE Roles INCLUDES (\'Executive Sponsor\', \'Economic Decision Maker\')', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Rating INCLUDES (\'Hot\', \'Warm\')', soql);
     }
 
     @IsTest
     static void excludesAll() {
         // Setup
-        List<String> roles = new List<String>{ 'Technical Buyer', 'Economic Buyer' };
+        List<String> ratings = new List<String>{ 'Hot', 'Warm' };
 
         // Test
-        SOQL builder = SOQL.of(AccountContactRelation.SObjectType)
-            .with(AccountContactRelation.Id)
-            .whereAre(SOQL.Filter.with(AccountContactRelation.Roles).excludesAll(roles));
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .with(Account.Id)
+            .whereAre(SOQL.Filter.with(Account.Rating).excludesAll(ratings));
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM AccountContactRelation WHERE Roles EXCLUDES (\'Technical Buyer\', \'Economic Buyer\')', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Rating EXCLUDES (\'Hot\', \'Warm\')', soql);
     }
 
     @IsTest
     static void excludesSome() {
         // Setup
-        List<String> roles = new List<String>{ 'Evaluator', 'Influencer' };
+        List<String> ratings = new List<String>{ 'Hot', 'Warm' };
 
         // Test
-        SOQL builder = SOQL.of(AccountContactRelation.SObjectType)
-            .with(AccountContactRelation.Id)
-            .whereAre(SOQL.Filter.with(AccountContactRelation.Roles).excludesSome(roles));
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .with(Account.Id)
+            .whereAre(SOQL.Filter.with(Account.Rating).excludesSome(ratings));
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM AccountContactRelation WHERE Roles EXCLUDES (\'Evaluator;Influencer\')', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Rating EXCLUDES (\'Hot;Warm\')', soql);
     }
 
     @IsTest
