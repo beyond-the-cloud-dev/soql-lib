@@ -3,7 +3,6 @@
   "edition": "Developer",
   "features": [
     "EnableSetPasswordInApi",
-    "ContactsToMultipleAccounts",
     "PersonAccounts"
   ],
   "settings": {
