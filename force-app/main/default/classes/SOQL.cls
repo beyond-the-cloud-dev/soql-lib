@@ -51,6 +51,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
         Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         Queryable with(List<SObjectField> fields);
+        Queryable with(Iterable<String> fields);
         Queryable with(String fields);
         Queryable with(SObjectField field, String alias);
         Queryable with(String relationshipName, SObjectField field);
@@ -284,6 +285,10 @@ public virtual inherited sharing class SOQL implements Queryable {
     public SOQL with(List<SObjectField> fields) {
         builder.fields.with(fields);
         return this;
+    }
+
+    public SOQL with(Iterable<String> fields) {
+        return with(String.join(fields, ','));
     }
 
     public SOQL with(String fields) {
