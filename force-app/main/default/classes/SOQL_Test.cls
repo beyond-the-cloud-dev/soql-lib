@@ -136,6 +136,23 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void withListOfStringFields() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(new List<String>{
+                'Id',
+                'Name',
+                'Industry',
+                'AccountNumber',
+                'AnnualRevenue',
+                'BillingCity'
+            }).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id, Name, Industry, AccountNumber, AnnualRevenue, BillingCity FROM Account', soql);
+    }
+
+    @IsTest
     static void withStringFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
