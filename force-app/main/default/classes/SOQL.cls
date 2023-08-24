@@ -530,7 +530,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Integer toInteger() {
-        if (builder.fields.isCountEmpty()) {
+        if (builder.fields.areCountsEmpty()) {
             count();
         }
         return executor.toInteger(builder.toString(), binder.getBindingMap());
@@ -740,7 +740,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             fields.clear();
         }
 
-        public Boolean isCountEmpty() {
+        public Boolean areCountsEmpty() {
             return counts.isEmpty();
         }
 
