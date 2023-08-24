@@ -1802,6 +1802,18 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void toIntegerWithoutCount() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        Integer result = SOQL.of(Account.SObjectType).toInteger();
+
+        // Verify
+        Assert.areEqual(accounts.size(), result);
+    }
+
+    @IsTest
     static void toInteger() {
         // Setup
         List<Account> accounts = insertAccounts();
