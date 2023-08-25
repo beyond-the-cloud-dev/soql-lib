@@ -530,6 +530,9 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Integer toInteger() {
+        if (builder.fields.areCountsEmpty()) {
+            count();
+        }
         return executor.toInteger(builder.toString(), binder.getBindingMap());
     }
 
@@ -735,6 +738,10 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public void clearAllFields() {
             fields.clear();
+        }
+
+        public Boolean areCountsEmpty() {
+            return counts.isEmpty();
         }
 
         public override String toString() {
