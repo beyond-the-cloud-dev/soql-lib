@@ -23,6 +23,7 @@ The following are methods for `SOQL`.
 - [`with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4)`](#with-field1---field5)
 - [`with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5)`](#with-field1---field5)
 - [`with(List<SObjectField> fields)`](#with-fields)
+- [`with(List<String> fields)`](#with-fields)
 - [`with(String fields)`](#with-string-fields)
 - [`with(String relationshipName, SObjectField field)`](#with-related-field1---field5)
 - [`with(String relationshipName, SObjectField field1, SObjectField field2)`](#with-related-field1---field5)
@@ -54,8 +55,8 @@ The following are methods for `SOQL`.
 
 - [`whereAre(FilterGroup filterGroup)`](#whereare)
 - [`whereAre(Filter filter)`](#whereare)
-- [conditionLogic(String order)](#conditionlogic)
-- [anyConditionMatching()](#anyconditionmatching);
+- [`conditionLogic(String order)`](#conditionlogic)
+- [`anyConditionMatching()`](#anyconditionmatching);
 
 [**GROUP BY**](#group-by)
 
@@ -199,6 +200,7 @@ Use for more than 5 fields.
 
 ```apex
 SOQL with(List<SObjectField> fields)
+SOQL with(List<String> fields)
 ```
 
 **Example**
@@ -216,6 +218,16 @@ SOQL.of(Account.SObjectType)
         Account.AccountNumber,
         Account.AnnualRevenue,
         Account.BillingCity
+    }).toList();
+
+SOQL.of(Account.SObjectType)
+    .with(new List<String>{
+        'Id',
+        'Name',
+        'Industry',
+        'AccountNumber',
+        'AnnualRevenue',
+        'BillingCity'
     }).toList();
 ```
 

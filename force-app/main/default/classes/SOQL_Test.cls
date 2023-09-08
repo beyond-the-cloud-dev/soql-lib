@@ -136,6 +136,23 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void withListOfStringFields() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(new List<String>{
+                'Id',
+                'Name',
+                'Industry',
+                'AccountNumber',
+                'AnnualRevenue',
+                'BillingCity'
+            }).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id, Name, Industry, AccountNumber, AnnualRevenue, BillingCity FROM Account', soql);
+    }
+
+    @IsTest
     static void withStringFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
@@ -1782,6 +1799,18 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(accounts.size(), result[0].get('names'));
+    }
+
+    @IsTest
+    static void toIntegerWithoutCount() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        Integer result = SOQL.of(Account.SObjectType).toInteger();
+
+        // Verify
+        Assert.areEqual(accounts.size(), result);
     }
 
     @IsTest
