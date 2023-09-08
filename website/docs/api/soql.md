@@ -55,8 +55,8 @@ The following are methods for `SOQL`.
 
 - [`whereAre(FilterGroup filterGroup)`](#whereare)
 - [`whereAre(Filter filter)`](#whereare)
-- [conditionLogic(String order)](#conditionlogic)
-- [anyConditionMatching()](#anyconditionmatching);
+- [`conditionLogic(String order)`](#conditionlogic)
+- [`anyConditionMatching()`](#anyconditionmatching);
 
 [**GROUP BY**](#group-by)
 
