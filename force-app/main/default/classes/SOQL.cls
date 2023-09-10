@@ -81,6 +81,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         // GROUP BY
         Queryable groupBy(SObjectField field);
         Queryable groupByRollup(SObjectField field);
+        Queryable groupByCube(SObjectField field);
         // ORDER BY
         Queryable orderBy(String field);
         Queryable orderBy(String field, String direction);
@@ -408,6 +409,11 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public SOQL groupByRollup(SObjectField field) {
         builder.groupBy.rollup(field);
+        return this;
+    }
+
+    public SOQL groupByCube(SObjectField field) {
+        builder.groupBy.cube(field);
         return this;
     }
 
@@ -1274,17 +1280,34 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private class QGroupBy implements QueryClause {
         private Set<String> groupByFields = new Set<String>();
+        private String groupByFunction = '';
 
         public void with(SObjectField field) {
+            setGroupByFunction('{0}');
             groupByFields.add(field.getDescribe().getName());
         }
 
         public void rollup(SObjectField field) {
-            groupByFields.add('ROLLUP(' + field + ')');
+            setGroupByFunction('ROLLUP({0})');
+            groupByFields.add(field.getDescribe().getName());
+        }
+
+        public void cube(SObjectField field) {
+            setGroupByFunction('CUBE({0})');
+            groupByFields.add(field.getDescribe().getName());
+        }
+
+        public void setGroupByFunction(String newGroupByFunction) {
+            if (String.isNotEmpty(groupByFunction) && groupByFunction != newGroupByFunction) {
+                QueryException e = new QueryException();
+                e.setMessage('You cant combine GROUP BY, GROUP BY ROLLUP and GROUP BY CUBE syntax in the same statement.');
+                throw e;
+            }
+            this.groupByFunction = newGroupByFunction;
         }
 
         public override String toString() {
-            return 'GROUP BY ' + String.join(groupByFields, ', ');
+            return 'GROUP BY ' +  String.format(groupByFunction, new List<String> { String.join(groupByFields, ', ') });
         }
     }
 

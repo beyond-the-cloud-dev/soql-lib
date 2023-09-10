@@ -81,6 +81,7 @@ public interface Queryable {
 
     Queryable groupBy(SObjectField field);
     Queryable groupByRollup(SObjectField field);
+    Queryable groupByCube(SObjectField field);
 
     Queryable orderBy(String field); // ASC, NULLS FIRST by default
     Queryable orderBy(String field, String direction); // dynamic order by, NULLS FIRST by default

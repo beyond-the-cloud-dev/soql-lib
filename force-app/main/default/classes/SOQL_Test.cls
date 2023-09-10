@@ -1298,6 +1298,41 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void groupByCube() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Type)
+            .groupByCube(Account.Type)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Type FROM Account GROUP BY CUBE(Type)', soql);
+    }
+
+    @IsTest
+    static void differentGroupByFunctionsException() {
+        // Setup
+        Exception queryException = null;
+
+        // Test
+        try {
+           String soql = SOQL.of(Account.SObjectType)
+                .with(Account.Type)
+                .groupBy(Account.Type)
+                .groupByCube(Account.Type)
+                .toString();
+        } catch(Exception e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.areEqual(
+            'You cant combine GROUP BY, GROUP BY ROLLUP and GROUP BY CUBE syntax in the same statement.',
+            queryException.getMessage()
+        );
+    }
+
+    @IsTest
     static void orderByString() {
         // Test
         String soql = SOQL.of(Account.SObjectType)

@@ -62,6 +62,7 @@ The following are methods for `SOQL`.
 
 - [`groupBy(SObjectField field)`](#group-by)
 - [`groupByRollup(SObjectField field)`](#groupbyrollup)
+- [`groupByCube(SObjectField field)`](#groupbycube)
 
 [**ORDER BY**](#order-by)
 
@@ -726,10 +727,32 @@ FROM Lead
 GROUP BY ROLLUP(LeadSource)
 ```
 ```apex
-QS.of(Lead.SObjectType)
+SOQL.of(Lead.SObjectType)
     .with(Lead.LeadSource)
     .count(Lead.Name, 'cnt')
     .groupByRollup(Lead.LeadSource)
+    .toAggregated();
+```
+
+### groupByCube
+
+**Signature**
+
+```apex
+SOQL groupByCube(SObjectField field)
+```
+
+**Example**
+
+```sql
+SELECT Type
+FROM Account
+GROUP BY ROLLUP(Type)
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .with(Account.Type)
+    .groupByCube(Account.Type)
     .toAggregated();
 ```
 
