@@ -404,16 +404,19 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public SOQL groupBy(SObjectField field) {
         builder.groupBy.with(field);
+        builder.fields.addAsGroupedOrAggregated(field);
         return this;
     }
 
     public SOQL groupByRollup(SObjectField field) {
         builder.groupBy.rollup(field);
+        builder.fields.addAsGroupedOrAggregated(field);
         return this;
     }
 
     public SOQL groupByCube(SObjectField field) {
         builder.groupBy.cube(field);
+        builder.fields.addAsGroupedOrAggregated(field);
         return this;
     }
 
@@ -691,30 +694,39 @@ public virtual inherited sharing class SOQL implements Queryable {
     private class QFields implements QueryClause {
         private Set<String> fields = new Set<String>();
         private Set<String> counts = new Set<String>();
+        private Set<String> groupedOrAggregated = new Set<String>();
 
         public void count() {
             // COUNT() must be the only element in the SELECT list.
+            clearAllFields();
             count('COUNT()');
         }
 
         public void count(SObjectField field) {
+            addAsGroupedOrAggregated(field);
             count('COUNT(' + field + ')');
         }
 
         public void count(SObjectField field, String alias) {
+            addAsGroupedOrAggregated(field);
             count('COUNT(' + field + ') ' + alias);
         }
 
-        public void count(String countSoql) {
-            // Clear all default fields to avoid "Field must be grouped or aggregated"
-            clearAllFields();
+        private void count(String countSoql) {
             counts.add(countSoql);
         }
 
         public void with(SObjectField field, String alias) {
-            // Only aggregate expressions use field aliasing. Clear all default fields to avoid "Field must be grouped or aggregated"
-            clearAllFields();
+            addAsGroupedOrAggregated(field + ' ' + alias);
             fields.add(field + ' ' + alias);
+        }
+
+        public void addAsGroupedOrAggregated(SObjectField field) {
+            addAsGroupedOrAggregated(field.getDescribe().getName());
+        }
+
+        public void addAsGroupedOrAggregated(String field) {
+            groupedOrAggregated.add(field);
         }
 
         public void with(String stringFields) {
@@ -751,6 +763,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
+            clearNotGroupedOrAggregatedFields();
+
             if (fields.isEmpty() && counts.isEmpty()) {
                 return 'SELECT Id';
             }
@@ -761,6 +775,18 @@ public virtual inherited sharing class SOQL implements Queryable {
             selectStatement.addAll(fields);
 
             return 'SELECT ' + String.join(selectStatement, ', ');
+        }
+
+        public void clearNotGroupedOrAggregatedFields() {
+            if (groupedOrAggregated.isEmpty()) {
+                return;
+            }
+            // Clear not grouped or aggregated fields to avoid "Field must be grouped or aggregated" error
+            for (String field : fields) {
+                if (!groupedOrAggregated.contains(field)) {
+                    fields.remove(field);
+                }
+            }
         }
     }
 
