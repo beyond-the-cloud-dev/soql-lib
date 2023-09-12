@@ -81,6 +81,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         // GROUP BY
         Queryable groupBy(SObjectField field);
         Queryable groupByRollup(SObjectField field);
+        Queryable groupByCube(SObjectField field);
         // ORDER BY
         Queryable orderBy(String field);
         Queryable orderBy(String field, String direction);
@@ -403,11 +404,19 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public SOQL groupBy(SObjectField field) {
         builder.groupBy.with(field);
+        builder.fields.addAsGroupedOrAggregated(field);
         return this;
     }
 
     public SOQL groupByRollup(SObjectField field) {
         builder.groupBy.rollup(field);
+        builder.fields.addAsGroupedOrAggregated(field);
+        return this;
+    }
+
+    public SOQL groupByCube(SObjectField field) {
+        builder.groupBy.cube(field);
+        builder.fields.addAsGroupedOrAggregated(field);
         return this;
     }
 
@@ -685,30 +694,39 @@ public virtual inherited sharing class SOQL implements Queryable {
     private class QFields implements QueryClause {
         private Set<String> fields = new Set<String>();
         private Set<String> counts = new Set<String>();
+        private Set<String> groupedOrAggregated = new Set<String>();
 
         public void count() {
             // COUNT() must be the only element in the SELECT list.
+            clearAllFields();
             count('COUNT()');
         }
 
         public void count(SObjectField field) {
+            addAsGroupedOrAggregated(field);
             count('COUNT(' + field + ')');
         }
 
         public void count(SObjectField field, String alias) {
+            addAsGroupedOrAggregated(field);
             count('COUNT(' + field + ') ' + alias);
         }
 
-        public void count(String countSoql) {
-            // Clear all default fields to avoid "Field must be grouped or aggregated"
-            clearAllFields();
+        private void count(String countSoql) {
             counts.add(countSoql);
         }
 
         public void with(SObjectField field, String alias) {
-            // Only aggregate expressions use field aliasing. Clear all default fields to avoid "Field must be grouped or aggregated"
-            clearAllFields();
+            addAsGroupedOrAggregated(field + ' ' + alias);
             fields.add(field + ' ' + alias);
+        }
+
+        public void addAsGroupedOrAggregated(SObjectField field) {
+            addAsGroupedOrAggregated(field.getDescribe().getName());
+        }
+
+        public void addAsGroupedOrAggregated(String field) {
+            groupedOrAggregated.add(field);
         }
 
         public void with(String stringFields) {
@@ -745,6 +763,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
+            clearNotGroupedOrAggregatedFields();
+
             if (fields.isEmpty() && counts.isEmpty()) {
                 return 'SELECT Id';
             }
@@ -755,6 +775,18 @@ public virtual inherited sharing class SOQL implements Queryable {
             selectStatement.addAll(fields);
 
             return 'SELECT ' + String.join(selectStatement, ', ');
+        }
+
+        public void clearNotGroupedOrAggregatedFields() {
+            if (groupedOrAggregated.isEmpty()) {
+                return;
+            }
+            // Clear not grouped or aggregated fields to avoid "Field must be grouped or aggregated" error
+            for (String field : fields) {
+                if (!groupedOrAggregated.contains(field)) {
+                    fields.remove(field);
+                }
+            }
         }
     }
 
@@ -1274,17 +1306,34 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private class QGroupBy implements QueryClause {
         private Set<String> groupByFields = new Set<String>();
+        private String groupByFunction = '';
 
         public void with(SObjectField field) {
+            setGroupByFunction('{0}');
             groupByFields.add(field.getDescribe().getName());
         }
 
         public void rollup(SObjectField field) {
-            groupByFields.add('ROLLUP(' + field + ')');
+            setGroupByFunction('ROLLUP({0})');
+            groupByFields.add(field.getDescribe().getName());
+        }
+
+        public void cube(SObjectField field) {
+            setGroupByFunction('CUBE({0})');
+            groupByFields.add(field.getDescribe().getName());
+        }
+
+        public void setGroupByFunction(String newGroupByFunction) {
+            if (String.isNotEmpty(groupByFunction) && groupByFunction != newGroupByFunction) {
+                QueryException e = new QueryException();
+                e.setMessage('You cant combine GROUP BY, GROUP BY ROLLUP and GROUP BY CUBE syntax in the same statement.');
+                throw e;
+            }
+            this.groupByFunction = newGroupByFunction;
         }
 
         public override String toString() {
-            return 'GROUP BY ' + String.join(groupByFields, ', ');
+            return 'GROUP BY ' +  String.format(groupByFunction, new List<String> { String.join(groupByFields, ', ') });
         }
     }
 
