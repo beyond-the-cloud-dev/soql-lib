@@ -546,7 +546,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Integer toInteger() {
-        if (builder.fields.areFieldsEmpty()) {
+        if (!builder.fields.hasCount()) {
             count();
         }
         return executor.toInteger(builder.toString(), binder.getBindingMap());
@@ -701,20 +701,25 @@ public virtual inherited sharing class SOQL implements Queryable {
     private class QFields implements QueryClause {
         private Set<String> fields = new Set<String>();
         private Set<String> aggregatedFields = new Set<String>();
+        private Boolean hasCount = false;
 
         public void count() {
-            withAggregatedField('COUNT()');
-            fields.add('COUNT()');
+            count('COUNT()');
         }
 
         public void count(SObjectField field) {
-            withAggregatedField('COUNT(' + field + ')');
-            fields.add('COUNT(' + field + ')');
+            count('COUNT(' + field + ')');
         }
 
         public void count(SObjectField field, String alias) {
-            withAggregatedField('COUNT(' + field + ') ' + alias);
+            count('COUNT(' + field + ') ' + alias);
             fields.add('COUNT(' + field + ') ' + alias);
+        }
+
+        private void count(String count) {
+            this.hasCount = true;
+            withAggregatedField(count);
+            fields.add(count);
         }
 
         public void grouping(SObjectField field, String alias) {
@@ -764,8 +769,8 @@ public virtual inherited sharing class SOQL implements Queryable {
             fields.clear();
         }
 
-        public Boolean areFieldsEmpty() {
-            return fields.isEmpty();
+        public Boolean hasCount() {
+            return hasCount;
         }
 
         public override String toString() {
