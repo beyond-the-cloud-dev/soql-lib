@@ -65,6 +65,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable count();
         Queryable count(SObjectField field);
         Queryable count(SObjectField field, String alias);
+        // GROUPING
+        Queryable grouping(SObjectField field, String alias);
         // USING SCOPE
         Queryable delegatedScope();
         Queryable mineScope();
@@ -347,6 +349,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         return this;
     }
 
+    public SOQL grouping(SObjectField field, String alias) {
+        builder.fields.grouping(field, alias);
+        return this;
+    }
+
     public SOQL delegatedScope() {
         builder.scope.delegated();
         return this;
@@ -539,7 +546,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Integer toInteger() {
-        if (builder.fields.areCountsEmpty()) {
+        if (builder.fields.areFieldsEmpty()) {
             count();
         }
         return executor.toInteger(builder.toString(), binder.getBindingMap());
@@ -693,27 +700,26 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private class QFields implements QueryClause {
         private Set<String> fields = new Set<String>();
-        private Set<String> counts = new Set<String>();
         private Set<String> aggregatedFields = new Set<String>();
 
         public void count() {
-            // COUNT() must be the only element in the SELECT list.
-            clearAllFields();
-            count('COUNT()');
+            withAggregatedField('COUNT()');
+            fields.add('COUNT()');
         }
 
         public void count(SObjectField field) {
-            withAggregatedField(field);
-            count('COUNT(' + field + ')');
+            withAggregatedField('COUNT(' + field + ')');
+            fields.add('COUNT(' + field + ')');
         }
 
         public void count(SObjectField field, String alias) {
-            withAggregatedField(field);
-            count('COUNT(' + field + ') ' + alias);
+            withAggregatedField('COUNT(' + field + ') ' + alias);
+            fields.add('COUNT(' + field + ') ' + alias);
         }
 
-        private void count(String countSoql) {
-            counts.add(countSoql);
+        public void grouping(SObjectField field, String alias) {
+            withAggregatedField('GROUPING(' + field + ') ' + alias);
+            fields.add('GROUPING(' + field + ') ' + alias);
         }
 
         public void with(SObjectField field, String alias) {
@@ -758,23 +764,18 @@ public virtual inherited sharing class SOQL implements Queryable {
             fields.clear();
         }
 
-        public Boolean areCountsEmpty() {
-            return counts.isEmpty();
+        public Boolean areFieldsEmpty() {
+            return fields.isEmpty();
         }
 
         public override String toString() {
             removeNotAggregatedFieldsFromAggregateSoql();
 
-            if (fields.isEmpty() && counts.isEmpty()) {
+            if (fields.isEmpty()) {
                 return 'SELECT Id';
             }
 
-            List<String> selectStatement = new List<String>();
-
-            selectStatement.addAll(counts);
-            selectStatement.addAll(fields);
-
-            return 'SELECT ' + String.join(selectStatement, ', ');
+            return 'SELECT ' + String.join(fields, ', ');
         }
 
         public void removeNotAggregatedFieldsFromAggregateSoql() {
