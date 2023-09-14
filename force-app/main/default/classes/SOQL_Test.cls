@@ -63,6 +63,22 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void grouping() {
+         // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource, Lead.Rating)
+            .grouping(Lead.LeadSource, 'grpLS')
+            .grouping(Lead.Rating, 'grpRating')
+            .count(Lead.Name, 'cnt')
+            .groupByRollup(Lead.LeadSource)
+            .groupByRollup(Lead.Rating)
+            .toString();
+
+         // Verify
+        Assert.areEqual('SELECT LeadSource, Rating, GROUPING(LeadSource) grpLS, GROUPING(Rating) grpRating, COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(LeadSource, Rating)', soql);
+    }
+
+    @IsTest
     static void withField() {
         // Test
         String soql = SOQL.of(Account.SObjectType)

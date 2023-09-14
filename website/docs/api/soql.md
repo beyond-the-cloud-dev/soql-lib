@@ -38,6 +38,10 @@ The following are methods for `SOQL`.
 - [`count(SObjectField field)`](#count-field)
 - [`count(SObjectField field, String alias)`](#count-with-alias)
 
+[**GROUPING**](#grouping)
+
+- [`grouping(SObjectField field, String alias)`](#grouping)
+
 [**SUBQUERY**](#sub-query)
 
 - [`with(SubQuery subQuery)`](#with-subquery)
@@ -434,6 +438,36 @@ SELECT COUNT(Name) names FROM Account
 ```apex
 SOQL.of(Account.SObjectType)
     .count(Account.Name, 'names')
+    .toAggregated();
+```
+
+## GROUPING
+
+### grouping
+
+**Signature**
+
+```apex
+grouping(SObjectField field, String alias)
+```
+
+**Example**
+
+```sql
+SELECT LeadSource, Rating,
+    GROUPING(LeadSource) grpLS, GROUPING(Rating) grpRating,
+    COUNT(Name) cnt
+FROM Lead
+GROUP BY ROLLUP(LeadSource, Rating)
+```
+```apex
+SOQL.of(Lead.SObjectType)
+    .with(Lead.LeadSource, Lead.Rating)
+    .grouping(Lead.LeadSource, 'grpLS')
+    .grouping(Lead.Rating, 'grpRating')
+    .count(Lead.Name, 'cnt')
+    .groupByRollup(Lead.LeadSource)
+    .groupByRollup(Lead.Rating)
     .toAggregated();
 ```
 
