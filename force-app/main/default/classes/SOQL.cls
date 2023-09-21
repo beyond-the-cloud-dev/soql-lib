@@ -126,6 +126,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         List<SObject> toList();
         List<AggregateResult> toAggregated();
         Map<Id, SObject> toMap();
+        Object toMap(SObjectField keyField, System.Type targetMap);
         Database.QueryLocator toQueryLocator();
     }
 
@@ -566,6 +567,18 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public Map<Id, SObject> toMap() {
         return new Map<Id, SObject>(toList());
+    }
+
+    public Object toMap(SObjectField keyField, System.Type targetMap) {
+        with(keyField);
+
+        Map<Object, SObject> cutomKeyToRecord = new Map<Object, SObject>();
+
+        for (SObject record : toList()) {
+            cutomKeyToRecord.put(record.get(keyField), record);
+        }
+
+        return JSON.deserialize(JSON.serialize(cutomKeyToRecord), targetMap);
     }
 
     public Database.QueryLocator toQueryLocator() {

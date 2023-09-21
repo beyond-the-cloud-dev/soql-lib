@@ -1886,8 +1886,25 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(accounts.size(), result.size());
+
         for (Account acc : accounts) {
             Assert.isNotNull(result.get(acc.Id));
+        }
+    }
+
+    @IsTest
+    static void toMapWithCustomKey() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        Map<String, Account> result = (Map<String, Account>) SOQL.of(Account.SObjectType).toMap(Account.Name, Map<String, Account>.class);
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size());
+
+        for (Account acc : accounts) {
+            Assert.isNotNull(result.get(acc.Name));
         }
     }
 
