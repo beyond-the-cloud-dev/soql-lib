@@ -1925,6 +1925,38 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void toAggregatedMapWithCustomKey() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        Map<String, List<Account>> result = (Map<String, List<Account>>) SOQL.of(Account.SObjectType).toAggregatedMap(Account.Name);
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size());
+
+        for (Account acc : accounts) {
+            Assert.isNotNull(result.get(acc.Name));
+        }
+    }
+
+    @IsTest
+    static void toAggregatedMapWithCustomKeyAndType() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        Map<Id, List<Account>> result = (Map<Id, List<Account>>) SOQL.of(Account.SObjectType).toAggregatedMap(Account.Id, Map<Id, List<Account>>.class);
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size());
+
+        for (Account acc : accounts) {
+            Assert.isNotNull(result.get(acc.Id));
+        }
+    }
+
+    @IsTest
     static void toQueryLocator() {
         // Test
         Database.QueryLocator queryLocator = SOQL.of(Account.SObjectType)
