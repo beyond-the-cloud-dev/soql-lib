@@ -126,10 +126,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         List<SObject> toList();
         List<AggregateResult> toAggregated();
         Map<Id, SObject> toMap();
-        Object toMap(SObjectField keyField);
-        Object toMap(SObjectField keyField, Type targetMap);
-        Object toAggregatedMap(SObjectField keyField);
-        Object toAggregatedMap(SObjectField keyField, Type targetMap);
+        Map<String, SObject> toMap(SObjectField keyField);
+        Map<String, List<SObject>> toAggregatedMap(SObjectField keyField);
         Database.QueryLocator toQueryLocator();
     }
 
@@ -575,33 +573,25 @@ public virtual inherited sharing class SOQL implements Queryable {
         return new Map<Id, SObject>(toList());
     }
 
-    public Object toMap(SObjectField keyField) {
-        return toMap(keyField, Type.forName('Map<String, ' + ofObject  + ' >'));
-    }
-
-    public Object toMap(SObjectField keyField, Type targetMap) {
+    public Map<String, SObject> toMap(SObjectField keyField) {
         with(keyField);
 
-        Map<Object, SObject> cutomKeyToRecord = new Map<Object, SObject>();
+        Map<String, SObject> cutomKeyToRecord = (Map<String, SObject>) Type.forName('Map<String, ' + ofObject  + ' >').newInstance();
 
         for (SObject record : toList()) {
-            cutomKeyToRecord.put(record.get(keyField), record);
+            cutomKeyToRecord.put(String.valueOf(record.get(keyField)), record);
         }
 
-        return JSON.deserialize(JSON.serialize(cutomKeyToRecord), targetMap);
+        return cutomKeyToRecord;
     }
 
-    public Object toAggregatedMap(SObjectField keyField) {
-        return toAggregatedMap(keyField, Type.forName('Map<String, List<' + ofObject  + ' >>'));
-    }
-
-    public Object toAggregatedMap(SObjectField keyField, Type targetMap) {
+    public Map<String, List<SObject>> toAggregatedMap(SObjectField keyField) {
         with(keyField);
 
-        Map<Object, List<SObject>> cutomKeyToRecords = new Map<Object, List<SObject>>();
+        Map<String, List<SObject>> cutomKeyToRecords = (Map<String, List<SObject>>) Type.forName('Map<String, List<' + ofObject  + ' >>').newInstance();
 
         for (SObject record : toList()) {
-            Object customKey = record.get(keyField);
+            String customKey = String.valueOf(record.get(keyField));
 
             if (!cutomKeyToRecords.containsKey(customKey)) {
                 cutomKeyToRecords.put(customKey, new List<SObject>());
@@ -610,7 +600,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             cutomKeyToRecords.get(customKey).add(record);
         }
 
-        return JSON.deserialize(JSON.serialize(cutomKeyToRecords), targetMap);
+        return cutomKeyToRecords;
     }
 
     public Database.QueryLocator toQueryLocator() {

@@ -1909,22 +1909,6 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void toMapWithCustomKeyAndType() {
-        // Setup
-        List<Account> accounts = insertAccounts();
-
-        // Test
-        Map<Id, Account> result = (Map<Id, Account>) SOQL.of(Account.SObjectType).toMap(Account.Id, Map<Id, Account>.class);
-
-        // Verify
-        Assert.areEqual(accounts.size(), result.size());
-
-        for (Account acc : accounts) {
-            Assert.isNotNull(result.get(acc.Id));
-        }
-    }
-
-    @IsTest
     static void toAggregatedMapWithCustomKey() {
         // Setup
         List<Account> accounts = insertAccounts();
@@ -1937,22 +1921,6 @@ private class SOQL_Test {
 
         for (Account acc : accounts) {
             Assert.isNotNull(result.get(acc.Name));
-        }
-    }
-
-    @IsTest
-    static void toAggregatedMapWithCustomKeyAndType() {
-        // Setup
-        List<Account> accounts = insertAccounts();
-
-        // Test
-        Map<Id, List<Account>> result = (Map<Id, List<Account>>) SOQL.of(Account.SObjectType).toAggregatedMap(Account.Id, Map<Id, List<Account>>.class);
-
-        // Verify
-        Assert.areEqual(accounts.size(), result.size());
-
-        for (Account acc : accounts) {
-            Assert.isNotNull(result.get(acc.Id));
         }
     }
 
