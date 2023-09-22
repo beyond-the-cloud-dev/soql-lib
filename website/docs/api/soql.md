@@ -128,6 +128,8 @@ The following are methods for `SOQL`.
 - [`toList()`](#tolist)
 - [`toAggregated()`](#toaggregated)
 - [`toMap()`](#tomap)
+- [`toMap(SObjectField keyField)`](#tomap-with-custom-key)
+- [`toAggregatedMap(SObjectField keyField)`](#toaggregatedmap)
 - [`toQueryLocator()`](#toquerylocator)
 
 ## INIT
@@ -1478,6 +1480,34 @@ Map<Id, SObject> toMap()
 
 ```apex
 SOQL.of(Account.SObjectType).toMap();
+```
+
+### toMap with custom key
+
+**Signature**
+
+```apex
+Map<String, SObject> toMap(SObjectField keyField)
+```
+
+**Example**
+
+```apex
+Map<String, Account> nameToAccount = (Map<String, Account>) SOQL.of(Account.SObjectType).toMap(Account.Name);
+```
+
+### toAggregatedMap
+
+**Signature**
+
+```apex
+Map<String, List<SObject>> toAggregatedMap(SObjectField keyField)
+```
+
+**Example**
+
+```apex
+Map<String, Account> industryToAccounts = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Industry);
 ```
 
 ### toQueryLocator
