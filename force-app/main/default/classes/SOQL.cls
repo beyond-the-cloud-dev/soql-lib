@@ -127,9 +127,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         List<AggregateResult> toAggregated();
         Map<Id, SObject> toMap();
         Object toMap(SObjectField keyField);
-        Object toMap(SObjectField keyField, System.Type targetMap);
+        Object toMap(SObjectField keyField, Type targetMap);
         Object toAggregatedMap(SObjectField keyField);
-        Object toAggregatedMap(SObjectField keyField, System.Type targetMap);
+        Object toAggregatedMap(SObjectField keyField, Type targetMap);
         Database.QueryLocator toQueryLocator();
     }
 
@@ -579,7 +579,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         return toMap(keyField, Type.forName('Map<String, ' + ofObject  + ' >'));
     }
 
-    public Object toMap(SObjectField keyField, System.Type targetMap) {
+    public Object toMap(SObjectField keyField, Type targetMap) {
         with(keyField);
 
         Map<Object, SObject> cutomKeyToRecord = new Map<Object, SObject>();
@@ -595,7 +595,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         return toAggregatedMap(keyField, Type.forName('Map<String, List<' + ofObject  + ' >>'));
     }
 
-    public Object toAggregatedMap(SObjectField keyField, System.Type targetMap) {
+    public Object toAggregatedMap(SObjectField keyField, Type targetMap) {
         with(keyField);
 
         Map<Object, List<SObject>> cutomKeyToRecords = new Map<Object, List<SObject>>();
@@ -607,7 +607,7 @@ public virtual inherited sharing class SOQL implements Queryable {
                 cutomKeyToRecords.put(customKey, new List<SObject>());
             }
 
-            cutomKeyToRecords.get(record.get(keyField)).add(record);
+            cutomKeyToRecords.get(customKey).add(record);
         }
 
         return JSON.deserialize(JSON.serialize(cutomKeyToRecords), targetMap);
