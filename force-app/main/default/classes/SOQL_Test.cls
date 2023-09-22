@@ -1914,7 +1914,7 @@ private class SOQL_Test {
         List<Account> accounts = insertAccounts();
 
         // Test
-        Map<String, List<Account>> result = (Map<String, List<Account>>) SOQL.of(Account.SObjectType).toAggregatedMap(Account.Name);
+        Map<String, List<Account>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Name);
 
         // Verify
         Assert.areEqual(accounts.size(), result.size());
@@ -1922,6 +1922,20 @@ private class SOQL_Test {
         for (Account acc : accounts) {
             Assert.isNotNull(result.get(acc.Name));
         }
+    }
+
+    @IsTest
+    static void toAggregatedMapWithEmptyCustomKey() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        Map<String, List<Account>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Industry);
+
+        Assert.areEqual(new  Map<String, List<Account>>(), result);
+
+        // Verify
+        Assert.areEqual(1, result.size()); // grouped by empty Industry
     }
 
     @IsTest

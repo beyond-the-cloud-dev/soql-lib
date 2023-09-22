@@ -579,7 +579,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Map<String, SObject> cutomKeyToRecord = (Map<String, SObject>) Type.forName('Map<String, ' + ofObject  + ' >').newInstance();
 
         for (SObject record : toList()) {
-            cutomKeyToRecord.put(String.valueOf(record.get(keyField)), record);
+            cutomKeyToRecord.put(record.get(keyField) + '', record);
         }
 
         return cutomKeyToRecord;
@@ -591,7 +591,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Map<String, List<SObject>> cutomKeyToRecords = (Map<String, List<SObject>>) Type.forName('Map<String, List<' + ofObject  + ' >>').newInstance();
 
         for (SObject record : toList()) {
-            String customKey = String.valueOf(record.get(keyField));
+            String customKey = record.get(keyField) + '';
 
             if (!cutomKeyToRecords.containsKey(customKey)) {
                 cutomKeyToRecords.put(customKey, new List<SObject>());
