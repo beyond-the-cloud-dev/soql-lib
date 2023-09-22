@@ -570,7 +570,9 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Map<Id, SObject> toMap() {
-        return new Map<Id, SObject>(toList());
+        Map<Id, SObject> idToSObject = (Map<Id, SObject>) Type.forName('Map<Id, ' + ofObject  + ' >').newInstance();
+        idToSObject.putAll(toList());
+        return idToSObject;
     }
 
     public Map<String, SObject> toMap(SObjectField keyField) {

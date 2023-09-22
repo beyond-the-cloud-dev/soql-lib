@@ -1882,7 +1882,7 @@ private class SOQL_Test {
         List<Account> accounts = insertAccounts();
 
         // Test
-        Map<Id, SObject> result = SOQL.of(Account.SObjectType).toMap();
+        Map<Id, Account> result = (Map<Id, Account>) SOQL.of(Account.SObjectType).toMap();
 
         // Verify
         Assert.areEqual(accounts.size(), result.size());
@@ -1931,8 +1931,6 @@ private class SOQL_Test {
 
         // Test
         Map<String, List<Account>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Industry);
-
-        Assert.areEqual(new  Map<String, List<Account>>(), result);
 
         // Verify
         Assert.areEqual(1, result.size()); // grouped by empty Industry
