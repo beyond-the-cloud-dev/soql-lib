@@ -1343,7 +1343,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(
-            'You cant combine GROUP BY, GROUP BY ROLLUP and GROUP BY CUBE syntax in the same statement.',
+            'You cant use GROUP BY, GROUP BY ROLLUP and GROUP BY CUBE in the same query.',
             queryException.getMessage()
         );
     }

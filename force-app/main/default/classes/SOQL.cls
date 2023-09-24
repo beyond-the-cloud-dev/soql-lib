@@ -1312,10 +1312,10 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public override String toString() {
             if (skipBinding) {
-                return String.format(wrapper, new List<String> { field + ' ' + comperator + ' ' + value });
+                return String.format(wrapper, new List<String>{ field + ' ' + comperator + ' ' + value });
             }
 
-            return String.format(wrapper, new List<String> { field + ' ' + comperator + ' :' + binder.bind(value) });
+            return String.format(wrapper, new List<String>{ field + ' ' + comperator + ' :' + binder.bind(value) });
         }
     }
 
@@ -1369,7 +1369,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         public void setGroupByFunction(String newGroupByFunction) {
             if (String.isNotEmpty(groupByFunction) && groupByFunction != newGroupByFunction) {
                 QueryException e = new QueryException();
-                e.setMessage('You cant combine GROUP BY, GROUP BY ROLLUP and GROUP BY CUBE syntax in the same statement.');
+                e.setMessage('You cant use GROUP BY, GROUP BY ROLLUP and GROUP BY CUBE in the same query.');
                 throw e;
             }
             this.groupByFunction = newGroupByFunction;
