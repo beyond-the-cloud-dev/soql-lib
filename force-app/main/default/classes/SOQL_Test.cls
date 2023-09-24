@@ -1882,13 +1882,58 @@ private class SOQL_Test {
         List<Account> accounts = insertAccounts();
 
         // Test
-        Map<Id, SObject> result = SOQL.of(Account.SObjectType).toMap();
+        Map<Id, Account> result = (Map<Id, Account>) SOQL.of(Account.SObjectType).toMap();
 
         // Verify
         Assert.areEqual(accounts.size(), result.size());
+
         for (Account acc : accounts) {
             Assert.isNotNull(result.get(acc.Id));
         }
+    }
+
+    @IsTest
+    static void toMapWithCustomKey() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        Map<String, Account> result = (Map<String, Account>) SOQL.of(Account.SObjectType).toMap(Account.Name);
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size());
+
+        for (Account acc : accounts) {
+            Assert.isNotNull(result.get(acc.Name));
+        }
+    }
+
+    @IsTest
+    static void toAggregatedMapWithCustomKey() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        Map<String, List<Account>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Name);
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size());
+
+        for (Account acc : accounts) {
+            Assert.isNotNull(result.get(acc.Name));
+        }
+    }
+
+    @IsTest
+    static void toAggregatedMapWithEmptyCustomKey() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        Map<String, List<Account>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Industry);
+
+        // Verify
+        Assert.areEqual(1, result.size()); // grouped by empty Industry
     }
 
     @IsTest

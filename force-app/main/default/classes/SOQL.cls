@@ -126,6 +126,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         List<SObject> toList();
         List<AggregateResult> toAggregated();
         Map<Id, SObject> toMap();
+        Map<String, SObject> toMap(SObjectField keyField);
+        Map<String, List<SObject>> toAggregatedMap(SObjectField keyField);
         Database.QueryLocator toQueryLocator();
     }
 
@@ -246,6 +248,8 @@ public virtual inherited sharing class SOQL implements Queryable {
     private QueryBuilder builder;
     private Executor executor;
 
+    private String ofObject;
+
     public static SOQL of(SObjectType ofObject) {
         return new SOQL(ofObject);
     }
@@ -259,6 +263,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public SOQL(String ofObject) {
+        this.ofObject = ofObject;
         binder = new Binder();
         executor = new Executor();
         builder = new QueryBuilder(ofObject);
@@ -565,7 +570,39 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Map<Id, SObject> toMap() {
-        return new Map<Id, SObject>(toList());
+        Map<Id, SObject> idToSObject = (Map<Id, SObject>) Type.forName('Map<Id, ' + ofObject  + ' >').newInstance();
+        idToSObject.putAll(toList());
+        return idToSObject;
+    }
+
+    public Map<String, SObject> toMap(SObjectField keyField) {
+        with(keyField);
+
+        Map<String, SObject> cutomKeyToRecord = (Map<String, SObject>) Type.forName('Map<String, ' + ofObject  + ' >').newInstance();
+
+        for (SObject record : toList()) {
+            cutomKeyToRecord.put(record.get(keyField) + '', record);
+        }
+
+        return cutomKeyToRecord;
+    }
+
+    public Map<String, List<SObject>> toAggregatedMap(SObjectField keyField) {
+        with(keyField);
+
+        Map<String, List<SObject>> cutomKeyToRecords = (Map<String, List<SObject>>) Type.forName('Map<String, List<' + ofObject  + ' >>').newInstance();
+
+        for (SObject record : toList()) {
+            String customKey = record.get(keyField) + '';
+
+            if (!cutomKeyToRecords.containsKey(customKey)) {
+                cutomKeyToRecords.put(customKey, new List<SObject>());
+            }
+
+            cutomKeyToRecords.get(customKey).add(record);
+        }
+
+        return cutomKeyToRecords;
     }
 
     public Database.QueryLocator toQueryLocator() {
