@@ -547,6 +547,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public Set<String> toValuesOf(SObjectField fieldToExtract) {
         // https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
+        builder.fields.clearAllFields(); // other fields not needed
         return new Map<String, SObject>(with(fieldToExtract, 'Id').groupBy(fieldToExtract).toAggregated()).keySet();
     }
 

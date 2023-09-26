@@ -1349,6 +1349,19 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void groupByWithDefaultFields() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.FirstName, Lead.LastName, Lead.Email)
+            .with(Lead.LeadSource)
+            .groupBy(Lead.LeadSource)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource FROM Lead GROUP BY LeadSource', soql);
+    }
+
+    @IsTest
     static void orderByString() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
