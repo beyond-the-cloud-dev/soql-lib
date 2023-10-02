@@ -1940,7 +1940,7 @@ private class SOQL_Test {
     @IsTest
     static void toAggregatedMapWithEmptyCustomKey() {
         // Setup
-        List<Account> accounts = insertAccounts();
+        insertAccounts();
 
         // Test
         Map<String, List<Account>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Industry);
