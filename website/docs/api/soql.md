@@ -129,7 +129,9 @@ The following are methods for `SOQL`.
 - [`toAggregated()`](#toaggregated)
 - [`toMap()`](#tomap)
 - [`toMap(SObjectField keyField)`](#tomap-with-custom-key)
+- [`toMap(SObjectField keyField,  SObjectField valueField)`](#tomap-with-custom-key-and-value)
 - [`toAggregatedMap(SObjectField keyField)`](#toaggregatedmap)
+- [`toAggregatedMap(SObjectField keyField, SObjectField valueField)`](#toaggregatedmap-with-custom-value)
 - [`toQueryLocator()`](#toquerylocator)
 
 ## INIT
@@ -1479,7 +1481,7 @@ Map<Id, SObject> toMap()
 **Example**
 
 ```apex
-SOQL.of(Account.SObjectType).toMap();
+Map<Id, Account> idToAccount = (Map<Id, Account>) SOQL.of(Account.SObjectType).toMap();
 ```
 
 ### toMap with custom key
@@ -1496,6 +1498,21 @@ Map<String, SObject> toMap(SObjectField keyField)
 Map<String, Account> nameToAccount = (Map<String, Account>) SOQL.of(Account.SObjectType).toMap(Account.Name);
 ```
 
+### toMap with custom key and value
+
+**Signature**
+
+```apex
+Map<String, String> toMap(SObjectField keyField, , SObjectField valueField)
+```
+
+**Example**
+
+```apex
+Map<String, String> nameToAccount = SOQL.of(Account.SObjectType).toMap(Account.Name, Account.Industry);
+```
+
+
 ### toAggregatedMap
 
 **Signature**
@@ -1508,6 +1525,20 @@ Map<String, List<SObject>> toAggregatedMap(SObjectField keyField)
 
 ```apex
 Map<String, Account> industryToAccounts = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Industry);
+```
+
+### toAggregatedMap with custom value
+
+**Signature**
+
+```apex
+Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField)
+```
+
+**Example**
+
+```apex
+Map<String, List<String>> industryToAccounts = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Industry, Account.Name);
 ```
 
 ### toQueryLocator

@@ -127,7 +127,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         List<AggregateResult> toAggregated();
         Map<Id, SObject> toMap();
         Map<String, SObject> toMap(SObjectField keyField);
+        Map<String, String> toMap(SObjectField keyField, SObjectField valueField);
         Map<String, List<SObject>> toAggregatedMap(SObjectField keyField);
+        Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
         Database.QueryLocator toQueryLocator();
     }
 
@@ -588,6 +590,23 @@ public virtual inherited sharing class SOQL implements Queryable {
         return cutomKeyToRecord;
     }
 
+    public Map<String, String> toMap(SObjectField keyField, SObjectField valueField) {
+        builder.fields.clearAllFields(); // other fields not needed
+
+        with(keyField, valueField);
+
+        Map<String, String> cutomKeyToCustomValue = new Map<String, String>();
+
+        for (SObject record : toList()) {
+            cutomKeyToCustomValue.put(
+                String.valueOf(record.get(keyField)),
+                String.valueOf(record.get(valueField))
+            );
+        }
+
+        return cutomKeyToCustomValue;
+    }
+
     public Map<String, List<SObject>> toAggregatedMap(SObjectField keyField) {
         with(keyField);
 
@@ -604,6 +623,26 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         return cutomKeyToRecords;
+    }
+
+    public Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField) {
+        builder.fields.clearAllFields(); // other fields not needed
+
+        with(keyField, valueField);
+
+        Map<String, List<String>> customKeyToValues = new Map<String, List<String>>();
+
+        for (SObject record : toList()) {
+            String customKey = String.valueOf(record.get(keyField));
+
+            if (!customKeyToValues.containsKey(customKey)) {
+                customKeyToValues.put(customKey, new List<String>());
+            }
+
+            customKeyToValues.get(customKey).add(String.valueOf(record.get(valueField)));
+        }
+
+        return customKeyToValues;
     }
 
     public Database.QueryLocator toQueryLocator() {

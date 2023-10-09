@@ -1922,6 +1922,22 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void toMapWithCustomKeyAndCustomValue() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        Map<String, String> result = SOQL.of(Account.SObjectType).toMap(Account.Name, Account.Id);
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size());
+
+        for (Account acc : accounts) {
+            Assert.isNotNull(result.get(acc.Name));
+        }
+    }
+
+    @IsTest
     static void toAggregatedMapWithCustomKey() {
         // Setup
         List<Account> accounts = insertAccounts();
@@ -1933,7 +1949,7 @@ private class SOQL_Test {
         Assert.areEqual(accounts.size(), result.size());
 
         for (Account acc : accounts) {
-            Assert.isNotNull(result.get(acc.Name));
+            Assert.isFalse(result.get(acc.Name).isEmpty());
         }
     }
 
@@ -1947,6 +1963,22 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(1, result.size()); // grouped by empty Industry
+    }
+
+    @IsTest
+    static void toAggregatedMapWithCustomKeyAndCustomValue() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        Map<String, List<String>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Name, Account.Id);
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size());
+
+        for (Account acc : accounts) {
+            Assert.isFalse(result.get(acc.Name).isEmpty());
+        }
     }
 
     @IsTest
