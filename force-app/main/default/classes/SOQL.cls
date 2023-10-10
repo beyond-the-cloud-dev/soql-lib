@@ -573,21 +573,21 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Map<Id, SObject> toMap() {
-        Map<Id, SObject> idToSObject = (Map<Id, SObject>) Type.forName('Map<Id, ' + ofObject  + ' >').newInstance();
-        idToSObject.putAll(toList());
-        return idToSObject;
+        Map<Id, SObject> recordPerId = (Map<Id, SObject>) Type.forName('Map<Id, ' + ofObject  + ' >').newInstance();
+        recordPerId.putAll(toList());
+        return recordPerId;
     }
 
     public Map<String, SObject> toMap(SObjectField keyField) {
         with(keyField);
 
-        Map<String, SObject> cutomKeyToRecord = (Map<String, SObject>) Type.forName('Map<String, ' + ofObject  + ' >').newInstance();
+        Map<String, SObject> recordPerCustomKey = (Map<String, SObject>) Type.forName('Map<String, ' + ofObject  + ' >').newInstance();
 
         for (SObject record : toList()) {
-            cutomKeyToRecord.put(String.valueOf(record.get(keyField)), record);
+            recordPerCustomKey.put(String.valueOf(record.get(keyField)), record);
         }
 
-        return cutomKeyToRecord;
+        return recordPerCustomKey;
     }
 
     public Map<String, String> toMap(SObjectField keyField, SObjectField valueField) {
@@ -595,34 +595,34 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         with(keyField, valueField);
 
-        Map<String, String> cutomKeyToCustomValue = new Map<String, String>();
+        Map<String, String> customValuePerCustomKey = new Map<String, String>();
 
         for (SObject record : toList()) {
-            cutomKeyToCustomValue.put(
+            customValuePerCustomKey.put(
                 String.valueOf(record.get(keyField)),
                 String.valueOf(record.get(valueField))
             );
         }
 
-        return cutomKeyToCustomValue;
+        return customValuePerCustomKey;
     }
 
     public Map<String, List<SObject>> toAggregatedMap(SObjectField keyField) {
         with(keyField);
 
-        Map<String, List<SObject>> cutomKeyToRecords = (Map<String, List<SObject>>) Type.forName('Map<String, List<' + ofObject  + ' >>').newInstance();
+        Map<String, List<SObject>> recordsPerCustomKey = (Map<String, List<SObject>>) Type.forName('Map<String, List<' + ofObject  + ' >>').newInstance();
 
         for (SObject record : toList()) {
-            String customKey = String.valueOf(record.get(keyField));
+            String key = String.valueOf(record.get(keyField));
 
-            if (!cutomKeyToRecords.containsKey(customKey)) {
-                cutomKeyToRecords.put(customKey, new List<SObject>());
+            if (!recordsPerCustomKey.containsKey(key)) {
+                recordsPerCustomKey.put(key, new List<SObject>());
             }
 
-            cutomKeyToRecords.get(customKey).add(record);
+            recordsPerCustomKey.get(key).add(record);
         }
 
-        return cutomKeyToRecords;
+        return recordsPerCustomKey;
     }
 
     public Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField) {
@@ -630,19 +630,19 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         with(keyField, valueField);
 
-        Map<String, List<String>> customKeyToValues = new Map<String, List<String>>();
+        Map<String, List<String>> customValuesPerCustomKey = new Map<String, List<String>>();
 
         for (SObject record : toList()) {
-            String customKey = String.valueOf(record.get(keyField));
+            String key = String.valueOf(record.get(keyField));
 
-            if (!customKeyToValues.containsKey(customKey)) {
-                customKeyToValues.put(customKey, new List<String>());
+            if (!customValuesPerCustomKey.containsKey(key)) {
+                customValuesPerCustomKey.put(key, new List<String>());
             }
 
-            customKeyToValues.get(customKey).add(String.valueOf(record.get(valueField)));
+            customValuesPerCustomKey.get(key).add(String.valueOf(record.get(valueField)));
         }
 
-        return customKeyToValues;
+        return customValuesPerCustomKey;
     }
 
     public Database.QueryLocator toQueryLocator() {
