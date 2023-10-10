@@ -250,8 +250,6 @@ public virtual inherited sharing class SOQL implements Queryable {
     private QueryBuilder builder;
     private Executor executor;
 
-    private String ofObject;
-
     public static SOQL of(SObjectType ofObject) {
         return new SOQL(ofObject);
     }
@@ -265,10 +263,9 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public SOQL(String ofObject) {
-        this.ofObject = ofObject;
         binder = new Binder();
-        executor = new Executor();
         builder = new QueryBuilder(ofObject);
+        executor = new Executor(ofObject, builder, binder);
     }
 
     public SOQL with(SObjectField field) {
@@ -557,15 +554,15 @@ public virtual inherited sharing class SOQL implements Queryable {
         if (!builder.fields.hasCount()) {
             count();
         }
-        return executor.toInteger(builder.toString(), binder.getBindingMap());
+        return executor.toInteger();
     }
 
     public SObject toObject() {
-        return executor.toObject(builder.toString(), binder.getBindingMap());
+        return executor.toObject();
     }
 
     public List<SObject> toList() {
-        return executor.toList(builder.toString(), binder.getBindingMap());
+        return executor.toList();
     }
 
     public List<AggregateResult> toAggregated() {
@@ -573,80 +570,33 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Map<Id, SObject> toMap() {
-        Map<Id, SObject> recordPerId = (Map<Id, SObject>) Type.forName('Map<Id, ' + ofObject  + ' >').newInstance();
-        recordPerId.putAll(toList());
-        return recordPerId;
+        return executor.toMap();
     }
 
     public Map<String, SObject> toMap(SObjectField keyField) {
         with(keyField);
-
-        Map<String, SObject> recordPerCustomKey = (Map<String, SObject>) Type.forName('Map<String, ' + ofObject  + ' >').newInstance();
-
-        for (SObject record : toList()) {
-            recordPerCustomKey.put(String.valueOf(record.get(keyField)), record);
-        }
-
-        return recordPerCustomKey;
+        return executor.toMap(keyField);
     }
 
     public Map<String, String> toMap(SObjectField keyField, SObjectField valueField) {
         builder.fields.clearAllFields(); // other fields not needed
-
         with(keyField, valueField);
-
-        Map<String, String> customValuePerCustomKey = new Map<String, String>();
-
-        for (SObject record : toList()) {
-            customValuePerCustomKey.put(
-                String.valueOf(record.get(keyField)),
-                String.valueOf(record.get(valueField))
-            );
-        }
-
-        return customValuePerCustomKey;
+        return executor.toMap(keyField, valueField);
     }
 
     public Map<String, List<SObject>> toAggregatedMap(SObjectField keyField) {
         with(keyField);
-
-        Map<String, List<SObject>> recordsPerCustomKey = (Map<String, List<SObject>>) Type.forName('Map<String, List<' + ofObject  + ' >>').newInstance();
-
-        for (SObject record : toList()) {
-            String key = String.valueOf(record.get(keyField));
-
-            if (!recordsPerCustomKey.containsKey(key)) {
-                recordsPerCustomKey.put(key, new List<SObject>());
-            }
-
-            recordsPerCustomKey.get(key).add(record);
-        }
-
-        return recordsPerCustomKey;
+        return executor.toAggregatedMap(keyField);
     }
 
     public Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField) {
         builder.fields.clearAllFields(); // other fields not needed
-
         with(keyField, valueField);
-
-        Map<String, List<String>> customValuesPerCustomKey = new Map<String, List<String>>();
-
-        for (SObject record : toList()) {
-            String key = String.valueOf(record.get(keyField));
-
-            if (!customValuesPerCustomKey.containsKey(key)) {
-                customValuesPerCustomKey.put(key, new List<String>());
-            }
-
-            customValuesPerCustomKey.get(key).add(String.valueOf(record.get(valueField)));
-        }
-
-        return customValuesPerCustomKey;
+        return executor.toAggregatedMap(keyField, valueField);
     }
 
     public Database.QueryLocator toQueryLocator() {
-        return executor.toQueryLocator(builder.toString(), binder.getBindingMap());
+        return executor.toQueryLocator();
     }
 
     public SOQL byId(SObject record) {
@@ -1577,6 +1527,15 @@ public virtual inherited sharing class SOQL implements Queryable {
         private DatabaseQuery sharingExecutor = new InheritedSharing();
         private AccessType accessType;
         private String mockId;
+        private String ofObject;
+        private QueryBuilder builder;
+        private Binder binder;
+
+        public Executor(String ofObject, QueryBuilder builder, Binder binder) {
+            this.ofObject = ofObject;
+            this.builder = builder;
+            this.binder = binder;
+        }
 
         public void withSharing() {
             sharingExecutor = new WithSharing();
@@ -1598,8 +1557,8 @@ public virtual inherited sharing class SOQL implements Queryable {
             mockId = id;
         }
 
-        public SObject toObject(String query, Map<String, Object> binding) {
-            List<SObject> records = toList(query, binding);
+        public SObject toObject() {
+            List<SObject> records = toList();
 
             if (records.size() > 1) {
                 QueryException e = new QueryException();
@@ -1614,31 +1573,89 @@ public virtual inherited sharing class SOQL implements Queryable {
             return records[0];
         }
 
-        public List<SObject> toList(String query, Map<String, Object> binding) {
+        public List<SObject> toList() {
             if (mock.hasMock(mockId)) {
                 return mock.getSObjectsMock(mockId);
             }
 
             if (accessType == null) {
-                return sharingExecutor.toSObjects(query, binding, accessMode);
+                return sharingExecutor.toSObjects(builder.toString(), binder.getBindingMap(), accessMode);
             }
 
             return Security.stripInaccessible(
                 accessType,
-                sharingExecutor.toSObjects(query, binding, accessMode)
+                sharingExecutor.toSObjects(builder.toString(), binder.getBindingMap(), accessMode)
             ).getRecords();
         }
 
-        public Integer toInteger(String query, Map<String, Object> binding) {
+        public Map<Id, SObject> toMap() {
+            Map<Id, SObject> recordPerId = (Map<Id, SObject>) Type.forName('Map<Id, ' + ofObject  + ' >').newInstance();
+            recordPerId.putAll(toList());
+            return recordPerId;
+        }
+
+        public Map<String, SObject> toMap(SObjectField keyField) {
+            Map<String, SObject> recordPerCustomKey = (Map<String, SObject>) Type.forName('Map<String, ' + ofObject  + ' >').newInstance();
+
+            for (SObject record : toList()) {
+                recordPerCustomKey.put(String.valueOf(record.get(keyField)), record);
+            }
+
+            return recordPerCustomKey;
+        }
+
+        public Map<String, String> toMap(SObjectField keyField, SObjectField valueField) {
+            Map<String, String> customValuePerCustomKey = new Map<String, String>();
+
+            for (SObject record : toList()) {
+                customValuePerCustomKey.put(String.valueOf(record.get(keyField)), String.valueOf(record.get(valueField)));
+            }
+
+            return customValuePerCustomKey;
+        }
+
+        public Map<String, List<SObject>> toAggregatedMap(SObjectField keyField) {
+            Map<String, List<SObject>> recordsPerCustomKey = (Map<String, List<SObject>>) Type.forName('Map<String, List<' + ofObject  + ' >>').newInstance();
+
+            for (SObject record : toList()) {
+                String key = String.valueOf(record.get(keyField));
+
+                if (!recordsPerCustomKey.containsKey(key)) {
+                    recordsPerCustomKey.put(key, new List<SObject>());
+                }
+
+                recordsPerCustomKey.get(key).add(record);
+            }
+
+            return recordsPerCustomKey;
+        }
+
+        public Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField) {
+            Map<String, List<String>> customValuesPerCustomKey = new Map<String, List<String>>();
+
+            for (SObject record : toList()) {
+                String key = String.valueOf(record.get(keyField));
+
+                if (!customValuesPerCustomKey.containsKey(key)) {
+                    customValuesPerCustomKey.put(key, new List<String>());
+                }
+
+                customValuesPerCustomKey.get(key).add(String.valueOf(record.get(valueField)));
+            }
+
+            return customValuesPerCustomKey;
+        }
+
+        public Integer toInteger() {
             if (mock.hasCountMock(mockId)) {
                 return mock.getCountMock(mockId);
             }
 
-            return sharingExecutor.toInteger(query, binding, accessMode);
+            return sharingExecutor.toInteger(builder.toString(), binder.getBindingMap(), accessMode);
         }
 
-        public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding) {
-            return Database.getQueryLocatorWithBinds(query, binding, accessMode);
+        public Database.QueryLocator toQueryLocator() {
+            return Database.getQueryLocatorWithBinds(builder.toString(), binder.getBindingMap(), accessMode);
         }
     }
 
