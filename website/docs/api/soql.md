@@ -38,6 +38,10 @@ The following are methods for `SOQL`.
 - [`count(SObjectField field)`](#count-field)
 - [`count(SObjectField field, String alias)`](#count-with-alias)
 
+[**GROUPING**](#grouping)
+
+- [`grouping(SObjectField field, String alias)`](#grouping)
+
 [**SUBQUERY**](#sub-query)
 
 - [`with(SubQuery subQuery)`](#with-subquery)
@@ -62,6 +66,7 @@ The following are methods for `SOQL`.
 
 - [`groupBy(SObjectField field)`](#group-by)
 - [`groupByRollup(SObjectField field)`](#groupbyrollup)
+- [`groupByCube(SObjectField field)`](#groupbycube)
 
 [**ORDER BY**](#order-by)
 
@@ -123,6 +128,10 @@ The following are methods for `SOQL`.
 - [`toList()`](#tolist)
 - [`toAggregated()`](#toaggregated)
 - [`toMap()`](#tomap)
+- [`toMap(SObjectField keyField)`](#tomap-with-custom-key)
+- [`toMap(SObjectField keyField,  SObjectField valueField)`](#tomap-with-custom-key-and-value)
+- [`toAggregatedMap(SObjectField keyField)`](#toaggregatedmap)
+- [`toAggregatedMap(SObjectField keyField, SObjectField valueField)`](#toaggregatedmap-with-custom-value)
 - [`toQueryLocator()`](#toquerylocator)
 
 ## INIT
@@ -436,6 +445,36 @@ SOQL.of(Account.SObjectType)
     .toAggregated();
 ```
 
+## GROUPING
+
+### grouping
+
+**Signature**
+
+```apex
+grouping(SObjectField field, String alias)
+```
+
+**Example**
+
+```sql
+SELECT LeadSource, Rating,
+    GROUPING(LeadSource) grpLS, GROUPING(Rating) grpRating,
+    COUNT(Name) cnt
+FROM Lead
+GROUP BY ROLLUP(LeadSource, Rating)
+```
+```apex
+SOQL.of(Lead.SObjectType)
+    .with(Lead.LeadSource, Lead.Rating)
+    .grouping(Lead.LeadSource, 'grpLS')
+    .grouping(Lead.Rating, 'grpRating')
+    .count(Lead.Name, 'cnt')
+    .groupByRollup(Lead.LeadSource)
+    .groupByRollup(Lead.Rating)
+    .toAggregated();
+```
+
 ## USING SCOPE
 
 [USING SCOPE](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_using_scope.htm)
@@ -726,10 +765,32 @@ FROM Lead
 GROUP BY ROLLUP(LeadSource)
 ```
 ```apex
-QS.of(Lead.SObjectType)
+SOQL.of(Lead.SObjectType)
     .with(Lead.LeadSource)
     .count(Lead.Name, 'cnt')
     .groupByRollup(Lead.LeadSource)
+    .toAggregated();
+```
+
+### groupByCube
+
+**Signature**
+
+```apex
+SOQL groupByCube(SObjectField field)
+```
+
+**Example**
+
+```sql
+SELECT Type
+FROM Account
+GROUP BY ROLLUP(Type)
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .with(Account.Type)
+    .groupByCube(Account.Type)
     .toAggregated();
 ```
 
@@ -1420,7 +1481,64 @@ Map<Id, SObject> toMap()
 **Example**
 
 ```apex
-SOQL.of(Account.SObjectType).toMap();
+Map<Id, Account> idToAccount = (Map<Id, Account>) SOQL.of(Account.SObjectType).toMap();
+```
+
+### toMap with custom key
+
+**Signature**
+
+```apex
+Map<String, SObject> toMap(SObjectField keyField)
+```
+
+**Example**
+
+```apex
+Map<String, Account> nameToAccount = (Map<String, Account>) SOQL.of(Account.SObjectType).toMap(Account.Name);
+```
+
+### toMap with custom key and value
+
+**Signature**
+
+```apex
+Map<String, String> toMap(SObjectField keyField, , SObjectField valueField)
+```
+
+**Example**
+
+```apex
+Map<String, String> nameToAccount = SOQL.of(Account.SObjectType).toMap(Account.Name, Account.Industry);
+```
+
+
+### toAggregatedMap
+
+**Signature**
+
+```apex
+Map<String, List<SObject>> toAggregatedMap(SObjectField keyField)
+```
+
+**Example**
+
+```apex
+Map<String, Account> industryToAccounts = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Industry);
+```
+
+### toAggregatedMap with custom value
+
+**Signature**
+
+```apex
+Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField)
+```
+
+**Example**
+
+```apex
+Map<String, List<String>> industryToAccounts = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Industry, Account.Name);
 ```
 
 ### toQueryLocator

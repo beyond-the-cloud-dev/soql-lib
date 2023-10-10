@@ -63,6 +63,22 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void grouping() {
+         // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource, Lead.Rating)
+            .grouping(Lead.LeadSource, 'grpLS')
+            .grouping(Lead.Rating, 'grpRating')
+            .count(Lead.Name, 'cnt')
+            .groupByRollup(Lead.LeadSource)
+            .groupByRollup(Lead.Rating)
+            .toString();
+
+         // Verify
+        Assert.areEqual('SELECT LeadSource, Rating, GROUPING(LeadSource) grpLS, GROUPING(Rating) grpRating, COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(LeadSource, Rating)', soql);
+    }
+
+    @IsTest
     static void withField() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
@@ -1298,6 +1314,54 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void groupByCube() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Type)
+            .groupByCube(Account.Type)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Type FROM Account GROUP BY CUBE(Type)', soql);
+    }
+
+    @IsTest
+    static void differentGroupByFunctionsException() {
+        // Setup
+        Exception queryException = null;
+
+        // Test
+        try {
+           String soql = SOQL.of(Account.SObjectType)
+                .with(Account.Type)
+                .groupBy(Account.Type)
+                .groupByCube(Account.Type)
+                .toString();
+        } catch(Exception e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.areEqual(
+            'You cant use GROUP BY, GROUP BY ROLLUP and GROUP BY CUBE in the same query.',
+            queryException.getMessage()
+        );
+    }
+
+    @IsTest
+    static void groupByWithDefaultFields() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.FirstName, Lead.LastName, Lead.Email)
+            .with(Lead.LeadSource)
+            .groupBy(Lead.LeadSource)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource FROM Lead GROUP BY LeadSource', soql);
+    }
+
+    @IsTest
     static void orderByString() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
@@ -1831,12 +1895,89 @@ private class SOQL_Test {
         List<Account> accounts = insertAccounts();
 
         // Test
-        Map<Id, SObject> result = SOQL.of(Account.SObjectType).toMap();
+        Map<Id, Account> result = (Map<Id, Account>) SOQL.of(Account.SObjectType).toMap();
 
         // Verify
         Assert.areEqual(accounts.size(), result.size());
+
         for (Account acc : accounts) {
             Assert.isNotNull(result.get(acc.Id));
+        }
+    }
+
+    @IsTest
+    static void toMapWithCustomKey() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        Map<String, Account> result = (Map<String, Account>) SOQL.of(Account.SObjectType).toMap(Account.Name);
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size());
+
+        for (Account acc : accounts) {
+            Assert.isNotNull(result.get(acc.Name));
+        }
+    }
+
+    @IsTest
+    static void toMapWithCustomKeyAndCustomValue() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        Map<String, String> result = SOQL.of(Account.SObjectType).toMap(Account.Name, Account.Id);
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size());
+
+        for (Account acc : accounts) {
+            Assert.isNotNull(result.get(acc.Name));
+        }
+    }
+
+    @IsTest
+    static void toAggregatedMapWithCustomKey() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        Map<String, List<Account>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Name);
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size());
+
+        for (Account acc : accounts) {
+            Assert.isFalse(result.get(acc.Name).isEmpty());
+        }
+    }
+
+    @IsTest
+    static void toAggregatedMapWithEmptyCustomKey() {
+        // Setup
+        insertAccounts();
+
+        // Test
+        Map<String, List<Account>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Industry);
+
+        // Verify
+        Assert.areEqual(1, result.size()); // grouped by empty Industry
+    }
+
+    @IsTest
+    static void toAggregatedMapWithCustomKeyAndCustomValue() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        Map<String, List<String>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Name, Account.Id);
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size());
+
+        for (Account acc : accounts) {
+            Assert.isFalse(result.get(acc.Name).isEmpty());
         }
     }
 

@@ -65,6 +65,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable count();
         Queryable count(SObjectField field);
         Queryable count(SObjectField field, String alias);
+        // GROUPING
+        Queryable grouping(SObjectField field, String alias);
         // USING SCOPE
         Queryable delegatedScope();
         Queryable mineScope();
@@ -81,6 +83,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         // GROUP BY
         Queryable groupBy(SObjectField field);
         Queryable groupByRollup(SObjectField field);
+        Queryable groupByCube(SObjectField field);
         // ORDER BY
         Queryable orderBy(String field);
         Queryable orderBy(String field, String direction);
@@ -123,6 +126,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         List<SObject> toList();
         List<AggregateResult> toAggregated();
         Map<Id, SObject> toMap();
+        Map<String, SObject> toMap(SObjectField keyField);
+        Map<String, String> toMap(SObjectField keyField, SObjectField valueField);
+        Map<String, List<SObject>> toAggregatedMap(SObjectField keyField);
+        Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
         Database.QueryLocator toQueryLocator();
     }
 
@@ -213,9 +220,9 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public interface InnerJoin {
         InnerJoin of(SObjectType ofObject);
-
+        // SELECT
         InnerJoin with(SObjectField field);
-
+        // WHERE
         InnerJoin whereAre(FilterGroup filterGroup);
         InnerJoin whereAre(Filter filter);
     }
@@ -257,8 +264,8 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public SOQL(String ofObject) {
         binder = new Binder();
-        executor = new Executor();
         builder = new QueryBuilder(ofObject);
+        executor = new Executor(ofObject, builder);
     }
 
     public SOQL with(SObjectField field) {
@@ -346,6 +353,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         return this;
     }
 
+    public SOQL grouping(SObjectField field, String alias) {
+        builder.fields.grouping(field, alias);
+        return this;
+    }
+
     public SOQL delegatedScope() {
         builder.scope.delegated();
         return this;
@@ -403,11 +415,19 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public SOQL groupBy(SObjectField field) {
         builder.groupBy.with(field);
+        builder.fields.withAggregatedField(field);
         return this;
     }
 
     public SOQL groupByRollup(SObjectField field) {
         builder.groupBy.rollup(field);
+        builder.fields.withAggregatedField(field);
+        return this;
+    }
+
+    public SOQL groupByCube(SObjectField field) {
+        builder.groupBy.cube(field);
+        builder.fields.withAggregatedField(field);
         return this;
     }
 
@@ -526,22 +546,23 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public Set<String> toValuesOf(SObjectField fieldToExtract) {
         // https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
+        builder.fields.clearAllFields(); // other fields not needed
         return new Map<String, SObject>(with(fieldToExtract, 'Id').groupBy(fieldToExtract).toAggregated()).keySet();
     }
 
     public Integer toInteger() {
-        if (builder.fields.areCountsEmpty()) {
+        if (!builder.fields.hasCount()) {
             count();
         }
-        return executor.toInteger(builder.toString(), binder.getBindingMap());
+        return executor.toInteger();
     }
 
     public SObject toObject() {
-        return executor.toObject(builder.toString(), binder.getBindingMap());
+        return executor.toObject();
     }
 
     public List<SObject> toList() {
-        return executor.toList(builder.toString(), binder.getBindingMap());
+        return executor.toList();
     }
 
     public List<AggregateResult> toAggregated() {
@@ -549,11 +570,33 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Map<Id, SObject> toMap() {
-        return new Map<Id, SObject>(toList());
+        return executor.toMap();
+    }
+
+    public Map<String, SObject> toMap(SObjectField keyField) {
+        with(keyField);
+        return executor.toMap(keyField);
+    }
+
+    public Map<String, String> toMap(SObjectField keyField, SObjectField valueField) {
+        builder.fields.clearAllFields(); // other fields not needed
+        with(keyField, valueField);
+        return executor.toMap(keyField, valueField);
+    }
+
+    public Map<String, List<SObject>> toAggregatedMap(SObjectField keyField) {
+        with(keyField);
+        return executor.toAggregatedMap(keyField);
+    }
+
+    public Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField) {
+        builder.fields.clearAllFields(); // other fields not needed
+        with(keyField, valueField);
+        return executor.toAggregatedMap(keyField, valueField);
     }
 
     public Database.QueryLocator toQueryLocator() {
-        return executor.toQueryLocator(builder.toString(), binder.getBindingMap());
+        return executor.toQueryLocator();
     }
 
     public SOQL byId(SObject record) {
@@ -684,10 +727,9 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private class QFields implements QueryClause {
         private Set<String> fields = new Set<String>();
-        private Set<String> counts = new Set<String>();
+        private Set<String> aggregatedFields = new Set<String>();
 
         public void count() {
-            // COUNT() must be the only element in the SELECT list.
             count('COUNT()');
         }
 
@@ -697,18 +739,30 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public void count(SObjectField field, String alias) {
             count('COUNT(' + field + ') ' + alias);
+            fields.add('COUNT(' + field + ') ' + alias);
         }
 
-        public void count(String countSoql) {
-            // Clear all default fields to avoid "Field must be grouped or aggregated"
-            clearAllFields();
-            counts.add(countSoql);
+        private void count(String count) {
+            withAggregatedField(count);
+            fields.add(count);
+        }
+
+        public void grouping(SObjectField field, String alias) {
+            withAggregatedField('GROUPING(' + field + ') ' + alias);
+            fields.add('GROUPING(' + field + ') ' + alias);
         }
 
         public void with(SObjectField field, String alias) {
-            // Only aggregate expressions use field aliasing. Clear all default fields to avoid "Field must be grouped or aggregated"
-            clearAllFields();
+            withAggregatedField(field + ' ' + alias);
             fields.add(field + ' ' + alias);
+        }
+
+        public void withAggregatedField(SObjectField field) {
+            withAggregatedField(field.getDescribe().getName());
+        }
+
+        public void withAggregatedField(String field) {
+            aggregatedFields.add(field);
         }
 
         public void with(String stringFields) {
@@ -740,21 +794,30 @@ public virtual inherited sharing class SOQL implements Queryable {
             fields.clear();
         }
 
-        public Boolean areCountsEmpty() {
-            return counts.isEmpty();
+        public Boolean hasCount() {
+            return !aggregatedFields.isEmpty();
         }
 
         public override String toString() {
-            if (fields.isEmpty() && counts.isEmpty()) {
+            removeNotAggregatedFieldsFromAggregateSoql();
+
+            if (fields.isEmpty()) {
                 return 'SELECT Id';
             }
 
-            List<String> selectStatement = new List<String>();
+            return 'SELECT ' + String.join(fields, ', ');
+        }
 
-            selectStatement.addAll(counts);
-            selectStatement.addAll(fields);
-
-            return 'SELECT ' + String.join(selectStatement, ', ');
+        public void removeNotAggregatedFieldsFromAggregateSoql() {
+            if (aggregatedFields.isEmpty()) {
+                return;
+            }
+            // Clear not grouped or aggregated fields to avoid "Field must be grouped or aggregated" error
+            for (String field : fields) {
+                if (!aggregatedFields.contains(field)) {
+                    fields.remove(field);
+                }
+            }
         }
     }
 
@@ -1237,10 +1300,10 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public override String toString() {
             if (skipBinding) {
-                return String.format(wrapper, new List<String> { field + ' ' + comperator + ' ' + value });
+                return String.format(wrapper, new List<String>{ field + ' ' + comperator + ' ' + value });
             }
 
-            return String.format(wrapper, new List<String> { field + ' ' + comperator + ' :' + binder.bind(value) });
+            return String.format(wrapper, new List<String>{ field + ' ' + comperator + ' :' + binder.bind(value) });
         }
     }
 
@@ -1274,17 +1337,34 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private class QGroupBy implements QueryClause {
         private Set<String> groupByFields = new Set<String>();
+        private String groupByFunction = '';
 
         public void with(SObjectField field) {
+            setGroupByFunction('{0}');
             groupByFields.add(field.getDescribe().getName());
         }
 
         public void rollup(SObjectField field) {
-            groupByFields.add('ROLLUP(' + field + ')');
+            setGroupByFunction('ROLLUP({0})');
+            groupByFields.add(field.getDescribe().getName());
+        }
+
+        public void cube(SObjectField field) {
+            setGroupByFunction('CUBE({0})');
+            groupByFields.add(field.getDescribe().getName());
+        }
+
+        public void setGroupByFunction(String newGroupByFunction) {
+            if (String.isNotEmpty(groupByFunction) && groupByFunction != newGroupByFunction) {
+                QueryException e = new QueryException();
+                e.setMessage('You cant use GROUP BY, GROUP BY ROLLUP and GROUP BY CUBE in the same query.');
+                throw e;
+            }
+            this.groupByFunction = newGroupByFunction;
         }
 
         public override String toString() {
-            return 'GROUP BY ' + String.join(groupByFields, ', ');
+            return 'GROUP BY ' + String.format(groupByFunction, new List<String>{ String.join(groupByFields, ', ') });
         }
     }
 
@@ -1316,12 +1396,12 @@ public virtual inherited sharing class SOQL implements Queryable {
         private String sortingOrder = 'ASC';
         private String nullsOrder = 'FIRST';
 
-        public QOrderBy with(SObjectField field) {
-            return with(field.getDescribe().getName());
+        public void with(SObjectField field) {
+            with(field.getDescribe().getName());
         }
 
-        public QOrderBy with(String relationshipName, SObjectField field) {
-            return with(relationshipName + '.' + field);
+        public void with(String relationshipName, SObjectField field) {
+            with(relationshipName + '.' + field);
         }
 
         public QOrderBy with(String field) {
@@ -1333,9 +1413,8 @@ public virtual inherited sharing class SOQL implements Queryable {
             sortingOrder('DESC');
         }
 
-        public QOrderBy sortingOrder(String direction) {
+        public void sortingOrder(String direction) {
             sortingOrder = direction;
-            return this;
         }
 
         public void nullsLast() {
@@ -1402,7 +1481,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         public String bind(Object value) {
             bindIndex++;
             binding.put('v' + bindIndex, value);
-
             return 'v' + bindIndex;
         }
 
@@ -1445,6 +1523,13 @@ public virtual inherited sharing class SOQL implements Queryable {
         private DatabaseQuery sharingExecutor = new InheritedSharing();
         private AccessType accessType;
         private String mockId;
+        private String ofObject;
+        private QueryBuilder builder;
+
+        public Executor(String ofObject, QueryBuilder builder) {
+            this.ofObject = ofObject;
+            this.builder = builder;
+        }
 
         public void withSharing() {
             sharingExecutor = new WithSharing();
@@ -1466,8 +1551,8 @@ public virtual inherited sharing class SOQL implements Queryable {
             mockId = id;
         }
 
-        public SObject toObject(String query, Map<String, Object> binding) {
-            List<SObject> records = toList(query, binding);
+        public SObject toObject() {
+            List<SObject> records = toList();
 
             if (records.size() > 1) {
                 QueryException e = new QueryException();
@@ -1482,31 +1567,89 @@ public virtual inherited sharing class SOQL implements Queryable {
             return records[0];
         }
 
-        public List<SObject> toList(String query, Map<String, Object> binding) {
+        public List<SObject> toList() {
             if (mock.hasMock(mockId)) {
                 return mock.getSObjectsMock(mockId);
             }
 
             if (accessType == null) {
-                return sharingExecutor.toSObjects(query, binding, accessMode);
+                return sharingExecutor.toSObjects(builder.toString(), binder.getBindingMap(), accessMode);
             }
 
             return Security.stripInaccessible(
                 accessType,
-                sharingExecutor.toSObjects(query, binding, accessMode)
+                sharingExecutor.toSObjects(builder.toString(), binder.getBindingMap(), accessMode)
             ).getRecords();
         }
 
-        public Integer toInteger(String query, Map<String, Object> binding) {
+        public Map<Id, SObject> toMap() {
+            Map<Id, SObject> recordPerId = (Map<Id, SObject>) Type.forName('Map<Id, ' + ofObject  + ' >').newInstance();
+            recordPerId.putAll(toList());
+            return recordPerId;
+        }
+
+        public Map<String, SObject> toMap(SObjectField keyField) {
+            Map<String, SObject> recordPerCustomKey = (Map<String, SObject>) Type.forName('Map<String, ' + ofObject  + ' >').newInstance();
+
+            for (SObject record : toList()) {
+                recordPerCustomKey.put(String.valueOf(record.get(keyField)), record);
+            }
+
+            return recordPerCustomKey;
+        }
+
+        public Map<String, String> toMap(SObjectField keyField, SObjectField valueField) {
+            Map<String, String> customValuePerCustomKey = new Map<String, String>();
+
+            for (SObject record : toList()) {
+                customValuePerCustomKey.put(String.valueOf(record.get(keyField)), String.valueOf(record.get(valueField)));
+            }
+
+            return customValuePerCustomKey;
+        }
+
+        public Map<String, List<SObject>> toAggregatedMap(SObjectField keyField) {
+            Map<String, List<SObject>> recordsPerCustomKey = (Map<String, List<SObject>>) Type.forName('Map<String, List<' + ofObject  + ' >>').newInstance();
+
+            for (SObject record : toList()) {
+                String key = String.valueOf(record.get(keyField));
+
+                if (!recordsPerCustomKey.containsKey(key)) {
+                    recordsPerCustomKey.put(key, new List<SObject>());
+                }
+
+                recordsPerCustomKey.get(key).add(record);
+            }
+
+            return recordsPerCustomKey;
+        }
+
+        public Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField) {
+            Map<String, List<String>> customValuesPerCustomKey = new Map<String, List<String>>();
+
+            for (SObject record : toList()) {
+                String key = String.valueOf(record.get(keyField));
+
+                if (!customValuesPerCustomKey.containsKey(key)) {
+                    customValuesPerCustomKey.put(key, new List<String>());
+                }
+
+                customValuesPerCustomKey.get(key).add(String.valueOf(record.get(valueField)));
+            }
+
+            return customValuesPerCustomKey;
+        }
+
+        public Integer toInteger() {
             if (mock.hasCountMock(mockId)) {
                 return mock.getCountMock(mockId);
             }
 
-            return sharingExecutor.toInteger(query, binding, accessMode);
+            return sharingExecutor.toInteger(builder.toString(), binder.getBindingMap(), accessMode);
         }
 
-        public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding) {
-            return Database.getQueryLocatorWithBinds(query, binding, accessMode);
+        public Database.QueryLocator toQueryLocator() {
+            return Database.getQueryLocatorWithBinds(builder.toString(), binder.getBindingMap(), accessMode);
         }
     }
 
