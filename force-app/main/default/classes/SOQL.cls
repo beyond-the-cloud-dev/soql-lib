@@ -728,7 +728,6 @@ public virtual inherited sharing class SOQL implements Queryable {
     private class QFields implements QueryClause {
         private Set<String> fields = new Set<String>();
         private Set<String> aggregatedFields = new Set<String>();
-        private Boolean hasCount = false;
 
         public void count() {
             count('COUNT()');
@@ -744,7 +743,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         private void count(String count) {
-            this.hasCount = true;
             withAggregatedField(count);
             fields.add(count);
         }
@@ -797,7 +795,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Boolean hasCount() {
-            return hasCount;
+            return !aggregatedFields.isEmpty();
         }
 
         public override String toString() {
