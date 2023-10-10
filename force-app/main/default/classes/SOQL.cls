@@ -265,7 +265,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     public SOQL(String ofObject) {
         binder = new Binder();
         builder = new QueryBuilder(ofObject);
-        executor = new Executor(ofObject, builder, binder);
+        executor = new Executor(ofObject, builder);
     }
 
     public SOQL with(SObjectField field) {
@@ -1529,12 +1529,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         private String mockId;
         private String ofObject;
         private QueryBuilder builder;
-        private Binder binder;
 
-        public Executor(String ofObject, QueryBuilder builder, Binder binder) {
+        public Executor(String ofObject, QueryBuilder builder) {
             this.ofObject = ofObject;
             this.builder = builder;
-            this.binder = binder;
         }
 
         public void withSharing() {
