@@ -220,9 +220,9 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public interface InnerJoin {
         InnerJoin of(SObjectType ofObject);
-
+        // SELECT
         InnerJoin with(SObjectField field);
-
+        // WHERE
         InnerJoin whereAre(FilterGroup filterGroup);
         InnerJoin whereAre(Filter filter);
     }
@@ -1396,12 +1396,12 @@ public virtual inherited sharing class SOQL implements Queryable {
         private String sortingOrder = 'ASC';
         private String nullsOrder = 'FIRST';
 
-        public QOrderBy with(SObjectField field) {
-            return with(field.getDescribe().getName());
+        public void with(SObjectField field) {
+            with(field.getDescribe().getName());
         }
 
-        public QOrderBy with(String relationshipName, SObjectField field) {
-            return with(relationshipName + '.' + field);
+        public void with(String relationshipName, SObjectField field) {
+            with(relationshipName + '.' + field);
         }
 
         public QOrderBy with(String field) {
@@ -1413,9 +1413,8 @@ public virtual inherited sharing class SOQL implements Queryable {
             sortingOrder('DESC');
         }
 
-        public QOrderBy sortingOrder(String direction) {
+        public void sortingOrder(String direction) {
             sortingOrder = direction;
-            return this;
         }
 
         public void nullsLast() {
@@ -1482,7 +1481,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         public String bind(Object value) {
             bindIndex++;
             binding.put('v' + bindIndex, value);
-
             return 'v' + bindIndex;
         }
 
