@@ -1524,7 +1524,7 @@ Map<String, List<SObject>> toAggregatedMap(SObjectField keyField)
 **Example**
 
 ```apex
-Map<String, Account> industryToAccounts = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Industry);
+Map<String, List<Account>> industryToAccounts = (Map<String, List<Account>>) SOQL.of(Account.SObjectType).toAggregatedMap(Account.Industry);
 ```
 
 ### toAggregatedMap with custom value

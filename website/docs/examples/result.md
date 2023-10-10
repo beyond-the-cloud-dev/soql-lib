@@ -44,8 +44,24 @@ public with sharing class MyController {
         return SOQL_Account.query().count().toInteger();
     }
 
-    public static Map<Id, SObject> getAccountMap() {
-        return SOQL_Account.query().toMap();
+    public static Map<Id, Account> getAccountMap() {
+        return (Map<Id, Account>) SOQL_Account.query().toMap();
+    }
+
+    public static Map<String, Account> getAccountsPerName() {
+        return (Map<String, Account>) SOQL_Account.query().toMap(Account.Name);
+    }
+
+    public static Map<String, String> getAccountIndustryPerAccountId() {
+        return SOQL_Account.query().toMap(Account.Id, Account.Industry);
+    }
+
+    public static Map<String, List<Account>> getAccountsPerIndustry() {
+        return (Map<String, List<Account>>) SOQL_Account.query().toAggregatedMap(Account.Industry);
+    }
+
+    public static Map<String, List<String>> getAccountNamesPerIndustry() {
+        return SOQL_Account.query().toAggregatedMap(Account.Industry, Account.Name);
     }
 
     public static Database.QueryLocator getAccountQueryLocator() {
