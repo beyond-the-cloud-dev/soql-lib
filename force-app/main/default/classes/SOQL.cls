@@ -800,22 +800,17 @@ public virtual inherited sharing class SOQL implements Queryable {
             aggregate('GROUPING(' + field + ') ' + alias);
         }
 
-        private void aggregate(String aggregateFunction) {
-            withAggregatedField(aggregateFunction);
-            fields.add(aggregateFunction);
+        public void with(SObjectField field, String alias) {
+            aggregate(field + ' ' + alias);
         }
 
-        public void with(SObjectField field, String alias) {
-            withAggregatedField(field + ' ' + alias);
-            fields.add(field + ' ' + alias);
+        private void aggregate(String aggregateFunction) {
+            fields.add(aggregateFunction);
+            aggregatedFields.add(aggregateFunction);
         }
 
         public void withAggregatedField(SObjectField field) {
-            withAggregatedField(field.getDescribe().getName());
-        }
-
-        public void withAggregatedField(String field) {
-            aggregatedFields.add(field);
+            aggregatedFields.add(field.getDescribe().getName());
         }
 
         public void with(String stringFields) {

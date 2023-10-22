@@ -63,6 +63,64 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void avg() {
+         // Test
+        String soql = SOQL.of(Opportunity.SObjectType)
+            .with(Opportunity.CampaignId)
+            .avg(Opportunity.Amount)
+            .groupBy(Opportunity.CampaignId)
+            .toString();
+
+         // Verify
+        Assert.areEqual('SELECT CampaignId, AVG(Amount) FROM Opportunity GROUP BY CampaignId', soql);
+    }
+
+    @IsTest
+    static void countDistinct() {
+         // Test
+        String soql = SOQL.of(Lead.SObjectType).countDistinct(Lead.Company).toString();
+
+         // Verify
+        Assert.areEqual('SELECT COUNT_DISTINCT(Company) FROM Lead', soql);
+    }
+
+    @IsTest
+    static void min() {
+         // Test
+        String soql = SOQL.of(Contact.SObjectType)
+            .min(Contact.CreatedDate)
+            .with(Contact.FirstName, Contact.LastName)
+            .groupBy(Contact.FirstName)
+            .groupBy(Contact.LastName)
+            .toString();
+
+         // Verify
+        Assert.areEqual('SELECT MIN(CreatedDate), FirstName, LastName FROM Contact GROUP BY FirstName, LastName', soql);
+    }
+
+    @IsTest
+    static void max() {
+         // Test
+        String soql = SOQL.of(Campaign.SObjectType)
+            .with(Campaign.Name)
+            .max(Campaign.BudgetedCost)
+            .groupBy(Campaign.Name)
+            .toString();
+
+         // Verify
+        Assert.areEqual('SELECT Name, MAX(BudgetedCost) FROM Campaign GROUP BY Name', soql);
+    }
+
+    @IsTest
+    static void sum() {
+         // Test
+        String soql = SOQL.of(Opportunity.SObjectType).sum(Opportunity.Amount).toString();
+
+         // Verify
+        Assert.areEqual('SELECT SUM(Amount) FROM Opportunity', soql);
+    }
+
+    @IsTest
     static void grouping() {
          // Test
         String soql = SOQL.of(Lead.SObjectType)
@@ -1547,6 +1605,19 @@ private class SOQL_Test {
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual(cases, binding.get('v1'));
+    }
+
+    @IsTest
+    static void byRecordType() {
+        // Test
+        SOQL builder = SOQL.of(Case.SObjectType).byRecordType('CaseRecordType');
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Case WHERE RecordType.DeveloperName = :v1', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('CaseRecordType', binding.get('v1'));
     }
 
     @IsTest
