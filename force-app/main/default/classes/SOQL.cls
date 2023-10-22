@@ -61,10 +61,15 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         Queryable with(String relationshipName, List<SObjectField> fields);
         Queryable with(SubQuery subQuery);
-        // COUNT
+        // AGGREGATE FUNCTIONS
         Queryable count();
         Queryable count(SObjectField field);
         Queryable count(SObjectField field, String alias);
+        Queryable avg(SObjectField field);
+        Queryable countDistinct(SObjectField field);
+        Queryable min(SObjectField field);
+        Queryable max(SObjectField field);
+        Queryable sum(SObjectField field);
         // GROUPING
         Queryable grouping(SObjectField field, String alias);
         // USING SCOPE
@@ -116,6 +121,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable byId(Id recordId);
         Queryable byIds(Iterable<Id> recordIds);
         Queryable byIds(List<SObject> records);
+        Queryable byRecordType(String recordTypeDeveloperName);
         // RESULT
         Boolean doExist();
         String toString();
@@ -350,6 +356,31 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public SOQL count(SObjectField field, String alias) {
         builder.fields.count(field, alias);
+        return this;
+    }
+
+    public SOQL avg(SObjectField field) {
+        builder.fields.avg(field);
+        return this;
+    }
+
+    public SOQL countDistinct(SObjectField field) {
+        builder.fields.countDistinct(field);
+        return this;
+    }
+
+    public SOQL min(SObjectField field) {
+        builder.fields.min(field);
+        return this;
+    }
+
+    public SOQL max(SObjectField field) {
+        builder.fields.max(field);
+        return this;
+    }
+
+    public SOQL sum(SObjectField field) {
+        builder.fields.sum(field);
         return this;
     }
 
@@ -615,6 +646,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         return whereAre(Filter.id().isIn(records));
     }
 
+    public SOQL byRecordType(String recordTypeDeveloperName) {
+        return whereAre(Filter.recordType().equal(recordTypeDeveloperName));
+    }
+
     public interface QueryClause {
         String toString();
     }
@@ -730,26 +765,44 @@ public virtual inherited sharing class SOQL implements Queryable {
         private Set<String> aggregatedFields = new Set<String>();
 
         public void count() {
-            count('COUNT()');
+            aggregate('COUNT()');
         }
 
         public void count(SObjectField field) {
-            count('COUNT(' + field + ')');
+            aggregate('COUNT(' + field + ')');
         }
 
         public void count(SObjectField field, String alias) {
-            count('COUNT(' + field + ') ' + alias);
-            fields.add('COUNT(' + field + ') ' + alias);
+            aggregate('COUNT(' + field + ') ' + alias);
         }
 
-        private void count(String count) {
-            withAggregatedField(count);
-            fields.add(count);
+        private void avg(SObjectField field) {
+            aggregate('AVG(' + field + ')');
+        }
+
+        private void countDistinct(SObjectField field) {
+            aggregate('COUNT_DISTINCT(' + field + ')');
+        }
+
+        private void min(SObjectField field) {
+            aggregate('MIN(' + field + ')');
+        }
+
+        private void max(SObjectField field) {
+            aggregate('MAX(' + field + ')');
+        }
+
+        private void sum(SObjectField field) {
+            aggregate('SUM(' + field + ')');
         }
 
         public void grouping(SObjectField field, String alias) {
-            withAggregatedField('GROUPING(' + field + ') ' + alias);
-            fields.add('GROUPING(' + field + ') ' + alias);
+            aggregate('GROUPING(' + field + ') ' + alias);
+        }
+
+        private void aggregate(String aggregateFunction) {
+            withAggregatedField(aggregateFunction);
+            fields.add(aggregateFunction);
         }
 
         public void with(SObjectField field, String alias) {
