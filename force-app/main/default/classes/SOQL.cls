@@ -66,10 +66,15 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable count(SObjectField field);
         Queryable count(SObjectField field, String alias);
         Queryable avg(SObjectField field);
+        Queryable avg(SObjectField field, String alias);
         Queryable countDistinct(SObjectField field);
+        Queryable countDistinct(SObjectField field, String alias);
         Queryable min(SObjectField field);
+        Queryable min(SObjectField field, String alias);
         Queryable max(SObjectField field);
+        Queryable max(SObjectField field, String alias);
         Queryable sum(SObjectField field);
+        Queryable sum(SObjectField field, String alias);
         // GROUPING
         Queryable grouping(SObjectField field, String alias);
         // USING SCOPE
@@ -350,8 +355,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public SOQL count(SObjectField field) {
-        builder.fields.count(field);
-        return this;
+        return count(field, '');
     }
 
     public SOQL count(SObjectField field, String alias) {
@@ -360,27 +364,47 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public SOQL avg(SObjectField field) {
-        builder.fields.avg(field);
+        return avg(field, '');
+    }
+
+    public SOQL avg(SObjectField field, String alias) {
+        builder.fields.avg(field, alias);
         return this;
     }
 
     public SOQL countDistinct(SObjectField field) {
-        builder.fields.countDistinct(field);
+        return countDistinct(field, '');
+    }
+
+    public SOQL countDistinct(SObjectField field, String alias) {
+        builder.fields.countDistinct(field, alias);
         return this;
     }
 
     public SOQL min(SObjectField field) {
-        builder.fields.min(field);
+        return min(field, '');
+    }
+
+    public SOQL min(SObjectField field, String alias) {
+        builder.fields.min(field, alias);
         return this;
     }
 
     public SOQL max(SObjectField field) {
-        builder.fields.max(field);
+        return max(field, '');
+    }
+
+    public SOQL max(SObjectField field, String alias) {
+        builder.fields.max(field, alias);
         return this;
     }
 
     public SOQL sum(SObjectField field) {
-        builder.fields.sum(field);
+        return sum(field, '');
+    }
+
+    public SOQL sum(SObjectField field, String alias) {
+        builder.fields.sum(field, alias);
         return this;
     }
 
@@ -446,19 +470,19 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public SOQL groupBy(SObjectField field) {
         builder.groupBy.with(field);
-        builder.fields.withAggregatedField(field);
+        builder.fields.withGroupedField(field);
         return this;
     }
 
     public SOQL groupByRollup(SObjectField field) {
         builder.groupBy.rollup(field);
-        builder.fields.withAggregatedField(field);
+        builder.fields.withGroupedField(field);
         return this;
     }
 
     public SOQL groupByCube(SObjectField field) {
         builder.groupBy.cube(field);
-        builder.fields.withAggregatedField(field);
+        builder.fields.withGroupedField(field);
         return this;
     }
 
@@ -578,7 +602,11 @@ public virtual inherited sharing class SOQL implements Queryable {
     public Set<String> toValuesOf(SObjectField fieldToExtract) {
         // https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
         builder.fields.clearAllFields(); // other fields not needed
-        return new Map<String, SObject>(with(fieldToExtract, 'Id').groupBy(fieldToExtract).toAggregated()).keySet();
+        try {
+            return new Map<String, SObject>(with(fieldToExtract, 'Id').groupBy(fieldToExtract).toAggregated()).keySet();
+        } catch(ListException e) { // Row with null Id at index: 0
+            return new Set<String>();
+        }
     }
 
     public Integer toInteger() {
@@ -765,57 +793,57 @@ public virtual inherited sharing class SOQL implements Queryable {
         private Set<String> aggregatedFields = new Set<String>();
 
         public void count() {
-            aggregate('COUNT()');
-        }
-
-        public void count(SObjectField field) {
-            aggregate('COUNT(' + field + ')');
+            aggregate('COUNT()', '');
         }
 
         public void count(SObjectField field, String alias) {
-            aggregate('COUNT(' + field + ') ' + alias);
+            aggregate('COUNT(' + field + ')', alias);
         }
 
-        private void avg(SObjectField field) {
-            aggregate('AVG(' + field + ')');
+        private void avg(SObjectField field, String alias) {
+            aggregate('AVG(' + field + ')', alias);
         }
 
-        private void countDistinct(SObjectField field) {
-            aggregate('COUNT_DISTINCT(' + field + ')');
+        private void countDistinct(SObjectField field, String alias) {
+            aggregate('COUNT_DISTINCT(' + field + ')', alias);
         }
 
-        private void min(SObjectField field) {
-            aggregate('MIN(' + field + ')');
+        private void min(SObjectField field, String alias) {
+            aggregate('MIN(' + field + ')', alias);
         }
 
-        private void max(SObjectField field) {
-            aggregate('MAX(' + field + ')');
+        private void max(SObjectField field, String alias) {
+            aggregate('MAX(' + field + ')', alias);
         }
 
-        private void sum(SObjectField field) {
-            aggregate('SUM(' + field + ')');
+        private void sum(SObjectField field, String alias) {
+            aggregate('SUM(' + field + ')', alias);
         }
 
         public void grouping(SObjectField field, String alias) {
-            aggregate('GROUPING(' + field + ') ' + alias);
+            aggregate('GROUPING(' + field + ')', alias);
         }
 
         public void with(SObjectField field, String alias) {
-            aggregate(field + ' ' + alias);
+            aggregate(field.getDescribe().getName(), alias);
         }
 
-        private void aggregate(String aggregateFunction) {
+        private void aggregate(String aggregateFunction, String alias) {
+            if (String.isNotBlank(alias)) {
+                aggregateFunction += ' ' + alias;
+            }
+
             fields.add(aggregateFunction);
             aggregatedFields.add(aggregateFunction);
         }
 
-        public void withAggregatedField(SObjectField field) {
+        public void withGroupedField(SObjectField field) {
             aggregatedFields.add(field.getDescribe().getName());
         }
 
-        public void with(String stringFields) {
+        public void with(String commaSeparatedFields) {
             // To avoid field duplicates in query
-            fields.addAll(stringFields.deleteWhitespace().split(','));
+            fields.addAll(commaSeparatedFields.deleteWhitespace().split(','));
         }
 
         public void with(List<SObjectField> fields) {

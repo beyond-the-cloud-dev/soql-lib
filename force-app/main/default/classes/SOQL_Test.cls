@@ -1847,6 +1847,18 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void toValuesOfWhenNoValues() {
+        // Setup
+        insertAccounts(); // Industry is empty
+
+        // Test
+        Set<String> accountNames = SOQL.of(Account.SObjectType).toValuesOf(Account.Industry);
+
+        // Verify
+        Assert.areEqual(0, accountNames.size());
+    }
+
+    @IsTest
     static void toValuesOfWithDefaultFields() {
         // Setup
         List<Account> accounts = insertAccounts();
