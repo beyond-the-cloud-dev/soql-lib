@@ -1272,7 +1272,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void ignoreWhen() {
+    static void ignoreWhenFilter() {
         // Setup
         String accountName = '';
 
@@ -1286,6 +1286,34 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual('SELECT Id FROM Account WHERE (BillingCity = :v1)', soql);
+    }
+
+    @IsTest
+    static void ignoreWhenFilterGroup() {
+        // Setup
+        Boolean isPartnerUser = false;
+
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .whereAre(
+                SOQL.FilterGroup
+                    .add(
+                        SOQL.FilterGroup
+                            .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
+                            .add(SOQL.Filter.with(Account.BillingCity).equal('Warsaw'))
+                            .anyConditionMatching()
+                            .ignoreWhen(!isPartnerUser)
+                    )
+                    .add(
+                        SOQL.FilterGroup
+                            .add(SOQL.Filter.with(Account.Industry).equal('IT'))
+                            .add(SOQL.Filter.name().contains('MyAcccount'))
+                    )
+            )
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account WHERE ((Industry = :v1 AND Name LIKE :v2))', soql);
     }
 
     @IsTest
