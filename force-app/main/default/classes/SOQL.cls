@@ -169,6 +169,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         // ORDER
         FilterGroup anyConditionMatching();
         FilterGroup conditionLogic(String order);
+        // ADDITIONAL
+        FilterGroup ignoreWhen(Boolean logicExpression);
 
         Boolean hasValues();
     }
@@ -1022,6 +1024,13 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public FilterGroup conditionLogic(String order) {
             this.order = order;
+            return this;
+        }
+
+        public FilterGroup ignoreWhen(Boolean logicExpression) {
+            if (logicExpression) {
+                queryConditions = new List<FilterClause>();
+            }
             return this;
         }
 
