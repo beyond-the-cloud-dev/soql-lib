@@ -113,6 +113,7 @@ The following are methods for `SOQL`.
 
 [**PREDEFINIED**](#predefinied)
 
+- [`byRecordType(String recordTypeDeveloperName)`](#byrecordtype)
 - [`byId(SObject record)`](#byid)
 - [`byId(Id recordId)`](#byid)
 - [`byIds(Iterable<Id> recordIds)`](#byids)
@@ -1273,6 +1274,27 @@ WHERE ((Id = :v1 OR Name LIKE :v2))
 
 For all predefined methods SOQL instance is returned so you can still adjust query before execution.
 Add additional fields with [`.with`](#select).
+
+### byRecordType
+
+**Signature**
+
+```apex
+SOQL byRecordType(String recordTypeDeveloperName)
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Case
+WHERE RecordType.DeveloperName = 'CaseRecordType'
+```
+```apex
+SOQL.of(Case.SObjectType)
+    .byRecordType('CaseRecordType')
+    .toList();
+```
 
 ### byId
 
