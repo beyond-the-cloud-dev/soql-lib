@@ -1503,19 +1503,6 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void byRecordType() {
-        // Test
-        SOQL builder = SOQL.of(Case.SObjectType).byRecordType('CaseRecordType');
-
-        // Verify
-        String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Case WHERE RecordType.DeveloperName = :v1', soql);
-
-        Map<String, Object> binding = builder.binding();
-        Assert.areEqual('CaseRecordType', binding.get('v1'));
-    }
-
-    @IsTest
     static void byId() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType).byId(FAKE_ACCOUNT_ID);

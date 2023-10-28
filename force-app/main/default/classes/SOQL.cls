@@ -112,7 +112,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         // DEBUGGING
         Queryable preview();
         // PREDEFINIED
-        Queryable byRecordType(String recordTypeDeveloperName);
         Queryable byId(SObject record);
         Queryable byId(Id recordId);
         Queryable byIds(Iterable<Id> recordIds);
@@ -604,10 +603,6 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public Database.QueryLocator toQueryLocator() {
         return executor.toQueryLocator();
-    }
-
-    public SOQL byRecordType(String rtDeveloperName) {
-        return whereAre(Filter.recordType().equal(rtDeveloperName));
     }
 
     public SOQL byId(SObject record) {
