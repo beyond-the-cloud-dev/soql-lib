@@ -1295,20 +1295,17 @@ private class SOQL_Test {
 
         // Test
         String soql = SOQL.of(Account.SObjectType)
-            .whereAre(
-                SOQL.FilterGroup
-                    .add(
-                        SOQL.FilterGroup
-                            .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
-                            .add(SOQL.Filter.with(Account.BillingCity).equal('Warsaw'))
-                            .anyConditionMatching()
-                            .ignoreWhen(!isPartnerUser)
-                    )
-                    .add(
-                        SOQL.FilterGroup
-                            .add(SOQL.Filter.with(Account.Industry).equal('IT'))
-                            .add(SOQL.Filter.name().contains('MyAcccount'))
-                    )
+            .whereAre(SOQL.FilterGroup
+                .add(SOQL.FilterGroup
+                    .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
+                        .add(SOQL.Filter.with(Account.BillingCity).equal('Warsaw'))
+                        .anyConditionMatching()
+                        .ignoreWhen(!isPartnerUser)
+                )
+                .add(SOQL.FilterGroup
+                    .add(SOQL.Filter.with(Account.Industry).equal('IT'))
+                    .add(SOQL.Filter.name().contains('MyAcccount'))
+                )
             )
             .toString();
 
