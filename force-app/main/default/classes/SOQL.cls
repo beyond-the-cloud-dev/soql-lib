@@ -521,8 +521,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public SOQL preview() {
-        System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Preview ============\n' + toString() + '\n=======================================\n');
-        System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Binding ============\n' + JSON.serializePretty(binding()) + '\n=======================================\n');
+        executor.withPreview();
         return this;
     }
 
@@ -1527,6 +1526,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         private AccessType accessType;
         private String mockId;
         private String ofObject;
+        private Boolean preview = false;
         private QueryBuilder builder;
 
         public Executor(String ofObject, QueryBuilder builder) {
@@ -1554,6 +1554,27 @@ public virtual inherited sharing class SOQL implements Queryable {
             mockId = id;
         }
 
+        public void withPreview() {
+            preview = true;
+        }
+
+        private String buildSOQL() {
+            if (preview) {
+                String soql = builder.toString();
+                System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Preview ============\n' + soql + '\n=======================================\n');
+                return soql;
+            }
+
+            return builder.toString();
+        }
+
+        private Map<String,Object> buildBinding() {
+            if (preview) {
+                System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Binding ============\n' + JSON.serializePretty(binder.getBindingMap()) + '\n=======================================\n');
+            }
+            return binder.getBindingMap();
+        }
+
         public SObject toObject() {
             List<SObject> records = toList();
 
@@ -1576,12 +1597,12 @@ public virtual inherited sharing class SOQL implements Queryable {
             }
 
             if (accessType == null) {
-                return sharingExecutor.toSObjects(builder.toString(), binder.getBindingMap(), accessMode);
+                return sharingExecutor.toSObjects(buildSOQL(), buildBinding(), accessMode);
             }
 
             return Security.stripInaccessible(
                 accessType,
-                sharingExecutor.toSObjects(builder.toString(), binder.getBindingMap(), accessMode)
+                sharingExecutor.toSObjects(buildSOQL(), buildBinding(), accessMode)
             ).getRecords();
         }
 
@@ -1648,11 +1669,11 @@ public virtual inherited sharing class SOQL implements Queryable {
                 return mock.getCountMock(mockId);
             }
 
-            return sharingExecutor.toInteger(builder.toString(), binder.getBindingMap(), accessMode);
+            return sharingExecutor.toInteger(buildSOQL(), buildBinding(), accessMode);
         }
 
         public Database.QueryLocator toQueryLocator() {
-            return Database.getQueryLocatorWithBinds(builder.toString(), binder.getBindingMap(), accessMode);
+            return Database.getQueryLocatorWithBinds(buildSOQL(), buildBinding(), accessMode);
         }
     }
 
