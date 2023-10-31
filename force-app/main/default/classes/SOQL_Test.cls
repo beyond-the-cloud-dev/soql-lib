@@ -2054,6 +2054,19 @@ private class SOQL_Test {
 
     @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
     @IsTest
+    static void previewWithConditions() {
+        // Test
+        SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.FilterGroup
+                .add(SOQL.Filter.with(Account.Name).equal('Test'))
+                .add(SOQL.Filter.with(Account.Industry).equal('IT'))
+            )
+            .preview()
+            .toList();
+    }
+
+    @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
+    @IsTest
     static void previewCount() {
         // Test
         SOQL.of(Account.SObjectType).count().preview().toInteger();
