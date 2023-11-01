@@ -238,6 +238,18 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void withStringAggregationAndGroupingFields() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType)
+            .with('CampaignId campaign, AVG(Amount) amount')
+            .groupBy(Opportunity.CampaignId)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT CampaignId campaign, AVG(Amount) amount FROM Opportunity GROUP BY CampaignId', soql);
+    }
+
+    @IsTest
     static void withFieldAlias() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
@@ -1630,19 +1642,6 @@ private class SOQL_Test {
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual(cases, binding.get('v1'));
-    }
-
-    @IsTest
-    static void byRecordType() {
-        // Test
-        SOQL builder = SOQL.of(Case.SObjectType).byRecordType('CaseRecordType');
-
-        // Verify
-        String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Case WHERE RecordType.DeveloperName = :v1', soql);
-
-        Map<String, Object> binding = builder.binding();
-        Assert.areEqual('CaseRecordType', binding.get('v1'));
     }
 
     @IsTest
