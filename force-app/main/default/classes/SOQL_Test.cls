@@ -88,14 +88,14 @@ private class SOQL_Test {
     static void min() {
          // Test
         String soql = SOQL.of(Contact.SObjectType)
-            .min(Contact.CreatedDate)
             .with(Contact.FirstName, Contact.LastName)
+            .min(Contact.CreatedDate)
             .groupBy(Contact.FirstName)
             .groupBy(Contact.LastName)
             .toString();
 
          // Verify
-        Assert.areEqual('SELECT MIN(CreatedDate), FirstName, LastName FROM Contact GROUP BY FirstName, LastName', soql);
+        Assert.areEqual('SELECT FirstName, LastName, MIN(CreatedDate) FROM Contact GROUP BY FirstName, LastName', soql);
     }
 
     @IsTest
@@ -1405,7 +1405,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT(Name) cnt, LeadSource FROM Lead GROUP BY ROLLUP(LeadSource)', soql);
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(LeadSource)', soql);
     }
 
     @IsTest

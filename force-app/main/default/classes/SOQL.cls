@@ -609,9 +609,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Integer toInteger() {
-        if (!builder.fields.hasCount()) {
-            count();
-        }
+        builder.fields.addCountWhenNotPresented();
         return executor.toInteger();
     }
 
@@ -785,74 +783,72 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private class QFields implements QueryClause {
         private Set<String> fields = new Set<String>();
-        private Set<String> aggregatedOrGroupedFields = new Set<String>();
-        private Boolean hasCount = false;
+        private Set<String> aggregateFunctions = new Set<String>();
+        private Set<String> groupedFields = new Set<String>();
 
         public void count() {
-            aggregate('COUNT()', '');
-            hasCount = true;
+            withAggregateFunction('COUNT()', '');
         }
 
         public void count(SObjectField field, String alias) {
-            aggregate('COUNT(' + field + ')', alias);
-            hasCount = true;
+            withAggregateFunction('COUNT(' + field + ')', alias);
         }
 
         private void avg(SObjectField field, String alias) {
-            aggregate('AVG(' + field + ')', alias);
+            withAggregateFunction('AVG(' + field + ')', alias);
         }
 
         private void countDistinct(SObjectField field, String alias) {
-            aggregate('COUNT_DISTINCT(' + field + ')', alias);
+            withAggregateFunction('COUNT_DISTINCT(' + field + ')', alias);
         }
 
         private void min(SObjectField field, String alias) {
-            aggregate('MIN(' + field + ')', alias);
+            withAggregateFunction('MIN(' + field + ')', alias);
         }
 
         private void max(SObjectField field, String alias) {
-            aggregate('MAX(' + field + ')', alias);
+            withAggregateFunction('MAX(' + field + ')', alias);
         }
 
         private void sum(SObjectField field, String alias) {
-            aggregate('SUM(' + field + ')', alias);
+            withAggregateFunction('SUM(' + field + ')', alias);
         }
 
         public void grouping(SObjectField field, String alias) {
-            aggregate('GROUPING(' + field + ')', alias);
+            withAggregateFunction('GROUPING(' + field + ')', alias);
         }
 
         public void with(SObjectField field, String alias) {
-            aggregate(field.getDescribe().getName(), alias);
+            withAggregateFunction(field.getDescribe().getName(), alias);
         }
 
-        private void aggregate(String aggregateFunction, String alias) {
+        private void withAggregateFunction(String aggregateFunction, String alias) {
             if (String.isNotBlank(alias)) {
                 aggregateFunction += ' ' + alias;
             }
 
-            aggregatedOrGroupedFields.add(aggregateFunction);
-            fields.add(aggregateFunction);
+            aggregateFunctions.add(aggregateFunction);
         }
 
         public void withGroupedField(SObjectField field) {
-            aggregatedOrGroupedFields.add(field.getDescribe().getName());
+            groupedFields.add(field.getDescribe().getName());
         }
 
         public void with(String commaSeparatedFields) {
             // To avoid field duplicates in query
             for (String splitedField : commaSeparatedFields.split(',')) {
                 String field = splitedField.trim();
-                aggregateWhenAggregateFunctionOrFieldAliasing(field);
-                fields.add(field);
+                if (isAggregateFunction(field)) {
+                    aggregateFunctions.add(field);
+                } else {
+                    fields.add(field);
+                }
             }
         }
 
-        public void aggregateWhenAggregateFunctionOrFieldAliasing(String field) {
-            // AVG(), COUNT(), MIN(), MAX(), SUM() or Field alias
-            if (field.contains('(') && field.contains(')') || field.contains(' ')) {
-                aggregatedOrGroupedFields.add(field);
-            }
+        private Boolean isAggregateFunction(String field) {
+            // AVG(), COUNT(), MIN(), MAX(), SUM() or Field aliasing
+            return field.contains('(') && field.contains(')') || field.contains(' ');
         }
 
         public void with(List<SObjectField> fields) {
@@ -877,28 +873,36 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public void clearAllFields() {
             fields.clear();
+            aggregateFunctions.clear();
         }
 
-        public Boolean hasCount() {
-            return hasCount;
+        public void addCountWhenNotPresented() {
+            if (!aggregateFunctions.isEmpty()) {
+                count();
+            }
         }
 
         public override String toString() {
-            if (!aggregatedOrGroupedFields.isEmpty()) {
-                removeNotGroupedOrAggregatedFields();
+            if (!groupedFields.isEmpty()) {
+                removeNotGroupedFields();
             }
 
-            if (fields.isEmpty()) {
+            if (fields.isEmpty() && aggregateFunctions.isEmpty()) {
                 return 'SELECT Id';
             }
 
-            return 'SELECT ' + String.join(fields, ', ');
+            List<String> selectFields = new List<String>();
+
+            selectFields.addAll(fields);
+            selectFields.addAll(aggregateFunctions);
+
+            return 'SELECT ' + String.join(selectFields, ', ');
         }
 
-        public void removeNotGroupedOrAggregatedFields() {
+        public void removeNotGroupedFields() {
             // Clear not grouped or aggregated fields to avoid "Field must be grouped or aggregated" error
             for (String field : fields) {
-                if (!aggregatedOrGroupedFields.contains(field)) {
+                if (!groupedFields.contains(field)) {
                     fields.remove(field);
                 }
             }
