@@ -42,9 +42,34 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void countWithDefaultFields() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Id, Account.Name)
+            .count()
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT() FROM Account', soql);
+    }
+
+    @IsTest
     static void countField() {
         // Test
         String soql = SOQL.of(Opportunity.SObjectType)
+            .count(Opportunity.Id)
+            .count(Opportunity.CampaignId)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT(Id), COUNT(CampaignId) FROM Opportunity', soql);
+    }
+
+    @IsTest
+    static void countFieldWithDefaultFields() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType)
+            .with(Opportunity.LeadSource)
             .count(Opportunity.Id)
             .count(Opportunity.CampaignId)
             .toString();

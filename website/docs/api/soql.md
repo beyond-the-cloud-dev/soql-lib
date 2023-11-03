@@ -32,7 +32,7 @@ The following are methods for `SOQL`.
 - [`with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5)`](#with-related-field1---field5)
 - [`with(String relationshipName, List<SObjectField> fields)`](#with-related-fields)
 
-[**AGGREGATION FUNCTIONS**]()
+[**AGGREGATION FUNCTIONS**](#aggregate-functions)
 
 - [`count()`](#count)
 - [`count(SObjectField field)`](#count-field)
@@ -381,7 +381,9 @@ SOQL.of(Account.SObjectType)
 
 ## [AGGREGATE FUNCTIONS](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_agg_functions.htm)
 
-### COUNT
+**Note!** To avoid the `Field must be grouped or aggregated` error, any default fields that are neither in Aggregation Functions nor included in the [GROUP BY](#group-by) clause will be automatically removed.
+
+### count
 
 [COUNT()](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_count.htm#count_section_title)
 
@@ -407,7 +409,7 @@ SOQL.of(Account.SObjectType)
     .toInteger();
 ```
 
-### COUNT field
+### count field
 
 **Signature**
 
@@ -432,17 +434,13 @@ FROM Opportunity
     .toAggregated();
 ```
 
-### COUNT with alias
+### count with alias
 
 **Signature**
 
 ```apex
 count(SObjectField field, String alias)
 ```
-
-**Note!** To avoid the `Field must be grouped or aggregated` error, any default fields will be automatically removed.
-
-You can still specify additional fields, but they should be placed after the COUNT() function in the SELECT statement.
 
 **Example**
 
@@ -455,7 +453,7 @@ SOQL.of(Account.SObjectType)
     .toAggregated();
 ```
 
-### AVG
+### avg
 
 **Signature**
 
@@ -476,7 +474,7 @@ SOQL.of(Opportunity.SObjectType)
     .toAggregate();
 ```
 
-### AVG with alias
+### avg with alias
 
 **Signature**
 
@@ -497,7 +495,7 @@ SOQL.of(Opportunity.SObjectType)
     .toAggregate();
 ```
 
-### COUNT_DISTINCT
+### count_distinct
 
 **Signature**
 
@@ -514,7 +512,7 @@ SELECT COUNT_DISTINCT(Company) FROM Lead
 SOQL.of(Lead.SObjectType).countDistinct(Lead.Company).toAggregate();
 ```
 
-### COUNT_DISTINCT with alias
+### count_distinct with alias
 
 **Signature**
 
@@ -531,7 +529,7 @@ SELECT COUNT_DISTINCT(Company) company FROM Lead
 SOQL.of(Lead.SObjectType).countDistinct(Lead.Company, 'company').toAggregate();
 ```
 
-### MIN
+### min
 
 **Signature**
 
@@ -555,7 +553,7 @@ SOQL.of(Contact.SObjectType)
     .toAggregate();
 ```
 
-### MIN with alias
+### min with alias
 
 **Signature**
 
@@ -579,7 +577,7 @@ SOQL.of(Contact.SObjectType)
     .toAggregate();
 ```
 
-### MAX
+### max
 
 **Signature**
 
@@ -602,7 +600,7 @@ GROUP BY Name
      .toAggregate();
 ```
 
-### MAX with alias
+### max with alias
 
 **Signature**
 
@@ -625,7 +623,7 @@ GROUP BY Name
     .toAggregate();
 ```
 
-### SUM
+### sum
 
 **Signature**
 
@@ -642,7 +640,7 @@ SELECT SUM(Amount) FROM Opportunity
 SOQL.of(Opportunity.SObjectType).sum(Opportunity.Amount).toAggregate();
 ```
 
-### SUM with alias
+### sum with alias
 
 **Signature**
 

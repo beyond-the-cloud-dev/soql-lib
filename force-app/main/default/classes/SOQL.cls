@@ -787,6 +787,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         private Set<String> groupedFields = new Set<String>();
 
         public void count() {
+            clearAllFields(); // COUNT() must be the only element in the SELECT list.
             withAggregateFunction('COUNT()', '');
         }
 
@@ -883,24 +884,26 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            if (!groupedFields.isEmpty()) {
-                removeNotGroupedFields();
-            }
-
             if (fields.isEmpty() && aggregateFunctions.isEmpty()) {
                 return 'SELECT Id';
             }
 
-            List<String> selectFields = new List<String>();
+            if (!groupedFields.isEmpty() || !aggregateFunctions.isEmpty()) {
+                // To avoid "Field must be grouped or aggregated" error
+                removeNotGroupedFields();
 
-            selectFields.addAll(fields);
-            selectFields.addAll(aggregateFunctions);
+                List<String> selectFields = new List<String>();
 
-            return 'SELECT ' + String.join(selectFields, ', ');
+                selectFields.addAll(fields);
+                selectFields.addAll(aggregateFunctions);
+
+                return 'SELECT ' + String.join(selectFields, ', ');
+            }
+
+            return 'SELECT ' + String.join(fields, ', ');
         }
 
         public void removeNotGroupedFields() {
-            // Clear not grouped or aggregated fields to avoid "Field must be grouped or aggregated" error
             for (String field : fields) {
                 if (!groupedFields.contains(field)) {
                     fields.remove(field);
