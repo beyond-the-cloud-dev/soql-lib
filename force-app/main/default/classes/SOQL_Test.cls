@@ -42,9 +42,34 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void countWithDefaultFields() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Id, Account.Name)
+            .count()
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT() FROM Account', soql);
+    }
+
+    @IsTest
     static void countField() {
         // Test
         String soql = SOQL.of(Opportunity.SObjectType)
+            .count(Opportunity.Id)
+            .count(Opportunity.CampaignId)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT(Id), COUNT(CampaignId) FROM Opportunity', soql);
+    }
+
+    @IsTest
+    static void countFieldWithDefaultFields() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType)
+            .with(Opportunity.LeadSource)
             .count(Opportunity.Id)
             .count(Opportunity.CampaignId)
             .toString();
@@ -60,6 +85,122 @@ private class SOQL_Test {
 
          // Verify
         Assert.areEqual('SELECT COUNT(Name) names FROM Account', soql);
+    }
+
+    @IsTest
+    static void avg() {
+         // Test
+        String soql = SOQL.of(Opportunity.SObjectType)
+            .with(Opportunity.CampaignId)
+            .avg(Opportunity.Amount)
+            .groupBy(Opportunity.CampaignId)
+            .toString();
+
+         // Verify
+        Assert.areEqual('SELECT CampaignId, AVG(Amount) FROM Opportunity GROUP BY CampaignId', soql);
+    }
+
+    @IsTest
+    static void avgWithAlias() {
+         // Test
+        String soql = SOQL.of(Opportunity.SObjectType)
+            .with(Opportunity.CampaignId)
+            .avg(Opportunity.Amount, 'amount')
+            .groupBy(Opportunity.CampaignId)
+            .toString();
+
+         // Verify
+        Assert.areEqual('SELECT CampaignId, AVG(Amount) amount FROM Opportunity GROUP BY CampaignId', soql);
+    }
+
+    @IsTest
+    static void countDistinct() {
+         // Test
+        String soql = SOQL.of(Lead.SObjectType).countDistinct(Lead.Company).toString();
+
+         // Verify
+        Assert.areEqual('SELECT COUNT_DISTINCT(Company) FROM Lead', soql);
+    }
+
+    @IsTest
+    static void countDistinctWithAlias() {
+         // Test
+        String soql = SOQL.of(Lead.SObjectType).countDistinct(Lead.Company, 'company').toString();
+
+         // Verify
+        Assert.areEqual('SELECT COUNT_DISTINCT(Company) company FROM Lead', soql);
+    }
+
+    @IsTest
+    static void min() {
+         // Test
+        String soql = SOQL.of(Contact.SObjectType)
+            .with(Contact.FirstName, Contact.LastName)
+            .min(Contact.CreatedDate)
+            .groupBy(Contact.FirstName)
+            .groupBy(Contact.LastName)
+            .toString();
+
+         // Verify
+        Assert.areEqual('SELECT FirstName, LastName, MIN(CreatedDate) FROM Contact GROUP BY FirstName, LastName', soql);
+    }
+
+    @IsTest
+    static void minWithAlias() {
+         // Test
+        String soql = SOQL.of(Contact.SObjectType)
+            .with(Contact.FirstName, Contact.LastName)
+            .min(Contact.CreatedDate, 'createDate')
+            .groupBy(Contact.FirstName)
+            .groupBy(Contact.LastName)
+            .toString();
+
+         // Verify
+        Assert.areEqual('SELECT FirstName, LastName, MIN(CreatedDate) createDate FROM Contact GROUP BY FirstName, LastName', soql);
+    }
+
+    @IsTest
+    static void max() {
+         // Test
+        String soql = SOQL.of(Campaign.SObjectType)
+            .with(Campaign.Name)
+            .max(Campaign.BudgetedCost)
+            .groupBy(Campaign.Name)
+            .toString();
+
+         // Verify
+        Assert.areEqual('SELECT Name, MAX(BudgetedCost) FROM Campaign GROUP BY Name', soql);
+    }
+
+    @IsTest
+    static void maxWithAlias() {
+         // Test
+        String soql = SOQL.of(Campaign.SObjectType)
+            .with(Campaign.Name)
+            .max(Campaign.BudgetedCost, 'budgetedCost')
+            .groupBy(Campaign.Name)
+            .toString();
+
+         // Verify
+        Assert.areEqual('SELECT Name, MAX(BudgetedCost) budgetedCost FROM Campaign GROUP BY Name', soql);
+    }
+
+    @IsTest
+    static void sum() {
+         // Test
+        String soql = SOQL.of(Opportunity.SObjectType).sum(Opportunity.Amount).toString();
+
+         // Verify
+        Assert.areEqual('SELECT SUM(Amount) FROM Opportunity', soql);
+    }
+
+    @IsTest
+    static void sumWithAlias() {
+         // Test
+        String soql = SOQL.of(Opportunity.SObjectType).sum(Opportunity.Amount, 'amount').toString();
+
+         // Verify
+        Assert.areEqual('SELECT SUM(Amount) amount FROM Opportunity', soql);
     }
 
     @IsTest
@@ -177,6 +318,18 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual('SELECT Id, Name, BillingCity FROM Account', soql);
+    }
+
+    @IsTest
+    static void withStringAggregationAndGroupingFields() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType)
+            .with('CampaignId campaign, AVG(Amount) amount')
+            .groupBy(Opportunity.CampaignId)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT CampaignId campaign, AVG(Amount) amount FROM Opportunity GROUP BY CampaignId', soql);
     }
 
     @IsTest
@@ -1335,7 +1488,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT(Name) cnt, LeadSource FROM Lead GROUP BY ROLLUP(LeadSource)', soql);
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(LeadSource)', soql);
     }
 
     @IsTest
@@ -1803,7 +1956,7 @@ private class SOQL_Test {
     @IsTest
     static void toValuesOfWhenNoValues() {
         // Setup
-        insertAccounts();
+        insertAccounts(); // Industry is empty
 
         // Test
         Set<String> accountNames = SOQL.of(Account.SObjectType).toValuesOf(Account.Industry);
@@ -1903,7 +2056,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void toIntegerWithoutCount() {
+    static void toIntegerWithoutSpecifiedCount() {
         // Setup
         List<Account> accounts = insertAccounts();
 

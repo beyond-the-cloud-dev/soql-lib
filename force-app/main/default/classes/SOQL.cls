@@ -61,11 +61,21 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         Queryable with(String relationshipName, List<SObjectField> fields);
         Queryable with(SubQuery subQuery);
-        // COUNT
+        // SELECT - AGGREGATE FUNCTIONS
         Queryable count();
         Queryable count(SObjectField field);
         Queryable count(SObjectField field, String alias);
-        // GROUPING
+        Queryable avg(SObjectField field);
+        Queryable avg(SObjectField field, String alias);
+        Queryable countDistinct(SObjectField field);
+        Queryable countDistinct(SObjectField field, String alias);
+        Queryable min(SObjectField field);
+        Queryable min(SObjectField field, String alias);
+        Queryable max(SObjectField field);
+        Queryable max(SObjectField field, String alias);
+        Queryable sum(SObjectField field);
+        Queryable sum(SObjectField field, String alias);
+        // SELECT - GROUPING
         Queryable grouping(SObjectField field, String alias);
         // USING SCOPE
         Queryable delegatedScope();
@@ -346,12 +356,56 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public SOQL count(SObjectField field) {
-        builder.fields.count(field);
-        return this;
+        return count(field, '');
     }
 
     public SOQL count(SObjectField field, String alias) {
         builder.fields.count(field, alias);
+        return this;
+    }
+
+    public SOQL avg(SObjectField field) {
+        return avg(field, '');
+    }
+
+    public SOQL avg(SObjectField field, String alias) {
+        builder.fields.avg(field, alias);
+        return this;
+    }
+
+    public SOQL countDistinct(SObjectField field) {
+        return countDistinct(field, '');
+    }
+
+    public SOQL countDistinct(SObjectField field, String alias) {
+        builder.fields.countDistinct(field, alias);
+        return this;
+    }
+
+    public SOQL min(SObjectField field) {
+        return min(field, '');
+    }
+
+    public SOQL min(SObjectField field, String alias) {
+        builder.fields.min(field, alias);
+        return this;
+    }
+
+    public SOQL max(SObjectField field) {
+        return max(field, '');
+    }
+
+    public SOQL max(SObjectField field, String alias) {
+        builder.fields.max(field, alias);
+        return this;
+    }
+
+    public SOQL sum(SObjectField field) {
+        return sum(field, '');
+    }
+
+    public SOQL sum(SObjectField field, String alias) {
+        builder.fields.sum(field, alias);
         return this;
     }
 
@@ -417,19 +471,19 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public SOQL groupBy(SObjectField field) {
         builder.groupBy.with(field);
-        builder.fields.withAggregatedField(field);
+        builder.fields.withGroupedField(field);
         return this;
     }
 
     public SOQL groupByRollup(SObjectField field) {
         builder.groupBy.rollup(field);
-        builder.fields.withAggregatedField(field);
+        builder.fields.withGroupedField(field);
         return this;
     }
 
     public SOQL groupByCube(SObjectField field) {
         builder.groupBy.cube(field);
-        builder.fields.withAggregatedField(field);
+        builder.fields.withGroupedField(field);
         return this;
     }
 
@@ -555,9 +609,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Integer toInteger() {
-        if (!builder.fields.hasCount()) {
-            count();
-        }
+        builder.fields.addCountWhenNotPresented();
         return executor.toInteger();
     }
 
@@ -731,47 +783,73 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private class QFields implements QueryClause {
         private Set<String> fields = new Set<String>();
-        private Set<String> aggregatedFields = new Set<String>();
+        private Set<String> aggregateFunctions = new Set<String>();
+        private Set<String> groupedFields = new Set<String>();
 
         public void count() {
-            count('COUNT()');
-        }
-
-        public void count(SObjectField field) {
-            count('COUNT(' + field + ')');
+            clearAllFields(); // COUNT() must be the only element in the SELECT list.
+            withAggregateFunction('COUNT()', '');
         }
 
         public void count(SObjectField field, String alias) {
-            count('COUNT(' + field + ') ' + alias);
-            fields.add('COUNT(' + field + ') ' + alias);
+            withAggregateFunction('COUNT(' + field + ')', alias);
         }
 
-        private void count(String count) {
-            withAggregatedField(count);
-            fields.add(count);
+        private void avg(SObjectField field, String alias) {
+            withAggregateFunction('AVG(' + field + ')', alias);
+        }
+
+        private void countDistinct(SObjectField field, String alias) {
+            withAggregateFunction('COUNT_DISTINCT(' + field + ')', alias);
+        }
+
+        private void min(SObjectField field, String alias) {
+            withAggregateFunction('MIN(' + field + ')', alias);
+        }
+
+        private void max(SObjectField field, String alias) {
+            withAggregateFunction('MAX(' + field + ')', alias);
+        }
+
+        private void sum(SObjectField field, String alias) {
+            withAggregateFunction('SUM(' + field + ')', alias);
         }
 
         public void grouping(SObjectField field, String alias) {
-            withAggregatedField('GROUPING(' + field + ') ' + alias);
-            fields.add('GROUPING(' + field + ') ' + alias);
+            withAggregateFunction('GROUPING(' + field + ')', alias);
         }
 
         public void with(SObjectField field, String alias) {
-            withAggregatedField(field + ' ' + alias);
-            fields.add(field + ' ' + alias);
+            withAggregateFunction(field.getDescribe().getName(), alias);
         }
 
-        public void withAggregatedField(SObjectField field) {
-            withAggregatedField(field.getDescribe().getName());
+        private void withAggregateFunction(String aggregateFunction, String alias) {
+            if (String.isNotBlank(alias)) {
+                aggregateFunction += ' ' + alias;
+            }
+
+            aggregateFunctions.add(aggregateFunction);
         }
 
-        public void withAggregatedField(String field) {
-            aggregatedFields.add(field);
+        public void withGroupedField(SObjectField field) {
+            groupedFields.add(field.getDescribe().getName());
         }
 
-        public void with(String stringFields) {
+        public void with(String commaSeparatedFields) {
             // To avoid field duplicates in query
-            fields.addAll(stringFields.deleteWhitespace().split(','));
+            for (String splitedField : commaSeparatedFields.split(',')) {
+                String field = splitedField.trim();
+                if (isAggregateFunction(field)) {
+                    aggregateFunctions.add(field);
+                } else {
+                    fields.add(field);
+                }
+            }
+        }
+
+        private Boolean isAggregateFunction(String field) {
+            // AVG(), COUNT(), MIN(), MAX(), SUM() or Field aliasing
+            return field.contains('(') && field.contains(')') || field.contains(' ');
         }
 
         public void with(List<SObjectField> fields) {
@@ -796,29 +874,38 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public void clearAllFields() {
             fields.clear();
+            aggregateFunctions.clear();
         }
 
-        public Boolean hasCount() {
-            return !aggregatedFields.isEmpty();
+        public void addCountWhenNotPresented() {
+            if (aggregateFunctions.isEmpty()) {
+                count();
+            }
         }
 
         public override String toString() {
-            removeNotAggregatedFieldsFromAggregateSoql();
-
-            if (fields.isEmpty()) {
+            if (fields.isEmpty() && aggregateFunctions.isEmpty()) {
                 return 'SELECT Id';
+            }
+
+            if (!groupedFields.isEmpty() || !aggregateFunctions.isEmpty()) {
+                // To avoid "Field must be grouped or aggregated" error
+                removeNotGroupedFields();
+
+                List<String> selectFields = new List<String>();
+
+                selectFields.addAll(fields);
+                selectFields.addAll(aggregateFunctions);
+
+                return 'SELECT ' + String.join(selectFields, ', ');
             }
 
             return 'SELECT ' + String.join(fields, ', ');
         }
 
-        public void removeNotAggregatedFieldsFromAggregateSoql() {
-            if (aggregatedFields.isEmpty()) {
-                return;
-            }
-            // Clear not grouped or aggregated fields to avoid "Field must be grouped or aggregated" error
+        public void removeNotGroupedFields() {
             for (String field : fields) {
-                if (!aggregatedFields.contains(field)) {
+                if (!groupedFields.contains(field)) {
                     fields.remove(field);
                 }
             }
