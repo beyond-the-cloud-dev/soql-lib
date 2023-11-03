@@ -877,7 +877,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public void addCountWhenNotPresented() {
-            if (!aggregateFunctions.isEmpty()) {
+            if (aggregateFunctions.isEmpty()) {
                 count();
             }
         }

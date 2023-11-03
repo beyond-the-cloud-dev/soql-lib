@@ -32,11 +32,21 @@ The following are methods for `SOQL`.
 - [`with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5)`](#with-related-field1---field5)
 - [`with(String relationshipName, List<SObjectField> fields)`](#with-related-fields)
 
-[**COUNT**](#count)
+[**AGGREGATION FUNCTIONS**]()
 
 - [`count()`](#count)
 - [`count(SObjectField field)`](#count-field)
 - [`count(SObjectField field, String alias)`](#count-with-alias)
+- [`avg(SObjectField field)`](#avg)
+- [`avg(SObjectField field, String alias)`](#avg-with-alias)
+- [`countDistinct(SObjectField field)`](#count_distinct)
+- [`countDistinct(SObjectField field, String alias)`](#count_distinct-with-alias)
+- [`min(SObjectField field)`](#min)
+- [`min(SObjectField field, String alias)`](#min-with-alias)
+- [`max(SObjectField field)`](#max)
+- [`max(SObjectField field, String alias)`](#max-with-alias)
+- [`sum(SObjectField field)`](#sum)
+- [`sum(SObjectField field, String alias)`](#sum-with-alias)
 
 [**GROUPING**](#grouping)
 
@@ -369,9 +379,9 @@ SOQL.of(Account.SObjectType)
     ).toList();
 ```
 
-## COUNT-QUERY
+## [AGGREGATE FUNCTIONS](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_agg_functions.htm)
 
-### count
+### COUNT
 
 [COUNT()](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_count.htm#count_section_title)
 
@@ -397,7 +407,7 @@ SOQL.of(Account.SObjectType)
     .toInteger();
 ```
 
-### count field
+### COUNT field
 
 **Signature**
 
@@ -422,7 +432,7 @@ FROM Opportunity
     .toAggregated();
 ```
 
-### count with alias
+### COUNT with alias
 
 **Signature**
 
@@ -443,6 +453,210 @@ SELECT COUNT(Name) names FROM Account
 SOQL.of(Account.SObjectType)
     .count(Account.Name, 'names')
     .toAggregated();
+```
+
+### AVG
+
+**Signature**
+
+```apex
+Queryable avg(SObjectField field)
+```
+
+**Example**
+
+```sql
+SELECT CampaignId, AVG(Amount) FROM Opportunity GROUP BY CampaignId
+```
+```apex
+SOQL.of(Opportunity.SObjectType)
+    .with(Opportunity.CampaignId)
+    .avg(Opportunity.Amount)
+    .groupBy(Opportunity.CampaignId)
+    .toAggregate();
+```
+
+### AVG with alias
+
+**Signature**
+
+```apex
+Queryable avg(SObjectField field, String alias)
+```
+
+**Example**
+
+```sql
+SELECT CampaignId, AVG(Amount) amount FROM Opportunity GROUP BY CampaignId
+```
+```apex
+SOQL.of(Opportunity.SObjectType)
+    .with(Opportunity.CampaignId)
+    .avg(Opportunity.Amount, 'amount')
+    .groupBy(Opportunity.CampaignId)
+    .toAggregate();
+```
+
+### COUNT_DISTINCT
+
+**Signature**
+
+```apex
+Queryable countDistinct(SObjectField field
+```
+
+**Example**
+
+```sql
+SELECT COUNT_DISTINCT(Company) FROM Lead
+```
+```apex
+SOQL.of(Lead.SObjectType).countDistinct(Lead.Company).toAggregate();
+```
+
+### COUNT_DISTINCT with alias
+
+**Signature**
+
+```apex
+Queryable countDistinct(SObjectField field, String alias)
+```
+
+**Example**
+
+```sql
+SELECT COUNT_DISTINCT(Company) company FROM Lead
+```
+```apex
+SOQL.of(Lead.SObjectType).countDistinct(Lead.Company, 'company').toAggregate();
+```
+
+### MIN
+
+**Signature**
+
+```apex
+Queryable min(SObjectField field)
+```
+
+**Example**
+
+```sql
+SELECT FirstName, LastName, MIN(CreatedDate)
+FROM Contact
+GROUP BY FirstName, LastName
+```
+```apex
+SOQL.of(Contact.SObjectType)
+    .with(Contact.FirstName, Contact.LastName)
+    .min(Contact.CreatedDate)
+    .groupBy(Contact.FirstName)
+    .groupBy(Contact.LastName)
+    .toAggregate();
+```
+
+### MIN with alias
+
+**Signature**
+
+```apex
+Queryable min(SObjectField field, String alias)
+```
+
+**Example**
+
+```sql
+SELECT FirstName, LastName, MIN(CreatedDate) createDate
+FROM Contact
+GROUP BY FirstName, LastName
+```
+```apex
+SOQL.of(Contact.SObjectType)
+    .with(Contact.FirstName, Contact.LastName)
+    .min(Contact.CreatedDate, 'createDate')
+    .groupBy(Contact.FirstName)
+    .groupBy(Contact.LastName)
+    .toAggregate();
+```
+
+### MAX
+
+**Signature**
+
+```apex
+Queryable max(SObjectField field)
+```
+
+**Example**
+
+```sql
+SELECT Name, MAX(BudgetedCost)
+FROM Campaign
+GROUP BY Name
+```
+```apex
+ SOQL.of(Campaign.SObjectType)
+    .with(Campaign.Name)
+    .max(Campaign.BudgetedCost)
+    .groupBy(Campaign.Name)
+     .toAggregate();
+```
+
+### MAX with alias
+
+**Signature**
+
+```apex
+Queryable max(SObjectField field, String alias)
+```
+
+**Example**
+
+```sql
+SELECT Name, MAX(BudgetedCost) budgetedCost
+FROM Campaign
+GROUP BY Name
+```
+```apex
+ SOQL.of(Campaign.SObjectType)
+    .with(Campaign.Name)
+    .max(Campaign.BudgetedCost, 'budgetedCost')
+    .groupBy(Campaign.Name)
+    .toAggregate();
+```
+
+### SUM
+
+**Signature**
+
+```apex
+Queryable sum(SObjectField field)
+```
+
+**Example**
+
+```sql
+SELECT SUM(Amount) FROM Opportunity
+```
+```apex
+SOQL.of(Opportunity.SObjectType).sum(Opportunity.Amount).toAggregate();
+```
+
+### SUM with alias
+
+**Signature**
+
+```apex
+Queryable sum(SObjectField field, String alias)
+```
+
+**Example**
+
+```sql
+SELECT SUM(Amount) amount FROM Opportunity
+```
+```apex
+SOQL.of(Opportunity.SObjectType).sum(Opportunity.Amount, 'amount').toAggregate();
 ```
 
 ## GROUPING
