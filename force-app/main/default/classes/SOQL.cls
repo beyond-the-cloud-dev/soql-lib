@@ -836,9 +836,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public void with(String commaSeparatedFields) {
-            // To avoid field duplicates in query
-            for (String splitedField : commaSeparatedFields.split(',')) {
-                String field = splitedField.trim();
+            // Added to Set to avoid field duplicates in query
+            for (String splittedField : commaSeparatedFields.split(',')) {
+                String field = splittedField.trim();
                 if (isAggregateFunction(field)) {
                     aggregateFunctions.add(field);
                 } else {
@@ -889,10 +889,9 @@ public virtual inherited sharing class SOQL implements Queryable {
             }
 
             if (!groupedFields.isEmpty() || !aggregateFunctions.isEmpty()) {
-                // To avoid "Field must be grouped or aggregated" error
-                removeNotGroupedFields();
-
                 List<String> selectFields = new List<String>();
+
+                removeNotGroupedFields();
 
                 selectFields.addAll(fields);
                 selectFields.addAll(aggregateFunctions);
@@ -904,6 +903,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public void removeNotGroupedFields() {
+             // To avoid "Field must be grouped or aggregated" error
             for (String field : fields) {
                 if (!groupedFields.contains(field)) {
                     fields.remove(field);
