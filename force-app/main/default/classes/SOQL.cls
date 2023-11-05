@@ -17,7 +17,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public static SubQuery SubQuery {
         get {
-            return new QSubQuery();
+            return new SoqlSubQuery();
         }
     }
 
@@ -679,91 +679,91 @@ public virtual inherited sharing class SOQL implements Queryable {
         private List<QueryClause> clauses = new QueryClause[10];
 
         public QueryBuilder(String ofObject) {
-            clauses.set(0, new QFields());
-            clauses.set(2, new QFrom(ofObject));
+            clauses.set(0, new SoqlFields());
+            clauses.set(2, new SoqlFrom(ofObject));
         }
 
-        public QFields fields {
+        public SoqlFields fields {
             get {
-                return (QFields) clauses[0];
+                return (SoqlFields) clauses[0];
             }
         }
 
-        public QSubQueries subQueries {
+        public SoqlSubQueries subQueries {
             get {
                 if (clauses[1] == null) {
-                    clauses.set(1, new QSubQueries());
+                    clauses.set(1, new SoqlSubQueries());
                 }
-                return (QSubQueries) clauses[1];
+                return (SoqlSubQueries) clauses[1];
             }
         }
 
-        public QScope scope {
+        public SoqlScope scope {
             get {
                 if (clauses[3] == null) {
-                    clauses.set(3, new QScope());
+                    clauses.set(3, new SoqlScope());
                 }
-                return (QScope) clauses[3];
+                return (SoqlScope) clauses[3];
             }
         }
 
-        public QMainFilterGroup conditions {
+        public MainFilterGroup conditions {
             get {
                 if (clauses[4] == null) {
-                    clauses.set(4, new QMainFilterGroup());
+                    clauses.set(4, new MainFilterGroup());
                 }
-                return (QMainFilterGroup) clauses[4];
+                return (MainFilterGroup) clauses[4];
             }
         }
 
-        public QGroupBy groupBy {
+        public SoqlGroupBy groupBy {
             get {
                 if (clauses[5] == null) {
-                    clauses.set(5, new QGroupBy());
+                    clauses.set(5, new SoqlGroupBy());
                 }
-                return (QGroupBy) clauses[5];
+                return (SoqlGroupBy) clauses[5];
             }
         }
 
-        public QOrderBy latestOrderBy {
+        public SoqlOrderBy latestOrderBy {
             get {
-                return orderBys.recentOrderBy();
+                return orderBys.latestOrderBy();
             }
         }
 
-        public QOrderBys orderBys {
+        public SoqlOrderBys orderBys {
             get {
                 if (clauses[6] == null) {
-                    clauses.set(6, new QOrderBys());
+                    clauses.set(6, new SoqlOrderBys());
                 }
-                return (QOrderBys) clauses[6];
+                return (SoqlOrderBys) clauses[6];
             }
         }
 
-        public QLimit soqlLimit {
+        public SoqlLimit soqlLimit {
             get {
                 if (clauses[7] == null) {
-                    clauses.set(7, new QLimit());
+                    clauses.set(7, new SoqlLimit());
                 }
-                return (QLimit) clauses[7];
+                return (SoqlLimit) clauses[7];
             }
         }
 
-        public QOffset soqlOffset {
+        public SoqlOffset soqlOffset {
             get {
                 if (clauses[8] == null) {
-                    clauses.set(8, new QOffset());
+                    clauses.set(8, new SoqlOffset());
                 }
-                return (QOffset) clauses[8];
+                return (SoqlOffset) clauses[8];
             }
         }
 
-        public QFor soqlFor {
+        public SoqlFor soqlFor {
             get {
                 if (clauses[9] == null) {
-                    clauses.set(9, new QFor());
+                    clauses.set(9, new SoqlFor());
                 }
-                return (QFor) clauses[9];
+                return (SoqlFor) clauses[9];
             }
         }
 
@@ -781,7 +781,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QFields implements QueryClause {
+    private class SoqlFields implements QueryClause {
         private Set<String> fields = new Set<String>();
         private Set<String> aggregateFunctions = new Set<String>();
         private Set<String> groupedFields = new Set<String>();
@@ -912,7 +912,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QSubQuery implements SubQuery {
+    private class SoqlSubQuery implements SubQuery {
         private QueryBuilder builder;
 
         public SubQuery of(String ofObject) {
@@ -1011,7 +1011,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QSubQueries implements QueryClause {
+    private class SoqlSubQueries implements QueryClause {
         private List<SubQuery> subQueries = new List<SubQuery>();
 
         public void add(SubQuery subQuery) {
@@ -1029,10 +1029,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QFrom implements QueryClause {
+    private class SoqlFrom implements QueryClause {
         private String objectApiName;
 
-        public QFrom(String objectType) {
+        public SoqlFrom(String objectType) {
             objectApiName = objectType;
         }
 
@@ -1041,7 +1041,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QScope implements QueryClause {
+    private class SoqlScope implements QueryClause {
         private String scope = 'EVERYTHING';
 
         public void delegated() {
@@ -1155,7 +1155,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QMainFilterGroup extends QFilterGroup implements QueryClause {
+    private class MainFilterGroup extends QFilterGroup implements QueryClause {
         public override String toString() {
             if (!hasValues()) {
                 return '';
@@ -1433,7 +1433,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QGroupBy implements QueryClause {
+    private class SoqlGroupBy implements QueryClause {
         private Set<String> groupByFields = new Set<String>();
         private String groupByFunction = '';
 
@@ -1466,22 +1466,22 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QOrderBys implements QueryClause {
-        public List<QOrderBy> orderBys = new List<QOrderBy>();
+    private class SoqlOrderBys implements QueryClause {
+        public List<SoqlOrderBy> orderBys = new List<SoqlOrderBy>();
 
-        public QOrderBy newOrderBy() {
-            orderBys.add(new QOrderBy());
-            return recentOrderBy();
+        public SoqlOrderBy newOrderBy() {
+            orderBys.add(new SoqlOrderBy());
+            return latestOrderBy();
         }
 
-        public QOrderBy recentOrderBy() {
+        public SoqlOrderBy latestOrderBy() {
             return orderBys.get(orderBys.size() - 1);
         }
 
         public override String toString() {
             List<String> orderFields = new List<String>();
 
-            for (QOrderBy orderBy : orderBys) {
+            for (SoqlOrderBy orderBy : orderBys) {
                 orderFields.add(orderBy.toString());
             }
 
@@ -1489,7 +1489,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QOrderBy implements QueryClause {
+    private class SoqlOrderBy implements QueryClause {
         private String orderField;
         private String sortingOrder = 'ASC';
         private String nullsOrder = 'FIRST';
@@ -1502,7 +1502,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             with(relationshipName + '.' + field);
         }
 
-        public QOrderBy with(String field) {
+        public SoqlOrderBy with(String field) {
             orderField = field;
             return this;
         }
@@ -1524,7 +1524,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QLimit implements QueryClause {
+    private class SoqlLimit implements QueryClause {
         private Integer soqlLimit;
 
         public void max(Integer soqlLimit) {
@@ -1536,7 +1536,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QOffset implements QueryClause {
+    private class SoqlOffset implements QueryClause {
         private Integer soqlOffset;
 
         public void offset(Integer fromRow) {
@@ -1548,7 +1548,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QFor implements QueryClause {
+    private class SoqlFor implements QueryClause {
         private String forStatement;
 
         public void forReference() {
