@@ -1322,7 +1322,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         private String formattedString(String value) {
-            return value == null ? value : String.escapeSingleQuotes(value.trim());
+            return value == null ? value : value.trim();
         }
 
         public Filter isIn(Iterable<Object> iterable) {
