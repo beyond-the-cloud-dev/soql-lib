@@ -23,19 +23,19 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public static FilterGroup FilterGroup {
         get {
-            return new QFilterGroup();
+            return new SoqlFilterGroup();
         }
     }
 
     public static Filter Filter {
         get {
-            return new QFilter();
+            return new SoqlFilter();
         }
     }
 
     public static InnerJoin InnerJoin {
         get {
-            return new QJoinQuery();
+            return new SoqlJoinQuery();
         }
     }
 
@@ -1077,7 +1077,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Boolean isEmpty();
     }
 
-    private virtual class QFilterGroup implements FilterGroup {
+    private virtual class SoqlFilterGroup implements FilterGroup {
         private List<FilterClause> queryConditions = new List<FilterClause>();
         private String order;
         private String connector = 'AND';
@@ -1155,7 +1155,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class MainFilterGroup extends QFilterGroup implements QueryClause {
+    private class MainFilterGroup extends SoqlFilterGroup implements QueryClause {
         public override String toString() {
             if (!hasValues()) {
                 return '';
@@ -1213,7 +1213,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QFilter implements Filter {
+    private class SoqlFilter implements Filter {
         private String field;
         private String comperator;
         private Object value;
@@ -1405,7 +1405,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QJoinQuery implements InnerJoin {
+    private class SoqlJoinQuery implements InnerJoin {
         private QueryBuilder builder;
 
         public InnerJoin of(SObjectType ofObject) {
