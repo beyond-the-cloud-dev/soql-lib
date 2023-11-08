@@ -21,6 +21,10 @@ The following are methods for `FilterGroup`.
 - [`anyConditionMatching()`](#anyconditionmatching)
 - [`conditionLogic(String order)`](#conditionlogic)
 
+[**ADDITIONAL**](#additional)
+
+- [`ignoreWhen(Boolean logicExpression)`](#ignorewhen)
+
 ## ADD CONDITION
 ### add
 
@@ -134,4 +138,43 @@ SOQL.of(Account.SObjectType)
         .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterOrEqual(10))
         .anyConditionMatching()
     ).toList();
+```
+
+## ADDITIONAL
+
+### ignoreWhen
+
+All group's conditions will be removed when logic expression will evaluate to true.
+
+**Signature**
+
+```apex
+FilterGroup ignoreWhen(Boolean logicExpression);
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+WHERE Industry = 'IT' AND Name LIKE '%MyAccount%'
+```
+
+```apex
+Boolean isPartnerUser = false;
+
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.FilterGroup
+        .add(SOQL.FilterGroup
+            .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
+            .add(SOQL.Filter.with(Account.BillingCity).equal('Warsaw'))
+            .anyConditionMatching()
+            .ignoreWhen(!isPartnerUser)
+        )
+        .add(SOQL.FilterGroup
+            .add(SOQL.Filter.with(Account.Industry).equal('IT'))
+            .add(SOQL.Filter.name().contains('MyAcccount'))
+        )
+    )
+    .toList();
 ```

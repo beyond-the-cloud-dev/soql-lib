@@ -17,25 +17,25 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public static SubQuery SubQuery {
         get {
-            return new QSubQuery();
+            return new SoqlSubQuery();
         }
     }
 
     public static FilterGroup FilterGroup {
         get {
-            return new QFilterGroup();
+            return new SoqlFilterGroup();
         }
     }
 
     public static Filter Filter {
         get {
-            return new QFilter();
+            return new SoqlFilter();
         }
     }
 
     public static InnerJoin InnerJoin {
         get {
-            return new QJoinQuery();
+            return new SoqlJoinQuery();
         }
     }
 
@@ -61,11 +61,21 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         Queryable with(String relationshipName, List<SObjectField> fields);
         Queryable with(SubQuery subQuery);
-        // COUNT
+        // SELECT - AGGREGATE FUNCTIONS
         Queryable count();
         Queryable count(SObjectField field);
         Queryable count(SObjectField field, String alias);
-        // GROUPING
+        Queryable avg(SObjectField field);
+        Queryable avg(SObjectField field, String alias);
+        Queryable countDistinct(SObjectField field);
+        Queryable countDistinct(SObjectField field, String alias);
+        Queryable min(SObjectField field);
+        Queryable min(SObjectField field, String alias);
+        Queryable max(SObjectField field);
+        Queryable max(SObjectField field, String alias);
+        Queryable sum(SObjectField field);
+        Queryable sum(SObjectField field, String alias);
+        // SELECT - GROUPING
         Queryable grouping(SObjectField field, String alias);
         // USING SCOPE
         Queryable delegatedScope();
@@ -169,6 +179,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         // ORDER
         FilterGroup anyConditionMatching();
         FilterGroup conditionLogic(String order);
+        // ADDITIONAL
+        FilterGroup ignoreWhen(Boolean logicExpression);
 
         Boolean hasValues();
     }
@@ -344,12 +356,56 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public SOQL count(SObjectField field) {
-        builder.fields.count(field);
-        return this;
+        return count(field, '');
     }
 
     public SOQL count(SObjectField field, String alias) {
         builder.fields.count(field, alias);
+        return this;
+    }
+
+    public SOQL avg(SObjectField field) {
+        return avg(field, '');
+    }
+
+    public SOQL avg(SObjectField field, String alias) {
+        builder.fields.avg(field, alias);
+        return this;
+    }
+
+    public SOQL countDistinct(SObjectField field) {
+        return countDistinct(field, '');
+    }
+
+    public SOQL countDistinct(SObjectField field, String alias) {
+        builder.fields.countDistinct(field, alias);
+        return this;
+    }
+
+    public SOQL min(SObjectField field) {
+        return min(field, '');
+    }
+
+    public SOQL min(SObjectField field, String alias) {
+        builder.fields.min(field, alias);
+        return this;
+    }
+
+    public SOQL max(SObjectField field) {
+        return max(field, '');
+    }
+
+    public SOQL max(SObjectField field, String alias) {
+        builder.fields.max(field, alias);
+        return this;
+    }
+
+    public SOQL sum(SObjectField field) {
+        return sum(field, '');
+    }
+
+    public SOQL sum(SObjectField field, String alias) {
+        builder.fields.sum(field, alias);
         return this;
     }
 
@@ -415,19 +471,19 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public SOQL groupBy(SObjectField field) {
         builder.groupBy.with(field);
-        builder.fields.withAggregatedField(field);
+        builder.fields.withGroupedField(field);
         return this;
     }
 
     public SOQL groupByRollup(SObjectField field) {
         builder.groupBy.rollup(field);
-        builder.fields.withAggregatedField(field);
+        builder.fields.withGroupedField(field);
         return this;
     }
 
     public SOQL groupByCube(SObjectField field) {
         builder.groupBy.cube(field);
-        builder.fields.withAggregatedField(field);
+        builder.fields.withGroupedField(field);
         return this;
     }
 
@@ -553,9 +609,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Integer toInteger() {
-        if (!builder.fields.hasCount()) {
-            count();
-        }
+        builder.fields.addCountWhenNotPresented();
         return executor.toInteger();
     }
 
@@ -625,91 +679,91 @@ public virtual inherited sharing class SOQL implements Queryable {
         private List<QueryClause> clauses = new QueryClause[10];
 
         public QueryBuilder(String ofObject) {
-            clauses.set(0, new QFields());
-            clauses.set(2, new QFrom(ofObject));
+            clauses.set(0, new SoqlFields());
+            clauses.set(2, new SoqlFrom(ofObject));
         }
 
-        public QFields fields {
+        public SoqlFields fields {
             get {
-                return (QFields) clauses[0];
+                return (SoqlFields) clauses[0];
             }
         }
 
-        public QSubQueries subQueries {
+        public SoqlSubQueries subQueries {
             get {
                 if (clauses[1] == null) {
-                    clauses.set(1, new QSubQueries());
+                    clauses.set(1, new SoqlSubQueries());
                 }
-                return (QSubQueries) clauses[1];
+                return (SoqlSubQueries) clauses[1];
             }
         }
 
-        public QScope scope {
+        public SoqlScope scope {
             get {
                 if (clauses[3] == null) {
-                    clauses.set(3, new QScope());
+                    clauses.set(3, new SoqlScope());
                 }
-                return (QScope) clauses[3];
+                return (SoqlScope) clauses[3];
             }
         }
 
-        public QMainFilterGroup conditions {
+        public MainFilterGroup conditions {
             get {
                 if (clauses[4] == null) {
-                    clauses.set(4, new QMainFilterGroup());
+                    clauses.set(4, new MainFilterGroup());
                 }
-                return (QMainFilterGroup) clauses[4];
+                return (MainFilterGroup) clauses[4];
             }
         }
 
-        public QGroupBy groupBy {
+        public SoqlGroupBy groupBy {
             get {
                 if (clauses[5] == null) {
-                    clauses.set(5, new QGroupBy());
+                    clauses.set(5, new SoqlGroupBy());
                 }
-                return (QGroupBy) clauses[5];
+                return (SoqlGroupBy) clauses[5];
             }
         }
 
-        public QOrderBy latestOrderBy {
+        public SoqlOrderBy latestOrderBy {
             get {
-                return orderBys.recentOrderBy();
+                return orderBys.latestOrderBy();
             }
         }
 
-        public QOrderBys orderBys {
+        public SoqlOrderBys orderBys {
             get {
                 if (clauses[6] == null) {
-                    clauses.set(6, new QOrderBys());
+                    clauses.set(6, new SoqlOrderBys());
                 }
-                return (QOrderBys) clauses[6];
+                return (SoqlOrderBys) clauses[6];
             }
         }
 
-        public QLimit soqlLimit {
+        public SoqlLimit soqlLimit {
             get {
                 if (clauses[7] == null) {
-                    clauses.set(7, new QLimit());
+                    clauses.set(7, new SoqlLimit());
                 }
-                return (QLimit) clauses[7];
+                return (SoqlLimit) clauses[7];
             }
         }
 
-        public QOffset soqlOffset {
+        public SoqlOffset soqlOffset {
             get {
                 if (clauses[8] == null) {
-                    clauses.set(8, new QOffset());
+                    clauses.set(8, new SoqlOffset());
                 }
-                return (QOffset) clauses[8];
+                return (SoqlOffset) clauses[8];
             }
         }
 
-        public QFor soqlFor {
+        public SoqlFor soqlFor {
             get {
                 if (clauses[9] == null) {
-                    clauses.set(9, new QFor());
+                    clauses.set(9, new SoqlFor());
                 }
-                return (QFor) clauses[9];
+                return (SoqlFor) clauses[9];
             }
         }
 
@@ -727,49 +781,75 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QFields implements QueryClause {
+    private class SoqlFields implements QueryClause {
         private Set<String> fields = new Set<String>();
-        private Set<String> aggregatedFields = new Set<String>();
+        private Set<String> aggregateFunctions = new Set<String>();
+        private Set<String> groupedFields = new Set<String>();
 
         public void count() {
-            count('COUNT()');
-        }
-
-        public void count(SObjectField field) {
-            count('COUNT(' + field + ')');
+            clearAllFields(); // COUNT() must be the only element in the SELECT list.
+            withAggregateFunction('COUNT()', '');
         }
 
         public void count(SObjectField field, String alias) {
-            count('COUNT(' + field + ') ' + alias);
-            fields.add('COUNT(' + field + ') ' + alias);
+            withAggregateFunction('COUNT(' + field + ')', alias);
         }
 
-        private void count(String count) {
-            withAggregatedField(count);
-            fields.add(count);
+        private void avg(SObjectField field, String alias) {
+            withAggregateFunction('AVG(' + field + ')', alias);
+        }
+
+        private void countDistinct(SObjectField field, String alias) {
+            withAggregateFunction('COUNT_DISTINCT(' + field + ')', alias);
+        }
+
+        private void min(SObjectField field, String alias) {
+            withAggregateFunction('MIN(' + field + ')', alias);
+        }
+
+        private void max(SObjectField field, String alias) {
+            withAggregateFunction('MAX(' + field + ')', alias);
+        }
+
+        private void sum(SObjectField field, String alias) {
+            withAggregateFunction('SUM(' + field + ')', alias);
         }
 
         public void grouping(SObjectField field, String alias) {
-            withAggregatedField('GROUPING(' + field + ') ' + alias);
-            fields.add('GROUPING(' + field + ') ' + alias);
+            withAggregateFunction('GROUPING(' + field + ')', alias);
         }
 
         public void with(SObjectField field, String alias) {
-            withAggregatedField(field + ' ' + alias);
-            fields.add(field + ' ' + alias);
+            withAggregateFunction(field.getDescribe().getName(), alias);
         }
 
-        public void withAggregatedField(SObjectField field) {
-            withAggregatedField(field.getDescribe().getName());
+        private void withAggregateFunction(String aggregateFunction, String alias) {
+            if (String.isNotBlank(alias)) {
+                aggregateFunction += ' ' + alias;
+            }
+
+            aggregateFunctions.add(aggregateFunction);
         }
 
-        public void withAggregatedField(String field) {
-            aggregatedFields.add(field);
+        public void withGroupedField(SObjectField field) {
+            groupedFields.add(field.getDescribe().getName());
         }
 
-        public void with(String stringFields) {
-            // To avoid field duplicates in query
-            fields.addAll(stringFields.deleteWhitespace().split(','));
+        public void with(String commaSeparatedFields) {
+            // Added to Set to avoid field duplicates in query
+            for (String splittedField : commaSeparatedFields.split(',')) {
+                String field = splittedField.trim();
+                if (isAggregateFunction(field)) {
+                    aggregateFunctions.add(field);
+                } else {
+                    fields.add(field);
+                }
+            }
+        }
+
+        private Boolean isAggregateFunction(String field) {
+            // AVG(), COUNT(), MIN(), MAX(), SUM() or Field aliasing
+            return field.contains('(') && field.contains(')') || field.contains(' ');
         }
 
         public void with(List<SObjectField> fields) {
@@ -794,36 +874,45 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public void clearAllFields() {
             fields.clear();
+            aggregateFunctions.clear();
         }
 
-        public Boolean hasCount() {
-            return !aggregatedFields.isEmpty();
+        public void addCountWhenNotPresented() {
+            if (aggregateFunctions.isEmpty()) {
+                count();
+            }
         }
 
         public override String toString() {
-            removeNotAggregatedFieldsFromAggregateSoql();
-
-            if (fields.isEmpty()) {
+            if (fields.isEmpty() && aggregateFunctions.isEmpty()) {
                 return 'SELECT Id';
+            }
+
+            if (!groupedFields.isEmpty() || !aggregateFunctions.isEmpty()) {
+                List<String> selectFields = new List<String>();
+
+                removeNotGroupedFields();
+
+                selectFields.addAll(fields);
+                selectFields.addAll(aggregateFunctions);
+
+                return 'SELECT ' + String.join(selectFields, ', ');
             }
 
             return 'SELECT ' + String.join(fields, ', ');
         }
 
-        public void removeNotAggregatedFieldsFromAggregateSoql() {
-            if (aggregatedFields.isEmpty()) {
-                return;
-            }
-            // Clear not grouped or aggregated fields to avoid "Field must be grouped or aggregated" error
+        public void removeNotGroupedFields() {
+             // To avoid "Field must be grouped or aggregated" error
             for (String field : fields) {
-                if (!aggregatedFields.contains(field)) {
+                if (!groupedFields.contains(field)) {
                     fields.remove(field);
                 }
             }
         }
     }
 
-    private class QSubQuery implements SubQuery {
+    private class SoqlSubQuery implements SubQuery {
         private QueryBuilder builder;
 
         public SubQuery of(String ofObject) {
@@ -922,7 +1011,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QSubQueries implements QueryClause {
+    private class SoqlSubQueries implements QueryClause {
         private List<SubQuery> subQueries = new List<SubQuery>();
 
         public void add(SubQuery subQuery) {
@@ -940,10 +1029,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QFrom implements QueryClause {
+    private class SoqlFrom implements QueryClause {
         private String objectApiName;
 
-        public QFrom(String objectType) {
+        public SoqlFrom(String objectType) {
             objectApiName = objectType;
         }
 
@@ -952,7 +1041,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QScope implements QueryClause {
+    private class SoqlScope implements QueryClause {
         private String scope = 'EVERYTHING';
 
         public void delegated() {
@@ -988,7 +1077,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Boolean isEmpty();
     }
 
-    private virtual class QFilterGroup implements FilterGroup {
+    private virtual class SoqlFilterGroup implements FilterGroup {
         private List<FilterClause> queryConditions = new List<FilterClause>();
         private String order;
         private String connector = 'AND';
@@ -1020,6 +1109,13 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public FilterGroup conditionLogic(String order) {
             this.order = order;
+            return this;
+        }
+
+        public FilterGroup ignoreWhen(Boolean logicExpression) {
+            if (logicExpression) {
+                queryConditions = new List<FilterClause>();
+            }
             return this;
         }
 
@@ -1059,7 +1155,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QMainFilterGroup extends QFilterGroup implements QueryClause {
+    private class MainFilterGroup extends SoqlFilterGroup implements QueryClause {
         public override String toString() {
             if (!hasValues()) {
                 return '';
@@ -1117,7 +1213,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QFilter implements Filter {
+    private class SoqlFilter implements Filter {
         private String field;
         private String comperator;
         private Object value;
@@ -1226,7 +1322,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         private String formattedString(String value) {
-            return value == null ? value : String.escapeSingleQuotes(value.trim());
+            return value == null ? value : value.trim();
         }
 
         public Filter isIn(Iterable<Object> iterable) {
@@ -1309,7 +1405,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QJoinQuery implements InnerJoin {
+    private class SoqlJoinQuery implements InnerJoin {
         private QueryBuilder builder;
 
         public InnerJoin of(SObjectType ofObject) {
@@ -1337,7 +1433,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QGroupBy implements QueryClause {
+    private class SoqlGroupBy implements QueryClause {
         private Set<String> groupByFields = new Set<String>();
         private String groupByFunction = '';
 
@@ -1370,22 +1466,22 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QOrderBys implements QueryClause {
-        public List<QOrderBy> orderBys = new List<QOrderBy>();
+    private class SoqlOrderBys implements QueryClause {
+        public List<SoqlOrderBy> orderBys = new List<SoqlOrderBy>();
 
-        public QOrderBy newOrderBy() {
-            orderBys.add(new QOrderBy());
-            return recentOrderBy();
+        public SoqlOrderBy newOrderBy() {
+            orderBys.add(new SoqlOrderBy());
+            return latestOrderBy();
         }
 
-        public QOrderBy recentOrderBy() {
+        public SoqlOrderBy latestOrderBy() {
             return orderBys.get(orderBys.size() - 1);
         }
 
         public override String toString() {
             List<String> orderFields = new List<String>();
 
-            for (QOrderBy orderBy : orderBys) {
+            for (SoqlOrderBy orderBy : orderBys) {
                 orderFields.add(orderBy.toString());
             }
 
@@ -1393,7 +1489,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QOrderBy implements QueryClause {
+    private class SoqlOrderBy implements QueryClause {
         private String orderField;
         private String sortingOrder = 'ASC';
         private String nullsOrder = 'FIRST';
@@ -1406,7 +1502,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             with(relationshipName + '.' + field);
         }
 
-        public QOrderBy with(String field) {
+        public SoqlOrderBy with(String field) {
             orderField = field;
             return this;
         }
@@ -1428,7 +1524,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QLimit implements QueryClause {
+    private class SoqlLimit implements QueryClause {
         private Integer soqlLimit;
 
         public void max(Integer soqlLimit) {
@@ -1440,7 +1536,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QOffset implements QueryClause {
+    private class SoqlOffset implements QueryClause {
         private Integer soqlOffset;
 
         public void offset(Integer fromRow) {
@@ -1452,7 +1548,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QFor implements QueryClause {
+    private class SoqlFor implements QueryClause {
         private String forStatement;
 
         public void forReference() {
