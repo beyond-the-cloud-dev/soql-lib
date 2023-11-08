@@ -150,13 +150,13 @@ private class SOQL_Test {
          // Test
         String soql = SOQL.of(Contact.SObjectType)
             .with(Contact.FirstName, Contact.LastName)
-            .min(Contact.CreatedDate, 'createDate')
+            .min(Contact.CreatedDate, 'createdDate')
             .groupBy(Contact.FirstName)
             .groupBy(Contact.LastName)
             .toString();
 
          // Verify
-        Assert.areEqual('SELECT FirstName, LastName, MIN(CreatedDate) createDate FROM Contact GROUP BY FirstName, LastName', soql);
+        Assert.areEqual('SELECT FirstName, LastName, MIN(CreatedDate) createdDate FROM Contact GROUP BY FirstName, LastName', soql);
     }
 
     @IsTest
