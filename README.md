@@ -29,6 +29,8 @@ Read [how to build your selector class](https://soql-lib.vercel.app/building-you
 
 ```apex
 public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selector {
+    public static final String MOCK_ID = 'SOQL_Contact';
+
     public static SOQL_Contact query() {
         return new SOQL_Contact();
     }
@@ -38,7 +40,8 @@ public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selecto
         // default settings
         with(Contact.Id, Contact.Name, Contact.AccountId)
             .systemMode()
-            .withoutSharing();
+            .withoutSharing()
+            .mockId(MOCK_ID);
     }
 
     public SOQL_Contact byRecordType(String rt) {
