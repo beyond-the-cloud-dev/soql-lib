@@ -1,5 +1,5 @@
 public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selector {
-    public final String MOCK_ID = 'SOQL_Contact';
+    public static final String MOCK_ID = 'SOQL_Contact';
 
     public static SOQL_Contact query() {
         return new SOQL_Contact();

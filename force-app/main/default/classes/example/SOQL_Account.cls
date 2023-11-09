@@ -1,5 +1,5 @@
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
-    public final String MOCK_ID = 'SOQL_Account';
+    public static final String MOCK_ID = 'SOQL_Account';
 
     public static SOQL_Account query() {
         return new SOQL_Account();
