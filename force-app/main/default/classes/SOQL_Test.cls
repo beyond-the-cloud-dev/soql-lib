@@ -220,6 +220,30 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void toLabelWithSObjectField() {
+         // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.Company)
+            .toLabel(Lead.Status)
+            .toString();
+
+         // Verify
+        Assert.areEqual('SELECT Company, toLabel(Status) FROM Lead', soql);
+    }
+
+    @IsTest
+    static void toLabelWithStringField() {
+         // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.Company)
+            .toLabel('Recordtype.Name')
+            .toString();
+
+         // Verify
+        Assert.areEqual('SELECT Company, toLabel(Recordtype.Name) FROM Lead', soql);
+    }
+
+    @IsTest
     static void withField() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
