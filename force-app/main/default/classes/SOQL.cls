@@ -77,6 +77,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable sum(SObjectField field, String alias);
         // SELECT - GROUPING
         Queryable grouping(SObjectField field, String alias);
+        // SELECT - toLabel
+        Queryable toLabel(SObjectField field);
+        Queryable toLabel(String field);
         // USING SCOPE
         Queryable delegatedScope();
         Queryable mineScope();
@@ -411,6 +414,15 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public SOQL grouping(SObjectField field, String alias) {
         builder.fields.grouping(field, alias);
+        return this;
+    }
+
+    public SOQL toLabel(SObjectField field) {
+        return toLabel(field.getDescribe().getName());
+    }
+
+    public SOQL toLabel(String field) {
+        builder.fields.toLabel(field);
         return this;
     }
 
@@ -860,6 +872,10 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public void with(SObjectField field) {
             fields.add(field.getDescribe().getName());
+        }
+
+        public void toLabel(String field) {
+            fields.add('toLabel(' + field + ')');
         }
 
         public void with(String relationshipPath, List<SObjectField> fields) {

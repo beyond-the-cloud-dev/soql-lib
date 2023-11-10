@@ -52,6 +52,11 @@ The following are methods for `SOQL`.
 
 - [`grouping(SObjectField field, String alias)`](#grouping)
 
+[**toLabel**](#tolabel)
+
+- [`toLabel(SObjectField field)`](#tolabel)
+- [`toLabel(String field)`](#tolabel)
+
 [**SUBQUERY**](#sub-query)
 
 - [`with(SubQuery subQuery)`](#with-subquery)
@@ -685,6 +690,39 @@ SOQL.of(Lead.SObjectType)
     .groupByRollup(Lead.LeadSource)
     .groupByRollup(Lead.Rating)
     .toAggregated();
+```
+
+## toLabel
+
+> To translate SOQL query results into the language of the user who submits the query, use the toLabel method.
+
+**Signature**
+
+```apex
+toLabel(SObjectField field)
+toLabel(String field)
+```
+
+**Example**
+
+```sql
+SELECT Company, toLabel(Status) FROM Lead
+```
+```apex
+SOQL.of(Lead.SObjectType)
+    .with(Lead.Company)
+    .toLabel(Lead.Status)
+    .toList();
+```
+
+```sql
+SELECT Company, toLabel(Recordtype.Name) FROM Lead
+```
+```apex
+SOQL.of(Lead.SObjectType)
+    .with(Lead.Company)
+    .toLabel('Recordtype.Name')
+    .toList();
 ```
 
 ## USING SCOPE
