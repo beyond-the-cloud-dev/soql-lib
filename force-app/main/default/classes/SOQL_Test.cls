@@ -1929,6 +1929,32 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void multipleToStringExecutions() {
+        // Setup
+        Exception soqlException = null;
+
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.FilterGroup
+                .add(SOQL.Filter.with(Account.Name).equal('Test'))
+                .add(SOQL.Filter.with(Account.Industry).equal('IT'))
+            );
+
+        // Test
+        try {
+            builder.preview();
+            builder.toString();
+            builder.toString();
+            builder.toList();
+        } catch (Exception e) {
+            soqlException = e;
+        }
+
+        // Verify
+        Assert.isNull(soqlException);
+        Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 AND Industry = :v2)', builder.toString());
+    }
+
+    @IsTest
     static void toValueOf() {
         // Setup
         Account acc = new Account(Name = 'Test 1');
