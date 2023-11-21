@@ -592,7 +592,6 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public override String toString() {
-        binder = new Binder();
         return builder.toString();
     }
 
