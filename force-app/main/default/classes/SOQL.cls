@@ -1082,7 +1082,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private virtual class SoqlFilterGroup implements FilterGroup {
         private List<FilterClause> queryConditions = new List<FilterClause>();
-        private String order;
+        private String customOrder;
         private String connector = 'AND';
 
         public FilterGroup add(FilterGroup filterGroup) {
@@ -1111,7 +1111,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public FilterGroup conditionLogic(String order) {
-            this.order = order;
+            customOrder = order;
             return this;
         }
 
@@ -1130,9 +1130,23 @@ public virtual inherited sharing class SOQL implements Queryable {
             return '(' + buildNested() + ')';
         }
 
-        private void setDefaultOrderWhenNotSpecified() {
-            if (String.isNotEmpty(order)) {
-                return;
+        public String buildNested() {
+            return String.format(getOrderWithSpecialCharacters(), queryConditions);
+        }
+
+        private String getOrderWithSpecialCharacters() {
+            String orderWithSpecialCharacters = getConditionsLogic();
+
+            for (Integer i = 0; i < queryConditions.size(); i++) {
+                orderWithSpecialCharacters = orderWithSpecialCharacters.replace(String.valueOf(i + 1), '{' + i + '}');
+            }
+
+            return orderWithSpecialCharacters; // e.g ({0} AND ({1} AND {2}))
+        }
+
+        private String getConditionsLogic() {
+            if (String.isNotEmpty(customOrder)) {
+                return customOrder;
             }
 
             List<String> defaultOrder = new List<String>();
@@ -1141,23 +1155,7 @@ public virtual inherited sharing class SOQL implements Queryable {
                 defaultOrder.add(String.valueOf(i + 1));
             }
 
-            order = String.join(defaultOrder, ' ' + connector + ' ');
-        }
-
-        public String buildNested() {
-            setDefaultOrderWhenNotSpecified(); // e.g (0 AND 1 AND 2)
-
-            return String.format(getOrderWithSpecialCharacters(), queryConditions);
-        }
-
-        private String getOrderWithSpecialCharacters() {
-            String orderWithSpecialCharacters = order;
-
-            for (Integer i = 0; i < queryConditions.size(); i++) {
-                orderWithSpecialCharacters = orderWithSpecialCharacters.replace(String.valueOf(i + 1), '{' + i + '}');
-            }
-
-            return orderWithSpecialCharacters; // e.g ({0} AND ({1} AND {2}))
+            return String.join(defaultOrder, ' ' + connector + ' '); // e.g (0 AND 1 AND 2)
         }
     }
 
