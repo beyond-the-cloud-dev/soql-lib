@@ -1980,7 +1980,12 @@ private class SOQL_Test {
 
         // Verify
         Assert.isNull(soqlException);
+
         Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 AND Industry = :v2)', builder.toString());
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('Test', binding.get('v1'));
+        Assert.areEqual('IT', binding.get('v2'));
     }
 
     @IsTest
