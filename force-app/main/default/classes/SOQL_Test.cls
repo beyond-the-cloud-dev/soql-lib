@@ -1242,6 +1242,35 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void dynamicFiltersGroupOnSoqlInstance() {
+        // Setup
+        SOQL.FilterGroup filterGroup = SOQL.FilterGroup;
+
+        filterGroup.add(SOQL.Filter.with(Account.Name).equal('Test'));
+        filterGroup.add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'));
+
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(Account.Industry).equal('IT'));
+
+        Assert.areEqual('SELECT Id FROM Account WHERE Industry = :v1', builder.toString());
+
+        builder.whereAre(
+            SOQL.FilterGroup
+                .add(SOQL.Filter.with(Account.Name).equal('Test'))
+                .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
+        );
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account WHERE Industry = :v1 AND (Name = :v2 AND BillingCity = :v3)', builder.toString());
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('IT', binding.get('v1'));
+        Assert.areEqual('Test', binding.get('v2'));
+        Assert.areEqual('Krakow', binding.get('v3'));
+    }
+
+    @IsTest
     static void anyConditionMatchingForInnerGroup() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
@@ -1926,6 +1955,37 @@ private class SOQL_Test {
 
         // Verify
         Assert.isTrue(isRecordExist);
+    }
+
+    @IsTest
+    static void multipleToStringExecutions() {
+        // Setup
+        Exception soqlException = null;
+
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.FilterGroup
+                .add(SOQL.Filter.with(Account.Name).equal('Test'))
+                .add(SOQL.Filter.with(Account.Industry).equal('IT'))
+            );
+
+        // Test
+        try {
+            builder.preview();
+            builder.toString();
+            builder.toString();
+            builder.toList();
+        } catch (Exception e) {
+            soqlException = e;
+        }
+
+        // Verify
+        Assert.isNull(soqlException);
+
+        Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 AND Industry = :v2)', builder.toString());
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('Test', binding.get('v1'));
+        Assert.areEqual('IT', binding.get('v2'));
     }
 
     @IsTest
