@@ -40,6 +40,9 @@ const config = {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           routeBasePath: '/',
+          editUrl: ({ docPath }) => {
+            return `https://holocron.so/github/pr/beyond-the-cloud-dev/soql-lib/main/editor/website/docs/${docPath}`
+          },
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
