@@ -57,6 +57,11 @@ The following are methods for `SOQL`.
 - [`toLabel(SObjectField field)`](#tolabel)
 - [`toLabel(String field)`](#tolabel)
 
+[**format**](#format)
+
+- [`format(SObjectField field)`](#format)
+- [`format(SObjectField field, String alias)`](#format)
+
 [**SUBQUERY**](#sub-query)
 
 - [`with(SubQuery subQuery)`](#with-subquery)
@@ -722,6 +727,35 @@ SELECT Company, toLabel(Recordtype.Name) FROM Lead
 SOQL.of(Lead.SObjectType)
     .with(Lead.Company)
     .toLabel('Recordtype.Name')
+    .toList();
+```
+
+## format
+
+**Signature**
+
+```apex
+format(SObjectField field)
+format(SObjectField field, String alias)
+```
+
+**Example**
+
+```sql
+SELECT FORMAT(Amount) FROM Opportunity
+```
+```apex
+SOQL.of(Opportunity.SObjectType)
+    .format(Opportunity.Amount)
+    .toList();
+```
+
+```sql
+SELECT FORMAT(Amount) amt FROM Opportunity
+```
+```apex
+SOQL.of(Opportunity.SObjectType)
+    .format(Opportunity.Amount, 'amt')
     .toList();
 ```
 
