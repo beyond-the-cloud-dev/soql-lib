@@ -251,7 +251,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT FORMAT(Amount) FROM Opportunity', soql);
+        Assert.areEqual('SELECT FORMAT(Amount)  FROM Opportunity', soql);
     }
 
     @IsTest
