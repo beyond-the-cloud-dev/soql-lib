@@ -80,6 +80,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         // SELECT - toLabel
         Queryable toLabel(SObjectField field);
         Queryable toLabel(String field);
+        // SELECT - FORMAT
+        Queryable format(SObjectField field);
+        Queryable format(SObjectField field, String alias);
         // USING SCOPE
         Queryable delegatedScope();
         Queryable mineScope();
@@ -423,6 +426,15 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public SOQL toLabel(String field) {
         builder.fields.toLabel(field);
+        return this;
+    }
+
+    public SOQL format(SObjectField field) {
+        return format(field, '');
+    }
+
+    public SOQL format(SObjectField field, String alias) {
+        builder.fields.format(field, alias);
         return this;
     }
 
@@ -876,6 +888,10 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public void toLabel(String field) {
             fields.add('toLabel(' + field + ')');
+        }
+
+        private void format(SObjectField field, String alias) {
+            fields.add('FORMAT(' + field + ') ' + alias);
         }
 
         public void with(String relationshipPath, List<SObjectField> fields) {
