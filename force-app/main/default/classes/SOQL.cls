@@ -67,14 +67,24 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable count(SObjectField field, String alias);
         Queryable avg(SObjectField field);
         Queryable avg(SObjectField field, String alias);
+        Queryable avg(String relationshipName, SObjectField field);
+        Queryable avg(String relationshipName, SObjectField field, String alias);
         Queryable countDistinct(SObjectField field);
         Queryable countDistinct(SObjectField field, String alias);
+        Queryable countDistinct(String relationshipName, SObjectField field);
+        Queryable countDistinct(String relationshipName, SObjectField field, String alias);
         Queryable min(SObjectField field);
         Queryable min(SObjectField field, String alias);
+        Queryable min(String relationshipName, SObjectField field);
+        Queryable min(String relationshipName, SObjectField field, String alias);
         Queryable max(SObjectField field);
         Queryable max(SObjectField field, String alias);
+        Queryable max(String relationshipName, SObjectField field);
+        Queryable max(String relationshipName, SObjectField field, String alias);
         Queryable sum(SObjectField field);
         Queryable sum(SObjectField field, String alias);
+        Queryable sum(String relationshipName, SObjectField field);
+        Queryable sum(String relationshipName, SObjectField field, String alias);
         // SELECT - GROUPING
         Queryable grouping(SObjectField field, String alias);
         // SELECT - toLabel
@@ -379,12 +389,30 @@ public virtual inherited sharing class SOQL implements Queryable {
         return this;
     }
 
+    public SOQL avg(String relationshipName, SObjectField field) {
+        return avg(field, '');
+    }
+
+    public SOQL avg(String relationshipName, SObjectField field, String alias) {
+        builder.fields.avg(relationshipName, field, alias);
+        return this;
+    }
+
     public SOQL countDistinct(SObjectField field) {
         return countDistinct(field, '');
     }
 
     public SOQL countDistinct(SObjectField field, String alias) {
         builder.fields.countDistinct(field, alias);
+        return this;
+    }
+
+    public SOQL countDistinct(String relationshipName, SObjectField field) {
+        return countDistinct(field, '');
+    }
+
+    public SOQL countDistinct(String relationshipName, SObjectField field, String alias) {
+        builder.fields.countDistinct(relationshipName, field, alias);
         return this;
     }
 
@@ -397,6 +425,15 @@ public virtual inherited sharing class SOQL implements Queryable {
         return this;
     }
 
+    public SOQL min(String relationshipName, SObjectField field) {
+        return min(field, '');
+    }
+
+    public SOQL min(String relationshipName, SObjectField field, String alias) {
+        builder.fields.min(relationshipName, field, alias);
+        return this;
+    }
+
     public SOQL max(SObjectField field) {
         return max(field, '');
     }
@@ -406,12 +443,30 @@ public virtual inherited sharing class SOQL implements Queryable {
         return this;
     }
 
+    public SOQL max(String relationshipName, SObjectField field) {
+        return max(field, '');
+    }
+
+    public SOQL max(String relationshipName, SObjectField field, String alias) {
+        builder.fields.max(relationshipName, field, alias);
+        return this;
+    }
+
     public SOQL sum(SObjectField field) {
         return sum(field, '');
     }
 
     public SOQL sum(SObjectField field, String alias) {
         builder.fields.sum(field, alias);
+        return this;
+    }
+
+    public SOQL sum(String relationshipName, SObjectField field) {
+        return sum(field, '');
+    }
+
+    public SOQL sum(String relationshipName, SObjectField field, String alias) {
+        builder.fields.sum(relationshipName, field, alias);
         return this;
     }
 
@@ -839,6 +894,30 @@ public virtual inherited sharing class SOQL implements Queryable {
             withAggregateFunction('SUM(' + field + ')', alias);
         }
 
+        public void count(String relationshipName, SObjectField field, String alias) {
+            withAggregateFunction('COUNT(' + relationshipName + '.' + field + ')', alias);
+        }
+
+        private void avg(String relationshipName, SObjectField field, String alias) {
+            withAggregateFunction('AVG(' + relationshipName + '.' + field + ')', alias);
+        }
+
+        private void countDistinct(String relationshipName, SObjectField field, String alias) {
+            withAggregateFunction('COUNT_DISTINCT(' + relationshipName + '.' + field + ')', alias);
+        }
+
+        private void min(String relationshipName, SObjectField field, String alias) {
+            withAggregateFunction('MIN(' + relationshipName + '.' + field + ')', alias);
+        }
+
+        private void max(String relationshipName, SObjectField field, String alias) {
+            withAggregateFunction('MAX(' + relationshipName + '.' + field + ')', alias);
+        }
+
+        private void sum(String relationshipName, SObjectField field, String alias) {
+            withAggregateFunction('SUM(' + relationshipName + '.' + field + ')', alias);
+        }
+
         public void grouping(SObjectField field, String alias) {
             withAggregateFunction('GROUPING(' + field + ')', alias);
         }
@@ -846,6 +925,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         public void with(SObjectField field, String alias) {
             withAggregateFunction(field.getDescribe().getName(), alias);
         }
+
 
         private void withAggregateFunction(String aggregateFunction, String alias) {
             if (String.isNotBlank(alias)) {
