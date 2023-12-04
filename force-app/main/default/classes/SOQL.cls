@@ -281,7 +281,6 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public SOQL(String ofObject) {
-        binder = new Binder();
         builder = new QueryBuilder(ofObject);
         executor = new Executor(ofObject, builder);
     }
@@ -601,11 +600,13 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public SOQL preview() {
-        executor.withPreview();
+        System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Preview ============\n' + toString() + '\n=======================================\n');
+        System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Binding ============\n' + JSON.serializePretty(binding()) + '\n=======================================\n');
         return this;
     }
 
-    public Map<String, Object> binding() {
+    @TestVisible
+    private Map<String, Object> binding() {
         return binder.getBindingMap();
     }
 
@@ -792,6 +793,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
+            binder = new Binder();
+
             List<String> soqlParts = new List<String>();
 
             for (QueryClause clause : clauses) {
@@ -1111,7 +1114,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private virtual class SoqlFilterGroup implements FilterGroup {
         private List<FilterClause> queryConditions = new List<FilterClause>();
-        private String order;
+        private String customOrder;
         private String connector = 'AND';
 
         public FilterGroup add(FilterGroup filterGroup) {
@@ -1140,7 +1143,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public FilterGroup conditionLogic(String order) {
-            this.order = order;
+            customOrder = order;
             return this;
         }
 
@@ -1159,9 +1162,23 @@ public virtual inherited sharing class SOQL implements Queryable {
             return '(' + buildNested() + ')';
         }
 
-        private void setDefaultOrderWhenNotSpecified() {
-            if (String.isNotEmpty(order)) {
-                return;
+        public String buildNested() {
+            return String.format(getOrderWithSpecialCharacters(), queryConditions);
+        }
+
+        private String getOrderWithSpecialCharacters() {
+            String orderWithSpecialCharacters = getConditionsLogic();
+
+            for (Integer i = 0; i < queryConditions.size(); i++) {
+                orderWithSpecialCharacters = orderWithSpecialCharacters.replace(String.valueOf(i + 1), '{' + i + '}');
+            }
+
+            return orderWithSpecialCharacters; // e.g ({0} AND ({1} AND {2}))
+        }
+
+        private String getConditionsLogic() {
+            if (String.isNotEmpty(customOrder)) {
+                return customOrder;
             }
 
             List<String> defaultOrder = new List<String>();
@@ -1170,20 +1187,7 @@ public virtual inherited sharing class SOQL implements Queryable {
                 defaultOrder.add(String.valueOf(i + 1));
             }
 
-            order = String.join(defaultOrder, ' ' + connector + ' ');
-        }
-
-        public String buildNested() {
-            setDefaultOrderWhenNotSpecified(); // e.g (0 AND 1 AND 2)
-            addSpecialCharactersToOrder(); // e.g ({0} AND ({1} AND {2}))
-
-            return String.format(order, queryConditions);
-        }
-
-        private void addSpecialCharactersToOrder() {
-            for (Integer i = 0; i < queryConditions.size(); i++) {
-                order = order.replace(String.valueOf(i + 1), '{' + i + '}');
-            }
+            return String.join(defaultOrder, ' ' + connector + ' '); // e.g (0 AND 1 AND 2)
         }
     }
 
@@ -1654,7 +1658,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         private AccessType accessType;
         private String mockId;
         private String ofObject;
-        private Boolean preview = false;
         private QueryBuilder builder;
 
         public Executor(String ofObject, QueryBuilder builder) {
@@ -1682,27 +1685,6 @@ public virtual inherited sharing class SOQL implements Queryable {
             mockId = id;
         }
 
-        public void withPreview() {
-            preview = true;
-        }
-
-        private String buildSOQL() {
-            if (preview) {
-                String soql = builder.toString();
-                System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Preview ============\n' + soql + '\n=======================================\n');
-                return soql;
-            }
-
-            return builder.toString();
-        }
-
-        private Map<String,Object> buildBinding() {
-            if (preview) {
-                System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Binding ============\n' + JSON.serializePretty(binder.getBindingMap()) + '\n=======================================\n');
-            }
-            return binder.getBindingMap();
-        }
-
         public SObject toObject() {
             List<SObject> records = toList();
 
@@ -1725,12 +1707,12 @@ public virtual inherited sharing class SOQL implements Queryable {
             }
 
             if (accessType == null) {
-                return sharingExecutor.toSObjects(buildSOQL(), buildBinding(), accessMode);
+                return sharingExecutor.toSObjects(builder.toString(), binder.getBindingMap(), accessMode);
             }
 
             return Security.stripInaccessible(
                 accessType,
-                sharingExecutor.toSObjects(buildSOQL(), buildBinding(), accessMode)
+                sharingExecutor.toSObjects(builder.toString(), binder.getBindingMap(), accessMode)
             ).getRecords();
         }
 
@@ -1797,11 +1779,11 @@ public virtual inherited sharing class SOQL implements Queryable {
                 return mock.getCountMock(mockId);
             }
 
-            return sharingExecutor.toInteger(buildSOQL(), buildBinding(), accessMode);
+            return sharingExecutor.toInteger(builder.toString(), binder.getBindingMap(), accessMode);
         }
 
         public Database.QueryLocator toQueryLocator() {
-            return Database.getQueryLocatorWithBinds(buildSOQL(), buildBinding(), accessMode);
+            return Database.getQueryLocatorWithBinds(builder.toString(), binder.getBindingMap(), accessMode);
         }
     }
 

@@ -1702,7 +1702,7 @@ SOQL.of(Account.SObjectType).count().toInteger();
 
 When list of records is greater than 1 the `List has more than 1 row for assignment to SObject` will occur.
 
-When there is no record to assign the `List has no rows for assignment to SObject` will occur.
+When there is no record to assign the `List has no rows for assignment to SObject` will **NOT** occur. . It is automatically handled by the framework, and a `null` value will be returned instead.
 
 **Signature**
 
