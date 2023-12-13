@@ -871,61 +871,68 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public void count(SObjectField field, String alias) {
-            withAggregateFunction('COUNT(' + field + ')', alias);
-        }
-
-        private void avg(SObjectField field, String alias) {
-            withAggregateFunction('AVG(' + field + ')', alias);
-        }
-
-        private void countDistinct(SObjectField field, String alias) {
-            withAggregateFunction('COUNT_DISTINCT(' + field + ')', alias);
-        }
-
-        private void min(SObjectField field, String alias) {
-            withAggregateFunction('MIN(' + field + ')', alias);
-        }
-
-        private void max(SObjectField field, String alias) {
-            withAggregateFunction('MAX(' + field + ')', alias);
-        }
-
-        private void sum(SObjectField field, String alias) {
-            withAggregateFunction('SUM(' + field + ')', alias);
+            with('COUNT', field, alias);
         }
 
         public void count(String relationshipName, SObjectField field, String alias) {
-            withAggregateFunction('COUNT(' + relationshipName + '.' + field + ')', alias);
+            with('COUNT', relationshipName, field, alias);
         }
 
-        private void avg(String relationshipName, SObjectField field, String alias) {
-            withAggregateFunction('AVG(' + relationshipName + '.' + field + ')', alias);
+        public void avg(SObjectField field, String alias) {
+            with('AVG', field, alias);
         }
 
-        private void countDistinct(String relationshipName, SObjectField field, String alias) {
-            withAggregateFunction('COUNT_DISTINCT(' + relationshipName + '.' + field + ')', alias);
+        public void avg(String relationshipName, SObjectField field, String alias) {
+            with('AVG', relationshipName, field, alias);
         }
 
-        private void min(String relationshipName, SObjectField field, String alias) {
-            withAggregateFunction('MIN(' + relationshipName + '.' + field + ')', alias);
+        public void countDistinct(SObjectField field, String alias) {
+            with('COUNT_DISTINCT', field, alias);
         }
 
-        private void max(String relationshipName, SObjectField field, String alias) {
-            withAggregateFunction('MAX(' + relationshipName + '.' + field + ')', alias);
+        public void countDistinct(String relationshipName, SObjectField field, String alias) {
+            with('COUNT_DISTINCT', relationshipName, field, alias);
         }
 
-        private void sum(String relationshipName, SObjectField field, String alias) {
-            withAggregateFunction('SUM(' + relationshipName + '.' + field + ')', alias);
+        public void min(SObjectField field, String alias) {
+            with('MIN', field, alias);
+        }
+
+        public void min(String relationshipName, SObjectField field, String alias) {
+            with('MIN', relationshipName, field, alias);
+        }
+
+        public void max(SObjectField field, String alias) {
+            with('MAX', field, alias);
+        }
+
+        public void max(String relationshipName, SObjectField field, String alias) {
+            with('MAX', relationshipName, field, alias);
+        }
+
+        public void sum(SObjectField field, String alias) {
+            with('SUM', field, alias);
+        }
+
+        public void sum(String relationshipName, SObjectField field, String alias) {
+            with('SUM', relationshipName, field, alias);
         }
 
         public void grouping(SObjectField field, String alias) {
-            withAggregateFunction('GROUPING(' + field + ')', alias);
+            with('GROUPING', field, alias);
+        }
+
+        public void with(String function, String relationshipName, SObjectField field, String alias) {
+            withAggregateFunction(function + '( ' + relationshipName + '.' + field + ')', alias);
+        }
+
+        public void with(String function, SObjectField field, String alias) {
+            withAggregateFunction(function + '(' + field + ')', alias);
         }
 
         public void with(SObjectField field, String alias) {
             withAggregateFunction(field.getDescribe().getName(), alias);
         }
-
 
         private void withAggregateFunction(String aggregateFunction, String alias) {
             if (String.isNotBlank(alias)) {
