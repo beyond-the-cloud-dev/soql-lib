@@ -232,7 +232,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT MIN(Account.CreatedDate) FROM Contact ', soql);
+        Assert.areEqual('SELECT MIN(Account.CreatedDate) FROM Contact', soql);
     }
 
     @IsTest
