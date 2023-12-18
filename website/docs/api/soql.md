@@ -37,16 +37,28 @@ The following are methods for `SOQL`.
 - [`count()`](#count)
 - [`count(SObjectField field)`](#count-field)
 - [`count(SObjectField field, String alias)`](#count-with-alias)
+- [`count(String relationshipName, SObjectField field)`](#count-related-field)
+- [`count(String relationshipName, SObjectField field, String alias)`](#count-related-field-with-alias)
 - [`avg(SObjectField field)`](#avg)
 - [`avg(SObjectField field, String alias)`](#avg-with-alias)
+- [`avg(String relationshipName, SObjectField field)`](#avg-related-field)
+- [`avg(String relationshipName, SObjectField field, String alias)`](#avg-related-field-with-alias)
 - [`countDistinct(SObjectField field)`](#count_distinct)
 - [`countDistinct(SObjectField field, String alias)`](#count_distinct-with-alias)
+- [`countDistinct(String relationshipName, SObjectField field)`](#count-related-field)
+- [`countDistinct(String relationshipName, SObjectField field, String alias)`](#count_distinct-with-alias)
 - [`min(SObjectField field)`](#min)
 - [`min(SObjectField field, String alias)`](#min-with-alias)
+- [`min(String relationshipName, SObjectField field)`](#min-related-field)
+- [`min(String relationshipName, SObjectField field)`](#min-related-field-with-alias)
 - [`max(SObjectField field)`](#max)
 - [`max(SObjectField field, String alias)`](#max-with-alias)
+- [`max(String relationshipName, SObjectField field)`](#max-related-field)
+- [`max(String relationshipName, SObjectField field, String alias)`](#max-related-field-with-alias)
 - [`sum(SObjectField field)`](#sum)
 - [`sum(SObjectField field, String alias)`](#sum-with-alias)
+- [`sum(String relationshipName, SObjectField field)`](#sum-related-field)
+- [`sum(String relationshipName, SObjectField field, String alias)`](#sum-related-field-with-alias)
 
 [**GROUPING**](#grouping)
 
@@ -463,6 +475,44 @@ SOQL.of(Account.SObjectType)
     .toAggregated();
 ```
 
+### count related field
+
+**Signature**
+
+```apex
+count(String relationshipName, SObjectField field)
+```
+
+**Example**
+
+```sql
+SELECT COUNT(Account.Name) FROM Contact
+```
+```apex
+SOQL.of(Contact.SObjectType)
+    .count('Account', Account.Name)
+    .toAggregated();
+```
+
+### count related field with alias
+
+**Signature**
+
+```apex
+count(String relationshipName, SObjectField field, String alias)
+```
+
+**Example**
+
+```sql
+SELECT COUNT(Account.Name) names FROM Contact
+```
+```apex
+SOQL.of(Contact.SObjectType)
+    .count('Account', Account.Name, 'names')
+    .toAggregated();
+```
+
 ### avg
 
 **Signature**
@@ -505,6 +555,44 @@ SOQL.of(Opportunity.SObjectType)
     .toAggregate();
 ```
 
+### avg related field
+
+**Signature**
+
+```apex
+avg(String relationshipName, SObjectField field)
+```
+
+**Example**
+
+```sql
+SELECT AVG(Opportunity.Amount) FROM OpportunityLineItem
+```
+```apex
+SOQL.of(OpportunityLineItem.SObjectType)
+    .avg('Opportunity', Opportunity.Amount)
+    .toAggregate();
+```
+
+### avg related field with alias
+
+**Signature**
+
+```apex
+avg(String relationshipName, SObjectField field, String alias)
+```
+
+**Example**
+
+```sql
+SELECT AVG(Opportunity.Amount) amount FROM OpportunityLineItem
+```
+```apex
+SOQL.of(OpportunityLineItem.SObjectType)
+    .avg('Opportunity', Opportunity.Amount, 'amount')
+    .toAggregate();
+```
+
 ### count_distinct
 
 **Signature**
@@ -537,6 +625,44 @@ SELECT COUNT_DISTINCT(Company) company FROM Lead
 ```
 ```apex
 SOQL.of(Lead.SObjectType).countDistinct(Lead.Company, 'company').toAggregate();
+```
+
+### count_distinct related field
+
+**Signature**
+
+```apex
+countDistinct(String relationshipName, SObjectField field)
+```
+
+**Example**
+
+```sql
+SELECT COUNT_DISTINCT(Lead.Company) FROM CampaignMember
+```
+```apex
+SOQL.of(CampaignMember.SObjectType)
+    .countDistinct('Lead', Lead.Company)
+    .toAggregate();
+```
+
+### count_distinct related field with aliast
+
+**Signature**
+
+```apex
+countDistinct(String relationshipName, SObjectField field, String alias)
+```
+
+**Example**
+
+```sql
+SELECT COUNT_DISTINCT(Lead.Company) company FROM CampaignMember
+```
+```apex
+SOQL.of(CampaignMember.SObjectType)
+    .countDistinct('Lead', Lead.Company, 'company')
+    .toAggregate();
 ```
 
 ### min
@@ -587,6 +713,44 @@ SOQL.of(Contact.SObjectType)
     .toAggregate();
 ```
 
+### min related field
+
+**Signature**
+
+```apex
+min(String relationshipName, SObjectField field)
+```
+
+**Example**
+
+```sql
+SELECT MIN(Account.CreatedDate) FROM Contact
+```
+```apex
+SOQL.of(Contact.SObjectType)
+    .min('Account', Account.CreatedDate)
+    .toAggregate();
+```
+
+### min related field with alias
+
+**Signature**
+
+```apex
+min(String relationshipName, SObjectField field, String alias)
+```
+
+**Example**
+
+```sql
+SELECT MIN(Account.CreatedDate) createdDate FROM Contact
+```
+```apex
+SOQL.of(Contact.SObjectType)
+    .min('Account', Account.CreatedDate, 'createdDate')
+    .toAggregate();
+```
+
 ### max
 
 **Signature**
@@ -607,7 +771,7 @@ GROUP BY Name
     .with(Campaign.Name)
     .max(Campaign.BudgetedCost)
     .groupBy(Campaign.Name)
-     .toAggregate();
+    .toAggregate();
 ```
 
 ### max with alias
@@ -630,6 +794,44 @@ GROUP BY Name
     .with(Campaign.Name)
     .max(Campaign.BudgetedCost, 'budgetedCost')
     .groupBy(Campaign.Name)
+    .toAggregate();
+```
+
+### max related field
+
+**Signature**
+
+```apex
+max(String relationshipName, SObjectField field)
+```
+
+**Example**
+
+```sql
+SELECT MAX(Campaign.BudgetedCost) FROM CampaignMember
+```
+```apex
+SOQL.of(CampaignMember.SObjectType)
+    .max('Campaign', Campaign.BudgetedCost)
+    .toAggregate();
+```
+
+### max related field with alias
+
+**Signature**
+
+```apex
+max(String relationshipName, SObjectField field, String alias)
+```
+
+**Example**
+
+```sql
+SELECT MAX(Campaign.BudgetedCost) budgetedCost FROM CampaignMember
+```
+```apex
+SOQL.of(CampaignMember.SObjectType)
+    .max('Campaign', Campaign.BudgetedCost, 'budgetedCost')
     .toAggregate();
 ```
 
@@ -695,6 +897,44 @@ SOQL.of(Lead.SObjectType)
     .groupByRollup(Lead.LeadSource)
     .groupByRollup(Lead.Rating)
     .toAggregated();
+```
+
+### sum related field
+
+**Signature**
+
+```apex
+sum(String relationshipName, SObjectField field)
+```
+
+**Example**
+
+```sql
+SELECT SUM(Opportunity.Amount) FROM OpportunityLineItem
+```
+```apex
+SOQL.of(OpportunityLineItem.SObjectType)
+    .sum('Opportunity', Opportunity.Amount)
+    .toAggregate();
+```
+
+### sum related field with alias
+
+**Signature**
+
+```apex
+sum(String relationshipName, SObjectField field, String alias)
+```
+
+**Example**
+
+```sql
+SELECT SUM(Opportunity.Amount) amount FROM OpportunityLineItem
+```
+```apex
+SOQL.of(OpportunityLineItem.SObjectType)
+    .sum('Opportunity', Opportunity.Amount, 'amount')
+    .toAggregate();
 ```
 
 ## toLabel
