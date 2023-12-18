@@ -174,8 +174,8 @@ Conctructs an `SOQL`.
 **Signature**
 
 ```apex
-SOQL of(SObjectType ofObject)
-SOQL of(String ofObject)
+Queryable of(SObjectType ofObject)
+Queryable of(String ofObject)
 ```
 
 **Example**
@@ -197,19 +197,19 @@ SOQL.of(ofObject).toList();
 **Signature**
 
 ```apex
-SOQL with(SObjectField field)
+Queryable with(SObjectField field)
 ```
 ```apex
-SOQL with(SObjectField field1, SObjectField field2);
+Queryable with(SObjectField field1, SObjectField field2);
 ```
 ```apex
-SOQL with(SObjectField field1, SObjectField field2, SObjectField field3);
+Queryable with(SObjectField field1, SObjectField field2, SObjectField field3);
 ```
 ```apex
-SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
 ```
 ```apex
-SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
+Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
 ```
 
 **Example**
@@ -240,8 +240,8 @@ Use for more than 5 fields.
 **Signature**
 
 ```apex
-SOQL with(List<SObjectField> fields)
-SOQL with(List<String> fields)
+Queryable with(List<SObjectField> fields)
+Queryable with(List<String> fields)
 ```
 
 **Example**
@@ -279,7 +279,7 @@ SOQL.of(Account.SObjectType)
 **Signature**
 
 ```apex
-SOQL with(String fields)
+Queryable with(String fields)
 ```
 
 **Example**
@@ -301,19 +301,19 @@ Allows to add parent field to a query.
 **Signature**
 
 ```apex
-SOQL with(String relationshipName, SObjectField field)
+Queryable with(String relationshipName, SObjectField field)
 ```
 ```apex
-SOQL with(String relationshipName, SObjectField field1, SObjectField field2);
+Queryable with(String relationshipName, SObjectField field1, SObjectField field2);
 ```
 ```apex
-SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
+Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
 ```
 ```apex
-SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
 ```
 ```apex
-SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
+Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
 ```
 
 **Example**
@@ -343,7 +343,7 @@ Use for more than 5 parent fields.
 **Signature**
 
 ```apex
-SOQL with(String relationshipName, List<SObjectField> fields)
+Queryable with(String relationshipName, List<SObjectField> fields)
 ```
 
 **Example**
@@ -383,7 +383,7 @@ For more details check [`SOQL.SubQuery`](soql-sub.md) class.
 **Signature**
 
 ```apex
-SOQL with(SOQL.SubQuery subQuery)
+Queryable with(SOQL.SubQuery subQuery)
 ```
 
 **Example**
@@ -416,7 +416,7 @@ SOQL.of(Account.SObjectType)
 **Signature**
 
 ```apex
-SOQL count()
+Queryable count()
 ```
 
 **Example**
@@ -461,7 +461,7 @@ FROM Opportunity
 **Signature**
 
 ```apex
-count(SObjectField field, String alias)
+Queryable count(SObjectField field, String alias)
 ```
 
 **Example**
@@ -499,7 +499,7 @@ SOQL.of(Contact.SObjectType)
 **Signature**
 
 ```apex
-count(String relationshipName, SObjectField field, String alias)
+Queryable count(String relationshipName, SObjectField field, String alias)
 ```
 
 **Example**
@@ -579,7 +579,7 @@ SOQL.of(OpportunityLineItem.SObjectType)
 **Signature**
 
 ```apex
-avg(String relationshipName, SObjectField field, String alias)
+Queryable avg(String relationshipName, SObjectField field, String alias)
 ```
 
 **Example**
@@ -632,7 +632,7 @@ SOQL.of(Lead.SObjectType).countDistinct(Lead.Company, 'company').toAggregate();
 **Signature**
 
 ```apex
-countDistinct(String relationshipName, SObjectField field)
+Queryable countDistinct(String relationshipName, SObjectField field)
 ```
 
 **Example**
@@ -651,7 +651,7 @@ SOQL.of(CampaignMember.SObjectType)
 **Signature**
 
 ```apex
-countDistinct(String relationshipName, SObjectField field, String alias)
+Queryable countDistinct(String relationshipName, SObjectField field, String alias)
 ```
 
 **Example**
@@ -718,7 +718,7 @@ SOQL.of(Contact.SObjectType)
 **Signature**
 
 ```apex
-min(String relationshipName, SObjectField field)
+Queryable min(String relationshipName, SObjectField field)
 ```
 
 **Example**
@@ -737,7 +737,7 @@ SOQL.of(Contact.SObjectType)
 **Signature**
 
 ```apex
-min(String relationshipName, SObjectField field, String alias)
+Queryable min(String relationshipName, SObjectField field, String alias)
 ```
 
 **Example**
@@ -802,7 +802,7 @@ GROUP BY Name
 **Signature**
 
 ```apex
-max(String relationshipName, SObjectField field)
+Queryable max(String relationshipName, SObjectField field)
 ```
 
 **Example**
@@ -821,7 +821,7 @@ SOQL.of(CampaignMember.SObjectType)
 **Signature**
 
 ```apex
-max(String relationshipName, SObjectField field, String alias)
+Queryable max(String relationshipName, SObjectField field, String alias)
 ```
 
 **Example**
@@ -876,7 +876,7 @@ SOQL.of(Opportunity.SObjectType).sum(Opportunity.Amount, 'amount').toAggregate()
 **Signature**
 
 ```apex
-grouping(SObjectField field, String alias)
+Queryable grouping(SObjectField field, String alias)
 ```
 
 **Example**
@@ -923,7 +923,7 @@ SOQL.of(OpportunityLineItem.SObjectType)
 **Signature**
 
 ```apex
-sum(String relationshipName, SObjectField field, String alias)
+Queryable sum(String relationshipName, SObjectField field, String alias)
 ```
 
 **Example**
@@ -944,8 +944,8 @@ SOQL.of(OpportunityLineItem.SObjectType)
 **Signature**
 
 ```apex
-toLabel(SObjectField field)
-toLabel(String field)
+Queryable toLabel(SObjectField field)
+Queryable toLabel(String field)
 ```
 
 **Example**
@@ -1010,7 +1010,7 @@ SOQL.of(Opportunity.SObjectType)
 **Signature**
 
 ```apex
-SOQL delegatedScope()
+Queryable delegatedScope()
 ```
 
 **Example**
@@ -1033,7 +1033,7 @@ SOQL.of(Task.SObjectType)
 **Signature**
 
 ```apex
-SOQL mineScope()
+Queryable mineScope()
 ```
 
 **Example**
@@ -1056,7 +1056,7 @@ SOQL.of(Account.SObjectType)
 **Signature**
 
 ```apex
-SOQL mineAndMyGroupsScope()
+Queryable mineAndMyGroupsScope()
 ```
 
 **Example**
@@ -1079,7 +1079,7 @@ SOQL.of(ProcessInstanceWorkItem.SObjectType)
 **Signature**
 
 ```apex
-SOQL myTerritoryScope()
+Queryable myTerritoryScope()
 ```
 
 **Example**
@@ -1102,7 +1102,7 @@ SOQL.of(Opportunity.SObjectType)
 **Signature**
 
 ```apex
-SOQL myTeamTerritoryScope()
+Queryable myTeamTerritoryScope()
 ```
 
 **Example**
@@ -1125,7 +1125,7 @@ SOQL.of(Opportunity.SObjectType)
 **Signature**
 
 ```apex
-SOQL teamScope()
+Queryable teamScope()
 ```
 
 **Example**
@@ -1152,7 +1152,7 @@ For more details check [`SOQL.FilterGroup`](soql-filters-group.md) and [`SOQL.Fi
 **Signature**
 
 ```apex
-SOQL whereAre(FilterClause conditions)
+Queryable whereAre(FilterClause conditions)
 ```
 
 **Example**
@@ -1178,7 +1178,7 @@ Execute conditions passed as String.
 **Signature**
 
 ```apex
-SOQL whereAre(String conditions)
+Queryable whereAre(String conditions)
 ```
 
 **Example**
@@ -1201,7 +1201,7 @@ Set conditions order for SOQL query. When not specify all conditions will be wit
 **Signature**
 
 ```apex
-SOQL conditionLogic(String order)
+Queryable conditionLogic(String order)
 ```
 
 **Example**
@@ -1228,7 +1228,7 @@ To change the default condition logic, you can utilize the `anyConditionMatching
 **Signature**
 
 ```apex
-SOQL anyConditionMatching()
+Queryable anyConditionMatching()
 ```
 
 **Example**
@@ -1256,7 +1256,7 @@ SOQL.of(Account.SObjectType)
 **Signature**
 
 ```apex
-SOQL groupBy(SObjectField field)
+Queryable groupBy(SObjectField field)
 ```
 
 **Example**
@@ -1278,7 +1278,7 @@ SOQL.of(Lead.SObjectType)
 **Signature**
 
 ```apex
-SOQL groupByRollup(SObjectField field)
+Queryable groupByRollup(SObjectField field)
 ```
 
 **Example**
@@ -1301,7 +1301,7 @@ SOQL.of(Lead.SObjectType)
 **Signature**
 
 ```apex
-SOQL groupByCube(SObjectField field)
+Queryable groupByCube(SObjectField field)
 ```
 
 **Example**
@@ -1329,9 +1329,9 @@ SOQL.of(Account.SObjectType)
 **Signature**
 
 ```apex
-SOQL orderBy(SObjectField field)
-SOQL orderBy(String field)
-SOQL orderBy(String field, String direction)
+Queryable orderBy(SObjectField field)
+Queryable orderBy(String field)
+Queryable orderBy(String field, String direction)
 ```
 
 **Example**
@@ -1364,7 +1364,7 @@ Order SOQL query by parent field.
 **Signature**
 
 ```apex
-SOQL orderBy(String relationshipName, SObjectField field)
+Queryable orderBy(String relationshipName, SObjectField field)
 ```
 
 **Example**
@@ -1387,7 +1387,7 @@ Default order is ascending (`ASC`).
 **Signature**
 
 ```apex
-SOQL sortDesc()
+Queryable sortDesc()
 ```
 
 **Example**
@@ -1411,7 +1411,7 @@ By default, null values are sorted first (`NULLS FIRST`).
 **Signature**
 
 ```apex
-SOQL nullsLast()
+Queryable nullsLast()
 ```
 
 **Example**
@@ -1438,7 +1438,7 @@ SOQL.of(Account.SObjectType)
 **Signature**
 
 ```apex
-SOQL setLimit(Integer amount)
+Queryable setLimit(Integer amount)
 ```
 
 **Example**
@@ -1464,7 +1464,7 @@ SOQL.of(Account.SObjectType)
 **Signature**
 
 ```apex
-SOQL offset(Integer startingRow)
+Queryable offset(Integer startingRow)
 ```
 
 **Example**
@@ -1491,7 +1491,7 @@ SOQL.of(Account.SObjectType)
 **Signature**
 
 ```apex
-SOQL forReference()
+Queryable forReference()
 ```
 
 **Example**
@@ -1514,7 +1514,7 @@ SOQL.of(Contact.SObjectType)
 **Signature**
 
 ```apex
-SOQL forView()
+Queryable forView()
 ```
 
 **Example**
@@ -1537,7 +1537,7 @@ SOQL.of(Contact.SObjectType)
 **Signature**
 
 ```apex
-SOQL forUpdate()
+Queryable forUpdate()
 ```
 
 **Example**
@@ -1560,7 +1560,7 @@ SOQL.of(Contact.SObjectType)
 **Signature**
 
 ```apex
-SOQL allRows()
+Queryable allRows()
 ```
 
 **Example**
@@ -1592,7 +1592,7 @@ More details you can find in [here](../advanced-usage/fls.md)
 **Signature**
 
 ```apex
-SOQL systemMode()
+Queryable systemMode()
 ```
 
 **Example**
@@ -1612,8 +1612,8 @@ Read more about `stripInaccessible` in [advanced](../advanced-usage/fls.md#strip
 **Signature**
 
 ```apex
-SOQL stripInaccessible()
-SOQL stripInaccessible(AccessType accessType)
+Queryable stripInaccessible()
+Queryable stripInaccessible(AccessType accessType)
 ```
 
 ```apex
@@ -1639,7 +1639,7 @@ Execute query `with sharing`.
 **Signature**
 
 ```apex
-SOQL withSharing()
+Queryable withSharing()
 ```
 
 **Example**
@@ -1660,7 +1660,7 @@ Execute query `without sharing`.
 **Signature**
 
 ```apex
-SOQL withoutSharing()
+Queryable withoutSharing()
 ```
 
 **Example**
@@ -1681,7 +1681,7 @@ Query needs unique id that allows for mocking.
 **Signature**
 
 ```apex
-SOQL mockId(String queryIdentifier)
+Queryable mockId(String queryIdentifier)
 ```
 
 **Example**
@@ -1703,7 +1703,7 @@ SOQL.setMock('MyQuery', new List<Account>{
 **Signature**
 
 ```apex
-SOQL setMock(String mockId, SObject record)
+Queryable setMock(String mockId, SObject record)
 ```
 
 **Example**
@@ -1722,7 +1722,7 @@ SOQL.setMock('MyQuery', new Account(Name = 'MyAccount 1'));
 **Signature**
 
 ```apex
-SOQL setMock(String mockId, List<SObject> records)
+Queryable setMock(String mockId, List<SObject> records)
 ```
 
 **Example**
@@ -1744,7 +1744,7 @@ SOQL.setMock('MyQuery', new List<Account>{
 **Signature**
 
 ```apex
-SOQL setCountMock(String mockId, Integer amount)
+Queryable setCountMock(String mockId, Integer amount)
 ```
 
 **Example**
@@ -1765,7 +1765,7 @@ SOQL.setMock('MyQuery', 5);
 **Signature**
 
 ```apex
-SOQL preview()
+Queryable preview()
 ```
 
 **Example**
@@ -1803,11 +1803,8 @@ Add additional fields with [`.with`](#select).
 **Signature**
 
 ```apex
-SOQL byId(Id recordId)
-```
-
-```apex
-SOQL byId(SObject record)
+Queryable byId(Id recordId)
+Queryable byId(SObject record)
 ```
 
 **Example**
@@ -1835,11 +1832,8 @@ SOQL.of(Account.SObjectType)
 
 
 ```apex
-SOQL byIds(Iterable<Id> recordIds)
-```
-
-```apex
-SOQL byIds(List<SObject> records)
+Queryable byIds(Iterable<Id> recordIds)
+Queryable byIds(List<SObject> records)
 ```
 
 **Example**
