@@ -961,7 +961,7 @@ SOQL.of(Lead.SObjectType)
 ```
 
 ```sql
-SELECT Company, toLabel('Recordtype.Name') FROM Lead
+SELECT Company, toLabel(Recordtype.Name) FROM Lead
 ```
 ```apex
 SOQL.of(Lead.SObjectType)
