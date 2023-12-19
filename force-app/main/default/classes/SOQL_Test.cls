@@ -10,7 +10,6 @@
 @SuppressWarnings('PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.ApexDoc')
 @IsTest
 private class SOQL_Test {
-
     @SuppressWarnings('PMD.AvoidHardcodingId')
     private static final Id FAKE_ACCOUNT_ID = '0013V00000WNCwCQAX';
 
@@ -80,60 +79,126 @@ private class SOQL_Test {
 
     @IsTest
     static void countWithAlias() {
-         // Test
+        // Test
         String soql = SOQL.of(Account.SObjectType).count(Account.Name, 'names').toString();
 
-         // Verify
+        // Verify
         Assert.areEqual('SELECT COUNT(Name) names FROM Account', soql);
     }
 
     @IsTest
+    static void countRelated() {
+        // Test
+        String soql = SOQL.of(Contact.SObjectType)
+            .count('Account', Account.Name)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT(Account.Name) FROM Contact', soql);
+    }
+
+    @IsTest
+    static void countRelatedWithAlias() {
+        // Test
+        String soql = SOQL.of(Contact.SObjectType)
+            .count('Account', Account.Name, 'names')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT(Account.Name) names FROM Contact', soql);
+    }
+
+    @IsTest
     static void avg() {
-         // Test
+        // Test
         String soql = SOQL.of(Opportunity.SObjectType)
             .with(Opportunity.CampaignId)
             .avg(Opportunity.Amount)
             .groupBy(Opportunity.CampaignId)
             .toString();
 
-         // Verify
+        // Verify
         Assert.areEqual('SELECT CampaignId, AVG(Amount) FROM Opportunity GROUP BY CampaignId', soql);
     }
 
     @IsTest
     static void avgWithAlias() {
-         // Test
+        // Test
         String soql = SOQL.of(Opportunity.SObjectType)
             .with(Opportunity.CampaignId)
             .avg(Opportunity.Amount, 'amount')
             .groupBy(Opportunity.CampaignId)
             .toString();
 
-         // Verify
+        // Verify
         Assert.areEqual('SELECT CampaignId, AVG(Amount) amount FROM Opportunity GROUP BY CampaignId', soql);
     }
 
     @IsTest
+    static void avgRelated() {
+        // Test
+        String soql = SOQL.of(OpportunityLineItem.SObjectType)
+            .avg('Opportunity', Opportunity.Amount)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT AVG(Opportunity.Amount) FROM OpportunityLineItem', soql);
+    }
+
+    @IsTest
+    static void avgRelatedWithAlias() {
+        // Test
+        String soql = SOQL.of(OpportunityLineItem.SObjectType)
+            .avg('Opportunity', Opportunity.Amount, 'amount')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT AVG(Opportunity.Amount) amount FROM OpportunityLineItem', soql);
+    }
+
+    @IsTest
     static void countDistinct() {
-         // Test
+        // Test
         String soql = SOQL.of(Lead.SObjectType).countDistinct(Lead.Company).toString();
 
-         // Verify
+        // Verify
         Assert.areEqual('SELECT COUNT_DISTINCT(Company) FROM Lead', soql);
     }
 
     @IsTest
     static void countDistinctWithAlias() {
-         // Test
+        // Test
+        String soql = SOQL.of(CampaignMember.SObjectType)
+            .countDistinct('Lead', Lead.Company)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT_DISTINCT(Lead.Company) FROM CampaignMember', soql);
+    }
+
+    @IsTest
+    static void countDistinctRelated() {
+        // Test
+        String soql = SOQL.of(CampaignMember.SObjectType)
+            .countDistinct('Lead', Lead.Company, 'company')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT_DISTINCT(Lead.Company) company FROM CampaignMember', soql);
+    }
+
+    @IsTest
+    static void countDistinctRelatedWithAlias() {
+        // Test
         String soql = SOQL.of(Lead.SObjectType).countDistinct(Lead.Company, 'company').toString();
 
-         // Verify
+        // Verify
         Assert.areEqual('SELECT COUNT_DISTINCT(Company) company FROM Lead', soql);
     }
 
     @IsTest
     static void min() {
-         // Test
+        // Test
         String soql = SOQL.of(Contact.SObjectType)
             .with(Contact.FirstName, Contact.LastName)
             .min(Contact.CreatedDate)
@@ -141,13 +206,13 @@ private class SOQL_Test {
             .groupBy(Contact.LastName)
             .toString();
 
-         // Verify
+        // Verify
         Assert.areEqual('SELECT FirstName, LastName, MIN(CreatedDate) FROM Contact GROUP BY FirstName, LastName', soql);
     }
 
     @IsTest
     static void minWithAlias() {
-         // Test
+        // Test
         String soql = SOQL.of(Contact.SObjectType)
             .with(Contact.FirstName, Contact.LastName)
             .min(Contact.CreatedDate, 'createdDate')
@@ -155,57 +220,123 @@ private class SOQL_Test {
             .groupBy(Contact.LastName)
             .toString();
 
-         // Verify
+        // Verify
         Assert.areEqual('SELECT FirstName, LastName, MIN(CreatedDate) createdDate FROM Contact GROUP BY FirstName, LastName', soql);
     }
 
     @IsTest
+    static void minRelated() {
+        // Test
+        String soql = SOQL.of(Contact.SObjectType)
+            .min('Account', Account.CreatedDate)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT MIN(Account.CreatedDate) FROM Contact', soql);
+    }
+
+    @IsTest
+    static void minRelatedWithAlias() {
+        // Test
+        String soql = SOQL.of(Contact.SObjectType)
+            .min('Account', Account.CreatedDate, 'createdDate')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT MIN(Account.CreatedDate) createdDate FROM Contact', soql);
+    }
+
+    @IsTest
     static void max() {
-         // Test
+        // Test
         String soql = SOQL.of(Campaign.SObjectType)
             .with(Campaign.Name)
             .max(Campaign.BudgetedCost)
             .groupBy(Campaign.Name)
             .toString();
 
-         // Verify
+        // Verify
         Assert.areEqual('SELECT Name, MAX(BudgetedCost) FROM Campaign GROUP BY Name', soql);
     }
 
     @IsTest
     static void maxWithAlias() {
-         // Test
+        // Test
         String soql = SOQL.of(Campaign.SObjectType)
             .with(Campaign.Name)
             .max(Campaign.BudgetedCost, 'budgetedCost')
             .groupBy(Campaign.Name)
             .toString();
 
-         // Verify
+        // Verify
         Assert.areEqual('SELECT Name, MAX(BudgetedCost) budgetedCost FROM Campaign GROUP BY Name', soql);
     }
 
     @IsTest
+    static void maxRelated() {
+        // Test
+        String soql = SOQL.of(CampaignMember.SObjectType)
+            .max('Campaign', Campaign.BudgetedCost)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT MAX(Campaign.BudgetedCost) FROM CampaignMember', soql);
+    }
+
+    @IsTest
+    static void maxRelatedhAlias() {
+        // Test
+        String soql = SOQL.of(CampaignMember.SObjectType)
+            .max('Campaign', Campaign.BudgetedCost, 'budgetedCost')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT MAX(Campaign.BudgetedCost) budgetedCost FROM CampaignMember', soql);
+    }
+
+    @IsTest
     static void sum() {
-         // Test
+        // Test
         String soql = SOQL.of(Opportunity.SObjectType).sum(Opportunity.Amount).toString();
 
-         // Verify
+        // Verify
         Assert.areEqual('SELECT SUM(Amount) FROM Opportunity', soql);
     }
 
     @IsTest
     static void sumWithAlias() {
-         // Test
+        // Test
         String soql = SOQL.of(Opportunity.SObjectType).sum(Opportunity.Amount, 'amount').toString();
 
-         // Verify
+        // Verify
         Assert.areEqual('SELECT SUM(Amount) amount FROM Opportunity', soql);
     }
 
     @IsTest
+    static void sumRelated() {
+        // Test
+        String soql = SOQL.of(OpportunityLineItem.SObjectType)
+            .sum('Opportunity', Opportunity.Amount)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(Opportunity.Amount) FROM OpportunityLineItem', soql);
+    }
+
+    @IsTest
+    static void sumRelatedWithAlias() {
+        // Test
+        String soql = SOQL.of(OpportunityLineItem.SObjectType)
+            .sum('Opportunity', Opportunity.Amount, 'amount')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(Opportunity.Amount) amount FROM OpportunityLineItem', soql);
+    }
+
+    @IsTest
     static void grouping() {
-         // Test
+        // Test
         String soql = SOQL.of(Lead.SObjectType)
             .with(Lead.LeadSource, Lead.Rating)
             .grouping(Lead.LeadSource, 'grpLS')
@@ -215,8 +346,54 @@ private class SOQL_Test {
             .groupByRollup(Lead.Rating)
             .toString();
 
-         // Verify
+        // Verify
         Assert.areEqual('SELECT LeadSource, Rating, GROUPING(LeadSource) grpLS, GROUPING(Rating) grpRating, COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(LeadSource, Rating)', soql);
+    }
+
+    @IsTest
+    static void toLabelWithSObjectField() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.Company)
+            .toLabel(Lead.Status)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Company, toLabel(Status) FROM Lead', soql);
+    }
+
+    @IsTest
+    static void toLabelWithStringField() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.Company)
+            .toLabel('Recordtype.Name')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Company, toLabel(Recordtype.Name) FROM Lead', soql);
+    }
+
+    @IsTest
+    static void formatWithSObjectField() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType)
+            .format(Opportunity.Amount)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT FORMAT(Amount)  FROM Opportunity', soql);
+    }
+
+    @IsTest
+    static void formatWithAlias() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType)
+            .format(Opportunity.Amount, 'amt')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT FORMAT(Amount) amt FROM Opportunity', soql);
     }
 
     @IsTest
