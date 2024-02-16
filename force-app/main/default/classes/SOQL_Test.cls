@@ -1939,7 +1939,7 @@ private class SOQL_Test {
         Case testCase = new Case(Status = 'New', Origin = 'Web');
         insert testCase;
 
-        System.runAs(standardUser()) {
+        System.runAs(minimumAccessUser()) {
             // Test
             Case resultCase = (Case) SOQL.of(Case.SObjectType).systemMode().withoutSharing().toObject();
 
@@ -1953,7 +1953,7 @@ private class SOQL_Test {
         // Setup
         insertCases();
 
-        System.runAs(standardUser()) {
+        System.runAs(minimumAccessUser()) {
             // Test
             List<Case> cases = SOQL.of(Case.SObjectType).systemMode().withoutSharing().toList();
 
@@ -1967,7 +1967,7 @@ private class SOQL_Test {
         // Setup
         insertCases();
 
-        System.runAs(standardUser()) {
+        System.runAs(minimumAccessUser()) {
             // Test
             Integer casesAmount = SOQL.of(Case.SObjectType).count().systemMode().withoutSharing().toInteger();
 
@@ -1981,7 +1981,7 @@ private class SOQL_Test {
         // Setup
         insert new Task(Subject = 'Test', Type = 'Other');
 
-        System.runAs(standardUser()) {
+        System.runAs(minimumAccessUser()) {
             // Test
             Task resultTask = (Task) SOQL.of(Task.SObjectType).systemMode().withSharing().toObject();
 
@@ -1995,7 +1995,7 @@ private class SOQL_Test {
         // Setup
         insertTasks();
 
-        System.runAs(standardUser()) {
+        System.runAs(minimumAccessUser()) {
             // Test
             List<Task> tasks = SOQL.of(Task.SObjectType).systemMode().withSharing().toList();
 
@@ -2008,7 +2008,7 @@ private class SOQL_Test {
     static void toIntegerWithSharing() {
         insertTasks();
 
-        System.runAs(standardUser()) {
+        System.runAs(minimumAccessUser()) {
             // Test
             Integer tasksAmount = SOQL.of(Task.SObjectType).count().systemMode().withSharing().toInteger();
 
@@ -2020,10 +2020,9 @@ private class SOQL_Test {
     @IsTest
     static void stripInaccessibleToObject() {
         // Setup
-        Task testTask = new Task(Subject = 'Test', Type = 'Other');
-        insert testTask;
+        insert new Task(Subject = 'Test', Type = 'Other');
 
-        System.runAs(standardUser()) {
+        System.runAs(minimumAccessUser()) {
             // Test
             Task task = (Task) SOQL.of(Task.SObjectType)
                 .with(Task.Type)
@@ -2055,7 +2054,7 @@ private class SOQL_Test {
         // Setup
         insertTasks();
 
-        System.runAs(standardUser()) {
+        System.runAs(minimumAccessUser()) {
             // Test
             List<Task> tasks = SOQL.of(Task.SObjectType)
                 .with(Task.Type)
@@ -2446,7 +2445,7 @@ private class SOQL_Test {
         };
     }
 
-    static User standardUser() {
+    static User minimumAccessUser() {
         return new User(
             Alias = 'newUser',
             Email = 'newuser@testorg.com',
@@ -2454,7 +2453,7 @@ private class SOQL_Test {
             LastName = 'Testing',
             LanguageLocaleKey = 'en_US',
             LocaleSidKey = 'en_US',
-            ProfileId = [SELECT Id FROM Profile WHERE Name = 'Standard User'].Id,
+            ProfileId = [SELECT Id FROM Profile WHERE Name = 'Minimum Access - Salesforce'].Id,
             TimeZoneSidKey = 'America/Los_Angeles',
             UserName = 'queryselector@testorg.com'
         );
