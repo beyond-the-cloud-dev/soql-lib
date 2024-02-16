@@ -232,10 +232,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         Filter contains(String prefix, String value, String suffix);
         Filter notContains(String prefix, String value, String suffix);
         Filter isIn(Iterable<Object> iterable);
-        Filter isIn(List<Object> inList);
         Filter isIn(InnerJoin joinQuery);
         Filter notIn(Iterable<Object> iterable);
-        Filter notIn(List<Object> inList);
         Filter notIn(InnerJoin joinQuery);
         Filter includesAll(Iterable<String> values);
         Filter includesSome(Iterable<String> values);
