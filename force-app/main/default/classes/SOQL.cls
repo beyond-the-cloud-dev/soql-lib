@@ -1454,7 +1454,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         private String formattedString(String value) {
-            return value == null ? value : value.trim();
+            return value ?? value.trim();
         }
 
         public Filter isIn(Iterable<Object> iterable) {
