@@ -59,7 +59,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
         Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
         Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
-        Queryable with(String relationshipName, List<SObjectField> fields);
+        Queryable with(String relationshipName, Iterable<SObjectField> fields);
         Queryable with(SubQuery subQuery);
         // SELECT - AGGREGATE FUNCTIONS
         Queryable count();
@@ -170,7 +170,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
         SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         SubQuery with(List<SObjectField> fields);
-        SubQuery with(String relationshipName, List<SObjectField> fields);
+        SubQuery with(String relationshipName, Iterable<SObjectField> fields);
         SubQuery with(SubQuery subQuery);
         // WHERE
         SubQuery whereAre(FilterGroup filterGroup);
@@ -355,7 +355,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         return with(relationshipName, new List<SObjectField>{ field1, field2, field3, field4, field5 });
     }
 
-    public SOQL with(String relationshipName, List<SObjectField> fields) {
+    public SOQL with(String relationshipName, Iterable<SObjectField> fields) {
         builder.fields.with(relationshipName, fields);
         return this;
     }
@@ -993,7 +993,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             fields.add('FORMAT(' + field + ') ' + alias);
         }
 
-        public void with(String relationshipPath, List<SObjectField> fields) {
+        public void with(String relationshipPath, Iterable<SObjectField> fields) {
             for (SObjectField field : fields) {
                 with(relationshipPath, field);
             }
@@ -1077,7 +1077,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public SubQuery with(String relationshipName, List<SObjectField> fields) {
+        public SubQuery with(String relationshipName, Iterable<SObjectField> fields) {
             builder.fields.with(relationshipName, fields);
             return this;
         }

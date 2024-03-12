@@ -22,7 +22,7 @@ The following are methods for `SubQuery`.
 - [`with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4)`](#with-field1---field5)
 - [`with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5)`](#with-field1---field5)
 - [`with(List<SObjectField> fields)`](#with-fields)
-- [`with(String relationshipName, List<SObjectField> fields)`](#with-related-fields)
+- [`with(String relationshipName, Iterable<SObjectField> fields)`](#with-related-fields)
 
 [**SUBQUERY**](#sub-query)
 
@@ -154,7 +154,7 @@ SOQL.of(Account.SObjectType)
 **Signature**
 
 ```apex
-SubQuery with(String relationshipName, List<SObjectField> fields)
+SubQuery with(String relationshipName, Iterable<SObjectField> fields)
 ```
 
 
