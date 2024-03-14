@@ -30,7 +30,7 @@ The following are methods for `SOQL`.
 - [`with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3)`](#with-related-field1---field5)
 - [`with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4)`](#with-related-field1---field5)
 - [`with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5)`](#with-related-field1---field5)
-- [`with(String relationshipName, List<SObjectField> fields)`](#with-related-fields)
+- [`with(String relationshipName, Iterable<SObjectField> fields)`](#with-related-fields)
 
 [**AGGREGATION FUNCTIONS**](#aggregate-functions)
 
@@ -343,7 +343,7 @@ Use for more than 5 parent fields.
 **Signature**
 
 ```apex
-Queryable with(String relationshipName, List<SObjectField> fields)
+Queryable with(String relationshipName, Iterable<SObjectField> fields)
 ```
 
 **Example**
