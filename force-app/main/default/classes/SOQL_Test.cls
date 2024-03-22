@@ -1934,6 +1934,22 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void byRecordType() {
+        // Setup
+        String recordTypeDeveloperName = 'Partner';
+
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType).byRecordType(recordTypeDeveloperName);
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE RecordType.DeveloperName = :v1', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(recordTypeDeveloperName, binding.get('v1'));
+    }
+
+    @IsTest
     static void toObjectWithoutSharing() {
         // Setup
         Case testCase = new Case(Status = 'New', Origin = 'Web');
