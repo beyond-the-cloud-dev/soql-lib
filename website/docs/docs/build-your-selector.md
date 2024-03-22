@@ -26,11 +26,6 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
             .withoutSharing();
     }
 
-    public SOQL_Account byRecordType(String rt) {
-        whereAre(Filter.recordType().equal(rt));
-        return this;
-    }
-
     public SOQL_Account byIndustry(String industry) {
         with(Account.Industry)
             .whereAre(Filter.with(Account.Industry).equal(industry));
@@ -90,11 +85,6 @@ public inherited sharing class SOQL_Contact implements SOQL.Selector {
             .withoutSharing();
     }
 
-    public static SOQL byRecordType(String rt) {
-        return query()
-            .whereAre(SOQL.Filter.recordType().equal(rt));
-    }
-
     public static SOQL byAccountId(Id accountId) {
         return query()
             .whereAre(SOQL.Filter.with(Contact.AccountId).equal(accountId));
@@ -138,11 +128,6 @@ public inherited sharing class SOQL_Account extends SOQL {
         with(Account.Id, Account.Name, Account.Type)
             .systemMode()
             .withoutSharing();
-    }
-
-    public SOQL_Account byRecordType(String rt) {
-        whereAre(Filter.recordType().equal(rt));
-        return this;
     }
 
     public SOQL_Account byIndustry(String industry) {

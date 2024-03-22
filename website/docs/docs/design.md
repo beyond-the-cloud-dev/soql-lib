@@ -268,12 +268,6 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
             .systemMode();
     }
 
-    public SOQL_Account byRecordType(String rt) {
-        with(Account.BillingCity, Account.BillingCountry)
-            .whereAre(Filter.recordType().equal(rt));
-        return this;
-    }
-
     public SOQL_Account byIndustry(String industry) {
         with(Account.Industry)
             .whereAre(Filter.with(Account.Industry).equal(industry));
@@ -282,16 +276,10 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
 }
 ```
 
-As you can see, the method `byRecordType(String rt)` returns an instance of `SOQL_Account` instead of `List<SObject>` or `Object`. Why is that? You can adjust the query to your needs and add more SOQL clauses without duplicating the code.
+As you can see, the method `byIndustry(String industry)` returns an instance of `SOQL_Account` instead of `List<SObject>` or `Object`. Why is that? You can adjust the query to your needs and add more SOQL clauses without duplicating the code.
 
 ```apex
 SOQL_Account.query()
-    .byRecordType(recordType)
-    .with(Account.ParentId)
-    .toList();
-
-SOQL_Account.query()
-    .byRecordType(recordType)
     .byIndustry('IT')
     .orderBy(Account.Name)
     .toList();
