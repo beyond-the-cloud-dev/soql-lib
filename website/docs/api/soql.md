@@ -149,6 +149,7 @@ The following are methods for `SOQL`.
 - [`byId(Id recordId)`](#byid)
 - [`byIds(Iterable<Id> recordIds)`](#byids)
 - [`byIds(List<SObject> records)`](#byids)
+- [`byRecordType(String recordTypeDeveloperName)`](#byrecordtype)
 
 [**RESULT**](#result)
 
@@ -1860,6 +1861,30 @@ SOQL.of(Account.SObjectType)
 List<Account> accounts = [SELECT Id FROM Account];
 SOQL.of(Account.SObjectType)
     .byIds(accounts)
+    .toList();
+```
+
+### byRecordType
+
+Query record by `RecordType.DeveloperName`. To do that, you can use the `byRecordType` method.
+
+**Signature**
+
+```apex
+Queryable byRecordType(String recordTypeDeveloperName)
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+WHERE RecordType.DeveloperName = 'Partner'
+```
+
+```apex
+SOQL.of(Account.SObjectType)
+    .byRecordType('Partner')
     .toList();
 ```
 

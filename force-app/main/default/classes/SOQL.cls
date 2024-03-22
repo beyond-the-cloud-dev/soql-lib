@@ -144,6 +144,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable byId(Id recordId);
         Queryable byIds(Iterable<Id> recordIds);
         Queryable byIds(List<SObject> records);
+        Queryable byRecordType(String recordTypeDeveloperName);
         // RESULT
         Boolean doExist();
         String toString();
@@ -758,6 +759,10 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public SOQL byIds(List<SObject> records) {
         return whereAre(Filter.id().isIn(records));
+    }
+
+    public SOQL byRecordType(String recordTypeDeveloperName) {
+        return whereAre(Filter.recordType().equal(recordTypeDeveloperName));
     }
 
     public interface QueryClause {
