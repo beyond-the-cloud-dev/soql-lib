@@ -61,6 +61,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         Queryable with(String relationshipName, Iterable<SObjectField> fields);
         Queryable with(SubQuery subQuery);
+        Queryable withFieldSet(String fieldSetName);
         // SELECT - AGGREGATE FUNCTIONS
         Queryable count();
         Queryable count(SObjectField field);
@@ -324,6 +325,11 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public SOQL with(Iterable<String> fields) {
         return with(String.join(fields, ','));
+    }
+
+    public SOQL withFieldSet(String fieldSetName) {
+        builder.fields.withFieldSet(fieldSetName);
+        return this;
     }
 
     public SOQL with(String fields) {
@@ -773,7 +779,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         private List<QueryClause> clauses = new QueryClause[10];
 
         public QueryBuilder(String ofObject) {
-            clauses.set(0, new SoqlFields());
+            clauses.set(0, new SoqlFields(ofObject));
             clauses.set(2, new SoqlFrom(ofObject));
         }
 
@@ -878,9 +884,14 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class SoqlFields implements QueryClause {
+        private String ofObject;
         private Set<String> fields = new Set<String>();
         private Set<String> aggregateFunctions = new Set<String>();
         private Set<String> groupedFields = new Set<String>();
+
+        public SoqlFields(String ofObject) {
+            this.ofObject = ofObject;
+        }
 
         public void count() {
             clearAllFields(); // COUNT() must be the only element in the SELECT list.
@@ -983,6 +994,18 @@ public virtual inherited sharing class SOQL implements Queryable {
         public void with(List<SObjectField> fields) {
             for (SObjectField field : fields) {
                 with(field);
+            }
+        }
+
+        public void withFieldSet(String fieldSetName) {
+            FieldSet fieldSet = Schema.describeSObjects(new List<String>{ ofObject })[0].FieldSets.getMap().get(fieldSetName);
+
+            if (fieldSet == null) {
+                throw new QueryException('FieldSet with name ' + fieldSetName + ' does not exist!');
+            }
+
+            for (Schema.FieldSetMember field : fieldSet.getFields()) {
+                with(field.getFieldPath());
             }
         }
 
@@ -1591,9 +1614,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public void setGroupByFunction(String newGroupByFunction) {
             if (String.isNotEmpty(groupByFunction) && groupByFunction != newGroupByFunction) {
-                QueryException e = new QueryException();
-                e.setMessage('You cant use GROUP BY, GROUP BY ROLLUP and GROUP BY CUBE in the same query.');
-                throw e;
+                throw new QueryException('You cant use GROUP BY, GROUP BY ROLLUP and GROUP BY CUBE in the same query.');
             }
             this.groupByFunction = newGroupByFunction;
         }
@@ -1790,9 +1811,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             List<SObject> records = toList();
 
             if (records.size() > 1) {
-                QueryException e = new QueryException();
-                e.setMessage('List has more than 1 row for assignment to SObject');
-                throw e;
+                throw new QueryException('List has more than 1 row for assignment to SObject');
             }
 
             if (records.size() == 0) {

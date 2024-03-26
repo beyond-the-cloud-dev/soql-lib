@@ -31,6 +31,7 @@ The following are methods for `SOQL`.
 - [`with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4)`](#with-related-field1---field5)
 - [`with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5)`](#with-related-field1---field5)
 - [`with(String relationshipName, Iterable<SObjectField> fields)`](#with-related-fields)
+- [`withFieldSet(String fieldSetName)`](#with-field-set)
 
 [**AGGREGATION FUNCTIONS**](#aggregate-functions)
 
@@ -369,6 +370,31 @@ SOQL.of(Account.SObjectType)
         User.LastName,
         User.Email
     }).toList();
+```
+
+### with field set
+
+Pass FieldSet name to get dynamic fields.
+
+**Signature**
+
+```apex
+Queryable withFieldSet(String fieldSetName)
+```
+
+**Example**
+
+```sql
+SELECT
+    Id,
+    Name,
+    Industry
+FROM Account
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .withFieldSet('AccountFieldSet')
+    .toList();
 ```
 
 ## SUB-QUERY
