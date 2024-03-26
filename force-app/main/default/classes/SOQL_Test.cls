@@ -620,6 +620,24 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void withFieldSetException() {
+         // Setup
+         Exception queryException = null;
+
+         // Test
+         try {
+            String soql = SOQL.of(Account.SObjectType)
+                .withFieldSet('FieldSetName')
+                .toString();
+         } catch(Exception e) {
+             queryException = e;
+         }
+
+        // Verify
+        Assert.areEqual('FieldSet with name FieldSetName does not exist!', queryException.getMessage());
+    }
+
+    @IsTest
     static void subQueryTwoFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
