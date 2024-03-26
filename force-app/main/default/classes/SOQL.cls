@@ -791,36 +791,28 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public SoqlSubQueries subQueries {
             get {
-                if (clauses[1] == null) {
-                    clauses.set(1, new SoqlSubQueries());
-                }
+                createWhenNotExist(1, new SoqlSubQueries());
                 return (SoqlSubQueries) clauses[1];
             }
         }
 
         public SoqlScope scope {
             get {
-                if (clauses[3] == null) {
-                    clauses.set(3, new SoqlScope());
-                }
+                createWhenNotExist(3, new SoqlScope());
                 return (SoqlScope) clauses[3];
             }
         }
 
         public MainFilterGroup conditions {
             get {
-                if (clauses[4] == null) {
-                    clauses.set(4, new MainFilterGroup());
-                }
+                createWhenNotExist(4, new MainFilterGroup());
                 return (MainFilterGroup) clauses[4];
             }
         }
 
         public SoqlGroupBy groupBy {
             get {
-                if (clauses[5] == null) {
-                    clauses.set(5, new SoqlGroupBy());
-                }
+                createWhenNotExist(5, new SoqlGroupBy());
                 return (SoqlGroupBy) clauses[5];
             }
         }
@@ -833,37 +825,35 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public SoqlOrderBys orderBys {
             get {
-                if (clauses[6] == null) {
-                    clauses.set(6, new SoqlOrderBys());
-                }
+                createWhenNotExist(6, new SoqlOrderBys());
                 return (SoqlOrderBys) clauses[6];
             }
         }
 
         public SoqlLimit soqlLimit {
             get {
-                if (clauses[7] == null) {
-                    clauses.set(7, new SoqlLimit());
-                }
+                createWhenNotExist(7, new SoqlLimit());
                 return (SoqlLimit) clauses[7];
             }
         }
 
         public SoqlOffset soqlOffset {
             get {
-                if (clauses[8] == null) {
-                    clauses.set(8, new SoqlOffset());
-                }
+                createWhenNotExist(8, new SoqlOffset());
                 return (SoqlOffset) clauses[8];
             }
         }
 
         public SoqlFor soqlFor {
             get {
-                if (clauses[9] == null) {
-                    clauses.set(9, new SoqlFor());
-                }
+                createWhenNotExist(9, new SoqlFor());
                 return (SoqlFor) clauses[9];
+            }
+        }
+
+        public void createWhenNotExist(Integer position, QueryClause clause) {
+            if (clauses[position] == null) {
+                clauses.set(position, clause);
             }
         }
 
