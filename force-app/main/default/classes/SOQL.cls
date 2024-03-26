@@ -288,11 +288,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         return new SOQL(ofObject);
     }
 
-    protected SOQL(SObjectType ofObject) {
+    public SOQL(SObjectType ofObject) {
         this(ofObject.getDescribe().getName());
     }
 
-    protected SOQL(String ofObject) {
+    public SOQL(String ofObject) {
         builder = new QueryBuilder(ofObject);
         executor = new Executor(ofObject, builder);
     }
