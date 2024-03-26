@@ -14,7 +14,6 @@
 **/
 @SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.PropertyNamingConventions, PMD.FieldDeclarationsShouldBeAtStart, PMD.ApexDoc, PMD.ExcessiveParameterList')
 public virtual inherited sharing class SOQL implements Queryable {
-
     public static SubQuery SubQuery {
         get {
             return new SoqlSubQuery();
@@ -860,16 +859,15 @@ public virtual inherited sharing class SOQL implements Queryable {
         public override String toString() {
             binder = new Binder();
 
-            List<String> soqlParts = new List<String>();
+            String query = '';
 
             for (QueryClause clause : clauses) {
-                if (clause == null) {
-                    continue;
+                if (clause != null) {
+                    query += ' ' + clause.toString();
                 }
-                soqlParts.add(clause.toString());
             }
 
-            return String.join(soqlParts, ' ').trim();
+            return query.trim();
         }
     }
 
@@ -1222,8 +1220,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public interface FilterClause {
-        Boolean isEmpty();
+    private interface FilterClause {
+        Boolean hasValue();
     }
 
     private virtual class SoqlFilterGroup implements FilterGroup {
@@ -1244,10 +1242,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public FilterGroup add(FilterClause condition) {
-            if (condition.isEmpty()) {
-                return this;
+            if (condition.hasValue()) {
+                queryConditions.add(condition);
             }
-            queryConditions.add(condition);
             return this;
         }
 
@@ -1322,8 +1319,8 @@ public virtual inherited sharing class SOQL implements Queryable {
             this.filterGroup = filterGroup;
         }
 
-        public Boolean isEmpty() {
-            return !filterGroup.hasValues();
+        public Boolean hasValue() {
+            return filterGroup.hasValues();
         }
 
         public override String toString() {
@@ -1338,8 +1335,8 @@ public virtual inherited sharing class SOQL implements Queryable {
             this.filter = filter;
         }
 
-        public Boolean isEmpty() {
-            return !filter.hasValue();
+        public Boolean hasValue() {
+            return filter.hasValue();
         }
 
         public override String toString() {
@@ -1354,8 +1351,8 @@ public virtual inherited sharing class SOQL implements Queryable {
             conditionString = dynamicCondition;
         }
 
-        public Boolean isEmpty() {
-            return String.isEmpty(conditionString);
+        public Boolean hasValue() {
+            return String.isNotEmpty(conditionString);
         }
 
         public override String toString() {
