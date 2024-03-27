@@ -14,7 +14,6 @@
 **/
 @SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.PropertyNamingConventions, PMD.FieldDeclarationsShouldBeAtStart, PMD.ApexDoc, PMD.ExcessiveParameterList')
 public virtual inherited sharing class SOQL implements Queryable {
-
     public static SubQuery SubQuery {
         get {
             return new SoqlSubQuery();
@@ -59,8 +58,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
         Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
         Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
-        Queryable with(String relationshipName, List<SObjectField> fields);
+        Queryable with(String relationshipName, Iterable<SObjectField> fields);
         Queryable with(SubQuery subQuery);
+        Queryable withFieldSet(String fieldSetName);
         // SELECT - AGGREGATE FUNCTIONS
         Queryable count();
         Queryable count(SObjectField field);
@@ -144,6 +144,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable byId(Id recordId);
         Queryable byIds(Iterable<Id> recordIds);
         Queryable byIds(List<SObject> records);
+        Queryable byRecordType(String recordTypeDeveloperName);
         // RESULT
         Boolean doExist();
         String toString();
@@ -170,7 +171,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
         SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         SubQuery with(List<SObjectField> fields);
-        SubQuery with(String relationshipName, List<SObjectField> fields);
+        SubQuery with(String relationshipName, Iterable<SObjectField> fields);
         SubQuery with(SubQuery subQuery);
         // WHERE
         SubQuery whereAre(FilterGroup filterGroup);
@@ -232,10 +233,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         Filter contains(String prefix, String value, String suffix);
         Filter notContains(String prefix, String value, String suffix);
         Filter isIn(Iterable<Object> iterable);
-        Filter isIn(List<Object> inList);
         Filter isIn(InnerJoin joinQuery);
         Filter notIn(Iterable<Object> iterable);
-        Filter notIn(List<Object> inList);
         Filter notIn(InnerJoin joinQuery);
         Filter includesAll(Iterable<String> values);
         Filter includesSome(Iterable<String> values);
@@ -327,6 +326,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         return with(String.join(fields, ','));
     }
 
+    public SOQL withFieldSet(String fieldSetName) {
+        builder.fields.withFieldSet(fieldSetName);
+        return this;
+    }
+
     public SOQL with(String fields) {
         builder.fields.with(fields);
         return this;
@@ -357,7 +361,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         return with(relationshipName, new List<SObjectField>{ field1, field2, field3, field4, field5 });
     }
 
-    public SOQL with(String relationshipName, List<SObjectField> fields) {
+    public SOQL with(String relationshipName, Iterable<SObjectField> fields) {
         builder.fields.with(relationshipName, fields);
         return this;
     }
@@ -762,6 +766,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         return whereAre(Filter.id().isIn(records));
     }
 
+    public SOQL byRecordType(String recordTypeDeveloperName) {
+        return whereAre(Filter.recordType().equal(recordTypeDeveloperName));
+    }
+
     public interface QueryClause {
         String toString();
     }
@@ -770,7 +778,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         private List<QueryClause> clauses = new QueryClause[10];
 
         public QueryBuilder(String ofObject) {
-            clauses.set(0, new SoqlFields());
+            clauses.set(0, new SoqlFields(ofObject));
             clauses.set(2, new SoqlFrom(ofObject));
         }
 
@@ -782,36 +790,28 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public SoqlSubQueries subQueries {
             get {
-                if (clauses[1] == null) {
-                    clauses.set(1, new SoqlSubQueries());
-                }
+                createWhenNotExist(1, new SoqlSubQueries());
                 return (SoqlSubQueries) clauses[1];
             }
         }
 
         public SoqlScope scope {
             get {
-                if (clauses[3] == null) {
-                    clauses.set(3, new SoqlScope());
-                }
+                createWhenNotExist(3, new SoqlScope());
                 return (SoqlScope) clauses[3];
             }
         }
 
         public MainFilterGroup conditions {
             get {
-                if (clauses[4] == null) {
-                    clauses.set(4, new MainFilterGroup());
-                }
+                createWhenNotExist(4, new MainFilterGroup());
                 return (MainFilterGroup) clauses[4];
             }
         }
 
         public SoqlGroupBy groupBy {
             get {
-                if (clauses[5] == null) {
-                    clauses.set(5, new SoqlGroupBy());
-                }
+                createWhenNotExist(5, new SoqlGroupBy());
                 return (SoqlGroupBy) clauses[5];
             }
         }
@@ -824,60 +824,62 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public SoqlOrderBys orderBys {
             get {
-                if (clauses[6] == null) {
-                    clauses.set(6, new SoqlOrderBys());
-                }
+                createWhenNotExist(6, new SoqlOrderBys());
                 return (SoqlOrderBys) clauses[6];
             }
         }
 
         public SoqlLimit soqlLimit {
             get {
-                if (clauses[7] == null) {
-                    clauses.set(7, new SoqlLimit());
-                }
+                createWhenNotExist(7, new SoqlLimit());
                 return (SoqlLimit) clauses[7];
             }
         }
 
         public SoqlOffset soqlOffset {
             get {
-                if (clauses[8] == null) {
-                    clauses.set(8, new SoqlOffset());
-                }
+                createWhenNotExist(8, new SoqlOffset());
                 return (SoqlOffset) clauses[8];
             }
         }
 
         public SoqlFor soqlFor {
             get {
-                if (clauses[9] == null) {
-                    clauses.set(9, new SoqlFor());
-                }
+                createWhenNotExist(9, new SoqlFor());
                 return (SoqlFor) clauses[9];
+            }
+        }
+
+        public void createWhenNotExist(Integer position, QueryClause clause) {
+            if (clauses[position] == null) {
+                clauses.set(position, clause);
             }
         }
 
         public override String toString() {
             binder = new Binder();
 
-            List<String> soqlParts = new List<String>();
+            String query = '';
 
             for (QueryClause clause : clauses) {
-                if (clause == null) {
-                    continue;
+                if (clause != null) {
+                    query += ' ' + clause.toString();
                 }
-                soqlParts.add(clause.toString());
             }
 
-            return String.join(soqlParts, ' ').trim();
+            return query.trim();
         }
     }
 
     private class SoqlFields implements QueryClause {
+        private String ofObject;
         private Set<String> fields = new Set<String>();
         private Set<String> aggregateFunctions = new Set<String>();
         private Set<String> groupedFields = new Set<String>();
+
+        public SoqlFields(String ofObject) {
+            this.ofObject = ofObject;
+        }
 
         public void count() {
             clearAllFields(); // COUNT() must be the only element in the SELECT list.
@@ -983,6 +985,18 @@ public virtual inherited sharing class SOQL implements Queryable {
             }
         }
 
+        public void withFieldSet(String fieldSetName) {
+            FieldSet fieldSet = Schema.describeSObjects(new List<String>{ ofObject })[0].FieldSets.getMap().get(fieldSetName);
+
+            if (fieldSet == null) {
+                throw new QueryException('FieldSet with name ' + fieldSetName + ' does not exist!');
+            }
+
+            for (Schema.FieldSetMember field : fieldSet.getFields()) {
+                with(field.getFieldPath());
+            }
+        }
+
         public void with(SObjectField field) {
             fields.add(field.getDescribe().getName());
         }
@@ -995,7 +1009,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             fields.add('FORMAT(' + field + ') ' + alias);
         }
 
-        public void with(String relationshipPath, List<SObjectField> fields) {
+        public void with(String relationshipPath, Iterable<SObjectField> fields) {
             for (SObjectField field : fields) {
                 with(relationshipPath, field);
             }
@@ -1079,7 +1093,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public SubQuery with(String relationshipName, List<SObjectField> fields) {
+        public SubQuery with(String relationshipName, Iterable<SObjectField> fields) {
             builder.fields.with(relationshipName, fields);
             return this;
         }
@@ -1206,8 +1220,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public interface FilterClause {
-        Boolean isEmpty();
+    private interface FilterClause {
+        Boolean hasValue();
     }
 
     private virtual class SoqlFilterGroup implements FilterGroup {
@@ -1228,10 +1242,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public FilterGroup add(FilterClause condition) {
-            if (condition.isEmpty()) {
-                return this;
+            if (condition.hasValue()) {
+                queryConditions.add(condition);
             }
-            queryConditions.add(condition);
             return this;
         }
 
@@ -1306,8 +1319,8 @@ public virtual inherited sharing class SOQL implements Queryable {
             this.filterGroup = filterGroup;
         }
 
-        public Boolean isEmpty() {
-            return !filterGroup.hasValues();
+        public Boolean hasValue() {
+            return filterGroup.hasValues();
         }
 
         public override String toString() {
@@ -1322,8 +1335,8 @@ public virtual inherited sharing class SOQL implements Queryable {
             this.filter = filter;
         }
 
-        public Boolean isEmpty() {
-            return !filter.hasValue();
+        public Boolean hasValue() {
+            return filter.hasValue();
         }
 
         public override String toString() {
@@ -1338,8 +1351,8 @@ public virtual inherited sharing class SOQL implements Queryable {
             conditionString = dynamicCondition;
         }
 
-        public Boolean isEmpty() {
-            return String.isEmpty(conditionString);
+        public Boolean hasValue() {
+            return String.isNotEmpty(conditionString);
         }
 
         public override String toString() {
@@ -1456,7 +1469,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         private String formattedString(String value) {
-            return value == null ? value : value.trim();
+            return value ?? value.trim();
         }
 
         public Filter isIn(Iterable<Object> iterable) {
@@ -1588,9 +1601,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public void setGroupByFunction(String newGroupByFunction) {
             if (String.isNotEmpty(groupByFunction) && groupByFunction != newGroupByFunction) {
-                QueryException e = new QueryException();
-                e.setMessage('You cant use GROUP BY, GROUP BY ROLLUP and GROUP BY CUBE in the same query.');
-                throw e;
+                throw new QueryException('You cant use GROUP BY, GROUP BY ROLLUP and GROUP BY CUBE in the same query.');
             }
             this.groupByFunction = newGroupByFunction;
         }
@@ -1787,9 +1798,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             List<SObject> records = toList();
 
             if (records.size() > 1) {
-                QueryException e = new QueryException();
-                e.setMessage('List has more than 1 row for assignment to SObject');
-                throw e;
+                throw new QueryException('List has more than 1 row for assignment to SObject');
             }
 
             if (records.size() == 0) {

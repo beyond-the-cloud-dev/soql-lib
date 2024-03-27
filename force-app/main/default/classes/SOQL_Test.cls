@@ -620,6 +620,24 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void withFieldSetException() {
+         // Setup
+         Exception queryException = null;
+
+         // Test
+         try {
+            String soql = SOQL.of(Account.SObjectType)
+                .withFieldSet('FieldSetName')
+                .toString();
+         } catch(Exception e) {
+             queryException = e;
+         }
+
+        // Verify
+        Assert.areEqual('FieldSet with name FieldSetName does not exist!', queryException.getMessage());
+    }
+
+    @IsTest
     static void subQueryTwoFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
@@ -1931,6 +1949,22 @@ private class SOQL_Test {
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual(cases, binding.get('v1'));
+    }
+
+    @IsTest
+    static void byRecordType() {
+        // Setup
+        String recordTypeDeveloperName = 'Partner';
+
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType).byRecordType(recordTypeDeveloperName);
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE RecordType.DeveloperName = :v1', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(recordTypeDeveloperName, binding.get('v1'));
     }
 
     @IsTest

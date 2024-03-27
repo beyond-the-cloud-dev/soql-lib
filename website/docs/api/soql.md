@@ -30,7 +30,8 @@ The following are methods for `SOQL`.
 - [`with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3)`](#with-related-field1---field5)
 - [`with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4)`](#with-related-field1---field5)
 - [`with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5)`](#with-related-field1---field5)
-- [`with(String relationshipName, List<SObjectField> fields)`](#with-related-fields)
+- [`with(String relationshipName, Iterable<SObjectField> fields)`](#with-related-fields)
+- [`withFieldSet(String fieldSetName)`](#with-field-set)
 
 [**AGGREGATION FUNCTIONS**](#aggregate-functions)
 
@@ -149,6 +150,7 @@ The following are methods for `SOQL`.
 - [`byId(Id recordId)`](#byid)
 - [`byIds(Iterable<Id> recordIds)`](#byids)
 - [`byIds(List<SObject> records)`](#byids)
+- [`byRecordType(String recordTypeDeveloperName)`](#byrecordtype)
 
 [**RESULT**](#result)
 
@@ -343,7 +345,7 @@ Use for more than 5 parent fields.
 **Signature**
 
 ```apex
-Queryable with(String relationshipName, List<SObjectField> fields)
+Queryable with(String relationshipName, Iterable<SObjectField> fields)
 ```
 
 **Example**
@@ -368,6 +370,31 @@ SOQL.of(Account.SObjectType)
         User.LastName,
         User.Email
     }).toList();
+```
+
+### with field set
+
+Pass FieldSet name to get dynamic fields.
+
+**Signature**
+
+```apex
+Queryable withFieldSet(String fieldSetName)
+```
+
+**Example**
+
+```sql
+SELECT
+    Id,
+    Name,
+    Industry
+FROM Account
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .withFieldSet('AccountFieldSet')
+    .toList();
 ```
 
 ## SUB-QUERY
@@ -1860,6 +1887,30 @@ SOQL.of(Account.SObjectType)
 List<Account> accounts = [SELECT Id FROM Account];
 SOQL.of(Account.SObjectType)
     .byIds(accounts)
+    .toList();
+```
+
+### byRecordType
+
+Query record by `RecordType.DeveloperName`. To do that, you can use the `byRecordType` method.
+
+**Signature**
+
+```apex
+Queryable byRecordType(String recordTypeDeveloperName)
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+WHERE RecordType.DeveloperName = 'Partner'
+```
+
+```apex
+SOQL.of(Account.SObjectType)
+    .byRecordType('Partner')
     .toList();
 ```
 

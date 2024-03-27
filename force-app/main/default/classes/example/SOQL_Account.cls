@@ -14,11 +14,6 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
         mockId(MOCK_ID);
     }
 
-    public SOQL_Account byRecordType(String rt) {
-        whereAre(Filter.recordType().equal(rt));
-        return this;
-    }
-
     public SOQL_Account byIndustry(String industry) {
         with(Account.Industry)
             .whereAre(Filter.with(Account.Industry).equal(industry));

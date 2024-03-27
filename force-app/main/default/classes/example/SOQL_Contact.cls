@@ -14,11 +14,6 @@ public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selecto
         mockId(MOCK_ID);
     }
 
-    public SOQL_Contact byRecordType(String rt) {
-        whereAre(Filter.recordType().equal(rt));
-        return this;
-    }
-
     public SOQL_Contact byAccountId(Id accountId) {
         whereAre(Filter.with(Contact.AccountId).equal(accountId));
         return this;

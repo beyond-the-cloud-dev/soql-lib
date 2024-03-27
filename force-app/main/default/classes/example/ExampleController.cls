@@ -30,8 +30,8 @@ public with sharing class ExampleController {
     @AuraEnabled
     public static List<Account> getAccountsByRecordTypeOrITIndustry(String recordType) {
         return SOQL_Account.query()
-            .byRecordType(recordType)
             .byIndustry('IT')
+            .byRecordType(recordType)
             .anyConditionMatching()
             .with(Account.Industry, Account.AccountSource)
             .toList();
