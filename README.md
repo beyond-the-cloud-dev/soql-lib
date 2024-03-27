@@ -1,6 +1,3 @@
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buycoffee.to/beyondthecloud)
-
-
 # SOQL Lib
 
 ![Deploy to Scratch Org and run tests](https://github.com/beyond-the-cloud-dev/soql-lib/actions/workflows/ci.yml/badge.svg)
@@ -100,6 +97,10 @@ Read about the features in the [documentation](https://soql-lib.vercel.app/docs/
 6. **Avoid query duplicates**
 7. **The default configuration for all queries**
 8. **Dynamic conditions**
+
+----
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buycoffee.to/beyondthecloud)
 
 ----
 
