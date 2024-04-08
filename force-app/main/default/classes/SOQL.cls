@@ -458,7 +458,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public SOQL max(String relationshipName, SObjectField field) {
-        return max(relationshipName ,field, '');
+        return max(relationshipName, field, '');
     }
 
     public SOQL max(String relationshipName, SObjectField field, String alias) {
