@@ -55,3 +55,9 @@ $RECYCLE.BIN/
 
 #Private keys
 *.key
+
+# Additional scratch org definitions
+/config/*
+
+# Illuminated Cloud Symbol Tables
+/IlluminatedCloud/*

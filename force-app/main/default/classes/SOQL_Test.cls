@@ -2519,4 +2519,26 @@ private class SOQL_Test {
         // Test
         SOQL.of(Account.SObjectType).count().preview().toInteger();
     }
+
+    @IsTest
+    static void groupByRelatedObjectFieldIsFormattedCorrectly() {
+        String expectedQuery = 'SELECT COUNT(Name) count FROM OpportunityLineItem ' +
+                                'GROUP BY OpportunityLineItem.Opportunity.Account.Id';
+
+        SOQL.Queryable q = SOQL.of(OpportunityLineItem.SObjectType)
+                .count(OpportunityLineItem.Name, 'count')
+                .groupBy('OpportunityLineItem.Opportunity.Account', Account.Id);
+
+        Assert.areEqual(expectedQuery, q.toString());
+    }
+
+    @IsTest
+    static void groupByValidRelatedObjectFieldIsSupported() {
+        SOQL.Queryable q = SOQL.of(OpportunityLineItem.SObjectType)
+                .count(OpportunityLineItem.Name, 'names')
+                .groupBy('OpportunityLineItem.Opportunity.Account', Account.Id);
+
+        Assert.areEqual(0, q.toAggregated().size());
+    }
+
 }
