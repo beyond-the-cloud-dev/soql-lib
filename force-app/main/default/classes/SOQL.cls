@@ -110,6 +110,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable anyConditionMatching();
         // GROUP BY
         Queryable groupBy(SObjectField field);
+        Queryable groupBy(String relationshipName, SObjectField field);
         Queryable groupByRollup(SObjectField field);
         Queryable groupByCube(SObjectField field);
         // ORDER BY
@@ -568,6 +569,12 @@ public virtual inherited sharing class SOQL implements Queryable {
         return this;
     }
 
+    public SOQL groupBy(String relationshipName, SObjectField field) {
+        builder.groupBy.with(relationshipName, field);
+        builder.fields.withGroupedField(relationshipName, field);
+        return this;
+    }
+
     public SOQL groupByRollup(SObjectField field) {
         builder.groupBy.rollup(field);
         builder.fields.withGroupedField(field);
@@ -960,6 +967,10 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public void withGroupedField(SObjectField field) {
             groupedFields.add(field.getDescribe().getName());
+        }
+
+        public void withGroupedField(String relationshipName, SObjectField field) {
+            groupedFields.add(relationshipName + '.' + field.getDescribe().getName());
         }
 
         public void with(String commaSeparatedFields) {
@@ -1587,6 +1598,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         public void with(SObjectField field) {
             setGroupByFunction('{0}');
             groupByFields.add(field.getDescribe().getName());
+        }
+
+        public void with(String relationshipName, SObjectField field) {
+            setGroupByFunction('{0}');
+            groupByFields.add(relationshipName + '.' + field.getDescribe().getName());
         }
 
         public void rollup(SObjectField field) {
