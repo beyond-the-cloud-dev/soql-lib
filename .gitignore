@@ -58,3 +58,6 @@ $RECYCLE.BIN/
 
 # Additional scratch org definitions
 /config/*
+
+# Illuminated Cloud Symbol Tables
+/IlluminatedCloud/*
