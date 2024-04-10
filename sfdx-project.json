@@ -8,5 +8,5 @@
   "name": "BeyondTheCloud",
   "namespace": "",
   "sfdcLoginUrl": "https://login.salesforce.com",
-  "sourceApiVersion": "54.0"
+  "sourceApiVersion": "60.0"
 }
