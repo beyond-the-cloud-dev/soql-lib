@@ -1705,7 +1705,7 @@ private class SOQL_Test {
     @IsTest
     static void groupByRelated() {
         // Test
-        SOQLe soql = SOQL.of(OpportunityLineItem.SObjectType)
+        String soql = SOQL.of(OpportunityLineItem.SObjectType)
             .count(OpportunityLineItem.Name, 'count')
             .groupBy('OpportunityLineItem.Opportunity.Account', Account.Id)
             .toString();
