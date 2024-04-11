@@ -2521,24 +2521,31 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void groupByRelatedObjectFieldIsFormattedCorrectly() {
-        String expectedQuery = 'SELECT COUNT(Name) count FROM OpportunityLineItem ' +
-                                'GROUP BY OpportunityLineItem.Opportunity.Account.Id';
-
+    static void groupByRelated() {
+        // Test
         SOQL.Queryable q = SOQL.of(OpportunityLineItem.SObjectType)
                 .count(OpportunityLineItem.Name, 'count')
                 .groupBy('OpportunityLineItem.Opportunity.Account', Account.Id);
-
-        Assert.areEqual(expectedQuery, q.toString());
+        // Verify
+        Assert.areEqual(
+                'SELECT COUNT(Name) count FROM OpportunityLineItem GROUP BY OpportunityLineItem.Opportunity.Account.Id',
+                q.toString()
+        );
     }
 
     @IsTest
-    static void groupByValidRelatedObjectFieldIsSupported() {
-        SOQL.Queryable q = SOQL.of(OpportunityLineItem.SObjectType)
-                .count(OpportunityLineItem.Name, 'names')
-                .groupBy('OpportunityLineItem.Opportunity.Account', Account.Id);
+    static void groupByRelatedToAggregated() {
+        // Setup
+        List<Account> accounts = insertAccounts();
 
-        Assert.areEqual(0, q.toAggregated().size());
+        // Test
+        List<AggregateResult> results = SOQL.of(Account.SObjectType)
+                .count(Account.Name, 'names')
+                .groupBy('Account.CreatedBy', User.Id)
+                .toAggregated();
+
+        // Verify
+        Assert.areEqual(1, results.size());
     }
 
 }

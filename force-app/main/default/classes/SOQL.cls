@@ -970,7 +970,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public void withGroupedField(String relationshipName, SObjectField field) {
-            groupedFields.add(relationshipName + '.' + field.getDescribe().getName());
+            groupedFields.add(relationshipName + '.' + field);
         }
 
         public void with(String commaSeparatedFields) {
@@ -1602,7 +1602,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public void with(String relationshipName, SObjectField field) {
             setGroupByFunction('{0}');
-            groupByFields.add(relationshipName + '.' + field.getDescribe().getName());
+            groupByFields.add(relationshipName + '.' + field);
         }
 
         public void rollup(SObjectField field) {
