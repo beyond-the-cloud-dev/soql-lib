@@ -98,6 +98,7 @@ The following are methods for `SOQL`.
 [**GROUP BY**](#group-by)
 
 - [`groupBy(SObjectField field)`](#group-by)
+- [`groupBy(String relationshipName, SObjectField field)`](#groupby-related)
 - [`groupByRollup(SObjectField field)`](#groupbyrollup)
 - [`groupByCube(SObjectField field)`](#groupbycube)
 
@@ -1276,6 +1277,7 @@ SOQL.of(Account.SObjectType)
 ## GROUP BY
 
 [GROUP BY](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_groupby.htm)
+
 ### groupBy
 
 > You can use the `GROUP BY` option in a SOQL query to avoid iterating through individual query results. That is, you specify a group of records instead of processing many individual records.
@@ -1297,6 +1299,28 @@ GROUP BY LeadSource
 SOQL.of(Lead.SObjectType)
     .with(Lead.LeadSource)
     .groupBy(Lead.LeadSource)
+    .toAggregated();
+```
+
+### groupBy related
+
+**Signature**
+
+```apex
+Queryable groupBy(String relationshipName, SObjectField field)
+```
+
+**Example**
+
+```sql
+SELECT COUNT(Name) count
+FROM OpportunityLineItem
+GROUP BY OpportunityLineItem.Opportunity.Account.Id
+```
+```apex
+SOQL.of(OpportunityLineItem.SObjectType)
+    .count(OpportunityLineItem.Name, 'count')
+    .groupBy('OpportunityLineItem.Opportunity.Account', Account.Id)
     .toAggregated();
 ```
 
