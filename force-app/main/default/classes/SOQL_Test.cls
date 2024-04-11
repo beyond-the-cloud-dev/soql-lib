@@ -2519,4 +2519,33 @@ private class SOQL_Test {
         // Test
         SOQL.of(Account.SObjectType).count().preview().toInteger();
     }
+
+    @IsTest
+    static void groupByRelated() {
+        // Test
+        SOQL.Queryable q = SOQL.of(OpportunityLineItem.SObjectType)
+                .count(OpportunityLineItem.Name, 'count')
+                .groupBy('OpportunityLineItem.Opportunity.Account', Account.Id);
+        // Verify
+        Assert.areEqual(
+                'SELECT COUNT(Name) count FROM OpportunityLineItem GROUP BY OpportunityLineItem.Opportunity.Account.Id',
+                q.toString()
+        );
+    }
+
+    @IsTest
+    static void groupByRelatedToAggregated() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        List<AggregateResult> results = SOQL.of(Account.SObjectType)
+                .count(Account.Name, 'names')
+                .groupBy('Account.CreatedBy', User.Id)
+                .toAggregated();
+
+        // Verify
+        Assert.areEqual(1, results.size());
+    }
+
 }
