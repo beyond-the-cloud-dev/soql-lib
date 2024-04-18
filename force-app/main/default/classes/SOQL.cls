@@ -1507,27 +1507,25 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Filter includesAll(Iterable<String> iterable) {
-            // Bind expressions can't be used with other clauses, such as INCLUDES.
-            skipBinding = true;
-            return set('INCLUDES', '(\'' + String.join(iterable, ';') + '\')');
+            return setMultipicklistFilter('INCLUDES', iterable, ';');
         }
 
         public Filter includesSome(Iterable<String> iterable) {
-            // Bind expressions can't be used with other clauses, such as INCLUDES.
-            skipBinding = true;
-            return set('INCLUDES', '(\'' + String.join(iterable, '\', \'') + '\')');
+            return setMultipicklistFilter('INCLUDES', iterable, '\', \'');
         }
 
         public Filter excludesAll(Iterable<String> iterable) {
-            // Bind expressions can't be used with other clauses, such as EXCLUDES.
-            skipBinding = true;
-            return set('EXCLUDES', '(\'' + String.join(iterable, '\', \'') + '\')');
+            return setMultipicklistFilter('EXCLUDES', iterable, '\', \'');
         }
 
         public Filter excludesSome(Iterable<String> iterable) {
-            // Bind expressions can't be used with other clauses, such as EXCLUDES.
-            skipBinding = true;
-            return set('EXCLUDES', '(\'' + String.join(iterable, ';') + '\')');
+            return setMultipicklistFilter('EXCLUDES', iterable, ';');
+        }
+
+        public Filter setMultipicklistFilter(String operator, Iterable<String> iterable, String separator) {
+             // Bind expressions can't be used with other clauses, such as INCLUDES, EXCLUDES
+             skipBinding = true;
+             return set(operator, '(\'' + String.join(iterable, separator) + '\')');
         }
 
         private Filter set(String comperator, Object value) {
