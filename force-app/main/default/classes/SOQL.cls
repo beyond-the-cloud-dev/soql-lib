@@ -171,7 +171,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3);
         SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
         SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
-        SubQuery with(List<SObjectField> fields);
+        SubQuery with(Iterable<SObjectField> fields);
         SubQuery with(String relationshipName, Iterable<SObjectField> fields);
         SubQuery with(SubQuery subQuery);
         // WHERE
@@ -224,7 +224,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Filter greaterThan(Object value);
         Filter lessOrEqual(Object value);
         Filter greaterOrEqual(Object value);
-        Filter containsSome(List<String> values);
+        Filter containsSome(Iterable<String> values);
         Filter contains(String value);
         Filter notContains(String value);
         Filter endsWith(String value);
@@ -990,7 +990,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             return field.contains('(') && field.contains(')') || field.contains(' ');
         }
 
-        public void with(List<SObjectField> fields) {
+        public void with(Iterable<SObjectField> fields) {
             for (SObjectField field : fields) {
                 with(field);
             }
@@ -1099,7 +1099,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             return with(field1, field2, field3, field4).with(field5);
         }
 
-        public SubQuery with(List<SObjectField> fields) {
+        public SubQuery with(Iterable<SObjectField> fields) {
             builder.fields.with(fields);
             return this;
         }
@@ -1443,7 +1443,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             return set('>=', value);
         }
 
-        public Filter containsSome(List<String> values) {
+        public Filter containsSome(Iterable<String> values) {
             return set('LIKE', values);
         }
 
