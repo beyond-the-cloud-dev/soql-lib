@@ -112,7 +112,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable groupBy(SObjectField field);
         Queryable groupBy(String relationshipName, SObjectField field);
         Queryable groupByRollup(SObjectField field);
+        Queryable groupByRollup(String relationshipName, SObjectField field);
         Queryable groupByCube(SObjectField field);
+        Queryable groupByCube(String relationshipName, SObjectField field);
         // ORDER BY
         Queryable orderBy(String field);
         Queryable orderBy(String field, String direction);
@@ -581,9 +583,21 @@ public virtual inherited sharing class SOQL implements Queryable {
         return this;
     }
 
+    public SOQL groupByRollup(String relationshipName, SObjectField field) {
+        builder.groupBy.rollup(relationshipName, field);
+        builder.fields.withGroupedField(relationshipName, field);
+        return this;
+    }
+
     public SOQL groupByCube(SObjectField field) {
         builder.groupBy.cube(field);
         builder.fields.withGroupedField(field);
+        return this;
+    }
+
+    public SOQL groupByCube(String relationshipName, SObjectField field) {
+        builder.groupBy.cube(relationshipName, field);
+        builder.fields.withGroupedField(relationshipName, field);
         return this;
     }
 
@@ -1594,23 +1608,42 @@ public virtual inherited sharing class SOQL implements Queryable {
         private String groupByFunction = '';
 
         public void with(SObjectField field) {
-            setGroupByFunction('{0}');
-            groupByFields.add(field.getDescribe().getName());
+            with(field.getDescribe().getName());
         }
 
         public void with(String relationshipName, SObjectField field) {
+            with(relationshipName + '.' + field);
+        }
+
+        private void with(String field) {
             setGroupByFunction('{0}');
-            groupByFields.add(relationshipName + '.' + field);
+            groupByFields.add(field.trim());
         }
 
         public void rollup(SObjectField field) {
+            rollup(field.getDescribe().getName());
+        }
+
+        public void rollup(String relationshipName, SObjectField field) {
+            rollup(relationshipName + '.' + field);
+        }
+
+        private void rollup(String field) {
             setGroupByFunction('ROLLUP({0})');
-            groupByFields.add(field.getDescribe().getName());
+            groupByFields.add(field.trim());
         }
 
         public void cube(SObjectField field) {
+            cube(field.getDescribe().getName());
+        }
+
+        public void cube(String relationshipName, SObjectField field) {
+            cube(relationshipName + '.' + field);
+        }
+
+        private void cube(String field) {
             setGroupByFunction('CUBE({0})');
-            groupByFields.add(field.getDescribe().getName());
+            groupByFields.add(field.trim());
         }
 
         public void setGroupByFunction(String newGroupByFunction) {
