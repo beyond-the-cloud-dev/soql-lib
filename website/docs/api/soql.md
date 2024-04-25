@@ -98,8 +98,11 @@ The following are methods for `SOQL`.
 [**GROUP BY**](#group-by)
 
 - [`groupBy(SObjectField field)`](#group-by)
+- [`groupBy(String relationshipName, SObjectField field)`](#groupby-related)
 - [`groupByRollup(SObjectField field)`](#groupbyrollup)
+- [`groupByRollup(String relationshipName, SObjectField field)`](#groupbyrollup-related)
 - [`groupByCube(SObjectField field)`](#groupbycube)
+- [`groupByCube(String relationshipName, SObjectField field)`](#groupbycube-related)
 
 [**ORDER BY**](#order-by)
 
@@ -1276,6 +1279,7 @@ SOQL.of(Account.SObjectType)
 ## GROUP BY
 
 [GROUP BY](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_groupby.htm)
+
 ### groupBy
 
 > You can use the `GROUP BY` option in a SOQL query to avoid iterating through individual query results. That is, you specify a group of records instead of processing many individual records.
@@ -1297,6 +1301,28 @@ GROUP BY LeadSource
 SOQL.of(Lead.SObjectType)
     .with(Lead.LeadSource)
     .groupBy(Lead.LeadSource)
+    .toAggregated();
+```
+
+### groupBy related
+
+**Signature**
+
+```apex
+Queryable groupBy(String relationshipName, SObjectField field)
+```
+
+**Example**
+
+```sql
+SELECT COUNT(Name) count
+FROM OpportunityLineItem
+GROUP BY OpportunityLineItem.Opportunity.Account.Id
+```
+```apex
+SOQL.of(OpportunityLineItem.SObjectType)
+    .count(OpportunityLineItem.Name, 'count')
+    .groupBy('OpportunityLineItem.Opportunity.Account', Account.Id)
     .toAggregated();
 ```
 
@@ -1323,6 +1349,28 @@ SOQL.of(Lead.SObjectType)
     .toAggregated();
 ```
 
+### groupByRollup related
+
+**Signature**
+
+```apex
+Queryable groupByRollup(String relationshipName, SObjectField field)
+```
+
+**Example**
+
+```sql
+SELECT COUNT(Name) cnt
+FROM Lead
+GROUP BY ROLLUP(ConvertedOpportunity.StageName)
+```
+```apex
+SOQL.of(Lead.SObjectType)
+    .count(Lead.Name, 'cnt')
+    .groupByRollup('ConvertedOpportunity', Opportunity.StageName)
+    .toAggregated();
+```
+
 ### groupByCube
 
 **Signature**
@@ -1342,6 +1390,28 @@ GROUP BY ROLLUP(Type)
 SOQL.of(Account.SObjectType)
     .with(Account.Type)
     .groupByCube(Account.Type)
+    .toAggregated();
+```
+
+### groupByCube related
+
+**Signature**
+
+```apex
+Queryable groupByCube(String relationshipName, SObjectField field)
+```
+
+**Example**
+
+```sql
+SELECT COUNT(Name) cnt
+FROM Lead
+GROUP BY CUBE(ConvertedOpportunity.StageName)
+```
+```apex
+SOQL.of(Lead.SObjectType)
+    .count(Lead.Name, 'cnt')
+    .groupByCube('ConvertedOpportunity', Opportunity.StageName)
     .toAggregated();
 ```
 

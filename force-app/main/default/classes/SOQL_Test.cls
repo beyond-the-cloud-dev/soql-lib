@@ -1703,6 +1703,33 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void groupByRelated() {
+        // Test
+        String soql = SOQL.of(OpportunityLineItem.SObjectType)
+            .count(OpportunityLineItem.Name, 'count')
+            .groupBy('OpportunityLineItem.Opportunity.Account', Account.Id)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT(Name) count FROM OpportunityLineItem GROUP BY OpportunityLineItem.Opportunity.Account.Id', soql);
+    }
+
+    @IsTest
+    static void groupByRelatedToAggregated() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        List<AggregateResult> results = SOQL.of(Account.SObjectType)
+            .count(Account.Name, 'names')
+            .groupBy('Account.CreatedBy', User.Id)
+            .toAggregated();
+
+        // Verify
+        Assert.areEqual(1, results.size());
+    }
+
+    @IsTest
     static void groupByRollup() {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
@@ -1716,6 +1743,32 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void groupByRollupManyFields() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .count(Lead.Name, 'cnt')
+            .with(Lead.Status, Lead.LeadSource)
+            .groupByRollup(Lead.Status)
+            .groupByRollup(Lead.LeadSource)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Status, LeadSource, COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(Status, LeadSource)', soql);
+    }
+
+    @IsTest
+    static void groupByRollupRelated() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .count(Lead.Name, 'cnt')
+            .groupByRollup('ConvertedOpportunity', Opportunity.StageName)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(ConvertedOpportunity.StageName)', soql);
+    }
+
+    @IsTest
     static void groupByCube() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
@@ -1725,6 +1778,31 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual('SELECT Type FROM Account GROUP BY CUBE(Type)', soql);
+    }
+
+    @IsTest
+    static void groupByCubeManyFields() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Type, Account.BillingCountry)
+            .groupByCube(Account.Type)
+            .groupByCube(Account.BillingCountry)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Type, BillingCountry FROM Account GROUP BY CUBE(Type, BillingCountry)', soql);
+    }
+
+    @IsTest
+    static void groupByCubeRelated() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .count(Lead.Name, 'cnt')
+            .groupByCube('ConvertedOpportunity', Opportunity.StageName)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT(Name) cnt FROM Lead GROUP BY CUBE(ConvertedOpportunity.StageName)', soql);
     }
 
     @IsTest

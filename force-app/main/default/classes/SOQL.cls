@@ -110,8 +110,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable anyConditionMatching();
         // GROUP BY
         Queryable groupBy(SObjectField field);
+        Queryable groupBy(String relationshipName, SObjectField field);
         Queryable groupByRollup(SObjectField field);
+        Queryable groupByRollup(String relationshipName, SObjectField field);
         Queryable groupByCube(SObjectField field);
+        Queryable groupByCube(String relationshipName, SObjectField field);
         // ORDER BY
         Queryable orderBy(String field);
         Queryable orderBy(String field, String direction);
@@ -170,7 +173,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3);
         SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
         SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
-        SubQuery with(List<SObjectField> fields);
+        SubQuery with(Iterable<SObjectField> fields);
         SubQuery with(String relationshipName, Iterable<SObjectField> fields);
         SubQuery with(SubQuery subQuery);
         // WHERE
@@ -223,7 +226,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Filter greaterThan(Object value);
         Filter lessOrEqual(Object value);
         Filter greaterOrEqual(Object value);
-        Filter containsSome(List<String> values);
+        Filter containsSome(Iterable<String> values);
         Filter contains(String value);
         Filter notContains(String value);
         Filter endsWith(String value);
@@ -568,15 +571,33 @@ public virtual inherited sharing class SOQL implements Queryable {
         return this;
     }
 
+    public SOQL groupBy(String relationshipName, SObjectField field) {
+        builder.groupBy.with(relationshipName, field);
+        builder.fields.withGroupedField(relationshipName, field);
+        return this;
+    }
+
     public SOQL groupByRollup(SObjectField field) {
         builder.groupBy.rollup(field);
         builder.fields.withGroupedField(field);
         return this;
     }
 
+    public SOQL groupByRollup(String relationshipName, SObjectField field) {
+        builder.groupBy.rollup(relationshipName, field);
+        builder.fields.withGroupedField(relationshipName, field);
+        return this;
+    }
+
     public SOQL groupByCube(SObjectField field) {
         builder.groupBy.cube(field);
         builder.fields.withGroupedField(field);
+        return this;
+    }
+
+    public SOQL groupByCube(String relationshipName, SObjectField field) {
+        builder.groupBy.cube(relationshipName, field);
+        builder.fields.withGroupedField(relationshipName, field);
         return this;
     }
 
@@ -962,6 +983,10 @@ public virtual inherited sharing class SOQL implements Queryable {
             groupedFields.add(field.getDescribe().getName());
         }
 
+        public void withGroupedField(String relationshipName, SObjectField field) {
+            groupedFields.add(relationshipName + '.' + field);
+        }
+
         public void with(String commaSeparatedFields) {
             // Added to Set to avoid field duplicates in query
             for (String splittedField : commaSeparatedFields.split(',')) {
@@ -979,7 +1004,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             return field.contains('(') && field.contains(')') || field.contains(' ');
         }
 
-        public void with(List<SObjectField> fields) {
+        public void with(Iterable<SObjectField> fields) {
             for (SObjectField field : fields) {
                 with(field);
             }
@@ -1088,7 +1113,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             return with(field1, field2, field3, field4).with(field5);
         }
 
-        public SubQuery with(List<SObjectField> fields) {
+        public SubQuery with(Iterable<SObjectField> fields) {
             builder.fields.with(fields);
             return this;
         }
@@ -1432,7 +1457,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             return set('>=', value);
         }
 
-        public Filter containsSome(List<String> values) {
+        public Filter containsSome(Iterable<String> values) {
             return set('LIKE', values);
         }
 
@@ -1496,27 +1521,25 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Filter includesAll(Iterable<String> iterable) {
-            // Bind expressions can't be used with other clauses, such as INCLUDES.
-            skipBinding = true;
-            return set('INCLUDES', '(\'' + String.join(iterable, ';') + '\')');
+            return setMultipicklistFilter('INCLUDES', iterable, ';');
         }
 
         public Filter includesSome(Iterable<String> iterable) {
-            // Bind expressions can't be used with other clauses, such as INCLUDES.
-            skipBinding = true;
-            return set('INCLUDES', '(\'' + String.join(iterable, '\', \'') + '\')');
+            return setMultipicklistFilter('INCLUDES', iterable, '\', \'');
         }
 
         public Filter excludesAll(Iterable<String> iterable) {
-            // Bind expressions can't be used with other clauses, such as EXCLUDES.
-            skipBinding = true;
-            return set('EXCLUDES', '(\'' + String.join(iterable, '\', \'') + '\')');
+            return setMultipicklistFilter('EXCLUDES', iterable, '\', \'');
         }
 
         public Filter excludesSome(Iterable<String> iterable) {
-            // Bind expressions can't be used with other clauses, such as EXCLUDES.
-            skipBinding = true;
-            return set('EXCLUDES', '(\'' + String.join(iterable, ';') + '\')');
+            return setMultipicklistFilter('EXCLUDES', iterable, ';');
+        }
+
+        public Filter setMultipicklistFilter(String operator, Iterable<String> iterable, String separator) {
+             // Bind expressions can't be used with other clauses, such as INCLUDES, EXCLUDES
+             skipBinding = true;
+             return set(operator, '(\'' + String.join(iterable, separator) + '\')');
         }
 
         private Filter set(String comperator, Object value) {
@@ -1585,18 +1608,42 @@ public virtual inherited sharing class SOQL implements Queryable {
         private String groupByFunction = '';
 
         public void with(SObjectField field) {
+            with(field.getDescribe().getName());
+        }
+
+        public void with(String relationshipName, SObjectField field) {
+            with(relationshipName + '.' + field);
+        }
+
+        private void with(String field) {
             setGroupByFunction('{0}');
-            groupByFields.add(field.getDescribe().getName());
+            groupByFields.add(field.trim());
         }
 
         public void rollup(SObjectField field) {
+            rollup(field.getDescribe().getName());
+        }
+
+        public void rollup(String relationshipName, SObjectField field) {
+            rollup(relationshipName + '.' + field);
+        }
+
+        private void rollup(String field) {
             setGroupByFunction('ROLLUP({0})');
-            groupByFields.add(field.getDescribe().getName());
+            groupByFields.add(field.trim());
         }
 
         public void cube(SObjectField field) {
+            cube(field.getDescribe().getName());
+        }
+
+        public void cube(String relationshipName, SObjectField field) {
+            cube(relationshipName + '.' + field);
+        }
+
+        private void cube(String field) {
             setGroupByFunction('CUBE({0})');
-            groupByFields.add(field.getDescribe().getName());
+            groupByFields.add(field.trim());
         }
 
         public void setGroupByFunction(String newGroupByFunction) {
