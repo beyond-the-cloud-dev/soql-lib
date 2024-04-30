@@ -1076,6 +1076,20 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void containsNull() {
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(Account.Name).contains(null));
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('%null%', binding.get('v1'));
+    }
+
+    @IsTest
     static void notContains() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
