@@ -1731,7 +1731,7 @@ private class SOQL_Test {
     @IsTest
     static void groupByRelatedToAggregated() {
         // Setup
-        List<Account> accounts = insertAccounts();
+        insertAccounts();
 
         // Test
         List<AggregateResult> results = SOQL.of(Account.SObjectType)
