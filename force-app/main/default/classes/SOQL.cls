@@ -707,7 +707,8 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public override String toString() {
-        return builder.resetBinding().toString();
+        binder = new Binder(); // clear binding before query build
+        return builder.toString();
     }
 
     public Object toValueOf(SObjectField fieldToExtract) {
@@ -875,11 +876,6 @@ public virtual inherited sharing class SOQL implements Queryable {
             if (clauses[position] == null) {
                 clauses.set(position, clause);
             }
-        }
-
-        public QueryBuilder resetBinding() {
-            binder = new Binder();
-            return this;
         }
 
         public override String toString() {
