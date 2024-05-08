@@ -856,6 +856,49 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void multipleSubQueriesWithConditions() {
+        // Setup
+        String leadSource = 'Web';
+        Date fromDate = Date.newInstance(2024, 1, 1);
+        Date toDate = Date.newInstance(2024, 1, 30);
+
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .with(
+                SOQL.SubQuery.of('Contacts')
+                    .with(Contact.Id)
+                    .whereAre(SOQL.FilterGroup
+                        .add(SOQL.Filter.with(Contact.CreatedDate).lessOrEqual(fromDate))
+                        .add(SOQL.Filter.with(Contact.CreatedDate).isNull())
+                        .add(SOQL.Filter.with(Contact.CreatedDate).greaterOrEqual(toDate))
+                        .conditionLogic('1 AND (2 OR 3)')
+                    )
+            )
+            .with(
+                SOQL.SubQuery.of('Opportunities')
+                    .with(Opportunity.Id)
+                    .whereAre(SOQL.FilterGroup
+                        .add(SOQL.Filter.with(Opportunity.LeadSource).equal(leadSource))
+                        .add(SOQL.Filter.with(Contact.CreatedDate).equal(fromDate))
+                    )
+            )
+            .setLimit(1);
+
+        // Verify
+        Assert.areEqual(
+            'SELECT Id , (SELECT Id FROM Contacts WHERE (CreatedDate <= :v1 AND (CreatedDate = :v2 OR CreatedDate >= :v3))), (SELECT Id FROM Opportunities WHERE (LeadSource = :v4 AND CreatedDate = :v5)) FROM Account LIMIT 1',
+            builder.toString()
+        );
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(fromDate, binding.get('v1'));
+        Assert.areEqual(null, binding.get('v2'));
+        Assert.areEqual(toDate, binding.get('v3'));
+        Assert.areEqual(leadSource, binding.get('v4'));
+        Assert.areEqual(fromDate, binding.get('v5'));
+    }
+
+    @IsTest
     static void delegatedScope() {
         // Test
         String soql = SOQL.of(Task.SObjectType)
