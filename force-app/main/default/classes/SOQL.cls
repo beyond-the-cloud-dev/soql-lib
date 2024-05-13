@@ -277,7 +277,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     // Config
 
     private static Mock mock = new Mock();
-    private static Binder binder;
+    private static Binder binder = new Binder();
 
     private QueryBuilder builder;
     private Executor executor;
@@ -707,6 +707,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public override String toString() {
+        binder = new Binder(); // clear binding before query build
         return builder.toString();
     }
 
@@ -878,8 +879,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            binder = new Binder();
-
             String query = '';
 
             for (QueryClause clause : clauses) {
