@@ -1541,7 +1541,7 @@ private class SOQL_Test {
         // Verify
         String soql = builder.toString();
         Assert.areEqual(
-            'SELECT Id FROM Account WHERE (Name LIKE :v1 AND Name LIKE :v2 AND Name LIKE :v3 AND Name LIKE :v4 AND Name LIKE :v5 AND Name LIKE :v6 AND Name LIKE :v7 AND Name LIKE :v8 AND Name LIKE :v9 AND Name LIKE :v10 AND Name LIKE :v11)',
+            'SELECT Id FROM Account WHERE (Name LIKE :v1) AND (Name LIKE :v2) AND (Name LIKE :v3) AND (Name LIKE :v4) AND (Name LIKE :v5) AND (Name LIKE :v6) AND (Name LIKE :v7) AND (Name LIKE :v8) AND (Name LIKE :v9) AND (Name LIKE :v10) AND (Name LIKE :v11)',
             soql
         );
 
