@@ -1305,7 +1305,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             String orderWithSpecialCharacters = getConditionsLogic();
 
             for (Integer i = 0; i < queryConditions.size(); i++) {
-                orderWithSpecialCharacters = orderWithSpecialCharacters.replace(String.valueOf(i + 1), '{' + i + '}');
+                orderWithSpecialCharacters = orderWithSpecialCharacters.replaceFirst(String.valueOf(i + 1), '{' + i + '}');
             }
 
             return orderWithSpecialCharacters; // e.g ({0} AND ({1} AND {2}))

@@ -1523,6 +1523,43 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void multipleFiltersGroups() {
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.FilterGroup.add(SOQL.Filter.with(Account.Name).contains('1')))
+            .whereAre(SOQL.FilterGroup.add(SOQL.Filter.with(Account.Name).contains('2')))
+            .whereAre(SOQL.FilterGroup.add(SOQL.Filter.with(Account.Name).contains('3')))
+            .whereAre(SOQL.FilterGroup.add(SOQL.Filter.with(Account.Name).contains('4')))
+            .whereAre(SOQL.FilterGroup.add(SOQL.Filter.with(Account.Name).contains('5')))
+            .whereAre(SOQL.FilterGroup.add(SOQL.Filter.with(Account.Name).contains('6')))
+            .whereAre(SOQL.FilterGroup.add(SOQL.Filter.with(Account.Name).contains('7')))
+            .whereAre(SOQL.FilterGroup.add(SOQL.Filter.with(Account.Name).contains('8')))
+            .whereAre(SOQL.FilterGroup.add(SOQL.Filter.with(Account.Name).contains('9')))
+            .whereAre(SOQL.FilterGroup.add(SOQL.Filter.with(Account.Name).contains('10')))
+            .whereAre(SOQL.FilterGroup.add(SOQL.Filter.with(Account.Name).contains('11')));
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual(
+            'SELECT Id FROM Account WHERE (Name LIKE :v1 AND Name LIKE :v2 AND Name LIKE :v3 AND Name LIKE :v4 AND Name LIKE :v5 AND Name LIKE :v6 AND Name LIKE :v7 AND Name LIKE :v8 AND Name LIKE :v9 AND Name LIKE :v10 AND Name LIKE :v11)',
+            soql
+        );
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('%1%', binding.get('v1'));
+        Assert.areEqual('%2%', binding.get('v2'));
+        Assert.areEqual('%3%', binding.get('v3'));
+        Assert.areEqual('%4%', binding.get('v4'));
+        Assert.areEqual('%5%', binding.get('v5'));
+        Assert.areEqual('%6%', binding.get('v6'));
+        Assert.areEqual('%7%', binding.get('v7'));
+        Assert.areEqual('%8%', binding.get('v8'));
+        Assert.areEqual('%9%', binding.get('v9'));
+        Assert.areEqual('%10%', binding.get('v10'));
+        Assert.areEqual('%11%', binding.get('v11'));
+    }
+
+    @IsTest
     static void anyConditionMatchingForInnerGroup() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
