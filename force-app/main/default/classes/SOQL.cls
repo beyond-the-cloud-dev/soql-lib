@@ -132,6 +132,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable forUpdate();
         Queryable allRows();
         // FIELD-LEVEL SECURITY
+        Queryable userMode();
         Queryable systemMode();
         Queryable stripInaccessible();
         Queryable stripInaccessible(AccessType accessType);
@@ -658,6 +659,11 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public SOQL allRows() {
         builder.soqlFor.allRows();
+        return this;
+    }
+
+    public SOQL userMode() {
+        executor.userMode();
         return this;
     }
 
@@ -1808,8 +1814,8 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private inherited sharing class Executor {
-        private AccessLevel accessMode = AccessLevel.USER_MODE; // The object permissions, field-level security, sharing rules are enforced.
-        private DatabaseQuery sharingExecutor = new InheritedSharing();
+        private DatabaseQuery sharingExecutor;
+        private AccessLevel accessMode;
         private AccessType accessType;
         private String mockId;
         private String ofObject;
@@ -1818,6 +1824,13 @@ public virtual inherited sharing class SOQL implements Queryable {
         public Executor(String ofObject, QueryBuilder builder) {
             this.ofObject = ofObject;
             this.builder = builder;
+
+            userMode();
+            inheritedSharing();
+        }
+
+        public void inheritedSharing() {
+            sharingExecutor = new InheritedSharing();
         }
 
         public void withSharing() {
@@ -1830,6 +1843,10 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public void stripInaccessible(AccessType type) {
             accessType = type;
+        }
+
+        public void userMode() { // The object permissions, field-level security, sharing rules are enforced.
+            accessMode = AccessLevel.USER_MODE;
         }
 
         public void systemMode() { // The object permissions, field-level permissions are ignored, sharing rules are controlled by the sharingMode.

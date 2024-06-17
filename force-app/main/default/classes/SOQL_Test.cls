@@ -2224,6 +2224,29 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void userMode() {
+        // Setup
+        insert new Task(Subject = 'Test', Type = 'Other');
+
+        System.runAs(minimumAccessUser()) {
+            // Test
+            Exception queryException = null;
+
+            try {
+                Task task = (Task) SOQL.of(Task.SObjectType)
+                    .with(Task.Type)
+                    .userMode()
+                    .toObject();
+            } catch(Exception e) {
+                queryException = e;
+            }
+
+            // Verify
+            Assert.isTrue(queryException.getMessage().contains('No such column \'Type\' on entity \'Task\'.'));
+        }
+    }
+
+    @IsTest
     static void stripInaccessibleToObject() {
         // Setup
         insert new Task(Subject = 'Test', Type = 'Other');
