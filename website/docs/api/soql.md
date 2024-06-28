@@ -130,6 +130,7 @@ The following are methods for `SOQL`.
 
 [**FIELD-LEVEL SECURITY**](#field-level-security)
 
+- [`userMode()`](#userMode)
 - [`systemMode()`](#systemmode)
 - [`stripInaccessible()`](#stripinaccessible)
 - [`stripInaccessible(AccessType accessType)`](#stripinaccessible)
@@ -1681,6 +1682,28 @@ SOQL.of(Contact.SObjectType)
 By default AccessLevel is set as `USER_MODE`.
 
 More details you can find in [here](../advanced-usage/fls.md)
+
+### userMode
+
+By default, all queries are executed `WITH USER_MODE`. However, developers can override this. For more details, check [Field-Level Security](../advanced-usage/fls.md) and [Sharing Rules](../advanced-usage/sharing.md).
+
+The `userMode` method can be useful to override the `systemMode()` provided by the selector.
+
+> Execution mode in which the object permissions, field-level security, and sharing rules of the current user are enforced.
+
+**Signature**
+
+```apex
+Queryable userMode()
+```
+
+**Example**
+
+```apex
+SOQL.of(Account.SObjectType)
+    .userMode()
+    .toList();
+```
 
 ### systemMode
 
