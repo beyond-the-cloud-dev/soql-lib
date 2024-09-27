@@ -2649,15 +2649,75 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void toQueryLocatorWithSharing() {
+        // Setup
+        insertTasks();
+
+        System.runAs(minimumAccessUser()) {
+            // Test
+            Database.QueryLocator queryLocator = SOQL.of(Task.SObjectType).systemMode().withSharing().toQueryLocator();
+
+            // Verify
+            Assert.isFalse(queryLocator.iterator().hasNext());
+        }
+    }
+
+    @IsTest
+    static void toQueryLocatorWithoutSharing() {
+        // Setup
+        insertTasks();
+
+        System.runAs(minimumAccessUser()) {
+            // Test
+            Database.QueryLocator queryLocator = SOQL.of(Task.SObjectType).systemMode().withoutSharing().toQueryLocator();
+
+            // Verify
+            Assert.isTrue(queryLocator.iterator().hasNext());
+        }
+    }
+
+    @IsTest
     static void toCursor() {
+        // Setup
+        insertAccounts();
+
         // Test
         Database.Cursor queryCursor = SOQL.of(Account.SObjectType)
             .with(Account.Id)
-            .with(Account.Name)
             .toCursor();
 
         // Verify
-        Assert.areEqual(0, queryCursor.getNumRecords());
+        Assert.areEqual(2, queryCursor.getNumRecords());
+    }
+
+    @IsTest
+    static void toCursorWithSharing() {
+        // Setup
+        insertTasks();
+
+        System.runAs(minimumAccessUser()) {
+            insert new Task(Subject = 'Test', Type = 'Other');
+
+            // Test
+            Database.Cursor queryCursor = SOQL.of(Task.SObjectType).systemMode().withSharing().toCursor();
+
+            // Verify
+            Assert.areEqual(1, queryCursor.getNumRecords());
+        }
+    }
+
+    @IsTest
+    static void toCursorWithoutSharing() {
+        // Setup
+        insertTasks();
+
+        System.runAs(minimumAccessUser()) {
+            // Test
+            Database.Cursor queryCursor = SOQL.of(Task.SObjectType).systemMode().withoutSharing().toCursor();
+
+            // Verify
+            Assert.areEqual(2, queryCursor.getNumRecords());
+        }
     }
 
     static List<Account> insertAccounts() {

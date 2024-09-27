@@ -1957,19 +1957,20 @@ public virtual inherited sharing class SOQL implements Queryable {
             return sharingExecutor.toInteger(builder.toString(), binder.getBindingMap(), accessMode);
         }
 
-        public Database.Cursor toCursor() {
-            return Database.getCursorWithBinds(builder.toString(), binder.getBindingMap(), accessMode);
+        public Database.QueryLocator toQueryLocator() {
+            return sharingExecutor.toQueryLocator(builder.toString(), binder.getBindingMap(), accessMode);
         }
 
-        public Database.QueryLocator toQueryLocator() {
-            return Database.getQueryLocatorWithBinds(builder.toString(), binder.getBindingMap(), accessMode);
+        public Database.Cursor toCursor() {
+            return sharingExecutor.toCursor(builder.toString(), binder.getBindingMap(), accessMode);
         }
     }
 
     private interface DatabaseQuery {
         List<SObject> toSObjects(String query, Map<String, Object> binding, AccessLevel accessLevel);
-        Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel);
         Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel);
+        Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel);
+        Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel);
     }
 
     private inherited sharing class InheritedSharing implements DatabaseQuery {
@@ -1977,12 +1978,16 @@ public virtual inherited sharing class SOQL implements Queryable {
             return Database.queryWithBinds(query, binding, accessLevel);
         }
 
-        public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
-            return Database.getCursorWithBinds(query, binding, accessLevel);
-        }
-
         public Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.countQueryWithBinds(query, binding, accessLevel);
+        }
+
+        public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.getQueryLocatorWithBinds(query, binding, accessLevel);
+        }
+
+        public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.getCursorWithBinds(query, binding, accessLevel);
         }
     }
 
@@ -1991,12 +1996,16 @@ public virtual inherited sharing class SOQL implements Queryable {
             return Database.queryWithBinds(query, binding, accessLevel);
         }
 
-        public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
-            return Database.getCursorWithBinds(query, binding, accessLevel);
+        public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.getQueryLocatorWithBinds(query, binding, accessLevel);
         }
 
         public Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.countQueryWithBinds(query, binding, accessLevel);
+        }
+
+        public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.getCursorWithBinds(query, binding, accessLevel);
         }
     }
 
@@ -2005,12 +2014,16 @@ public virtual inherited sharing class SOQL implements Queryable {
             return Database.queryWithBinds(query, binding, accessLevel);
         }
 
-        public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
-            return Database.getCursorWithBinds(query, binding, accessLevel);
+        public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.getQueryLocatorWithBinds(query, binding, accessLevel);
         }
 
         public Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.countQueryWithBinds(query, binding, accessLevel);
+        }
+
+        public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.getCursorWithBinds(query, binding, accessLevel);
         }
     }
 }
