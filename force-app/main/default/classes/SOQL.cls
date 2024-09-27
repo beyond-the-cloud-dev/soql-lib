@@ -164,6 +164,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Map<String, List<SObject>> toAggregatedMap(SObjectField keyField);
         Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
         Database.QueryLocator toQueryLocator();
+        Database.Cursor toCursor();
     }
 
     public interface SubQuery {
@@ -776,6 +777,10 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public Database.QueryLocator toQueryLocator() {
         return executor.toQueryLocator();
+    }
+
+    public Database.Cursor toCursor() {
+        return executor.toCursor();
     }
 
     public SOQL byId(SObject record) {
@@ -1952,6 +1957,10 @@ public virtual inherited sharing class SOQL implements Queryable {
             return sharingExecutor.toInteger(builder.toString(), binder.getBindingMap(), accessMode);
         }
 
+        public Database.Cursor toCursor() {
+            return Database.getCursorWithBinds(builder.toString(), binder.getBindingMap(), accessMode);
+        }
+
         public Database.QueryLocator toQueryLocator() {
             return Database.getQueryLocatorWithBinds(builder.toString(), binder.getBindingMap(), accessMode);
         }
@@ -1959,12 +1968,17 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private interface DatabaseQuery {
         List<SObject> toSObjects(String query, Map<String, Object> binding, AccessLevel accessLevel);
+        Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel);
         Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel);
     }
 
     private inherited sharing class InheritedSharing implements DatabaseQuery {
         public List<SObject> toSObjects(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.queryWithBinds(query, binding, accessLevel);
+        }
+
+        public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.getCursorWithBinds(query, binding, accessLevel);
         }
 
         public Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel) {
@@ -1977,6 +1991,10 @@ public virtual inherited sharing class SOQL implements Queryable {
             return Database.queryWithBinds(query, binding, accessLevel);
         }
 
+        public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.getCursorWithBinds(query, binding, accessLevel);
+        }
+
         public Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.countQueryWithBinds(query, binding, accessLevel);
         }
@@ -1985,6 +2003,10 @@ public virtual inherited sharing class SOQL implements Queryable {
     private with sharing class WithSharing implements DatabaseQuery {
         public List<SObject> toSObjects(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.queryWithBinds(query, binding, accessLevel);
+        }
+
+        public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.getCursorWithBinds(query, binding, accessLevel);
         }
 
         public Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel) {

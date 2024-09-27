@@ -2644,9 +2644,20 @@ private class SOQL_Test {
             .with(Account.Name)
             .toQueryLocator();
 
-
         // Verify
         Assert.areEqual('SELECT Id, Name FROM Account', queryLocator.getQuery());
+    }
+
+    @IsTest
+    static void toCursor() {
+        // Test
+        Database.Cursor queryCursor = SOQL.of(Account.SObjectType)
+            .with(Account.Id)
+            .with(Account.Name)
+            .toCursor();
+
+        // Verify
+        Assert.areEqual(0, queryCursor.getNumRecords());
     }
 
     static List<Account> insertAccounts() {
