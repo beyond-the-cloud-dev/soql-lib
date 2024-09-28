@@ -38,6 +38,18 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
+    public static HavingFilterGroup HavingFilterGroup {
+        get {
+            return new SoqlHavingFilterGroup();
+        }
+    }
+
+    public static HavingFilter HavingFilter {
+        get {
+            return new SoqlHavingFilter();
+        }
+    }
+
     public interface Selector {
         Queryable query();
     }
@@ -261,6 +273,39 @@ public virtual inherited sharing class SOQL implements Queryable {
         // WHERE
         InnerJoin whereAre(FilterGroup filterGroup);
         InnerJoin whereAre(Filter filter);
+    }
+
+    public interface HavingFilterGroup {
+        // ADD CONDITION
+        HavingFilterGroup add(HavingFilterGroup filterGroup);
+        HavingFilterGroup add(HavingFilter filter);
+        HavingFilterGroup add(String dynamicHaving);
+        // ORDER
+        HavingFilterGroup anyConditionMatching();
+        HavingFilterGroup conditionLogic(String order);
+    }
+
+    public interface HavingFilter {
+        // FIELDS
+        HavingFilter with(SObjectField field);
+        HavingFilter with(String field);
+        HavingFilter count(SObjectField field);
+        HavingFilter avg(SObjectField field);
+        HavingFilter countDistinct(SObjectField field);
+        HavingFilter min(SObjectField field);
+        HavingFilter max(SObjectField field);
+        HavingFilter sum(SObjectField field);
+        // COMPERATORS
+        HavingFilter isNull();
+        HavingFilter isNotNull();
+        HavingFilter isTrue();
+        HavingFilter isFalse();
+        HavingFilter equal(Object value);
+        HavingFilter notEqual(Object value);
+        HavingFilter lessThan(Object value);
+        HavingFilter greaterThan(Object value);
+        HavingFilter lessOrEqual(Object value);
+        HavingFilter greaterOrEqual(Object value);
     }
 
     @TestVisible
@@ -1697,15 +1742,140 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private virtual class SoqlHavingGroup implements QueryClause {
+    private virtual class SoqlHavingFilterGroup implements HavingFilterGroup {
+        private List<HavingFilter> queryConditions = new List<HavingFilter>();
+        private String customOrder;
+        private String connector = 'AND';
+
+        public HavingFilterGroup add(HavingFilterGroup filterGroup) {
+            return this;
+        }
+
+        public HavingFilterGroup add(HavingFilter filter) {
+            return this;
+        }
+
+        public HavingFilterGroup add(String filter) {
+            return this;
+        }
+
+        public HavingFilterGroup anyConditionMatching() {
+            connector = 'OR';
+            return this;
+        }
+
+        public HavingFilterGroup conditionLogic(String order) {
+            customOrder = order;
+            return this;
+        }
+
         public String buildNested() {
             return '';
         }
     }
 
-    private class MainHavingGroup extends SoqlHavingGroup {
+    private class MainHavingGroup extends SoqlHavingFilterGroup {
         public override String toString() {
             return 'HAVING ' + buildNested();
+        }
+    }
+
+    private class SoqlHavingFilter implements HavingFilter {
+        private String field;
+        private String comperator;
+        private Object value;
+
+
+        public HavingFilter with(SObjectField field) {
+            return with(field.getDescribe().getName());
+        }
+
+        public HavingFilter with(String field) {
+            this.field = field;
+            return this;
+        }
+
+        public HavingFilter count(SObjectField field) {
+            return withAggregateFunction('COUNT', field);
+        }
+
+        public HavingFilter avg(SObjectField field) {
+            return withAggregateFunction('AVG', field);
+        }
+
+        public HavingFilter countDistinct(SObjectField field) {
+            return withAggregateFunction('COUNT_DISTINCT', field);
+        }
+
+        public HavingFilter min(SObjectField field) {
+            return withAggregateFunction('MIN', field);
+        }
+
+        public HavingFilter max(SObjectField field) {
+            return withAggregateFunction('MAX', field);
+        }
+
+        public HavingFilter sum(SObjectField field) {
+            return withAggregateFunction('SUM', field);
+        }
+
+        private HavingFilter withAggregateFunction(String aggregateFunction, SObjectField field) {
+            return withAggregateFunction(aggregateFunction, field.getDescribe().getName());
+        }
+
+        private HavingFilter withAggregateFunction(String aggregateFunction, String field) {
+            field = aggregateFunction + '(' + field + ')';
+            return this;
+        }
+
+        public HavingFilter isNull() {
+            return equal(null);
+        }
+
+        public HavingFilter isNotNull() {
+            return notEqual(null);
+        }
+
+        public HavingFilter isTrue() {
+            return equal(true);
+        }
+
+        public HavingFilter isFalse() {
+            return equal(false);
+        }
+
+        public HavingFilter equal(Object value) {
+            return set('=', value);
+        }
+
+        public HavingFilter notEqual(Object value) {
+            return set('!=', value);
+        }
+
+        public HavingFilter lessThan(Object value) {
+            return set('<', value);
+        }
+
+        public HavingFilter greaterThan(Object value) {
+            return set('>', value);
+        }
+
+        public HavingFilter lessOrEqual(Object value) {
+            return set('<=', value);
+        }
+
+        public HavingFilter greaterOrEqual(Object value) {
+            return set('>=', value);
+        }
+
+        private HavingFilter set(String comperator, Object value) {
+            this.value = value;
+            this.comperator = comperator;
+            return this;
+        }
+
+        public override String toString() {
+            return field + ' ' + comperator + ' ' + value;
         }
     }
 
