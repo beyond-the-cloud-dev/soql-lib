@@ -115,6 +115,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable groupByRollup(String relationshipName, SObjectField field);
         Queryable groupByCube(SObjectField field);
         Queryable groupByCube(String relationshipName, SObjectField field);
+        // HAVING
+        Queryable have();
         // ORDER BY
         Queryable orderBy(String field);
         Queryable orderBy(String field, String direction);
@@ -164,6 +166,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Map<String, List<SObject>> toAggregatedMap(SObjectField keyField);
         Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
         Database.QueryLocator toQueryLocator();
+        Database.Cursor toCursor();
     }
 
     public interface SubQuery {
@@ -602,6 +605,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         return this;
     }
 
+    public SOQL have() {
+        return this;
+    }
+
     public SOQL orderBy(String field) {
         builder.orderBys.newOrderBy().with(field);
         return this;
@@ -776,6 +783,10 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public Database.QueryLocator toQueryLocator() {
         return executor.toQueryLocator();
+    }
+
+    public Database.Cursor toCursor() {
+        return executor.toCursor();
     }
 
     public SOQL byId(SObject record) {
@@ -1686,6 +1697,18 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
+    private virtual class SoqlHavingGroup implements QueryClause {
+        public String buildNested() {
+            return '';
+        }
+    }
+
+    private class MainHavingGroup extends SoqlHavingGroup {
+        public override String toString() {
+            return 'HAVING ' + buildNested();
+        }
+    }
+
     private class SoqlOrderBy implements QueryClause {
         private String orderField;
         private String sortingOrder = 'ASC';
@@ -1953,13 +1976,19 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Database.QueryLocator toQueryLocator() {
-            return Database.getQueryLocatorWithBinds(builder.toString(), binder.getBindingMap(), accessMode);
+            return sharingExecutor.toQueryLocator(builder.toString(), binder.getBindingMap(), accessMode);
+        }
+
+        public Database.Cursor toCursor() {
+            return sharingExecutor.toCursor(builder.toString(), binder.getBindingMap(), accessMode);
         }
     }
 
     private interface DatabaseQuery {
         List<SObject> toSObjects(String query, Map<String, Object> binding, AccessLevel accessLevel);
         Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel);
+        Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel);
+        Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel);
     }
 
     private inherited sharing class InheritedSharing implements DatabaseQuery {
@@ -1970,6 +1999,14 @@ public virtual inherited sharing class SOQL implements Queryable {
         public Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.countQueryWithBinds(query, binding, accessLevel);
         }
+
+        public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.getQueryLocatorWithBinds(query, binding, accessLevel);
+        }
+
+        public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.getCursorWithBinds(query, binding, accessLevel);
+        }
     }
 
     private without sharing class WithoutSharing implements DatabaseQuery {
@@ -1977,8 +2014,16 @@ public virtual inherited sharing class SOQL implements Queryable {
             return Database.queryWithBinds(query, binding, accessLevel);
         }
 
+        public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.getQueryLocatorWithBinds(query, binding, accessLevel);
+        }
+
         public Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.countQueryWithBinds(query, binding, accessLevel);
+        }
+
+        public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.getCursorWithBinds(query, binding, accessLevel);
         }
     }
 
@@ -1987,8 +2032,16 @@ public virtual inherited sharing class SOQL implements Queryable {
             return Database.queryWithBinds(query, binding, accessLevel);
         }
 
+        public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.getQueryLocatorWithBinds(query, binding, accessLevel);
+        }
+
         public Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.countQueryWithBinds(query, binding, accessLevel);
+        }
+
+        public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.getCursorWithBinds(query, binding, accessLevel);
         }
     }
 }
