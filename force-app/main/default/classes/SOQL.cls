@@ -115,8 +115,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable groupByRollup(String relationshipName, SObjectField field);
         Queryable groupByCube(SObjectField field);
         Queryable groupByCube(String relationshipName, SObjectField field);
-        // HAVING
-        Queryable have();
         // ORDER BY
         Queryable orderBy(String field);
         Queryable orderBy(String field, String direction);
@@ -602,10 +600,6 @@ public virtual inherited sharing class SOQL implements Queryable {
     public SOQL groupByCube(String relationshipName, SObjectField field) {
         builder.groupBy.cube(relationshipName, field);
         builder.fields.withGroupedField(relationshipName, field);
-        return this;
-    }
-
-    public SOQL have() {
         return this;
     }
 
@@ -1694,18 +1688,6 @@ public virtual inherited sharing class SOQL implements Queryable {
             }
 
             return 'ORDER BY ' + String.join(orderFields, ', ');
-        }
-    }
-
-    private virtual class SoqlHavingGroup implements QueryClause {
-        public String buildNested() {
-            return '';
-        }
-    }
-
-    private class MainHavingGroup extends SoqlHavingGroup {
-        public override String toString() {
-            return 'HAVING ' + buildNested();
         }
     }
 
