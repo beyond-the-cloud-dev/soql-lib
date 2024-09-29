@@ -14,6 +14,10 @@
 **/
 @SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.PropertyNamingConventions, PMD.FieldDeclarationsShouldBeAtStart, PMD.ApexDoc, PMD.ExcessiveParameterList')
 public virtual inherited sharing class SOQL implements Queryable {
+    public interface Selector {
+        Queryable query();
+    }
+
     public static SubQuery SubQuery {
         get {
             return new SoqlSubQuery();
@@ -48,10 +52,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         get {
             return new SoqlHavingFilter();
         }
-    }
-
-    public interface Selector {
-        Queryable query();
     }
 
     public interface Queryable {
@@ -128,7 +128,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable groupByCube(SObjectField field);
         Queryable groupByCube(String relationshipName, SObjectField field);
         // HAVING
-        Queryable have();
+        Queryable have(HavingFilterGroup havingFilterGroup);
+        Queryable have(HavingFilter havingFilter);
+        Queryable have(String havingConditions);
+        Queryable havingConditionLogic(String havingConditionsOrder);
+        Queryable anyHavingConditionMatching();
         // ORDER BY
         Queryable orderBy(String field);
         Queryable orderBy(String field, String direction);
@@ -323,7 +327,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         mock.setCountMock(mockId, amount);
     }
 
-    // Config
+    // Implementation
 
     private static Mock mock = new Mock();
     private static Binder binder = new Binder();
@@ -650,7 +654,28 @@ public virtual inherited sharing class SOQL implements Queryable {
         return this;
     }
 
-    public SOQL have() {
+    public SOQL have(HavingFilterGroup havingFilterGroup) {
+        builder.havingClause.add(havingFilterGroup);
+        return this;
+    }
+
+    public SOQL have(HavingFilter havingFilter) {
+        builder.havingClause.add(havingFilter);
+        return this;
+    }
+
+    public SOQL have(String havingConditions) {
+        builder.havingClause.add(havingConditions);
+        return this;
+    }
+
+    public SOQL havingConditionLogic(String havingConditionsOrder) {
+        builder.havingClause.conditionLogic(havingConditionsOrder);
+        return this;
+    }
+
+    public SOQL anyHavingConditionMatching() {
+        builder.havingClause.anyConditionMatching();
         return this;
     }
 
@@ -859,7 +884,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class QueryBuilder implements QueryClause {
-        private List<QueryClause> clauses = new QueryClause[10];
+        private List<QueryClause> clauses = new QueryClause[11];
 
         public QueryBuilder(String ofObject) {
             clauses.set(0, new SoqlFields(ofObject));
@@ -900,6 +925,13 @@ public virtual inherited sharing class SOQL implements Queryable {
             }
         }
 
+        public MainHavingGroup havingClause {
+            get {
+                createWhenNotExist(6, new MainHavingGroup());
+                return (MainHavingGroup) clauses[6];
+            }
+        }
+
         public SoqlOrderBy latestOrderBy {
             get {
                 return orderBys.latestOrderBy();
@@ -908,29 +940,29 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public SoqlOrderBys orderBys {
             get {
-                createWhenNotExist(6, new SoqlOrderBys());
-                return (SoqlOrderBys) clauses[6];
+                createWhenNotExist(7, new SoqlOrderBys());
+                return (SoqlOrderBys) clauses[7];
             }
         }
 
         public SoqlLimit soqlLimit {
             get {
-                createWhenNotExist(7, new SoqlLimit());
-                return (SoqlLimit) clauses[7];
+                createWhenNotExist(8, new SoqlLimit());
+                return (SoqlLimit) clauses[8];
             }
         }
 
         public SoqlOffset soqlOffset {
             get {
-                createWhenNotExist(8, new SoqlOffset());
-                return (SoqlOffset) clauses[8];
+                createWhenNotExist(9, new SoqlOffset());
+                return (SoqlOffset) clauses[9];
             }
         }
 
         public SoqlFor soqlFor {
             get {
-                createWhenNotExist(9, new SoqlFor());
-                return (SoqlFor) clauses[9];
+                createWhenNotExist(10, new SoqlFor());
+                return (SoqlFor) clauses[10];
             }
         }
 
@@ -1307,6 +1339,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private interface FilterClause {
+        String toString();
         Boolean hasValue();
     }
 
@@ -1742,20 +1775,25 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private virtual class SoqlHavingFilterGroup implements HavingFilterGroup {
-        private List<HavingFilter> queryConditions = new List<HavingFilter>();
+    private virtual class SoqlHavingFilterGroup implements HavingFilterGroup, HavingFilterClause {
+        private List<HavingFilterClause> havingConditions = new List<HavingFilterClause>();
         private String customOrder;
         private String connector = 'AND';
 
         public HavingFilterGroup add(HavingFilterGroup filterGroup) {
-            return this;
+            return add(new HavingFilterGroupAdapter(filterGroup));
         }
 
         public HavingFilterGroup add(HavingFilter filter) {
-            return this;
+            return add(new HavingFilterAdapter(filter));
         }
 
         public HavingFilterGroup add(String filter) {
+            return add(new HavingStringAdapter(filter));
+        }
+
+        public HavingFilterGroup add(HavingFilterClause condition) {
+            havingConditions.add(condition);
             return this;
         }
 
@@ -1769,22 +1807,89 @@ public virtual inherited sharing class SOQL implements Queryable {
             return this;
         }
 
+        public virtual override String toString() {
+            return '(' + buildNested() + ')';
+        }
+
         public String buildNested() {
-            return '';
+            return String.format(getOrderWithSpecialCharacters(), havingConditions);
+        }
+
+        private String getOrderWithSpecialCharacters() {
+            String orderWithSpecialCharacters = getConditionsLogic();
+
+            for (Integer i = 0; i < havingConditions.size(); i++) {
+                orderWithSpecialCharacters = orderWithSpecialCharacters.replaceFirst(String.valueOf(i + 1), '{' + i + '}');
+            }
+
+            return orderWithSpecialCharacters; // e.g ({0} AND ({1} AND {2}))
+        }
+
+        private String getConditionsLogic() {
+            if (String.isNotEmpty(customOrder)) {
+                return customOrder;
+            }
+
+            List<String> defaultOrder = new List<String>();
+
+            for (Integer i = 0; i < havingConditions.size(); i++) {
+                defaultOrder.add(String.valueOf(i + 1));
+            }
+
+            return String.join(defaultOrder, ' ' + connector + ' '); // e.g (0 AND 1 AND 2)
         }
     }
 
-    private class MainHavingGroup extends SoqlHavingFilterGroup {
+    private class MainHavingGroup extends SoqlHavingFilterGroup implements QueryClause {
         public override String toString() {
             return 'HAVING ' + buildNested();
         }
     }
 
-    private class SoqlHavingFilter implements HavingFilter {
+    private interface HavingFilterClause {
+        String toString();
+    }
+
+    private class HavingFilterGroupAdapter implements HavingFilterClause {
+        private HavingFilterGroup havingFilterGroup;
+
+        public HavingFilterGroupAdapter(HavingFilterGroup havingFilterGroup) {
+            this.havingFilterGroup = havingFilterGroup;
+        }
+
+        public override String toString() {
+            return havingFilterGroup.toString();
+        }
+    }
+
+    private class HavingFilterAdapter implements HavingFilterClause {
+        private HavingFilter havingFilter;
+
+        public HavingFilterAdapter(HavingFilter havingFilter) {
+            this.havingFilter = havingFilter;
+        }
+
+        public override String toString() {
+            return havingFilter.toString();
+        }
+    }
+
+    private class HavingStringAdapter implements HavingFilterClause {
+        private String condition;
+
+        public HavingStringAdapter(String condition) {
+            this.condition = condition;
+        }
+
+        public override String toString() {
+            return condition.toString();
+        }
+    }
+
+    private class SoqlHavingFilter implements HavingFilter, HavingFilterClause {
         private String field;
         private String comperator;
         private Object value;
-
 
         public HavingFilter with(SObjectField field) {
             return with(field.getDescribe().getName());
