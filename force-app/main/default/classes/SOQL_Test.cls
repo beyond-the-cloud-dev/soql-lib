@@ -1936,6 +1936,20 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void havingFilter() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .have(SOQL.HavingFilter.count(Lead.Name).greaterThan(100))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING COUNT(Name) > 100', soql);
+    }
+
+    @IsTest
     static void orderByString() {
         // Test
         String soql = SOQL.of(Account.SObjectType)

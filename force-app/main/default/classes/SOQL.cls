@@ -1349,15 +1349,15 @@ public virtual inherited sharing class SOQL implements Queryable {
         private String connector = 'AND';
 
         public FilterGroup add(FilterGroup filterGroup) {
-            return add(new QFilterGroupAdapter(filterGroup));
+            return add(new FilterGroupAdapter(filterGroup));
         }
 
         public FilterGroup add(Filter filter) {
-            return add(new QFilterAdapter(filter));
+            return add(new FilterAdapter(filter));
         }
 
         public FilterGroup add(String dynamicCondition) {
-            return add(new QStringAdapter(dynamicCondition));
+            return add(new StringConditionAdapter(dynamicCondition));
         }
 
         public FilterGroup add(FilterClause condition) {
@@ -1431,10 +1431,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QFilterGroupAdapter implements FilterClause {
+    private class FilterGroupAdapter implements FilterClause {
         private FilterGroup filterGroup;
 
-        public QFilterGroupAdapter(FilterGroup filterGroup) {
+        public FilterGroupAdapter(FilterGroup filterGroup) {
             this.filterGroup = filterGroup;
         }
 
@@ -1447,10 +1447,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QFilterAdapter implements FilterClause {
+    private class FilterAdapter implements FilterClause {
         private Filter filter;
 
-        public QFilterAdapter(Filter filter) {
+        public FilterAdapter(Filter filter) {
             this.filter = filter;
         }
 
@@ -1463,10 +1463,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QStringAdapter implements FilterClause {
+    private class StringConditionAdapter implements FilterClause {
         private String conditionString;
 
-        public QStringAdapter(String dynamicCondition) {
+        public StringConditionAdapter(String dynamicCondition) {
             conditionString = dynamicCondition;
         }
 
@@ -1929,7 +1929,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         private HavingFilter withAggregateFunction(String aggregateFunction, String field) {
-            field = aggregateFunction + '(' + field + ')';
+            this.field = aggregateFunction + '(' + field + ')';
             return this;
         }
 
@@ -1974,8 +1974,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         private HavingFilter set(String comperator, Object value) {
-            this.value = value;
             this.comperator = comperator;
+            this.value = value;
             return this;
         }
 
