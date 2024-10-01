@@ -310,6 +310,21 @@ public virtual inherited sharing class SOQL implements Queryable {
         HavingFilter greaterThan(Object value);
         HavingFilter lessOrEqual(Object value);
         HavingFilter greaterOrEqual(Object value);
+        HavingFilter containsSome(Iterable<String> values);
+        HavingFilter contains(String value);
+        HavingFilter notContains(String value);
+        HavingFilter endsWith(String value);
+        HavingFilter notEndsWith(String value);
+        HavingFilter startsWith(String value);
+        HavingFilter notStartsWith(String value);
+        HavingFilter contains(String prefix, String value, String suffix);
+        HavingFilter notContains(String prefix, String value, String suffix);
+        HavingFilter isIn(Iterable<Object> iterable);
+        HavingFilter notIn(Iterable<Object> iterable);
+        HavingFilter includesAll(Iterable<String> values);
+        HavingFilter includesSome(Iterable<String> values);
+        HavingFilter excludesAll(Iterable<String> values);
+        HavingFilter excludesSome(Iterable<String> values);
     }
 
     @TestVisible
@@ -1890,6 +1905,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         private String field;
         private String comperator;
         private Object value;
+        private String wrapper = '{0}';
 
         public HavingFilter with(SObjectField field) {
             return with(field.getDescribe().getName());
@@ -1973,14 +1989,95 @@ public virtual inherited sharing class SOQL implements Queryable {
             return set('>=', value);
         }
 
+        public HavingFilter containsSome(Iterable<String> values) {
+            return set('LIKE', values);
+        }
+
+        public HavingFilter contains(String value) {
+            return contains('%', formattedString(value), '%');
+        }
+
+        public HavingFilter notContains(String value) {
+            return notLike().contains(value);
+        }
+
+        public HavingFilter endsWith(String value) {
+            return contains('%', formattedString(value), '');
+        }
+
+        public HavingFilter notEndsWith(String value) {
+            return notLike().endsWith(value);
+        }
+
+        public HavingFilter startsWith(String value) {
+            return contains('', formattedString(value), '%');
+        }
+
+        public HavingFilter notStartsWith(String value) {
+            return notLike().startsWith(value);
+        }
+
+        public HavingFilter contains(String prefix, String value, String suffix) {
+            return set('LIKE', prefix + formattedString(value) + suffix);
+        }
+
+        public HavingFilter notContains(String prefix, String value, String suffix) {
+            return notLike().contains(prefix, value, suffix);
+        }
+
+        private String formattedString(String value) {
+            return value ?? value?.trim();
+        }
+
+        public HavingFilter isIn(Iterable<Object> iterable) {
+            return set('IN', iterable);
+        }
+
+        public HavingFilter isIn(InnerJoin joinQuery) {
+            return set('IN', joinQuery);
+        }
+
+        private HavingFilter notLike() {
+            this.wrapper = '(NOT {0})';
+            return this;
+        }
+
+        public HavingFilter notIn(Iterable<Object> iterable) {
+            return set('NOT IN', iterable);
+        }
+
+        public HavingFilter notIn(InnerJoin joinQuery) {
+            return set('NOT IN', joinQuery);
+        }
+
+        public HavingFilter includesAll(Iterable<String> iterable) {
+            return setMultipicklistFilter('INCLUDES', iterable, ';');
+        }
+
+        public HavingFilter includesSome(Iterable<String> iterable) {
+            return setMultipicklistFilter('INCLUDES', iterable, '\', \'');
+        }
+
+        public HavingFilter excludesAll(Iterable<String> iterable) {
+            return setMultipicklistFilter('EXCLUDES', iterable, '\', \'');
+        }
+
+        public HavingFilter excludesSome(Iterable<String> iterable) {
+            return setMultipicklistFilter('EXCLUDES', iterable, ';');
+        }
+
+        public HavingFilter setMultipicklistFilter(String operator, Iterable<String> iterable, String separator) {
+             return set(operator, '(\'' + String.join(iterable, separator) + '\')');
+        }
+
         private HavingFilter set(String comperator, Object value) {
             this.comperator = comperator;
-            this.value = value;
+            this.value = value instanceof String ? '\'' + value + '\'' : value;
             return this;
         }
 
         public override String toString() {
-            return field + ' ' + comperator + ' ' + value;
+            return String.format(wrapper, new List<String>{ field + ' ' + comperator + ' ' + value });
         }
     }
 
