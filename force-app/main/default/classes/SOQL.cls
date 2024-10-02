@@ -285,41 +285,28 @@ public virtual inherited sharing class SOQL implements Queryable {
         HavingFilter notIn(Iterable<Object> iterable);
     }
 
-
     public static SubQuery SubQuery {
-        get {
-            return new SoqlSubQuery();
-        }
+        get { return new SoqlSubQuery(); }
     }
 
     public static FilterGroup FilterGroup {
-        get {
-            return new SoqlFilterGroup();
-        }
+        get { return new SoqlFilterGroup(); }
     }
 
     public static Filter Filter {
-        get {
-            return new SoqlFilter();
-        }
+        get { return new SoqlFilter(); }
     }
 
     public static InnerJoin InnerJoin {
-        get {
-            return new SoqlJoinQuery();
-        }
+        get { return new SoqlJoinQuery(); }
     }
 
     public static HavingFilterGroup HavingFilterGroup {
-        get {
-            return new SoqlHavingFilterGroup();
-        }
+        get { return new SoqlHavingFilterGroup(); }
     }
 
     public static HavingFilter HavingFilter {
-        get {
-            return new SoqlHavingFilter();
-        }
+        get { return new SoqlHavingFilter(); }
     }
 
     @TestVisible
@@ -885,7 +872,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         return whereAre(Filter.recordType().equal(recordTypeDeveloperName));
     }
 
-    public interface QueryClause {
+    private interface QueryClause {
         String toString();
     }
 
@@ -898,84 +885,54 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public SoqlFields fields {
-            get {
-                return (SoqlFields) clauses[0];
-            }
+            get { return (SoqlFields) clauses[0]; }
         }
 
         public SoqlSubQueries subQueries {
-            get {
-                createWhenNotExist(1, new SoqlSubQueries());
-                return (SoqlSubQueries) clauses[1];
-            }
+            get { return (SoqlSubQueries) getQueryClause(1, SoqlSubQueries.class); }
         }
 
         public SoqlScope scope {
-            get {
-                createWhenNotExist(3, new SoqlScope());
-                return (SoqlScope) clauses[3];
-            }
+            get { return (SoqlScope) getQueryClause(3, SoqlScope.class); }
         }
 
         public MainFilterGroup conditions {
-            get {
-                createWhenNotExist(4, new MainFilterGroup());
-                return (MainFilterGroup) clauses[4];
-            }
+            get { return (MainFilterGroup) getQueryClause(4, MainFilterGroup.class); }
         }
 
         public SoqlGroupBy groupBy {
-            get {
-                createWhenNotExist(5, new SoqlGroupBy());
-                return (SoqlGroupBy) clauses[5];
-            }
+            get { return (SoqlGroupBy) getQueryClause(5, SoqlGroupBy.class); }
         }
 
         public MainHavingGroup havingClause {
-            get {
-                createWhenNotExist(6, new MainHavingGroup());
-                return (MainHavingGroup) clauses[6];
-            }
+            get { return (MainHavingGroup) getQueryClause(6, MainHavingGroup.class); }
         }
 
         public SoqlOrderBy latestOrderBy {
-            get {
-                return orderBys.latestOrderBy();
-            }
+            get { return orderBys.latestOrderBy(); }
         }
 
         public SoqlOrderBys orderBys {
-            get {
-                createWhenNotExist(7, new SoqlOrderBys());
-                return (SoqlOrderBys) clauses[7];
-            }
+            get { return (SoqlOrderBys) getQueryClause(7, SoqlOrderBys.class); }
         }
 
         public SoqlLimit soqlLimit {
-            get {
-                createWhenNotExist(8, new SoqlLimit());
-                return (SoqlLimit) clauses[8];
-            }
+            get { return (SoqlLimit) getQueryClause(8, SoqlLimit.class); }
         }
 
         public SoqlOffset soqlOffset {
-            get {
-                createWhenNotExist(9, new SoqlOffset());
-                return (SoqlOffset) clauses[9];
-            }
+            get { return (SoqlOffset) getQueryClause(9, SoqlOffset.class); }
         }
 
         public SoqlFor soqlFor {
-            get {
-                createWhenNotExist(10, new SoqlFor());
-                return (SoqlFor) clauses[10];
-            }
+            get { return (SoqlFor) getQueryClause(10, SoqlFor.class); }
         }
 
-        public void createWhenNotExist(Integer position, QueryClause clause) {
+        private QueryClause getQueryClause(Integer position, System.Type queryClause) {
             if (clauses[position] == null) {
-                clauses.set(position, clause);
+                clauses.set(position, (QueryClause) queryClause.newInstance());
             }
+            return clauses[position];
         }
 
         public override String toString() {
@@ -1748,7 +1705,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public void setGroupByFunction(String newGroupByFunction) {
             if (String.isNotEmpty(groupByFunction) && groupByFunction != newGroupByFunction) {
-                throw new QueryException('You cant use GROUP BY, GROUP BY ROLLUP and GROUP BY CUBE in the same query.');
+                throw new QueryException('You can\'t use GROUP BY, GROUP BY ROLLUP and GROUP BY CUBE in the same query.');
             }
             this.groupByFunction = newGroupByFunction;
         }
@@ -2342,12 +2299,12 @@ public virtual inherited sharing class SOQL implements Queryable {
             return Database.queryWithBinds(query, binding, accessLevel);
         }
 
-        public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel) {
-            return Database.getQueryLocatorWithBinds(query, binding, accessLevel);
-        }
-
         public Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.countQueryWithBinds(query, binding, accessLevel);
+        }
+
+        public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.getQueryLocatorWithBinds(query, binding, accessLevel);
         }
     }
 
@@ -2356,12 +2313,12 @@ public virtual inherited sharing class SOQL implements Queryable {
             return Database.queryWithBinds(query, binding, accessLevel);
         }
 
-        public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel) {
-            return Database.getQueryLocatorWithBinds(query, binding, accessLevel);
-        }
-
         public Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.countQueryWithBinds(query, binding, accessLevel);
+        }
+
+        public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.getQueryLocatorWithBinds(query, binding, accessLevel);
         }
     }
 }

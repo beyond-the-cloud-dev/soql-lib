@@ -53,7 +53,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void countField() {
+    static void countSObjectField() {
         // Test
         String soql = SOQL.of(Opportunity.SObjectType)
             .count(Opportunity.Id)
@@ -65,7 +65,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void countFieldWithDefaultFields() {
+    static void countSObjectFieldWithDefaultFields() {
         // Test
         String soql = SOQL.of(Opportunity.SObjectType)
             .with(Opportunity.LeadSource)
@@ -397,7 +397,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withField() {
+    static void withSObjectField() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with(Account.Name)
@@ -409,7 +409,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withTwoFields() {
+    static void withTwoSObjectFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with(Account.Name, Account.BillingCity)
@@ -420,7 +420,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withThreeFields() {
+    static void withThreeSObjectFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with(Account.Id, Account.Name, Account.BillingCity)
@@ -431,7 +431,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withFourFields() {
+    static void withFourSObjectFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with(Account.Id, Account.Name, Account.BillingCity, Account.AccountNumber)
@@ -442,7 +442,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withFiveFields() {
+    static void withFiveSObjectFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with(Account.Id, Account.Name, Account.BillingCity, Account.AccountNumber, Account.AccountSource)
@@ -453,7 +453,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withListOfFields() {
+    static void withListOfSObjectFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with(new List<SObjectField>{
@@ -727,9 +727,7 @@ private class SOQL_Test {
             .with(Account.Name)
             .with(SOQL.SubQuery.of('Contacts')
                 .with(Contact.LastName)
-                .with(SOQL.SubQuery.of('Assets')
-                    .with(Asset.AssetLevel)
-                )
+                .with(SOQL.SubQuery.of('Assets').with(Asset.AssetLevel))
             )
             .toString();
 
@@ -965,7 +963,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void id() {
+    static void filterId() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.id().isNotNull());
@@ -979,7 +977,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void recordType() {
+    static void filterRecordType() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.recordType().isNotNull());
@@ -993,7 +991,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void name() {
+    static void filterName() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.name().isNotNull());
@@ -1007,7 +1005,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withRelatedFieldFilter() {
+    static void filterWithRelatedField() {
         // Test
         SOQL builder = SOQL.of(Contact.SObjectType)
             .whereAre(SOQL.Filter.with('Account', Account.Name).equal('Test'));
@@ -1021,7 +1019,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void equalString() {
+    static void filterEqualString() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).equal('Test'));
@@ -1035,7 +1033,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void notEqualString() {
+    static void filterNotEqualString() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).notEqual('Test'));
@@ -1049,7 +1047,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void lessThan() {
+    static void filterLessThan() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).lessThan(10));
@@ -1063,7 +1061,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void greaterThan() {
+    static void filterGreaterThan() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).greaterThan(10));
@@ -1077,7 +1075,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void lessOrEqual() {
+    static void filterLessOrEqual() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).lessOrEqual(10));
@@ -1091,7 +1089,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void greaterOrEqual() {
+    static void filterGreaterOrEqual() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).greaterOrEqual(10));
@@ -1105,7 +1103,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void contains() {
+    static void filterContains() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).contains('Test'));
@@ -1119,7 +1117,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void containsNull() {
+    static void filterContainsNull() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).contains(null));
@@ -1133,7 +1131,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void notContains() {
+    static void filterNotContains() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).notContains('Test'));
@@ -1147,7 +1145,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void containsValues() {
+    static void filterContainsValues() {
         // Setup
         List<String> names = new List<String>{ 'Acc', 'My' };
 
@@ -1164,7 +1162,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void endsWith() {
+    static void filterEndsWith() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).endsWith('Test'));
@@ -1178,7 +1176,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void notEndsWith() {
+    static void filterNotEndsWith() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).notEndsWith('Test'));
@@ -1192,7 +1190,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void startsWith() {
+    static void filterStartsWith() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).startsWith('Test'));
@@ -1206,7 +1204,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void notStartsWith() {
+    static void filterNotStartsWith() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).notStartsWith('Test'));
@@ -1220,7 +1218,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void customContains() {
+    static void filterCustomContains() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).contains('_', 'Test', '%'));
@@ -1234,7 +1232,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void customNotContains() {
+    static void filterCustomNotContains() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).notContains('_', 'Test', '%'));
@@ -1248,7 +1246,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void isInSet() {
+    static void filterIsInSet() {
         // Setup
         Set<String> names = new Set<String>{ 'Test 1', 'Test 2' };
 
@@ -1265,7 +1263,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void isInList() {
+    static void filterIsInList() {
         // Setup
         List<String> names = new List<String>{ 'Test 1', 'Test 2' };
 
@@ -1282,7 +1280,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void notInSet() {
+    static void filterNotInSet() {
         // Setup
         Set<String> names = new Set<String>{ 'Test 1', 'Test 2' };
 
@@ -1299,7 +1297,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void notInList() {
+    static void filterNotInList() {
         // Setup
         List<String> names = new List<String>{ 'Test 1', 'Test 2' };
 
@@ -1317,7 +1315,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void inlcudesAll() {
+    static void filterInlcudesAll() {
         // Setup
         List<String> ratings = new List<String>{ 'Hot', 'Warm' };
 
@@ -1332,7 +1330,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void inlcudesSome() {
+    static void filterInlcudesSome() {
         // Setup
         List<String> ratings = new List<String>{ 'Hot', 'Warm' };
 
@@ -1347,7 +1345,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void excludesAll() {
+    static void filterExcludesAll() {
         // Setup
         List<String> ratings = new List<String>{ 'Hot', 'Warm' };
 
@@ -1362,7 +1360,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void excludesSome() {
+    static void filterExcludesSome() {
         // Setup
         List<String> ratings = new List<String>{ 'Hot', 'Warm' };
 
@@ -1377,7 +1375,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void isNull() {
+    static void filterIsNull() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).isNull());
@@ -1391,7 +1389,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void isNotNull() {
+    static void filterIsNotNull() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).isNotNull());
@@ -1405,7 +1403,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void isTrue() {
+    static void filterIsTrue() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.IsDeleted).isTrue());
@@ -1419,7 +1417,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void isFalse() {
+    static void filterIsFalse() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.IsDeleted).isFalse());
@@ -1433,7 +1431,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void dateLiteral() {
+    static void filterDateLiteral() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.CreatedDate).greaterThan('LAST_N_QUARTERS:2').asDateLiteral())
@@ -1737,7 +1735,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void ignoreWhenFilter() {
+    static void filterIgnoreWhen() {
         // Setup
         String accountName = '';
 
@@ -1754,7 +1752,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void ignoreWhenFilterGroup() {
+    static void filterGroupIgnoreWhen() {
         // Setup
         Boolean isPartnerUser = false;
 
@@ -1911,7 +1909,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(
-            'You cant use GROUP BY, GROUP BY ROLLUP and GROUP BY CUBE in the same query.',
+            'You can\'t use GROUP BY, GROUP BY ROLLUP and GROUP BY CUBE in the same query.',
             queryException.getMessage()
         );
     }
@@ -1930,7 +1928,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void havingWithSObjectField() {
+    static void havingFilterWithSObjectField() {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
             .with(Lead.LeadSource)
@@ -1944,7 +1942,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void havingWithStringField() {
+    static void havingFilterWithStringField() {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
             .with(Lead.LeadSource)
@@ -1958,7 +1956,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void havingCount() {
+    static void havingFilterCount() {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
             .with(Lead.LeadSource)
@@ -1972,7 +1970,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void havingAvg() {
+    static void havingFilterAvg() {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
             .with(Lead.LeadSource)
@@ -1986,7 +1984,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void havingCountDistinct() {
+    static void havingFilterCountDistinct() {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
             .with(Lead.LeadSource)
@@ -2000,7 +1998,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void havingMin() {
+    static void havingFilterMin() {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
             .with(Lead.LeadSource)
@@ -2014,7 +2012,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void havingMax() {
+    static void havingFilterMax() {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
             .with(Lead.LeadSource)
@@ -2028,7 +2026,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void havingSum() {
+    static void havingFilterSum() {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
             .with(Lead.LeadSource)
@@ -2185,16 +2183,16 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void havingFilterContainsWithPrefixAndSuffix() {
+    static void havingFilterCustomContains() {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
             .sum(Lead.AnnualRevenue)
             .groupBy(Lead.City)
-            .have(SOQL.HavingFilter.with(Lead.City).contains('%', 'San', '%'))
+            .have(SOQL.HavingFilter.with(Lead.City).contains('_', 'San', '%'))
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City LIKE \'%San%\'', soql);
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City LIKE \'_San%\'', soql);
     }
 
     @IsTest
@@ -2211,16 +2209,16 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void havingFilterNotContainsWithPrefixAndSuffix() {
+    static void havingFilterCustomNotContains() {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
             .sum(Lead.AnnualRevenue)
             .groupBy(Lead.City)
-            .have(SOQL.HavingFilter.with(Lead.City).notContains('%', 'San', '%'))
+            .have(SOQL.HavingFilter.with(Lead.City).notContains('_', 'San', '%'))
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING (NOT City LIKE \'%San%\')', soql);
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING (NOT City LIKE \'_San%\')', soql);
     }
 
     @IsTest
