@@ -2172,6 +2172,162 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void havingFilterContains() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).contains('San'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City LIKE \'%San%\'', soql);
+    }
+
+    @IsTest
+    static void havingFilterContainsWithPrefixAndSuffix() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).contains('%', 'San', '%'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City LIKE \'%San%\'', soql);
+    }
+
+    @IsTest
+    static void havingFilterNotContains() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).notContains('San'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING (NOT City LIKE \'%San%\')', soql);
+    }
+
+    @IsTest
+    static void havingFilterNotContainsWithPrefixAndSuffix() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).notContains('%', 'San', '%'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING (NOT City LIKE \'%San%\')', soql);
+    }
+
+    @IsTest
+    static void havingFilterStartsWith() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).startsWith('San'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City LIKE \'San%\'', soql);
+    }
+
+    @IsTest
+    static void havingFilterNotStartsWith() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).notStartsWith('San'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING (NOT City LIKE \'San%\')', soql);
+    }
+
+    @IsTest
+    static void havingFilterEndsWith() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).endsWith('San'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City LIKE \'%San\'', soql);
+    }
+
+    @IsTest
+    static void havingFilterNotEndsWith() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).notEndsWith('San'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING (NOT City LIKE \'%San\')', soql);
+    }
+
+    @IsTest
+    static void havingFilterIsInSet() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).isIn(new Set<String>{ 'San Francisco', 'Los Angeles' }))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City IN (\'San Francisco\', \'Los Angeles\')', soql);
+    }
+
+    @IsTest
+    static void havingFilterIsInList() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).isIn(new List<String>{ 'San Francisco', 'Los Angeles' }))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City IN (\'San Francisco\', \'Los Angeles\')', soql);
+    }
+
+    @IsTest
+    static void havingFilterIsNotInSet() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).notIn(new Set<String>{ 'San Francisco', 'Los Angeles' }))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City NOT IN (\'San Francisco\', \'Los Angeles\')', soql);
+    }
+
+    @IsTest
+    static void havingFilterIsNotInList() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).notIn(new List<String>{ 'San Francisco', 'Los Angeles' }))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City NOT IN (\'San Francisco\', \'Los Angeles\')', soql);
+    }
+
+    @IsTest
     static void havingFilterGroup() {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
@@ -2308,6 +2464,75 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING COUNT(Name) > 100 OR City LIKE \'San%\'', soql);
+    }
+
+    @IsTest
+    static void nestedHavingFilterGroups() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .have(SOQL.HavingFilterGroup
+                .add(SOQL.HavingFilterGroup
+                    .add(SOQL.HavingFilter.count(Lead.Name).greaterThan(100))
+                    .add(SOQL.HavingFilter.count(Lead.Name).lessThan(200))
+                )
+                .add(SOQL.HavingFilterGroup
+                    .add(SOQL.HavingFilter.count(Lead.Name).greaterThan(400))
+                    .add(SOQL.HavingFilter.count(Lead.Name).lessThan(500))
+                )
+            ).toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING ((COUNT(Name) > 100 AND COUNT(Name) < 200) AND (COUNT(Name) > 400 AND COUNT(Name) < 500))', soql);
+    }
+
+    @IsTest
+    static void evaluateStringHavingCondition() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .have('COUNT(Name) > 100 AND COUNT(Name) < 200')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING COUNT(Name) > 100 AND COUNT(Name) < 200', soql);
+    }
+
+    @IsTest
+    static void evaluateStringHavingConditionAndHavingFilterGroup() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .have('(COUNT(Name) > 100 AND COUNT(Name) < 200)')
+            .have(SOQL.HavingFilterGroup
+                .add(SOQL.HavingFilter.count(Lead.Name).greaterThan(400))
+                .add(SOQL.HavingFilter.count(Lead.Name).lessThan(500))
+            ).toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING (COUNT(Name) > 100 AND COUNT(Name) < 200) AND (COUNT(Name) > 400 AND COUNT(Name) < 500)', soql);
+    }
+
+    @IsTest
+    static void evaluateStringInHavingFilterGroupAndHavingFilter() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .have(SOQL.HavingFilterGroup
+                .add('(COUNT(Name) > 100 AND COUNT(Name) < 200)')
+                .add(SOQL.HavingFilter.count(Lead.Name).lessThan(500))
+            ).toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING ((COUNT(Name) > 100 AND COUNT(Name) < 200) AND COUNT(Name) < 500)', soql);
     }
 
     @IsTest
@@ -3019,9 +3244,36 @@ private class SOQL_Test {
             .with(Account.Name)
             .toQueryLocator();
 
-
         // Verify
         Assert.areEqual('SELECT Id, Name FROM Account', queryLocator.getQuery());
+    }
+
+    @IsTest
+    static void toQueryLocatorWithSharing() {
+        // Setup
+        insertTasks();
+
+        System.runAs(minimumAccessUser()) {
+            // Test
+            Database.QueryLocator queryLocator = SOQL.of(Task.SObjectType).systemMode().withSharing().toQueryLocator();
+
+            // Verify
+            Assert.isFalse(queryLocator.iterator().hasNext());
+        }
+    }
+
+    @IsTest
+    static void toQueryLocatorWithoutSharing() {
+        // Setup
+        insertTasks();
+
+        System.runAs(minimumAccessUser()) {
+            // Test
+            Database.QueryLocator queryLocator = SOQL.of(Task.SObjectType).systemMode().withoutSharing().toQueryLocator();
+
+            // Verify
+            Assert.isTrue(queryLocator.iterator().hasNext());
+        }
     }
 
     static List<Account> insertAccounts() {

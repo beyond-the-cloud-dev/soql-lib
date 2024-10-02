@@ -18,42 +18,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable query();
     }
 
-    public static SubQuery SubQuery {
-        get {
-            return new SoqlSubQuery();
-        }
-    }
-
-    public static FilterGroup FilterGroup {
-        get {
-            return new SoqlFilterGroup();
-        }
-    }
-
-    public static Filter Filter {
-        get {
-            return new SoqlFilter();
-        }
-    }
-
-    public static InnerJoin InnerJoin {
-        get {
-            return new SoqlJoinQuery();
-        }
-    }
-
-    public static HavingFilterGroup HavingFilterGroup {
-        get {
-            return new SoqlHavingFilterGroup();
-        }
-    }
-
-    public static HavingFilter HavingFilter {
-        get {
-            return new SoqlHavingFilter();
-        }
-    }
-
     public interface Queryable {
         // SELECT
         Queryable with(SObjectField field);
@@ -182,7 +146,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         Map<String, List<SObject>> toAggregatedMap(SObjectField keyField);
         Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
         Database.QueryLocator toQueryLocator();
-        Database.Cursor toCursor();
     }
 
     public interface SubQuery {
@@ -310,21 +273,53 @@ public virtual inherited sharing class SOQL implements Queryable {
         HavingFilter greaterThan(Object value);
         HavingFilter lessOrEqual(Object value);
         HavingFilter greaterOrEqual(Object value);
-        HavingFilter containsSome(Iterable<String> values);
         HavingFilter contains(String value);
+        HavingFilter contains(String prefix, String value, String suffix);
         HavingFilter notContains(String value);
-        HavingFilter endsWith(String value);
-        HavingFilter notEndsWith(String value);
+        HavingFilter notContains(String prefix, String value, String suffix);
         HavingFilter startsWith(String value);
         HavingFilter notStartsWith(String value);
-        HavingFilter contains(String prefix, String value, String suffix);
-        HavingFilter notContains(String prefix, String value, String suffix);
+        HavingFilter endsWith(String value);
+        HavingFilter notEndsWith(String value);
         HavingFilter isIn(Iterable<Object> iterable);
         HavingFilter notIn(Iterable<Object> iterable);
-        HavingFilter includesAll(Iterable<String> values);
-        HavingFilter includesSome(Iterable<String> values);
-        HavingFilter excludesAll(Iterable<String> values);
-        HavingFilter excludesSome(Iterable<String> values);
+    }
+
+
+    public static SubQuery SubQuery {
+        get {
+            return new SoqlSubQuery();
+        }
+    }
+
+    public static FilterGroup FilterGroup {
+        get {
+            return new SoqlFilterGroup();
+        }
+    }
+
+    public static Filter Filter {
+        get {
+            return new SoqlFilter();
+        }
+    }
+
+    public static InnerJoin InnerJoin {
+        get {
+            return new SoqlJoinQuery();
+        }
+    }
+
+    public static HavingFilterGroup HavingFilterGroup {
+        get {
+            return new SoqlHavingFilterGroup();
+        }
+    }
+
+    public static HavingFilter HavingFilter {
+        get {
+            return new SoqlHavingFilter();
+        }
     }
 
     @TestVisible
@@ -868,10 +863,6 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public Database.QueryLocator toQueryLocator() {
         return executor.toQueryLocator();
-    }
-
-    public Database.Cursor toCursor() {
-        return executor.toCursor();
     }
 
     public SOQL byId(SObject record) {
@@ -1989,10 +1980,6 @@ public virtual inherited sharing class SOQL implements Queryable {
             return set('>=', value);
         }
 
-        public HavingFilter containsSome(Iterable<String> values) {
-            return set('LIKE', values);
-        }
-
         public HavingFilter contains(String value) {
             return contains('%', formattedString(value), '%');
         }
@@ -2025,16 +2012,16 @@ public virtual inherited sharing class SOQL implements Queryable {
             return notLike().contains(prefix, value, suffix);
         }
 
+        public HavingFilter isIn(Iterable<Object> iterable) {
+            return set('IN', iterable, '\', \'');
+        }
+
+        public HavingFilter notIn(Iterable<Object> iterable) {
+            return set('NOT IN', iterable, '\', \'');
+        }
+
         private String formattedString(String value) {
             return value ?? value?.trim();
-        }
-
-        public HavingFilter isIn(Iterable<Object> iterable) {
-            return set('IN', iterable);
-        }
-
-        public HavingFilter isIn(InnerJoin joinQuery) {
-            return set('IN', joinQuery);
         }
 
         private HavingFilter notLike() {
@@ -2042,32 +2029,10 @@ public virtual inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public HavingFilter notIn(Iterable<Object> iterable) {
-            return set('NOT IN', iterable);
-        }
-
-        public HavingFilter notIn(InnerJoin joinQuery) {
-            return set('NOT IN', joinQuery);
-        }
-
-        public HavingFilter includesAll(Iterable<String> iterable) {
-            return setMultipicklistFilter('INCLUDES', iterable, ';');
-        }
-
-        public HavingFilter includesSome(Iterable<String> iterable) {
-            return setMultipicklistFilter('INCLUDES', iterable, '\', \'');
-        }
-
-        public HavingFilter excludesAll(Iterable<String> iterable) {
-            return setMultipicklistFilter('EXCLUDES', iterable, '\', \'');
-        }
-
-        public HavingFilter excludesSome(Iterable<String> iterable) {
-            return setMultipicklistFilter('EXCLUDES', iterable, ';');
-        }
-
-        public HavingFilter setMultipicklistFilter(String operator, Iterable<String> iterable, String separator) {
-             return set(operator, '(\'' + String.join(iterable, separator) + '\')');
+        public HavingFilter set(String operator, Iterable<String> iterable, String separator) {
+             this.comperator = operator;
+             this.value = '(\'' + String.join(iterable, separator) + '\')';
+             return this;
         }
 
         private HavingFilter set(String comperator, Object value) {
@@ -2350,17 +2315,12 @@ public virtual inherited sharing class SOQL implements Queryable {
         public Database.QueryLocator toQueryLocator() {
             return sharingExecutor.toQueryLocator(builder.toString(), binder.getBindingMap(), accessMode);
         }
-
-        public Database.Cursor toCursor() {
-            return sharingExecutor.toCursor(builder.toString(), binder.getBindingMap(), accessMode);
-        }
     }
 
     private interface DatabaseQuery {
         List<SObject> toSObjects(String query, Map<String, Object> binding, AccessLevel accessLevel);
         Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel);
         Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel);
-        Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel);
     }
 
     private inherited sharing class InheritedSharing implements DatabaseQuery {
@@ -2374,10 +2334,6 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.getQueryLocatorWithBinds(query, binding, accessLevel);
-        }
-
-        public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
-            return Database.getCursorWithBinds(query, binding, accessLevel);
         }
     }
 
@@ -2393,10 +2349,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         public Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.countQueryWithBinds(query, binding, accessLevel);
         }
-
-        public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
-            return Database.getCursorWithBinds(query, binding, accessLevel);
-        }
     }
 
     private with sharing class WithSharing implements DatabaseQuery {
@@ -2410,10 +2362,6 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.countQueryWithBinds(query, binding, accessLevel);
-        }
-
-        public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
-            return Database.getCursorWithBinds(query, binding, accessLevel);
         }
     }
 }
