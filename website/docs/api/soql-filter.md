@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 30
 ---
 
 # Filter
@@ -33,13 +33,13 @@ The following are methods for `Filter`.
 - [`greaterOrEqual(Object value)`](#greaterorequal)
 - [`containsSome(List<String> values)`](#containssome)
 - [`contains(String value)`](#contains)
+- [`contains(String prefix, String value, String suffix)`](#contains)
 - [`notContains(String value)`](#notcontains)
+- [`notContains(String prefix, String value, String suffix)`](#notcontains)
 - [`endsWith(String value)`](#endswith)
 - [`notEndsWith(String value)`](#notendswith)
 - [`startsWith(String value)`](#startswith)
 - [`notStartsWith(String value)`](#notstartswith)
-- [`contains(String prefix, String value, String suffix)`](#contains)
-- [`notContains(String prefix, String value, String suffix)`](#notcontains)
 - [`isIn(Iterable<Object> iterable)`](#isin)
 - [`isIn(List<Object> inList)`](#isin)
 - [`isIn(InnerJoin joinQuery)`](#isin-join-query)
@@ -506,7 +506,7 @@ SOQL.of(Contact.SObjectType)
     .toList();
 ```
 
-### notcontains
+### notContains
 
 - `WHERE NOT Name LIKE '%My%'`
 

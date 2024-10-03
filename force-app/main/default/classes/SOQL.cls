@@ -244,8 +244,8 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public interface HavingFilterGroup {
         // ADD CONDITION
-        HavingFilterGroup add(HavingFilterGroup filterGroup);
-        HavingFilterGroup add(HavingFilter filter);
+        HavingFilterGroup add(HavingFilterGroup havingFilterGroup);
+        HavingFilterGroup add(HavingFilter havingFilter);
         HavingFilterGroup add(String dynamicHaving);
         // ORDER
         HavingFilterGroup anyConditionMatching();

@@ -6,7 +6,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula')
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'BTC SOQL Lib',
+  title: 'SOQL Lib',
   tagline: 'Apex SOQL provides functional constructs for SOQL.',
   favicon: 'img/favicon.ico',
 
