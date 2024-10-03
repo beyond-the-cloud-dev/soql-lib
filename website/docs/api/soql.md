@@ -1,5 +1,5 @@
 ---
-sidebar_position: 1
+sidebar_position: 10
 ---
 
 # SOQL
@@ -92,6 +92,7 @@ The following are methods for `SOQL`.
 
 - [`whereAre(FilterGroup filterGroup)`](#whereare)
 - [`whereAre(Filter filter)`](#whereare)
+- [`whereAre(String dynamicCondition)`](#whereare-string)
 - [`conditionLogic(String order)`](#conditionlogic)
 - [`anyConditionMatching()`](#anyconditionmatching);
 
@@ -103,6 +104,14 @@ The following are methods for `SOQL`.
 - [`groupByRollup(String relationshipName, SObjectField field)`](#groupbyrollup-related)
 - [`groupByCube(SObjectField field)`](#groupbycube)
 - [`groupByCube(String relationshipName, SObjectField field)`](#groupbycube-related)
+
+[**HAVING**](#having)
+
+- [`have(HavingFilterGroup filterGroup)`](#have)
+- [`have(HavingFilter filter)`](#have)
+- [`have(String dynamicCondition)`](#having-string)
+- [`havingConditionLogic(String order)`](#havingconditionlogic)
+- [`anyHavingConditionMatching()`](#anyhavingconditionmatching)
 
 [**ORDER BY**](#order-by)
 
@@ -1413,6 +1422,131 @@ GROUP BY CUBE(ConvertedOpportunity.StageName)
 SOQL.of(Lead.SObjectType)
     .count(Lead.Name, 'cnt')
     .groupByCube('ConvertedOpportunity', Opportunity.StageName)
+    .toAggregated();
+```
+
+## HAVING
+
+### have
+
+[HAVING](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_having.htm)
+
+> `HAVING` is an optional clause that can be used in a SOQL query to filter results that aggregate functions return.
+
+For more details check [`SOQL.HavingFilterGroup`](soql-having-filter-group.md) and [`SOQL.HavingFilter`](soql-having-filter.md)
+
+**Signature**
+
+```apex
+Queryable have(HavingFilterGroup havingFilterGroup)
+Queryable have(HavingFilter havingFilter)
+```
+
+**Example**
+
+```sql
+SELECT LeadSource, COUNT(Name)
+FROM Lead
+GROUP BY LeadSource, City
+HAVING COUNT(Name) > 100 AND City LIKE 'San%'
+```
+```apex
+SOQL.of(Lead.SObjectType)
+    .with(Lead.LeadSource)
+    .count(Lead.Name)
+    .groupBy(Lead.LeadSource)
+    .groupBy(Lead.City)
+    .have(SOQL.HavingFilter.count(Lead.Name).greaterThan(100))
+    .have(SOQL.HavingFilter.with(Lead.City).startsWith('San'))
+    .toAggregated();
+```
+
+### having string
+
+Execute having conditions passed as String.
+
+**Signature**
+
+```apex
+Queryable have(String conditions)
+```
+
+**Example**
+
+```sql
+SELECT LeadSource, COUNT(Name)
+FROM Lead
+GROUP BY LeadSource
+HAVING COUNT(Name) > 100 AND COUNT(Name) < 200
+```
+```apex
+SOQL.of(Lead.SObjectType)
+    .with(Lead.LeadSource)
+    .count(Lead.Name)
+    .groupBy(Lead.LeadSource)
+    .have('COUNT(Name) > 100 AND COUNT(Name) < 200')
+    .toAggregated();
+```
+
+### havingConditionLogic
+
+Set conditions order for SOQL HAVING clause. When not specify all conditions will be with `AND`.
+
+**Signature**
+
+```apex
+Queryable havingConditionLogic(String order)
+```
+
+**Example**
+
+```sql
+SELECT LeadSource, COUNT(Name)
+FROM Lead
+GROUP BY LeadSource, City
+HAVING COUNT(Name) > 100 OR City LIKE 'San%'
+```
+```apex
+ SOQL.of(Lead.SObjectType)
+    .with(Lead.LeadSource)
+    .count(Lead.Name)
+    .groupBy(Lead.LeadSource)
+    .groupBy(Lead.City)
+    .have(SOQL.HavingFilter.count(Lead.Name).greaterThan(100))
+    .have(SOQL.HavingFilter.with(Lead.City).startsWith('San'))
+    .havingConditionLogic('1 OR 2')
+    .toAggregated();
+```
+
+### anyHavingConditionMatching
+
+When the [havingConditionLogic](#havingConditionLogic) is not specified, all conditions are joined using the `AND` operator by default.
+
+To change the default condition logic, you can utilize the `anyHavingConditionMatching` method, which joins conditions using the `OR` operator.
+
+**Signature**
+
+```apex
+Queryable anyHavingConditionMatching()
+```
+
+**Example**
+
+```sql
+SELECT LeadSource, COUNT(Name)
+FROM Lead
+GROUP BY LeadSource, City
+HAVING COUNT(Name) > 100 OR City LIKE 'San%'
+```
+```apex
+SOQL.of(Lead.SObjectType)
+    .with(Lead.LeadSource)
+    .count(Lead.Name)
+    .groupBy(Lead.LeadSource)
+    .groupBy(Lead.City)
+    .have(SOQL.HavingFilter.count(Lead.Name).greaterThan(100))
+    .have(SOQL.HavingFilter.with(Lead.City).startsWith('San'))
+    .anyHavingConditionMatching()
     .toAggregated();
 ```
 

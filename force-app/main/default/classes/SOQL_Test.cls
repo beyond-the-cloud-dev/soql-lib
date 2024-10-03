@@ -53,7 +53,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void countField() {
+    static void countSObjectField() {
         // Test
         String soql = SOQL.of(Opportunity.SObjectType)
             .count(Opportunity.Id)
@@ -65,7 +65,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void countFieldWithDefaultFields() {
+    static void countSObjectFieldWithDefaultFields() {
         // Test
         String soql = SOQL.of(Opportunity.SObjectType)
             .with(Opportunity.LeadSource)
@@ -397,7 +397,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withField() {
+    static void withSObjectField() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with(Account.Name)
@@ -409,7 +409,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withTwoFields() {
+    static void withTwoSObjectFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with(Account.Name, Account.BillingCity)
@@ -420,7 +420,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withThreeFields() {
+    static void withThreeSObjectFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with(Account.Id, Account.Name, Account.BillingCity)
@@ -431,7 +431,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withFourFields() {
+    static void withFourSObjectFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with(Account.Id, Account.Name, Account.BillingCity, Account.AccountNumber)
@@ -442,7 +442,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withFiveFields() {
+    static void withFiveSObjectFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with(Account.Id, Account.Name, Account.BillingCity, Account.AccountNumber, Account.AccountSource)
@@ -453,7 +453,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withListOfFields() {
+    static void withListOfSObjectFields() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with(new List<SObjectField>{
@@ -727,9 +727,7 @@ private class SOQL_Test {
             .with(Account.Name)
             .with(SOQL.SubQuery.of('Contacts')
                 .with(Contact.LastName)
-                .with(SOQL.SubQuery.of('Assets')
-                    .with(Asset.AssetLevel)
-                )
+                .with(SOQL.SubQuery.of('Assets').with(Asset.AssetLevel))
             )
             .toString();
 
@@ -965,7 +963,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void id() {
+    static void filterId() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.id().isNotNull());
@@ -979,7 +977,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void recordType() {
+    static void filterRecordType() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.recordType().isNotNull());
@@ -993,7 +991,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void name() {
+    static void filterName() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.name().isNotNull());
@@ -1007,7 +1005,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void withRelatedFieldFilter() {
+    static void filterWithRelatedField() {
         // Test
         SOQL builder = SOQL.of(Contact.SObjectType)
             .whereAre(SOQL.Filter.with('Account', Account.Name).equal('Test'));
@@ -1021,7 +1019,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void equalString() {
+    static void filterEqualString() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).equal('Test'));
@@ -1035,7 +1033,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void notEqualString() {
+    static void filterNotEqualString() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).notEqual('Test'));
@@ -1049,7 +1047,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void lessThan() {
+    static void filterLessThan() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).lessThan(10));
@@ -1063,7 +1061,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void greaterThan() {
+    static void filterGreaterThan() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).greaterThan(10));
@@ -1077,7 +1075,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void lessOrEqual() {
+    static void filterLessOrEqual() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).lessOrEqual(10));
@@ -1091,7 +1089,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void greaterOrEqual() {
+    static void filterGreaterOrEqual() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).greaterOrEqual(10));
@@ -1105,7 +1103,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void contains() {
+    static void filterContains() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).contains('Test'));
@@ -1119,7 +1117,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void containsNull() {
+    static void filterContainsNull() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).contains(null));
@@ -1133,7 +1131,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void notContains() {
+    static void filterNotContains() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).notContains('Test'));
@@ -1147,7 +1145,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void containsValues() {
+    static void filterContainsValues() {
         // Setup
         List<String> names = new List<String>{ 'Acc', 'My' };
 
@@ -1164,7 +1162,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void endsWith() {
+    static void filterEndsWith() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).endsWith('Test'));
@@ -1178,7 +1176,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void notEndsWith() {
+    static void filterNotEndsWith() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).notEndsWith('Test'));
@@ -1192,7 +1190,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void startsWith() {
+    static void filterStartsWith() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).startsWith('Test'));
@@ -1206,7 +1204,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void notStartsWith() {
+    static void filterNotStartsWith() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).notStartsWith('Test'));
@@ -1220,7 +1218,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void customContains() {
+    static void filterCustomContains() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).contains('_', 'Test', '%'));
@@ -1234,7 +1232,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void customNotContains() {
+    static void filterCustomNotContains() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).notContains('_', 'Test', '%'));
@@ -1248,7 +1246,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void isInSet() {
+    static void filterIsInSet() {
         // Setup
         Set<String> names = new Set<String>{ 'Test 1', 'Test 2' };
 
@@ -1265,7 +1263,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void isInList() {
+    static void filterIsInList() {
         // Setup
         List<String> names = new List<String>{ 'Test 1', 'Test 2' };
 
@@ -1282,7 +1280,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void notInSet() {
+    static void filterNotInSet() {
         // Setup
         Set<String> names = new Set<String>{ 'Test 1', 'Test 2' };
 
@@ -1299,7 +1297,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void notInList() {
+    static void filterNotInList() {
         // Setup
         List<String> names = new List<String>{ 'Test 1', 'Test 2' };
 
@@ -1317,7 +1315,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void inlcudesAll() {
+    static void filterInlcudesAll() {
         // Setup
         List<String> ratings = new List<String>{ 'Hot', 'Warm' };
 
@@ -1332,7 +1330,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void inlcudesSome() {
+    static void filterInlcudesSome() {
         // Setup
         List<String> ratings = new List<String>{ 'Hot', 'Warm' };
 
@@ -1347,7 +1345,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void excludesAll() {
+    static void filterExcludesAll() {
         // Setup
         List<String> ratings = new List<String>{ 'Hot', 'Warm' };
 
@@ -1362,7 +1360,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void excludesSome() {
+    static void filterExcludesSome() {
         // Setup
         List<String> ratings = new List<String>{ 'Hot', 'Warm' };
 
@@ -1377,7 +1375,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void isNull() {
+    static void filterIsNull() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).isNull());
@@ -1391,7 +1389,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void isNotNull() {
+    static void filterIsNotNull() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).isNotNull());
@@ -1405,7 +1403,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void isTrue() {
+    static void filterIsTrue() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.IsDeleted).isTrue());
@@ -1419,7 +1417,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void isFalse() {
+    static void filterIsFalse() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.IsDeleted).isFalse());
@@ -1433,7 +1431,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void dateLiteral() {
+    static void filterDateLiteral() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.CreatedDate).greaterThan('LAST_N_QUARTERS:2').asDateLiteral())
@@ -1495,12 +1493,6 @@ private class SOQL_Test {
 
     @IsTest
     static void dynamicFiltersGroupOnSoqlInstance() {
-        // Setup
-        SOQL.FilterGroup filterGroup = SOQL.FilterGroup;
-
-        filterGroup.add(SOQL.Filter.with(Account.Name).equal('Test'));
-        filterGroup.add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'));
-
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Industry).equal('IT'));
@@ -1523,7 +1515,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void multipleFiltersGroups() {
+    static void multipleFilterGroups() {
         // Test
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.FilterGroup.add(SOQL.Filter.with(Account.Name).contains('1')))
@@ -1781,7 +1773,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void ignoreWhenFilter() {
+    static void filterIgnoreWhen() {
         // Setup
         String accountName = '';
 
@@ -1798,7 +1790,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void ignoreWhenFilterGroup() {
+    static void filterGroupIgnoreWhen() {
         // Setup
         Boolean isPartnerUser = false;
 
@@ -1955,7 +1947,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(
-            'You cant use GROUP BY, GROUP BY ROLLUP and GROUP BY CUBE in the same query.',
+            'You can\'t use GROUP BY, GROUP BY ROLLUP and GROUP BY CUBE in the same query.',
             queryException.getMessage()
         );
     }
@@ -1971,6 +1963,635 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual('SELECT LeadSource FROM Lead GROUP BY LeadSource', soql);
+    }
+
+    @IsTest
+    static void havingFilterWithSObjectField() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .count(Lead.Name)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).startsWith('San'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY City HAVING City LIKE \'San%\'', soql);
+    }
+
+    @IsTest
+    static void havingFilterWithStringField() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .count(Lead.Name)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with('City').startsWith('San'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY City HAVING City LIKE \'San%\'', soql);
+    }
+
+    @IsTest
+    static void havingFilterCount() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .have(SOQL.HavingFilter.count(Lead.Name).greaterThan(100))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING COUNT(Name) > 100', soql);
+    }
+
+    @IsTest
+    static void havingFilterAvg() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .avg(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .have(SOQL.HavingFilter.avg(Lead.Name).greaterThan(100))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource, AVG(Name) FROM Lead GROUP BY LeadSource HAVING AVG(Name) > 100', soql);
+    }
+
+    @IsTest
+    static void havingFilterCountDistinct() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .countDistinct(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .have(SOQL.HavingFilter.countDistinct(Lead.Name).greaterThan(100))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource, COUNT_DISTINCT(Name) FROM Lead GROUP BY LeadSource HAVING COUNT_DISTINCT(Name) > 100', soql);
+    }
+
+    @IsTest
+    static void havingFilterMin() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .min(Lead.NumberOfEmployees)
+            .groupBy(Lead.LeadSource)
+            .have(SOQL.HavingFilter.min(Lead.NumberOfEmployees).greaterThan(100))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource, MIN(NumberOfEmployees) FROM Lead GROUP BY LeadSource HAVING MIN(NumberOfEmployees) > 100', soql);
+    }
+
+    @IsTest
+    static void havingFilterMax() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .max(Lead.NumberOfEmployees)
+            .groupBy(Lead.LeadSource)
+            .have(SOQL.HavingFilter.max(Lead.NumberOfEmployees).greaterThan(100))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource, MAX(NumberOfEmployees) FROM Lead GROUP BY LeadSource HAVING MAX(NumberOfEmployees) > 100', soql);
+    }
+
+    @IsTest
+    static void havingFilterSum() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.LeadSource)
+            .have(SOQL.HavingFilter.sum(Lead.AnnualRevenue).greaterThan(100))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource, SUM(AnnualRevenue) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) > 100', soql);
+    }
+
+    @IsTest
+    static void havingFilterIsNull() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .have(SOQL.HavingFilter.with(Lead.LeadSource).isNull())
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING LeadSource = null', soql);
+    }
+
+    @IsTest
+    static void havingFilterIsNotNull() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .groupBy(Lead.LeadSource)
+            .have(SOQL.HavingFilter.with(Lead.LeadSource).isNotNull())
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource FROM Lead GROUP BY LeadSource HAVING LeadSource != null', soql);
+    }
+
+    @IsTest
+    static void havingFilterIsTrue() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .count(Lead.Name)
+            .groupBy(Lead.IsConverted)
+            .have(SOQL.HavingFilter.with(Lead.IsConverted).isTrue())
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY IsConverted HAVING IsConverted = true', soql);
+    }
+
+    @IsTest
+    static void havingFilterIsFalse() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .count(Lead.Name)
+            .groupBy(Lead.IsConverted)
+            .have(SOQL.HavingFilter.with(Lead.IsConverted).isFalse())
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY IsConverted HAVING IsConverted = false', soql);
+    }
+
+    @IsTest
+    static void havingFilterEqualString() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .have(SOQL.HavingFilter.with(Lead.LeadSource).equal('Web'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING LeadSource = \'Web\'', soql);
+    }
+
+    @IsTest
+    static void havingFilterEqualInteger() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .have(SOQL.HavingFilter.sum(Lead.AnnualRevenue).equal(10000))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) = 10000', soql);
+    }
+
+    @IsTest
+    static void havingFilterNotEqualString() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .have(SOQL.HavingFilter.with(Lead.LeadSource).notEqual('Web'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING LeadSource != \'Web\'', soql);
+    }
+
+    @IsTest
+    static void havingFilterNotEqualInteger() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .have(SOQL.HavingFilter.sum(Lead.AnnualRevenue).notEqual(10000))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) != 10000', soql);
+    }
+
+    @IsTest
+    static void havingFilterLessThan() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .have(SOQL.HavingFilter.sum(Lead.AnnualRevenue).lessThan(10000))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) < 10000', soql);
+    }
+
+    @IsTest
+    static void havingFilterGreaterThan() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .have(SOQL.HavingFilter.sum(Lead.AnnualRevenue).greaterThan(10000))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) > 10000', soql);
+    }
+
+    @IsTest
+    static void havingFilterLessOrEqual() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .have(SOQL.HavingFilter.sum(Lead.AnnualRevenue).lessOrEqual(10000))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) <= 10000', soql);
+    }
+
+    @IsTest
+    static void havingFilterGreaterOrEqual() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .have(SOQL.HavingFilter.sum(Lead.AnnualRevenue).greaterOrEqual(10000))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) >= 10000', soql);
+    }
+
+    @IsTest
+    static void havingFilterContains() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).contains('San'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City LIKE \'%San%\'', soql);
+    }
+
+    @IsTest
+    static void havingFilterCustomContains() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).contains('_', 'San', '%'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City LIKE \'_San%\'', soql);
+    }
+
+    @IsTest
+    static void havingFilterNotContains() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).notContains('San'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING (NOT City LIKE \'%San%\')', soql);
+    }
+
+    @IsTest
+    static void havingFilterCustomNotContains() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).notContains('_', 'San', '%'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING (NOT City LIKE \'_San%\')', soql);
+    }
+
+    @IsTest
+    static void havingFilterStartsWith() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).startsWith('San'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City LIKE \'San%\'', soql);
+    }
+
+    @IsTest
+    static void havingFilterNotStartsWith() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).notStartsWith('San'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING (NOT City LIKE \'San%\')', soql);
+    }
+
+    @IsTest
+    static void havingFilterEndsWith() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).endsWith('San'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City LIKE \'%San\'', soql);
+    }
+
+    @IsTest
+    static void havingFilterNotEndsWith() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).notEndsWith('San'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING (NOT City LIKE \'%San\')', soql);
+    }
+
+    @IsTest
+    static void havingFilterIsInSet() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).isIn(new Set<String>{ 'San Francisco', 'Los Angeles' }))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City IN (\'San Francisco\', \'Los Angeles\')', soql);
+    }
+
+    @IsTest
+    static void havingFilterIsInList() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).isIn(new List<String>{ 'San Francisco', 'Los Angeles' }))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City IN (\'San Francisco\', \'Los Angeles\')', soql);
+    }
+
+    @IsTest
+    static void havingFilterIsNotInSet() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).notIn(new Set<String>{ 'San Francisco', 'Los Angeles' }))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City NOT IN (\'San Francisco\', \'Los Angeles\')', soql);
+    }
+
+    @IsTest
+    static void havingFilterIsNotInList() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .sum(Lead.AnnualRevenue)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.with(Lead.City).notIn(new List<String>{ 'San Francisco', 'Los Angeles' }))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City NOT IN (\'San Francisco\', \'Los Angeles\')', soql);
+    }
+
+    @IsTest
+    static void havingFilterGroup() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilterGroup
+                .add(SOQL.HavingFilter.count(Lead.Name).greaterThan(100))
+                .add(SOQL.HavingFilter.with(Lead.City).startsWith('San'))
+            ).toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING (COUNT(Name) > 100 AND City LIKE \'San%\')', soql);
+    }
+
+    @IsTest
+    static void dynamicHavingFilterGroup() {
+        // Setup
+        SOQL.HavingFilterGroup havingFilterGroup = SOQL.HavingFilterGroup;
+
+        havingFilterGroup.add(SOQL.HavingFilter.count(Lead.Name).greaterThan(100));
+        havingFilterGroup.add(SOQL.HavingFilter.with(Lead.City).startsWith('San'));
+
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .groupBy(Lead.City)
+            .have(havingFilterGroup)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING (COUNT(Name) > 100 AND City LIKE \'San%\')', soql);
+    }
+
+    @IsTest
+    static void dynamicHavingFilterGroupOnSoqlInstance() {
+        // Test
+        SOQL builder = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.WITH(Lead.LeadSource).equal('Web'));
+
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING LeadSource = \'Web\'', builder.toString());
+
+        builder.have(
+            SOQL.HavingFilterGroup
+                .add(SOQL.HavingFilter.count(Lead.Name).greaterThan(100))
+                .add(SOQL.HavingFilter.with(Lead.City).startsWith('San'))
+        );
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING LeadSource = \'Web\' AND (COUNT(Name) > 100 AND City LIKE \'San%\')', builder.toString());
+    }
+
+    @IsTest
+    static void multipleHavingFilterGroups() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilterGroup.add(SOQL.HavingFilter.count(Lead.Name).greaterThan(1)))
+            .have(SOQL.HavingFilterGroup.add(SOQL.HavingFilter.count(Lead.Name).greaterThan(2)))
+            .have(SOQL.HavingFilterGroup.add(SOQL.HavingFilter.count(Lead.Name).greaterThan(3)))
+            .have(SOQL.HavingFilterGroup.add(SOQL.HavingFilter.count(Lead.Name).greaterThan(4)))
+            .have(SOQL.HavingFilterGroup.add(SOQL.HavingFilter.count(Lead.Name).greaterThan(5)))
+            .have(SOQL.HavingFilterGroup.add(SOQL.HavingFilter.count(Lead.Name).greaterThan(6)))
+            .have(SOQL.HavingFilterGroup.add(SOQL.HavingFilter.count(Lead.Name).greaterThan(7)))
+            .have(SOQL.HavingFilterGroup.add(SOQL.HavingFilter.count(Lead.Name).greaterThan(8)))
+            .have(SOQL.HavingFilterGroup.add(SOQL.HavingFilter.count(Lead.Name).greaterThan(9)))
+            .have(SOQL.HavingFilterGroup.add(SOQL.HavingFilter.count(Lead.Name).greaterThan(10)))
+            .have(SOQL.HavingFilterGroup.add(SOQL.HavingFilter.count(Lead.Name).greaterThan(11)))
+            .anyHavingConditionMatching()
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING (COUNT(Name) > 1) OR (COUNT(Name) > 2) OR (COUNT(Name) > 3) OR (COUNT(Name) > 4) OR (COUNT(Name) > 5) OR (COUNT(Name) > 6) OR (COUNT(Name) > 7) OR (COUNT(Name) > 8) OR (COUNT(Name) > 9) OR (COUNT(Name) > 10) OR (COUNT(Name) > 11)', soql);
+    }
+
+    @IsTest
+    static void anyConditionMatchingForInnerHavingFilterGroups() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilterGroup
+                .add(SOQL.HavingFilter.count(Lead.Name).greaterThan(100))
+                .add(SOQL.HavingFilter.with(Lead.City).startsWith('San'))
+                .anyConditionMatching()
+            ).toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING (COUNT(Name) > 100 OR City LIKE \'San%\')', soql);
+    }
+
+    @IsTest
+    static void anyonditionMatchingForMainHavingFilterGroup() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.count(Lead.Name).greaterThan(100))
+            .have(SOQL.HavingFilter.with(Lead.City).startsWith('San'))
+            .anyHavingConditionMatching()
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING COUNT(Name) > 100 OR City LIKE \'San%\'', soql);
+    }
+
+    @IsTest
+    static void conditionLogicForMainHavingFilterGroup() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .groupBy(Lead.City)
+            .have(SOQL.HavingFilter.count(Lead.Name).greaterThan(100))
+            .have(SOQL.HavingFilter.with(Lead.City).startsWith('San'))
+            .havingConditionLogic('1 OR 2')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING COUNT(Name) > 100 OR City LIKE \'San%\'', soql);
+    }
+
+    @IsTest
+    static void nestedHavingFilterGroups() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .have(SOQL.HavingFilterGroup
+                .add(SOQL.HavingFilterGroup
+                    .add(SOQL.HavingFilter.count(Lead.Name).greaterThan(100))
+                    .add(SOQL.HavingFilter.count(Lead.Name).lessThan(200))
+                )
+                .add(SOQL.HavingFilterGroup
+                    .add(SOQL.HavingFilter.count(Lead.Name).greaterThan(400))
+                    .add(SOQL.HavingFilter.count(Lead.Name).lessThan(500))
+                )
+            ).toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING ((COUNT(Name) > 100 AND COUNT(Name) < 200) AND (COUNT(Name) > 400 AND COUNT(Name) < 500))', soql);
+    }
+
+    @IsTest
+    static void evaluateStringHavingCondition() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .have('COUNT(Name) > 100 AND COUNT(Name) < 200')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING COUNT(Name) > 100 AND COUNT(Name) < 200', soql);
+    }
+
+    @IsTest
+    static void evaluateStringHavingConditionAndHavingFilterGroup() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .have('(COUNT(Name) > 100 AND COUNT(Name) < 200)')
+            .have(SOQL.HavingFilterGroup
+                .add(SOQL.HavingFilter.count(Lead.Name).greaterThan(400))
+                .add(SOQL.HavingFilter.count(Lead.Name).lessThan(500))
+            ).toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING (COUNT(Name) > 100 AND COUNT(Name) < 200) AND (COUNT(Name) > 400 AND COUNT(Name) < 500)', soql);
+    }
+
+    @IsTest
+    static void evaluateStringInHavingFilterGroupAndHavingFilter() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .count(Lead.Name)
+            .groupBy(Lead.LeadSource)
+            .have(SOQL.HavingFilterGroup
+                .add('(COUNT(Name) > 100 AND COUNT(Name) < 200)')
+                .add(SOQL.HavingFilter.count(Lead.Name).lessThan(500))
+            ).toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING ((COUNT(Name) > 100 AND COUNT(Name) < 200) AND COUNT(Name) < 500)', soql);
     }
 
     @IsTest
@@ -2682,9 +3303,36 @@ private class SOQL_Test {
             .with(Account.Name)
             .toQueryLocator();
 
-
         // Verify
         Assert.areEqual('SELECT Id, Name FROM Account', queryLocator.getQuery());
+    }
+
+    @IsTest
+    static void toQueryLocatorWithSharing() {
+        // Setup
+        insertTasks();
+
+        System.runAs(minimumAccessUser()) {
+            // Test
+            Database.QueryLocator queryLocator = SOQL.of(Task.SObjectType).systemMode().withSharing().toQueryLocator();
+
+            // Verify
+            Assert.isFalse(queryLocator.iterator().hasNext());
+        }
+    }
+
+    @IsTest
+    static void toQueryLocatorWithoutSharing() {
+        // Setup
+        insertTasks();
+
+        System.runAs(minimumAccessUser()) {
+            // Test
+            Database.QueryLocator queryLocator = SOQL.of(Task.SObjectType).systemMode().withoutSharing().toQueryLocator();
+
+            // Verify
+            Assert.isTrue(queryLocator.iterator().hasNext());
+        }
     }
 
     static List<Account> insertAccounts() {
