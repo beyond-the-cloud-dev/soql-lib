@@ -14,30 +14,6 @@
 **/
 @SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.PropertyNamingConventions, PMD.FieldDeclarationsShouldBeAtStart, PMD.ApexDoc, PMD.ExcessiveParameterList')
 public virtual inherited sharing class SOQL implements Queryable {
-    public static SubQuery SubQuery {
-        get {
-            return new SoqlSubQuery();
-        }
-    }
-
-    public static FilterGroup FilterGroup {
-        get {
-            return new SoqlFilterGroup();
-        }
-    }
-
-    public static Filter Filter {
-        get {
-            return new SoqlFilter();
-        }
-    }
-
-    public static InnerJoin InnerJoin {
-        get {
-            return new SoqlJoinQuery();
-        }
-    }
-
     public interface Selector {
         Queryable query();
     }
@@ -115,6 +91,12 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable groupByRollup(String relationshipName, SObjectField field);
         Queryable groupByCube(SObjectField field);
         Queryable groupByCube(String relationshipName, SObjectField field);
+        // HAVING
+        Queryable have(HavingFilterGroup havingFilterGroup);
+        Queryable have(HavingFilter havingFilter);
+        Queryable have(String havingConditions);
+        Queryable havingConditionLogic(String havingConditionsOrder);
+        Queryable anyHavingConditionMatching();
         // ORDER BY
         Queryable orderBy(String field);
         Queryable orderBy(String field, String direction);
@@ -225,18 +207,18 @@ public virtual inherited sharing class SOQL implements Queryable {
         Filter equal(Object value);
         Filter notEqual(Object value);
         Filter lessThan(Object value);
-        Filter greaterThan(Object value);
         Filter lessOrEqual(Object value);
+        Filter greaterThan(Object value);
         Filter greaterOrEqual(Object value);
         Filter containsSome(Iterable<String> values);
         Filter contains(String value);
+        Filter contains(String prefix, String value, String suffix);
         Filter notContains(String value);
+        Filter notContains(String prefix, String value, String suffix);
         Filter endsWith(String value);
         Filter notEndsWith(String value);
         Filter startsWith(String value);
         Filter notStartsWith(String value);
-        Filter contains(String prefix, String value, String suffix);
-        Filter notContains(String prefix, String value, String suffix);
         Filter isIn(Iterable<Object> iterable);
         Filter isIn(InnerJoin joinQuery);
         Filter notIn(Iterable<Object> iterable);
@@ -261,6 +243,73 @@ public virtual inherited sharing class SOQL implements Queryable {
         InnerJoin whereAre(Filter filter);
     }
 
+    public interface HavingFilterGroup {
+        // ADD CONDITION
+        HavingFilterGroup add(HavingFilterGroup havingFilterGroup);
+        HavingFilterGroup add(HavingFilter havingFilter);
+        HavingFilterGroup add(String dynamicHaving);
+        // ORDER
+        HavingFilterGroup anyConditionMatching();
+        HavingFilterGroup conditionLogic(String order);
+    }
+
+    public interface HavingFilter {
+        // FIELDS
+        HavingFilter with(SObjectField field);
+        HavingFilter with(String field);
+        HavingFilter count(SObjectField field);
+        HavingFilter avg(SObjectField field);
+        HavingFilter countDistinct(SObjectField field);
+        HavingFilter min(SObjectField field);
+        HavingFilter max(SObjectField field);
+        HavingFilter sum(SObjectField field);
+        // COMPERATORS
+        HavingFilter isNull();
+        HavingFilter isNotNull();
+        HavingFilter isTrue();
+        HavingFilter isFalse();
+        HavingFilter equal(Object value);
+        HavingFilter notEqual(Object value);
+        HavingFilter lessThan(Object value);
+        HavingFilter lessOrEqual(Object value);
+        HavingFilter greaterThan(Object value);
+        HavingFilter greaterOrEqual(Object value);
+        HavingFilter contains(String value);
+        HavingFilter contains(String prefix, String value, String suffix);
+        HavingFilter notContains(String value);
+        HavingFilter notContains(String prefix, String value, String suffix);
+        HavingFilter startsWith(String value);
+        HavingFilter notStartsWith(String value);
+        HavingFilter endsWith(String value);
+        HavingFilter notEndsWith(String value);
+        HavingFilter isIn(Iterable<Object> iterable);
+        HavingFilter notIn(Iterable<Object> iterable);
+    }
+
+    public static SubQuery SubQuery {
+        get { return new SoqlSubQuery(); }
+    }
+
+    public static FilterGroup FilterGroup {
+        get { return new SoqlFilterGroup(); }
+    }
+
+    public static Filter Filter {
+        get { return new SoqlFilter(); }
+    }
+
+    public static InnerJoin InnerJoin {
+        get { return new SoqlJoinQuery(); }
+    }
+
+    public static HavingFilterGroup HavingFilterGroup {
+        get { return new SoqlHavingFilterGroup(); }
+    }
+
+    public static HavingFilter HavingFilter {
+        get { return new SoqlHavingFilter(); }
+    }
+
     @TestVisible
     private static void setMock(String mockId, SObject record) {
         setMock(mockId, new List<SObject>{ record });
@@ -276,7 +325,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         mock.setCountMock(mockId, amount);
     }
 
-    // Config
+    // Implementation
 
     private static Mock mock = new Mock();
     private static Binder binder = new Binder();
@@ -603,6 +652,31 @@ public virtual inherited sharing class SOQL implements Queryable {
         return this;
     }
 
+    public SOQL have(HavingFilterGroup havingFilterGroup) {
+        builder.havingClause.add(havingFilterGroup);
+        return this;
+    }
+
+    public SOQL have(HavingFilter havingFilter) {
+        builder.havingClause.add(havingFilter);
+        return this;
+    }
+
+    public SOQL have(String havingConditions) {
+        builder.havingClause.add(havingConditions);
+        return this;
+    }
+
+    public SOQL havingConditionLogic(String havingConditionsOrder) {
+        builder.havingClause.conditionLogic(havingConditionsOrder);
+        return this;
+    }
+
+    public SOQL anyHavingConditionMatching() {
+        builder.havingClause.anyConditionMatching();
+        return this;
+    }
+
     public SOQL orderBy(String field) {
         builder.orderBys.newOrderBy().with(field);
         return this;
@@ -803,12 +877,12 @@ public virtual inherited sharing class SOQL implements Queryable {
         return whereAre(Filter.recordType().equal(recordTypeDeveloperName));
     }
 
-    public interface QueryClause {
+    private interface QueryClause {
         String toString();
     }
 
     private class QueryBuilder implements QueryClause {
-        private List<QueryClause> clauses = new QueryClause[10];
+        private List<QueryClause> clauses = new QueryClause[11];
 
         public QueryBuilder(String ofObject) {
             clauses.set(0, new SoqlFields(ofObject));
@@ -816,77 +890,54 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public SoqlFields fields {
-            get {
-                return (SoqlFields) clauses[0];
-            }
+            get { return (SoqlFields) clauses[0]; }
         }
 
         public SoqlSubQueries subQueries {
-            get {
-                createWhenNotExist(1, new SoqlSubQueries());
-                return (SoqlSubQueries) clauses[1];
-            }
+            get { return (SoqlSubQueries) getQueryClause(1, SoqlSubQueries.class); }
         }
 
         public SoqlScope scope {
-            get {
-                createWhenNotExist(3, new SoqlScope());
-                return (SoqlScope) clauses[3];
-            }
+            get { return (SoqlScope) getQueryClause(3, SoqlScope.class); }
         }
 
         public MainFilterGroup conditions {
-            get {
-                createWhenNotExist(4, new MainFilterGroup());
-                return (MainFilterGroup) clauses[4];
-            }
+            get { return (MainFilterGroup) getQueryClause(4, MainFilterGroup.class); }
         }
 
         public SoqlGroupBy groupBy {
-            get {
-                createWhenNotExist(5, new SoqlGroupBy());
-                return (SoqlGroupBy) clauses[5];
-            }
+            get { return (SoqlGroupBy) getQueryClause(5, SoqlGroupBy.class); }
+        }
+
+        public MainHavingGroup havingClause {
+            get { return (MainHavingGroup) getQueryClause(6, MainHavingGroup.class); }
         }
 
         public SoqlOrderBy latestOrderBy {
-            get {
-                return orderBys.latestOrderBy();
-            }
+            get { return orderBys.latestOrderBy(); }
         }
 
         public SoqlOrderBys orderBys {
-            get {
-                createWhenNotExist(6, new SoqlOrderBys());
-                return (SoqlOrderBys) clauses[6];
-            }
+            get { return (SoqlOrderBys) getQueryClause(7, SoqlOrderBys.class); }
         }
 
         public SoqlLimit soqlLimit {
-            get {
-                createWhenNotExist(7, new SoqlLimit());
-                return (SoqlLimit) clauses[7];
-            }
+            get { return (SoqlLimit) getQueryClause(8, SoqlLimit.class); }
         }
 
         public SoqlOffset soqlOffset {
-            get {
-                createWhenNotExist(8, new SoqlOffset());
-                return (SoqlOffset) clauses[8];
-            }
+            get { return (SoqlOffset) getQueryClause(9, SoqlOffset.class); }
         }
 
         public SoqlFor soqlFor {
-            get {
-                createWhenNotExist(9, new SoqlFor());
-                return (SoqlFor) clauses[9];
-            }
+            get { return (SoqlFor) getQueryClause(10, SoqlFor.class); }
         }
 
-        public void createWhenNotExist(Integer position, QueryClause clause) {
+        private QueryClause getQueryClause(Integer position, System.Type queryClause) {
             if (clauses[position] == null) {
-                clauses.set(position, clause);
+                clauses.set(position, (QueryClause) queryClause.newInstance());
             }
+            return clauses[position];
         }
 
         public override String toString() {
@@ -1256,6 +1307,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private interface FilterClause {
+        String toString();
         Boolean hasValue();
     }
 
@@ -1265,15 +1317,15 @@ public virtual inherited sharing class SOQL implements Queryable {
         private String connector = 'AND';
 
         public FilterGroup add(FilterGroup filterGroup) {
-            return add(new QFilterGroupAdapter(filterGroup));
+            return add(new FilterGroupAdapter(filterGroup));
         }
 
         public FilterGroup add(Filter filter) {
-            return add(new QFilterAdapter(filter));
+            return add(new FilterAdapter(filter));
         }
 
         public FilterGroup add(String dynamicCondition) {
-            return add(new QStringAdapter(dynamicCondition));
+            return add(new StringConditionAdapter(dynamicCondition));
         }
 
         public FilterGroup add(FilterClause condition) {
@@ -1316,7 +1368,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             String orderWithSpecialCharacters = getConditionsLogic();
 
             for (Integer i = 0; i < queryConditions.size(); i++) {
-                orderWithSpecialCharacters = orderWithSpecialCharacters.replaceFirst(String.valueOf(i + 1), '{' + i + '}');
+                orderWithSpecialCharacters = orderWithSpecialCharacters.replaceAll('\\b' + String.valueOf(i + 1) + '\\b', '{' + i + '}');
             }
 
             return orderWithSpecialCharacters; // e.g ({0} AND ({1} AND {2}))
@@ -1347,10 +1399,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QFilterGroupAdapter implements FilterClause {
+    private class FilterGroupAdapter implements FilterClause {
         private FilterGroup filterGroup;
 
-        public QFilterGroupAdapter(FilterGroup filterGroup) {
+        public FilterGroupAdapter(FilterGroup filterGroup) {
             this.filterGroup = filterGroup;
         }
 
@@ -1363,10 +1415,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QFilterAdapter implements FilterClause {
+    private class FilterAdapter implements FilterClause {
         private Filter filter;
 
-        public QFilterAdapter(Filter filter) {
+        public FilterAdapter(Filter filter) {
             this.filter = filter;
         }
 
@@ -1379,10 +1431,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class QStringAdapter implements FilterClause {
+    private class StringConditionAdapter implements FilterClause {
         private String conditionString;
 
-        public QStringAdapter(String dynamicCondition) {
+        public StringConditionAdapter(String dynamicCondition) {
             conditionString = dynamicCondition;
         }
 
@@ -1658,7 +1710,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public void setGroupByFunction(String newGroupByFunction) {
             if (String.isNotEmpty(groupByFunction) && groupByFunction != newGroupByFunction) {
-                throw new QueryException('You cant use GROUP BY, GROUP BY ROLLUP and GROUP BY CUBE in the same query.');
+                throw new QueryException('You can\'t use GROUP BY, GROUP BY ROLLUP and GROUP BY CUBE in the same query.');
             }
             this.groupByFunction = newGroupByFunction;
         }
@@ -1688,6 +1740,271 @@ public virtual inherited sharing class SOQL implements Queryable {
             }
 
             return 'ORDER BY ' + String.join(orderFields, ', ');
+        }
+    }
+
+    private virtual class SoqlHavingFilterGroup implements HavingFilterGroup, HavingFilterClause {
+        private List<HavingFilterClause> havingConditions = new List<HavingFilterClause>();
+        private String customOrder;
+        private String connector = 'AND';
+
+        public HavingFilterGroup add(HavingFilterGroup filterGroup) {
+            return add(new HavingFilterGroupAdapter(filterGroup));
+        }
+
+        public HavingFilterGroup add(HavingFilter filter) {
+            return add(new HavingFilterAdapter(filter));
+        }
+
+        public HavingFilterGroup add(String filter) {
+            return add(new HavingStringAdapter(filter));
+        }
+
+        public HavingFilterGroup add(HavingFilterClause condition) {
+            havingConditions.add(condition);
+            return this;
+        }
+
+        public HavingFilterGroup anyConditionMatching() {
+            connector = 'OR';
+            return this;
+        }
+
+        public HavingFilterGroup conditionLogic(String order) {
+            customOrder = order;
+            return this;
+        }
+
+        public virtual override String toString() {
+            return '(' + buildNested() + ')';
+        }
+
+        public String buildNested() {
+            return String.format(getOrderWithSpecialCharacters(), havingConditions);
+        }
+
+        private String getOrderWithSpecialCharacters() {
+            String orderWithSpecialCharacters = getConditionsLogic();
+
+            for (Integer i = 0; i < havingConditions.size(); i++) {
+                orderWithSpecialCharacters = orderWithSpecialCharacters.replaceFirst(String.valueOf(i + 1), '{' + i + '}');
+            }
+
+            return orderWithSpecialCharacters; // e.g ({0} AND ({1} AND {2}))
+        }
+
+        private String getConditionsLogic() {
+            if (String.isNotEmpty(customOrder)) {
+                return customOrder;
+            }
+
+            List<String> defaultOrder = new List<String>();
+
+            for (Integer i = 0; i < havingConditions.size(); i++) {
+                defaultOrder.add(String.valueOf(i + 1));
+            }
+
+            return String.join(defaultOrder, ' ' + connector + ' '); // e.g (0 AND 1 AND 2)
+        }
+    }
+
+    private class MainHavingGroup extends SoqlHavingFilterGroup implements QueryClause {
+        public override String toString() {
+            return 'HAVING ' + buildNested();
+        }
+    }
+
+    private interface HavingFilterClause {
+        String toString();
+    }
+
+    private class HavingFilterGroupAdapter implements HavingFilterClause {
+        private HavingFilterGroup havingFilterGroup;
+
+        public HavingFilterGroupAdapter(HavingFilterGroup havingFilterGroup) {
+            this.havingFilterGroup = havingFilterGroup;
+        }
+
+        public override String toString() {
+            return havingFilterGroup.toString();
+        }
+    }
+
+    private class HavingFilterAdapter implements HavingFilterClause {
+        private HavingFilter havingFilter;
+
+        public HavingFilterAdapter(HavingFilter havingFilter) {
+            this.havingFilter = havingFilter;
+        }
+
+        public override String toString() {
+            return havingFilter.toString();
+        }
+    }
+
+    private class HavingStringAdapter implements HavingFilterClause {
+        private String condition;
+
+        public HavingStringAdapter(String condition) {
+            this.condition = condition;
+        }
+
+        public override String toString() {
+            return condition.toString();
+        }
+    }
+
+    private class SoqlHavingFilter implements HavingFilter, HavingFilterClause {
+        private String field;
+        private String comperator;
+        private Object value;
+        private String wrapper = '{0}';
+
+        public HavingFilter with(SObjectField field) {
+            return with(field.getDescribe().getName());
+        }
+
+        public HavingFilter with(String field) {
+            this.field = field;
+            return this;
+        }
+
+        public HavingFilter count(SObjectField field) {
+            return withAggregateFunction('COUNT', field);
+        }
+
+        public HavingFilter avg(SObjectField field) {
+            return withAggregateFunction('AVG', field);
+        }
+
+        public HavingFilter countDistinct(SObjectField field) {
+            return withAggregateFunction('COUNT_DISTINCT', field);
+        }
+
+        public HavingFilter min(SObjectField field) {
+            return withAggregateFunction('MIN', field);
+        }
+
+        public HavingFilter max(SObjectField field) {
+            return withAggregateFunction('MAX', field);
+        }
+
+        public HavingFilter sum(SObjectField field) {
+            return withAggregateFunction('SUM', field);
+        }
+
+        private HavingFilter withAggregateFunction(String aggregateFunction, SObjectField field) {
+            return withAggregateFunction(aggregateFunction, field.getDescribe().getName());
+        }
+
+        private HavingFilter withAggregateFunction(String aggregateFunction, String field) {
+            this.field = aggregateFunction + '(' + field + ')';
+            return this;
+        }
+
+        public HavingFilter isNull() {
+            return equal(null);
+        }
+
+        public HavingFilter isNotNull() {
+            return notEqual(null);
+        }
+
+        public HavingFilter isTrue() {
+            return equal(true);
+        }
+
+        public HavingFilter isFalse() {
+            return equal(false);
+        }
+
+        public HavingFilter equal(Object value) {
+            return set('=', value);
+        }
+
+        public HavingFilter notEqual(Object value) {
+            return set('!=', value);
+        }
+
+        public HavingFilter lessThan(Object value) {
+            return set('<', value);
+        }
+
+        public HavingFilter greaterThan(Object value) {
+            return set('>', value);
+        }
+
+        public HavingFilter lessOrEqual(Object value) {
+            return set('<=', value);
+        }
+
+        public HavingFilter greaterOrEqual(Object value) {
+            return set('>=', value);
+        }
+
+        public HavingFilter contains(String value) {
+            return contains('%', formattedString(value), '%');
+        }
+
+        public HavingFilter notContains(String value) {
+            return notLike().contains(value);
+        }
+
+        public HavingFilter endsWith(String value) {
+            return contains('%', formattedString(value), '');
+        }
+
+        public HavingFilter notEndsWith(String value) {
+            return notLike().endsWith(value);
+        }
+
+        public HavingFilter startsWith(String value) {
+            return contains('', formattedString(value), '%');
+        }
+
+        public HavingFilter notStartsWith(String value) {
+            return notLike().startsWith(value);
+        }
+
+        public HavingFilter contains(String prefix, String value, String suffix) {
+            return set('LIKE', prefix + formattedString(value) + suffix);
+        }
+
+        public HavingFilter notContains(String prefix, String value, String suffix) {
+            return notLike().contains(prefix, value, suffix);
+        }
+
+        public HavingFilter isIn(Iterable<Object> iterable) {
+            return set('IN', iterable, '\', \'');
+        }
+
+        public HavingFilter notIn(Iterable<Object> iterable) {
+            return set('NOT IN', iterable, '\', \'');
+        }
+
+        private String formattedString(String value) {
+            return value ?? value?.trim();
+        }
+
+        private HavingFilter notLike() {
+            this.wrapper = '(NOT {0})';
+            return this;
+        }
+
+        public HavingFilter set(String operator, Iterable<String> iterable, String separator) {
+             this.comperator = operator;
+             this.value = '(\'' + String.join(iterable, separator) + '\')';
+             return this;
+        }
+
+        private HavingFilter set(String comperator, Object value) {
+            this.comperator = comperator;
+            this.value = value instanceof String ? '\'' + value + '\'' : value;
+            return this;
+        }
+
+        public override String toString() {
+            return String.format(wrapper, new List<String>{ field + ' ' + comperator + ' ' + value });
         }
     }
 
@@ -1996,12 +2313,12 @@ public virtual inherited sharing class SOQL implements Queryable {
             return Database.queryWithBinds(query, binding, accessLevel);
         }
 
-        public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel) {
-            return Database.getQueryLocatorWithBinds(query, binding, accessLevel);
-        }
-
         public Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.countQueryWithBinds(query, binding, accessLevel);
+        }
+
+        public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.getQueryLocatorWithBinds(query, binding, accessLevel);
         }
 
         public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
@@ -2014,12 +2331,12 @@ public virtual inherited sharing class SOQL implements Queryable {
             return Database.queryWithBinds(query, binding, accessLevel);
         }
 
-        public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel) {
-            return Database.getQueryLocatorWithBinds(query, binding, accessLevel);
-        }
-
         public Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel) {
             return Database.countQueryWithBinds(query, binding, accessLevel);
+        }
+
+        public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+            return Database.getQueryLocatorWithBinds(query, binding, accessLevel);
         }
 
         public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {

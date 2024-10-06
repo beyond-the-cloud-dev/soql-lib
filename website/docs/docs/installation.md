@@ -7,7 +7,7 @@ sidebar_position: 15
 
 **System Requirements**
 
-- API: 58.0
+- API: 61.0
 
 ## Deploy
 
