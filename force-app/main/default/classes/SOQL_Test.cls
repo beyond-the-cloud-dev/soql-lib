@@ -3335,6 +3335,51 @@ private class SOQL_Test {
         }
     }
 
+    @IsTest
+    static void toCursor() {
+        // Setup
+        insertAccounts();
+
+        // Test
+        Database.Cursor queryCursor = SOQL.of(Account.SObjectType)
+            .with(Account.Id)
+            .with(Account.Name)
+            .toCursor();
+
+        // Verify
+        Assert.areEqual(2, queryCursor.getNumRecords());
+    }
+
+    @IsTest
+    static void toCursorWithSharing() {
+        // Setup
+        insertTasks();
+
+        System.runAs(minimumAccessUser()) {
+            insert new Task(Subject = 'Test', Type = 'Other');
+
+            // Test
+            Database.Cursor queryCursor = SOQL.of(Task.SObjectType).systemMode().withSharing().toCursor();
+
+            // Verify
+            Assert.areEqual(1, queryCursor.getNumRecords());
+        }
+    }
+
+    @IsTest
+    static void toCursorWithoutSharing() {
+        // Setup
+        insertTasks();
+
+        System.runAs(minimumAccessUser()) {
+            // Test
+            Database.Cursor queryCursor = SOQL.of(Task.SObjectType).systemMode().withoutSharing().toCursor();
+
+            // Verify
+            Assert.areEqual(2, queryCursor.getNumRecords());
+        }
+    }
+
     static List<Account> insertAccounts() {
         List<Account> accounts = new List<Account>{
             new Account(Name = 'Test 1'),
