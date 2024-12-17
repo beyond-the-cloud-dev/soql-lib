@@ -1119,7 +1119,9 @@ public virtual inherited sharing class SOQL implements Queryable {
             if (!groupedFields.isEmpty() || !aggregateFunctions.isEmpty()) {
                 List<String> selectFields = new List<String>();
 
-                removeNotGroupedFields();
+                // To avoid "Field must be grouped or aggregated" error
+                // retain only grouped or aggregated fields
+                fields.retainAll(groupedFields);
 
                 selectFields.addAll(fields);
                 selectFields.addAll(aggregateFunctions);
@@ -1128,19 +1130,6 @@ public virtual inherited sharing class SOQL implements Queryable {
             }
 
             return 'SELECT ' + String.join(fields, ', ');
-        }
-
-        public void removeNotGroupedFields() {
-            // To avoid "Field must be grouped or aggregated" error
-            Set<String> notGroupedOrAggregatedFields = new Set<String>();
-
-            for (String field : fields) {
-                if (!groupedFields.contains(field)) {
-                    notGroupedOrAggregatedFields.add(field);
-                }
-            }
-
-            fields.removeAll(notGroupedOrAggregatedFields);
         }
     }
 
