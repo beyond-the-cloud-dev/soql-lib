@@ -1131,12 +1131,16 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public void removeNotGroupedFields() {
-             // To avoid "Field must be grouped or aggregated" error
+            // To avoid "Field must be grouped or aggregated" error
+            Set<String> notGroupedOrAggregatedFields = new Set<String>();
+
             for (String field : fields) {
                 if (!groupedFields.contains(field)) {
-                    fields.remove(field);
+                    notGroupedOrAggregatedFields.add(field);
                 }
             }
+
+            fields.removeAll(notGroupedOrAggregatedFields);
         }
     }
 
