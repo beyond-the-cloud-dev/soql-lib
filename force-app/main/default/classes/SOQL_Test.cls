@@ -3335,6 +3335,129 @@ private class SOQL_Test {
         }
     }
 
+    @IsTest
+    static void querySynchronousLimitExceptionWithMocking() {
+        // Setup
+        Exception queryException = null;
+
+        // Test
+        SOQL.setMock('mockingQuery', new List<Account>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        });
+
+        try {
+            for (Integer i = 0 ; i < 102 ; i++) {
+                SOQL.of(Account.SObjectType).mockId('mockingQuery').toList();
+            }
+        } catch (Exception e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.areEqual('Too many SOQL queries.', queryException.getMessage());
+    }
+
+    @IsTest
+    static void queryAsynchronousLimitExceptionWithMocking() {
+        // Setup
+        Exception queryException = null;
+
+        // Test
+        SOQL.setMock('mockingQuery', new List<Account>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        });
+
+        try {
+            Test.startTest();
+                asynchronousQueriesWithMocking();
+            Test.stopTest();
+        } catch (Exception e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.areEqual('Too many SOQL queries.', queryException.getMessage());
+    }
+
+    @IsTest
+    static void querySynchronousLimitExceptionWithoutMocking() {
+        // Setup
+        Exception queryException = null;
+
+        // Test
+        try {
+            for (Integer i = 0 ; i < 102 ; i++) {
+                SOQL.of(Account.SObjectType).toList();
+            }
+        } catch (Exception e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.areEqual('Too many SOQL queries.', queryException.getMessage());
+    }
+
+    @IsTest
+    static void queryAsynchronousLimitExceptionWithoutMocking() {
+        // Setup
+        Exception queryException = null;
+
+        // Test
+        try {
+            Test.startTest();
+                asynchronousQueriesWithoutMocking();
+            Test.stopTest();
+        } catch (Exception e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.areEqual('Too many SOQL queries.', queryException.getMessage());
+    }
+
+    @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
+    @IsTest
+    static void preview() {
+        // Test
+        SOQL.of(Account.SObjectType).preview().toList();
+    }
+
+    @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
+    @IsTest
+    static void previewWithConditions() {
+        // Test
+        SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.FilterGroup
+                .add(SOQL.Filter.with(Account.Name).equal('Test'))
+                .add(SOQL.Filter.with(Account.Industry).equal('IT'))
+            )
+            .preview()
+            .toList();
+    }
+
+    @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
+    @IsTest
+    static void previewCount() {
+        // Test
+        SOQL.of(Account.SObjectType).count().preview().toInteger();
+    }
+
+    @future
+    static void asynchronousQueriesWithMocking() {
+        for (Integer i = 0 ; i < 202 ; i++) {
+            SOQL.of(Account.SObjectType).mockId('mockingQuery').toList();
+        }
+    }
+
+    @future
+    static void asynchronousQueriesWithoutMocking() {
+        for (Integer i = 0 ; i < 202 ; i++) {
+            SOQL.of(Account.SObjectType).toList();
+        }
+    }
+
     static List<Account> insertAccounts() {
         List<Account> accounts = new List<Account>{
             new Account(Name = 'Test 1'),
@@ -3372,32 +3495,5 @@ private class SOQL_Test {
             TimeZoneSidKey = 'America/Los_Angeles',
             UserName = 'queryselector@testorg.com'
         );
-    }
-
-    @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
-    @IsTest
-    static void preview() {
-        // Test
-        SOQL.of(Account.SObjectType).preview().toList();
-    }
-
-    @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
-    @IsTest
-    static void previewWithConditions() {
-        // Test
-        SOQL.of(Account.SObjectType)
-            .whereAre(SOQL.FilterGroup
-                .add(SOQL.Filter.with(Account.Name).equal('Test'))
-                .add(SOQL.Filter.with(Account.Industry).equal('IT'))
-            )
-            .preview()
-            .toList();
-    }
-
-    @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
-    @IsTest
-    static void previewCount() {
-        // Test
-        SOQL.of(Account.SObjectType).count().preview().toInteger();
     }
 }
