@@ -123,6 +123,13 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable withoutSharing();
         // MOCKING
         Queryable mockId(String id);
+        // CACHING
+        // Queryable cacheInTransaction();
+        // Queryable cacheInSessionCache();
+        // Queryable cacheInSessionCache(Integer timeToLive);
+        // Queryable cacheInOrgCache();
+        // Queryable cacheInOrgCache(Integer timeToLive);
+        // Queryable clearCache();
         // DEBUGGING
         Queryable preview();
         // PREDEFINIED
@@ -810,11 +817,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         return executor.toInteger();
     }
 
-    public SObject toObject() {
+    public virtual SObject toObject() {
         return executor.toObject();
     }
 
-    public List<SObject> toList() {
+    public virtual List<SObject> toList() {
         return executor.toList();
     }
 
@@ -2315,3 +2322,72 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 }
+
+
+// SOQL.of('Profile').with('Id, Name').cacheInTransaction().toList();
+
+// Map<SObjectType, List<Map<SObjectField, Object>>> matrix = new Map<SObjectType, Map<SObjectField, Matrix>>();
+
+// Profile.SObject => [
+//     {
+//         Name: 'System Admin',
+//         Id: '12345'
+//     },
+//     {
+//         Name: 'Standard',
+//         Id: '532312'
+//     }
+// ];
+
+
+// SOQL.of('Profile').with('Id, Name').byDeveloperName('System Admin').cacheInOrgSession().toList();
+
+// Map<Field => Map<Value, Profile>>
+
+// Profile.Name => Map 'System Admin' => { Id, Name }
+// Profile.Id => Map '1234' => { Id, Name }
+// Profile.UserType => Map 'Internal' => { Id, Name }
+
+// Map< 'Name.System Admin|Id.1234|UserType.Internal' => { Id, Name }
+
+// Profile.SObjectType => Map<SObjectField, Map<FieldValueString, Object>>
+
+// SELECT Id, Name FROM Profile // .cacheInOrgSession(Profile.Name)
+// SELECT Id, Name FROM Profile WHERE Name = 'System Admin' // .cacheInOrgSession(Profile.Name)
+
+// 1. Query String cannot be key, because fields order can be different.
+// 2. Query should have at least one condition and only one condition to allow for caching.
+// 3. SOQL Lib should check if all necessary fields from cache are cached. eg. SELECT Id FROM Profile, SELECT Id, Name FROM Profile,
+// second query should make a SOQL call, because there is no Name cached.
+// 4. Maybe separated class for caching? SOQLCache i SOQL_ProfileCache, SOQL_QueueCache
+
+// public class SOQL_ProfileCache extends SOQLCache {
+//     public override String predefinedQuery() {
+//         return SOQL.of(Profile.SObjectType).with('Id, Name');
+//     }
+
+//     protected override SOQLCache.StorageType getDefaultStorageType() {
+//         return SOQLCache.StorageType.Session; // Org / Transaction
+//     }
+
+//     public static SOQL_ProfileCache query() {
+//         return new SOQL_ProfileCache();
+//     }
+
+//     private SOQL_ProfileCache() {
+//         super(Profile.SObjectType);
+//         with(Profile.Id, Profile.Name);
+//     }
+
+//     public SOQL_ProfileCache byDeveloperName(String developerName) {
+//         whereAre(Filter.with(Profile.Name).equal(developerName));
+//     }
+
+//     public SOQL_ProfileCache byId(Id profileId) {
+
+//     }
+// }
+
+// public class SOQLCache extends SOQL {
+
+// }
