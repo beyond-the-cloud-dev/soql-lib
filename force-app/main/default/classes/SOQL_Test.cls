@@ -1966,6 +1966,20 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void groupByWithDefaultFieldsAndAggregateFunction() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.FirstName, Lead.LastName, Lead.Email)
+            .count(Lead.Name)
+            .with(Lead.LeadSource)
+            .groupBy(Lead.LeadSource)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource', soql);
+    }
+
+    @IsTest
     static void havingFilterWithSObjectField() {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
