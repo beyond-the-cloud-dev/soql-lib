@@ -123,13 +123,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable withoutSharing();
         // MOCKING
         Queryable mockId(String id);
-        // CACHING
-        // Queryable cacheInTransaction();
-        // Queryable cacheInSessionCache();
-        // Queryable cacheInSessionCache(Integer timeToLive);
-        // Queryable cacheInOrgCache();
-        // Queryable cacheInOrgCache(Integer timeToLive);
-        // Queryable clearCache();
         // DEBUGGING
         Queryable preview();
         // PREDEFINIED
@@ -817,11 +810,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         return executor.toInteger();
     }
 
-    public virtualSObject toObject() {
+    public SObject toObject() {
         return executor.toObject();
     }
 
-    public virtual List<SObject> toList() {
+    public List<SObject> toList() {
         return executor.toList();
     }
 

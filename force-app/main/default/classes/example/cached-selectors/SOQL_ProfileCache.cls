@@ -6,29 +6,28 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
     private SOQL_ProfileCache() {
         super(Profile.SObjectType);
         // default settings
-        with(Profile.Id, Profile.Name);
-        withoutSharing();
+        with(Profile.Id, Profile.Name, Profile.UserType);
     }
 
-    public override SOQLCache.Storage getStorage() {
-        return SOQLCache.Storage.ORG_CACHE;
+    public override SOQL.Queryable initialQuery() {
+        return SOQL.of(Profile.SObjectType).with(Profile.Id, Profile.Name);
     }
 
-    // public override SOQL initialQuery() {
-    //     return new SOQL_ProfileCache()
-    // }
-    public SOQL initialQuery() {
-        return new SOQL_ProfileCache();
+    public override Storage cacheIn() {
+        return Storage.ORG_CACHE;
     }
 
-    public List<SObjectField> cacheByFields() {
+    public override List<SObjectField> cachedBy() {
         return new List<SObjectField>{ Profile.Id, Profile.Name };
     }
 
-    // if condition is not in cacheByFields throw error
+    public Profile byId(Id profileId) {
+        whereAre(SOQL.Filter.with(Profile.Id).equal(profileId));
+        return (Profile) toObject();
+    }
 
-    public SOQL_ProfileCache byName(String name) {
-        whereAre(Filter.with(Profile.Name).equal(name));
-        return this;
+    public Profile byName(String name) {
+        whereAre(SOQL.Filter.with(Profile.Name).equal(name));
+        return (Profile) toObject();
     }
 }
