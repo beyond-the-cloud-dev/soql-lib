@@ -817,7 +817,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         return executor.toInteger();
     }
 
-    public virtual SObject toObject() {
+    public virtualSObject toObject() {
         return executor.toObject();
     }
 
