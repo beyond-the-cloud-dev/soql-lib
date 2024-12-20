@@ -4,17 +4,8 @@ public abstract with sharing class SOQLCache implements Cacheable {
     }
 
     public interface Cacheable {
-        // SELECT
-        Cacheable with(SObjectField field);
-        Cacheable with(SObjectField field1, SObjectField field2);
-        Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3);
-        Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
-        Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
-        // Cacheable with(List<SObjectField> fields);
-        // Cacheable with(Iterable<String> fields);
-        // Cacheable with(String fields);
         // WHERE
-        Cacheable whereAre(SOQL.Filter filter);
+        Cacheable whereAre(SOQLCache.Filter filter);
         // RESULT
         SObject toObject();
         List<SObject> toList();
@@ -23,6 +14,50 @@ public abstract with sharing class SOQLCache implements Cacheable {
     public interface Filter {
         // create own filter, because only equal will be supported
         // create adapter that translate SOQLCache.Filter to SOQL.Filter
+        // FIELDS
+        Filter id();
+        Filter name();
+        Filter with(SObjectField field);
+        Filter with(String field);
+        // COMPERATORS
+        Filter equal(Object value);
+    }
+
+    public static Filter Filter {
+        get { return new SoqlFilter(); }
+    }
+
+    private class SoqlFilter implements Filter {
+        private String field;
+        private String comperator;
+        private Object value;
+
+        public Filter id() {
+            return with('Id');
+        }
+
+        public Filter name() {
+            return with('Name');
+        }
+
+        public Filter with(SObjectField field) {
+            return with(field.getDescribe().getName());
+        }
+
+        public Filter with(String field) {
+            this.field = field;
+            return this;
+        }
+
+        public Filter equal(Object value) {
+            return set('=', value);
+        }
+
+          private Filter set(String comperator, Object value) {
+            this.value = value;
+            this.comperator = comperator;
+            return this;
+        }
     }
 
     private static final Map<StorageType, CacheStorage> STORAGE_TYPE_TO_SERVICE = new Map<StorageType, CacheStorage> {
@@ -37,46 +72,11 @@ public abstract with sharing class SOQLCache implements Cacheable {
 
     public SOQLCache(SObjectType ofObject) {
         this.ofObject = ofObject.getDescribe().getName();
-        this.query = SOQL.of(this.ofObject);
+        this.query = SOQL.of(this.ofObject).with(cachedBy()).with(cachedFields());
         this.cacheStorage = STORAGE_TYPE_TO_SERVICE.get(this.cacheIn());
 
         // check if cache is empty if yes, execute initial query
         initialQuery().toList();
-    }
-
-    public Cacheable with(SObjectField field) {
-        this.query.with(field);
-        return this;
-    }
-
-    public Cacheable with(SObjectField field1, SObjectField field2) {
-        this.query.with(field1, field2);
-        return this;
-    }
-
-    public Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3) {
-        this.query.with(field1, field2, field3);
-        return this;
-    }
-
-    public Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
-        this.query.with(field1, field2, field3, field4);
-        return this;
-    }
-
-    public Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
-        this.query.with(field1, field2, field3, field4, field5);
-        return this;
-    }
-
-    public Cacheable with(List<SObjectField> fields) {
-        this.query.with(fields);
-        return this;
-    }
-
-    public Cacheable with(Iterable<String> fields) {
-        this.query.with(fields);
-        return this;
     }
 
     public Cacheable with(String fields) {
@@ -84,9 +84,10 @@ public abstract with sharing class SOQLCache implements Cacheable {
         return this;
     }
 
-    public Cacheable whereAre(SOQL.Filter filter) {
+    public Cacheable whereAre(SOQLCache.Filter filter) {
         // check if filter field is cachedByFields, if not throw an error
-        this.query.whereAre(filter);
+        // adapter
+        // this.query.whereAre(filter);
         return this;
     }
 
@@ -129,8 +130,6 @@ public abstract with sharing class SOQLCache implements Cacheable {
 
     private List<SObject> getCachedRecords() {
         // return this.cacheStorage.put(this.ofObject, aggregatedRecordsByFieldValueKey);
-
-
         return null;
     }
 
@@ -237,3 +236,14 @@ public abstract with sharing class SOQLCache implements Cacheable {
 // Cache.Partition cachePartition = Cache.Org.getPartition('local.SOQLCache');
 // Map<String, List<SObject>> hehe =  (Map<String, List<SObject>>) cachePartition.get('ss');
 // System.debug('hehe >>' + hehe);
+
+
+/*
+1. Catch error when there is no available space.
+2. Catch error when ord doesn't support platform cache.
+3. You can't mock platform cache partition in Apex tests.
+
+SOQL Cache
+1. It has to be cached by unique field. Why? If there is no record in cache that meet filter criteria, then SOQL know that it should be pull from database. If SOQL Lib try to find record by not unique value and there are some records in cache, soql lib
+cannot be sure that's all of them or just a part.
+*/

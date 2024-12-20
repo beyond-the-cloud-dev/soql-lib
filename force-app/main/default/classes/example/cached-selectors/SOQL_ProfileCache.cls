@@ -11,8 +11,8 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
         return SOQL.of(Profile.SObjectType).systemMode().withoutSharing();
     }
 
-    public override Storage cacheIn() {
-        return Storage.ORG_CACHE;
+    public override StorageType cacheIn() {
+        return StorageType.ORG_CACHE;
     }
 
     public override List<SObjectField> cachedBy() {
@@ -20,16 +20,16 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
     }
 
     public override List<SObjectField> cachedFields() {
-        return new List<SObjectField>{ Profile.Id, Profile.Name, Profile.UserType};
+        return new List<SObjectField>{ Profile.Id, Profile.Name, Profile.UserType };
     }
 
     public Profile byId(Id profileId) {
-        whereAre(SOQL.Filter.with(Profile.Id).equal(profileId));
+        whereAre(SOQLCache.Filter.with(Profile.Id).equal(profileId));
         return (Profile) toObject();
     }
 
     public Profile byName(String name) {
-        whereAre(SOQL.Filter.with(Profile.Name).equal(name));
+        whereAre(SOQLCache.Filter.with(Profile.Name).equal(name));
         return (Profile) toObject();
     }
 }
