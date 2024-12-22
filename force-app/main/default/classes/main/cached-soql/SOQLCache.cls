@@ -18,8 +18,8 @@ public abstract with sharing class SOQLCache implements Cacheable {
         Filter with(String field);
         // COMPERATORS
         Filter equal(Object value);
-        // TODO isTrue
-        // TODO isFalse
+        Filter isTrue();
+        Filter isFalse();
 
         Condition getCondition();
     }
@@ -131,6 +131,14 @@ public abstract with sharing class SOQLCache implements Cacheable {
 
         public Filter equal(Object value) {
             return set('=', value);
+        }
+
+        public Filter isTrue() {
+            return set('=', TRUE);
+        }
+
+        public Filter isFalse() {
+            return set('=', FALSE);
         }
 
         private Filter set(String comperator, Object value) {
