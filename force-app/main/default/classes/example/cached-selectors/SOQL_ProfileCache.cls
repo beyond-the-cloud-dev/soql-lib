@@ -15,10 +15,6 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
         return StorageType.ORG_CACHE;
     }
 
-    public override List<SObjectField> cachedBy() {
-        return new List<SObjectField>{ Profile.Id, Profile.Name };
-    }
-
     public override List<SObjectField> cachedFields() {
         return new List<SObjectField>{ Profile.Id, Profile.Name, Profile.UserType };
     }
@@ -33,3 +29,7 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
         return (Profile) toObject();
     }
 }
+
+SOQL_ProfileCache.query().byName('Sys Admin');
+
+.cacheInOrgCache();
