@@ -11,8 +11,8 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
         return SOQL.of(Profile.SObjectType).systemMode().withoutSharing();
     }
 
-    public override StorageType cacheIn() {
-        return StorageType.ORG_CACHE;
+    public override CacheManager.Cacheable cacheIn() {
+        return CacheManager.SOQLOrgCache;
     }
 
     public override List<SObjectField> cachedFields() {
@@ -20,16 +20,10 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
     }
 
     public Profile byId(Id profileId) {
-        whereAre(SOQLCache.Filter.with(Profile.Id).equal(profileId));
-        return (Profile) toObject();
+        return (Profile) whereAre(Filter.with(Profile.Id).equal(profileId)).toObject();
     }
 
     public Profile byName(String name) {
-        whereAre(SOQLCache.Filter.with(Profile.Name).equal(name));
-        return (Profile) toObject();
+        return (Profile) whereAre(Filter.with(Profile.Name).equal(name)).toObject();
     }
 }
-
-SOQL_ProfileCache.query().byName('Sys Admin');
-
-.cacheInOrgCache();
