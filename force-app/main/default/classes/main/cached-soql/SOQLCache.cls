@@ -9,7 +9,7 @@ public abstract with sharing class SOQLCache implements Cacheable {
         // Cacheable whereEqual(String field, Object value); ??? because only equal is supported
         // RESULT
         SObject toObject();
-        // TODO SObject byId(Id recordId);
+        SObject byId(Id recordId);
         // I cannot pull by list/set because part of records can be in cache, part not in cache
         // or maybe I can pull records that are not in cache
     }
@@ -51,13 +51,13 @@ public abstract with sharing class SOQLCache implements Cacheable {
     public SOQLCache(SObjectType ofObject) {
         this.ofObject = ofObject.getDescribe().getName();
         this.currentQuery = SOQL.of(this.ofObject).with(cachedFields());
-        this.cacheRecordsFromInitialQueryIfCacheEmpty();
+        this.cacheRecordsFromInitialQuery();
         for (SObjectField field : this.cachedFields()) {
             this.cachedFields.add(field + '');
         }
     }
 
-    private void cacheRecordsFromInitialQueryIfCacheEmpty() {
+    private void cacheRecordsFromInitialQuery() {
         if (this.cacheIn().contains(this.ofObject) || this.initialQuery() == null) {
             return;
         }
@@ -65,18 +65,17 @@ public abstract with sharing class SOQLCache implements Cacheable {
     }
 
     public Cacheable whereAre(SOQLCache.Filter filter) {
-        // TODO throw exception that there can be only one condition
         if (this.filterCondition != null) {
-            // throw new Error(Only one condition can be used)
+            throw new SoqlCacheException('Only one condition can be used in cached selector.');
         }
 
-        // TODO Check if record has all cachedFields
         if (!this.cachedFields.contains(this.filterCondition.getField())) {
-            // throw new Error(Filters must use cached fields. Updated cached fields in cachedFilelds() or change condition)
+            throw new SoqlCacheException('Filter must use cached field. Updated cached fields in cachedFilelds() method or update the condition.');
         }
 
-        // TODO Field should be unique otherwise it doesn't make sense to filtr
-        // not sure if it's possible
+        if (new List<String>{ 'Id', 'Name', 'DeveloperName' }.contains(this.filterCondition.getField())) { // TODO || this.fieldCondition.getField().isUnique()
+            throw new SoqlCacheException('Cached query can be filter only by unique field.');
+        }
 
         this.filterCondition = filter;
         this.currentQuery.whereAre(SOQL.Filter.with(this.filterCondition.getField()).equal(this.filterCondition.getValue()));
@@ -86,30 +85,37 @@ public abstract with sharing class SOQLCache implements Cacheable {
 
     public SObject toObject() {
         if (this.filterCondition == null) {
-            // TODO throw Error (One condition is required)
+            throw new SoqlCacheException('Condition is missing. Provide filter to retrieve cached record.');
         }
 
+        List<SObject> cachedRecords = this.getCachedRecords();
+        SObject record = this.findInCache(cachedRecords);
+
+        if (record == null) {
+            record = this.currentQuery.toObject();
+            cachedRecords.add(record);
+            this.cacheIn().put(this.ofObject, cachedRecords);
+        }
+
+        return record;
+    }
+
+    public SObject byId(Id recordId) {
+        return whereAre(Filter.id().equal(recordId)).toObject();
+    }
+
+    private List<SObject> getCachedRecords() {
         List<SObject> cachedRecords = (List<SObject>) this.cacheIn().get(this.ofObject);
+        return cachedRecords == null ? new List<SObject>() : cachedRecords;
+    }
 
-        if (cachedRecords == null) {
-            SObject record = this.currentQuery.toObject(); // SOQL
-            this.cacheIn().put(this.ofObject, new List<SObject>{ record });
-            return record;
-        }
-
+    public SObject findInCache(List<SObject> cachedRecords) {
         for (SObject record : cachedRecords) {
-            if (record.get(this.filterCondition.getField()) == this.filterCondition.getValue()) { // find record in cache
+            if (record.get(this.filterCondition.getField()) == this.filterCondition.getValue()) {
                 return record;
             }
         }
-
-        // TODO record not found in cache
-        // add it to existing records
-        SObject record = this.currentQuery.toObject();
-        cachedRecords.add(record);
-        this.cacheIn().put(this.ofObject, cachedRecords);
-
-        return record;
+        return null;
     }
 
     private class SoqlFilter implements Filter {
@@ -152,7 +158,16 @@ public abstract with sharing class SOQLCache implements Cacheable {
             return this.value;
         }
     }
+
+    public class SoqlCacheException extends Exception {}
 }
+
+/*
+1. Only one condition can be use and it should filter by "unique" field - so if records is not found, soql lib will know what to retrieve.
+2.
+
+
+*/
 
 /*
 1. Catch error when there is no available space.
