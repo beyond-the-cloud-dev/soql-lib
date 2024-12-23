@@ -6,8 +6,12 @@ public abstract with sharing class SOQLCache implements Cacheable {
     public interface Cacheable {
         // WHERE
         Cacheable whereAre(SOQLCache.Filter filter);
+        // Cacheable whereEqual(String field, Object value); ??? because only equal is supported
         // RESULT
         SObject toObject();
+        // TODO SObject byId(Id recordId);
+        // I cannot pull by list/set because part of records can be in cache, part not in cache
+        // or maybe I can pull records that are not in cache
     }
 
     public interface Filter {
@@ -18,10 +22,9 @@ public abstract with sharing class SOQLCache implements Cacheable {
         Filter with(String field);
         // COMPERATORS
         Filter equal(Object value);
-        Filter isTrue();
-        Filter isFalse();
 
-        Condition getCondition();
+        String getField();
+        Object getValue();
     }
 
     public static Filter Filter {
@@ -68,7 +71,7 @@ public abstract with sharing class SOQLCache implements Cacheable {
         }
 
         // TODO Check if record has all cachedFields
-        if (!this.cachedFields.contains(this.filterCondition.getCondition().field)) {
+        if (!this.cachedFields.contains(this.filterCondition.getField())) {
             // throw new Error(Filters must use cached fields. Updated cached fields in cachedFilelds() or change condition)
         }
 
@@ -76,7 +79,7 @@ public abstract with sharing class SOQLCache implements Cacheable {
         // not sure if it's possible
 
         this.filterCondition = filter;
-        this.currentQuery.whereAre(SOQL.Filter.with(this.filterCondition.getCondition().field).equal(this.filterCondition.getCondition().value));
+        this.currentQuery.whereAre(SOQL.Filter.with(this.filterCondition.getField()).equal(this.filterCondition.getValue()));
 
         return this;
     }
@@ -95,7 +98,7 @@ public abstract with sharing class SOQLCache implements Cacheable {
         }
 
         for (SObject record : cachedRecords) {
-            if (record.get(this.filterCondition.getCondition().field) == this.filterCondition.getCondition().value) { // find record in cache
+            if (record.get(this.filterCondition.getField()) == this.filterCondition.getValue()) { // find record in cache
                 return record;
             }
         }
@@ -110,7 +113,9 @@ public abstract with sharing class SOQLCache implements Cacheable {
     }
 
     private class SoqlFilter implements Filter {
-        private Condition condition;
+        private String field;
+        private Object value;
+        private String comperator;
 
         public Filter id() {
             return with('Id');
@@ -125,7 +130,7 @@ public abstract with sharing class SOQLCache implements Cacheable {
         }
 
         public Filter with(String field) {
-            this.condition.field = field;
+            this.field = field;
             return this;
         }
 
@@ -133,29 +138,19 @@ public abstract with sharing class SOQLCache implements Cacheable {
             return set('=', value);
         }
 
-        public Filter isTrue() {
-            return set('=', TRUE);
-        }
-
-        public Filter isFalse() {
-            return set('=', FALSE);
-        }
-
         private Filter set(String comperator, Object value) {
-            this.condition.value = value;
-            this.condition.comperator = comperator;
+            this.comperator = comperator;
+            this.value = value;
             return this;
         }
 
-        public Condition getCondition() {
-            return this.condition;
+        public String getField() {
+            return this.field;
         }
-    }
 
-    private class Condition {
-        public String field;
-        public String comperator;
-        public Object value;
+        public Object getValue() {
+            return this.value;
+        }
     }
 }
 
