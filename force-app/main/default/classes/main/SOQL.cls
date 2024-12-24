@@ -329,7 +329,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     private static Mock mock = new Mock();
     private static Binder binder = new Binder();
 
-    private QueryBuilder builder;
+    private SoqlBuilder builder;
     private Executor executor;
 
     public static SOQL of(SObjectType ofObject) {
@@ -345,7 +345,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public SOQL(String ofObject) {
-        builder = new QueryBuilder(ofObject);
+        builder = new SoqlBuilder(ofObject);
         executor = new Executor(ofObject, builder);
     }
 
@@ -876,10 +876,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         String toString();
     }
 
-    private class QueryBuilder implements QueryClause {
+    private class SoqlBuilder implements QueryClause {
         private List<QueryClause> clauses = new QueryClause[11];
 
-        public QueryBuilder(String ofObject) {
+        public SoqlBuilder(String ofObject) {
             clauses.set(0, new SoqlFields(ofObject));
             clauses.set(2, new SoqlFrom(ofObject));
         }
@@ -1134,10 +1134,10 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class SoqlSubQuery implements SubQuery {
-        private QueryBuilder builder;
+        private SoqlBuilder builder;
 
         public SubQuery of(String ofObject) {
-            builder = new QueryBuilder(ofObject);
+            builder = new SoqlBuilder(ofObject);
             return this;
         }
 
@@ -1626,10 +1626,10 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class SoqlJoinQuery implements InnerJoin {
-        private QueryBuilder builder;
+        private SoqlBuilder builder;
 
         public InnerJoin of(SObjectType ofObject) {
-            builder = new QueryBuilder(ofObject.getDescribe().getName());
+            builder = new SoqlBuilder(ofObject.getDescribe().getName());
             return this;
         }
 
@@ -2129,9 +2129,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         private AccessType accessType;
         private String mockId;
         private String ofObject;
-        private QueryBuilder builder;
+        private SoqlBuilder builder;
 
-        public Executor(String ofObject, QueryBuilder builder) {
+        public Executor(String ofObject, SoqlBuilder builder) {
             this.ofObject = ofObject;
             this.builder = builder;
 
