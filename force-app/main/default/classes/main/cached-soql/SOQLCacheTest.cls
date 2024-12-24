@@ -1,4 +1,0 @@
-@IsTest
-private class SOQLCacheTest {
-
-}
