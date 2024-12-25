@@ -20,6 +20,16 @@ private class SOQLCache_Test {
     }
 
     @IsTest
+    static void noInitialQuery() {
+        // Test
+        new SOQL_ProfileCacheDefault();
+        List<Profile> cachedProfiles = (List<Profile>) CacheManager.ApexTransaction.get('Profile');
+
+        // Verify
+        Assert.isNull(cachedProfiles);
+    }
+
+    @IsTest
     static void whereEqualSObjectField() {
         // Setup
         SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
@@ -158,6 +168,20 @@ private class SOQLCache_Test {
 
         public override CacheManager.Cacheable cacheIn() {
             return CacheManager.ApexTransaction;
+        }
+
+        public override List<SObjectField> cachedFields() {
+            return new List<SObjectField>{ Profile.Id, Profile.Name, Profile.UserType};
+        }
+    }
+
+    public class SOQL_ProfileCacheDefault extends SOQLCache implements SOQLCache.Selector{
+        public SOQL_ProfileCacheDefault query() {
+            return new SOQL_ProfileCacheDefault();
+        }
+
+        private SOQL_ProfileCacheDefault() {
+            super(Profile.SObjectType);
         }
 
         public override List<SObjectField> cachedFields() {
