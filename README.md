@@ -97,6 +97,7 @@ Read about the features in the [documentation](https://soql-lib.vercel.app/docs/
 6. **Avoid query duplicates**
 7. **The default configuration for all queries**
 8. **Dynamic conditions**
+9. **Cache records**
 
 ----
 
