@@ -7,6 +7,8 @@ public abstract with sharing class SOQLCache implements Cacheable {
         // WHERE
         Cacheable whereEqual(SObjectField field, Object value);
         Cacheable whereEqual(String field, Object value);
+        // MOCKING
+        Cacheable mockId(String id);
         // PREDEFINED
         SObject byId(Id recordId);
         // RESULT
@@ -55,6 +57,11 @@ public abstract with sharing class SOQLCache implements Cacheable {
         return this;
     }
 
+    public Cacheable mockId(String id) {
+        this.query.mockId(id);
+        return this;
+    }
+
     public SObject toObject() {
         if (this.cacheFilter == null) {
             throw new SoqlCacheException('Condition is missing. Provide filter to retrieve cached record.');
@@ -94,10 +101,6 @@ public abstract with sharing class SOQLCache implements Cacheable {
                 this.fieldsToCache.add(cachedField.getDescribe().getName());
             }
             return this;
-        }
-
-        public CacheFilter with(SObjectField field) {
-            return with(field.getDescribe().getName());
         }
 
         public CacheFilter with(String field) {
