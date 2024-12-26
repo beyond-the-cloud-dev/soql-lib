@@ -4,6 +4,13 @@ public abstract with sharing class SOQLCache implements Cacheable {
     }
 
     public interface Cacheable {
+        // CONFIG
+        Cacheable initialQuery(SOQL.Queryable query);
+        Cacheable cacheInApexTransaction();
+        Cacheable cacheInOrgCache();
+        Cacheable cacheInSessionCache();
+        // SELECT
+        Cacheable with(List<SObjectField> fields);
         // WHERE
         Cacheable whereEqual(SObjectField field, Object value);
         Cacheable whereEqual(String field, Object value);
@@ -15,35 +22,41 @@ public abstract with sharing class SOQLCache implements Cacheable {
         SObject toObject();
     }
 
-    public virtual SOQL.Queryable initialQuery() {
-        return null;
-    }
-
-    public virtual CacheManager.Cacheable cacheIn() {
-        return CacheManager.ApexTransaction;
-    }
-
-    public abstract List<SObjectField> cachedFields();
-
     // Implementation
 
-    private String ofObject;
-    private SOQL.Queryable query;
+    private Builder builder;
     private CacheExecutor executor;
-    private CacheFilter cacheFilter = null;
 
     public SOQLCache(SObjectType ofObject) {
-        this.ofObject = ofObject.getDescribe().getName();
-        this.query = SOQL.of(this.ofObject).with(this.cachedFields());
-        this.cacheFilter = new CacheFilter(this.ofObject, this.cachedFields());
-        this.executor = new CacheExecutor(this.ofObject, this.cacheIn(), this.cacheFilter, this.query);
-
-        this.executeInitialQuery();
+        this.builder = new Builder(ofObject.getDescribe().getName());
+        this.executor = new CacheExecutor(this.builder);
     }
 
-    private void executeInitialQuery() {
-        if (this.cacheIn().contains(this.ofObject) || this.initialQuery() == null) return;
-        this.cacheIn().put(this.ofObject, this.initialQuery().with(this.cachedFields()).toList());
+    public Cacheable initialQuery(SOQL.Queryable query) {
+        this.builder.initialQuery = query;
+        return this;
+    }
+
+    public Cacheable cacheInApexTransaction() {
+        this.builder.storage.cacheInApexTransaction();
+        return this;
+    }
+
+    public Cacheable cacheInOrgCache() {
+        this.builder.storage.cacheInOrgCache();
+        return this;
+    }
+
+    public Cacheable cacheInSessionCache() {
+        this.builder.storage.cacheInSessionCache();
+        return this;
+    }
+
+    public Cacheable with(List<SObjectField> cachedFields) {
+        this.builder.initialQuery.with(cachedFields);
+        this.builder.currentyQuery.with(cachedFields);
+        this.builder.cacheFilter.withCachedFields(cachedFields);
+        return this;
     }
 
     public Cacheable whereEqual(SObjectField field, Object value) {
@@ -51,30 +64,80 @@ public abstract with sharing class SOQLCache implements Cacheable {
     }
 
     public Cacheable whereEqual(String field, Object value) {
-        // if (String.isNotBlank(this.field)) {
-        //     throw new SoqlCacheException('Only one condition can be used in cached selector.');
-        // }
-
-        this.cacheFilter.with(field).equal(value);
-        this.query.whereAre(SOQL.Filter.with(field).equal(value));
+        this.builder.cacheFilter.singleFilterValidation();
+        this.builder.cacheFilter.with(field).equal(value);
+        this.builder.currentyQuery.whereAre(SOQL.Filter.with(field).equal(value));
         return this;
     }
 
     public Cacheable mockId(String id) {
-        this.query.mockId(id);
+        this.builder.currentyQuery.mockId(id);
         return this;
     }
 
     public SObject toObject() {
-        if (this.cacheFilter == null) {
-            throw new SoqlCacheException('Condition is missing. Provide filter to retrieve cached record.');
-        }
-
+        this.builder.cacheFilter.hasFilterValidation();
+        this.executeInitialQuery();
         return this.executor.toObject();
+    }
+
+    private void executeInitialQuery() {
+        if (this.builder.storage.hasCachedRecords() || this.builder.initialQuery == null) {
+            return;
+        }
+        this.builder.storage.putRecordsToCache(this.builder.initialQuery.toList());
     }
 
     public SObject byId(Id recordId) {
         return whereEqual('Id', recordId).toObject();
+    }
+
+    private class Builder {
+        public String ofObject;
+        public CacheFilter cacheFilter = null;
+        public CacheStorageProxy storage = null;
+        public SOQL.Queryable initialQuery = null;
+        public SOQL.Queryable currentyQuery = null;
+
+        public Builder(String ofObject) {
+            this.ofObject = ofObject;
+            this.currentyQuery = SOQL.of(this.ofObject);
+            this.cacheFilter = new CacheFilter(this.ofObject);
+            this.storage = new CacheStorageProxy(this.ofObject);
+        }
+    }
+
+    private class CacheStorageProxy {
+        private CacheManager.Cacheable storage = CacheManager.ApexTransaction;
+        private String ofObject;
+
+        public CacheStorageProxy(String ofObject) {
+            this.ofObject = ofObject;
+        }
+
+        public void cacheInApexTransaction() {
+            this.storage = CacheManager.ApexTransaction;
+        }
+
+        public void cacheInOrgCache() {
+            this.storage = CacheManager.SOQLOrgCache;
+        }
+
+        public void cacheInSessionCache() {
+            this.storage = CacheManager.SOQLSessionCache;
+        }
+
+        public void putRecordsToCache(Object value) {
+            this.storage.put(this.ofObject, value);
+        }
+
+        public Boolean hasCachedRecords() {
+            return this.storage.contains(this.ofObject);
+        }
+
+        public Object getCachedRecords() {
+            return this.storage.get(this.ofObject);
+        }
     }
 
     private class CacheFilter {
@@ -83,13 +146,19 @@ public abstract with sharing class SOQLCache implements Cacheable {
         private Object value;
         private List<String> fieldsToCache = new List<String>();
 
-        public CacheFilter(String ofObject, List<SObjectField> fieldsToCache) {
-            for (SObjectField cachedField : fieldsToCache) {
+        public CacheFilter(String ofObject) {
+            this.ofObject = ofObject;
+        }
+
+        public CacheFilter withCachedFields(List<SObjectField> fields) {
+            for (SObjectField cachedField : fields) {
                 this.fieldsToCache.add(cachedField.getDescribe().getName());
             }
+            return this;
         }
 
         public CacheFilter with(String field) {
+            this.validate();
             this.field = field;
             return this;
         }
@@ -99,19 +168,19 @@ public abstract with sharing class SOQLCache implements Cacheable {
             return this;
         }
 
-        private void validate() {
-            if (!this.fieldsToCache.contains(this.field)) {
-                throw new SoqlCacheException('Filter must use cached field. Updated cached fields in cachedFilelds() method or update the condition.');
+        public void singleFilterValidation() {
+            if (String.isNotBlank(this.field)) {
+                throw new SoqlCacheException('Only one condition can be used in cached selector.');
             }
+        }
 
-            if (!(new List<String>{ 'Id', 'Name', 'DeveloperName' }.contains(this.field) || Schema.getGlobalDescribe().get(this.ofObject).getDescribe().fields.getMap().get(this.field).getDescribe().isUnique())) {
-                throw new SoqlCacheException('Cached query can be filter only by unique field.');
+        public void hasFilterValidation() {
+            if (String.isBlank(this.field)) {
+                throw new SoqlCacheException('Condition is missing. Provide filter to retrieve cached record.');
             }
         }
 
         public List<SObject> filter(List<SObject> cachedRecords) {
-            this.validate();
-
             List<SObject> filteredRecords = new List<SObject>();
 
             for (SObject record : cachedRecords) {
@@ -122,19 +191,23 @@ public abstract with sharing class SOQLCache implements Cacheable {
 
             return filteredRecords;
         }
+
+        private void validate() {
+            if (!this.fieldsToCache.contains(this.field)) {
+                throw new SoqlCacheException('Filter must use cached field. Updated cached fields in cachedFilelds() method or update the condition.');
+            }
+
+            if (!(new List<String>{ 'Id', 'Name', 'DeveloperName' }.contains(this.field) || Schema.getGlobalDescribe().get(this.ofObject).getDescribe().fields.getMap().get(this.field).getDescribe().isUnique())) {
+                throw new SoqlCacheException('Cached query can be filter only by Id, Name, DeveloperName or a unique field.');
+            }
+        }
     }
 
     private inherited sharing class CacheExecutor {
-        private String ofObject;
-        private CacheFilter cacheFilter;
-        private CacheManager.Cacheable storage;
-        private SOQL.Queryable query;
+        private Builder builder;
 
-        public CacheExecutor(String ofObject, CacheManager.Cacheable storage, CacheFilter cacheFilter, SOQL.Queryable query) {
-            this.ofObject = ofObject;
-            this.storage = storage;
-            this.cacheFilter = cacheFilter;
-            this.query = query;
+        public CacheExecutor(Builder builder) {
+            this.builder = builder;
         }
 
         public SObject toObject() {
@@ -152,17 +225,17 @@ public abstract with sharing class SOQLCache implements Cacheable {
         }
 
         public List<SObject> toList() {
-            List<SObject> cachedRecords = (List<SObject>) this.storage.get(this.ofObject);
+            List<SObject> cachedRecords = (List<SObject>) this.builder.storage.getCachedRecords();
             cachedRecords = cachedRecords == null ? new List<SObject>() : cachedRecords;
-            List<SObject> filteredCachedRecords = this.cacheFilter.filter(cachedRecords);
+            List<SObject> filteredCachedRecords = this.builder.cacheFilter.filter(cachedRecords);
 
             if (!filteredCachedRecords.isEmpty()) {
                 return filteredCachedRecords;
             }
 
-            List<SObject> databaseRecords = this.query.toList();
+            List<SObject> databaseRecords = this.builder.currentyQuery.toList();
             cachedRecords.addAll(databaseRecords);
-            this.storage.put(this.ofObject, cachedRecords);
+            this.builder.storage.putRecordsToCache(cachedRecords);
 
             return databaseRecords;
         }
