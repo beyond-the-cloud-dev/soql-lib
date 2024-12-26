@@ -27,13 +27,16 @@ public abstract with sharing class SOQLCache implements Cacheable {
 
     // Implementation
 
-    private String ofObject = null;
-    private SOQL.Queryable query = null;
+    private String ofObject;
+    private SOQL.Queryable query;
+    private CacheExecutor executor;
     private CacheFilter cacheFilter = null;
 
     public SOQLCache(SObjectType ofObject) {
         this.ofObject = ofObject.getDescribe().getName();
         this.query = SOQL.of(this.ofObject).with(this.cachedFields());
+        this.cacheFilter = new CacheFilter(this.ofObject, this.cachedFields());
+        this.executor = new CacheExecutor(this.ofObject, this.cacheIn(), this.cacheFilter, this.query);
 
         this.executeInitialQuery();
     }
@@ -48,11 +51,11 @@ public abstract with sharing class SOQLCache implements Cacheable {
     }
 
     public Cacheable whereEqual(String field, Object value) {
-        if (this.cacheFilter != null) {
-            throw new SoqlCacheException('Only one condition can be used in cached selector.');
-        }
+        // if (String.isNotBlank(this.field)) {
+        //     throw new SoqlCacheException('Only one condition can be used in cached selector.');
+        // }
 
-        this.cacheFilter = new CacheFilter().ofObject(this.ofObject).cachedFields(this.cachedFields()).with(field).equal(value);
+        this.cacheFilter.with(field).equal(value);
         this.query.whereAre(SOQL.Filter.with(field).equal(value));
         return this;
     }
@@ -67,18 +70,7 @@ public abstract with sharing class SOQLCache implements Cacheable {
             throw new SoqlCacheException('Condition is missing. Provide filter to retrieve cached record.');
         }
 
-        List<SObject> cachedRecords = (List<SObject>) this.cacheIn().get(this.ofObject);
-        cachedRecords = cachedRecords == null ? new List<SObject>() : cachedRecords;
-
-        SObject record = this.cacheFilter.filter(cachedRecords);
-
-        if (record == null) {
-            record = this.query.toObject();
-            cachedRecords.add(record);
-            this.cacheIn().put(this.ofObject, cachedRecords);
-        }
-
-        return record;
+        return this.executor.toObject();
     }
 
     public SObject byId(Id recordId) {
@@ -86,21 +78,15 @@ public abstract with sharing class SOQLCache implements Cacheable {
     }
 
     private class CacheFilter {
-        private List<String> fieldsToCache = new List<String>();
         private String ofObject;
         private String field;
         private Object value;
+        private List<String> fieldsToCache = new List<String>();
 
-        public CacheFilter ofObject(String ofObject) {
-            this.ofObject = ofObject;
-            return this;
-        }
-
-        public CacheFilter cachedFields(List<SObjectField> fieldsToCache) {
+        public CacheFilter(String ofObject, List<SObjectField> fieldsToCache) {
             for (SObjectField cachedField : fieldsToCache) {
                 this.fieldsToCache.add(cachedField.getDescribe().getName());
             }
-            return this;
         }
 
         public CacheFilter with(String field) {
@@ -123,9 +109,36 @@ public abstract with sharing class SOQLCache implements Cacheable {
             }
         }
 
-        public SObject filter(List<SObject> cachedRecords) {
+        public List<SObject> filter(List<SObject> cachedRecords) {
             this.validate();
-            List<SObject> records = filterToList(cachedRecords);
+
+            List<SObject> filteredRecords = new List<SObject>();
+
+            for (SObject record : cachedRecords) {
+                if (record.get(this.field) == this.value) {
+                    filteredRecords.add(record);
+                }
+            }
+
+            return filteredRecords;
+        }
+    }
+
+    private inherited sharing class CacheExecutor {
+        private String ofObject;
+        private CacheFilter cacheFilter;
+        private CacheManager.Cacheable storage;
+        private SOQL.Queryable query;
+
+        public CacheExecutor(String ofObject, CacheManager.Cacheable storage, CacheFilter cacheFilter, SOQL.Queryable query) {
+            this.ofObject = ofObject;
+            this.storage = storage;
+            this.cacheFilter = cacheFilter;
+            this.query = query;
+        }
+
+        public SObject toObject() {
+            List<SObject> records = this.toList();
 
             if (records.size() > 1) {
                 throw new QueryException('List has more than 1 row for assignment to SObject');
@@ -138,41 +151,22 @@ public abstract with sharing class SOQLCache implements Cacheable {
             return records[0];
         }
 
-        public List<SObject> filterToList(List<SObject> cachedRecords) {
-            List<SObject> filteredRecords = new List<SObject>();
-            for (SObject record : cachedRecords) {
-                if (record.get(this.field) == this.value) {
-                    filteredRecords.add(record);
-                }
+        public List<SObject> toList() {
+            List<SObject> cachedRecords = (List<SObject>) this.storage.get(this.ofObject);
+            cachedRecords = cachedRecords == null ? new List<SObject>() : cachedRecords;
+            List<SObject> filteredCachedRecords = this.cacheFilter.filter(cachedRecords);
+
+            if (!filteredCachedRecords.isEmpty()) {
+                return filteredCachedRecords;
             }
-            return filteredRecords;
+
+            List<SObject> databaseRecords = this.query.toList();
+            cachedRecords.addAll(databaseRecords);
+            this.storage.put(this.ofObject, cachedRecords);
+
+            return databaseRecords;
         }
     }
 
     public class SoqlCacheException extends Exception {}
 }
-
-/*
-1. Only one condition can be use and it should filter by "unique" field - so if records is not found, query lib will know what to retrieve.
-2.
-
-
-TODO
-1. Cache by related field (?)
- I cannot pull by list/set because part of records can be in cache, part not in cache
- or maybe I can pull records that are not in cache
-*/
-
-/*
-1. Catch error when there is no available space.
-2. Catch error when ord doesn't support platform cache.
-3. You can't mock platform cache partition in Apex tests.
-
-SOQL Cache
-
-1. It has to be cached by unique field. Why? If there is no record in cache that meet filter criteria, then SOQL know that it should be pull from database. If SOQL Lib try to find record by not unique value and there are some records in cache, soql lib
-cannot be sure that's all of them or just a part.
-*/
-
-
-//
