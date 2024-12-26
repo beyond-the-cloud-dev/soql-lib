@@ -5,7 +5,6 @@ public abstract inherited sharing class SOQLCache implements Cacheable {
 
     public interface Cacheable {
         // CONFIG
-        Cacheable initialQuery(SOQL.Queryable query);
         Cacheable cacheInApexTransaction();
         Cacheable cacheInOrgCache();
         Cacheable cacheInSessionCache();
@@ -29,14 +28,13 @@ public abstract inherited sharing class SOQLCache implements Cacheable {
 
     protected abstract List<SObjectField> cachedFields();
 
-    @TestVisible
-    private static void setMock(String mockId, SObject record) {
-        setMock(mockId, new List<SObject>{ record });
+    protected virtual SOQL.Queryable initialQuery() {
+        return null;
     }
 
     @TestVisible
-    private static void setMock(String mockId, List<SObject> records) {
-        mock.setMock(mockId, records);
+    private static void setMock(String mockId, SObject record) {
+        mock.setMock(mockId, new List<SObject>{ record });
     }
 
     // Implementation
@@ -50,9 +48,10 @@ public abstract inherited sharing class SOQLCache implements Cacheable {
         this.builder = new Builder(ofObject.getDescribe().getName());
         this.executor = new CacheExecutor(this.builder);
         this.with(this.cachedFields());
+        this.initQuery(this.initialQuery());
     }
 
-    public Cacheable initialQuery(SOQL.Queryable query) {
+    public Cacheable initQuery(SOQL.Queryable query) {
         this.builder.initialQuery = query;
         return this;
     }

@@ -5,9 +5,15 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
 
     private SOQL_ProfileCache() {
         super(Profile.SObjectType);
-        initialQuery(SOQL.of(Profile.SObjectType).systemMode().withoutSharing());
         cacheInOrgCache();
-        cachedFields(Profile.Id, Profile.Name, Profile.UserType);
+    }
+
+    public override SOQL.Cacheable initialQuery() {
+        return SOQL.of(Profile.SObjectType).systemMode().withoutSharing();
+    }
+
+    public override List<SObjectField> cachedFields() {
+        return new List<SObjectField>{ Profile.Id, Profile.Name, Profile.UserType };
     }
 
     public Profile byName(String name) {
