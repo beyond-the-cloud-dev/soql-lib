@@ -145,9 +145,9 @@ public abstract inherited sharing class SOQLCache implements Cacheable {
 
         public Builder(String ofObject) {
             this.ofObject = ofObject;
-            this.currentyQuery = SOQL.of(this.ofObject);
-            this.cacheFilter = new CacheFilter(this.ofObject);
             this.storage = new CacheStorageProxy(this.ofObject);
+            this.cacheFilter = new CacheFilter(this.ofObject);
+            this.currentyQuery = SOQL.of(this.ofObject);
         }
     }
 
@@ -305,21 +305,19 @@ public abstract inherited sharing class SOQLCache implements Cacheable {
 
             List<SObject> cachedRecords = (List<SObject>) this.builder.storage.getCachedRecords();
             cachedRecords = cachedRecords == null ? new List<SObject>() : cachedRecords;
-            List<SObject> filteredCachedRecords = this.builder.cacheFilter.filter(cachedRecords);
+            List<SObject> records = this.builder.cacheFilter.filter(cachedRecords);
 
-            if (!filteredCachedRecords.isEmpty()) {
-                return filteredCachedRecords;
+            if (records.isEmpty()) {
+                records = this.builder.currentyQuery.toList();
+                cachedRecords.addAll(records);
+                this.builder.storage.putRecordsToCache(records);
             }
-
-            List<SObject> databaseRecords = this.builder.currentyQuery.toList();
-            cachedRecords.addAll(databaseRecords);
-            this.builder.storage.putRecordsToCache(cachedRecords);
 
             if (this.accessType == null) {
-                return databaseRecords;
+                return records;
             }
 
-            return Security.stripInaccessible(this.accessType, databaseRecords).getRecords();
+            return Security.stripInaccessible(this.accessType, records).getRecords();
         }
     }
 

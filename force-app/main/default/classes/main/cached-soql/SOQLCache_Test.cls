@@ -13,7 +13,7 @@ private class SOQLCache_Test {
 
         // Test
         new SOQL_ProfileCache().whereEqual('Name', 'System Administrator').toObject(); // initial query will be executed
-        List<Profile> cachedProfiles = (List<Profile>) CacheManager.ApexTransaction.get('Profile');
+        List<Profile> cachedProfiles = (List<Profile>) CacheManager.ApexTransaction.get('ProfileTest');
 
         // Verify
         Assert.areEqual(PROFILES, cachedProfiles);
@@ -23,11 +23,91 @@ private class SOQLCache_Test {
     static void noInitialQuery() {
         // Test
         new SOQL_ProfileCacheDefault().whereEqual('Name', 'System Administrator').toObject();
-        List<Profile> cachedProfiles = (List<Profile>) CacheManager.ApexTransaction.get('Profile');
+        List<Profile> cachedProfiles = (List<Profile>) CacheManager.ApexTransaction.get('ProfileTest');
 
         // Verify
         Assert.areEqual('00e3V000000Nme3QAC', cachedProfiles[0].Id);
         Assert.areEqual('System Administrator', cachedProfiles[0].Name);
+    }
+
+    @IsTest
+    static void cacheInApexTransaction() {
+        // Setup
+        SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
+
+        // Test
+        Profile profile = (Profile) new SOQL_ProfileCache()
+            .cacheInApexTransaction()
+            .whereEqual('Name', 'System Administrator')
+            .toObject();
+
+        // Verify
+        Assert.areEqual('00e3V000000Nme3QAC', profile.Id);
+        Assert.areEqual('System Administrator', profile.Name);
+    }
+
+    @IsTest
+    static void cacheInOrgCache() {
+        // Setup
+        SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
+
+        // Test
+        Profile profile = (Profile) new SOQL_ProfileCache()
+            .cacheInOrgCache()
+            .whereEqual('Name', 'System Administrator')
+            .toObject();
+
+        // Verify
+        Assert.areEqual('00e3V000000Nme3QAC', profile.Id);
+        Assert.areEqual('System Administrator', profile.Name);
+    }
+
+    @IsTest
+    static void cacheInSessionCache() {
+        // Setup
+        SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
+
+        // Test
+        Profile profile = (Profile) new SOQL_ProfileCache()
+            .cacheInSessionCache()
+            .whereEqual('Name', 'System Administrator')
+            .toObject();
+
+        // Verify
+        Assert.areEqual('00e3V000000Nme3QAC', profile.Id);
+        Assert.areEqual('System Administrator', profile.Name);
+    }
+
+    @IsTest
+    static void stripInaccessible() {
+        // Setup
+        Task task = new Task(Subject = 'Test', Type = 'Other');
+        insert task;
+
+        System.runAs(minimumAccessUser()) {
+            // Test
+            Task cachedTask = (Task) new SOQL_TaskCache()
+                .query()
+                .whereEqual('Id', task.Id)
+                .stripInaccessible()
+                .toObject();
+
+            Exception queryException = null;
+
+            String inaccessibleFieldValue;
+
+            try {
+                inaccessibleFieldValue = cachedTask.Type;
+            } catch(Exception e) {
+                queryException = e;
+            }
+
+            // Verify
+            Assert.areEqual(
+                'SObject row was retrieved via SOQL without querying the requested field: Task.Type',
+                queryException.getMessage()
+            );
+        }
     }
 
     @IsTest
@@ -128,6 +208,36 @@ private class SOQLCache_Test {
     }
 
     @IsTest
+    static void doExist() {
+        // Setup
+        SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
+
+        // Test
+        Boolean isProfileExist = new SOQL_ProfileCache()
+            .query()
+            .whereEqual(Profile.Name, 'System Administrator')
+            .doExist();
+
+        // Verify
+        Assert.isTrue(isProfileExist, 'System Administrator Profile should exist.');
+    }
+
+    @IsTest
+    static void toValueOf() {
+        // Setup
+        SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
+
+        // Test
+        Id profileId = (Id) new SOQL_ProfileCache()
+            .query()
+            .whereEqual(Profile.Name, 'System Administrator')
+            .toValueOf(Profile.Id);
+
+        // Verify
+        Assert.areEqual('00e3V000000Nme3QAC', profileId);
+    }
+
+    @IsTest
     static void byId() {
         // Setup
         SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
@@ -152,6 +262,32 @@ private class SOQLCache_Test {
         // Verify
         Assert.areEqual('00e3V000000Nbc3QAC', profile.Id);
         Assert.areEqual('Guest User', profile.Name);
+    }
+
+    @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
+    @IsTest
+    static void preview() {
+        // Test
+        new SOQL_ProfileCache().query()
+            .whereEqual(Profile.Name, 'System Administrator')
+            .preview()
+            .toObject();
+
+        // Verify - imposible to verify system.debug
+    }
+
+    static User minimumAccessUser() {
+        return new User(
+            Alias = 'newUser',
+            Email = 'newuser@testorg.com',
+            EmailEncodingKey = 'UTF-8',
+            LastName = 'Testing',
+            LanguageLocaleKey = 'en_US',
+            LocaleSidKey = 'en_US',
+            ProfileId = [SELECT Id FROM Profile WHERE Name = 'Minimum Access - Salesforce'].Id,
+            TimeZoneSidKey = 'America/Los_Angeles',
+            UserName = 'queryselector@testorg.com'
+        );
     }
 
     public class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector{
@@ -183,6 +319,24 @@ private class SOQLCache_Test {
 
         public override List<SObjectField> cachedFields() {
             return new List<SObjectField>{ Profile.Id, Profile.Name, Profile.UserType};
+        }
+    }
+
+    public class SOQL_TaskCache extends SOQLCache implements SOQLCache.Selector{
+        public SOQL_TaskCache query() {
+            return new SOQL_TaskCache();
+        }
+
+        private SOQL_TaskCache() {
+            super(Task.SObjectType);
+        }
+
+        public override SOQL.Queryable initialQuery() {
+            return SOQL.of(Task.SObjectType).systemMode().withoutSharing();
+        }
+
+        public override List<SObjectField> cachedFields() {
+            return new List<SObjectField>{ Task.Id, Task.Type, Task.Subject };
         }
     }
 }
