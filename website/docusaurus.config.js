@@ -1,8 +1,7 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-const lightCodeTheme = require('prism-react-renderer/themes/github')
-const darkCodeTheme = require('prism-react-renderer/themes/dracula')
+import { themes as prismThemes } from 'prism-react-renderer';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -54,9 +53,9 @@ const config = {
       // Replace with your project's social card
       image: 'img/cloud-icon.png',
       navbar: {
-        title: 'BTC SOQL Lib',
+        title: 'SOQL Lib',
         logo: {
-          alt: 'BTC SOQL Lib logo',
+          alt: 'SOQL Lib logo',
           src: 'img/cloud-icon.png',
         },
         items: [
@@ -98,8 +97,8 @@ const config = {
       },
       prism: {
         additionalLanguages: ['apex'],
-        theme: lightCodeTheme,
-        darkTheme: darkCodeTheme,
+        theme: prismThemes.dracula,
+        darkTheme: prismThemes.dracula,
         defaultLanguage: 'apex',
       },
     }),
