@@ -31,6 +31,20 @@ private class SOQLCache_Test {
     }
 
     @IsTest
+    static void multipleSelectorInvocation() {
+        // Test
+        new SOQL_ProfileCache().whereEqual('Name', 'System Administrator').toObject(); // initial query will be executed
+        new SOQL_ProfileCache().whereEqual('Name', 'System Administrator').toObject();
+        new SOQL_ProfileCache().whereEqual('Name', 'System Administrator').toObject();
+        new SOQL_ProfileCache().whereEqual('Name', 'System Administrator').toObject();
+
+        Integer issuedQueriesAmount = Limits.getQueries();
+
+        // Verify
+        Assert.areEqual(1, issuedQueriesAmount, 'Only initial query should be executed.');
+    }
+
+    @IsTest
     static void cacheInApexTransaction() {
         // Setup
         SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
@@ -289,6 +303,21 @@ private class SOQLCache_Test {
         // Verify
         Assert.areEqual('00e3V000000Nbc3QAC', profile.Id);
         Assert.areEqual('Guest User', profile.Name);
+    }
+
+    @IsTest
+    static void recordNotFoundInCacheAndNotExistInDatabase() {
+        // Setup
+        SOQL.setMock(INITIAL_QUERY_MOCK_ID, new List<Profile>());
+
+        // Test
+        Profile profile = (Profile) new SOQL_ProfileCache().query()
+            .mockId('ProfileQuery')
+            .whereEqual(Profile.Name, 'Guest User Test')
+            .toObject();
+
+        // Verify
+        Assert.isNull(profile);
     }
 
     @IsTest
