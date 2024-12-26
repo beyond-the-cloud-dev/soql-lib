@@ -6,7 +6,58 @@ sidebar_position: 5
 
 SOQL caching is more complex than it seems. To make it robust and bug-proof, we made the following assumptions:
 
-## Records are stored in the cache as a List. The cache key is the SObjectType.
+## Limited Interface
+
+The Cached SOQL Selector should have a limited interface that represents only the operations that can be performed on cached records. Methods that exist in the SOQL Library are not relevant when retrieving cached records. For example, it is impossible to check sharing rules for cached records, so methods like `withSharing()` or `withoutSharing()` are not applicable.
+
+From the very beginning, we envisioned the cache SOQL as a standalone module, not logic tightly coupled with the SOQL Library. Each company could potentially have its own caching system. Therefore, we decided to introduce a new module called `SOQLCache.cls`.
+
+## Cached Selectors
+
+To avoid interfering with existing selectors and to keep the logic clean and simple, the best approach we identified is using Cached Selectors.
+
+This approach provides immediate feedback to developers reading the code, indicating that the following query is cached. For instance:
+`SOQL_Profile.query().byName('System Administrator').toObject();` retrieves records from the database, whereas
+`SOQL_ProfileCache.query().byName('System Administrator').toObject();` retrieves records from the cache.
+
+This clear distinction gives architects full control over which records should be cached and which should not, addressing potential issues that might arise with a `.saveInCache()` method.
+
+Additionally, Cached Selectors look slightly different and include cache-specific methods:
+
+```apex
+public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
+    public static SOQL_ProfileCache query() {
+        return new SOQL_ProfileCache();
+    }
+
+    private SOQL_ProfileCache() {
+        super(Profile.SObjectType);
+        cacheInOrgCache();
+    }
+
+    public override SOQL.Cacheable initialQuery() {
+        return SOQL.of(Profile.SObjectType).systemMode().withoutSharing();
+    }
+
+    public override List<SObjectField> cachedFields() {
+        return new List<SObjectField>{ Profile.Id, Profile.Name, Profile.UserType };
+    }
+
+    public Profile byName(String profileName) {
+        return (Profile) whereEqual(Profile.Name, profileName).toObject();
+    }
+}
+```
+
+Developers can specify the type of storage using the `cacheIn...()` method. The available storage types are: Apex Transaction, Org Cache, or Session Cache.
+
+Additionally, the `cachedFields()` method provides information about which fields are cached in the specified storage.
+
+Last but not least, there is the `initialQuery()` method, which allows records to be prepopulated in the storage. For example, `SOQL_ProfileCache` will prepopulate all `Profiles` in the storage, so calling `byName(String profileName)` will not execute a query but will retrieve the records directly from the cache.
+
+## Records are stored as a List
+
+Records are stored in the cache as a `List`, with the cache key being the `SObjectType`. This approach helps avoid record duplication, which is crucial given the limited storage capacity.
 
 Key: `Profile`
 
@@ -43,7 +94,9 @@ If the results of `SELECT Id, Name, UserType FROM Profile` are already cached, t
 
 Cache storage is limited. If different variations of queries continually add new entries to the cache, it can quickly fill up with redundant or overlapping records, reducing overall effectiveness.
 
-## A query requires a single condition, and that condition must filter by a unique field.
+## Cached query required single condition
+
+A query requires a single condition, and that condition must filter by a unique field.
 
 To ensure that cached records are aligned with the database, a single condition is required.
 A query without a condition cannot guarantee that the number of records in the cache matches the database.
@@ -52,15 +105,38 @@ For example, let’s assume a developer makes the query: `SELECT Id, Name FROM P
 
 The filter field should be unique. Consistency issues can arise when the field is not unique. For instance, the query:
 `SELECT Id, Name FROM Profile WHERE UserType = 'Standard'`
-may return some records, but as in the example above, the number of records in the cache may differ from those in the database.
+may return some records, but the number of records in the cache may differ from those in the database.
 
 Using a unique field ensures that if a record is not found in the cache, the SOQL library can look it up in the database.
 
-```mermaid
-graph TD
-    A[Cached SOQL] --> B[Filter by Unique Field]
-    B --> C{Has Record In Cache?}
-    C -- Yes --> D[Get Record From Cache]
-    C -- No --> E[Get Record From Database]
-    E --> F[Add Record To Cache]
-```
+**Example**
+
+**Cached Records:**
+
+| Id               | Name                          | UserType               |
+|-------------------|-------------------------------|------------------------|
+| 00e3V000000Nme3QAC | System Administrator          | Standard               |
+| 00e3V000000NmeAQAS | Standard Platform User        | Standard               |
+| 00e3V000000NmeHQAS | Customer Community Plus User | PowerCustomerSuccess   |
+
+**Database Records:**
+
+| Id               | Name                          | UserType               |
+|-------------------|-------------------------------|------------------------|
+| 00e3V000000Nme3QAC | System Administrator          | Standard               |
+| 00e3V000000NmeAQAS | Standard Platform User        | Standard               |
+| 00e3V000000NmeZQAS | Read Only                    | Standard               |
+| 00e3V000000NmeYQAS | Solution Manager             | Standard               |
+| 00e3V000000NmeHQAS | Customer Community Plus User | PowerCustomerSuccess   |
+
+Let’s assume a developer executes the query:
+`SELECT Id, Name, UserType FROM Profile WHERE UserType = 'Standard'`.
+
+Since records exist in the cache, 2 records will be returned, which is incorrect. The database contains 4 records with `UserType = 'Standard'`.
+To avoid such scenarios, filtering by a unique field is required.
+
+## Only one record can be returned
+
+With a cached selector, you cannot invoke the `toList()` method—only `toObject()` is supported. As mentioned at the beginning, SOQL Lib is designed to be bug-proof. The `toList()` method could cause confusion because the number of retrieved records may differ from the number of records in the database. This limitation is also tied to the unique field filter, which ensures that only one record is returned.
+
+Additionally, the single-record assumption keeps the code clean and bug-proof. If a record matching the provided condition does not exist in the cache, SOQL is executed, and the record is added to the cache. This approach would be impossible to implement if multiple records were allowed in the cache, as it would be unclear whether any records are missing.
