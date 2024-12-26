@@ -238,6 +238,30 @@ private class SOQLCache_Test {
     }
 
     @IsTest
+    static void toObjectWithMultipleRows() {
+        // Setup
+        SOQL.setMock(INITIAL_QUERY_MOCK_ID, new List<Profile>{
+            new Profile(Id = '00e3V000000Nme3QAC', Name = 'System Administrator'),
+            new Profile(Id = '00e3V000000NmefQAC', Name = 'System Administrator')
+        });
+
+        QueryException queryException = null;
+
+        // Test
+        try {
+            Profile profile = (Profile) new SOQL_ProfileCache()
+                .query()
+                .whereEqual(Profile.Name, 'System Administrator')
+                .toObject();
+        } catch (QueryException e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(queryException, 'QueryException should be thrown, because query has more than 1 row for assignment to SObject.');
+    }
+
+    @IsTest
     static void byId() {
         // Setup
         SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
