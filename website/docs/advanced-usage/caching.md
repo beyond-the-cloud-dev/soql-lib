@@ -55,3 +55,12 @@ The filter field should be unique. Consistency issues can arise when the field i
 may return some records, but as in the example above, the number of records in the cache may differ from those in the database.
 
 Using a unique field ensures that if a record is not found in the cache, the SOQL library can look it up in the database.
+
+```mermaid
+graph TD
+    A[Cached SOQL] --> B[Filter by Unique Field]
+    B --> C{Has Record In Cache?}
+    C -- Yes --> D[Get Record From Cache]
+    C -- No --> E[Get Record From Database]
+    E --> F[Add Record To Cache]
+```
