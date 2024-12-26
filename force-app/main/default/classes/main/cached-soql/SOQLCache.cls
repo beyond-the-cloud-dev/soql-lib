@@ -172,15 +172,19 @@ public abstract inherited sharing class SOQLCache implements Cacheable {
         }
 
         public void putRecordsToCache(Object value) {
-            this.storage.put(this.ofObject, value);
+            this.storage.put(this.key(), value);
         }
 
         public Boolean hasCachedRecords() {
-            return this.storage.contains(this.ofObject);
+            return this.storage.contains(this.key());
         }
 
         public Object getCachedRecords() {
-            return this.storage.get(this.ofObject);
+            return this.storage.get(this.key());
+        }
+
+        private String key() {
+            return Test.isRunningTest() ? this.ofObject + 'Test' : this.ofObject;
         }
     }
 
