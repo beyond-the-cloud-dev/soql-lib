@@ -166,10 +166,6 @@ private class SOQLCache_Test {
             return SOQL.of(Profile.SObjectType).mockId(INITIAL_QUERY_MOCK_ID).systemMode().withoutSharing();
         }
 
-        public override CacheManager.Cacheable cacheIn() {
-            return CacheManager.ApexTransaction;
-        }
-
         public override List<SObjectField> cachedFields() {
             return new List<SObjectField>{ Profile.Id, Profile.Name, Profile.UserType};
         }

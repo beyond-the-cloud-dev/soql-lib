@@ -47,11 +47,14 @@ public abstract inherited sharing class SOQLCache implements Cacheable {
     public SOQLCache(SObjectType ofObject) {
         this.builder = new Builder(ofObject.getDescribe().getName());
         this.executor = new CacheExecutor(this.builder);
-        this.with(this.cachedFields());
-        this.initQuery(this.initialQuery());
+
+        this.populateQuery(this.initialQuery());
+        this.setCachedFields(this.cachedFields());
+
+        this.executeInitialQuery();
     }
 
-    public Cacheable initQuery(SOQL.Queryable query) {
+    private Cacheable populateQuery(SOQL.Queryable query) {
         this.builder.initialQuery = query;
         return this;
     }
@@ -71,10 +74,10 @@ public abstract inherited sharing class SOQLCache implements Cacheable {
         return this;
     }
 
-    public Cacheable with(List<SObjectField> cachedFields) {
-        this.builder.initialQuery.with(cachedFields);
+    private Cacheable setCachedFields(List<SObjectField> cachedFields) {
+        this.builder.initialQuery?.with(cachedFields);
         this.builder.currentyQuery.with(cachedFields);
-        this.builder.cacheFilter.withCachedFields(cachedFields);
+        this.builder.cacheFilter.cachedFields(cachedFields);
         return this;
     }
 
@@ -120,7 +123,6 @@ public abstract inherited sharing class SOQLCache implements Cacheable {
 
     public SObject toObject() {
         this.builder.cacheFilter.hasFilterValidation();
-        this.executeInitialQuery();
         return this.executor.toObject();
     }
 
@@ -187,22 +189,22 @@ public abstract inherited sharing class SOQLCache implements Cacheable {
         private String ofObject;
         private String field;
         private Object value;
-        private List<String> fieldsToCache = new List<String>();
+        private List<String> cachedFields = new List<String>();
 
         public CacheFilter(String ofObject) {
             this.ofObject = ofObject;
         }
 
-        public CacheFilter withCachedFields(List<SObjectField> fields) {
+        public CacheFilter cachedFields(List<SObjectField> fields) {
             for (SObjectField cachedField : fields) {
-                this.fieldsToCache.add(cachedField.getDescribe().getName());
+                this.cachedFields.add(cachedField.getDescribe().getName());
             }
             return this;
         }
 
         public CacheFilter with(String field) {
-            this.fieldValidation();
             this.field = field;
+            this.fieldValidation();
             return this;
         }
 
@@ -224,7 +226,7 @@ public abstract inherited sharing class SOQLCache implements Cacheable {
         }
 
         private void fieldValidation() {
-            if (!this.fieldsToCache.contains(this.field)) {
+            if (!this.cachedFields.contains(this.field)) {
                 throw new SoqlCacheException('Filter must use cached field. Updated cached fields in cachedFilelds() method or update the condition.');
             }
 
