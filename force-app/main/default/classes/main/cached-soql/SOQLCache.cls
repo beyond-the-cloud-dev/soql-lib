@@ -50,8 +50,6 @@ public abstract inherited sharing class SOQLCache implements Cacheable {
 
         this.populateQuery(this.initialQuery());
         this.setCachedFields(this.cachedFields());
-
-        this.executeInitialQuery();
     }
 
     private Cacheable populateQuery(SOQL.Queryable query) {
@@ -123,6 +121,7 @@ public abstract inherited sharing class SOQLCache implements Cacheable {
 
     public SObject toObject() {
         this.builder.cacheFilter.hasFilterValidation();
+        this.executeInitialQuery();
         return this.executor.toObject();
     }
 

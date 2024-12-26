@@ -12,7 +12,7 @@ private class SOQLCache_Test {
         SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
 
         // Test
-        new SOQL_ProfileCache(); // initial query will be executed
+        new SOQL_ProfileCache().whereEqual('Name', 'System Administrator').toObject(); // initial query will be executed
         List<Profile> cachedProfiles = (List<Profile>) CacheManager.ApexTransaction.get('Profile');
 
         // Verify
@@ -22,11 +22,12 @@ private class SOQLCache_Test {
     @IsTest
     static void noInitialQuery() {
         // Test
-        new SOQL_ProfileCacheDefault();
+        new SOQL_ProfileCacheDefault().whereEqual('Name', 'System Administrator').toObject();
         List<Profile> cachedProfiles = (List<Profile>) CacheManager.ApexTransaction.get('Profile');
 
         // Verify
-        Assert.isNull(cachedProfiles);
+        Assert.areEqual('00e3V000000Nme3QAC', cachedProfiles[0].Id);
+        Assert.areEqual('System Administrator', cachedProfiles[0].Name);
     }
 
     @IsTest
@@ -38,8 +39,8 @@ private class SOQLCache_Test {
         Profile profile = (Profile) new SOQL_ProfileCache().query().whereEqual(Profile.Name, 'System Administrator').toObject();
 
         // Verify
-        Assert.areEqual(profile.Id, '00e3V000000Nme3QAC');
-        Assert.areEqual(profile.Name, 'System Administrator');
+        Assert.areEqual('00e3V000000Nme3QAC', profile.Id);
+        Assert.areEqual('System Administrator', profile.Name);
     }
 
     @IsTest
@@ -51,8 +52,8 @@ private class SOQLCache_Test {
         Profile profile = (Profile) new SOQL_ProfileCache().query().whereEqual('Name', 'System Administrator').toObject();
 
         // Verify
-        Assert.areEqual(profile.Id, '00e3V000000Nme3QAC');
-        Assert.areEqual(profile.Name, 'System Administrator');
+        Assert.areEqual('00e3V000000Nme3QAC', profile.Id);
+        Assert.areEqual('System Administrator', profile.Name);
     }
 
     @IsTest
@@ -135,8 +136,8 @@ private class SOQLCache_Test {
         Profile profile = (Profile) new SOQL_ProfileCache().query().byId('00e3V000000Nme3QAC');
 
         // Verify
-        Assert.areEqual(profile.Id, '00e3V000000Nme3QAC');
-        Assert.areEqual(profile.Name, 'System Administrator');
+        Assert.areEqual('00e3V000000Nme3QAC', profile.Id);
+        Assert.areEqual('System Administrator', profile.Name);
     }
 
     @IsTest
@@ -149,8 +150,8 @@ private class SOQLCache_Test {
         Profile profile = (Profile) new SOQL_ProfileCache().query().mockId('ProfileQuery').whereEqual(Profile.Name, 'Guest User').toObject();
 
         // Verify
-        Assert.areEqual(profile.Id, '00e3V000000Nbc3QAC');
-        Assert.areEqual(profile.Name, 'Guest User');
+        Assert.areEqual('00e3V000000Nbc3QAC', profile.Id);
+        Assert.areEqual('Guest User', profile.Name);
     }
 
     public class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector{
