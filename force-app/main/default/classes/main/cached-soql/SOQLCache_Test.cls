@@ -281,11 +281,30 @@ private class SOQLCache_Test {
         SOQL.setMock('ProfileQuery', new Profile(Id = '00e3V000000Nbc3QAC', Name = 'Guest User'));
 
         // Test
-        Profile profile = (Profile) new SOQL_ProfileCache().query().mockId('ProfileQuery').whereEqual(Profile.Name, 'Guest User').toObject();
+        Profile profile = (Profile) new SOQL_ProfileCache().query()
+            .mockId('ProfileQuery')
+            .whereEqual(Profile.Name, 'Guest User')
+            .toObject();
 
         // Verify
         Assert.areEqual('00e3V000000Nbc3QAC', profile.Id);
         Assert.areEqual('Guest User', profile.Name);
+    }
+
+    @IsTest
+    static void mockId() {
+        // Setup
+        SOQLCache.setMock('ProfileQuery', new Profile(Id = '00e3V000000Nme3QAC', Name = 'System Administrator'));
+
+        // Test
+        Profile profile = (Profile) new SOQL_ProfileCache().query()
+            .mockId('ProfileQuery')
+            .whereEqual(Profile.Name, 'System Administrator')
+            .toObject();
+
+        // Verify
+        Assert.areEqual('00e3V000000Nme3QAC', profile.Id);
+        Assert.areEqual('System Administrator', profile.Name);
     }
 
     @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')

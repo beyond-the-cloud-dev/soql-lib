@@ -53,7 +53,7 @@ public abstract inherited sharing class SOQLCache implements Cacheable {
     }
 
     private Cacheable populateQuery(SOQL.Queryable query) {
-        this.builder.initialQuery = query;
+        this.builder.initialQuery = query?.systemMode()?.withoutSharing();
         return this;
     }
 
@@ -147,7 +147,7 @@ public abstract inherited sharing class SOQLCache implements Cacheable {
             this.ofObject = ofObject;
             this.storage = new CacheStorageProxy(this.ofObject);
             this.cacheFilter = new CacheFilter(this.ofObject);
-            this.currentyQuery = SOQL.of(this.ofObject);
+            this.currentyQuery = SOQL.of(this.ofObject).systemMode().withoutSharing();
         }
     }
 
