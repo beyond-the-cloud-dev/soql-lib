@@ -28,13 +28,13 @@ Records:
 `SELECT Id, Name FROM Profile` => List of Profiles.
 
 There are several reasons why caching by SOQL string is not the best approach:
-1. Identical Queries Treated Differently
+1. **Identical Queries Treated Differently**
 Even the same SOQL query can be treated as different due to variations in the string format.
 For instance, `SELECT Id, Name FROM Profile` and `SELECT Name, Id FROM Profile` are identical in intent but differ in query string format. This issue becomes even more complex when dealing with `WHERE` conditions.
-2. Duplicate Entries and Inefficient Record Retrieval
+2. **Duplicate Entries and Inefficient Record Retrieval**
 A simple query like `SELECT Id, Name FROM Profile` is a subset of a more complex query like `SELECT Id, Name, UserType FROM Profile`.
 If the results of `SELECT Id, Name, UserType FROM Profile` are already cached, the simpler query should ideally retrieve the relevant data from the cache. However, if the cache uses the query string as the key, this won’t work, leading to duplication and inefficiency.
-3. Cache Storage Limitations
+3. **Cache Storage Limitations**
 Cache storage is limited. If different variations of queries continually add new entries to the cache, it can quickly fill up with redundant or overlapping records, reducing overall effectiveness.
 
 ## A query requires a single condition, and that condition must filter by a unique field.

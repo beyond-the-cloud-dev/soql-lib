@@ -125,12 +125,27 @@ public abstract with sharing class SOQLCache implements Cacheable {
 
         public SObject filter(List<SObject> cachedRecords) {
             this.validate();
+            List<SObject> records = filterToList(cachedRecords);
+
+            if (records.size() > 1) {
+                throw new QueryException('List has more than 1 row for assignment to SObject');
+            }
+
+            if (records.size() == 0) {
+                return null;
+            }
+
+            return records[0];
+        }
+
+        public List<SObject> filterToList(List<SObject> cachedRecords) {
+            List<SObject> filteredRecords = new List<SObject>();
             for (SObject record : cachedRecords) {
                 if (record.get(this.field) == this.value) {
-                    return record;
+                    filteredRecords.add(record);
                 }
             }
-            return null;
+            return filteredRecords;
         }
     }
 
