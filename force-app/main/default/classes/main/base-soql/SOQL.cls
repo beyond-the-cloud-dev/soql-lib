@@ -132,6 +132,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable byIds(List<SObject> records);
         Queryable byRecordType(String recordTypeDeveloperName);
         // RESULT
+        Id toId();
         Boolean doExist();
         String toString();
         Object toValueOf(SObjectField fieldToExtract);
@@ -779,6 +780,11 @@ public virtual inherited sharing class SOQL implements Queryable {
     @TestVisible
     private Map<String, Object> binding() {
         return binder.getBindingMap();
+    }
+
+    public Id toId() {
+        builder.fields.clearAllFields(); // other fields not needed
+        return toObject()?.Id;
     }
 
     public Boolean doExist() {
