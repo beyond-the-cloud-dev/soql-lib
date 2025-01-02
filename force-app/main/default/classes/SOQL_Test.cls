@@ -3009,6 +3009,19 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void toId() {
+        // Setup
+        Account acc = new Account(Name = 'Test 1');
+        insert acc;
+
+        // Test
+        Id accountId = SOQL.of(Account.SObjectType).byId(acc).toId();
+
+        // Verify
+        Assert.areEqual(acc.Id, accountId);
+    }
+
+    @IsTest
     static void doExist() {
         // Setup
         Account acc = new Account(Name = 'Test 1');
