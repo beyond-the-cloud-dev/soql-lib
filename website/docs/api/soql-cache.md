@@ -48,6 +48,8 @@ The following are methods for using `SOQLCache`:
 
 [**INITIAL QUERY**](#initial-query)
 
+- [`initialQuery()`](#initialquery)
+
 [**SELECT**](#SELECT)
 
 -
@@ -64,6 +66,7 @@ The following are methods for using `SOQLCache`:
 [**MOCKING**](#mocking)
 
 - [`mockId(String id)`](#mockid)
+- [`SOQLCache.setMock(String mockId, SObject record)`](#record-mock)
 
 [**DEBUGGING**](#debugging)
 
@@ -76,6 +79,7 @@ The following are methods for using `SOQLCache`:
 
 [**RESULT**](#result)
 
+- [`toId()`](#toid)
 - [`doExist()`](#doexist)
 - [`toValueOf(SObjectField fieldToExtract)`](#tovalueof)
 - [`toObject()`](#toobject)
@@ -165,11 +169,58 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
 
 ## INITIAL QUERY
 
+The initial query allows for the bulk population of records in the cache (if it is empty), ensuring that every subsequent query in the cached selector will use the cached records.
+
+**Signature**
+
+```apex
+SOQL.Queryable initialQuery()
+```
+
+**Example**
+
+```apex
+public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
+    public static SOQL_ProfileCache query() {
+        return new SOQL_ProfileCache();
+    }
+
+    private SOQL_ProfileCache() {
+        super(Profile.SObjectType);
+        cacheInSessionCache();
+    }
+
+    public override SOQL.Queryable initialQuery() {
+        return SOQL.of(Profile.SObjectType).systemMode().withoutSharing(); // <=== Initial query
+    }
+}
+```
+
 ## SELECT
 
 ## WHERE
 
 ## FIELD-LEVEL SECURITY
+
+### stripInaccessible
+
+The `Security.stripInaccessible` method is the only one that works with cached records. Unlike `WITH USER_MODE`, which works only with SOQL, `Security.stripInaccessible` can remove inaccessible fields even from cached records.
+
+**Signature**
+
+```apex
+Cacheable stripInaccessible()
+Cacheable stripInaccessible(AccessType accessType)
+```
+
+**Example**
+
+```apex
+SOQL_ProfileCache.query()
+    .byName('System Administrator')
+    .stripInaccessible()
+    .toObject();
+```
 
 ## MOCKING
 
@@ -181,6 +232,26 @@ Query needs unique id that allows for mocking.
 
 ```apex
 Cacheable mockId(String queryIdentifier)
+```
+
+**Example**
+
+```apex
+SOQL_ProfileCache.query()
+    .byName('System Administrator')
+    .mockId('MyQuery')
+    .toObject();
+
+// In Unit Test
+SOQLCache.setMock('MyQuery', new Profile(Name = 'Mocked System Adminstrator'));
+```
+
+### record mock
+
+**Signature**
+
+```apex
+Cacheable setMock(String mockId, SObject record)
 ```
 
 **Example**
@@ -257,3 +328,75 @@ SOQL_ProfileCache.query()
 ```
 
 ## RESULT
+
+### toId
+
+```apex
+Id toId()
+```
+
+**Example**
+
+```apex
+Id adminProfileId = SOQL_ProfileCache.query()
+    .byName('System Administrator')
+    .toId();
+
+new User (
+    // ...
+    ProfileId = adminProfileId
+);
+```
+
+### doExist
+
+**Signature**
+
+```apex
+Boolean doExist()
+```
+
+**Example**
+
+```apex
+Boolean isAdminProfileExists = SOQL_ProfileCache.query()
+    .byName('System Administrator')
+    .doExist();
+```
+
+### toValueOf
+
+Extract field value from query result.
+The field must be in cached fields.
+
+**Signature**
+
+```apex
+Object toValueOf(SObjectField fieldToExtract)
+```
+
+**Example**
+
+```apex
+String systemAdminUserType = (String) SOQL_ProfileCache.query().byId('1234').toValueOf(Profile.UserType);
+```
+
+### toObject
+
+When the list of records contains more than one entry, the error `List has more than 1 row for assignment to SObject` will occur.
+
+When there are no records to assign, the error `List has no rows for assignment to SObject` will **NOT** occur. This is automatically handled by the framework, and a `null` value will be returned instead.
+
+**Signature**
+
+```apex
+sObject toObject()
+```
+
+**Example**
+
+```apex
+Profile systemAdministratorProfile = (String) SOQL_ProfileCache.query()
+    .byName('System Administrator')
+    .toObject();
+```

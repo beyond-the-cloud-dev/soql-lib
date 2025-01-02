@@ -20,3 +20,8 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
         return (Profile) whereEqual(Profile.Name, name).toObject();
     }
 }
+
+
+// Composition over inheritance
+
+// SOQLCache.of(Profile.SObjectType).with(Profile.Id).whereAre(Profile.Name, 'Sys Admin').toObject();

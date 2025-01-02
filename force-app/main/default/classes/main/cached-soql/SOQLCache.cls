@@ -22,6 +22,7 @@ public abstract inherited sharing class SOQLCache implements Cacheable {
         Cacheable byId(SObject record);
         Cacheable byId(Id recordId);
         // RESULT
+        Id toId();
         Boolean doExist();
         SObject toObject();
         Object toValueOf(SObjectField fieldToExtract);
@@ -112,11 +113,18 @@ public abstract inherited sharing class SOQLCache implements Cacheable {
         return this;
     }
 
+    public Id toId() {
+        return this.toObject().Id;
+    }
+
     public Boolean doExist() {
         return this.toObject() != null;
     }
 
     public Object toValueOf(SObjectField fieldToExtract) {
+        if (!this.cachedFields().contains(fieldToExtract)) {
+            throw new SoqlCacheException('The field to extract must be cached.');
+        }
         return this.toObject()?.get(fieldToExtract);
     }
 

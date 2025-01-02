@@ -154,6 +154,9 @@ The following are methods for using `SOQL`:
 [**MOCKING**](#mocking)
 
 - [`mockId(String id)`](#mockid)
+- [`SOQL.setMock(String mockId, SObject record)`](#record-mock)
+- [`SOQL.setMock(String mockId, List<SObject> records)`](#record-mock)
+- [`SOQL.setCountMock(String mockId, Integer amount)`](#count-mock)
 
 [**DEBUGGING**](#debugging)
 
@@ -2156,8 +2159,8 @@ Id toId()
 
 ```apex
 Id adminProfileId = SOQL.of(Profile.SObjectType)
-        .whereAre(SOQL.Filter.name().equal('System Administrator'))
-        .toId();
+    .whereAre(SOQL.Filter.name().equal('System Administrator'))
+    .toId();
 
 new User (
     // ...
@@ -2236,9 +2239,9 @@ SOQL.of(Account.SObjectType).count().toInteger();
 
 ### toObject
 
-When list of records is greater than 1 the `List has more than 1 row for assignment to SObject` will occur.
+When the list of records contains more than one entry, the error `List has more than 1 row for assignment to SObject` will occur.
 
-When there is no record to assign the `List has no rows for assignment to SObject` will **NOT** occur. . It is automatically handled by the framework, and a `null` value will be returned instead.
+When there are no records to assign, the error `List has no rows for assignment to SObject` will **NOT** occur. This is automatically handled by the framework, and a `null` value will be returned instead.
 
 **Signature**
 
