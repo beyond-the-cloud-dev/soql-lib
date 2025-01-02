@@ -4,11 +4,13 @@ sidebar_position: 10
 
 # SOQL
 
+Apex Classes: `SOQL.cls` and `SOQL_Test.cls`.
+
 The lib main class for query construction.
 
 ## Methods
 
-The following are methods for `SOQL`.
+The following are methods for using `SOQL`:
 
 [**INIT**](#init)
 
@@ -2077,7 +2079,7 @@ SOQL.of(Account.SObjectType)
 Account account = [SELECT Id FROM Account LIMIT 1];
 SOQL.of(Account.SObjectType)
     .byId(account)
-    .toList();
+    .toObject();
 ```
 
 ### byIds

@@ -15,11 +15,12 @@ public abstract inherited sharing class SOQLCache implements Cacheable {
         Cacheable stripInaccessible();
         Cacheable stripInaccessible(AccessType accessType);
         // MOCKING
-        Cacheable mockId(String id);
+        Cacheable mockId(String queryIdentifier);
         // DEBUGGING
         Cacheable preview();
         // PREDEFINED
-        SObject byId(Id recordId);
+        Cacheable byId(SObject record);
+        Cacheable byId(Id recordId);
         // RESULT
         Boolean doExist();
         SObject toObject();
@@ -44,7 +45,7 @@ public abstract inherited sharing class SOQLCache implements Cacheable {
     private Builder builder;
     private CacheExecutor executor;
 
-    public SOQLCache(SObjectType ofObject) {
+    protected SOQLCache(SObjectType ofObject) {
         this.builder = new Builder(ofObject.getDescribe().getName());
         this.executor = new CacheExecutor(this.builder);
 
@@ -100,9 +101,9 @@ public abstract inherited sharing class SOQLCache implements Cacheable {
         return this;
     }
 
-    public Cacheable mockId(String id) {
-        this.builder.currentyQuery.mockId(id);
-        this.executor.mockId(id);
+    public Cacheable mockId(String queryIdentifier) {
+        this.builder.currentyQuery.mockId(queryIdentifier);
+        this.executor.mockId(queryIdentifier);
         return this;
     }
 
@@ -132,8 +133,13 @@ public abstract inherited sharing class SOQLCache implements Cacheable {
         this.builder.storage.putRecordsToCache(this.builder.initialQuery.toList());
     }
 
-    public SObject byId(Id recordId) {
-        return whereEqual('Id', recordId).toObject();
+    public Cacheable byId(SObject record) {
+        return byId(record.Id);
+    }
+
+    public Cacheable byId(Id recordId) {
+        whereEqual('Id', recordId);
+        return this;
     }
 
     private class Builder {

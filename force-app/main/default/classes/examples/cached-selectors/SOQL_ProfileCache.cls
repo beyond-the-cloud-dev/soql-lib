@@ -8,7 +8,7 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
         cacheInOrgCache();
     }
 
-    public override SOQL.Cacheable initialQuery() {
+    public override SOQL.Queryable initialQuery() {
         return SOQL.of(Profile.SObjectType).systemMode().withoutSharing();
     }
 

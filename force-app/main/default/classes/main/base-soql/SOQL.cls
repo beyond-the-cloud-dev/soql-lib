@@ -122,7 +122,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable withSharing();
         Queryable withoutSharing();
         // MOCKING
-        Queryable mockId(String id);
+        Queryable mockId(String queryIdentifier);
         // DEBUGGING
         Queryable preview();
         // PREDEFINIED
@@ -765,8 +765,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         return this;
     }
 
-    public SOQL mockId(String id) {
-        executor.mockId(id);
+    public SOQL mockId(String queryIdentifier) {
+        executor.mockId(queryIdentifier);
         return this;
     }
 
