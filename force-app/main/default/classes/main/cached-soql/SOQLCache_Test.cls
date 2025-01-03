@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2025 BEYOND THE CLOUD Sp. z o.o. (BeyondTheCloud.Dev)
+ * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
+ *
+ * PMD False Positives:
+ * TODO
+**/
 @IsTest
 private class SOQLCache_Test {
     private static final String INITIAL_QUERY_MOCK_ID = 'cachedProfile';

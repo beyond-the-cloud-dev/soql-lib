@@ -1,4 +1,10 @@
-public abstract inherited sharing class SOQLCache implements Cacheable {
+/**
+ * Copyright (c) 2025 BEYOND THE CLOUD Sp. z o.o. (BeyondTheCloud.Dev)
+ * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
+ *
+ * PMD False Positives:
+ * TODO
+**/
     public interface Selector {
         Cacheable query();
     }

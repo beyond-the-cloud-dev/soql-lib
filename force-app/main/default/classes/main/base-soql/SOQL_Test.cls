@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023 BeyondTheCloud.Dev
+ * Copyright (c) 2025 BeyondTheCloud.Dev
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
  * PMD False Positives:

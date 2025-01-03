@@ -10,6 +10,19 @@ SOQL caching is more complex than it seems. To make it robust and bug-proof, we 
 
 The Cached SOQL Selector should have a limited interface that represents only the operations that can be performed on cached records. Methods that exist in the SOQL Library are not relevant when retrieving cached records. For example, it is impossible to check sharing rules for cached records, so methods like `withSharing()` or `withoutSharing()` are not applicable.
 
+For instance, the following query:
+
+```apex
+SOQL.of(Profile.SObjectType)
+    .with(Profile.Id, Profile.Name, Profile.UserType)
+    .myTerritoryScope()
+    .forView()
+    .withSharing()
+    .toList();
+```
+
+doesn’t make sense when working with cached records. We cannot apply scope, forView, or withSharing to cached records.
+
 From the very beginning, we envisioned the cache SOQL as a standalone module, not logic tightly coupled with the SOQL Library. Each company could potentially have its own caching system. Therefore, we decided to introduce a new module called `SOQLCache.cls`.
 
 ## Cached Selectors
@@ -43,13 +56,14 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
         return new List<SObjectField>{ Profile.Id, Profile.Name, Profile.UserType };
     }
 
-    public Profile byName(String profileName) {
-        return (Profile) whereEqual(Profile.Name, profileName).toObject();
+    public SOQL_ProfileCache byName(String profileName) {
+        whereEqual(Profile.Name, profileName);
+        return thisl
     }
 }
 ```
 
-Developers can specify the type of storage using the `cacheIn...()` method. The available storage types are: Apex Transaction, Org Cache, or Session Cache.
+Developers can specify the type of storage using the `cacheIn...()` method. The available storage types are: Apex Transaction (`cacheInApexTransaction()`), Org Cache (`cacheInOrgCache()`), or Session Cache (`cacheInSessionCache()`).
 
 Additionally, the `cachedFields()` method provides information about which fields are cached in the specified storage.
 
@@ -65,7 +79,6 @@ Records:
 
 | Id | Name | UserType |
 | -- | ---- | -------- |
-| 00e3V000000DhteQAC | Standard Guest | Guest |
 | 00e3V000000DhteQAC | Standard Guest | Guest |
 | 00e3V000000DhtfQAC | Community Profile | Guest |
 | 00e3V000000NmefQAC | Standard User | Standard |
@@ -93,6 +106,10 @@ If the results of `SELECT Id, Name, UserType FROM Profile` are already cached, t
 3. **Cache Storage Limitations**
 
 Cache storage is limited. If different variations of queries continually add new entries to the cache, it can quickly fill up with redundant or overlapping records, reducing overall effectiveness.
+
+4. **Condition binding**
+
+The SOQL library uses variable binding ([`queryWithBinds`](https://developer.salesforce.com/docs/atlas.en-us.apexref.meta/apexref/apex_methods_system_database.htm#apex_System_Database_queryWithBinds)). Using the query as a key becomes highly complex when there are many binding variables. Developers aim to use cached records to boost performance, but relying on the query as a key can be performance-intensive and counterproductive.
 
 ## Cached query required single condition
 
@@ -135,8 +152,10 @@ Let’s assume a developer executes the query:
 Since records exist in the cache, 2 records will be returned, which is incorrect. The database contains 4 records with `UserType = 'Standard'`.
 To avoid such scenarios, filtering by a unique field is required.
 
+Sometimes, certain limitations can ensure that code functions in a deterministic and expected way. From our perspective, it is better to have limitations that make the code free from bugs and prevent unintended misuse.
+
 ## Only one record can be returned
 
-With a cached selector, you cannot invoke the `toList()` method—only `toObject()` is supported. As mentioned at the beginning, SOQL Lib is designed to be bug-proof. The `toList()` method could cause confusion because the number of retrieved records may differ from the number of records in the database. This limitation is also tied to the unique field filter, which ensures that only one record is returned.
+With a cached selector, you **cannot** invoke the `toList()` method—only `toObject()` is supported. As mentioned at the beginning, SOQL Lib is designed to be bug-proof. The `toList()` method could cause confusion because the number of retrieved records may differ from the number of records in the database. This limitation is also tied to the unique field filter, which ensures that only one record is returned.
 
 Additionally, the single-record assumption keeps the code clean and bug-proof. If a record matching the provided condition does not exist in the cache, SOQL is executed, and the record is added to the cache. This approach would be impossible to implement if multiple records were allowed in the cache, as it would be unclear whether any records are missing.
