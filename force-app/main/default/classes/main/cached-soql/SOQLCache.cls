@@ -123,7 +123,7 @@ public abstract inherited sharing class SOQLCache implements Cacheable {
 
     public Object toValueOf(SObjectField fieldToExtract) {
         if (!this.cachedFields().contains(fieldToExtract)) {
-            throw new SoqlCacheException('The field to extract must be cached.');
+            throw new SoqlCacheException('The field to extract must be cached in the cachedFields() method.');
         }
         return this.toObject()?.get(fieldToExtract);
     }

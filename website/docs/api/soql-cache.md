@@ -52,11 +52,12 @@ The following are methods for using `SOQLCache`:
 
 [**SELECT**](#SELECT)
 
--
+- [`cachedFields()`](#cachedfields)
 
 [**WHERE**](#where)
 
--
+- [`whereEqual(SObjectField field, Object value)`](#whereequal)
+- [`whereEqual(String field, Object value)`](#whereequal)
 
 [**FIELD-LEVEL SECURITY**](#field-level-security)
 
@@ -171,6 +172,8 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
 
 The initial query allows for the bulk population of records in the cache (if it is empty), ensuring that every subsequent query in the cached selector will use the cached records.
 
+### initialQuery
+
 **Signature**
 
 ```apex
@@ -190,15 +193,77 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
         cacheInSessionCache();
     }
 
-    public override SOQL.Queryable initialQuery() {
-        return SOQL.of(Profile.SObjectType).systemMode().withoutSharing(); // <=== Initial query
+    public override List<SObjectField> cachedFields() {
+        return new List<SObjectField>{ Profile.Id, Profile.Name, Profile.UserType };
+    }
+
+    public override SOQL.Queryable initialQuery() { // <=== Initial query
+        return SOQL.of(Profile.SObjectType).systemMode().withoutSharing();
     }
 }
 ```
 
 ## SELECT
 
+### cachedFields
+
+The `SELECT` clause is determined by the `cachedFields()` method. Developers must provide all fields that should be cached. These fields are cached for the entire selector.
+
+**Signature**
+
+```apex
+List<SObjectField> cachedFields()
+```
+
+**Example**
+
+```apex
+public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
+    public static SOQL_ProfileCache query() {
+        return new SOQL_ProfileCache();
+    }
+
+    private SOQL_ProfileCache() {
+        super(Profile.SObjectType);
+        cacheInSessionCache();
+    }
+
+    public override List<SObjectField> cachedFields() { // <=== Cached Fields
+        return new List<SObjectField>{ Profile.Id, Profile.Name, Profile.UserType };
+    }
+
+    public override SOQL.Queryable initialQuery() {
+        return SOQL.of(Profile.SObjectType).systemMode().withoutSharing();
+    }
+}
+```
+
 ## WHERE
+
+A cached query must include one condition. The filter must use a cached field (defined in `cachedFields()`) and should be based on `Id`, `Name`, `DeveloperName`, or another unique field.
+
+### whereEqual
+
+**Signature**
+
+```apex
+Cacheable whereEqual(SObjectField field, Object value);
+Cacheable whereEqual(String field, Object value);
+```
+
+**Example**
+
+```apex
+SOQL_ProfileCache.query()
+    .whereEqual(Profile.Name, 'System Administrator')
+    .toObject();
+```
+
+```apex
+SOQL_ProfileCache.query()
+    .whereEqual('Name', 'System Administrator')
+    .toObject();
+```
 
 ## FIELD-LEVEL SECURITY
 
