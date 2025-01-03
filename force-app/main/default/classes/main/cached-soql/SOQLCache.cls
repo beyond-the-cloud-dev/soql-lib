@@ -324,7 +324,7 @@ public abstract inherited sharing class SOQLCache implements Cacheable {
             if (records.isEmpty()) {
                 records = this.builder.currentyQuery.toList();
                 cachedRecords.addAll(records);
-                this.builder.storage.putRecordsToCache(records);
+                this.builder.storage.putRecordsToCache(cachedRecords);
             }
 
             if (this.accessType == null) {
