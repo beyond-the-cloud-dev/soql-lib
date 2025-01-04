@@ -3,27 +3,30 @@
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
  * PMD False Positives:
- * TODO
+ * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
+ * - CognitiveComplexity: It is a library and we tried to put everything into ONE class
+ * - ApexDoc: Variable names are self-documented.
+ * - AvoidHardcodingId: Hardcoded Ids are used to mock SOQL results
 **/
+@SuppressWarnings('PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.ApexDoc, PMD.AvoidHardcodingId')
 @IsTest
 private class SOQLCache_Test {
     private static final String INITIAL_QUERY_MOCK_ID = 'cachedProfile';
-    private static final List<Profile> PROFILES = new List<Profile>{
-        new Profile(Id = '00e3V000000Nme3QAC', Name = 'System Administrator'),
-        new Profile(Id = '00e3V000000NmefQAC', Name = 'Standard User')
-    };
 
     @IsTest
     static void initialQuery() {
         // Setup
-        SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
+        SOQL.setMock(INITIAL_QUERY_MOCK_ID, new List<Profile>{
+            new Profile(Name = 'System Administrator'),
+            new Profile(Name = 'Standard User')
+        });
 
         // Test
         new SOQL_ProfileCache().whereEqual('Name', 'System Administrator').toObject(); // initial query will be executed
         List<Profile> cachedProfiles = (List<Profile>) CacheManager.ApexTransaction.get('ProfileTest');
 
         // Verify
-        Assert.areEqual(PROFILES, cachedProfiles);
+        Assert.areEqual(PROFILES, cachedProfiles, 'The cached profiles should be identical to those in the initial query.');
     }
 
     @IsTest
@@ -33,8 +36,8 @@ private class SOQLCache_Test {
         List<Profile> cachedProfiles = (List<Profile>) CacheManager.ApexTransaction.get('ProfileTest');
 
         // Verify
-        Assert.areEqual('00e3V000000Nme3QAC', cachedProfiles[0].Id);
-        Assert.areEqual('System Administrator', cachedProfiles[0].Name);
+        Assert.areEqual(1, cachedProfiles, 'Only one record should be cached.');
+        Assert.areEqual('System Administrator', cachedProfiles[0].Name, 'The System Administrator profile should be cached.');
     }
 
     @IsTest
@@ -213,7 +216,7 @@ private class SOQLCache_Test {
 
         // Verify
         Assert.isNotNull(soqlException, 'An exception should be thrown when the field is not Id, Name, DeveloperName, or a unique field.');
-        Assert.areEqual('A cached query can be filtered only by Id, Name, DeveloperName, or a unique field.', soqlException.getMessage());
+        Assert.areEqual('A cached query can be filtered only by Id, Name, DeveloperName, or a unique field.', soqlException.getMessage(), 'The exception message should be "A cached query can be filtered only by Id, Name, DeveloperName, or a unique field."');
     }
 
     @IsTest
@@ -232,7 +235,7 @@ private class SOQLCache_Test {
 
         // Verify
         Assert.isNotNull(soqlException, 'An exception should be thrown when a condition is missing.');
-        Assert.areEqual('A condition is missing. Please provide a filter to retrieve the cached record.', soqlException.getMessage());
+        Assert.areEqual('A condition is missing. Please provide a filter to retrieve the cached record.', soqlException.getMessage(), 'The exception message should be "A condition is missing. Please provide a filter to retrieve the cached record."');
     }
 
     @IsTest
@@ -253,7 +256,7 @@ private class SOQLCache_Test {
 
         // Verify
         Assert.isNotNull(soqlException, 'An exception should be thrown when more than one condition is introduced.');
-        Assert.areEqual('Only one condition can be used in a cached query.', soqlException.getMessage());
+        Assert.areEqual('Only one condition can be used in a cached query.', soqlException.getMessage(), 'The exception message should be "Only one condition can be used in a cached query."');
     }
 
     @IsTest
@@ -281,7 +284,8 @@ private class SOQLCache_Test {
             // Verify
             Assert.areEqual(
                 'SObject row was retrieved via SOQL without querying the requested field: Task.Type',
-                queryException.getMessage()
+                queryException.getMessage(),
+                'The stripInaccessible method should hide the inaccessible field value.'
             );
         }
     }
@@ -298,8 +302,8 @@ private class SOQLCache_Test {
             .toObject();
 
         // Verify
-        Assert.areEqual('00e3V000000Nme3QAC', profile.Id);
-        Assert.areEqual('System Administrator', profile.Name);
+        Assert.areEqual('00e3V000000Nme3QAC', profile.Id, 'The profile id should be the same as the id assigned to the profile cache.');
+        Assert.areEqual('System Administrator', profile.Name, 'The profile name should be the same as the name assigned to the profile cache.');
     }
 
     @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
@@ -326,8 +330,8 @@ private class SOQLCache_Test {
             .toObject();
 
         // Verify
-        Assert.areEqual(systemAdministratorProfile.Id, profile.Id);
-        Assert.areEqual(systemAdministratorProfile.Name, profile.Name);
+        Assert.areEqual(systemAdministratorProfile.Id, profile.Id, 'The cached profile id should be equal to the systemAdministratorProfile id.');
+        Assert.areEqual(systemAdministratorProfile.Name, profile.Name, 'The cached profile name should be equal to the systemAdministratorProfile name.');
     }
 
     @IsTest
@@ -342,8 +346,8 @@ private class SOQLCache_Test {
             .toObject();
 
         // Verify
-        Assert.areEqual(systemAdministratorProfile.Id, profile.Id);
-        Assert.areEqual(systemAdministratorProfile.Name, profile.Name);
+        Assert.areEqual(systemAdministratorProfile.Id, profile.Id, 'The cached profile id should be equal to the systemAdministratorProfile id.');
+        Assert.areEqual(systemAdministratorProfile.Name, profile.Name, 'The cached profile name should be equal to the systemAdministratorProfile name.');
     }
 
     @IsTest
@@ -401,7 +405,7 @@ private class SOQLCache_Test {
 
         // Verify
         Assert.isNotNull(queryException, 'QueryException should be thrown, because query has more than 1 row for assignment to SObject.');
-        Assert.areEqual('List has more than 1 row for assignment to SObject', queryException.getMessage());
+        Assert.areEqual('List has more than 1 row for assignment to SObject', queryException.getMessage(), 'QueryException message should be "List has more than 1 row for assignment to SObject"');
     }
 
     @IsTest
@@ -417,8 +421,8 @@ private class SOQLCache_Test {
             .toObject();
 
         // Verify
-        Assert.areEqual('00e3V000000Nbc3QAC', profile.Id);
-        Assert.areEqual('Guest User', profile.Name);
+        Assert.areEqual('00e3V000000Nbc3QAC', profile.Id, 'Record not found in cache should be retrieved from SOQL and cached.');
+        Assert.areEqual('Guest User', profile.Name, 'Record not found in cache should be retrieved from SOQL and cached.');
     }
 
     @IsTest
