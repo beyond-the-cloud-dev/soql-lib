@@ -132,6 +132,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable byIds(List<SObject> records);
         Queryable byRecordType(String recordTypeDeveloperName);
         // RESULT
+        Id toId();
         Boolean doExist();
         String toString();
         Object toValueOf(SObjectField fieldToExtract);
@@ -781,6 +782,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         return binder.getBindingMap();
     }
 
+    public Id toId() {
+        builder.fields.clearAllFields(); // other fields not needed
+        return toObject()?.Id;
+    }
+
     public Boolean doExist() {
         builder.fields.clearAllFields(); // other fields not needed
         return toList().size() > 0;
@@ -1119,7 +1125,9 @@ public virtual inherited sharing class SOQL implements Queryable {
             if (!groupedFields.isEmpty() || !aggregateFunctions.isEmpty()) {
                 List<String> selectFields = new List<String>();
 
-                removeNotGroupedFields();
+                // To avoid "Field must be grouped or aggregated" error
+                // retain only grouped or aggregated fields
+                fields.retainAll(groupedFields);
 
                 selectFields.addAll(fields);
                 selectFields.addAll(aggregateFunctions);
@@ -1128,15 +1136,6 @@ public virtual inherited sharing class SOQL implements Queryable {
             }
 
             return 'SELECT ' + String.join(fields, ', ');
-        }
-
-        public void removeNotGroupedFields() {
-             // To avoid "Field must be grouped or aggregated" error
-            for (String field : fields) {
-                if (!groupedFields.contains(field)) {
-                    fields.remove(field);
-                }
-            }
         }
     }
 

@@ -167,6 +167,7 @@ The following are methods for `SOQL`.
 
 [**RESULT**](#result)
 
+- [`toId()`](#toid)
 - [`doExist()`](#doexist)
 - [`toValueOf(SObjectField fieldToExtract)`](#tovalueof)
 - [`toValuesOf(SObjectField fieldToExtract)`](#tovaluesof)
@@ -2143,7 +2144,28 @@ SOQL.of(Account.SObjectType)
 
 ## RESULT
 
+### toId
+
+```apex
+Id toId()
+```
+
+**Example**
+
+```apex
+Id adminProfileId = SOQL.of(Profile.SObjectType)
+        .whereAre(SOQL.Filter.name().equal('System Administrator'))
+        .toId();
+
+new User (
+    // ...
+    ProfileId = adminProfileId
+);
+```
+
 ### doExist
+
+**Signature**
 
 ```apex
 Boolean doExist()
