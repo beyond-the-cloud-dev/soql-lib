@@ -67,7 +67,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     protected SOQLCache(SObjectType ofObject) {
         this.builder = new Builder(ofObject.getDescribe().getName());
         this.executor = new Executor(this.builder);
-        // TODO this.with('Id'); always cache Id to identify duplicated rows
+        this.with('Id'); // always cache Id to identify duplicated rows
         this.populateQuery(this.initialQuery());
     }
 
@@ -167,7 +167,6 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     public Object toValueOf(SObjectField fieldToExtract) {
-        // TODO Clear other fields
         this.with(fieldToExtract);
         return this.toObject()?.get(fieldToExtract);
     }
@@ -294,11 +293,6 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         private void fieldValidation() {
-            // filter field is automatically cached
-            // if (!this.cachedFields.contains(this.field)) {
-            //     throw new SoqlCacheException('Filter must use cached field. Updated cached fields in cachedFilelds() method or update the condition.');
-            // }
-
             if (!(new List<String>{ 'Id', 'Name', 'DeveloperName' }.contains(this.field) || this.isFilterFieldUnique())) {
                 throw new SoqlCacheException('A cached query can be filtered only by Id, Name, DeveloperName, or a unique field.');
             }

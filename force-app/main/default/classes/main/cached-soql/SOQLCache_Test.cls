@@ -450,8 +450,13 @@ private class SOQLCache_Test {
             .whereEqual(Profile.Name, 'System Administrator')
             .toObject();
 
+        List<Profile> cachedProfiles = (List<Profile>) CacheManager.ApexTransaction.get('ProfileTest');
+
         // Verify
         Assert.areEqual(2, Limits.getQueries(), 'Two queries should be issued. The second query should retrieve the missing fields.');
+
+        Assert.isFalse(cachedProfiles.isEmpty(), 'The Apex transaction cache should not be empty.');
+        Assert.areEqual(1, cachedProfiles.size(), 'The Apex transaction cache should contain exactly one record.');
 
         Assert.isTrue(profile2.isSet('Id'), 'The profile Id should not be set.');
         Assert.isTrue(profile2.isSet('Name'), 'The profile Name should not be set.');
