@@ -1,10 +1,13 @@
 /**
- * Copyright (c) 2025 BEYOND THE CLOUD Sp. z o.o. (BeyondTheCloud.Dev)
+ * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/cache-manager/blob/main/LICENSE)
  *
  * PMD False Positives:
- * TBD
+ * - CognitiveComplexity: It is a library and we tried to put everything into ONE class
+ * - PropertyNamingConventions: It was intentional to make the lib more fluent and readable
+ * - FieldNamingConventions: It was intentional to make the lib more fluent and readable
 **/
+@SuppressWarnings('PMD.CognitiveComplexity, PMD.PropertyNamingConventions, PMD.FieldNamingConventions')
 public with sharing class CacheManager {
     public interface Cacheable {
         Boolean contains(String key);
@@ -23,7 +26,6 @@ public with sharing class CacheManager {
     public final static Cacheable SOQLSessionCache {
         get { return getSessionCache('SOQL'); }
     }
-    // more cache partitions here
 
     // Implementation
 
