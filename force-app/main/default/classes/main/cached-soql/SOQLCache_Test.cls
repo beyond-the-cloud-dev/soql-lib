@@ -40,85 +40,240 @@ private class SOQLCache_Test {
     @IsTest
     static void multipleSelectorInvocation() {
         // Test
-        new SOQL_ProfileCache().whereEqual('Name', 'System Administrator').toObject(); // initial query will be executed
-        new SOQL_ProfileCache().whereEqual('Name', 'System Administrator').toObject();
-        new SOQL_ProfileCache().whereEqual('Name', 'System Administrator').toObject();
-        new SOQL_ProfileCache().whereEqual('Name', 'System Administrator').toObject();
-
-        Integer issuedQueriesAmount = Limits.getQueries();
+        SOQLCache.of(Profile.SObjectType).with(Profile.Id, Profile.Name).whereEqual(Profile.Name, 'System Administrator').toObject();
+        SOQLCache.of(Profile.SObjectType).with(Profile.Id, Profile.Name).whereEqual(Profile.Name, 'System Administrator').toObject();
+        SOQLCache.of(Profile.SObjectType).with(Profile.Id, Profile.Name).whereEqual(Profile.Name, 'System Administrator').toObject();
+        SOQLCache.of(Profile.SObjectType).with(Profile.Id, Profile.Name).whereEqual(Profile.Name, 'System Administrator').toObject();
 
         // Verify
-        Assert.areEqual(1, issuedQueriesAmount, 'Only initial query should be executed.');
+        Assert.areEqual(1, Limits.getQueries(), 'Only the first query should be executed to populate data in the cache.');
     }
 
     @IsTest
     static void cacheInApexTransaction() {
-        // Setup
-        SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
-
         // Test
-        Profile profile = (Profile) new SOQL_ProfileCache()
+        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
             .cacheInApexTransaction()
-            .whereEqual('Name', 'System Administrator')
+            .with(Profile.Id, Profile.Name)
+            .whereEqual(Profile.Name, 'System Administrator')
             .toObject();
 
+        List<Profile> cachedProfiles = (List<Profile>) CacheManager.ApexTransaction.get('ProfileTest');
+
         // Verify
-        Assert.areEqual('00e3V000000Nme3QAC', profile.Id);
-        Assert.areEqual('System Administrator', profile.Name);
+        Assert.isFalse(cachedProfiles.isEmpty(), 'The Apex transaction cache should not be empty.');
+        Assert.areEqual(1, cachedProfiles.size(), 'The Apex transaction cache should contain exactly one record.');
+        Assert.areEqual('System Administrator', cachedProfiles[0].Name, 'The cached profile record should be "System Administrator".');
     }
 
     @IsTest
     static void cacheInOrgCache() {
-        // Setup
-        SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
-
         // Test
-        Profile profile = (Profile) new SOQL_ProfileCache()
+        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
             .cacheInOrgCache()
-            .whereEqual('Name', 'System Administrator')
+            .with(Profile.Id, Profile.Name)
+            .whereEqual(Profile.Name, 'System Administrator')
             .toObject();
 
+        List<Profile> cachedProfiles = (List<Profile>) CacheManager.SOQLOrgCache.get('ProfileTest');
+
         // Verify
-        Assert.areEqual('00e3V000000Nme3QAC', profile.Id);
-        Assert.areEqual('System Administrator', profile.Name);
+        Assert.isFalse(cachedProfiles.isEmpty(), 'The Apex transaction cache should not be empty.');
+        Assert.areEqual(1, cachedProfiles.size(), 'The Apex transaction cache should contain exactly one record.');
+        Assert.areEqual('System Administrator', cachedProfiles[0].Name, 'The cached profile record should be "System Administrator".');
     }
 
     @IsTest
     static void cacheInSessionCache() {
-        // Setup
-        SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
-
         // Test
-        Profile profile = (Profile) new SOQL_ProfileCache()
+        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
             .cacheInSessionCache()
+            .with(Profile.Id, Profile.Name)
+            .whereEqual(Profile.Name, 'System Administrator')
+            .toObject();
+
+        List<Profile> cachedProfiles = (List<Profile>) CacheManager.SOQLSessionCache.get('ProfileTest');
+
+        // Verify
+        Assert.isFalse(cachedProfiles.isEmpty(), 'The Apex transaction cache should not be empty.');
+        Assert.areEqual(1, cachedProfiles.size(), 'The Apex transaction cache should contain exactly one record.');
+        Assert.areEqual('System Administrator', cachedProfiles[0].Name, 'The cached profile record should be "System Administrator".');
+    }
+
+    @IsTest
+    static void withOneField() {
+        // Test
+        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+           .with(Profile.Name)
+           .whereEqual(Profile.Name, 'System Administrator')
+           .toObject();
+
+        // Verify
+        Assert.isTrue(profile.isSet('Name'), 'The profile Name should not be null.');
+    }
+
+    @IsTest
+    static void withTwoFields() {
+        // Test
+        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+           .with(Profile.Id, Profile.Name)
+           .whereEqual(Profile.Name, 'System Administrator')
+           .toObject();
+
+        // Verify
+        Assert.isTrue(profile.isSet('Id'), 'The profile Id should not be set.');
+        Assert.isTrue(profile.isSet('Name'), 'The profile Name should not be set.');
+    }
+
+
+    @IsTest
+    static void withThreeFields() {
+        // Test
+        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+           .with(Profile.Id, Profile.Name, Profile.UserType)
+           .whereEqual(Profile.Name, 'System Administrator')
+           .toObject();
+
+        // Verify
+        Assert.isTrue(profile.isSet('Id'), 'The profile Id should not be set.');
+        Assert.isTrue(profile.isSet('Name'), 'The profile Name should not be set.');
+        Assert.isTrue(profile.isSet('UserType'), 'The profile Name should not be set.');
+    }
+
+
+    @IsTest
+    static void withFourFields() {
+        // Test
+        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+           .with(Profile.Id, Profile.Name, Profile.UserType, Profile.UserLicenseId)
+           .whereEqual(Profile.Name, 'System Administrator')
+           .toObject();
+
+        // Verify
+        Assert.isTrue(profile.isSet('Id'), 'The profile Id should not be set.');
+        Assert.isTrue(profile.isSet('Name'), 'The profile Name should not be set.');
+        Assert.isTrue(profile.isSet('UserType'), 'The profile UserType should not be set.');
+        Assert.isTrue(profile.isSet('UserLicenseId'), 'The profile UserLicenseId should not be set.');
+    }
+
+    @IsTest
+    static void withFiveFields() {
+        // Test
+        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+           .with(Profile.Id, Profile.Name, Profile.UserType, Profile.Description, Profile.UserLicenseId)
+           .whereEqual(Profile.Name, 'System Administrator')
+           .toObject();
+
+        // Verify
+        Assert.isTrue(profile.isSet('Id'), 'The profile Id should not be set.');
+        Assert.isTrue(profile.isSet('Name'), 'The profile Name should not be set.');
+        Assert.isTrue(profile.isSet('UserType'), 'The profile UserType should not be set.');
+        Assert.isTrue(profile.isSet('Description'), 'The profile Description should not be set.');
+        Assert.isTrue(profile.isSet('UserLicenseId'), 'The profile UserLicenseId should not be set.');
+    }
+
+    @IsTest
+    static void whereEqualSObjectField() {
+        // Test
+        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+            .with(Profile.Id, Profile.Name)
+            .whereEqual(Profile.Name, 'System Administrator')
+            .toObject();
+
+        // Verify
+        Assert.areEqual('System Administrator', profile.Name, 'The cached profile record should be "System Administrator".');
+    }
+
+    @IsTest
+    static void whereEqualStringField() {
+        // Test
+        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+            .with(Profile.Id, Profile.Name)
             .whereEqual('Name', 'System Administrator')
             .toObject();
 
         // Verify
-        Assert.areEqual('00e3V000000Nme3QAC', profile.Id);
-        Assert.areEqual('System Administrator', profile.Name);
+        Assert.areEqual('System Administrator', profile.Name, 'The cached profile record should be "System Administrator".');
+    }
+
+    @IsTest
+    static void whereEqualNotUniqueField() {
+        // Setup
+        SOQLCache.SoqlCacheException soqlException;
+
+        // Test
+        try {
+            SOQLCache.of(Profile.SObjectType)
+                .with(Profile.Id, Profile.Name)
+                .whereEqual(Profile.UserType, 'Standard')
+                .toObject();
+        } catch (SOQLCache.SoqlCacheException e) {
+            soqlException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(soqlException, 'An exception should be thrown when the field is not Id, Name, DeveloperName, or a unique field.');
+        Assert.areEqual('A cached query can be filtered only by Id, Name, DeveloperName, or a unique field.', soqlException.getMessage());
+    }
+
+    @IsTest
+    static void cachedQueryWithoutCondition() {
+        // Setup
+        SOQLCache.SoqlCacheException soqlException;
+
+        // Test
+        try {
+            SOQLCache.of(Profile.SObjectType)
+                .with(Profile.Id, Profile.Name)
+                .toObject();
+        } catch (SOQLCache.SoqlCacheException e) {
+            soqlException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(soqlException, 'An exception should be thrown when a condition is missing.');
+        Assert.areEqual('A condition is missing. Please provide a filter to retrieve the cached record.', soqlException.getMessage());
+    }
+
+    @IsTest
+    static void multipleConditions() {
+        // Setup
+        SOQLCache.SoqlCacheException soqlException;
+
+        // Test
+        try {
+            SOQLCache.of(Profile.SObjectType)
+                .with(Profile.Id, Profile.Name)
+                .whereEqual(Profile.Name, 'System Administrator')
+                .whereEqual(Profile.Id, '00e3V000000NmefQAC')
+                .toObject();
+        } catch (SOQLCache.SoqlCacheException e) {
+            soqlException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(soqlException, 'An exception should be thrown when more than one condition is introduced.');
+        Assert.areEqual('Only one condition can be used in a cached query.', soqlException.getMessage());
     }
 
     @IsTest
     static void stripInaccessible() {
         // Setup
-        Task task = new Task(Subject = 'Test', Type = 'Other');
-        insert task;
+        Task testTask = new Task(Subject = 'Test', Type = 'Other');
+        insert testTask;
 
         System.runAs(minimumAccessUser()) {
             // Test
-            Task cachedTask = (Task) new SOQL_TaskCache()
-                .query()
-                .whereEqual('Id', task.Id)
+            Task cachedTask = (Task) SOQLCache.of(Task.SObjectType)
+                .with(Task.Id, Task.Type, Task.Subject)
+                .whereEqual(Task.Id, testTask.Id)
                 .stripInaccessible()
                 .toObject();
 
             Exception queryException = null;
 
-            String inaccessibleFieldValue;
-
             try {
-                inaccessibleFieldValue = cachedTask.Type;
+                String inaccessibleFieldValue = cachedTask.Type;
             } catch(Exception e) {
                 queryException = e;
             }
@@ -129,202 +284,6 @@ private class SOQLCache_Test {
                 queryException.getMessage()
             );
         }
-    }
-
-    @IsTest
-    static void whereEqualSObjectField() {
-        // Setup
-        SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
-
-        // Test
-        Profile profile = (Profile) new SOQL_ProfileCache().query().whereEqual(Profile.Name, 'System Administrator').toObject();
-
-        // Verify
-        Assert.areEqual('00e3V000000Nme3QAC', profile.Id);
-        Assert.areEqual('System Administrator', profile.Name);
-    }
-
-    @IsTest
-    static void whereEqualStringField() {
-        // Setup
-        SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
-
-        // Test
-        Profile profile = (Profile) new SOQL_ProfileCache().query().whereEqual('Name', 'System Administrator').toObject();
-
-        // Verify
-        Assert.areEqual('00e3V000000Nme3QAC', profile.Id);
-        Assert.areEqual('System Administrator', profile.Name);
-    }
-
-    @IsTest
-    static void whereEqualNotUniqueField() {
-        // Setup
-        SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
-        SOQLCache.SoqlCacheException soqlException;
-
-        // Test
-        try {
-            Profile profile = (Profile) new SOQL_ProfileCache().query().whereEqual(Profile.UserType, 'Standard').toObject();
-        } catch (SOQLCache.SoqlCacheException e) {
-            soqlException = e;
-        }
-
-        // Verify
-        Assert.isNotNull(soqlException, 'Exception should be thrown when field is not Id, Name, DeveloperName or unique.');
-    }
-
-    @IsTest
-    static void whereEqualNotCachedField() {
-        // Setup
-        SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
-        SOQLCache.SoqlCacheException soqlException;
-
-        // Test
-        try {
-            Profile profile = (Profile) new SOQL_ProfileCache().query().whereEqual(Profile.UserLicenseId, '00e3V000000NmefQAC').toObject();
-        } catch (SOQLCache.SoqlCacheException e) {
-            soqlException = e;
-        }
-
-        // Verify
-        Assert.isNotNull(soqlException, 'Exception should be thrown when field is not cached.');
-    }
-
-    @IsTest
-    static void cachedQueryWithoutCondition() {
-        // Setup
-        SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
-        SOQLCache.SoqlCacheException soqlException;
-
-        // Test
-        try {
-            Profile profile = (Profile) new SOQL_ProfileCache().query().toObject();
-        } catch (SOQLCache.SoqlCacheException e) {
-            soqlException = e;
-        }
-
-        // Verify
-        Assert.isNotNull(soqlException, 'Exception should be thrown when condition is missing.');
-    }
-
-    @IsTest
-    static void multipleConditions() {
-        // Setup
-        SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
-        SOQLCache.SoqlCacheException soqlException;
-
-        // Test
-        try {
-            Profile profile = (Profile) new SOQL_ProfileCache().query()
-                .whereEqual(Profile.Name, 'System Administrator')
-                .whereEqual(Profile.Id, '00e3V000000NmefQAC')
-                .toObject();
-        } catch (SOQLCache.SoqlCacheException e) {
-            soqlException = e;
-        }
-
-        // Verify
-        Assert.isNotNull(soqlException, 'Exception should be thrown when more than 1 condition is intorduced.');
-    }
-
-    @IsTest
-    static void doExist() {
-        // Setup
-        SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
-
-        // Test
-        Boolean isProfileExist = new SOQL_ProfileCache()
-            .query()
-            .whereEqual(Profile.Name, 'System Administrator')
-            .doExist();
-
-        // Verify
-        Assert.isTrue(isProfileExist, 'System Administrator Profile should exist.');
-    }
-
-    @IsTest
-    static void toValueOf() {
-        // Setup
-        SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
-
-        // Test
-        Id profileId = (Id) new SOQL_ProfileCache()
-            .query()
-            .whereEqual(Profile.Name, 'System Administrator')
-            .toValueOf(Profile.Id);
-
-        // Verify
-        Assert.areEqual('00e3V000000Nme3QAC', profileId);
-    }
-
-    @IsTest
-    static void toObjectWithMultipleRows() {
-        // Setup
-        SOQL.setMock(INITIAL_QUERY_MOCK_ID, new List<Profile>{
-            new Profile(Id = '00e3V000000Nme3QAC', Name = 'System Administrator'),
-            new Profile(Id = '00e3V000000NmefQAC', Name = 'System Administrator')
-        });
-
-        QueryException queryException = null;
-
-        // Test
-        try {
-            Profile profile = (Profile) new SOQL_ProfileCache()
-                .query()
-                .whereEqual(Profile.Name, 'System Administrator')
-                .toObject();
-        } catch (QueryException e) {
-            queryException = e;
-        }
-
-        // Verify
-        Assert.isNotNull(queryException, 'QueryException should be thrown, because query has more than 1 row for assignment to SObject.');
-    }
-
-    @IsTest
-    static void byId() {
-        // Setup
-        SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
-
-        // Test
-        Profile profile = (Profile) new SOQL_ProfileCache().query().byId('00e3V000000Nme3QAC');
-
-        // Verify
-        Assert.areEqual('00e3V000000Nme3QAC', profile.Id);
-        Assert.areEqual('System Administrator', profile.Name);
-    }
-
-    @IsTest
-    static void recordNotFoundInCache() {
-        // Setup
-        SOQL.setMock(INITIAL_QUERY_MOCK_ID, PROFILES);
-        SOQL.setMock('ProfileQuery', new Profile(Id = '00e3V000000Nbc3QAC', Name = 'Guest User'));
-
-        // Test
-        Profile profile = (Profile) new SOQL_ProfileCache().query()
-            .mockId('ProfileQuery')
-            .whereEqual(Profile.Name, 'Guest User')
-            .toObject();
-
-        // Verify
-        Assert.areEqual('00e3V000000Nbc3QAC', profile.Id);
-        Assert.areEqual('Guest User', profile.Name);
-    }
-
-    @IsTest
-    static void recordNotFoundInCacheAndNotExistInDatabase() {
-        // Setup
-        SOQL.setMock(INITIAL_QUERY_MOCK_ID, new List<Profile>());
-
-        // Test
-        Profile profile = (Profile) new SOQL_ProfileCache().query()
-            .mockId('ProfileQuery')
-            .whereEqual(Profile.Name, 'Guest User Test')
-            .toObject();
-
-        // Verify
-        Assert.isNull(profile);
     }
 
     @IsTest
@@ -355,6 +314,151 @@ private class SOQLCache_Test {
         // Verify - imposible to verify system.debug
     }
 
+    @IsTest
+    static void byIdSObject() {
+        // Setup
+        Profile systemAdministratorProfile = [SELECT Id, Name FROM Profile WHERE Name = 'System Administrator'];
+
+        // Test
+        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+            .with(Profile.Id, Profile.Name)
+            .byId(systemAdministratorProfile)
+            .toObject();
+
+        // Verify
+        Assert.areEqual(systemAdministratorProfile.Id, profile.Id);
+        Assert.areEqual(systemAdministratorProfile.Name, profile.Name);
+    }
+
+    @IsTest
+    static void byId() {
+        // Setup
+        Profile systemAdministratorProfile = [SELECT Id, Name FROM Profile WHERE Name = 'System Administrator'];
+
+        // Test
+        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+            .with(Profile.Id, Profile.Name)
+            .byId(systemAdministratorProfile.Id)
+            .toObject();
+
+        // Verify
+        Assert.areEqual(systemAdministratorProfile.Id, profile.Id);
+        Assert.areEqual(systemAdministratorProfile.Name, profile.Name);
+    }
+
+    @IsTest
+    static void toId() {
+        // Test
+        Id systemAdministratorProfileId = SOQLCache.of(Profile.SObjectType)
+            .whereEqual(Profile.Name, 'System Administrator')
+            .toId();
+
+        // Verify
+        Assert.isNotNull(systemAdministratorProfileId, 'The System Administrator profile Id must exist.');
+    }
+
+    @IsTest
+    static void doExist() {
+        // Test
+        Boolean isProfileExist = SOQLCache.of(Profile.SObjectType)
+            .whereEqual(Profile.Name, 'System Administrator')
+            .doExist();
+
+        // Verify
+        Assert.isTrue(isProfileExist, 'The System Administrator profile must exist.');
+    }
+
+    @IsTest
+    static void toValueOf() {
+        // Test
+        Id profileId = (Id) SOQLCache.of(Profile.SObjectType)
+            .whereEqual(Profile.Name, 'System Administrator')
+            .toValueOf(Profile.Id);
+
+        // Verify
+        Assert.isNotNull(profileId, 'The System Administrator profile Id must exist.');
+    }
+
+    @IsTest
+    static void toObjectWithMultipleRows() {
+        // Setup
+        SOQL.setMock('ProfileQuery', new List<Profile>{
+            new Profile(Id = '00e3V000000Nme3QAC', Name = 'System Administrator'),
+            new Profile(Id = '00e3V000000Nme3QAC', Name = 'System Administrator')
+        });
+
+        QueryException queryException = null;
+
+        // Test
+        try {
+            SOQLCache.of(Profile.SObjectType)
+                .mockId('ProfileQuery')
+                .whereEqual(Profile.Name, 'System Administrator')
+                .toObject();
+        } catch (QueryException e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(queryException, 'QueryException should be thrown, because query has more than 1 row for assignment to SObject.');
+        Assert.areEqual('List has more than 1 row for assignment to SObject', queryException.getMessage());
+    }
+
+    @IsTest
+    static void recordNotFoundInCache() {
+        // Setup
+        SOQL.setMock('ProfileQuery', new Profile(Id = '00e3V000000Nbc3QAC', Name = 'Guest User'));
+
+        // Test
+        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+            .with(Profile.Id, Profile.Name)
+            .mockId('ProfileQuery')
+            .whereEqual(Profile.Name, 'Guest User')
+            .toObject();
+
+        // Verify
+        Assert.areEqual('00e3V000000Nbc3QAC', profile.Id);
+        Assert.areEqual('Guest User', profile.Name);
+    }
+
+    @IsTest
+    static void recordNotFoundInCacheAndNotExistInDatabase() {
+        // Setup
+        SOQL.setMock('ProfileQuery', new List<Profile>());
+
+        // Test
+        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+            .with(Profile.Id, Profile.Name)
+            .mockId('ProfileQuery')
+            .whereEqual(Profile.Name, 'Profile That Not Exist')
+            .toObject();
+
+        // Verify
+        Assert.isNull(profile, 'The profile should be null.');
+    }
+
+    @IsTest
+    static void cachedRecordDoesNotHaveNecessaryFields() {
+        // Test
+        Profile profile1 = (Profile) SOQLCache.of(Profile.SObjectType)
+            .with(Profile.Id, Profile.Name)
+            .whereEqual(Profile.Name, 'System Administrator')
+            .toObject();
+
+        Profile profile2 = (Profile) SOQLCache.of(Profile.SObjectType)
+            .with(Profile.Id, Profile.Name, Profile.UserType, Profile.UserLicenseId) // more fields
+            .whereEqual(Profile.Name, 'System Administrator')
+            .toObject();
+
+        // Verify
+        Assert.areEqual(2, Limits.getQueries(), 'Two queries should be issued. The second query should retrieve the missing fields.');
+
+        Assert.isTrue(profile2.isSet('Id'), 'The profile Id should not be set.');
+        Assert.isTrue(profile2.isSet('Name'), 'The profile Name should not be set.');
+        Assert.isTrue(profile2.isSet('UserType'), 'The profile UserType should not be set.');
+        Assert.isTrue(profile2.isSet('UserLicenseId'), 'The profile UserLicenseId should not be set.');
+    }
+
     static User minimumAccessUser() {
         return new User(
             Alias = 'newUser',
@@ -376,14 +480,11 @@ private class SOQLCache_Test {
 
         private SOQL_ProfileCache() {
             super(Profile.SObjectType);
+            with(Profile.Id, Profile.Name);
         }
 
         public override SOQL.Queryable initialQuery() {
             return SOQL.of(Profile.SObjectType).mockId(INITIAL_QUERY_MOCK_ID).systemMode().withoutSharing();
-        }
-
-        public override List<SObjectField> cachedFields() {
-            return new List<SObjectField>{ Profile.Id, Profile.Name, Profile.UserType};
         }
     }
 
@@ -394,28 +495,8 @@ private class SOQLCache_Test {
 
         private SOQL_ProfileCacheDefault() {
             super(Profile.SObjectType);
+            with(Profile.Id, Profile.Name, Profile.UserType);
         }
 
-        public override List<SObjectField> cachedFields() {
-            return new List<SObjectField>{ Profile.Id, Profile.Name, Profile.UserType};
-        }
-    }
-
-    public class SOQL_TaskCache extends SOQLCache implements SOQLCache.Selector{
-        public SOQL_TaskCache query() {
-            return new SOQL_TaskCache();
-        }
-
-        private SOQL_TaskCache() {
-            super(Task.SObjectType);
-        }
-
-        public override SOQL.Queryable initialQuery() {
-            return SOQL.of(Task.SObjectType).systemMode().withoutSharing();
-        }
-
-        public override List<SObjectField> cachedFields() {
-            return new List<SObjectField>{ Task.Id, Task.Type, Task.Subject };
-        }
     }
 }

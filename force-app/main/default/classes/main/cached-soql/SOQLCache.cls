@@ -5,6 +5,7 @@
  * PMD False Positives:
  * TODO
 **/
+public virtual inherited sharing class SOQLCache implements Cacheable {
     public interface Selector {
         Cacheable query();
     }
@@ -14,6 +15,14 @@
         Cacheable cacheInApexTransaction();
         Cacheable cacheInOrgCache();
         Cacheable cacheInSessionCache();
+        // SELECT
+        Cacheable with(SObjectField field);
+        Cacheable with(SObjectField field1, SObjectField field2);
+        Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3);
+        Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+        Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
+        Cacheable with(List<SObjectField> fields);
+        Cacheable with(String fields);
         // WHERE
         Cacheable whereEqual(SObjectField field, Object value);
         Cacheable whereEqual(String field, Object value);
@@ -34,8 +43,6 @@
         Object toValueOf(SObjectField fieldToExtract);
     }
 
-    protected abstract List<SObjectField> cachedFields();
-
     protected virtual SOQL.Queryable initialQuery() {
         return null;
     }
@@ -45,19 +52,23 @@
         mock.setMock(mockId, new List<SObject>{ record });
     }
 
+    // inline soql cache
+    public static Cacheable of(SObjectType ofObject) {
+        return new SOQLCache(ofObject);
+    }
+
     // Implementation
 
     private static Mock mock = new Mock();
 
     private Builder builder;
-    private CacheExecutor executor;
+    private Executor executor;
 
     protected SOQLCache(SObjectType ofObject) {
         this.builder = new Builder(ofObject.getDescribe().getName());
-        this.executor = new CacheExecutor(this.builder);
-
+        this.executor = new Executor(this.builder);
+        // TODO this.with('Id'); always cache Id to identify duplicated rows
         this.populateQuery(this.initialQuery());
-        this.setCachedFields(this.cachedFields());
     }
 
     private Cacheable populateQuery(SOQL.Queryable query) {
@@ -80,10 +91,37 @@
         return this;
     }
 
-    private Cacheable setCachedFields(List<SObjectField> cachedFields) {
-        this.builder.initialQuery?.with(cachedFields);
-        this.builder.currentyQuery.with(cachedFields);
-        this.builder.cacheFilter.cachedFields(cachedFields);
+    public Cacheable with(SObjectField field1) {
+        return this.with(new List<SObjectField>{ field1 });
+    }
+
+    public Cacheable with(SObjectField field1, SObjectField field2) {
+        return this.with(new List<SObjectField>{ field1, field2 });
+    }
+
+    public Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3) {
+        return this.with(new List<SObjectField>{ field1, field2, field3 });
+    }
+
+    public Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
+        return this.with(new List<SObjectField>{ field1, field2, field3, field4 });
+    }
+
+    public Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
+        return this.with(new List<SObjectField>{ field1, field2, field3, field4, field5 });
+    }
+
+    public Cacheable with(List<SObjectField> fields) {
+        this.builder.initialQuery?.with(fields);
+        this.builder.currentyQuery.with(fields);
+        this.builder.cacheFilter.cachedFields(fields);
+        return this;
+    }
+
+    public Cacheable with(String fields) {
+        this.builder.initialQuery?.with(fields);
+        this.builder.currentyQuery.with(fields);
+        this.builder.cacheFilter.cachedFields(fields);
         return this;
     }
 
@@ -92,6 +130,7 @@
     }
 
     public Cacheable whereEqual(String field, Object value) {
+        this.with(field);
         this.builder.cacheFilter.singleFilterValidation();
         this.builder.cacheFilter.with(field).equal(value);
         this.builder.currentyQuery.whereAre(SOQL.Filter.with(field).equal(value));
@@ -128,9 +167,8 @@
     }
 
     public Object toValueOf(SObjectField fieldToExtract) {
-        if (!this.cachedFields().contains(fieldToExtract)) {
-            throw new SoqlCacheException('The field to extract must be cached in the cachedFields() method.');
-        }
+        // TODO Clear other fields
+        this.with(fieldToExtract);
         return this.toObject()?.get(fieldToExtract);
     }
 
@@ -225,6 +263,13 @@
             return this;
         }
 
+        public CacheFilter cachedFields(String fields) {
+            for (String cachedField : fields.split(',')) {
+                this.cachedFields.add(cachedField);
+            }
+            return this;
+        }
+
         public CacheFilter with(String field) {
             this.field = field;
             this.fieldValidation();
@@ -238,36 +283,49 @@
 
         public void singleFilterValidation() {
             if (String.isNotBlank(this.field)) {
-                throw new SoqlCacheException('Only one condition can be used in cached selector.');
+                throw new SoqlCacheException('Only one condition can be used in a cached query.');
             }
         }
 
         public void hasFilterValidation() {
             if (String.isBlank(this.field)) {
-                throw new SoqlCacheException('Condition is missing. Provide filter to retrieve cached record.');
+                throw new SoqlCacheException('A condition is missing. Please provide a filter to retrieve the cached record.');
             }
         }
 
         private void fieldValidation() {
-            if (!this.cachedFields.contains(this.field)) {
-                throw new SoqlCacheException('Filter must use cached field. Updated cached fields in cachedFilelds() method or update the condition.');
-            }
+            // filter field is automatically cached
+            // if (!this.cachedFields.contains(this.field)) {
+            //     throw new SoqlCacheException('Filter must use cached field. Updated cached fields in cachedFilelds() method or update the condition.');
+            // }
 
-            if (!(new List<String>{ 'Id', 'Name', 'DeveloperName' }.contains(this.field) || Schema.getGlobalDescribe().get(this.ofObject).getDescribe().fields.getMap().get(this.field).getDescribe().isUnique())) {
-                throw new SoqlCacheException('Cached query can be filter only by Id, Name, DeveloperName or a unique field.');
+            if (!(new List<String>{ 'Id', 'Name', 'DeveloperName' }.contains(this.field) || this.isFilterFieldUnique())) {
+                throw new SoqlCacheException('A cached query can be filtered only by Id, Name, DeveloperName, or a unique field.');
             }
         }
 
+        private Boolean isFilterFieldUnique() {
+            return Schema.getGlobalDescribe().get(this.ofObject).getDescribe().fields.getMap().get(this.field).getDescribe().isUnique();
+        }
+
         public List<SObject> filter(List<SObject> cachedRecords) {
-            List<SObject> filteredRecords = new List<SObject>();
+            List<SObject> records = new List<SObject>();
 
             for (SObject record : cachedRecords) {
                 if (record.get(this.field) == this.value) {
-                    filteredRecords.add(record);
+                    records.add(record);
                 }
             }
 
-            return filteredRecords;
+            return records;
+        }
+
+        private Boolean hasAllCachedFields(SObject record) {
+            Boolean hasCachedFields = true;
+            for (String field : this.cachedFields) {
+                hasCachedFields &= record.isSet(field);
+            }
+            return hasCachedFields;
         }
     }
 
@@ -287,12 +345,12 @@
         }
     }
 
-    private inherited sharing class CacheExecutor {
+    private inherited sharing class Executor {
         private Builder builder;
         private AccessType accessType = null;
         private String mockId;
 
-        public CacheExecutor(Builder builder) {
+        public Executor(Builder builder) {
             this.builder = builder;
         }
 
@@ -318,21 +376,53 @@
             return records[0];
         }
 
-        public List<SObject> toList() {
+        private List<SObject> toList() {
             if (mock.hasMock(mockId)) {
                 return mock.getSObjectsMock(mockId);
             }
 
             List<SObject> cachedRecords = (List<SObject>) this.builder.storage.getCachedRecords();
             cachedRecords = cachedRecords == null ? new List<SObject>() : cachedRecords;
+
             List<SObject> records = this.builder.cacheFilter.filter(cachedRecords);
 
             if (records.isEmpty()) {
-                records = this.builder.currentyQuery.toList();
-                cachedRecords.addAll(records);
-                this.builder.storage.putRecordsToCache(cachedRecords);
+                List<SObject> databaseRecords = this.builder.currentyQuery.toList();
+                cachedRecords.addAll(databaseRecords);
+                this.builder.storage.putRecordsToCache(cachedRecords); // add database records to cache
+
+                return this.stripInaccessible(databaseRecords);
             }
 
+            Boolean haveAllNecessaryFields = true;
+
+            for (SObject record : records) {
+                if (!this.builder.cacheFilter.hasAllCachedFields(record)) {
+                    haveAllNecessaryFields = false;
+                    break;
+                }
+            }
+
+            if (haveAllNecessaryFields) {
+                return this.stripInaccessible(records);
+            }
+
+            List<SObject> databaseRecords = this.builder.currentyQuery.toList();
+
+            for (SObject databaseRecord : databaseRecords) {
+                for (SObject cachedRecord : cachedRecords) {
+                    if (databaseRecord.Id == cachedRecord.Id) {
+                        cachedRecord = databaseRecord; // add more fields to cached record
+                    }
+                }
+            }
+
+            this.builder.storage.putRecordsToCache(cachedRecords);
+
+            return this.stripInaccessible(databaseRecords);
+        }
+
+        private List<SObject> stripInaccessible(List<SObject> records) {
             if (this.accessType == null) {
                 return records;
             }
