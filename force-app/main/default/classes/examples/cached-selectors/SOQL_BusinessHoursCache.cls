@@ -6,20 +6,15 @@ public with sharing class SOQL_BusinessHoursCache extends SOQLCache implements S
     private SOQL_BusinessHoursCache() {
         super(BusinessHours.SObjectType);
         cacheInOrgCache();
+        with(BusinessHours.Id, BusinessHours.Name);
     }
 
     public override SOQL.Queryable initialQuery() {
-        return SOQL.of(BusinessHours.SObjectType)
-            .whereAre(SOQL.Filter.with(BusinessHours.IsActive).isTrue())
-            .systemMode()
-            .withoutSharing();
+        return SOQL.of(BusinessHours.SObjectType).whereAre(SOQL.Filter.with(BusinessHours.IsActive).isTrue());
     }
 
-    public override List<SObjectField> cachedFields() {
-        return new List<SObjectField>{ BusinessHours.Id, BusinessHours.Name };
-    }
-
-    public BusinessHours byName(String name) {
-        return (BusinessHours) whereEqual(BusinessHours.Name, name).toObject();
+    public SOQL_BusinessHoursCache byName(String name) {
+        whereEqual(BusinessHours.Name, name);
+        return this;
     }
 }

@@ -5,17 +5,15 @@ public with sharing class SOQL_OrgWideEmailAddressCache extends SOQLCache implem
 
     private SOQL_OrgWideEmailAddressCache() {
         super(OrgWideEmailAddress.SObjectType);
+        with(OrgWideEmailAddress.Id, OrgWideEmailAddress.DisplayName, OrgWideEmailAddress.Address);
     }
 
     public override SOQL.Queryable initialQuery() {
-        return SOQL.of(OrgWideEmailAddress.SObjectType).systemMode().withoutSharing();
+        return SOQL.of(OrgWideEmailAddress.SObjectType);
     }
 
-    public override List<SObjectField> cachedFields() {
-        return new List<SObjectField>{ OrgWideEmailAddress.Id, OrgWideEmailAddress.DisplayName, OrgWideEmailAddress.Address };
-    }
-
-    public OrgWideEmailAddress byAddress(String address) {
-        return (OrgWideEmailAddress) whereEqual(OrgWideEmailAddress.Address, address).toObject();
+    public SOQL_OrgWideEmailAddressCache byAddress(String address) {
+        whereEqual(OrgWideEmailAddress.Address, address);
+        return this;
     }
 }

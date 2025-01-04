@@ -6,17 +6,15 @@ public with sharing class SOQL_UserCache extends SOQLCache implements SOQLCache.
     private SOQL_UserCache() {
         super(User.SObjectType);
         cacheInSessionCache();
+        with(User.Id, User.Username, User.Name, User.Country);
     }
 
     public override SOQL.Queryable initialQuery() {
         return SOQL.of(User.SObjectType).whereAre(SOQL.Filter.id().equal(UserInfo.getUserId()));
     }
 
-    public override List<SObjectField> cachedFields() {
-        return new List<SObjectField>{ User.Id, User.Username, User.Name, User.Country };
-    }
-
-    public User byUsername(String username) {
-        return (User) whereEqual(User.Username, username).toObject();
+    public SOQL_UserCache byUsername(String username) {
+        whereEqual(User.Username, username);
+        return this;
     }
 }
