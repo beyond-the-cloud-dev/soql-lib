@@ -4,7 +4,7 @@ sidebar_position: 6
 
 # WHERE
 
-Use [SOQL.FilterGroup](../api/standard-soql/soql-filters-group.md) and Use [SOQL.Filter](../api/standard-soql/soql-filter.md) to build your `WHERE` clause.
+Use [SOQL.FilterGroup](../../api/standard-soql/soql-filters-group.md) and Use [SOQL.Filter](../../api/standard-soql/soql-filter.md) to build your `WHERE` clause.
 
 Define basic filters in your Selector class.
 
@@ -43,7 +43,6 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
 }
 
 public with sharing class MyController {
-
     @AuraEnabled
     public static List<Account> getAccountsByRecordType(String recordType) {
         return SOQL_Account.query()

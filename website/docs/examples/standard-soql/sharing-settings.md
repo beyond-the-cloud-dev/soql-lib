@@ -23,7 +23,6 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
 }
 
 public with sharing class MyController {
-
     public static List<Account> getAccountsInheritedSharing() {
         return SOQL_Account.query().systemMode().toList();
     }
@@ -38,4 +37,4 @@ public with sharing class MyController {
 }
 ```
 
-More about Sharings you can find in [here](../advanced-usage/sharing.md).
+More about Sharings you can find in [here](../../advanced-usage/sharing.md).

@@ -22,11 +22,10 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
 }
 
 public with sharing class MyController {
-
     public static List<Account> getAccountInSystemMode() {
         return SOQL_Account.query().toList();
     }
 }
 ```
 
-More about Field-Level Security you can find in [here](../advanced-usage/fls.md).
+More about Field-Level Security you can find in [here](../../advanced-usage/fls.md).

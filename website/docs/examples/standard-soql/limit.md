@@ -24,7 +24,6 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
 }
 
 public with sharing class MyController {
-
     public static List<Account> getAccountsWithLimit() {
         return SOQL_Account.query().setLimit(1000).toList();
     }

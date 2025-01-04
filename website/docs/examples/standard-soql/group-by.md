@@ -23,7 +23,6 @@ public inherited sharing class SOQL_Lead extends SOQL implements SOQL.Selector {
 }
 
 public with sharing class MyController {
-
     public static List<AggregateResult> getGroupedLeads() {
         return SOQL_Lead.query()
             .with(Lead.LeadSource)

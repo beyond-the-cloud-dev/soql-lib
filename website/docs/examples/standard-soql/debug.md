@@ -19,7 +19,6 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
 }
 
 public with sharing class MyController {
-
     public static List<Account> getAccounts() {
         return SOQL_Account.query()
             .with(Account.BillingCity, Account.BillingCountry, Account.BillingCountryCode)

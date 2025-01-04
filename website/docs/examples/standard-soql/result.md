@@ -19,7 +19,6 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
 }
 
 public with sharing class MyController {
-
     public static String getAccountName(Id accountId) {
         return (String) SOQL_Account.query().byId(accountId).toValueOf(Account.Name);
     }

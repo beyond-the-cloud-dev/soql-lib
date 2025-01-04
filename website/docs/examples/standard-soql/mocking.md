@@ -16,7 +16,6 @@ Set mocking ID in Query declaration.
 
 ```apex
 public with sharing class ExampleController {
-
     public static List<Account> getAccountByName(String accountName) {
         return SOQL_Account.query()
             .with(Account.BillingCity, Account.BillingCountry)

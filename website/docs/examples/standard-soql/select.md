@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # SELECT
 
-Specify fields that will be retrieved via query. Check [SOQL API - SELECT](../api/standard-soql/soql.md#select).
+Specify fields that will be retrieved via query. Check [SOQL API - SELECT](../../api/standard-soql/soql.md#select).
 
 ## Fields
 
@@ -57,7 +57,6 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
 }
 
 public with sharing class MyController {
-
     public static List<Account> getAccountsWithCreatedBy() {
         return SOQL_Account.query()
             .with('CreatedBy', User.Id, User.Name)
@@ -85,7 +84,6 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
 }
 
 public with sharing class MyController {
-
     public static Integer getAccountAmount() {
         return SOQL_Account.query().count().toInteger();
     }
