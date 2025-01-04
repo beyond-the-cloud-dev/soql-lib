@@ -16,17 +16,18 @@ private class SOQLCache_Test {
     @IsTest
     static void initialQuery() {
         // Setup
-        SOQL.setMock(INITIAL_QUERY_MOCK_ID, new List<Profile>{
+        List<Profile> mockedProfiles = new List<Profile>{
             new Profile(Name = 'System Administrator'),
             new Profile(Name = 'Standard User')
-        });
+        };
+        SOQL.setMock(INITIAL_QUERY_MOCK_ID, mockedProfiles);
 
         // Test
         new SOQL_ProfileCache().whereEqual('Name', 'System Administrator').toObject(); // initial query will be executed
         List<Profile> cachedProfiles = (List<Profile>) CacheManager.ApexTransaction.get('ProfileTest');
 
         // Verify
-        Assert.areEqual(PROFILES, cachedProfiles, 'The cached profiles should be identical to those in the initial query.');
+        Assert.areEqual(mockedProfiles, cachedProfiles, 'The cached profiles should be identical to those in the initial query.');
     }
 
     @IsTest
