@@ -6,6 +6,14 @@ sidebar_position: 20
 
 Construct sub-query with provided API.
 
+```apex
+SOQL.of(Account.SObjectType)
+    .with(SOQL.SubQuery.of('Contacts')
+        .with(Contact.Id, Contact.Name, Contact.Phone)
+    )
+    .toList();
+```
+
 ## Methods
 
 The following are methods for `SubQuery`.

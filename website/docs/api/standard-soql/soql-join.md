@@ -6,6 +6,14 @@ sidebar_position: 50
 
 Construct join-query and use it in condition.
 
+```apex
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.Filter.with(Account.Id).isIn(
+        SOQL.InnerJoin.of(Contact.SObjectType)
+            .with(Contact.AccountId)
+    )).toList();
+```
+
 ## Methods
 
 The following are methods for `FilterGroup`.

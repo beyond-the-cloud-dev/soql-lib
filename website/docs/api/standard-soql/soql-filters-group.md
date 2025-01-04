@@ -6,6 +6,15 @@ sidebar_position: 40
 
 Create group of conditions.
 
+```apex
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.FilterGroup
+        .add(SOQL.Filter.with(Account.Industry).equal('IT'))
+        .add(SOQL.Filter.name().equal('My Account'))
+        .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterOrEqual(10))
+    ).toList();
+```
+
 ## Methods
 
 The following are methods for `FilterGroup`.

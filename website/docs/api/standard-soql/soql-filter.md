@@ -6,6 +6,12 @@ sidebar_position: 30
 
 Specify and adjust single condition.
 
+```apex
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.Filter.name().equal('My Account'))
+    .toList();
+```
+
 ## Methods
 
 The following are methods for `Filter`.

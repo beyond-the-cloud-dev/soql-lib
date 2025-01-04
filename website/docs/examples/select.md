@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # SELECT
 
-Specify fields that will be retrieved via query. Check [SOQL API - SELECT](../api/soql.md#select).
+Specify fields that will be retrieved via query. Check [SOQL API - SELECT](../api/standard-soql/soql.md#select).
 
 ## Fields
 

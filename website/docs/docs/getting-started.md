@@ -77,4 +77,4 @@ public with sharing class ExampleController {
 ## License notes
 
 - For proper license management each repository should contain LICENSE file similar to this one.
-- Each original class should contain copyright mark: Copyright (c) 2023 BeyondTheCloud.Dev
+- Each original class should contain copyright mark: Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)

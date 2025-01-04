@@ -8,29 +8,11 @@ Apex Classes: `SOQLCache.cls` and `SOQLCache_Test.cls`.
 
 The lib cache main class necessary to create cached selectors.
 
-SOQL Cached Selector Example:
-
 ```apex
-public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
-    public static SOQL_ProfileCache query() {
-        return new SOQL_ProfileCache();
-    }
-
-    private SOQL_ProfileCache() {
-        super(Profile.SObjectType);
-        cacheInOrgCache();
-        with(Profile.Id, Profile.Name, Profile.UserType); // Fields to cache
-    }
-
-    public override SOQL.Queryable initialQuery() {
-        return SOQL.of(Profile.SObjectType).systemMode().withoutSharing();
-    }
-
-    public SOQL_ProfileCache byName(String name) {
-        whereEqual(Profile.Name, name);
-        return this;
-    }
-}
+SOQLCache.of(Profile.SObjectType)
+    .with(Profile.Id, Profile.Name, Profile.UserType)
+    .whereEqual(Profile.Name, 'System Administrator')
+    .toObject();
 ```
 
 ## Methods
@@ -64,7 +46,7 @@ The following are methods for using `SOQLCache`:
 - [`whereEqual(String field, Object value)`](#whereequal)
 
 [**FIELD-LEVEL SECURITY**](#field-level-security)
-x
+
 - [`stripInaccessible()`](#stripinaccessible)
 - [`stripInaccessible(AccessType accessType)`](#stripinaccessible)
 

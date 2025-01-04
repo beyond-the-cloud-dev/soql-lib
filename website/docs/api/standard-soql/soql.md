@@ -8,6 +8,12 @@ Apex Classes: `SOQL.cls` and `SOQL_Test.cls`.
 
 The lib main class for query construction.
 
+```apex
+SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .toList();
+```
+
 ## Methods
 
 The following are methods for using `SOQL`:
@@ -1821,11 +1827,11 @@ SOQL.of(Contact.SObjectType)
 
 By default AccessLevel is set as `USER_MODE`.
 
-More details you can find in [here](../advanced-usage/fls.md)
+More details you can find in [here](../../advanced-usage/fls.md)
 
 ### userMode
 
-By default, all queries are executed `WITH USER_MODE`. However, developers can override this. For more details, check [Field-Level Security](../advanced-usage/fls.md) and [Sharing Rules](../advanced-usage/sharing.md).
+By default, all queries are executed `WITH USER_MODE`. However, developers can override this. For more details, check [Field-Level Security](../../advanced-usage/fls.md) and [Sharing Rules](../../advanced-usage/sharing.md).
 
 The `userMode` method can be useful to override the `systemMode()` provided by the selector.
 
@@ -1867,7 +1873,7 @@ SOQL.of(Account.SObjectType)
 
 `USER_MODE` enforces not only object and field-level security but also sharing rules (`with sharing`). You may encounter situations where you need object and field-level security but want to ignore sharing rules (`without sharing`). To achieve this, use `.systemMode()`, `.withoutSharing()` and `.stripInaccessible()`.
 
-Read more about `stripInaccessible` in [advanced](../advanced-usage/fls.md#strip-inaccessible).
+Read more about `stripInaccessible` in [advanced](../../advanced-usage/fls.md#strip-inaccessible).
 
 **Signature**
 
@@ -1888,7 +1894,7 @@ SOQL.of(Account.SObjectType)
 
 [Using the with sharing, without sharing, and inherited sharing Keywords](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_classes_keywords_sharing.htm)
 
-More details you can find in [here](../advanced-usage/sharing.md).
+More details you can find in [here](../../advanced-usage/sharing.md).
 
 ### withSharing
 
