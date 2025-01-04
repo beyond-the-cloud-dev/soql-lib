@@ -7,7 +7,7 @@ sidebar_position: 15
 
 **System Requirements**
 
-- API: 61.0
+- API: 62.0
 
 ## Deploy
 
@@ -21,7 +21,29 @@ Click the button below to deploy SOQL Lib to your environment.
 
 ### Copy and Deploy
 
-Or just copy [`SOQL.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/SOQL.cls) and [`SOQL_Test.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/SOQL_Test.cls) and deploy them to your environment.
+#### Standard SOQL
+
+Copy:
+
+- [`SOQL.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/SOQL.cls)
+- [`SOQL_Test.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/SOQL_Test.cls)
+
+and deploy them to your environment.
+
+#### Cached SOQL
+
+Do you need cached selectors?
+
+Copy:
+
+- [`SOQL.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/SOQL.cls)
+- [`SOQL_Test.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/SOQL_Test.cls)
+- [`CacheManager.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/SOQL.cls)
+- [`CacheManagerTest.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/SOQL_Test.cls)
+- [`SQOLCache.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/SOQL.cls)
+- [`SOQLCache_Test.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/SOQL_Test.cls)
+
+and deploy them to your environment.
 
 ## Build Your Selector
 
