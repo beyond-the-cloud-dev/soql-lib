@@ -19,18 +19,16 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
     private SOQL_ProfileCache() {
         super(Profile.SObjectType);
         cacheInOrgCache();
+        with(Profile.Id, Profile.Name, Profile.UserType); // Fields to cache
     }
 
     public override SOQL.Queryable initialQuery() {
         return SOQL.of(Profile.SObjectType).systemMode().withoutSharing();
     }
 
-    public override List<SObjectField> cachedFields() {
-        return new List<SObjectField>{ Profile.Id, Profile.Name, Profile.UserType };
-    }
-
-    public Profile byName(String name) {
-        return (Profile) whereEqual(Profile.Name, name).toObject();
+    public SOQL_ProfileCache byName(String name) {
+        whereEqual(Profile.Name, name);
+        return this;
     }
 }
 ```
@@ -52,7 +50,13 @@ The following are methods for using `SOQLCache`:
 
 [**SELECT**](#SELECT)
 
-- [`cachedFields()`](#cachedfields)
+- [`with(SObjectField field)`](#with-field1---field5)
+- [`with(SObjectField field1, SObjectField field2)`](#with-field1---field5)
+- [`with(SObjectField field1, SObjectField field2, SObjectField field3)`](#with-field1---field5)
+- [`with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4)`](#with-field1---field5)
+- [`with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5)`](#with-field1---field5)
+- [`with(List<SObjectField> fields)`](#with-fields)
+- [`with(String fields)`](#with-string-fields)
 
 [**WHERE**](#where)
 
@@ -60,7 +64,7 @@ The following are methods for using `SOQLCache`:
 - [`whereEqual(String field, Object value)`](#whereequal)
 
 [**FIELD-LEVEL SECURITY**](#field-level-security)
-
+x
 - [`stripInaccessible()`](#stripinaccessible)
 - [`stripInaccessible(AccessType accessType)`](#stripinaccessible)
 
@@ -172,6 +176,33 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
 
 The initial query allows for the bulk population of records in the cache (if it is empty), ensuring that every subsequent query in the cached selector will use the cached records.
 
+For instance:
+
+```apex
+public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
+    public static SOQL_ProfileCache query() {
+        return new SOQL_ProfileCache();
+    }
+
+    private SOQL_ProfileCache() {
+        super(Profile.SObjectType);
+        cacheInOrgCache();
+        with(Profile.Id, Profile.Name, Profile.UserType)
+    }
+
+    public override SOQL.Queryable initialQuery() { // <=== Initial query
+        return SOQL.of(Profile.SObjectType).systemMode().withoutSharing();
+    }
+
+    public SOQL_ProfileCache byName(String name) {
+        whereEqual(Profile.Name, name);
+        return this;
+    }
+}
+```
+
+When the cache is empty, the `initialQuery` will be executed to populate the data in the cache. This allows `SOQL_ProfileCache.query().byName('System Administrator').toObject();` to retrieve the profile from the already cached records, instead of fetching records individually.
+
 ### initialQuery
 
 **Signature**
@@ -190,11 +221,8 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
 
     private SOQL_ProfileCache() {
         super(Profile.SObjectType);
-        cacheInSessionCache();
-    }
-
-    public override List<SObjectField> cachedFields() {
-        return new List<SObjectField>{ Profile.Id, Profile.Name, Profile.UserType };
+        cacheInOrgCache();
+        with(Profile.Id, Profile.Name, Profile.UserType)
     }
 
     public override SOQL.Queryable initialQuery() { // <=== Initial query
@@ -205,37 +233,71 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
 
 ## SELECT
 
-### cachedFields
+All selected fields are going to be cached.
 
-The `SELECT` clause is determined by the `cachedFields()` method. Developers must provide all fields that should be cached. These fields are cached for the entire selector.
+### with field1 - field5
 
 **Signature**
 
 ```apex
-List<SObjectField> cachedFields()
+Cacheable with(SObjectField field)
+Cacheable with(SObjectField field1, SObjectField field2);
+Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3);
+Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
 ```
 
 **Example**
 
 ```apex
-public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
-    public static SOQL_ProfileCache query() {
-        return new SOQL_ProfileCache();
-    }
+SOQLCache.of(Profile.SObjectType)
+    .with(Profile.Id, Profile.Name, Profile.UserType)
+    .whereEqual(Profile.Name, 'System Administrator')
+    .toObject();
 
-    private SOQL_ProfileCache() {
-        super(Profile.SObjectType);
-        cacheInSessionCache();
-    }
+SOQL.of(Profile.SObjectType)
+    .with(Profile.Id)
+    .with(Profile.Name)
+    .whereEqual(Profile.Name, 'System Administrator')
+    .toObject();
+```
 
-    public override List<SObjectField> cachedFields() { // <=== Cached Fields
-        return new List<SObjectField>{ Profile.Id, Profile.Name, Profile.UserType };
-    }
+### with fields
 
-    public override SOQL.Queryable initialQuery() {
-        return SOQL.of(Profile.SObjectType).systemMode().withoutSharing();
-    }
-}
+Use for more than 5 fields.
+
+**Signature**
+
+```apex
+Cacheable with(List<SObjectField> fields)
+```
+
+**Example**
+
+```apex
+SOQLCache.of(Profile.SObjectType)
+    .with(new List<SObjectField>{ Profile.Id, Profile.Name, Profile.UserType })
+    .whereEqual(Profile.Name, 'System Administrator')
+    .toObject();
+```
+
+### with string fields
+
+**NOTE!** With String Apex does not create reference to field. Use `SObjectField` whenever it possible. Method below should be only use for dynamic queries.
+
+**Signature**
+
+```apex
+Cacheable with(String fields)
+```
+
+**Example**
+
+```apex
+SOQLCache.of(Profile.SObjectType)
+    .with('Id, Name, UserType')
+    .whereEqual(Profile.Name, 'System Administrator')
+    .toObject();
 ```
 
 ## WHERE
@@ -254,13 +316,14 @@ Cacheable whereEqual(String field, Object value);
 **Example**
 
 ```apex
-SOQL_ProfileCache.query()
+SOQLCache.of(Profile.SObjectType)
+    .with(Profile.Id, Profile.Name, Profile.UserType)
     .whereEqual(Profile.Name, 'System Administrator')
     .toObject();
 ```
-
 ```apex
-SOQL_ProfileCache.query()
+SOQLCache.of(Profile.SObjectType)
+    .with(Profile.Id, Profile.Name, Profile.UserType)
     .whereEqual('Name', 'System Administrator')
     .toObject();
 ```
@@ -281,8 +344,9 @@ Cacheable stripInaccessible(AccessType accessType)
 **Example**
 
 ```apex
-SOQL_ProfileCache.query()
-    .byName('System Administrator')
+SOQLCache.of(Profile.SObjectType)
+    .with(Profile.Id, Profile.Name, Profile.UserType)
+    .whereEqual('Name', 'System Administrator')
     .stripInaccessible()
     .toObject();
 ```
@@ -291,7 +355,11 @@ SOQL_ProfileCache.query()
 
 ### mockId
 
-Query needs unique id that allows for mocking.
+Developers can mock either the query or the cached result:
+- `SOQLCache.setMock('queryId', record);` mocks cached results.
+- `SOQL.setMock('queryId', record);` mocks the query when cached records are not found.
+
+We generally recommend using `SOQLCache.setMock('queryId', record);` to ensure that records from the cache are not returned, which could otherwise lead to test instability.
 
 **Signature**
 
@@ -302,13 +370,16 @@ Cacheable mockId(String queryIdentifier)
 **Example**
 
 ```apex
-SOQL_ProfileCache.query()
-    .byName('System Administrator')
+SOQLCache.of(Profile.SObjectType)
+    .with(Profile.Id, Profile.Name, Profile.UserType)
+    .whereEqual('Name', 'System Administrator')
     .mockId('MyQuery')
     .toObject();
 
 // In Unit Test
 SOQLCache.setMock('MyQuery', new Profile(Name = 'Mocked System Adminstrator'));
+// or
+SOQL.setMock('MyQuery', new Profile(Name = 'Mocked System Adminstrator'));
 ```
 
 ### record mock
@@ -322,8 +393,9 @@ Cacheable setMock(String mockId, SObject record)
 **Example**
 
 ```apex
-SOQL_ProfileCache.query()
-    .byName('System Administrator')
+SOQLCache.of(Profile.SObjectType)
+    .with(Profile.Id, Profile.Name, Profile.UserType)
+    .whereEqual('Name', 'System Administrator')
     .mockId('MyQuery')
     .toObject();
 
@@ -344,8 +416,9 @@ Cacheable preview()
 **Example**
 
 ```apex
-SOQL_ProfileCache.query()
-    .byName('System Administrator')
+SOQLCache.of(Profile.SObjectType)
+    .with(Profile.Id, Profile.Name, Profile.UserType)
+    .whereEqual('Name', 'System Administrator')
     .preview()
     .toObject();
 ```
@@ -380,15 +453,18 @@ Cacheable byId(SObject record)
 **Example**
 
 ```apex
-SOQL_ProfileCache.query()
-    .byId('1234')
+SOQLCache.of(Profile.SObjectType)
+    .with(Profile.Id, Profile.Name, Profile.UserType)
+    .byId('00e3V000000Nme3QAC')
     .toObject();
 ```
 
 ```apex
-Profile profle = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
-SOQL_ProfileCache.query()
-    .byId(profle)
+Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
+
+SOQLCache.of(Profile.SObjectType)
+    .with(Profile.Id, Profile.Name, Profile.UserType)
+    .byId(profile)
     .toObject();
 ```
 
@@ -403,13 +479,9 @@ Id toId()
 **Example**
 
 ```apex
-Id adminProfileId = SOQL_ProfileCache.query()
-    .byName('System Administrator')
-    .toId();
-
 new User (
     // ...
-    ProfileId = adminProfileId
+    ProfileId = SOQLCache.of(Profile.SObjectType).whereEqual('Name', 'System Administrator').toId()
 );
 ```
 
@@ -424,8 +496,8 @@ Boolean doExist()
 **Example**
 
 ```apex
-Boolean isAdminProfileExists = SOQL_ProfileCache.query()
-    .byName('System Administrator')
+Boolean isAdminProfileExists = SOQLCache.of(Profile.SObjectType)
+    .whereEqual('Name', 'System Administrator')
     .doExist();
 ```
 
@@ -443,7 +515,7 @@ Object toValueOf(SObjectField fieldToExtract)
 **Example**
 
 ```apex
-String systemAdminUserType = (String) SOQL_ProfileCache.query().byId('1234').toValueOf(Profile.UserType);
+String systemAdminUserType = (String) SOQLCache.of(Profile.SObjectType).byId('00e3V000000Nme3QAC').toValueOf(Profile.UserType);
 ```
 
 ### toObject
@@ -455,13 +527,13 @@ When there are no records to assign, the error `List has no rows for assignment 
 **Signature**
 
 ```apex
-sObject toObject()
+Sbject toObject()
 ```
 
 **Example**
 
 ```apex
-Profile systemAdministratorProfile = (String) SOQL_ProfileCache.query()
-    .byName('System Administrator')
+Profile systemAdministratorProfile = (Profile) SOQLCache.of(Profile.SObjectType)
+    .whereEqual(Profile.Name, 'System Administrator')
     .toObject();
 ```
