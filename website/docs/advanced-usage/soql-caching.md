@@ -4,7 +4,9 @@ sidebar_position: 5
 
 # SOQL Caching
 
-SOQL caching is more complex than it seems. To make it robust and bug-proof, we made the following assumptions:
+SOQL caching is more complex than it seems. From our perspective, it is much more important to make the code predictable, bug-proof, and intuitive rather than adding numerous features that could confuse developers.
+
+To achieve our goals, we made the following assumptions:
 
 ## Limited Interface
 
@@ -46,14 +48,11 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
     private SOQL_ProfileCache() {
         super(Profile.SObjectType);
         cacheInOrgCache();
+        with(Profile.Id, Profile.Name, Profile.UserType);
     }
 
     public override SOQL.Queryable initialQuery() {
         return SOQL.of(Profile.SObjectType).systemMode().withoutSharing();
-    }
-
-    public override List<SObjectField> cachedFields() {
-        return new List<SObjectField>{ Profile.Id, Profile.Name, Profile.UserType };
     }
 
     public SOQL_ProfileCache byName(String profileName) {
