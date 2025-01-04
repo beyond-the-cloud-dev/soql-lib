@@ -1,5 +1,4 @@
 public with sharing class ExampleController {
-
     @AuraEnabled
     public static List<Contact> getContactsByRecordType(String recordType) {
         return SOQL_Contact.query()
