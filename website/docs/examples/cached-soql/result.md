@@ -4,6 +4,8 @@ sidebar_position: 30
 
 # RESULT
 
+**Cached Selector**
+
 ```apex
 public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
     public static SOQL_ProfileCache query() {
@@ -26,6 +28,8 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
     }
 }
 ```
+
+**Usage**
 
 ```apex
 public with sharing class MyController {

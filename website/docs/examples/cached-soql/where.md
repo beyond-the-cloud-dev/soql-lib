@@ -9,6 +9,8 @@ A query requires a single condition, and that condition must filter by a unique 
 To ensure that cached records are aligned with the database, a single condition is required.
 A query without a condition cannot guarantee that the number of records in the cache matches the database.
 
+**Cached Selector**
+
 ```apex
 public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
     public static SOQL_ProfileCache query() {
@@ -30,19 +32,17 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
         return this;
     }
 }
+```
 
-@IsTest
-public with sharing class MyControllerTest {
-    @IsTest
-    static myMethodTest() {
-        User systemAdmin = new User(
-            // ..
-            ProfileId = SOQL_ProfileCache.query().byName('System Administrator').toId(),
-        );
+**Usage**
 
-        System.runAs(systemAdmin) {
-            // ..
-        }
-    }
-}
+```apex
+// SELECT Id, Name, UserType
+// FROM Profile
+// WHERE Name = 'System Administrator'
+
+User systemAdmin = new User(
+    // ..
+    ProfileId = SOQL_ProfileCache.query().byName('System Administrator').toId(),
+);
 ```

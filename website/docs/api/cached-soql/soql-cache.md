@@ -286,6 +286,47 @@ SOQLCache.of(Profile.SObjectType)
 
 A cached query must include one condition. The filter must use a cached field (defined in `cachedFields()`) and should be based on `Id`, `Name`, `DeveloperName`, or another unique field.
 
+A query requires a single condition, and that condition must filter by a unique field.
+
+To ensure that cached records are aligned with the database, a single condition is required.
+A query without a condition cannot guarantee that the number of records in the cache matches the database.
+
+For example, let’s assume a developer makes the query: `SELECT Id, Name FROM Profile`. Cached records will be returned, but they may differ from the records in the database.
+
+The filter field should be unique. Consistency issues can arise when the field is not unique. For instance, the query:
+`SELECT Id, Name FROM Profile WHERE UserType = 'Standard'`
+may return some records, but the number of records in the cache may differ from those in the database.
+
+Using a unique field ensures that if a record is not found in the cache, the SOQL library can look it up in the database.
+
+**Example**
+
+**Cached Records:**
+
+| Id               | Name                          | UserType               |
+|-------------------|-------------------------------|------------------------|
+| 00e3V000000Nme3QAC | System Administrator          | Standard               |
+| 00e3V000000NmeAQAS | Standard Platform User        | Standard               |
+| 00e3V000000NmeHQAS | Customer Community Plus User | PowerCustomerSuccess   |
+
+**Database Records:**
+
+| Id               | Name                          | UserType               |
+|-------------------|-------------------------------|------------------------|
+| 00e3V000000Nme3QAC | System Administrator          | Standard               |
+| 00e3V000000NmeAQAS | Standard Platform User        | Standard               |
+| 00e3V000000NmeZQAS | Read Only                    | Standard               |
+| 00e3V000000NmeYQAS | Solution Manager             | Standard               |
+| 00e3V000000NmeHQAS | Customer Community Plus User | PowerCustomerSuccess   |
+
+Let’s assume a developer executes the query:
+`SELECT Id, Name, UserType FROM Profile WHERE UserType = 'Standard'`.
+
+Since records exist in the cache, 2 records will be returned, which is incorrect. The database contains 4 records with `UserType = 'Standard'`.
+To avoid such scenarios, filtering by a unique field is required.
+
+Sometimes, certain limitations can ensure that code functions in a deterministic and expected way. From our perspective, it is better to have limitations that make the code free from bugs and prevent unintended misuse.
+
 ### whereEqual
 
 **Signature**
