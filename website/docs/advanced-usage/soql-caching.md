@@ -194,6 +194,16 @@ With a cached selector, you **cannot** invoke the `toList()` method—only `toOb
 
 Additionally, the single-record assumption keeps the code clean and bug-proof. If a record matching the provided condition does not exist in the cache, SOQL is executed, and the record is added to the cache. This approach would be impossible to implement if multiple records were allowed in the cache, as it would be unclear whether any records are missing.
 
+## Cached queries run in System Mode
+
+**NOTE!**
+
+All queries (both initial and actual) used in a cached selector are executed in `WITH SYSTEM_MODE` and `without sharing`, regardless of any other settings.
+
+**Why is that?**
+
+It is impossible to verify if a user has access to records (`sharing`) when using cached records. To avoid confusion, we decided to execute all cached queries in system mode. Developers can still enforce field-level security by invoking `stripInaccessible()` method.
+
 ## How it works?
 
 ```mermaid
@@ -240,3 +250,9 @@ flowchart TD
     classDef greenNode fill:#8BC34A,stroke:#2E7D32,stroke-width:3px,font-size:16px,font-weight:bold,stroke-dasharray:5 5;
     classDef yellowNode fill:#FFEB3B,stroke:#FBC02D,stroke-width:2px;
 ```
+
+There are a few scenarios where SOQL will be issued:
+
+1. The cache is empty, and an initial query is provided.
+2. The record is not found in the cache.
+3. The record is found in the cache but does not have all the requested fields.
