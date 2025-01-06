@@ -64,6 +64,10 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         return new SOQLCache(ofObject);
     }
 
+    public static Cacheable of(String ofObject) {
+        return new SOQLCache(ofObject);
+    }
+
     // Implementation
 
     private static Mock mock = new Mock();
@@ -72,9 +76,13 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     private Executor executor;
 
     protected SOQLCache(SObjectType ofObject) {
-        this.builder = new Builder(ofObject.getDescribe().getName());
-        this.executor = new Executor(this.builder);
+        this(ofObject.getDescribe().getName());
+    }
 
+    protected SOQLCache(String ofObject) {
+        this.builder = new Builder(ofObject);
+        this.executor = new Executor(this.builder);
+        this.with('Id');
         this.populateQuery(this.initialQuery());
     }
 
@@ -307,7 +315,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     private class CacheFields {
-        private Set<String> cachedFields = new Set<String>{ 'Id' };
+        private Set<String> cachedFields = new Set<String>();
 
         public void with(String fields) {
             for (String field : fields.split(',')) {
