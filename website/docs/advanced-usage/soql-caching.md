@@ -103,6 +103,14 @@ Additionally, the `with(...)` method provides information about which fields are
 
 Last but not least, there is the `initialQuery()` method, which allows records to be prepopulated in the storage. For example, `SOQL_ProfileCache` will prepopulate all `Profiles` in the storage, so calling `byName(String profileName)` will not execute a query but will retrieve the records directly from the cache.
 
+## Cache Manager
+
+Inspired by the [Iteratively Building a Flexible Caching System for Apex](https://www.jamessimone.net/blog/joys-of-apex/iteratively-building-a-flexible-caching-system/) post, we decided to build our own [Cache Manager](https://github.com/beyond-the-cloud-dev/cache-manager). This can be used not only for the SOQL Lib but also for caching other crucial items in your Salesforce org.
+
+`CacheManager.cls` is required for using cached selectors and it's part of this repository. Already have your own cache manager?
+
+No worries! You can use it by simply replacing `SOQLCache.CacheStorageProxy` with your own cache manager.
+
 ## Records are stored as a List
 
 Records are stored in the cache as a `List`, with the cache key being the `SObjectType`. This approach helps avoid record duplication, which is crucial given the limited storage capacity.
