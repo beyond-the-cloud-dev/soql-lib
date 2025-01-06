@@ -37,7 +37,7 @@ private class SOQLCache_Test {
         List<Profile> cachedProfiles = (List<Profile>) CacheManager.ApexTransaction.get('ProfileTest');
 
         // Verify
-        Assert.areEqual(1, cachedProfiles, 'Only one record should be cached.');
+        Assert.areEqual(1, cachedProfiles.size(), 'Only one record should be cached.');
         Assert.areEqual('System Administrator', cachedProfiles[0].Name, 'The System Administrator profile should be cached.');
     }
 
@@ -51,6 +51,18 @@ private class SOQLCache_Test {
 
         // Verify
         Assert.areEqual(1, Limits.getQueries(), 'Only the first query should be executed to populate data in the cache.');
+    }
+
+    @IsTest
+    static void ofString() {
+        // Test
+        Profile profile = (Profile) SOQLCache.of('Profile').
+            with(Profile.Id, Profile.Name)
+            .whereEqual(Profile.Name, 'System Administrator')
+            .toObject();
+
+        // Verify
+        Assert.areEqual('System Administrator', profile.Name, 'The cached profile record should be "System Administrator".');
     }
 
     @IsTest
@@ -507,6 +519,5 @@ private class SOQLCache_Test {
             super(Profile.SObjectType);
             with(Profile.Id, Profile.Name, Profile.UserType);
         }
-
     }
 }
