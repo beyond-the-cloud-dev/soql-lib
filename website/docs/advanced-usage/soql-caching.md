@@ -27,6 +27,41 @@ doesn’t make sense when working with cached records. We cannot apply scope, fo
 
 From the very beginning, we envisioned the cache SOQL as a standalone module, not logic tightly coupled with the SOQL Library. Each company could potentially have its own caching system. Therefore, we decided to introduce a new module called `SOQLCache.cls`.
 
+```apex
+public interface Cacheable {
+    // CONFIG
+    Cacheable cacheInApexTransaction();
+    Cacheable cacheInOrgCache();
+    Cacheable cacheInSessionCache();
+    // SELECT
+    Cacheable with(SObjectField field);
+    Cacheable with(SObjectField field1, SObjectField field2);
+    Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3);
+    Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+    Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
+    Cacheable with(List<SObjectField> fields);
+    Cacheable with(String fields);
+    // WHERE
+    Cacheable whereEqual(SObjectField field, Object value);
+    Cacheable whereEqual(String field, Object value);
+    // FIELD-LEVEL SECURITY
+    Cacheable stripInaccessible();
+    Cacheable stripInaccessible(AccessType accessType);
+    // MOCKING
+    Cacheable mockId(String queryIdentifier);
+    // DEBUGGING
+    Cacheable preview();
+    // PREDEFINED
+    Cacheable byId(SObject record);
+    Cacheable byId(Id recordId);
+    // RESULT
+    Id toId();
+    Boolean doExist();
+    SObject toObject();
+    Object toValueOf(SObjectField fieldToExtract);
+}
+```
+
 ## Cached Selectors
 
 To avoid interfering with existing selectors and to keep the logic clean and simple, the best approach we identified is using Cached Selectors.
@@ -64,7 +99,7 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
 
 Developers can specify the type of storage using the `cacheIn...()` method. The available storage types are: Apex Transaction (`cacheInApexTransaction()`), Org Cache (`cacheInOrgCache()`), or Session Cache (`cacheInSessionCache()`).
 
-Additionally, the `cachedFields()` method provides information about which fields are cached in the specified storage.
+Additionally, the `with(...)` method provides information about which fields are cached in the specified storage.
 
 Last but not least, there is the `initialQuery()` method, which allows records to be prepopulated in the storage. For example, `SOQL_ProfileCache` will prepopulate all `Profiles` in the storage, so calling `byName(String profileName)` will not execute a query but will retrieve the records directly from the cache.
 
@@ -158,3 +193,50 @@ Sometimes, certain limitations can ensure that code functions in a deterministic
 With a cached selector, you **cannot** invoke the `toList()` method—only `toObject()` is supported. As mentioned at the beginning, SOQL Lib is designed to be bug-proof. The `toList()` method could cause confusion because the number of retrieved records may differ from the number of records in the database. This limitation is also tied to the unique field filter, which ensures that only one record is returned.
 
 Additionally, the single-record assumption keeps the code clean and bug-proof. If a record matching the provided condition does not exist in the cache, SOQL is executed, and the record is added to the cache. This approach would be impossible to implement if multiple records were allowed in the cache, as it would be unclear whether any records are missing.
+
+## How it works?
+
+```mermaid
+flowchart TD
+    CachedSelector[Cached Selector]
+    IsCacheEmpty{Is Cache Empty?}
+    EmptyCache[Yes: Cache is Empty]
+    CacheNotEmpty[No: Cache is Not Empty]
+    HasInitialQueryDecision{Does Selector Have an Initial Query?}
+    HasInitialQuery[Yes: Initial Query Available]
+    NoInitialQuery[No: No Initial Query]
+    ExecuteInitialQuery[Execute Initial Query - **SOQL**]
+    PopulateCache[Update Cache With Initial Records]
+    ExecuteToObject[Execute toObject]
+    FindRecordInCache{Is a Record with the Given Criteria Found in the Cache?}
+    RecordFound[Yes: Record Found]
+    RecordNotFound[No: Record Not Found]
+    HasAllFields{Does Record Have All Requested Fields?}
+    AllFields[Yes: All Fields Available]
+    MissingFields[No: Missing Fields]
+    RetrieveField[Retrieve Missing Fields - **SOQL**]
+    RetrieveFromDB[Retrieve Record from Database - **SOQL**]
+    UpdateCache[Update Cache]
+    Done[Return Record]
+
+    CachedSelector --> |toObject| IsCacheEmpty
+    IsCacheEmpty --> EmptyCache --> HasInitialQueryDecision
+    IsCacheEmpty --> CacheNotEmpty --> ExecuteToObject
+    HasInitialQueryDecision --> HasInitialQuery --> ExecuteInitialQuery --> PopulateCache --> ExecuteToObject
+    HasInitialQueryDecision --> NoInitialQuery --> ExecuteToObject
+    ExecuteToObject --> FindRecordInCache
+    FindRecordInCache --> RecordFound --> HasAllFields
+    HasAllFields --> AllFields --> Done
+    HasAllFields --> MissingFields --> RetrieveField --> UpdateCache
+    FindRecordInCache --> RecordNotFound --> RetrieveFromDB --> UpdateCache
+    UpdateCache --> Done
+
+    Done:::greenNode
+    IsCacheEmpty:::yellowNode
+    HasInitialQueryDecision:::yellowNode
+    FindRecordInCache:::yellowNode
+    HasAllFields:::yellowNode
+
+    classDef greenNode fill:#8BC34A,stroke:#2E7D32,stroke-width:3px,font-size:16px,font-weight:bold,stroke-dasharray:5 5;
+    classDef yellowNode fill:#FFEB3B,stroke:#FBC02D,stroke-width:2px;
+```
