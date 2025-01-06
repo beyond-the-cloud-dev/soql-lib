@@ -287,7 +287,7 @@ SOQL.of(Account.SObjectType)
 
 **Filter Group**
 
-Create [SOQL.FilterGroup](../api/soql-filters-group.md) and assign conditions dynamically based on your own criteria.
+Create [SOQL.FilterGroup](../api/standard-soql/soql-filters-group.md) and assign conditions dynamically based on your own criteria.
 
 ```apex
 public List<Account> getAccounts() {
@@ -305,5 +305,33 @@ public List<Account> getAccounts() {
     return SOQL.of(Account.SObjectType)
         .whereAre(filterGroup)
         .toList();
+}
+```
+
+## Cache records
+
+Create cached selectors to save records in Apex transactions, Org Cache, or Session Cache.
+
+```apex
+public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
+    public static SOQL_ProfileCache query() {
+        return new SOQL_ProfileCache();
+    }
+
+    private SOQL_ProfileCache() {
+        super(Profile.SObjectType);
+        cacheInOrgCache();
+        // default fields to cache
+        with(Profile.Id, Profile.Name, Profile.UserType);
+    }
+
+    public override SOQL.Queryable initialQuery() {
+        return SOQL.of(Profile.SObjectType);
+    }
+
+    public SOQL_ProfileCache byName(String name) {
+        whereEqual(Profile.Name, name);
+        return this;
+    }
 }
 ```

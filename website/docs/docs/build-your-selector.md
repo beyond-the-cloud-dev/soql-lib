@@ -10,7 +10,7 @@ Check examples in the [repository](https://github.com/beyond-the-cloud-dev/soql-
 
 SOQL-Lib is agile, so you can adjust the solution according to your needs. We don't force one approach over another, you can choose your own. Here are our propositions:
 
-## A - Inheritance - extends SOQL, implements Interface + static
+## A - Inheritance - extends SOQL, implements Interface + static (Recommended)
 
 ```apex
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {

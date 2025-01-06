@@ -5,8 +5,8 @@
       "default": true
     }
   ],
-  "name": "BeyondTheCloud",
+  "name": "soql-lib",
   "namespace": "",
   "sfdcLoginUrl": "https://login.salesforce.com",
-  "sourceApiVersion": "60.0"
+  "sourceApiVersion": "62.0"
 }
