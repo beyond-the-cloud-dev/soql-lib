@@ -14,6 +14,8 @@ The SOQL Lib provides functional constructs for SOQL queries in Apex.
 
 ## Examples
 
+**Standard SOQL**
+
 ```apex
 // SELECT Id FROM Account
 List<Account> accounts = SOQL.of(Account.SObjectType).toList();
@@ -24,6 +26,16 @@ List<Account> accounts = SOQL.of(Account.SObjectType).toList();
 List<Account> accounts = SOQL.of(Account.SObjectType)
    .with(Account.Id, Account.Name, Account.Industry)
    .toList();
+```
+
+**Cached SOQL**
+
+```apex
+// SELECT Id, Name, UserType FROM Profile WHERE Name = 'System Administrator'
+Profile systemAdminProfile = (Profile) SOQLCache.of(Profile.SObjectType)
+   .with(Profile.Id, Profile.Name, Profile.UserType)
+   .whereEqual(Profile.Name, 'System Administrator')
+   .toObject();
 ```
 
 ## Selector
@@ -62,6 +74,31 @@ public with sharing class ExampleController {
 }
 ```
 
+## Cached Selector
+
+```apex
+public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
+    public static SOQL_ProfileCache query() {
+        return new SOQL_ProfileCache();
+    }
+
+    private SOQL_ProfileCache() {
+        super(Profile.SObjectType);
+        cacheInOrgCache();
+        with(Profile.Id, Profile.Name, Profile.UserType);
+    }
+
+    public override SOQL.Queryable initialQuery() {
+        return SOQL.of(Profile.SObjectType);
+    }
+
+    public SOQL_ProfileCache byName(String name) {
+        whereEqual(Profile.Name, name);
+        return this;
+    }
+}
+```
+
 ## Benefits
 
 1. **Additional level of abstraction** - The selector layer is an additional level of abstraction that gives you the possibility to control the execution of SOQL.
@@ -73,8 +110,9 @@ public with sharing class ExampleController {
 5. **Avoid duplicates** - Generic SQOLs like `getById`, and `getByRecordType` can be stored in the selector class.
 6. **Default configuration** - The selector class can provide default SOQL configuration like default fields, FLS settings, and sharing rules.
 7. **Mocking** - The selector class has built in Mocking functionality that provides ability to dynamically return data in test execution
+8. **Caching** - The cached selector class allows you to cache records in Apex transactions, Session Cache, or Org Cache, which boosts your code's performance.
 
 ## License notes
 
 - For proper license management each repository should contain LICENSE file similar to this one.
-- Each original class should contain copyright mark: Copyright (c) 2023 BeyondTheCloud.Dev
+- Each original class should contain copyright mark: Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)

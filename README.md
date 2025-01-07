@@ -97,6 +97,7 @@ Read about the features in the [documentation](https://soql-lib.vercel.app/docs/
 6. **Avoid query duplicates**
 7. **The default configuration for all queries**
 8. **Dynamic conditions**
+9. **Cache records**
 
 ----
 
@@ -107,4 +108,4 @@ Read about the features in the [documentation](https://soql-lib.vercel.app/docs/
 ## License notes
 
 - For proper license management each repository should contain LICENSE file similar to this one.
-- Each original class should contain copyright mark: Copyright (c) 2023 BeyondTheCloud.Dev
+- Each original class should contain copyright mark: Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)

@@ -3,7 +3,8 @@
   "edition": "Developer",
   "features": [
     "EnableSetPasswordInApi",
-    "PersonAccounts"
+    "PersonAccounts",
+    "PlatformCache"
   ],
   "settings": {
     "lightningExperienceSettings": {
