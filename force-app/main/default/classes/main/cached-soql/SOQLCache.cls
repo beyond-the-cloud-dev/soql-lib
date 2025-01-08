@@ -23,7 +23,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         Cacheable cacheInApexTransaction();
         Cacheable cacheInOrgCache();
         Cacheable cacheInSessionCache();
-        Cacheable refreshEveryHours(Integer hours);
+        Cacheable refreshWhenRecordsOlderThanHours(Integer hours);
         // SELECT
         Cacheable with(SObjectField field);
         Cacheable with(SObjectField field1, SObjectField field2);
@@ -107,7 +107,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         return this;
     }
 
-    public Cacheable refreshEveryHours(Integer hours) {
+    public Cacheable refreshWhenRecordsOlderThanHours(Integer hours) {
         this.builder.storage.refreshTime(hours);
         return this;
     }
