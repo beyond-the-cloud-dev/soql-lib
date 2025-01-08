@@ -23,6 +23,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         Cacheable cacheInApexTransaction();
         Cacheable cacheInOrgCache();
         Cacheable cacheInSessionCache();
+        Cacheable refreshEveryHours(Integer hours);
         // SELECT
         Cacheable with(SObjectField field);
         Cacheable with(SObjectField field1, SObjectField field2);
@@ -103,6 +104,11 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     public Cacheable cacheInSessionCache() {
         this.builder.storage.cacheInSessionCache();
+        return this;
+    }
+
+    public Cacheable refreshEveryHours(Integer hours) {
+        this.executor.refreshEveryHours(hours);
         return this;
     }
 
@@ -196,7 +202,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         if (this.builder.storage.hasCachedRecords() || this.builder.initialQuery == null) {
             return;
         }
-        this.builder.storage.putRecordsToCache(this.builder.initialQuery.toList());
+        this.builder.storage.putInitialRecordsToCache(this.builder.initialQuery.toList());
     }
 
     public Cacheable byId(SObject record) {
@@ -242,20 +248,44 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             this.storage = CacheManager.SOQLSessionCache;
         }
 
-        public void putRecordsToCache(Object value) {
-            this.storage.put(this.key(), value);
+        public void putInitialRecordsToCache(List<SObject> records) {
+            List<CacheRecord> cacheRecords = new List<CacheRecord>();
+
+            for (SObject record : records) {
+                cacheRecords.add(new CacheRecord(record));
+            }
+
+            this.putRecordsToCache(cacheRecords);
+        }
+
+        public void putRecordsToCache(List<CacheRecord> records) {
+            this.storage.put(this.key(), records);
         }
 
         public Boolean hasCachedRecords() {
             return this.storage.contains(this.key());
         }
 
-        public Object getCachedRecords() {
-            return this.storage.get(this.key());
+        public List<CacheRecord> getCachedRecords() {
+            return (List<CacheRecord>) this.storage.get(this.key());
         }
 
         private String key() {
             return Test.isRunningTest() ? this.ofObject + 'Test' : this.ofObject;
+        }
+    }
+
+    private class CacheRecord {
+        private DateTime addedDate;
+        private SObject record;
+
+        public CacheRecord(SObject record) {
+            this.addedDate = System.now();
+            this.record = record;
+        }
+
+        public Boolean isUpToDate(Integer hours) {
+            return (this.addedDate.getTime() - System.now().getTime()) / 36000 < hours;
         }
     }
 
@@ -301,12 +331,12 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             return Schema.getGlobalDescribe().get(this.ofObject).getDescribe().fields.getMap().get(this.field).getDescribe().isUnique();
         }
 
-        public List<SObject> filter(List<SObject> cachedRecords) {
-            List<SObject> records = new List<SObject>();
+        public List<CacheRecord> filter(List<CacheRecord> cachedRecords) {
+            List<CacheRecord> records = new List<CacheRecord>();
 
-            for (SObject record : cachedRecords) {
-                if (record.get(this.field) == this.value) {
-                    records.add(record);
+            for (CacheRecord cachedRecord : cachedRecords) {
+                if (cachedRecord.record.get(this.field) == this.value) {
+                    records.add(cachedRecord);
                 }
             }
 
@@ -329,9 +359,9 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             }
         }
 
-        public Boolean hasAllCachedFields(List<SObject> records) {
-            for (SObject record : records) {
-                if (!this.hasAllCachedFields(record)) {
+        public Boolean hasAllCachedFields(List<CacheRecord> records) {
+            for (CacheRecord record : records) {
+                if (!this.hasAllCachedFields(record.record)) {
                     return false;
                 }
             }
@@ -367,9 +397,14 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         private Builder builder;
         private AccessType accessType = null;
         private String mockId;
+        private Integer refreshEveryHours;
 
         public Executor(Builder builder) {
             this.builder = builder;
+        }
+
+        public void refreshEveryHours(Integer refreshHours) {
+            this.refreshEveryHours = refreshHours;
         }
 
         public void stripInaccessible(AccessType type) {
@@ -399,8 +434,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
                 return mock.getSObjectsMock(mockId);
             }
 
-            List<SObject> cachedRecords = (List<SObject>) this.builder.storage.getCachedRecords() ?? new List<SObject>();
-            List<SObject> recordsFilterFromCache = this.builder.cacheFilter.filter(cachedRecords);
+            List<CacheRecord> cachedRecords = this.builder.storage.getCachedRecords() ?? new List<CacheRecord>();
+            List<CacheRecord> recordsFilterFromCache = this.builder.cacheFilter.filter(cachedRecords);
 
             if (recordsFilterFromCache.isEmpty()) {
                 List<SObject> databaseRecords = this.builder.currentyQuery.toList(); // SOQL
@@ -416,19 +451,35 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
                 return this.stripInaccessible(databaseRecords);
             }
 
-            return this.stripInaccessible(recordsFilterFromCache);
+            for (CacheRecord record : recordsFilterFromCache) {
+                if (!record.isUpToDate(refreshEveryHours)) {
+                    List<SObject> databaseRecords = this.builder.currentyQuery.toList(); // SOQL
+                    this.updateRecordsInCache(cachedRecords, databaseRecords);
+
+                    return this.stripInaccessible(databaseRecords);
+                }
+            }
+
+            return new List<SObject>();
         }
 
-        private void insertRecordsToCache(List<SObject> cachedRecords, List<SObject> databaseRecords) {
-            cachedRecords.addAll(databaseRecords);
+        private void insertRecordsToCache(List<CacheRecord> cachedRecords, List<SObject> databaseRecords) {
+            List<CacheRecord> records = new List<CacheRecord>();
+
+            for (SObject databaseRecord : databaseRecords) {
+                records.add(new CacheRecord(databaseRecord));
+            }
+
+            cachedRecords.addAll(records);
             this.builder.storage.putRecordsToCache(cachedRecords);
         }
 
-        private void updateRecordsInCache(List<SObject> cachedRecords, List<SObject> databaseRecords) {
+        private void updateRecordsInCache(List<CacheRecord> cachedRecords, List<SObject> databaseRecords) {
             for (SObject databaseRecord : databaseRecords) {
-                for (SObject cachedRecord : cachedRecords) {
-                    if (databaseRecord.Id == cachedRecord.Id) {
-                        cachedRecord = databaseRecord;
+                for (CacheRecord cachedRecord : cachedRecords) {
+                    if (databaseRecord.Id == cachedRecord.record.Id) {
+                        cachedRecord.record = databaseRecord;
+                        cachedRecord.addedDate = System.now();
                     }
                 }
             }
