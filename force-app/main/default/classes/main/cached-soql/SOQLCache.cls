@@ -108,7 +108,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     public Cacheable refreshEveryHours(Integer hours) {
-        this.executor.refreshEveryHours(hours);
+        this.builder.storage.refreshTime(hours);
         return this;
     }
 
@@ -231,6 +231,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     private class CacheStorageProxy {
         private CacheManager.Cacheable storage = CacheManager.ApexTransaction;
         private String ofObject;
+        private Integer refreshEveryHours = 48;
 
         public CacheStorageProxy(String ofObject) {
             this.ofObject = ofObject;
@@ -246,6 +247,10 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
         public void cacheInSessionCache() {
             this.storage = CacheManager.SOQLSessionCache;
+        }
+
+        public void refreshTime(Integer hours) {
+            this.refreshEveryHours = hours;
         }
 
         public void putInitialRecordsToCache(List<SObject> records) {
@@ -270,22 +275,33 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             return (List<CacheRecord>) this.storage.get(this.key());
         }
 
+        public Boolean areRecordsRecentEnough(List<CacheRecord> records) {
+            for (CacheRecord record : records) {
+                if (!record.isUpToDate(this.refreshEveryHours)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private String key() {
             return Test.isRunningTest() ? this.ofObject + 'Test' : this.ofObject;
         }
     }
 
+    @TestVisible
     private class CacheRecord {
-        private DateTime addedDate;
-        private SObject record;
+        public DateTime addedDate;
+        public SObject record;
 
         public CacheRecord(SObject record) {
             this.addedDate = System.now();
             this.record = record;
         }
 
-        public Boolean isUpToDate(Integer hours) {
-            return (this.addedDate.getTime() - System.now().getTime()) / 36000 < hours;
+        public Boolean isUpToDate(Integer hoursBackWithoutValueRefreshing) {
+            return (this.addedDate.getTime() - System.now().getTime()) / 36000 < hoursBackWithoutValueRefreshing;
         }
     }
 
@@ -397,14 +413,9 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         private Builder builder;
         private AccessType accessType = null;
         private String mockId;
-        private Integer refreshEveryHours;
 
         public Executor(Builder builder) {
             this.builder = builder;
-        }
-
-        public void refreshEveryHours(Integer refreshHours) {
-            this.refreshEveryHours = refreshHours;
         }
 
         public void stripInaccessible(AccessType type) {
@@ -444,23 +455,23 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
                 return this.stripInaccessible(databaseRecords);
             }
 
-            if (!this.builder.cacheFields.hasAllCachedFields(recordsFilterFromCache)) {
+            if (
+                !this.builder.cacheFields.hasAllCachedFields(recordsFilterFromCache) ||
+                !this.builder.storage.areRecordsRecentEnough(recordsFilterFromCache)
+            ) {
                 List<SObject> databaseRecords = this.builder.currentyQuery.toList(); // SOQL
                 this.updateRecordsInCache(cachedRecords, databaseRecords);
 
                 return this.stripInaccessible(databaseRecords);
             }
 
-            for (CacheRecord record : recordsFilterFromCache) {
-                if (!record.isUpToDate(refreshEveryHours)) {
-                    List<SObject> databaseRecords = this.builder.currentyQuery.toList(); // SOQL
-                    this.updateRecordsInCache(cachedRecords, databaseRecords);
+            List<SObject> records = new List<SObject>();
 
-                    return this.stripInaccessible(databaseRecords);
-                }
+            for (CacheRecord cachedRecord : recordsFilterFromCache) {
+                records.add(cachedRecord.record);
             }
 
-            return new List<SObject>();
+            return this.stripInaccessible(records);
         }
 
         private void insertRecordsToCache(List<CacheRecord> cachedRecords, List<SObject> databaseRecords) {
