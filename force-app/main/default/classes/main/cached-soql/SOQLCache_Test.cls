@@ -24,7 +24,7 @@ private class SOQLCache_Test {
 
         // Test
         new SOQL_ProfileCache().whereEqual('Name', 'System Administrator').toObject(); // initial query will be executed
-        List<SOQLCache.CacheRecord> cachedProfiles = (List<SOQLCache.CacheRecord>) CacheManager.ApexTransaction.get('ProfileTest');
+        List<SOQLCache.CacheItem> cachedProfiles = (List<SOQLCache.CacheItem>) CacheManager.ApexTransaction.get('ProfileTest');
 
         // Verify
         Assert.areEqual(mockedProfiles.size(), cachedProfiles.size(), 'The cached profiles should be identical to those in the initial query.');
@@ -34,7 +34,7 @@ private class SOQLCache_Test {
     static void noInitialQuery() {
         // Test
         new SOQL_ProfileCacheDefault().whereEqual('Name', 'System Administrator').toObject();
-        List<SOQLCache.CacheRecord> cachedProfiles = (List<SOQLCache.CacheRecord>) CacheManager.ApexTransaction.get('ProfileTest');
+        List<SOQLCache.CacheItem> cachedProfiles = (List<SOQLCache.CacheItem>) CacheManager.ApexTransaction.get('ProfileTest');
 
         // Verify
         Assert.areEqual(1, cachedProfiles.size(), 'Only one record should be cached.');
@@ -74,7 +74,7 @@ private class SOQLCache_Test {
             .whereEqual(Profile.Name, 'System Administrator')
             .toObject();
 
-        List<SOQLCache.CacheRecord> cachedProfiles = (List<SOQLCache.CacheRecord>) CacheManager.ApexTransaction.get('ProfileTest');
+        List<SOQLCache.CacheItem> cachedProfiles = (List<SOQLCache.CacheItem>) CacheManager.ApexTransaction.get('ProfileTest');
 
         // Verify
         Assert.isFalse(cachedProfiles.isEmpty(), 'The Apex transaction cache should not be empty.');
@@ -91,7 +91,7 @@ private class SOQLCache_Test {
             .whereEqual(Profile.Name, 'System Administrator')
             .toObject();
 
-        List<SOQLCache.CacheRecord> cachedProfiles = (List<SOQLCache.CacheRecord>) CacheManager.SOQLOrgCache.get('ProfileTest');
+        List<SOQLCache.CacheItem> cachedProfiles = (List<SOQLCache.CacheItem>) CacheManager.SOQLOrgCache.get('ProfileTest');
 
         // Verify
         Assert.isFalse(cachedProfiles.isEmpty(), 'The Apex transaction cache should not be empty.');
@@ -108,12 +108,61 @@ private class SOQLCache_Test {
             .whereEqual(Profile.Name, 'System Administrator')
             .toObject();
 
-        List<SOQLCache.CacheRecord> cachedProfiles = (List<SOQLCache.CacheRecord>) CacheManager.SOQLSessionCache.get('ProfileTest');
+        List<SOQLCache.CacheItem> cachedProfiles = (List<SOQLCache.CacheItem>) CacheManager.SOQLSessionCache.get('ProfileTest');
 
         // Verify
         Assert.isFalse(cachedProfiles.isEmpty(), 'The Apex transaction cache should not be empty.');
         Assert.areEqual(1, cachedProfiles.size(), 'The Apex transaction cache should contain exactly one record.');
        // Assert.areEqual('System Administrator', cachedProfiles[0].Name, 'The cached profile record should be "System Administrator".');
+    }
+
+    @IsTest
+    static void maxHoursWithoutRefreshRecentRecord() {
+        // Setup
+        SOQLCache.CacheItem cachedItem = new SOQLCache.CacheItem([
+            SELECT Id, Name FROM Profile WHERE Name = 'System Administrator' LIMIT 1
+        ]);
+
+        CacheManager.ApexTransaction.put('ProfileTest', new List<SOQLCache.CacheItem>{ cachedItem });
+
+        // Test
+        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+            .with(Profile.Id, Profile.Name)
+            .whereEqual(Profile.Name, 'System Administrator')
+            .maxHoursWithoutRefresh(5)
+            .toObject();
+
+        // Verify
+        Assert.areEqual(1, Limits.getQueries(), 'One queries should be issued. The second query should retrieve record from cache.');
+        Assert.isNotNull(profile, 'Profile should be not null.');
+        Assert.areEqual('System Administrator', profile.Name, 'The cached profile record should be "System Administrator".');
+    }
+
+    @IsTest
+    static void maxHoursWithoutRefreshOldRecord() {
+        // Setup
+        SOQLCache.CacheItem cachedItem = new SOQLCache.CacheItem([
+            SELECT Id, Name FROM Profile WHERE Name = 'System Administrator' LIMIT 1
+        ]);
+        cachedItem.cachedDate = DateTime.now().addHours(-6);
+
+        CacheManager.ApexTransaction.put('ProfileTest', new List<SOQLCache.CacheItem>{ cachedItem });
+
+        // Test
+        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+            .with(Profile.Id, Profile.Name)
+            .whereEqual(Profile.Name, 'System Administrator')
+            .maxHoursWithoutRefresh(3)
+            .toObject();
+
+        List<SOQLCache.CacheItem> updatedCacheItems = (List<SOQLCache.CacheItem>) CacheManager.ApexTransaction.get('ProfileTest');
+
+        // Verify
+        Assert.areEqual(2, Limits.getQueries(), 'Two queries should be issued. The second query should update cached record.');
+        Assert.areEqual(1, updatedCacheItems.size(), 'The Apex transaction cache should contain exactly one record.');
+        Assert.areEqual(System.now(), updatedCacheItems[0].cachedDate, 'The cached record should be updated.');
+        Assert.isNotNull(profile, 'Profile should be not null.');
+        Assert.areEqual('System Administrator', profile.Name, 'The cached profile record should be "System Administrator".');
     }
 
     @IsTest
@@ -467,7 +516,7 @@ private class SOQLCache_Test {
             .whereEqual(Profile.Name, 'System Administrator')
             .toObject();
 
-        List<SOQLCache.CacheRecord> cachedProfiles = (List<SOQLCache.CacheRecord>) CacheManager.ApexTransaction.get('ProfileTest');
+        List<SOQLCache.CacheItem> cachedProfiles = (List<SOQLCache.CacheItem>) CacheManager.ApexTransaction.get('ProfileTest');
 
         // Verify
         Assert.areEqual(2, Limits.getQueries(), 'Two queries should be issued. The second query should retrieve the missing fields.');
