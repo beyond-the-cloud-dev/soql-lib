@@ -469,7 +469,12 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
                 !this.builder.expiration.areRecordsRecentEnough(recordsFilterFromCache)
             ) {
                 List<SObject> databaseRecords = this.builder.currentyQuery.toList(); // SOQL
-                this.updateRecordsInCache(cachedRecords, databaseRecords);
+
+                if (!databaseRecords.isEmpty()) {
+                    this.updateRecordsInCache(cachedRecords, databaseRecords);
+                } else {
+                    this.removeRecordsFromCache(cachedRecords, recordsFilterFromCache);
+                }
 
                 return this.stripInaccessible(databaseRecords);
             }
@@ -504,6 +509,24 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
                 }
             }
             this.builder.storage.putRecordsToCache(cachedRecords);
+        }
+
+        private void removeRecordsFromCache(List<CacheItem> cachedRecords, List<CacheItem> recordsFilterFromCache) {
+            Set<Id> recordsToRemoveFromCacheIds = new Set<Id>();
+
+            for (CacheItem filteredFromCache : recordsFilterFromCache) {
+                recordsToRemoveFromCacheIds.add(filteredFromCache.Id);
+            }
+
+            List<CacheItem> clearedCacheItems = new List<CacheItem>();
+
+            for (CacheItem cachedRecord : cachedRecords) {
+                if (!recordsToRemoveFromCacheIds.contains(cachedRecord.id)) {
+                    clearedCacheItems.add(cachedRecord);
+                }
+            }
+
+            this.builder.storage.putRecordsToCache(clearedCacheItems);
         }
 
         private List<SObject> stripInaccessible(List<SObject> records) {

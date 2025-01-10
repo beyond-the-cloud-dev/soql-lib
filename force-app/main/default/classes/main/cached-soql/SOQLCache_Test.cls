@@ -170,6 +170,31 @@ private class SOQLCache_Test {
     }
 
     @IsTest
+    static void maxHoursWithoutRefreshRecordDoesNotExistAnymore() {
+        // Setup
+        SOQLCache.CacheItem cachedItem1 = new SOQLCache.CacheItem(new Profile(Id = '00e3V000000Nme3QAC', Name = 'ProfileNotExistName'));
+        cachedItem1.cachedDate = DateTime.now().addHours(-6);
+        SOQLCache.CacheItem cachedItem2 = new SOQLCache.CacheItem(new Profile(Id = '00e3V000000Nme3QAD', Name = 'System Administrator'));
+
+        CacheManager.ApexTransaction.put('ProfileTest', new List<SOQLCache.CacheItem>{ cachedItem1, cachedItem2 });
+
+        // Test
+        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+            .with(Profile.Id, Profile.Name)
+            .whereEqual(Profile.Name, 'ProfileNotExistName')
+            .maxHoursWithoutRefresh(3)
+            .toObject();
+
+        List<SOQLCache.CacheItem> updatedCacheItems = (List<SOQLCache.CacheItem>) CacheManager.ApexTransaction.get('ProfileTest');
+        Profile cachedProfile = (Profile) updatedCacheItems[0].record;
+
+        // Verify
+        Assert.areEqual(1, Limits.getQueries(), 'One queries should be issued.');
+        Assert.areEqual(1, updatedCacheItems.size(), 'The Apex transaction cache should contain exactly one record.');
+        Assert.areEqual('System Administrator', cachedProfile.Name, 'The cached profile record should be "System Administrator".');
+    }
+
+    @IsTest
     static void withOneField() {
         // Test
         Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
