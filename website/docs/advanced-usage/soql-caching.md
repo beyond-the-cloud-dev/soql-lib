@@ -33,6 +33,7 @@ public interface Cacheable {
     Cacheable cacheInApexTransaction();
     Cacheable cacheInOrgCache();
     Cacheable cacheInSessionCache();
+    Cacheable maxHoursWithoutRefresh(Integer hours);
     // SELECT
     Cacheable with(SObjectField field);
     Cacheable with(SObjectField field1, SObjectField field2);
@@ -115,14 +116,28 @@ No worries! You can use it by simply replacing `SOQLCache.CacheStorageProxy` wit
 
 Records are stored in the cache as an enhanced `List`, with the cache key being the `SObjectType`. This approach helps avoid record duplication, which is crucial given the limited storage capacity.
 
-### Why an Enhanced List?
+**Why an Enhanced List?**
 
 Instead of storing plain records, we added additional metadata information, including:
 - **Id**
 - **CachedDate**
 - **Record**
 
-This allows us to easily determine how long ago records were cached, which is critical for the `maxHoursWithoutRefresh` method.
+This allows us to easily determine how long ago records were cached.
+
+Let’s assume a record was edited or removed from the cache. Some queries are crucial in the org, so cached records may never expire. However, to avoid working with outdated records, we introduced `maxHoursWithoutRefresh` (default: 48 hours).
+
+If you want cached records to be refreshed every 24 hours, you can specify it like this:
+
+```apex
+SOQLCache.of(Profile.SObjectType)
+    .with(Profile.Id, Profile.Name, Profile.UserType)
+    .whereEqual(Profile.Name, 'System Administrator')
+    .maxHoursWithoutRefresh(24)
+    .toObject();
+```
+
+In this example, the query will check the `System Administrator` record in the cache. If it was cached more than 24 hours ago, a new query will be executed, and the record will be updated in the cache.
 
 Key: `Profile`
 
@@ -262,10 +277,9 @@ flowchart TD
     FindRecordInCache{Is a Record with the Given Criteria Found in the Cache?}
     RecordFound[Yes: Record Found]
     RecordNotFound[No: Record Not Found]
-    HasAllFields{Does Record Have All Requested Fields?}
+    HasAllFields{Does the Record Have All Requested Fields and Is It Recent Enough?  }
     AllFields[Yes: All Fields Available]
-    MissingFields[No: Missing Fields]
-    RetrieveField[Retrieve Missing Fields - **SOQL**]
+    MissingFields[No: Fields are missing or the record is outdated]
     RetrieveFromDB[Retrieve Record from Database - **SOQL**]
     UpdateCache[Update Cache]
     Done[Return Record]
@@ -278,8 +292,9 @@ flowchart TD
     ExecuteToObject --> FindRecordInCache
     FindRecordInCache --> RecordFound --> HasAllFields
     HasAllFields --> AllFields --> Done
-    HasAllFields --> MissingFields --> RetrieveField --> UpdateCache
-    FindRecordInCache --> RecordNotFound --> RetrieveFromDB --> UpdateCache
+    HasAllFields --> MissingFields --> RetrieveFromDB
+    FindRecordInCache --> RecordNotFound --> RetrieveFromDB
+    RetrieveFromDB --> UpdateCache
     UpdateCache --> Done
 
     Done:::greenNode
