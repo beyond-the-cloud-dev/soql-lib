@@ -380,15 +380,15 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     private class CacheExpiration {
-        private Integer refreshEveryHours = 48;
+        private Integer maxRecordAgeInHours = 48;
 
         public void refreshTime(Integer hours) {
-            this.refreshEveryHours = hours;
+            this.maxRecordAgeInHours = hours;
         }
 
-        public Boolean areRecordsRecentEnough(List<CacheItem> records) {
-            for (CacheItem record : records) {
-                if (!isRecentEnough(record)) {
+        public Boolean areRecordsRecentEnough(List<CacheItem> cachedItems) {
+            for (CacheItem cachedItem : cachedItems) {
+                if (!isRecentEnough(cachedItem)) {
                     return false;
                 }
             }
@@ -396,8 +396,9 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             return true;
         }
 
-        public Boolean isRecentEnough(CacheItem record) {
-            return ((System.now().getTime() - record.cachedDate.getTime()) / (1000 * 60 * 60)) < this.refreshEveryHours;
+        public Boolean isRecentEnough(CacheItem cachedItem) {
+            Decimal recordAgeInHoursSinceCached = (System.now().getTime() - cachedItem.cachedDate.getTime()) / (1000 * 60 * 60);
+            return recordAgeInHoursSinceCached <= this.maxRecordAgeInHours;
         }
     }
 
