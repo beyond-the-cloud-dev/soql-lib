@@ -108,7 +108,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     public Cacheable maxHoursWithoutRefresh(Integer hours) {
-        this.builder.storage.refreshTime(hours);
+        this.builder.expiration.refreshTime(hours);
         return this;
     }
 
@@ -218,6 +218,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         public CacheFilter cacheFilter = null;
         public CacheFields cacheFields = new CacheFields();
         public CacheStorageProxy storage = null;
+        public CacheExpiration expiration = new CacheExpiration();
         public SOQL.Queryable initialQuery = null;
         public SOQL.Queryable currentyQuery = null;
 
@@ -231,7 +232,6 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     private class CacheStorageProxy {
         private CacheManager.Cacheable storage = CacheManager.ApexTransaction;
         private String ofObject;
-        private Integer refreshEveryHours = 48;
 
         public CacheStorageProxy(String ofObject) {
             this.ofObject = ofObject;
@@ -247,10 +247,6 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
         public void cacheInSessionCache() {
             this.storage = CacheManager.SOQLSessionCache;
-        }
-
-        public void refreshTime(Integer hours) {
-            this.refreshEveryHours = hours;
         }
 
         public void putInitialRecordsToCache(List<SObject> records) {
@@ -275,16 +271,6 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             return (List<CacheItem>) this.storage.get(this.key());
         }
 
-        public Boolean areRecordsRecentEnough(List<CacheItem> records) {
-            for (CacheItem record : records) {
-                if (!record.isRecentEnoguh(this.refreshEveryHours)) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
         private String key() {
             return Test.isRunningTest() ? this.ofObject + 'Test' : this.ofObject;
         }
@@ -300,10 +286,6 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             this.id = record.Id;
             this.cachedDate = System.now();
             this.record = record;
-        }
-
-        public Boolean isRecentEnoguh(Integer hoursBackWithoutRefresh) {
-            return ((System.now().getTime() - this.cachedDate.getTime()) / (1000 * 60 * 60)) < hoursBackWithoutRefresh;
         }
     }
 
@@ -377,21 +359,43 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             }
         }
 
-        public Boolean hasAllCachedFields(List<CacheItem> records) {
+        public Boolean haveAllRequestedFields(List<CacheItem> records) {
             for (CacheItem record : records) {
-                if (!this.hasAllCachedFields(record.record)) {
+                if (!this.hasAllRequestedFields(record.record)) {
                     return false;
                 }
             }
             return true;
         }
 
-        public Boolean hasAllCachedFields(SObject record) {
+        public Boolean hasAllRequestedFields(SObject record) {
             Boolean hasCachedFields = true;
             for (String field : this.cachedFields) {
                 hasCachedFields &= record.isSet(field);
             }
             return hasCachedFields;
+        }
+    }
+
+    private class CacheExpiration {
+        private Integer refreshEveryHours = 48;
+
+        public void refreshTime(Integer hours) {
+            this.refreshEveryHours = hours;
+        }
+
+        public Boolean areRecordsRecentEnough(List<CacheItem> records) {
+            for (CacheItem record : records) {
+                if (!isRecentEnoguh(record)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public Boolean isRecentEnoguh(CacheItem record) {
+            return ((System.now().getTime() - record.cachedDate.getTime()) / (1000 * 60 * 60)) < this.refreshEveryHours;
         }
     }
 
@@ -458,8 +462,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             }
 
             if (
-                !this.builder.cacheFields.hasAllCachedFields(recordsFilterFromCache) ||
-                !this.builder.storage.areRecordsRecentEnough(recordsFilterFromCache)
+                !this.builder.cacheFields.haveAllRequestedFields(recordsFilterFromCache) ||
+                !this.builder.expiration.areRecordsRecentEnough(recordsFilterFromCache)
             ) {
                 List<SObject> databaseRecords = this.builder.currentyQuery.toList(); // SOQL
                 this.updateRecordsInCache(cachedRecords, databaseRecords);
