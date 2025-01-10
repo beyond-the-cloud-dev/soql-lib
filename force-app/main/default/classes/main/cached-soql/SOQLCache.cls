@@ -135,14 +135,14 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     public Cacheable with(List<SObjectField> fields) {
         this.builder.initialQuery?.with(fields);
         this.builder.currentyQuery.with(fields);
-        this.builder.cacheFields.with(fields);
+        this.builder.fields.with(fields);
         return this;
     }
 
     public Cacheable with(String fields) {
         this.builder.initialQuery?.with(fields);
         this.builder.currentyQuery.with(fields);
-        this.builder.cacheFields.with(fields);
+        this.builder.fields.with(fields);
         return this;
     }
 
@@ -152,8 +152,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     public Cacheable whereEqual(String field, Object value) {
         this.with(field);
-        this.builder.cacheFilter.singleFilterValidation();
-        this.builder.cacheFilter.with(field).equal(value);
+        this.builder.filter.singleFilterValidation();
+        this.builder.filter.with(field).equal(value);
         this.builder.currentyQuery.whereAre(SOQL.Filter.with(field).equal(value));
         return this;
     }
@@ -193,7 +193,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     public SObject toObject() {
-        this.builder.cacheFilter.hasFilterValidation();
+        this.builder.filter.hasFilterValidation();
         this.executeInitialQuery();
         return this.executor.toObject();
     }
@@ -215,16 +215,18 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     private class Builder {
-        public CacheFilter cacheFilter = null;
-        public CacheFields cacheFields = new CacheFields();
+        public CacheFilter filter = null;
         public CacheStorageProxy storage = null;
+        public CacheFields fields = new CacheFields();
         public CacheExpiration expiration = new CacheExpiration();
+
         public SOQL.Queryable initialQuery = null;
         public SOQL.Queryable currentyQuery = null;
 
         public Builder(String ofObject) {
+            this.filter = new CacheFilter(ofObject);
             this.storage = new CacheStorageProxy(ofObject);
-            this.cacheFilter = new CacheFilter(ofObject);
+
             this.currentyQuery = SOQL.of(ofObject).systemMode().withoutSharing();
         }
     }
@@ -386,7 +388,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
         public Boolean areRecordsRecentEnough(List<CacheItem> records) {
             for (CacheItem record : records) {
-                if (!isRecentEnoguh(record)) {
+                if (!isRecentEnough(record)) {
                     return false;
                 }
             }
@@ -394,7 +396,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             return true;
         }
 
-        public Boolean isRecentEnoguh(CacheItem record) {
+        public Boolean isRecentEnough(CacheItem record) {
             return ((System.now().getTime() - record.cachedDate.getTime()) / (1000 * 60 * 60)) < this.refreshEveryHours;
         }
     }
@@ -452,7 +454,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             }
 
             List<CacheItem> cachedRecords = this.builder.storage.getCachedRecords() ?? new List<CacheItem>();
-            List<CacheItem> recordsFilterFromCache = this.builder.cacheFilter.filter(cachedRecords);
+            List<CacheItem> recordsFilterFromCache = this.builder.filter.filter(cachedRecords);
 
             if (recordsFilterFromCache.isEmpty()) {
                 List<SObject> databaseRecords = this.builder.currentyQuery.toList(); // SOQL
@@ -462,7 +464,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             }
 
             if (
-                !this.builder.cacheFields.haveAllRequestedFields(recordsFilterFromCache) ||
+                !this.builder.fields.haveAllRequestedFields(recordsFilterFromCache) ||
                 !this.builder.expiration.areRecordsRecentEnough(recordsFilterFromCache)
             ) {
                 List<SObject> databaseRecords = this.builder.currentyQuery.toList(); // SOQL
