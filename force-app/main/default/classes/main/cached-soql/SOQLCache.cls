@@ -108,7 +108,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     public Cacheable maxHoursWithoutRefresh(Integer hours) {
-        this.builder.expiration.refreshTime(hours);
+        this.builder.expiration.maxRecordAgeInHours(hours);
         return this;
     }
 
@@ -382,7 +382,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     private class CacheExpiration {
         private Integer maxRecordAgeInHours = 48;
 
-        public void refreshTime(Integer hours) {
+        public void maxRecordAgeInHours(Integer hours) {
             this.maxRecordAgeInHours = hours;
         }
 
