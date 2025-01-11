@@ -139,6 +139,8 @@ SOQLCache.of(Profile.SObjectType)
 
 In this example, the query will check the `System Administrator` record in the cache. If it was cached more than 24 hours ago, a new query will be executed, and the record will be updated in the cache.
 
+You can even have multiple queries for the same `SObjectType` with different refresh times, depending on how critical they are for various parts of your org.
+
 Key: `Profile`
 
 Records:
