@@ -270,7 +270,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         public List<CacheItem> getCachedRecords() {
-            return (List<CacheItem>) this.storage.get(this.key());
+            return (List<CacheItem>) (this.storage.get(this.key()) ?? new List<CacheItem>());
         }
 
         private String key() {
@@ -333,16 +333,16 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             return Schema.getGlobalDescribe().get(this.ofObject).getDescribe().fields.getMap().get(this.field).getDescribe().isUnique();
         }
 
-        public List<CacheItem> filter(List<CacheItem> cachedRecords) {
-            List<CacheItem> records = new List<CacheItem>();
+        public List<CacheItem> filter(List<CacheItem> cachedItems) {
+            List<CacheItem> cacheItemsThatMeetCriteria = new List<CacheItem>();
 
-            for (CacheItem cachedRecord : cachedRecords) {
-                if (cachedRecord.record.get(this.field) == this.value) {
-                    records.add(cachedRecord);
+            for (CacheItem cacheItem : cachedItems) {
+                if (cacheItem.record.get(this.field) == this.value) {
+                    cacheItemsThatMeetCriteria.add(cacheItem);
                 }
             }
 
-            return records;
+            return cacheItemsThatMeetCriteria;
         }
     }
 
@@ -454,10 +454,10 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
                 return mock.getSObjectsMock(mockId);
             }
 
-            List<CacheItem> cachedRecords = this.builder.storage.getCachedRecords() ?? new List<CacheItem>();
-            List<CacheItem> recordsFilterFromCache = this.builder.filter.filter(cachedRecords);
+            List<CacheItem> cachedRecords = this.builder.storage.getCachedRecords();
+            List<CacheItem> cachedRecordThatMeetCriteria = this.builder.filter.filter(cachedRecords);
 
-            if (recordsFilterFromCache.isEmpty()) {
+            if (cachedRecordThatMeetCriteria.isEmpty()) {
                 List<SObject> databaseRecords = this.builder.currentyQuery.toList(); // SOQL
                 this.insertRecordsToCache(cachedRecords, databaseRecords);
 
@@ -465,15 +465,15 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             }
 
             if (
-                !this.builder.fields.haveAllRequestedFields(recordsFilterFromCache) ||
-                !this.builder.expiration.areRecordsRecentEnough(recordsFilterFromCache)
+                !this.builder.fields.haveAllRequestedFields(cachedRecordThatMeetCriteria) ||
+                !this.builder.expiration.areRecordsRecentEnough(cachedRecordThatMeetCriteria)
             ) {
                 List<SObject> databaseRecords = this.builder.currentyQuery.toList(); // SOQL
 
-                if (!databaseRecords.isEmpty()) {
-                    this.updateRecordsInCache(cachedRecords, databaseRecords);
+                if (databaseRecords.isEmpty()) { // record does not exist in the database anymore
+                    this.removeRecordsFromCache(cachedRecords, cachedRecordThatMeetCriteria);
                 } else {
-                    this.removeRecordsFromCache(cachedRecords, recordsFilterFromCache);
+                    this.updateRecordsInCache(cachedRecords, databaseRecords);
                 }
 
                 return this.stripInaccessible(databaseRecords);
@@ -481,7 +481,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
             List<SObject> records = new List<SObject>();
 
-            for (CacheItem cachedRecord : recordsFilterFromCache) {
+            for (CacheItem cachedRecord : cachedRecordThatMeetCriteria) {
                 records.add(cachedRecord.record);
             }
 
