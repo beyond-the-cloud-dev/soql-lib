@@ -455,9 +455,9 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             }
         }
 
-        public Boolean haveAllRequestedFields(List<CacheItem> records) {
-            for (CacheItem record : records) {
-                if (!this.hasAllRequestedFields(record.record)) {
+        public Boolean haveAllRequestedFields(List<CacheItem> cachedItems) {
+            for (CacheItem cachedItem : cachedItems) {
+                if (!this.hasAllRequestedFields(cachedItem.record)) {
                     return false;
                 }
             }
