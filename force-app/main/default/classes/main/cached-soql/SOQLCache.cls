@@ -73,42 +73,43 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     private static Mock mock = new Mock();
 
-    private Builder builder;
     private Executor executor;
+    private Cache cache;
+
+    public SOQL.Queryable initialQuery = null;
+    public SOQL.Queryable currentyQuery = null;
 
     protected SOQLCache(SObjectType ofObject) {
         this(ofObject.getDescribe().getName());
     }
 
     protected SOQLCache(String ofObject) {
-        this.builder = new Builder(ofObject);
-        this.executor = new Executor(this.builder);
-        this.with('Id');
-        this.populateQuery(this.initialQuery());
-    }
+        this.initialQuery = this.initialQuery()?.systemMode()?.withoutSharing();
+        this.currentyQuery = SOQL.of(ofObject).systemMode().withoutSharing();
 
-    private Cacheable populateQuery(SOQL.Queryable query) {
-        this.builder.initialQuery = query?.systemMode()?.withoutSharing();
-        return this;
+        this.cache = new Cache(ofObject);
+        this.executor = new Executor(this.currentyQuery, this.cache);
+
+        this.with('Id');
     }
 
     public Cacheable cacheInApexTransaction() {
-        this.builder.storage.cacheInApexTransaction();
+        this.cache.storage.cacheInApexTransaction();
         return this;
     }
 
     public Cacheable cacheInOrgCache() {
-        this.builder.storage.cacheInOrgCache();
+        this.cache.storage.cacheInOrgCache();
         return this;
     }
 
     public Cacheable cacheInSessionCache() {
-        this.builder.storage.cacheInSessionCache();
+        this.cache.storage.cacheInSessionCache();
         return this;
     }
 
     public Cacheable maxHoursWithoutRefresh(Integer hours) {
-        this.builder.expiration.maxRecordAgeInHours(hours);
+        this.cache.expiration.maxRecordAgeInHours(hours);
         return this;
     }
 
@@ -133,16 +134,16 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     public Cacheable with(List<SObjectField> fields) {
-        this.builder.initialQuery?.with(fields);
-        this.builder.currentyQuery.with(fields);
-        this.builder.fields.with(fields);
+        this.initialQuery?.with(fields);
+        this.currentyQuery.with(fields);
+        this.cache.fields.with(fields);
         return this;
     }
 
     public Cacheable with(String fields) {
-        this.builder.initialQuery?.with(fields);
-        this.builder.currentyQuery.with(fields);
-        this.builder.fields.with(fields);
+        this.initialQuery?.with(fields);
+        this.currentyQuery.with(fields);
+        this.cache.fields.with(fields);
         return this;
     }
 
@@ -152,9 +153,9 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     public Cacheable whereEqual(String field, Object value) {
         this.with(field);
-        this.builder.filter.singleFilterValidation();
-        this.builder.filter.with(field).equal(value);
-        this.builder.currentyQuery.whereAre(SOQL.Filter.with(field).equal(value));
+        this.cache.filter.singleFilterValidation();
+        this.cache.filter.with(field).equal(value);
+        this.currentyQuery.whereAre(SOQL.Filter.with(field).equal(value));
         return this;
     }
 
@@ -163,19 +164,19 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     public Cacheable stripInaccessible(AccessType accessType) {
-        this.builder.currentyQuery.stripInaccessible(accessType);
+        this.currentyQuery.stripInaccessible(accessType);
         this.executor.stripInaccessible(accessType);
         return this;
     }
 
     public Cacheable mockId(String queryIdentifier) {
-        this.builder.currentyQuery.mockId(queryIdentifier);
+        this.currentyQuery.mockId(queryIdentifier);
         this.executor.mockId(queryIdentifier);
         return this;
     }
 
     public Cacheable preview() {
-        this.builder.currentyQuery.preview();
+        this.currentyQuery.preview();
         return this;
     }
 
@@ -193,16 +194,16 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     public SObject toObject() {
-        this.builder.filter.hasFilterValidation();
+        this.cache.filter.hasFilterValidation();
         this.executeInitialQuery();
         return this.executor.toObject();
     }
 
     private void executeInitialQuery() {
-        if (this.builder.storage.hasCachedRecords() || this.builder.initialQuery == null) {
+        if (this.cache.storage.hasCachedRecords() || this.initialQuery == null) {
             return;
         }
-        this.builder.storage.putInitialRecordsToCache(this.builder.initialQuery.toList());
+        this.cache.storage.putInitialRecordsToCache(this.initialQuery.toList());
     }
 
     public Cacheable byId(SObject record) {
@@ -212,23 +213,6 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     public Cacheable byId(Id recordId) {
         whereEqual('Id', recordId);
         return this;
-    }
-
-    private class Builder {
-        public CacheFilter filter = null;
-        public CacheStorageProxy storage = null;
-        public CacheFields fields = new CacheFields();
-        public CacheExpiration expiration = new CacheExpiration();
-
-        public SOQL.Queryable initialQuery = null;
-        public SOQL.Queryable currentyQuery = null;
-
-        public Builder(String ofObject) {
-            this.filter = new CacheFilter(ofObject);
-            this.storage = new CacheStorageProxy(ofObject);
-
-            this.currentyQuery = SOQL.of(ofObject).systemMode().withoutSharing();
-        }
     }
 
     private class CacheStorageProxy {
@@ -275,6 +259,116 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
         private String key() {
             return Test.isRunningTest() ? this.ofObject + 'Test' : this.ofObject;
+        }
+    }
+
+    private class Cache {
+        public CacheFilter filter;
+        public CacheStorageProxy storage;
+        public CacheFields fields;
+        public CacheExpiration expiration;
+
+        public Cache(String ofObject) {
+            this.filter = new CacheFilter(ofObject);
+            this.storage = new CacheStorageProxy(ofObject);
+            this.fields = new CacheFields();
+            this.expiration = new CacheExpiration();
+        }
+
+        private List<CacheItem> cachedItemsThatMeetCriteria {
+            get {
+                if (this.cachedItemsThatMeetCriteria == null) {
+                    this.cachedItemsThatMeetCriteria = this.filter.filter(this.storage.getCachedRecords());
+                }
+                return this.cachedItemsThatMeetCriteria;
+            }
+            private set;
+        }
+
+        public List<SObject> toList() {
+            List<SObject> records = new List<SObject>();
+
+            for (CacheItem cachedRecord : this.cachedItemsThatMeetCriteria) {
+                records.add(cachedRecord.record);
+            }
+
+            return records;
+        }
+
+        public void save(List<SObject> databaseRecords) {
+            if (this.isRecordMissingFromCache()) {
+                new InsertAction().execute(this.storage, databaseRecords);
+            } else if (databaseRecords.isEmpty()) { // record does not exist in database anymore
+                new DeleteAction().execute(this.storage, this.toList());
+            } else if (this.areRequestedFieldsMissing() || this.areRecordsOutdated()) {
+                new UpdateAction().execute(this.storage, databaseRecords);
+            }
+        }
+
+        public Boolean isRecordMissingFromCache() {
+            return this.cachedItemsThatMeetCriteria.isEmpty();
+        }
+
+        public Boolean areRequestedFieldsMissing() {
+            return !this.fields.haveAllRequestedFields(this.cachedItemsThatMeetCriteria);
+        }
+
+        public Boolean areRecordsOutdated() {
+            return !this.expiration.areRecordsRecentEnough(this.cachedItemsThatMeetCriteria);
+        }
+    }
+
+    private interface CacheAction {
+        void execute(CacheStorageProxy storage, List<SObject> records);
+    }
+
+    private class InsertAction implements CacheAction {
+        public void execute(CacheStorageProxy storage, List<SObject> records) {
+            List<CacheItem> allObjectCachedRecords = storage.getCachedRecords();
+
+            for (SObject databaseRecord : records) {
+                allObjectCachedRecords.add(new CacheItem(databaseRecord));
+            }
+
+            storage.putRecordsToCache(allObjectCachedRecords);
+        }
+    }
+
+    private class UpdateAction implements CacheAction {
+        public void execute(CacheStorageProxy storage, List<SObject> records) {
+            List<CacheItem> allObjectCachedRecords = storage.getCachedRecords();
+
+            for (SObject updatedRecord : records) {
+                for (CacheItem cachedRecord : allObjectCachedRecords) {
+                    if (updatedRecord.Id == cachedRecord.id) {
+                        cachedRecord.record = updatedRecord;
+                        cachedRecord.cachedDate = System.now();
+                    }
+                }
+            }
+
+            storage.putRecordsToCache(allObjectCachedRecords);
+        }
+    }
+
+    private class DeleteAction implements CacheAction {
+        public void execute(CacheStorageProxy storage, List<SObject> records) {
+            List<CacheItem> allObjectCachedRecords = storage.getCachedRecords();
+
+            Set<Id> recordsToRemoveFromCacheIds = new Set<Id>();
+
+            for (SObject obsoleteCachedRecord : records) {
+                recordsToRemoveFromCacheIds.add(obsoleteCachedRecord.id);
+            }
+
+            List<CacheItem> clearedCacheItems = new List<CacheItem>();
+            for (CacheItem cachedRecord : allObjectCachedRecords) {
+                if (!recordsToRemoveFromCacheIds.contains(cachedRecord.id)) {
+                    clearedCacheItems.add(cachedRecord);
+                }
+            }
+
+            storage.putRecordsToCache(clearedCacheItems);
         }
     }
 
@@ -419,12 +513,14 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     private inherited sharing class Executor {
-        private Builder builder;
+        private SOQL.Queryable currentyQuery;
+        private Cache cache;
         private AccessType accessType = null;
         private String mockId;
 
-        public Executor(Builder builder) {
-            this.builder = builder;
+        public Executor(SOQL.Queryable currentyQuery, Cache cache) {
+            this.currentyQuery = currentyQuery;
+            this.cache = cache;
         }
 
         public void stripInaccessible(AccessType type) {
@@ -454,82 +550,17 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
                 return mock.getSObjectsMock(mockId);
             }
 
-            List<CacheItem> cachedRecords = this.builder.storage.getCachedRecords();
-            List<CacheItem> cachedRecordThatMeetCriteria = this.builder.filter.filter(cachedRecords);
-
-            if (cachedRecordThatMeetCriteria.isEmpty()) {
-                List<SObject> databaseRecords = this.builder.currentyQuery.toList(); // SOQL
-                this.insertRecordsToCache(cachedRecords, databaseRecords);
-
-                return this.stripInaccessible(databaseRecords);
-            }
+            List<SObject> records = this.cache.toList();
 
             if (
-                !this.builder.fields.haveAllRequestedFields(cachedRecordThatMeetCriteria) ||
-                !this.builder.expiration.areRecordsRecentEnough(cachedRecordThatMeetCriteria)
+                this.cache.isRecordMissingFromCache() ||
+                this.cache.areRequestedFieldsMissing() ||
+                this.cache.areRecordsOutdated()
             ) {
-                List<SObject> databaseRecords = this.builder.currentyQuery.toList(); // SOQL
-
-                if (databaseRecords.isEmpty()) { // record does not exist in the database anymore
-                    this.removeRecordsFromCache(cachedRecords, cachedRecordThatMeetCriteria);
-                } else {
-                    this.updateRecordsInCache(cachedRecords, databaseRecords);
-                }
-
-                return this.stripInaccessible(databaseRecords);
+                records = this.currentyQuery.toList(); // SOQL query execution
+                cache.save(records);
             }
 
-            List<SObject> records = new List<SObject>();
-
-            for (CacheItem cachedRecord : cachedRecordThatMeetCriteria) {
-                records.add(cachedRecord.record);
-            }
-
-            return this.stripInaccessible(records);
-        }
-
-        private void insertRecordsToCache(List<CacheItem> cachedRecords, List<SObject> databaseRecords) {
-            List<CacheItem> records = new List<CacheItem>();
-
-            for (SObject databaseRecord : databaseRecords) {
-                records.add(new CacheItem(databaseRecord));
-            }
-
-            cachedRecords.addAll(records);
-            this.builder.storage.putRecordsToCache(cachedRecords);
-        }
-
-        private void updateRecordsInCache(List<CacheItem> cachedRecords, List<SObject> databaseRecords) {
-            for (SObject databaseRecord : databaseRecords) {
-                for (CacheItem cachedRecord : cachedRecords) {
-                    if (databaseRecord.Id == cachedRecord.id) {
-                        cachedRecord.record = databaseRecord;
-                        cachedRecord.cachedDate = System.now();
-                    }
-                }
-            }
-            this.builder.storage.putRecordsToCache(cachedRecords);
-        }
-
-        private void removeRecordsFromCache(List<CacheItem> cachedRecords, List<CacheItem> recordsFilterFromCache) {
-            Set<Id> recordsToRemoveFromCacheIds = new Set<Id>();
-
-            for (CacheItem filteredFromCache : recordsFilterFromCache) {
-                recordsToRemoveFromCacheIds.add(filteredFromCache.id);
-            }
-
-            List<CacheItem> clearedCacheItems = new List<CacheItem>();
-
-            for (CacheItem cachedRecord : cachedRecords) {
-                if (!recordsToRemoveFromCacheIds.contains(cachedRecord.id)) {
-                    clearedCacheItems.add(cachedRecord);
-                }
-            }
-
-            this.builder.storage.putRecordsToCache(clearedCacheItems);
-        }
-
-        private List<SObject> stripInaccessible(List<SObject> records) {
             if (this.accessType == null) {
                 return records;
             }
