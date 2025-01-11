@@ -33,6 +33,7 @@ public interface Cacheable {
     Cacheable cacheInApexTransaction();
     Cacheable cacheInOrgCache();
     Cacheable cacheInSessionCache();
+    Cacheable maxHoursWithoutRefresh(Integer hours);
     // SELECT
     Cacheable with(SObjectField field);
     Cacheable with(SObjectField field1, SObjectField field2);
@@ -111,23 +112,72 @@ Inspired by the [Iteratively Building a Flexible Caching System for Apex](https:
 
 No worries! You can use it by simply replacing `SOQLCache.CacheStorageProxy` with your own cache manager.
 
-## Records are stored as a List
+## Records are stored as an Enhanced List.
 
-Records are stored in the cache as a `List`, with the cache key being the `SObjectType`. This approach helps avoid record duplication, which is crucial given the limited storage capacity.
+Records are stored in the cache as an enhanced `List`, with the cache key being the `SObjectType`. This approach helps avoid record duplication, which is crucial given the limited storage capacity.
+
+**Why an Enhanced List?**
+
+Instead of storing plain records, we added additional metadata information, including:
+- **Id**
+- **CachedDate**
+- **Record**
+
+This allows us to easily determine how long ago records were cached.
+
+Let’s assume a record was edited or removed from the cache. Some queries are crucial in the org, so cached records may never expire. However, to avoid working with outdated records, we introduced `maxHoursWithoutRefresh` (default: 48 hours).
+
+If you want cached records to be refreshed every 24 hours, you can specify it like this:
+
+```apex
+SOQLCache.of(Profile.SObjectType)
+    .with(Profile.Id, Profile.Name, Profile.UserType)
+    .whereEqual(Profile.Name, 'System Administrator')
+    .maxHoursWithoutRefresh(24)
+    .toObject();
+```
+
+In this example, the query will check the `System Administrator` record in the cache. If it was cached more than 24 hours ago, a new query will be executed, and the record will be updated in the cache.
+
+You can even have multiple queries for the same `SObjectType` with different refresh times, depending on how critical they are for various parts of your org.
 
 Key: `Profile`
 
 Records:
 
-| Id | Name | UserType |
-| -- | ---- | -------- |
-| 00e3V000000DhteQAC | Standard Guest | Guest |
-| 00e3V000000DhtfQAC | Community Profile | Guest |
-| 00e3V000000NmefQAC | Standard User | Standard |
-| 00e3V000000Nme3QAC | System Administrator | Standard |
-| 00e3V000000NmeAQAS | Standard Platform User | Standard |
-| 00e3V000000NmeHQAS | Customer Community Plus User | PowerCustomerSuccess |
-| 00e3V000000NmeNQAS | Customer Community Plus Login User | PowerCustomerSuccess |
+| CachedDate          | Id                 | Name                              | UserType              |
+|---------------------|--------------------|-----------------------------------|-----------------------|
+| 2025-09-11 07:15:30 | 00e3V000000DhteQAC | Standard Guest                    | Guest                 |
+| 2025-10-13 05:40:25 | 00e3V000000DhtfQAC | Community Profile                 | Guest                 |
+| 2025-11-12 08:30:15 | 00e3V000000NmefQAC | Standard User                     | Standard              |
+| 2025-12-01 09:45:10 | 00e3V000000Nme3QAC | System Administrator              | Standard              |
+| 2025-10-10 04:50:50 | 00e3V000000NmeAQAS | Standard Platform User            | Standard              |
+| 2025-09-15 06:05:20 | 00e3V000000NmeHQAS | Customer Community Plus User      | PowerCustomerSuccess  |
+| 2025-11-10 10:30:00 | 00e3V000000NmeNQAS | Customer Community Plus Login User| PowerCustomerSuccess  |
+
+```js
+[
+    {
+        cachedDate=2025-01-10 12:23:51,
+        id=00e3V000000Nme3QAC,
+        record=Profile:{
+            Id=00e3V000000Nme3QAC,
+            Name=System Administrator,
+            UserType=Standard
+        }
+    },
+    {
+        cachedDate=2025-01-10 12:23:51,
+        id=00e3V000000DhteQAC,
+        record=Profile:{
+            Id=00e3V000000DhteQAC,
+            Name=Standard Guest,
+            UserType=Guest
+        }
+    }
+    // ...
+]
+```
 
 **Why not just cache by SOQL String?**
 
@@ -229,10 +279,9 @@ flowchart TD
     FindRecordInCache{Is a Record with the Given Criteria Found in the Cache?}
     RecordFound[Yes: Record Found]
     RecordNotFound[No: Record Not Found]
-    HasAllFields{Does Record Have All Requested Fields?}
+    HasAllFields{Does the Record Have All Requested Fields and Is It Recent Enough?  }
     AllFields[Yes: All Fields Available]
-    MissingFields[No: Missing Fields]
-    RetrieveField[Retrieve Missing Fields - **SOQL**]
+    MissingFields[No: Fields are missing or the record is outdated]
     RetrieveFromDB[Retrieve Record from Database - **SOQL**]
     UpdateCache[Update Cache]
     Done[Return Record]
@@ -245,8 +294,9 @@ flowchart TD
     ExecuteToObject --> FindRecordInCache
     FindRecordInCache --> RecordFound --> HasAllFields
     HasAllFields --> AllFields --> Done
-    HasAllFields --> MissingFields --> RetrieveField --> UpdateCache
-    FindRecordInCache --> RecordNotFound --> RetrieveFromDB --> UpdateCache
+    HasAllFields --> MissingFields --> RetrieveFromDB
+    FindRecordInCache --> RecordNotFound --> RetrieveFromDB
+    RetrieveFromDB --> UpdateCache
     UpdateCache --> Done
 
     Done:::greenNode

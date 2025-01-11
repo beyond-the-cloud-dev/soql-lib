@@ -26,6 +26,10 @@ The following are methods for using `SOQLCache`:
 - [`cacheInOrgCache()`](#cacheinorgcache)
 - [`cacheInSessionCache()`](#cacheinsessioncache)
 
+[**CACHE EXPIRATION**](#cache-expiration)
+
+- [`maxHoursWithoutRefresh()`](#maxhourswithoutrefresh)
+
 [**INITIAL QUERY**](#initial-query)
 
 - [`initialQuery()`](#initialquery)
@@ -152,6 +156,30 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
         return SOQL.of(Profile.SObjectType).systemMode().withoutSharing();
     }
 }
+```
+
+## CACHE EXPIRATION
+
+### maxHoursWithoutRefresh
+
+**Default: 48 hours**
+
+All cached records have an additional field called `cachedDate`. To avoid using outdated records, you can add `maxHoursWithoutRefresh` to your query. This will check how old the cached record is and, if it’s too old, execute a query to update the record in the cache.
+
+**Signature**
+
+```apex
+Cacheable maxHoursWithoutRefresh(Integer hours)
+```
+
+**Example**
+
+```apex
+SOQLCache.of(Profile.SObjectType)
+    .with(Profile.Id, Profile.Name, Profile.UserType)
+    .whereEqual(Profile.Name, 'System Administrator')
+    .maxHoursWithoutRefresh(12)
+    .toObject();
 ```
 
 ## INITIAL QUERY
