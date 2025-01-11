@@ -515,7 +515,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             Set<Id> recordsToRemoveFromCacheIds = new Set<Id>();
 
             for (CacheItem filteredFromCache : recordsFilterFromCache) {
-                recordsToRemoveFromCacheIds.add(filteredFromCache.Id);
+                recordsToRemoveFromCacheIds.add(filteredFromCache.id);
             }
 
             List<CacheItem> clearedCacheItems = new List<CacheItem>();
