@@ -559,6 +559,33 @@ private class SOQLCache_Test {
         Assert.isTrue(profile2.isSet('UserLicenseId'), 'The profile UserLicenseId should not be set.');
     }
 
+    @IsTest
+    static void recordsClearedFromCache() {
+        // Setup
+        Account testAccount = new Account(Name = 'Acme Corp');
+        insert testAccount;
+
+        Account cachedAccount = (Account) SOQLCache.of(Account.SObjectType)
+                .with(Account.Id, Account.Name)
+                .byId(testAccount.Id)
+                .cacheInOrgCache()
+                .toObject();
+
+        List<SOQLCache.CacheItem> cacheItems = (List<SOQLCache.CacheItem>) CacheManager.SOQLOrgCache.get('AccountTest');
+
+        //Verify initial setup
+        Assert.isTrue(CacheManager.SOQLOrgCache.contains('AccountTest'), 'Key should exist.');
+        Assert.isFalse(cacheItems.isEmpty(), 'Cache item should be present');
+
+        //Test
+        SOQLCache.invalidateRecords(new List<Account>{cachedAccount});
+
+        // Verify
+        Assert.isTrue(CacheManager.SOQLOrgCache.contains('AccountTest'), 'Key should still exist.');
+        cacheItems = (List<SOQLCache.CacheItem>) CacheManager.SOQLOrgCache.get('AccountTest');
+        Assert.isTrue(cacheItems.isEmpty(), 'Cache items should be empty');
+    }
+
     static User minimumAccessUser() {
         return new User(
             Alias = 'newUser',
