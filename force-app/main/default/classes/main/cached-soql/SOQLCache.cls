@@ -81,9 +81,12 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
                     for (Integer i = 0; i < cacheItems.size(); i++) {
                         CacheItem cacheItem = cacheItems.get(i);
                         if (cacheItem.id == record.Id) {
-                            cache.remove(record.Id);
+                            cacheItems.remove(i);
+                            break;
                         }
                     }
+                    // put back updated cache items into cache
+                    cache.put(key, cacheItems);
                 }
             }
         }
