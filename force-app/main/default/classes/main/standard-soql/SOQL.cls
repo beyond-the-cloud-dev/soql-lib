@@ -143,8 +143,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         List<AggregateResult> toAggregated();
         Map<Id, SObject> toMap();
         Map<String, SObject> toMap(SObjectField keyField);
+        Map<String, SObject> toMap(String relationshipName, SObjectField keyField);
         Map<String, String> toMap(SObjectField keyField, SObjectField valueField);
         Map<String, List<SObject>> toAggregatedMap(SObjectField keyField);
+        Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField keyField);
         Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
         Database.QueryLocator toQueryLocator();
     }
@@ -837,6 +839,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         return executor.toMap(keyField);
     }
 
+    public Map<String, SObject> toMap(String relationshipName, SObjectField keyField) {
+        with(relationshipName + '.' + keyField);
+        return null;//executor.toMap(relationshipName + '.' + keyField);
+    }
+
     public Map<String, String> toMap(SObjectField keyField, SObjectField valueField) {
         builder.fields.clearAllFields(); // other fields not needed
         with(keyField, valueField);
@@ -846,6 +853,11 @@ public virtual inherited sharing class SOQL implements Queryable {
     public Map<String, List<SObject>> toAggregatedMap(SObjectField keyField) {
         with(keyField);
         return executor.toAggregatedMap(keyField);
+    }
+
+    public Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField keyField) {
+        with(relationshipName + '.' + keyField);
+        return null;//executor.toMap(relationshipName + '.' + keyField);
     }
 
     public Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField) {
