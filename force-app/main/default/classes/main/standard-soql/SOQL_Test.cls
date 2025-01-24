@@ -3307,7 +3307,7 @@ private class SOQL_Test {
             .toMap('Parent', Account.Name);
 
         // Verify
-        Assert.areEqual(accounts.size(), result.size(), 'Size of the result map should be equal to the size of the accounts list with parents.');
+        Assert.areEqual(accounts.size(), result.size(), 'Size of the result map should be equal to the size of the accounts with parents.');
         Assert.isNotNull(result.get('Test 1 Parent'), 'The result map should have a value for the key: "Test 1 Parent".');
         Assert.isNotNull(result.get('Test 2 Parent'), 'The result map should have a value for the key: "Test 2 Parent".');
     }
