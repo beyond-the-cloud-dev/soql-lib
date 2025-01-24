@@ -3263,6 +3263,22 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void toMapWithCustomRelationshipKey() {
+        // Setup
+        List<Account> accounts = insertAccountsWithParents();
+
+        // Test
+        Map<String, Account> result = (Map<String, Account>) SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(Account.ParentId).isNotNull())
+            .toMap('Parent', Account.Name);
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size(), 'Size of the result map should be equal to the size of the accounts list with parents.');
+        Assert.isNotNull(result.get('Test 1 Parent'), 'The result map should have a value for the key: "Test 1 Parent".');
+        Assert.isNotNull(result.get('Test 2 Parent'), 'The result map should have a value for the key: "Test 2 Parent".');
+    }
+
+    @IsTest
     static void toMapWithCustomKeyAndCustomValue() {
         // Setup
         List<Account> accounts = insertAccounts();
@@ -3292,6 +3308,21 @@ private class SOQL_Test {
         for (Account acc : accounts) {
             Assert.isFalse(result.get(acc.Name).isEmpty());
         }
+    }
+
+    @IsTest
+    static void toAggregatedMapWithCustomRelationshipKey() {
+        // Setup
+        List<Account> accounts = insertAccountsWithParents();
+
+        // Test
+        Map<String, List<Account>> result = (Map<String, List<Account>>) SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(Account.ParentId).isNotNull())
+            .toAggregatedMap('Parent.CreatedBy', User.Id);
+
+        // Verify
+        Assert.areEqual(1, result.size(), 'Size of the result map should be 1, because the same user created all accounts.');
+        Assert.areEqual(accounts.size(), result.get(UserInfo.getUserId()).size(), 'The result map should contain all accounts created by the current User.');
     }
 
     @IsTest
@@ -3368,6 +3399,22 @@ private class SOQL_Test {
             new Account(Name = 'Test 2')
         };
         insert accounts;
+        return accounts;
+    }
+
+    static List<Account> insertAccountsWithParents() {
+        List<Account> parentAccounts = new List<Account>{
+            new Account(Name = 'Test 1 Parent'),
+            new Account(Name = 'Test 2 Parent')
+        };
+        insert parentAccounts;
+
+        List<Account> accounts = new List<Account>{
+            new Account(Name = 'Test 1', ParentId = parentAccounts[0].Id),
+            new Account(Name = 'Test 2', ParentId = parentAccounts[1].Id)
+        };
+        insert accounts;
+
         return accounts;
     }
 
