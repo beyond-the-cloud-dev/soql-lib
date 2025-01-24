@@ -145,10 +145,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         List<AggregateResult> toAggregated();
         Map<Id, SObject> toMap();
         Map<String, SObject> toMap(SObjectField keyField);
-        Map<String, SObject> toMap(String relationshipName, SObjectField keyField);
+        Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField);
         Map<String, String> toMap(SObjectField keyField, SObjectField valueField);
         Map<String, List<SObject>> toAggregatedMap(SObjectField keyField);
-        Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField keyField);
+        Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField);
         Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
         Database.QueryLocator toQueryLocator();
     }
@@ -336,7 +336,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private SoqlBuilder builder;
     private Executor executor;
-    private TransformationService converter;
+    private Converter converter;
 
     public static SOQL of(SObjectType ofObject) {
         return new SOQL(ofObject);
@@ -353,7 +353,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     public SOQL(String ofObject) {
         builder = new SoqlBuilder(ofObject);
         executor = new Executor(builder);
-        converter = new TransformationService(ofObject);
+        converter = new Converter(ofObject);
     }
 
     public SOQL with(SObjectField field) {
@@ -852,9 +852,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         return converter.transform(executor.toList()).toMap(keyField);
     }
 
-    public Map<String, SObject> toMap(String relationshipName, SObjectField keyField) {
-        with(relationshipName + '.' + keyField);
-        return converter.transform(executor.toList()).toMap(relationshipName, keyField);
+    public Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField) {
+        with(relationshipName + '.' + targetKeyField);
+        return converter.transform(executor.toList()).toMap(relationshipName, targetKeyField);
     }
 
     public Map<String, String> toMap(SObjectField keyField, SObjectField valueField) {
@@ -869,9 +869,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         return converter.transform(executor.toList()).toAggregatedMap(keyField);
     }
 
-    public Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField keyField) {
-        with(relationshipName + '.' + keyField);
-        return converter.transform(executor.toList()).toAggregatedMap(relationshipName, keyField);
+    public Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField) {
+        with(relationshipName + '.' + targetKeyField);
+        return converter.transform(executor.toList()).toAggregatedMap(relationshipName, targetKeyField);
     }
 
     public Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField) {
@@ -2291,15 +2291,15 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private inherited sharing class TransformationService {
+    private inherited sharing class Converter {
         private String ofObject;
         private List<SObject> recordsToTransform;
 
-        public TransformationService(String ofObject) {
+        public Converter(String ofObject) {
             this.ofObject = ofObject;
         }
 
-        public TransformationService transform(List<SObject> recordsToTransform) {
+        public Converter transform(List<SObject> recordsToTransform) {
             this.recordsToTransform = recordsToTransform;
             return this;
         }
