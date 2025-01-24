@@ -76,7 +76,9 @@ The following are methods for using `SOQL`:
 [**toLabel**](#tolabel)
 
 - [`toLabel(SObjectField field)`](#tolabel)
+- [`toLabel(SObjectField field, String alias)`](#tolabel)
 - [`toLabel(String field)`](#tolabel)
+- [`toLabel(String field, String alias)`](#tolabel)
 
 [**format**](#format)
 
@@ -997,7 +999,9 @@ SOQL.of(OpportunityLineItem.SObjectType)
 
 ```apex
 Queryable toLabel(SObjectField field)
+Queryable toLabel(SObjectField field, String alias)
 Queryable toLabel(String field)
+Queryable toLabel(String field, String alias)
 ```
 
 **Example**
@@ -1013,12 +1017,32 @@ SOQL.of(Lead.SObjectType)
 ```
 
 ```sql
+SELECT Company, toLabel(Status) leadStatus FROM Lead
+```
+```apex
+SOQL.of(Lead.SObjectType)
+    .with(Lead.Company)
+    .toLabel(Lead.Status, 'leadStatus')
+    .toList();
+```
+
+```sql
 SELECT Company, toLabel(Recordtype.Name) FROM Lead
 ```
 ```apex
 SOQL.of(Lead.SObjectType)
     .with(Lead.Company)
     .toLabel('Recordtype.Name')
+    .toList();
+```
+
+```sql
+SELECT Company, toLabel(Recordtype.Name) recordTypeName FROM Lead
+```
+```apex
+SOQL.of(Lead.SObjectType)
+    .with(Lead.Company)
+    .toLabel('Recordtype.Name', 'recordTypeName')
     .toList();
 ```
 
