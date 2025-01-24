@@ -258,7 +258,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         private String key() {
-            return Test.isRunningTest() ? this.ofObject + 'Test' : this.ofObject;
+            return this.ofObject;
         }
     }
 
