@@ -1487,8 +1487,7 @@ private class SOQL_Test {
             );
 
         // Verify
-        String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 AND BillingCity = :v2)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 AND BillingCity = :v2)', builder.toString());
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual('Test', binding.get('v1'));
@@ -1502,8 +1501,7 @@ private class SOQL_Test {
             .whereAre(SOQL.FilterGroup);
 
         // Verify
-        String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account', soql);
+        Assert.areEqual('SELECT Id FROM Account', builder.toString());
     }
 
     @IsTest

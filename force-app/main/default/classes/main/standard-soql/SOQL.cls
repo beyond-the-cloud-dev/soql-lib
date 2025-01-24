@@ -861,7 +861,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         builder.fields.clearAllFields(); // other fields not needed
         with(keyField, valueField);
         return converter.transform(executor.toList()).toMap(keyField, valueField);
-
     }
 
     public Map<String, List<SObject>> toAggregatedMap(SObjectField keyField) {
