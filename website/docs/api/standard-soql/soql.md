@@ -190,8 +190,10 @@ The following are methods for using `SOQL`:
 - [`toAggregated()`](#toaggregated)
 - [`toMap()`](#tomap)
 - [`toMap(SObjectField keyField)`](#tomap-with-custom-key)
+- [`toMap(String relationshipName, SObjectField targetKeyField)`](#tomap-with-custom-relationship-key)
 - [`toMap(SObjectField keyField,  SObjectField valueField)`](#tomap-with-custom-key-and-value)
 - [`toAggregatedMap(SObjectField keyField)`](#toaggregatedmap)
+- [`toAggregatedMap(String relationshipName, SObjectField targetKeyField)`](#toaggregatedmap-with-custom-relationship-key)
 - [`toAggregatedMap(SObjectField keyField, SObjectField valueField)`](#toaggregatedmap-with-custom-value)
 - [`toQueryLocator()`](#toquerylocator)
 
@@ -2351,6 +2353,20 @@ Map<String, SObject> toMap(SObjectField keyField)
 Map<String, Account> nameToAccount = (Map<String, Account>) SOQL.of(Account.SObjectType).toMap(Account.Name);
 ```
 
+### toMap with custom relationship key
+
+**Signature**
+
+```apex
+Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField)
+```
+
+**Example**
+
+```apex
+Map<String, Account> parentCreatedByEmailToAccount = (Map<String, Account>) SOQL.of(Account.SObjectType).toMap('Parent.CreatedBy', User.Email);
+```
+
 ### toMap with custom key and value
 
 **Signature**
@@ -2392,6 +2408,20 @@ Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField va
 
 ```apex
 Map<String, List<String>> industryToAccounts = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Industry, Account.Name);
+```
+
+### toAggregatedMap with custom relationship key
+
+**Signature**
+
+```apex
+Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField)
+```
+
+**Example**
+
+```apex
+Map<String, List<Account>> parentCreatedByEmailToAccounts = (Map<String, List<Account>>) SOQL.of(Account.SObjectType).toAggregatedMap('Parent.CreatedBy', User.Email);
 ```
 
 ### toQueryLocator
