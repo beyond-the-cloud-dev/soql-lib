@@ -67,7 +67,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable grouping(SObjectField field, String alias);
         // SELECT - toLabel
         Queryable toLabel(SObjectField field);
+        Queryable toLabel(SObjectField field, String alias);
         Queryable toLabel(String field);
+        Queryable toLabel(String field, String alias);
         // SELECT - FORMAT
         Queryable format(SObjectField field);
         Queryable format(SObjectField field, String alias);
@@ -551,8 +553,17 @@ public virtual inherited sharing class SOQL implements Queryable {
         return toLabel(field.getDescribe().getName());
     }
 
+    public SOQL toLabel(SObjectField field, String alias) {
+        return toLabel(field.getDescribe().getName(), alias);
+    }
+
     public SOQL toLabel(String field) {
         builder.fields.toLabel(field);
+        return this;
+    }
+
+    public SOQL toLabel(String field, String alias) {
+        builder.fields.toLabel(field, alias);
         return this;
     }
 
@@ -1105,6 +1116,10 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public void toLabel(String field) {
             fields.add('toLabel(' + field + ')');
+        }
+
+        public void toLabel(String field, String alias) {
+            fields.add('toLabel(' + field + ') ' + alias);
         }
 
         private void format(SObjectField field, String alias) {

@@ -367,11 +367,47 @@ private class SOQL_Test {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
             .with(Lead.Company)
-            .toLabel('Recordtype.Name')
+            .toLabel('RecordType.Name')
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Company, toLabel(Recordtype.Name) FROM Lead', soql);
+        Assert.areEqual('SELECT Company, toLabel(RecordType.Name) FROM Lead', soql);
+    }
+
+    @IsTest
+    static void toLabelWithSObjectFieldAndAlias() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.Company)
+            .toLabel(Lead.Status, 'leadStatus')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Company, toLabel(Status) leadStatus FROM Lead', soql);
+    }
+
+    @IsTest
+    static void toLabelWithStringFieldAndAlias() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.Company)
+            .toLabel('RecordType.Name', 'recordTypeName')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Company, toLabel(RecordType.Name) recordTypeName FROM Lead', soql);
+    }
+
+    @IsTest
+    static void toLabelWithAliasAndDuplicatedFields() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.Company, Lead.Status)
+            .toLabel(Lead.Status, 'leadStatus')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Company, Status, toLabel(Status) leadStatus FROM Lead', soql);
     }
 
     @IsTest
