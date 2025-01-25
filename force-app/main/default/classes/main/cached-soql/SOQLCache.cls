@@ -353,19 +353,16 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     private class DeleteAction implements CacheAction {
         public List<CacheItem> get(List<CacheItem> allRecordsCachedForObject, List<SObject> records) {
-            Set<Id> recordsToRemoveFromCacheIds = new Set<Id>();
-            for (SObject obsoleteCachedRecord : records) {
-                recordsToRemoveFromCacheIds.add(obsoleteCachedRecord.id);
-            }
+            Set<Id> recordsToRemoveFromCacheIds = new Map<Id, SObject>(records).keySet();
+            List<CacheItem> filteredCachedItems = new List<CacheItem>();
 
-            List<CacheItem> clearedCacheItems = new List<CacheItem>();
             for (CacheItem cachedRecord : allRecordsCachedForObject) {
                 if (!recordsToRemoveFromCacheIds.contains(cachedRecord.id)) {
-                    clearedCacheItems.add(cachedRecord);
+                    filteredCachedItems.add(cachedRecord);
                 }
             }
 
-            return clearedCacheItems;
+            return filteredCachedItems;
         }
     }
 
