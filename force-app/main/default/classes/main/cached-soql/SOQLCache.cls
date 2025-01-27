@@ -83,7 +83,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
             List<CacheItem> clearedCacheItems = new List<CacheItem>();
 
-            for (CacheItem cacheItem : (List<CacheItem>) cache.get(key)) {
+            for (CacheItem cacheItem :  (List<CacheItem>) cache.get(key)) {
                 if (!recordIdsToBeRemovedFromCache.contains(cacheItem.id)) {
                     clearedCacheItems.add(cacheItem);
                 }
@@ -92,7 +92,6 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             cache.put(key, clearedCacheItems);
         }
     }
-}
 
     public static Cacheable of(SObjectType ofObject) {
         return new SOQLCache(ofObject);
@@ -291,7 +290,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         private String key() {
-            return Test.isRunningTest() ? this.ofObject + TEST_STR : this.ofObject;
+            return this.ofObject;
         }
     }
 
