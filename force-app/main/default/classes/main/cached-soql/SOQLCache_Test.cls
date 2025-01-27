@@ -562,27 +562,25 @@ private class SOQLCache_Test {
     @IsTest
     static void recordsClearedFromCache() {
         // Setup
-        Account testAccount = new Account(Name = 'Acme Corp');
-        insert testAccount;
-
-        Account cachedAccount = (Account) SOQLCache.of(Account.SObjectType)
-                .with(Account.Id, Account.Name)
-                .byId(testAccount.Id)
+        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+                .with(Profile.Id, Profile.Name)
+                .whereEqual(Profile.Name, 'System Administrator')
                 .cacheInOrgCache()
+                .maxHoursWithoutRefresh(5)
                 .toObject();
 
-        List<SOQLCache.CacheItem> cacheItems = (List<SOQLCache.CacheItem>) CacheManager.SOQLOrgCache.get('Account');
+        List<SOQLCache.CacheItem> cacheItems = (List<SOQLCache.CacheItem>) CacheManager.SOQLOrgCache.get('Profile');
 
         //Verify initial setup
-        Assert.isTrue(CacheManager.SOQLOrgCache.contains('Account'), 'Key should exist.');
+        Assert.isTrue(CacheManager.SOQLOrgCache.contains('Profile'), 'Key should exist.');
         Assert.isFalse(cacheItems.isEmpty(), 'Cache item should be present');
 
         //Test
-        SOQLCache.invalidateRecords(new List<Account>{cachedAccount});
+        SOQLCache.invalidateRecords(new List<Profile>{profile});
 
         // Verify
-        Assert.isTrue(CacheManager.SOQLOrgCache.contains('Account'), 'Key should still exist.');
-        cacheItems = (List<SOQLCache.CacheItem>) CacheManager.SOQLOrgCache.get('Account');
+        Assert.isTrue(CacheManager.SOQLOrgCache.contains('Profile'), 'Key should still exist.');
+        cacheItems = (List<SOQLCache.CacheItem>) CacheManager.SOQLOrgCache.get('Profile');
         Assert.isTrue(cacheItems.isEmpty(), 'Cache items should be empty');
     }
 
