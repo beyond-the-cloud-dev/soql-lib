@@ -14,7 +14,6 @@
 **/
 @SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.PropertyNamingConventions, PMD.FieldDeclarationsShouldBeAtStart, PMD.ApexDoc, PMD.ExcessiveParameterList')
 public virtual inherited sharing class SOQLCache implements Cacheable {
-    private static final String TEST_STR = 'Test'; // Cant be just TEST because then overrides standard Test class
 
     public interface Selector {
         Cacheable query();
@@ -64,33 +63,36 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     public static void invalidateRecords(List<SObject> records) {
+        if (records.isEmpty()) {
+            return;
+        }
+
         List<CacheManager.Cacheable> caches = new List<CacheManager.Cacheable>{
                 CacheManager.SOQLOrgCache,
                 CacheManager.SOQLSessionCache,
                 CacheManager.ApexTransaction
         };
+
+        Set<Id> recordIdsToBeRemovedFromCache = new Map<Id, SObject>(records).keySet();
+        String key = records[0].getSObjectType().toString();
+
         for (CacheManager.Cacheable cache : caches) {
-            for (SObject record : records) {
-                SObjectType sObjectType = record.getSObjectType();
-                String key = sObjectType.toString();
-                if (Test.isRunningTest()) {
-                    key += TEST_STR;
-                }
-                if (cache.contains(key)) {
-                    List<CacheItem> cacheItems = (List<CacheItem>) cache.get(key);
-                    for (Integer i = 0; i < cacheItems.size(); i++) {
-                        CacheItem cacheItem = cacheItems.get(i);
-                        if (cacheItem.id == record.Id) {
-                            cacheItems.remove(i);
-                            break;
-                        }
-                    }
-                    // put back updated cache items into cache
-                    cache.put(key, cacheItems);
+            if (!cache.contains(key)) {
+                break;
+            }
+
+            List<CacheItem> clearedCacheItems = new List<CacheItem>();
+
+            for (CacheItem cacheItem : (List<CacheItem>) cache.get(key)) {
+                if (!recordIdsToBeRemovedFromCache.contains(cacheItem.id)) {
+                    clearedCacheItems.add(cacheItem);
                 }
             }
+
+            cache.put(key, clearedCacheItems);
         }
     }
+}
 
     public static Cacheable of(SObjectType ofObject) {
         return new SOQLCache(ofObject);
