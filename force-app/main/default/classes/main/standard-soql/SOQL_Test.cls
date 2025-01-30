@@ -3351,6 +3351,19 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void toMapWithEmptyCustomRelationshipKey() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        Map<String, Account> result = (Map<String, Account>) SOQL.of(Account.SObjectType).toMap('Parent', Account.Name);
+
+        // Verify
+        Assert.areEqual(1, result.size(), 'Size of the result map should be equal to 1');
+        Assert.isNotNull(result.get(null), 'The result map should have a value for the key: null');
+    }
+
+    @IsTest
     static void toMapWithCustomKeyAndCustomValue() {
         // Setup
         List<Account> accounts = insertAccounts();
