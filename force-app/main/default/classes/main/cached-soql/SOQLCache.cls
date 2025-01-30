@@ -14,6 +14,7 @@
 **/
 @SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.PropertyNamingConventions, PMD.FieldDeclarationsShouldBeAtStart, PMD.ApexDoc, PMD.ExcessiveParameterList')
 public virtual inherited sharing class SOQLCache implements Cacheable {
+
     public interface Selector {
         Cacheable query();
     }
@@ -59,6 +60,37 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     @TestVisible
     private static void setMock(String mockId, SObject record) {
         mock.setMock(mockId, new List<SObject>{ record });
+    }
+
+    public static void invalidateRecords(List<SObject> records) {
+        if (records.isEmpty()) {
+            return;
+        }
+
+        List<CacheManager.Cacheable> caches = new List<CacheManager.Cacheable>{
+                CacheManager.SOQLOrgCache,
+                CacheManager.SOQLSessionCache,
+                CacheManager.ApexTransaction
+        };
+
+        Set<Id> recordIdsToBeRemovedFromCache = new Map<Id, SObject>(records).keySet();
+        String key = records[0].getSObjectType().toString();
+
+        for (CacheManager.Cacheable cache : caches) {
+            if (!cache.contains(key)) {
+                break;
+            }
+
+            List<CacheItem> clearedCacheItems = new List<CacheItem>();
+
+            for (CacheItem cacheItem :  (List<CacheItem>) cache.get(key)) {
+                if (!recordIdsToBeRemovedFromCache.contains(cacheItem.id)) {
+                    clearedCacheItems.add(cacheItem);
+                }
+            }
+
+            cache.put(key, clearedCacheItems);
+        }
     }
 
     public static Cacheable of(SObjectType ofObject) {
