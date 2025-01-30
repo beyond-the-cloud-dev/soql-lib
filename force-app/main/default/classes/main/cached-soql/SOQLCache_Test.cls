@@ -563,25 +563,21 @@ private class SOQLCache_Test {
     static void recordsClearedFromCache() {
         // Setup
         Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
-                .with(Profile.Id, Profile.Name)
-                .whereEqual(Profile.Name, 'System Administrator')
-                .cacheInOrgCache()
-                .maxHoursWithoutRefresh(5)
-                .toObject();
+            .with(Profile.Id, Profile.Name)
+            .whereEqual(Profile.Name, 'System Administrator')
+            .cacheInOrgCache()
+            .toObject();
 
-        List<SOQLCache.CacheItem> cacheItems = (List<SOQLCache.CacheItem>) CacheManager.SOQLOrgCache.get('Profile');
-
-        //Verify initial setup
+        // Verify initial setup
         Assert.isTrue(CacheManager.SOQLOrgCache.contains('Profile'), 'Key should exist.');
-        Assert.isFalse(cacheItems.isEmpty(), 'Cache item should be present');
+        Assert.isFalse(((List<SOQLCache.CacheItem>) CacheManager.SOQLOrgCache.get('Profile')).isEmpty(), 'Cache item should be present.');
 
-        //Test
-        SOQLCache.invalidateRecords(new List<Profile>{profile});
+        // Test
+        SOQLCache.invalidateRecords(new List<Profile>{ profile });
 
         // Verify
         Assert.isTrue(CacheManager.SOQLOrgCache.contains('Profile'), 'Key should still exist.');
-        cacheItems = (List<SOQLCache.CacheItem>) CacheManager.SOQLOrgCache.get('Profile');
-        Assert.isTrue(cacheItems.isEmpty(), 'Cache items should be empty');
+        Assert.isTrue(((List<SOQLCache.CacheItem>) CacheManager.SOQLOrgCache.get('Profile')).isEmpty(), 'Cache items should be empty.');
     }
 
     static User minimumAccessUser() {

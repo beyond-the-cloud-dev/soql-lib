@@ -14,7 +14,6 @@
 **/
 @SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.PropertyNamingConventions, PMD.FieldDeclarationsShouldBeAtStart, PMD.ApexDoc, PMD.ExcessiveParameterList')
 public virtual inherited sharing class SOQLCache implements Cacheable {
-
     public interface Selector {
         Cacheable query();
     }
@@ -68,12 +67,11 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         List<CacheManager.Cacheable> caches = new List<CacheManager.Cacheable>{
-                CacheManager.SOQLOrgCache,
-                CacheManager.SOQLSessionCache,
-                CacheManager.ApexTransaction
+            CacheManager.SOQLOrgCache,
+            CacheManager.SOQLSessionCache,
+            CacheManager.ApexTransaction
         };
 
-        Set<Id> recordIdsToBeRemovedFromCache = new Map<Id, SObject>(records).keySet();
         String key = records[0].getSObjectType().toString();
 
         for (CacheManager.Cacheable cache : caches) {
@@ -81,15 +79,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
                 break;
             }
 
-            List<CacheItem> clearedCacheItems = new List<CacheItem>();
-
-            for (CacheItem cacheItem :  (List<CacheItem>) cache.get(key)) {
-                if (!recordIdsToBeRemovedFromCache.contains(cacheItem.id)) {
-                    clearedCacheItems.add(cacheItem);
-                }
-            }
-
-            cache.put(key, clearedCacheItems);
+            cache.put(key, new ListFilter().apply((List<CacheItem>) cache.get(key), records));
         }
     }
 
@@ -328,17 +318,17 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         public void save(List<SObject> databaseRecords) {
-            List<CacheItem> newObjectCachedRecords = new List<CacheItem>();
+            List<CacheItem> newCacheRecords = new List<CacheItem>();
 
             if (this.isRecordMissingFromCache()) {
-                newObjectCachedRecords = new InsertAction().get(storage.getCachedRecords(), databaseRecords);
+                newCacheRecords = new ListConcatenator().apply(storage.getCachedRecords(), databaseRecords);
             } else if (databaseRecords.isEmpty()) { // record does not exist in database anymore
-                newObjectCachedRecords = new DeleteAction().get(storage.getCachedRecords(), this.toList());
+                newCacheRecords = new ListFilter().apply(storage.getCachedRecords(), this.toList());
             } else if (this.areRequestedFieldsMissing() || this.areRecordsOutdated()) {
-                newObjectCachedRecords = new UpdateAction().get(storage.getCachedRecords(), databaseRecords);
+                newCacheRecords = new ListMapper().apply(storage.getCachedRecords(), databaseRecords);
             }
 
-            storage.putRecordsToCache(newObjectCachedRecords);
+            storage.putRecordsToCache(newCacheRecords);
         }
 
         public Boolean isRecordMissingFromCache() {
@@ -354,12 +344,12 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
     }
 
-    private interface CacheAction {
-        List<CacheItem> get(List<CacheItem> allRecordsCachedForObject, List<SObject> records);
+    private interface ListOperation {
+        List<CacheItem> apply(List<CacheItem> allRecordsCachedForObject, List<SObject> records);
     }
 
-    private class InsertAction implements CacheAction {
-        public List<CacheItem> get(List<CacheItem> allRecordsCachedForObject, List<SObject> records) {
+    private class ListConcatenator implements ListOperation {
+        public List<CacheItem> apply(List<CacheItem> allRecordsCachedForObject, List<SObject> records) {
             for (SObject databaseRecord : records) {
                 allRecordsCachedForObject.add(new CacheItem(databaseRecord));
             }
@@ -368,8 +358,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
     }
 
-    private class UpdateAction implements CacheAction {
-        public List<CacheItem> get(List<CacheItem> allRecordsCachedForObject, List<SObject> records) {
+    private class ListMapper implements ListOperation {
+        public List<CacheItem> apply(List<CacheItem> allRecordsCachedForObject, List<SObject> records) {
             for (SObject updatedRecord : records) {
                 for (CacheItem cachedRecord : allRecordsCachedForObject) {
                     if (updatedRecord.Id == cachedRecord.id) {
@@ -383,13 +373,13 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
     }
 
-    private class DeleteAction implements CacheAction {
-        public List<CacheItem> get(List<CacheItem> allRecordsCachedForObject, List<SObject> records) {
-            Set<Id> recordsToRemoveFromCacheIds = new Map<Id, SObject>(records).keySet();
+    private class ListFilter implements ListOperation {
+        public List<CacheItem> apply(List<CacheItem> allRecordsCachedForObject, List<SObject> recordsToRemove) {
+            Set<Id> recordsToRemoveIds = new Map<Id, SObject>(recordsToRemove).keySet();
             List<CacheItem> filteredCachedItems = new List<CacheItem>();
 
             for (CacheItem cachedRecord : allRecordsCachedForObject) {
-                if (!recordsToRemoveFromCacheIds.contains(cachedRecord.id)) {
+                if (!recordsToRemoveIds.contains(cachedRecord.id)) {
                     filteredCachedItems.add(cachedRecord);
                 }
             }
