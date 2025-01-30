@@ -164,7 +164,7 @@ private class SOQLCache_Test {
         // Verify
         Assert.areEqual(2, Limits.getQueries(), 'Two queries should be issued. The second query should update cached record.');
         Assert.areEqual(1, updatedCacheItems.size(), 'The Apex transaction cache should contain exactly one record.');
-        Assert.areEqual(System.now(), updatedCacheItems[0].cachedDate, 'The cached record should be updated.');
+        Assert.isTrue(Math.abs((System.now().getTime() - updatedCacheItems[0].cachedDate.getTime()) / 1000) < 10, 'The cached record should be updated. The time difference should be less than 10 seconds.');
         Assert.isNotNull(profile, 'Profile should be not null.');
         Assert.areEqual('System Administrator', profile.Name, 'The cached profile record should be "System Administrator".');
     }
