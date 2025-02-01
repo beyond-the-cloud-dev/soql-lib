@@ -3541,7 +3541,7 @@ private class SOQL_Test {
             for (Integer i = 0 ; i < 102 ; i++) {
                 SOQL.of(Account.SObjectType).toList();
             }
-        } catch (Exception e) {
+        } catch (QueryException e) {
             queryException = e;
         }
 
@@ -3565,7 +3565,7 @@ private class SOQL_Test {
             Test.startTest();
                 asynchronousQueriesWithMocking(200);
             Test.stopTest();
-        } catch (Exception e) {
+        } catch (QueryException e) {
             queryException = e;
         }
 
@@ -3588,7 +3588,7 @@ private class SOQL_Test {
             Test.startTest();
                 asynchronousQueriesWithMocking(201);
             Test.stopTest();
-        } catch (Exception e) {
+        } catch (QueryException e) {
             queryException = e;
         }
 
@@ -3607,7 +3607,7 @@ private class SOQL_Test {
             Test.startTest();
                 asynchronousQueriesWithoutMocking(201);
             Test.stopTest();
-        } catch (Exception e) {
+        } catch (QueryException e) {
             queryException = e;
         }
 
