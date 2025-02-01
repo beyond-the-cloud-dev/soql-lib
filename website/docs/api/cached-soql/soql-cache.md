@@ -29,7 +29,7 @@ The following are methods for using `SOQLCache`:
 [**CACHE EXPIRATION**](#cache-expiration)
 
 - [`maxHoursWithoutRefresh()`](#maxhourswithoutrefresh)
-- [`invalidateRecords(List<SObject> records)`](#invalidaterecords)
+- [`refreshRecords(List<SObject> records)`](#refreshrecords)
 
 [**INITIAL QUERY**](#initial-query)
 
@@ -183,21 +183,21 @@ SOQLCache.of(Profile.SObjectType)
     .toObject();
 ```
 
-### invalidateRecords
+### refreshRecords
 
-The `invalidateRecords` method allows clearing records from the cache, triggering an automatic refresh the next time the query is executed.
+The `refreshRecords` method allows clearing records from the cache, triggering an automatic refresh the next time the query is executed.
 
 **Signature**
 
 ```apex
-Cacheable invalidateRecords(List<SObject> records)
+Cacheable refreshRecords(List<SObject> records)
 ```
 
 **Example**
 
 ```apex
 trigger SomeObjectTrigger on SomeObject (after update, after delete) {
-    SOQLCache.invalidateRecords(Trigger.old);
+    SOQLCache.refreshRecords(Trigger.new);
 }
 ```
 

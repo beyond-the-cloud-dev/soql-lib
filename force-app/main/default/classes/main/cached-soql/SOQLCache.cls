@@ -61,7 +61,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         mock.setMock(mockId, new List<SObject>{ record });
     }
 
-    public static void invalidateRecords(List<SObject> records) {
+    public static void refreshRecords(List<SObject> records) {
         if (records.isEmpty()) {
             return;
         }
