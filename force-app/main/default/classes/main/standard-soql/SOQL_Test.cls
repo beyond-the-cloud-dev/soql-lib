@@ -3481,30 +3481,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void querySynchronousLimitExceptionWithMocking() {
-        // Setup
-        Exception queryException = null;
-
-        // Test
-        SOQL.setMock('mockingQuery', new List<Account>{
-            new Account(Name = 'Test 1'),
-            new Account(Name = 'Test 2')
-        });
-
-        try {
-            for (Integer i = 0 ; i < 102 ; i++) {
-                SOQL.of(Account.SObjectType).mockId('mockingQuery').toList();
-            }
-        } catch (Exception e) {
-            queryException = e;
-        }
-
-        // Verify
-        Assert.areEqual('Too many SOQL queries.', queryException.getMessage());
-    }
-
-    @IsTest
-    static void queryAsynchronousLimitExceptionWithMocking() {
+    static void querySynchronousCloseToLimitWithMocking() {
         // Setup
         Exception queryException = null;
 
@@ -3516,14 +3493,42 @@ private class SOQL_Test {
 
         try {
             Test.startTest();
-                asynchronousQueriesWithMocking();
+                for (Integer i = 0 ; i < 100 ; i++) {
+                    SOQL.of(Account.SObjectType).mockId('mockingQuery').toList();
+                }
             Test.stopTest();
-        } catch (Exception e) {
+        } catch (QueryException e) {
             queryException = e;
         }
 
         // Verify
-        Assert.areEqual('Too many SOQL queries.', queryException.getMessage());
+        Assert.isNull(queryException, 'The synchronous query should not have exceeded the limit.');
+    }
+
+    @IsTest
+    static void querySynchronousLimitExceptionWithMocking() {
+        // Setup
+        Exception queryException = null;
+
+        // Test
+        SOQL.setMock('mockingQuery', new List<Account>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        });
+
+        try {
+            Test.startTest();
+                for (Integer i = 0 ; i < 101 ; i++) {
+                    SOQL.of(Account.SObjectType).mockId('mockingQuery').toList();
+                }
+            Test.stopTest();
+        } catch (QueryException e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(queryException, 'The synchronous query should have exceeded the limit.');
+        Assert.areEqual('Too many SOQL queries.', queryException.getMessage(), 'The synchronous query should not have been exceeded.');
     }
 
     @IsTest
@@ -3541,7 +3546,55 @@ private class SOQL_Test {
         }
 
         // Verify
-        Assert.areEqual('Too many SOQL queries.', queryException.getMessage());
+        Assert.isNotNull(queryException, 'The synchronous query should have exceeded the limit.');
+        Assert.areEqual('Too many SOQL queries.', queryException.getMessage(), 'The synchronous query should have been exceeded.');
+    }
+
+    @IsTest
+    static void queryAsynchronousCloseToLimitWithMocking() {
+        // Setup
+        Exception queryException = null;
+
+        // Test
+        SOQL.setMock('mockingQuery', new List<Account>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        });
+
+        try {
+            Test.startTest();
+                asynchronousQueriesWithMocking(200);
+            Test.stopTest();
+        } catch (Exception e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.isNull(queryException, 'The asynchronous query should not have exceeded the limit.');
+    }
+
+    @IsTest
+    static void queryAsynchronousLimitExceptionWithMocking() {
+        // Setup
+        Exception queryException = null;
+
+        // Test
+        SOQL.setMock('mockingQuery', new List<Account>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        });
+
+        try {
+            Test.startTest();
+                asynchronousQueriesWithMocking(201);
+            Test.stopTest();
+        } catch (Exception e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(queryException, 'The asynchronous query should have exceeded the limit.');
+        Assert.areEqual('Too many SOQL queries.', queryException.getMessage(), 'The asynchronous query should have been exceeded.');
     }
 
     @IsTest
@@ -3552,14 +3605,15 @@ private class SOQL_Test {
         // Test
         try {
             Test.startTest();
-                asynchronousQueriesWithoutMocking();
+                asynchronousQueriesWithoutMocking(201);
             Test.stopTest();
         } catch (Exception e) {
             queryException = e;
         }
 
         // Verify
-        Assert.areEqual('Too many SOQL queries.', queryException.getMessage());
+        Assert.isNotNull(queryException, 'The asynchronous query should have exceeded the limit.');
+        Assert.areEqual('Too many SOQL queries.', queryException.getMessage(), 'The asynchronous query should have been exceeded.');
     }
 
     @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
@@ -3590,15 +3644,15 @@ private class SOQL_Test {
     }
 
     @future
-    static void asynchronousQueriesWithMocking() {
-        for (Integer i = 0 ; i < 202 ; i++) {
+    static void asynchronousQueriesWithMocking(Integer loops) {
+        for (Integer i = 0 ; i < loops ; i++) {
             SOQL.of(Account.SObjectType).mockId('mockingQuery').toList();
         }
     }
 
     @future
-    static void asynchronousQueriesWithoutMocking() {
-        for (Integer i = 0 ; i < 202 ; i++) {
+    static void asynchronousQueriesWithoutMocking(Integer loops) {
+        for (Integer i = 0 ; i < loops ; i++) {
             SOQL.of(Account.SObjectType).toList();
         }
     }
