@@ -334,6 +334,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private static Mock mock = new Mock();
     private static Binder binder = new Binder();
+    private static Integer syncQueriesIssued = 0;
 
     private SoqlBuilder builder;
     private Executor executor;
@@ -2216,6 +2217,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public List<SObject> toList() {
+            incrementQueryIssued();
+
             if (mock.hasMock(mockId)) {
                 return mock.getSObjectsMock(mockId);
             }
@@ -2231,6 +2234,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Integer toInteger() {
+            incrementQueryIssued();
+
             if (mock.hasCountMock(mockId)) {
                 return mock.getCountMock(mockId);
             }
@@ -2239,7 +2244,21 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Database.QueryLocator toQueryLocator() {
+            incrementQueryIssued();
+
             return sharingExecutor.toQueryLocator(builder.toString(), binder.getBindingMap(), accessMode);
+        }
+
+        private void incrementQueryIssued() {
+            if (!Test.isRunningTest() || System.isBatch() || System.isFuture() || System.isQueueable() || System.isScheduled()) {
+                return;
+            }
+
+            SOQL.syncQueriesIssued++;
+
+            if (SOQL.syncQueriesIssued > 100) {
+                throw new QueryException('Too many SOQL queries.');
+            }
         }
     }
 

@@ -3480,6 +3480,103 @@ private class SOQL_Test {
         }
     }
 
+    @IsTest
+    static void querySynchronousCloseToLimitWithMocking() {
+        // Setup
+        Exception queryException = null;
+
+        SOQL.setMock('mockingQuery', new List<Account>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        });
+
+        // Test
+        try {
+            Test.startTest();
+                for (Integer i = 0 ; i < 100 ; i++) {
+                    SOQL.of(Account.SObjectType).mockId('mockingQuery').toList();
+                }
+            Test.stopTest();
+        } catch (QueryException e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.isNull(queryException, 'The synchronous query should not have exceeded the limit.');
+    }
+
+    @IsTest
+    static void querySynchronousLimitExceptionWithMocking() {
+        // Setup
+        Exception queryException = null;
+
+        SOQL.setMock('mockingQuery', new List<Account>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        });
+
+        // Test
+        try {
+            Test.startTest();
+                for (Integer i = 0 ; i < 101 ; i++) {
+                    SOQL.of(Account.SObjectType).mockId('mockingQuery').toList();
+                }
+            Test.stopTest();
+        } catch (QueryException e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(queryException, 'The synchronous query should have exceeded the limit.');
+        Assert.areEqual('Too many SOQL queries.', queryException.getMessage(), 'The synchronous query should not have been exceeded.');
+    }
+
+    @IsTest
+    static void querySynchronousLimitExceptionWithoutMocking() {
+        // Setup
+        Exception queryException = null;
+
+        // Test
+        try {
+            for (Integer i = 0 ; i < 102 ; i++) {
+                SOQL.of(Account.SObjectType).toList();
+            }
+        } catch (QueryException e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(queryException, 'The synchronous query should have exceeded the limit.');
+        Assert.areEqual('Too many SOQL queries.', queryException.getMessage(), 'The synchronous query should have been exceeded.');
+    }
+
+    @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
+    @IsTest
+    static void preview() {
+        // Test
+        SOQL.of(Account.SObjectType).preview().toList();
+    }
+
+    @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
+    @IsTest
+    static void previewWithConditions() {
+        // Test
+        SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.FilterGroup
+                .add(SOQL.Filter.with(Account.Name).equal('Test'))
+                .add(SOQL.Filter.with(Account.Industry).equal('IT'))
+            )
+            .preview()
+            .toList();
+    }
+
+    @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
+    @IsTest
+    static void previewCount() {
+        // Test
+        SOQL.of(Account.SObjectType).count().preview().toInteger();
+    }
+
     static List<Account> insertAccounts() {
         List<Account> accounts = new List<Account>{
             new Account(Name = 'Test 1'),
@@ -3533,32 +3630,5 @@ private class SOQL_Test {
             TimeZoneSidKey = 'America/Los_Angeles',
             UserName = 'queryselector@testorg.com'
         );
-    }
-
-    @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
-    @IsTest
-    static void preview() {
-        // Test
-        SOQL.of(Account.SObjectType).preview().toList();
-    }
-
-    @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
-    @IsTest
-    static void previewWithConditions() {
-        // Test
-        SOQL.of(Account.SObjectType)
-            .whereAre(SOQL.FilterGroup
-                .add(SOQL.Filter.with(Account.Name).equal('Test'))
-                .add(SOQL.Filter.with(Account.Industry).equal('IT'))
-            )
-            .preview()
-            .toList();
-    }
-
-    @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
-    @IsTest
-    static void previewCount() {
-        // Test
-        SOQL.of(Account.SObjectType).count().preview().toInteger();
     }
 }
