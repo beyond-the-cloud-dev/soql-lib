@@ -9,7 +9,8 @@ For more details, please refer to the [documentation](https://soql-lib.vercel.ap
 
 You may also find [this blog post](https://beyondthecloud.dev/blog/soql-lib) about SOQL Lib interesting.
 
-## Examples
+
+**Standard SOQL**
 
 ```apex
 // SELECT Id FROM Account
@@ -23,14 +24,20 @@ List<Account> accounts = SOQL.of(Account.SObjectType)
    .toList();
 ```
 
-## Selector
+**Cached SOQL**
 
-Read [how to build your selector class](https://soql-lib.vercel.app/building-your-selector).
+```apex
+// SELECT Id, Name, UserType FROM Profile WHERE Name = 'System Administrator'
+Profile systemAdminProfile = (Profile) SOQLCache.of(Profile.SObjectType)
+   .with(Profile.Id, Profile.Name, Profile.UserType)
+   .whereEqual(Profile.Name, 'System Administrator')
+   .toObject();
+```
+
+## Selector
 
 ```apex
 public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selector {
-    public static final String MOCK_ID = 'SOQL_Contact';
-
     public static SOQL_Contact query() {
         return new SOQL_Contact();
     }
@@ -40,8 +47,7 @@ public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selecto
         // default settings
         with(Contact.Id, Contact.Name, Contact.AccountId)
             .systemMode()
-            .withoutSharing()
-            .mockId(MOCK_ID);
+            .withoutSharing();
     }
 
     public SOQL_Contact byAccountId(Id accountId) {
@@ -60,6 +66,31 @@ public with sharing class ExampleController {
             .byAccountId(accountId)
             .with(Contact.Email)
             .toList();
+    }
+}
+```
+
+## Cached Selector
+
+```apex
+public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
+    public static SOQL_ProfileCache query() {
+        return new SOQL_ProfileCache();
+    }
+
+    private SOQL_ProfileCache() {
+        super(Profile.SObjectType);
+        cacheInOrgCache();
+        with(Profile.Id, Profile.Name, Profile.UserType);
+    }
+
+    public override SOQL.Queryable initialQuery() {
+        return SOQL.of(Profile.SObjectType);
+    }
+
+    public SOQL_ProfileCache byName(String name) {
+        whereEqual(Profile.Name, name);
+        return this;
     }
 }
 ```
@@ -97,6 +128,7 @@ Read about the features in the [documentation](https://soql-lib.vercel.app/docs/
 6. **Avoid query duplicates**
 7. **The default configuration for all queries**
 8. **Dynamic conditions**
+9. **Cache records**
 
 ----
 
@@ -107,4 +139,4 @@ Read about the features in the [documentation](https://soql-lib.vercel.app/docs/
 ## License notes
 
 - For proper license management each repository should contain LICENSE file similar to this one.
-- Each original class should contain copyright mark: Copyright (c) 2023 BeyondTheCloud.Dev
+- Each original class should contain copyright mark: Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
