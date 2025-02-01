@@ -334,7 +334,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private static Mock mock = new Mock();
     private static Binder binder = new Binder();
-    private static Integer queriesIssued = 0;
+    private static Integer syncQueriesIssued = 0;
 
     private SoqlBuilder builder;
     private Executor executor;
@@ -2250,15 +2250,13 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         private void incrementQueryIssued() {
-            SOQL.queriesIssued++;
-
-            if (!Test.isRunningTest()) {
+            if (!Test.isRunningTest() || System.isBatch() || System.isFuture() || System.isQueueable() || System.isScheduled()) {
                 return;
             }
 
-            Boolean isAsynchronous = System.isBatch() || System.isFuture() || System.isQueueable() || System.isScheduled();
+            SOQL.syncQueriesIssued++;
 
-            if ((queriesIssued > 100 && !isAsynchronous) || (queriesIssued > 200 && isAsynchronous)) {
+            if (SOQL.syncQueriesIssued > 100) {
                 throw new QueryException('Too many SOQL queries.');
             }
         }
