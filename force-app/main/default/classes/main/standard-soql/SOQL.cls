@@ -101,9 +101,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable havingConditionLogic(String havingConditionsOrder);
         Queryable anyHavingConditionMatching();
         // ORDER BY
+        Queryable orderBy(SObjectField field);
         Queryable orderBy(String field);
         Queryable orderBy(String field, String direction);
-        Queryable orderBy(SObjectField field);
         Queryable orderBy(String relationshipName, SObjectField field);
         Queryable sortDesc();
         Queryable nullsLast();

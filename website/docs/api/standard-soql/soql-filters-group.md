@@ -24,6 +24,8 @@ The following are methods for `FilterGroup`.
 - [`add(FilterGroup filterGroup)`](#add)
 - [`add(Filter filter)`](#add)
 - [`add(String dynamicCondition)`](#add)
+- [`add(List<Filter> filters)`](#add)
+- [`add(List<String> dynamicConditions)`](#add)
 
 [**ORDER**](#order)
 
@@ -46,6 +48,8 @@ Add a [`SOQL.Filter`](soql-filter.md) or [`SOQL.FilterGroup`](soql-filters-group
 FilterGroup add(FilterGroup filterGroup)
 FilterGroup add(Filter filter)
 FilterGroup add(String dynamicCondition)
+FilterGroup add(List<Filter> filters)
+FilterGroup add(List<String> dynamicConditions)
 ```
 
 **Example**
@@ -87,6 +91,30 @@ SOQL.of(Account.SObjectType)
         .add(SOQL.Filter.with(Account.Industry).equal('IT'))
         .add(SOQL.Filter.name().equal('My Account'))
         .add('NumberOfEmployees >= 10')
+    ).toList();
+```
+
+```apex
+// SELECT Id FROM Account WHERE (Name = 'Test' AND BillingCity = 'Krakow')
+
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.FilterGroup
+        .add(new List<SOQL.Filter> {
+            SOQL.Filter.with(Account.Name).equal('Test'),
+            SOQL.Filter.with(Account.BillingCity).equal('Krakow')
+        })
+    ).toList();
+```
+
+```apex
+// SELECT Id FROM Account WHERE (Name = 'Test' AND BillingCity = 'Krakow')
+
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.FilterGroup
+        .add(new List<String> {
+            'Name = \'Test\'',
+            'BillingCity = \'Krakow\''
+        })
     ).toList();
 ```
 
