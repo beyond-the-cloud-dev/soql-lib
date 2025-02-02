@@ -163,6 +163,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
         SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         SubQuery with(Iterable<SObjectField> fields);
+        SubQuery with(String fields);
         SubQuery with(String relationshipName, Iterable<SObjectField> fields);
         SubQuery with(SubQuery subQuery);
         // WHERE
@@ -171,6 +172,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         //ORDER BY
         SubQuery orderBy(SObjectField field);
         SubQuery orderBy(String relationshipName, SObjectField field);
+        SubQuery orderBy(String field, String direction);
         SubQuery sortDesc();
         SubQuery nullsLast();
         // LIMIT
@@ -186,7 +188,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         // ADD CONDITION
         FilterGroup add(FilterGroup filterGroup);
         FilterGroup add(Filter filter);
+        FilterGroup addAll(List<Filter> filters);
         FilterGroup add(String dynamicCondition);
+        FilterGroup addAll(List<String> dynamicConditions);
         // ORDER
         FilterGroup anyConditionMatching();
         FilterGroup conditionLogic(String order);
@@ -1090,7 +1094,12 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         private Boolean isAggregateFunction(String field) {
             // AVG(), COUNT(), MIN(), MAX(), SUM() or Field aliasing
-            return field.contains('(') && field.contains(')') || field.contains(' ');
+            // Exclude other SOQL Funcions ex. toLabel(), convertCurrency(), FORMAT()
+            Set<String> exceptionFunctions = new Set<String>{ 'toLabel', 'convertCurrency', 'FORMAT' };
+            Pattern exceptionFunctionsRegexPattern = Pattern.compile('(?i)\\b(' + String.join(new List<String>(exceptionFunctions), '|') + ')\\s*\\(');
+            Matcher exceptionFunctionsMatcher = exceptionFunctionsRegexPattern.matcher(field);
+
+            return field.contains('(') && field.contains(')') && !exceptionFunctionsMatcher.find() || field.contains(' ');
         }
 
         public void with(Iterable<SObjectField> fields) {
@@ -1204,6 +1213,11 @@ public virtual inherited sharing class SOQL implements Queryable {
             return this;
         }
 
+        public SubQuery with(String fields) {
+            builder.fields.with(fields);
+            return this;
+        }
+
         public SubQuery with(String relationshipName, Iterable<SObjectField> fields) {
             builder.fields.with(relationshipName, fields);
             return this;
@@ -1231,6 +1245,11 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public SubQuery orderBy(String relationshipName, SObjectField field) {
             builder.orderBys.newOrderBy().with(relationshipName, field);
+            return this;
+        }
+
+        public SubQuery orderBy(String field, String direction) {
+            builder.orderBys.newOrderBy().with(field).sortingOrder(direction);
             return this;
         }
 
@@ -1349,8 +1368,22 @@ public virtual inherited sharing class SOQL implements Queryable {
             return add(new FilterAdapter(filter));
         }
 
+        public FilterGroup addAll(List<Filter> filters) {
+            for (Filter filter: filters) {
+                add(filter);
+            }
+            return this;
+        }
+
         public FilterGroup add(String dynamicCondition) {
             return add(new StringConditionAdapter(dynamicCondition));
+        }
+
+        public FilterGroup addAll(List<String> dynamicConditions) {
+            for (String dynamicCondition: dynamicConditions) {
+                add(dynamicCondition);
+            }
+            return this;
         }
 
         public FilterGroup add(FilterClause condition) {

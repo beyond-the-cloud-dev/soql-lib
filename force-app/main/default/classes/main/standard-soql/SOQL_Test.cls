@@ -559,6 +559,17 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void withStringFieldsAndToLabelFunction() {
+        // Test
+        String soql = SOQL.of(Case.SObjectType)
+            .with('Id, toLabel(Status), Subject')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id, toLabel(Status), Subject FROM Case', soql);
+    }
+
+    @IsTest
     static void withFieldAlias() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
@@ -828,6 +839,21 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts ORDER BY Name DESC NULLS LAST) FROM Account', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void subQueryOrderByDynamic() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Name)
+            .with(SOQL.SubQuery.of('Contacts')
+                .with(Contact.Id, Contact.Name)
+                .orderBy('Name', 'ASC')
+                .nullsLast()
+            ).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts ORDER BY Name ASC NULLS LAST) FROM Account', soql);
     }
 
     @IsTest
@@ -1538,6 +1564,65 @@ private class SOQL_Test {
         Map<String, Object> binding = builder.binding();
         Assert.areEqual('Test', binding.get('v1'), 'The binding variable should match the expected value.');
         Assert.areEqual('Krakow', binding.get('v2'), 'The binding variable should match the expected value.');
+    }
+
+    @IsTest
+    static void dynamicFiltersListGroup() {
+        // Setup
+        SOQL.FilterGroup filterGroup = SOQL.FilterGroup;
+
+        filterGroup.addAll(new List<SOQL.Filter> {
+            SOQL.Filter.with(Account.Name).equal('Test'),
+            SOQL.Filter.with(Account.BillingCity).equal('Krakow')
+        });
+
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(filterGroup);
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 AND BillingCity = :v2)', soql);
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('Test', binding.get('v1'));
+        Assert.areEqual('Krakow', binding.get('v2'));
+    }
+
+    @IsTest
+    static void dynamicStringFiltersGroup() {
+        // Setup
+        SOQL.FilterGroup filterGroup = SOQL.FilterGroup;
+
+        filterGroup.add('Name = \'Test\'');
+        filterGroup.add('BillingCity = \'Krakow\'');
+
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(filterGroup);
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE (Name = \'Test\' AND BillingCity = \'Krakow\')', soql);
+    }
+
+    @IsTest
+    static void dynamicStringFiltersListGroup() {
+        // Setup
+        SOQL.FilterGroup filterGroup = SOQL.FilterGroup;
+
+        filterGroup.addAll(new List<String> {
+            'Name = \'Test\'',
+            'BillingCity = \'Krakow\''
+        });
+
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(filterGroup);
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE (Name = \'Test\' AND BillingCity = \'Krakow\')', soql);
     }
 
     @IsTest
