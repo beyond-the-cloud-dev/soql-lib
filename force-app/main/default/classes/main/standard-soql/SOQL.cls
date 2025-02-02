@@ -171,8 +171,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         SubQuery whereAre(Filter filter);
         //ORDER BY
         SubQuery orderBy(SObjectField field);
-        SubQuery orderBy(String relationshipName, SObjectField field);
+        SubQuery orderBy(String field);
         SubQuery orderBy(String field, String direction);
+        SubQuery orderBy(String relationshipName, SObjectField field);
         SubQuery sortDesc();
         SubQuery nullsLast();
         // LIMIT
@@ -188,9 +189,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         // ADD CONDITION
         FilterGroup add(FilterGroup filterGroup);
         FilterGroup add(Filter filter);
-        FilterGroup addAll(List<Filter> filters);
         FilterGroup add(String dynamicCondition);
-        FilterGroup addAll(List<String> dynamicConditions);
+        FilterGroup add(List<Filter> filters);
+        FilterGroup add(List<String> dynamicConditions);
         // ORDER
         FilterGroup anyConditionMatching();
         FilterGroup conditionLogic(String order);
@@ -1243,6 +1244,11 @@ public virtual inherited sharing class SOQL implements Queryable {
             return this;
         }
 
+        public SubQuery orderBy(String field) {
+            builder.orderBys.newOrderBy().with(field);
+            return this;
+        }
+
         public SubQuery orderBy(String relationshipName, SObjectField field) {
             builder.orderBys.newOrderBy().with(relationshipName, field);
             return this;
@@ -1368,27 +1374,27 @@ public virtual inherited sharing class SOQL implements Queryable {
             return add(new FilterAdapter(filter));
         }
 
-        public FilterGroup addAll(List<Filter> filters) {
+        public FilterGroup add(String dynamicCondition) {
+            return add(new StringConditionAdapter(dynamicCondition));
+        }
+
+        public FilterGroup add(FilterClause condition) {
+            if (condition.hasValue()) {
+                queryConditions.add(condition);
+            }
+            return this;
+        }
+
+        public FilterGroup add(List<Filter> filters) {
             for (Filter filter: filters) {
                 add(filter);
             }
             return this;
         }
 
-        public FilterGroup add(String dynamicCondition) {
-            return add(new StringConditionAdapter(dynamicCondition));
-        }
-
-        public FilterGroup addAll(List<String> dynamicConditions) {
+        public FilterGroup add(List<String> dynamicConditions) {
             for (String dynamicCondition: dynamicConditions) {
                 add(dynamicCondition);
-            }
-            return this;
-        }
-
-        public FilterGroup add(FilterClause condition) {
-            if (condition.hasValue()) {
-                queryConditions.add(condition);
             }
             return this;
         }
