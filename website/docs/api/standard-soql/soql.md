@@ -130,6 +130,7 @@ The following are methods for using `SOQL`:
 - [`orderBy(String field, String direction)`](#order-by)
 - [`orderBy(String relationshipName, SObjectField field)`](#orderby-related)
 - [`sordDesc()`](#sortdesc)
+-  [`sort(String direction)`](#sort)
 - [`nullsLast()`](#nullslast)
 
 [**LIMIT**](#limit)
@@ -1671,6 +1672,31 @@ ORDER BY Name DESC
 SOQL.of(Account.SObjectType)
     .orderBy(Account.Name)
     .sortDesc()
+    .toList();
+```
+
+### sort
+
+
+### sort
+
+**Signature**
+
+```apex
+Queryable sort(String direction)
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+ORDER BY Industry ASC NULLS FIRST
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .orderBy('Industry')
+    .sort('ASC')
     .toList();
 ```
 

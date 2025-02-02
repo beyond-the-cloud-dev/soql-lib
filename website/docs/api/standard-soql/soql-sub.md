@@ -46,9 +46,9 @@ The following are methods for `SubQuery`.
 
 - [`orderBy(SObjectField field)`](#order-by)
 - [`orderBy(String field)`](#order-by-string-fields)
-- [`orderBy(String field, String direction)`](#orderby-string-fields-with-direction)
 - [`orderBy(String relationshipName, SObjectField field)`](#orderby-related)
 - [`sortDesc()`](#sortdesc)
+- [`sort(String direction)`](#sort)
 - [`nullsLast()`](#nullslast)
 
 [**LIMIT**](#limit)
@@ -325,31 +325,6 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
-### orderBy string field with direction
-
-**Signature**
-
-```apex
-SubQuery orderBy(String field, String direction)
-```
-
-**Example**
-
-```sql
-SELECT Id, (
-    SELECT Id
-    FROM Contacts
-    ORDER BY Name DESC
-) FROM Account
-```
-```apex
-SOQL.of(Account.SObjectType)
-    .with(SOQL.SubQuery.of('Contacts')
-        .orderBy('Name', 'DESC')
-    )
-    .toList();
-```
-
 ### orderBy related
 
 Order SOQL query by parent field.
@@ -401,6 +376,32 @@ SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .orderBy(Contact.Name)
         .sortDesc()
+    )
+    .toList();
+```
+
+### sort
+
+**Signature**
+
+```apex
+SubQuery sort(String direction)
+```
+
+**Example**
+
+```sql
+SELECT Id, (
+    SELECT Id
+    FROM Contacts
+    ORDER BY Name DESC
+) FROM Account
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .with(SOQL.SubQuery.of('Contacts')
+        .orderBy('Name')
+        .sort('DESC')
     )
     .toList();
 ```

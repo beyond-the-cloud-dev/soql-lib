@@ -877,7 +877,8 @@ private class SOQL_Test {
             .with(Account.Name)
             .with(SOQL.SubQuery.of('Contacts')
                 .with(Contact.Id, Contact.Name)
-                .orderBy('Name', 'ASC')
+                .orderBy('Name')
+                .sort('ASC')
                 .nullsLast()
             ).toString();
 
@@ -2851,6 +2852,18 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void orderByDynamicWithSort() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .orderBy('Industry')
+            .sort('ASC')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account ORDER BY Industry ASC NULLS FIRST', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
     static void orderBy() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
@@ -2872,7 +2885,6 @@ private class SOQL_Test {
         // Verify
         Assert.areEqual('SELECT Id FROM Contact ORDER BY Account.Name ASC NULLS FIRST', soql, 'The generated SOQL should match the expected one.');
     }
-
 
     @IsTest
     static void setLimit() {

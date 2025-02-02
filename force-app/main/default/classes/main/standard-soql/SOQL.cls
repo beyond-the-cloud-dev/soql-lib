@@ -106,6 +106,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable orderBy(String field, String direction);
         Queryable orderBy(String relationshipName, SObjectField field);
         Queryable sortDesc();
+        Queryable sort(String direction);
         Queryable nullsLast();
         // LIMIT
         Queryable setLimit(Integer amount);
@@ -169,12 +170,12 @@ public virtual inherited sharing class SOQL implements Queryable {
         // WHERE
         SubQuery whereAre(FilterGroup filterGroup);
         SubQuery whereAre(Filter filter);
-        //ORDER BY
+        // ORDER BY
         SubQuery orderBy(SObjectField field);
         SubQuery orderBy(String field);
-        SubQuery orderBy(String field, String direction);
         SubQuery orderBy(String relationshipName, SObjectField field);
         SubQuery sortDesc();
+        SubQuery sort(String direction);
         SubQuery nullsLast();
         // LIMIT
         SubQuery setLimit(Integer amount);
@@ -724,6 +725,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         return this;
     }
 
+    public Queryable sort(String direction) {
+        builder.latestOrderBy.sortingOrder(direction);
+        return this;
+    }
+
     public SOQL nullsLast() {
         builder.latestOrderBy.nullsLast();
         return this;
@@ -1254,13 +1260,13 @@ public virtual inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public SubQuery orderBy(String field, String direction) {
-            builder.orderBys.newOrderBy().with(field).sortingOrder(direction);
+        public SubQuery sortDesc() {
+            builder.latestOrderBy.sortDesc();
             return this;
         }
 
-        public SubQuery sortDesc() {
-            builder.latestOrderBy.sortDesc();
+        public SubQuery sort(String direction) {
+            builder.latestOrderBy.sortingOrder(direction);
             return this;
         }
 
@@ -2095,11 +2101,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public void sortingOrder(String direction) {
-            sortingOrder = direction;
+            this.sortingOrder = direction;
         }
 
         public void nullsLast() {
-            nullsOrder = 'LAST';
+            this.nullsOrder = 'LAST';
         }
 
         public override String toString() {
