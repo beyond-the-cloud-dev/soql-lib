@@ -573,7 +573,7 @@ private class SOQLCache_Test {
         Assert.isFalse(((List<SOQLCache.CacheItem>) CacheManager.SOQLOrgCache.get('Profile')).isEmpty(), 'Cache item should be present.');
 
         // Test
-        SOQLCache.refreshRecords(new List<Profile>{ profile });
+        SOQLCache.removeFromCache(new List<Profile>{ profile });
 
         // Verify
         Assert.isTrue(CacheManager.SOQLOrgCache.contains('Profile'), 'Key should still exist.');
@@ -594,7 +594,7 @@ private class SOQLCache_Test {
         Assert.isFalse(((List<SOQLCache.CacheItem>) CacheManager.SOQLOrgCache.get('Profile')).isEmpty(), 'Cache item should be present.');
 
         // Test
-        SOQLCache.refreshRecords(new List<Profile>());
+        SOQLCache.removeFromCache(new List<Profile>());
 
         // Verify
         Assert.isTrue(CacheManager.SOQLOrgCache.contains('Profile'), 'Key should still exist.');
