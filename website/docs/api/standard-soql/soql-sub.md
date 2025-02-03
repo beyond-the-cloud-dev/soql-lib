@@ -205,7 +205,7 @@ SELECT Id, (
 ```apex
 SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
-        .with('Id, Name, Phone, RecordTypeId, Title, Salutation)
+        .with('Id, Name, Phone, RecordTypeId, Title, Salutation')
     )
     .toList();
 ```
