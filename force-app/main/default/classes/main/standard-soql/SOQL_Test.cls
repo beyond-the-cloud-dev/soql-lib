@@ -4,10 +4,11 @@
  *
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
- * - CognitiveComplexity: It is a library and we tried to put everything into ONE class
+ * - CognitiveComplexity: It is a library and we tried to put everything into ONE test class
+ * - NcssTypeCount - It is a library and we tried to put everything into ONE test class
  * - ApexDoc: Variable names are self-documented.
 **/
-@SuppressWarnings('PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.ApexDoc')
+@SuppressWarnings('PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.NcssTypeCount, PMD.ApexDoc')
 @IsTest
 private class SOQL_Test {
     @SuppressWarnings('PMD.AvoidHardcodingId')
@@ -19,7 +20,7 @@ private class SOQL_Test {
         String soql = SOQL.of(Account.SObjectType).toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account', soql);
+        Assert.areEqual('SELECT Id FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -28,7 +29,7 @@ private class SOQL_Test {
         String soql = SOQL.of('Account').toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account', soql);
+        Assert.areEqual('SELECT Id FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -37,7 +38,7 @@ private class SOQL_Test {
         String soql = SOQL.of(Account.SObjectType).count().toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT() FROM Account', soql);
+        Assert.areEqual('SELECT COUNT() FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -49,7 +50,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT() FROM Account', soql);
+        Assert.areEqual('SELECT COUNT() FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -61,7 +62,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT(Id), COUNT(CampaignId) FROM Opportunity', soql);
+        Assert.areEqual('SELECT COUNT(Id), COUNT(CampaignId) FROM Opportunity', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -74,7 +75,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT(Id), COUNT(CampaignId) FROM Opportunity', soql);
+        Assert.areEqual('SELECT COUNT(Id), COUNT(CampaignId) FROM Opportunity', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -83,7 +84,7 @@ private class SOQL_Test {
         String soql = SOQL.of(Account.SObjectType).count(Account.Name, 'names').toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT(Name) names FROM Account', soql);
+        Assert.areEqual('SELECT COUNT(Name) names FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -94,7 +95,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT(Account.Name) FROM Contact', soql);
+        Assert.areEqual('SELECT COUNT(Account.Name) FROM Contact', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -105,7 +106,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT(Account.Name) names FROM Contact', soql);
+        Assert.areEqual('SELECT COUNT(Account.Name) names FROM Contact', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -118,7 +119,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT CampaignId, AVG(Amount) FROM Opportunity GROUP BY CampaignId', soql);
+        Assert.areEqual('SELECT CampaignId, AVG(Amount) FROM Opportunity GROUP BY CampaignId', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -131,7 +132,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT CampaignId, AVG(Amount) amount FROM Opportunity GROUP BY CampaignId', soql);
+        Assert.areEqual('SELECT CampaignId, AVG(Amount) amount FROM Opportunity GROUP BY CampaignId', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -142,7 +143,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT AVG(Opportunity.Amount) FROM OpportunityLineItem', soql);
+        Assert.areEqual('SELECT AVG(Opportunity.Amount) FROM OpportunityLineItem', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -153,7 +154,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT AVG(Opportunity.Amount) amount FROM OpportunityLineItem', soql);
+        Assert.areEqual('SELECT AVG(Opportunity.Amount) amount FROM OpportunityLineItem', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -162,7 +163,7 @@ private class SOQL_Test {
         String soql = SOQL.of(Lead.SObjectType).countDistinct(Lead.Company).toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT_DISTINCT(Company) FROM Lead', soql);
+        Assert.areEqual('SELECT COUNT_DISTINCT(Company) FROM Lead', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -173,7 +174,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT_DISTINCT(Lead.Company) FROM CampaignMember', soql);
+        Assert.areEqual('SELECT COUNT_DISTINCT(Lead.Company) FROM CampaignMember', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -184,7 +185,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT_DISTINCT(Lead.Company) company FROM CampaignMember', soql);
+        Assert.areEqual('SELECT COUNT_DISTINCT(Lead.Company) company FROM CampaignMember', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -193,7 +194,7 @@ private class SOQL_Test {
         String soql = SOQL.of(Lead.SObjectType).countDistinct(Lead.Company, 'company').toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT_DISTINCT(Company) company FROM Lead', soql);
+        Assert.areEqual('SELECT COUNT_DISTINCT(Company) company FROM Lead', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -207,7 +208,11 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT FirstName, LastName, MIN(CreatedDate) FROM Contact GROUP BY FirstName, LastName', soql);
+        Assert.areEqual(
+            'SELECT FirstName, LastName, MIN(CreatedDate) FROM Contact GROUP BY FirstName, LastName',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
     }
 
     @IsTest
@@ -221,7 +226,11 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT FirstName, LastName, MIN(CreatedDate) createdDate FROM Contact GROUP BY FirstName, LastName', soql);
+        Assert.areEqual(
+            'SELECT FirstName, LastName, MIN(CreatedDate) createdDate FROM Contact GROUP BY FirstName, LastName',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
     }
 
     @IsTest
@@ -232,7 +241,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT MIN(Account.CreatedDate) FROM Contact', soql);
+        Assert.areEqual('SELECT MIN(Account.CreatedDate) FROM Contact', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -243,7 +252,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT MIN(Account.CreatedDate) createdDate FROM Contact', soql);
+        Assert.areEqual('SELECT MIN(Account.CreatedDate) createdDate FROM Contact', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -256,7 +265,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Name, MAX(BudgetedCost) FROM Campaign GROUP BY Name', soql);
+        Assert.areEqual('SELECT Name, MAX(BudgetedCost) FROM Campaign GROUP BY Name', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -269,7 +278,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Name, MAX(BudgetedCost) budgetedCost FROM Campaign GROUP BY Name', soql);
+        Assert.areEqual('SELECT Name, MAX(BudgetedCost) budgetedCost FROM Campaign GROUP BY Name', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -280,7 +289,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT MAX(Campaign.BudgetedCost) FROM CampaignMember', soql);
+        Assert.areEqual('SELECT MAX(Campaign.BudgetedCost) FROM CampaignMember', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -291,7 +300,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT MAX(Campaign.BudgetedCost) budgetedCost FROM CampaignMember', soql);
+        Assert.areEqual('SELECT MAX(Campaign.BudgetedCost) budgetedCost FROM CampaignMember', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -300,7 +309,7 @@ private class SOQL_Test {
         String soql = SOQL.of(Opportunity.SObjectType).sum(Opportunity.Amount).toString();
 
         // Verify
-        Assert.areEqual('SELECT SUM(Amount) FROM Opportunity', soql);
+        Assert.areEqual('SELECT SUM(Amount) FROM Opportunity', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -309,7 +318,7 @@ private class SOQL_Test {
         String soql = SOQL.of(Opportunity.SObjectType).sum(Opportunity.Amount, 'amount').toString();
 
         // Verify
-        Assert.areEqual('SELECT SUM(Amount) amount FROM Opportunity', soql);
+        Assert.areEqual('SELECT SUM(Amount) amount FROM Opportunity', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -320,7 +329,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT SUM(Opportunity.Amount) FROM OpportunityLineItem', soql);
+        Assert.areEqual('SELECT SUM(Opportunity.Amount) FROM OpportunityLineItem', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -331,7 +340,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT SUM(Opportunity.Amount) amount FROM OpportunityLineItem', soql);
+        Assert.areEqual('SELECT SUM(Opportunity.Amount) amount FROM OpportunityLineItem', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -347,7 +356,11 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource, Rating, GROUPING(LeadSource) grpLS, GROUPING(Rating) grpRating, COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(LeadSource, Rating)', soql);
+        Assert.areEqual(
+            'SELECT LeadSource, Rating, GROUPING(LeadSource) grpLS, GROUPING(Rating) grpRating, COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(LeadSource, Rating)',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
     }
 
     @IsTest
@@ -359,7 +372,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Company, toLabel(Status) FROM Lead', soql);
+        Assert.areEqual('SELECT Company, toLabel(Status) FROM Lead', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -367,11 +380,47 @@ private class SOQL_Test {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
             .with(Lead.Company)
-            .toLabel('Recordtype.Name')
+            .toLabel('RecordType.Name')
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Company, toLabel(Recordtype.Name) FROM Lead', soql);
+        Assert.areEqual('SELECT Company, toLabel(RecordType.Name) FROM Lead', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void toLabelWithSObjectFieldAndAlias() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.Company)
+            .toLabel(Lead.Status, 'leadStatus')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Company, toLabel(Status) leadStatus FROM Lead', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void toLabelWithStringFieldAndAlias() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.Company)
+            .toLabel('RecordType.Name', 'recordTypeName')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Company, toLabel(RecordType.Name) recordTypeName FROM Lead', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void toLabelWithAliasAndDuplicatedFields() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.Company, Lead.Status)
+            .toLabel(Lead.Status, 'leadStatus')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Company, Status, toLabel(Status) leadStatus FROM Lead', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -382,7 +431,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT FORMAT(Amount)  FROM Opportunity', soql);
+        Assert.areEqual('SELECT FORMAT(Amount)  FROM Opportunity', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -393,7 +442,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT FORMAT(Amount) amt FROM Opportunity', soql);
+        Assert.areEqual('SELECT FORMAT(Amount) amt FROM Opportunity', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -405,7 +454,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Name, BillingCity FROM Account', soql);
+        Assert.areEqual('SELECT Name, BillingCity FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -416,7 +465,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Name, BillingCity FROM Account', soql);
+        Assert.areEqual('SELECT Name, BillingCity FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -427,7 +476,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id, Name, BillingCity FROM Account', soql);
+        Assert.areEqual('SELECT Id, Name, BillingCity FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -438,7 +487,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id, Name, BillingCity, AccountNumber FROM Account', soql);
+        Assert.areEqual('SELECT Id, Name, BillingCity, AccountNumber FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -449,7 +498,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id, Name, BillingCity, AccountNumber, AccountSource FROM Account', soql);
+        Assert.areEqual('SELECT Id, Name, BillingCity, AccountNumber, AccountSource FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -466,7 +515,7 @@ private class SOQL_Test {
             }).toString();
 
         // Verify
-        Assert.areEqual('SELECT Id, Name, Industry, AccountNumber, AnnualRevenue, BillingCity FROM Account', soql);
+        Assert.areEqual('SELECT Id, Name, Industry, AccountNumber, AnnualRevenue, BillingCity FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -483,7 +532,7 @@ private class SOQL_Test {
             }).toString();
 
         // Verify
-        Assert.areEqual('SELECT Id, Name, Industry, AccountNumber, AnnualRevenue, BillingCity FROM Account', soql);
+        Assert.areEqual('SELECT Id, Name, Industry, AccountNumber, AnnualRevenue, BillingCity FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -494,7 +543,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id, Name, BillingCity FROM Account', soql);
+        Assert.areEqual('SELECT Id, Name, BillingCity FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -506,7 +555,18 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT CampaignId campaign, AVG(Amount) amount FROM Opportunity GROUP BY CampaignId', soql);
+        Assert.areEqual('SELECT CampaignId campaign, AVG(Amount) amount FROM Opportunity GROUP BY CampaignId', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void withStringFieldsAndToLabelFunction() {
+        // Test
+        String soql = SOQL.of(Case.SObjectType)
+            .with('Id, toLabel(Status), Subject')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id, toLabel(Status), Subject FROM Case', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -518,7 +578,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Name myAlias FROM Account GROUP BY Name', soql);
+        Assert.areEqual('SELECT Name myAlias FROM Account GROUP BY Name', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -530,7 +590,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id, Name, BillingCity FROM Account', soql);
+        Assert.areEqual('SELECT Id, Name, BillingCity FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -542,7 +602,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Name FROM Account', soql);
+        Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Name FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -554,7 +614,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name FROM Account', soql);
+        Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -566,7 +626,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias FROM Account', soql);
+        Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -578,7 +638,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias, CreatedBy.City FROM Account', soql);
+        Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias, CreatedBy.City FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -590,7 +650,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias, CreatedBy.City, CreatedBy.CompanyName FROM Account', soql);
+        Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias, CreatedBy.City, CreatedBy.CompanyName FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -603,7 +663,7 @@ private class SOQL_Test {
             }).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name FROM Account', soql);
+        Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -616,7 +676,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id FROM Contacts) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -634,7 +694,7 @@ private class SOQL_Test {
          }
 
         // Verify
-        Assert.areEqual('FieldSet with name FieldSetName does not exist!', queryException.getMessage());
+        Assert.areEqual('FieldSet with name FieldSetName does not exist!', queryException.getMessage(), 'The exception message should match the expected one.');
     }
 
     @IsTest
@@ -647,7 +707,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -660,7 +720,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name, AccountId FROM Contacts) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name, AccountId FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -673,7 +733,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name, AccountId, Email FROM Contacts) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name, AccountId, Email FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -686,7 +746,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name, AccountId, Email, Phone FROM Contacts) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name, AccountId, Email, Phone FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -701,7 +761,20 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void subQueryStringFields() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Name)
+            .with(SOQL.SubQuery.of('Contacts')
+                .with('Id, Name')
+            ).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -717,7 +790,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name, CreatedBy.Id, CreatedBy.Name FROM Contacts) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name, CreatedBy.Id, CreatedBy.Name FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -732,7 +805,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT LastName , (SELECT AssetLevel FROM Assets) FROM Contacts) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT LastName , (SELECT AssetLevel FROM Assets) FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -748,7 +821,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts WHERE (LastName = :v1)) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts WHERE (LastName = :v1)) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -762,11 +835,11 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts WHERE LastName = :v1) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts WHERE LastName = :v1) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
-    static void subQueryOrderBy() {
+    static void subQueryOrderBySObjectField() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
             .with(Account.Name)
@@ -778,7 +851,39 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts ORDER BY Name DESC NULLS LAST) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts ORDER BY Name DESC NULLS LAST) FROM Account', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void subQueryOrderByStringField() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Name)
+            .with(SOQL.SubQuery.of('Contacts')
+                .with(Contact.Id, Contact.Name)
+                .orderBy('Name')
+                .sortDesc()
+                .nullsLast()
+            ).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts ORDER BY Name DESC NULLS LAST) FROM Account', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void subQueryOrderByDynamic() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Name)
+            .with(SOQL.SubQuery.of('Contacts')
+                .with(Contact.Id, Contact.Name)
+                .orderBy('Name')
+                .sort('ASC')
+                .nullsLast()
+            ).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts ORDER BY Name ASC NULLS LAST) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -794,7 +899,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts ORDER BY CreatedBy.Name DESC NULLS LAST) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts ORDER BY CreatedBy.Name DESC NULLS LAST) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -808,7 +913,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts LIMIT 10) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts LIMIT 10) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -822,7 +927,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts OFFSET 100) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts OFFSET 100) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -836,7 +941,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts FOR REFERENCE) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts FOR REFERENCE) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -850,7 +955,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts FOR VIEW) FROM Account', soql);
+        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts FOR VIEW) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -885,15 +990,16 @@ private class SOQL_Test {
         // Verify
         Assert.areEqual(
             'SELECT Id , (SELECT Id FROM Contacts WHERE (CreatedDate <= :v1 AND (CreatedDate = :v2 OR CreatedDate >= :v3))), (SELECT Id FROM Opportunities WHERE (LeadSource = :v4 AND CreatedDate = :v5)) FROM Account LIMIT 1',
-            builder.toString()
+            builder.toString(),
+            'The generated SOQL should match the expected one.'
         );
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(fromDate, binding.get('v1'));
-        Assert.areEqual(null, binding.get('v2'));
-        Assert.areEqual(toDate, binding.get('v3'));
-        Assert.areEqual(leadSource, binding.get('v4'));
-        Assert.areEqual(fromDate, binding.get('v5'));
+        Assert.areEqual(fromDate, binding.get('v1'), 'The binding variable should match the expected value.');
+        Assert.areEqual(null, binding.get('v2'), 'The binding variable should match the expected value.');
+        Assert.areEqual(toDate, binding.get('v3'), 'The binding variable should match the expected value.');
+        Assert.areEqual(leadSource, binding.get('v4'), 'The binding variable should match the expected value.');
+        Assert.areEqual(fromDate, binding.get('v5'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -904,7 +1010,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Task USING SCOPE DELEGATED', soql);
+        Assert.areEqual('SELECT Id FROM Task USING SCOPE DELEGATED', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -915,7 +1021,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account USING SCOPE MINE', soql);
+        Assert.areEqual('SELECT Id FROM Account USING SCOPE MINE', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -926,7 +1032,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM ProcessInstanceWorkitem USING SCOPE MINE_AND_MY_GROUPS', soql);
+        Assert.areEqual('SELECT Id FROM ProcessInstanceWorkitem USING SCOPE MINE_AND_MY_GROUPS', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -937,7 +1043,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account USING SCOPE MY_TERRITORY', soql);
+        Assert.areEqual('SELECT Id FROM Account USING SCOPE MY_TERRITORY', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -948,7 +1054,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account USING SCOPE MY_TEAM_TERRITORY', soql);
+        Assert.areEqual('SELECT Id FROM Account USING SCOPE MY_TEAM_TERRITORY', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -959,7 +1065,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account USING SCOPE TEAM', soql);
+        Assert.areEqual('SELECT Id FROM Account USING SCOPE TEAM', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -970,10 +1076,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Id != :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Id != :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(null, binding.get('v1'));
+        Assert.areEqual(null, binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -984,10 +1090,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE RecordType.DeveloperName != :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE RecordType.DeveloperName != :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(null, binding.get('v1'));
+        Assert.areEqual(null, binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -998,10 +1104,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Name != :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name != :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(null, binding.get('v1'));
+        Assert.areEqual(null, binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1012,10 +1118,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Contact WHERE Account.Name = :v1', soql);
+        Assert.areEqual('SELECT Id FROM Contact WHERE Account.Name = :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('Test', binding.get('v1'));
+        Assert.areEqual('Test', binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1026,10 +1132,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Name = :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name = :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('Test', binding.get('v1'));
+        Assert.areEqual('Test', binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1040,10 +1146,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Name != :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name != :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('Test', binding.get('v1'));
+        Assert.areEqual('Test', binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1054,10 +1160,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees < :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees < :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(10, binding.get('v1'));
+        Assert.areEqual(10, binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1068,10 +1174,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees > :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees > :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(10, binding.get('v1'));
+        Assert.areEqual(10, binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1082,10 +1188,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees <= :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees <= :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(10, binding.get('v1'));
+        Assert.areEqual(10, binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1096,10 +1202,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees >= :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees >= :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(10, binding.get('v1'));
+        Assert.areEqual(10, binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1110,10 +1216,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('%Test%', binding.get('v1'));
+        Assert.areEqual('%Test%', binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1124,10 +1230,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('%null%', binding.get('v1'));
+        Assert.areEqual('%null%', binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1138,10 +1244,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE (NOT Name LIKE :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE (NOT Name LIKE :v1)', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('%Test%', binding.get('v1'));
+        Assert.areEqual('%Test%', binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1155,10 +1261,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(names, binding.get('v1'));
+        Assert.areEqual(names, binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1169,10 +1275,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('%Test', binding.get('v1'));
+        Assert.areEqual('%Test', binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1183,10 +1289,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE (NOT Name LIKE :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE (NOT Name LIKE :v1)', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('%Test', binding.get('v1'));
+        Assert.areEqual('%Test', binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1197,10 +1303,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('Test%', binding.get('v1'));
+        Assert.areEqual('Test%', binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1211,10 +1317,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE (NOT Name LIKE :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE (NOT Name LIKE :v1)', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('Test%', binding.get('v1'));
+        Assert.areEqual('Test%', binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1225,10 +1331,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name LIKE :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('_Test%', binding.get('v1'));
+        Assert.areEqual('_Test%', binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1239,10 +1345,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE (NOT Name LIKE :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE (NOT Name LIKE :v1)', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('_Test%', binding.get('v1'));
+        Assert.areEqual('_Test%', binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1256,10 +1362,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Name IN :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name IN :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(names, binding.get('v1'));
+        Assert.areEqual(names, binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1273,10 +1379,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Name IN :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name IN :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(names, binding.get('v1'));
+        Assert.areEqual(names, binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1290,10 +1396,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Name NOT IN :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name NOT IN :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(names, binding.get('v1'));
+        Assert.areEqual(names, binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1308,10 +1414,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE Name NOT IN :v1', soql);
+        Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE Name NOT IN :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(names, binding.get('v1'));
+        Assert.areEqual(names, binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1320,13 +1426,13 @@ private class SOQL_Test {
         List<String> ratings = new List<String>{ 'Hot', 'Warm' };
 
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .with(Account.Id)
-            .whereAre(SOQL.Filter.with(Account.Rating).includesAll(ratings));
+            .whereAre(SOQL.Filter.with(Account.Rating).includesAll(ratings))
+            .toString();
 
         // Verify
-        String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Rating INCLUDES (\'Hot;Warm\')', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Rating INCLUDES (\'Hot;Warm\')', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1335,13 +1441,13 @@ private class SOQL_Test {
         List<String> ratings = new List<String>{ 'Hot', 'Warm' };
 
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .with(Account.Id)
-            .whereAre(SOQL.Filter.with(Account.Rating).includesSome(ratings));
+            .whereAre(SOQL.Filter.with(Account.Rating).includesSome(ratings))
+            .toString();
 
         // Verify
-        String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Rating INCLUDES (\'Hot\', \'Warm\')', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Rating INCLUDES (\'Hot\', \'Warm\')', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1350,13 +1456,13 @@ private class SOQL_Test {
         List<String> ratings = new List<String>{ 'Hot', 'Warm' };
 
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .with(Account.Id)
-            .whereAre(SOQL.Filter.with(Account.Rating).excludesAll(ratings));
+            .whereAre(SOQL.Filter.with(Account.Rating).excludesAll(ratings))
+            .toString();
 
         // Verify
-        String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Rating EXCLUDES (\'Hot\', \'Warm\')', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Rating EXCLUDES (\'Hot\', \'Warm\')', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1365,13 +1471,13 @@ private class SOQL_Test {
         List<String> ratings = new List<String>{ 'Hot', 'Warm' };
 
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        String soql = SOQL.of(Account.SObjectType)
             .with(Account.Id)
-            .whereAre(SOQL.Filter.with(Account.Rating).excludesSome(ratings));
+            .whereAre(SOQL.Filter.with(Account.Rating).excludesSome(ratings))
+            .toString();
 
         // Verify
-        String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Rating EXCLUDES (\'Hot;Warm\')', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Rating EXCLUDES (\'Hot;Warm\')', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1382,10 +1488,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Name = :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name = :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(null, binding.get('v1'));
+        Assert.areEqual(null, binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1396,10 +1502,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Name != :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name != :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(null, binding.get('v1'));
+        Assert.areEqual(null, binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1410,10 +1516,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE IsDeleted = :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE IsDeleted = :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.isTrue((Boolean) binding.get('v1'));
+        Assert.isTrue((Boolean) binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1424,10 +1530,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE IsDeleted = :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE IsDeleted = :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.isFalse((Boolean) binding.get('v1'));
+        Assert.isFalse((Boolean) binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1438,7 +1544,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account WHERE CreatedDate > LAST_N_QUARTERS:2', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE CreatedDate > LAST_N_QUARTERS:2', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1451,23 +1557,22 @@ private class SOQL_Test {
             );
 
         // Verify
-        String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 AND BillingCity = :v2)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 AND BillingCity = :v2)', builder.toString(), 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('Test', binding.get('v1'));
-        Assert.areEqual('Krakow', binding.get('v2'));
+        Assert.areEqual('Test', binding.get('v1'), 'The binding variable should match the expected value.');
+        Assert.areEqual('Krakow', binding.get('v2'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
     static void emptyFiltersGroup() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
-            .whereAre(SOQL.FilterGroup);
+        String soql = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.FilterGroup)
+            .toString();
 
         // Verify
-        String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account', soql);
+        Assert.areEqual('SELECT Id FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1484,11 +1589,107 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 AND BillingCity = :v2)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 AND BillingCity = :v2)', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('Test', binding.get('v1'));
-        Assert.areEqual('Krakow', binding.get('v2'));
+        Assert.areEqual('Test', binding.get('v1'), 'The binding variable should match the expected value.');
+        Assert.areEqual('Krakow', binding.get('v2'), 'The binding variable should match the expected value.');
+    }
+
+    @IsTest
+    static void dynamicFiltersListGroup() {
+        // Setup
+        SOQL.FilterGroup filterGroup = SOQL.FilterGroup;
+
+        filterGroup.add(new List<SOQL.Filter> {
+            SOQL.Filter.with(Account.Name).equal('Test'),
+            SOQL.Filter.with(Account.BillingCity).equal('Krakow')
+        });
+
+        // Test
+        SOQL builder = SOQL.of(Account.SObjectType)
+            .whereAre(filterGroup);
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 AND BillingCity = :v2)', soql, 'The generated SOQL should match the expected one.');
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual('Test', binding.get('v1'), 'The binding variable should match the expected value.');
+        Assert.areEqual('Krakow', binding.get('v2'), 'The binding variable should match the expected value.');
+    }
+
+    @IsTest
+    static void dynamicStringFiltersGroup() {
+        // Setup
+        SOQL.FilterGroup filterGroup = SOQL.FilterGroup;
+
+        filterGroup.add('Name = \'Test\'');
+        filterGroup.add('BillingCity = \'Krakow\'');
+
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .whereAre(filterGroup)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account WHERE (Name = \'Test\' AND BillingCity = \'Krakow\')', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dynamicStringFiltersGroupWithAnyConditionMatching() {
+        // Setup
+        SOQL.FilterGroup filterGroup = SOQL.FilterGroup;
+
+        filterGroup.add('Name = \'Test\'');
+        filterGroup.add('BillingCity = \'Krakow\'');
+        filterGroup.anyConditionMatching();
+
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .whereAre(filterGroup)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account WHERE (Name = \'Test\' OR BillingCity = \'Krakow\')', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dynamicStringFiltersListGroup() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.FilterGroup
+                .add(new List<String> {
+                    'Name = \'Test\'',
+                    'BillingCity = \'Krakow\''
+                })
+            ).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account WHERE (Name = \'Test\' AND BillingCity = \'Krakow\')', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dynamicStringFiltersListGroupWithAnyConditionMatching() {
+        // Setup
+        SOQL.FilterGroup filterGroup = SOQL.FilterGroup;
+
+        filterGroup.add(new List<String> {
+            'Name = \'Test\'',
+            'BillingCity = \'Krakow\''
+        });
+
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.FilterGroup
+                .add(new List<String> {
+                    'Name = \'Test\'',
+                    'BillingCity = \'Krakow\''
+                }).anyConditionMatching()
+            ).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account WHERE (Name = \'Test\' OR BillingCity = \'Krakow\')', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1497,7 +1698,7 @@ private class SOQL_Test {
         SOQL builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Industry).equal('IT'));
 
-        Assert.areEqual('SELECT Id FROM Account WHERE Industry = :v1', builder.toString());
+        Assert.areEqual('SELECT Id FROM Account WHERE Industry = :v1', builder.toString(), 'The generated SOQL should match the expected one.');
 
         builder.whereAre(
             SOQL.FilterGroup
@@ -1506,12 +1707,12 @@ private class SOQL_Test {
         );
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account WHERE Industry = :v1 AND (Name = :v2 AND BillingCity = :v3)', builder.toString());
+        Assert.areEqual('SELECT Id FROM Account WHERE Industry = :v1 AND (Name = :v2 AND BillingCity = :v3)', builder.toString(), 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('IT', binding.get('v1'));
-        Assert.areEqual('Test', binding.get('v2'));
-        Assert.areEqual('Krakow', binding.get('v3'));
+        Assert.areEqual('IT', binding.get('v1'), 'The binding variable should match the expected value.');
+        Assert.areEqual('Test', binding.get('v2'), 'The binding variable should match the expected value.');
+        Assert.areEqual('Krakow', binding.get('v3'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1534,21 +1735,22 @@ private class SOQL_Test {
         String soql = builder.toString();
         Assert.areEqual(
             'SELECT Id FROM Account WHERE (Name LIKE :v1) AND (Name LIKE :v2) AND (Name LIKE :v3) AND (Name LIKE :v4) AND (Name LIKE :v5) AND (Name LIKE :v6) AND (Name LIKE :v7) AND (Name LIKE :v8) AND (Name LIKE :v9) AND (Name LIKE :v10) AND (Name LIKE :v11)',
-            soql
+            soql,
+            'The generated SOQL should match the expected one.'
         );
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('%1%', binding.get('v1'));
-        Assert.areEqual('%2%', binding.get('v2'));
-        Assert.areEqual('%3%', binding.get('v3'));
-        Assert.areEqual('%4%', binding.get('v4'));
-        Assert.areEqual('%5%', binding.get('v5'));
-        Assert.areEqual('%6%', binding.get('v6'));
-        Assert.areEqual('%7%', binding.get('v7'));
-        Assert.areEqual('%8%', binding.get('v8'));
-        Assert.areEqual('%9%', binding.get('v9'));
-        Assert.areEqual('%10%', binding.get('v10'));
-        Assert.areEqual('%11%', binding.get('v11'));
+        Assert.areEqual('%1%', binding.get('v1'), 'The binding variable should match the expected value.');
+        Assert.areEqual('%2%', binding.get('v2'), 'The binding variable should match the expected value.');
+        Assert.areEqual('%3%', binding.get('v3'), 'The binding variable should match the expected value.');
+        Assert.areEqual('%4%', binding.get('v4'), 'The binding variable should match the expected value.');
+        Assert.areEqual('%5%', binding.get('v5'), 'The binding variable should match the expected value.');
+        Assert.areEqual('%6%', binding.get('v6'), 'The binding variable should match the expected value.');
+        Assert.areEqual('%7%', binding.get('v7'), 'The binding variable should match the expected value.');
+        Assert.areEqual('%8%', binding.get('v8'), 'The binding variable should match the expected value.');
+        Assert.areEqual('%9%', binding.get('v9'), 'The binding variable should match the expected value.');
+        Assert.areEqual('%10%', binding.get('v10'), 'The binding variable should match the expected value.');
+        Assert.areEqual('%11%', binding.get('v11'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1572,21 +1774,22 @@ private class SOQL_Test {
         String soql = builder.toString();
         Assert.areEqual(
             'SELECT Id FROM Account WHERE ((Name LIKE :v1) AND (Name LIKE :v2) AND (Name LIKE :v3) AND (Name LIKE :v4) AND (Name LIKE :v5) AND (Name LIKE :v5) AND (Name LIKE :v7) AND (Name LIKE :v8) AND (Name LIKE :v9) AND (Name LIKE :v10) AND (Name LIKE :v11)) OR ((Name LIKE :v11) AND (Name LIKE :v1) AND (Name LIKE :v10))',
-            soql
+            soql,
+            'The generated SOQL should match the expected one.'
         );
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('%1%', binding.get('v1'));
-        Assert.areEqual('%2%', binding.get('v2'));
-        Assert.areEqual('%3%', binding.get('v3'));
-        Assert.areEqual('%4%', binding.get('v4'));
-        Assert.areEqual('%5%', binding.get('v5'));
-        Assert.areEqual('%6%', binding.get('v6'));
-        Assert.areEqual('%7%', binding.get('v7'));
-        Assert.areEqual('%8%', binding.get('v8'));
-        Assert.areEqual('%9%', binding.get('v9'));
-        Assert.areEqual('%10%', binding.get('v10'));
-        Assert.areEqual('%11%', binding.get('v11'));
+        Assert.areEqual('%1%', binding.get('v1'), 'The binding variable should match the expected value.');
+        Assert.areEqual('%2%', binding.get('v2'), 'The binding variable should match the expected value.');
+        Assert.areEqual('%3%', binding.get('v3'), 'The binding variable should match the expected value.');
+        Assert.areEqual('%4%', binding.get('v4'), 'The binding variable should match the expected value.');
+        Assert.areEqual('%5%', binding.get('v5'), 'The binding variable should match the expected value.');
+        Assert.areEqual('%6%', binding.get('v6'), 'The binding variable should match the expected value.');
+        Assert.areEqual('%7%', binding.get('v7'), 'The binding variable should match the expected value.');
+        Assert.areEqual('%8%', binding.get('v8'), 'The binding variable should match the expected value.');
+        Assert.areEqual('%9%', binding.get('v9'), 'The binding variable should match the expected value.');
+        Assert.areEqual('%10%', binding.get('v10'), 'The binding variable should match the expected value.');
+        Assert.areEqual('%11%', binding.get('v11'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1601,11 +1804,11 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 OR BillingCity = :v2)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 OR BillingCity = :v2)', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('Test', binding.get('v1'));
-        Assert.areEqual('Krakow', binding.get('v2'));
+        Assert.areEqual('Test', binding.get('v1'), 'The binding variable should match the expected value.');
+        Assert.areEqual('Krakow', binding.get('v2'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1618,11 +1821,11 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Name = :v1 OR BillingCity = :v2', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name = :v1 OR BillingCity = :v2', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('Test', binding.get('v1'));
-        Assert.areEqual('Krakow', binding.get('v2'));
+        Assert.areEqual('Test', binding.get('v1'), 'The binding variable should match the expected value.');
+        Assert.areEqual('Krakow', binding.get('v2'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1635,11 +1838,11 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Name = :v1 OR BillingCity = :v2', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Name = :v1 OR BillingCity = :v2', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('Test', binding.get('v1'));
-        Assert.areEqual('Krakow', binding.get('v2'));
+        Assert.areEqual('Test', binding.get('v1'), 'The binding variable should match the expected value.');
+        Assert.areEqual('Krakow', binding.get('v2'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1658,13 +1861,13 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 AND BillingCity = :v2 AND (Name = :v3 OR BillingCity = :v4))', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 AND BillingCity = :v2 AND (Name = :v3 OR BillingCity = :v4))', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('Test', binding.get('v1'));
-        Assert.areEqual('Krakow', binding.get('v2'));
-        Assert.areEqual('Test 2', binding.get('v3'));
-        Assert.areEqual('Warsaw', binding.get('v4'));
+        Assert.areEqual('Test', binding.get('v1'), 'The binding variable should match the expected value.');
+        Assert.areEqual('Krakow', binding.get('v2'), 'The binding variable should match the expected value.');
+        Assert.areEqual('Test 2', binding.get('v3'), 'The binding variable should match the expected value.');
+        Assert.areEqual('Warsaw', binding.get('v4'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1681,10 +1884,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Id IN (SELECT AccountId FROM Contact WHERE (Name = :v1))', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Id IN (SELECT AccountId FROM Contact WHERE (Name = :v1))', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('My Contact', binding.get('v1'));
+        Assert.areEqual('My Contact', binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1699,10 +1902,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Id IN (SELECT AccountId FROM Contact WHERE Name = :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Id IN (SELECT AccountId FROM Contact WHERE Name = :v1)', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('My Contact', binding.get('v1'));
+        Assert.areEqual('My Contact', binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1717,10 +1920,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Id NOT IN (SELECT AccountId FROM Contact WHERE Name = :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Id NOT IN (SELECT AccountId FROM Contact WHERE Name = :v1)', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('My Contact', binding.get('v1'));
+        Assert.areEqual('My Contact', binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -1731,7 +1934,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees >= 10 AND NumberOfEmployees <= 20', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees >= 10 AND NumberOfEmployees <= 20', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1742,7 +1945,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account', soql);
+        Assert.areEqual('SELECT Id FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1754,7 +1957,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees >= 10 AND NumberOfEmployees <= 20 AND Name = :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees >= 10 AND NumberOfEmployees <= 20 AND Name = :v1', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1769,7 +1972,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account WHERE (NumberOfEmployees >= 10 AND NumberOfEmployees <= 20 AND Name = :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE (NumberOfEmployees >= 10 AND NumberOfEmployees <= 20 AND Name = :v1)', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1786,7 +1989,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account WHERE (BillingCity = :v1)', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE (BillingCity = :v1)', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1811,7 +2014,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account WHERE ((Industry = :v1 AND Name LIKE :v2))', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE ((Industry = :v1 AND Name LIKE :v2))', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1823,7 +2026,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource FROM Lead GROUP BY LeadSource', soql);
+        Assert.areEqual('SELECT LeadSource FROM Lead GROUP BY LeadSource', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1835,7 +2038,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT(Name) count FROM OpportunityLineItem GROUP BY OpportunityLineItem.Opportunity.Account.Id', soql);
+        Assert.areEqual('SELECT COUNT(Name) count FROM OpportunityLineItem GROUP BY OpportunityLineItem.Opportunity.Account.Id', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1850,7 +2053,7 @@ private class SOQL_Test {
             .toAggregated();
 
         // Verify
-        Assert.areEqual(1, results.size());
+        Assert.areEqual(1, results.size(), 'Only one aggregated result should be returned, as the accounts were created by the same user.');
     }
 
     @IsTest
@@ -1863,7 +2066,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource, COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(LeadSource)', soql);
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(LeadSource)', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1877,7 +2080,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Status, LeadSource, COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(Status, LeadSource)', soql);
+        Assert.areEqual('SELECT Status, LeadSource, COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(Status, LeadSource)', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1889,7 +2092,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(ConvertedOpportunity.StageName)', soql);
+        Assert.areEqual('SELECT COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(ConvertedOpportunity.StageName)', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1901,7 +2104,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Type FROM Account GROUP BY CUBE(Type)', soql);
+        Assert.areEqual('SELECT Type FROM Account GROUP BY CUBE(Type)', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1914,7 +2117,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Type, BillingCountry FROM Account GROUP BY CUBE(Type, BillingCountry)', soql);
+        Assert.areEqual('SELECT Type, BillingCountry FROM Account GROUP BY CUBE(Type, BillingCountry)', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1926,7 +2129,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT(Name) cnt FROM Lead GROUP BY CUBE(ConvertedOpportunity.StageName)', soql);
+        Assert.areEqual('SELECT COUNT(Name) cnt FROM Lead GROUP BY CUBE(ConvertedOpportunity.StageName)', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1948,7 +2151,8 @@ private class SOQL_Test {
         // Verify
         Assert.areEqual(
             'You can\'t use GROUP BY, GROUP BY ROLLUP and GROUP BY CUBE in the same query.',
-            queryException.getMessage()
+            queryException.getMessage(),
+            'The exception message should match the expected one.'
         );
     }
 
@@ -1962,7 +2166,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource FROM Lead GROUP BY LeadSource', soql);
+        Assert.areEqual('SELECT LeadSource FROM Lead GROUP BY LeadSource', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1976,7 +2180,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource', soql);
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1989,7 +2193,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY City HAVING City LIKE \'San%\'', soql);
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY City HAVING City LIKE \'San%\'', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2002,7 +2206,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY City HAVING City LIKE \'San%\'', soql);
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY City HAVING City LIKE \'San%\'', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2016,7 +2220,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING COUNT(Name) > 100', soql);
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING COUNT(Name) > 100', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2030,7 +2234,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource, AVG(Name) FROM Lead GROUP BY LeadSource HAVING AVG(Name) > 100', soql);
+        Assert.areEqual('SELECT LeadSource, AVG(Name) FROM Lead GROUP BY LeadSource HAVING AVG(Name) > 100', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2044,7 +2248,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource, COUNT_DISTINCT(Name) FROM Lead GROUP BY LeadSource HAVING COUNT_DISTINCT(Name) > 100', soql);
+        Assert.areEqual('SELECT LeadSource, COUNT_DISTINCT(Name) FROM Lead GROUP BY LeadSource HAVING COUNT_DISTINCT(Name) > 100', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2058,7 +2262,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource, MIN(NumberOfEmployees) FROM Lead GROUP BY LeadSource HAVING MIN(NumberOfEmployees) > 100', soql);
+        Assert.areEqual('SELECT LeadSource, MIN(NumberOfEmployees) FROM Lead GROUP BY LeadSource HAVING MIN(NumberOfEmployees) > 100', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2072,7 +2276,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource, MAX(NumberOfEmployees) FROM Lead GROUP BY LeadSource HAVING MAX(NumberOfEmployees) > 100', soql);
+        Assert.areEqual('SELECT LeadSource, MAX(NumberOfEmployees) FROM Lead GROUP BY LeadSource HAVING MAX(NumberOfEmployees) > 100', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2086,7 +2290,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource, SUM(AnnualRevenue) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) > 100', soql);
+        Assert.areEqual('SELECT LeadSource, SUM(AnnualRevenue) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) > 100', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2099,7 +2303,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING LeadSource = null', soql);
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING LeadSource = null', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2112,7 +2316,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource FROM Lead GROUP BY LeadSource HAVING LeadSource != null', soql);
+        Assert.areEqual('SELECT LeadSource FROM Lead GROUP BY LeadSource HAVING LeadSource != null', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2125,7 +2329,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY IsConverted HAVING IsConverted = true', soql);
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY IsConverted HAVING IsConverted = true', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2138,7 +2342,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY IsConverted HAVING IsConverted = false', soql);
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY IsConverted HAVING IsConverted = false', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2151,7 +2355,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING LeadSource = \'Web\'', soql);
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING LeadSource = \'Web\'', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2164,7 +2368,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) = 10000', soql);
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) = 10000', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2177,7 +2381,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING LeadSource != \'Web\'', soql);
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING LeadSource != \'Web\'', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2190,7 +2394,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) != 10000', soql);
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) != 10000', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2203,7 +2407,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) < 10000', soql);
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) < 10000', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2216,7 +2420,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) > 10000', soql);
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) > 10000', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2229,7 +2433,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) <= 10000', soql);
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) <= 10000', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2242,7 +2446,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) >= 10000', soql);
+        Assert.areEqual('SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) >= 10000', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2255,7 +2459,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City LIKE \'%San%\'', soql);
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City LIKE \'%San%\'', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2268,7 +2472,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City LIKE \'_San%\'', soql);
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City LIKE \'_San%\'', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2281,7 +2485,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING (NOT City LIKE \'%San%\')', soql);
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING (NOT City LIKE \'%San%\')', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2294,7 +2498,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING (NOT City LIKE \'_San%\')', soql);
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING (NOT City LIKE \'_San%\')', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2307,7 +2511,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City LIKE \'San%\'', soql);
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City LIKE \'San%\'', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2320,7 +2524,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING (NOT City LIKE \'San%\')', soql);
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING (NOT City LIKE \'San%\')', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2333,7 +2537,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City LIKE \'%San\'', soql);
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City LIKE \'%San\'', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2346,7 +2550,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING (NOT City LIKE \'%San\')', soql);
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING (NOT City LIKE \'%San\')', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2359,7 +2563,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City IN (\'San Francisco\', \'Los Angeles\')', soql);
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City IN (\'San Francisco\', \'Los Angeles\')', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2372,7 +2576,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City IN (\'San Francisco\', \'Los Angeles\')', soql);
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City IN (\'San Francisco\', \'Los Angeles\')', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2385,7 +2589,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City NOT IN (\'San Francisco\', \'Los Angeles\')', soql);
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City NOT IN (\'San Francisco\', \'Los Angeles\')', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2398,7 +2602,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City NOT IN (\'San Francisco\', \'Los Angeles\')', soql);
+        Assert.areEqual('SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City NOT IN (\'San Francisco\', \'Los Angeles\')', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2415,7 +2619,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING (COUNT(Name) > 100 AND City LIKE \'San%\')', soql);
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING (COUNT(Name) > 100 AND City LIKE \'San%\')', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2436,7 +2640,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING (COUNT(Name) > 100 AND City LIKE \'San%\')', soql);
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING (COUNT(Name) > 100 AND City LIKE \'San%\')', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2449,7 +2653,7 @@ private class SOQL_Test {
             .groupBy(Lead.City)
             .have(SOQL.HavingFilter.WITH(Lead.LeadSource).equal('Web'));
 
-        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING LeadSource = \'Web\'', builder.toString());
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING LeadSource = \'Web\'', builder.toString(), 'The generated SOQL should match the expected one.');
 
         builder.have(
             SOQL.HavingFilterGroup
@@ -2458,7 +2662,7 @@ private class SOQL_Test {
         );
 
         // Verify
-        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING LeadSource = \'Web\' AND (COUNT(Name) > 100 AND City LIKE \'San%\')', builder.toString());
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING LeadSource = \'Web\' AND (COUNT(Name) > 100 AND City LIKE \'San%\')', builder.toString(), 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2484,7 +2688,11 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING (COUNT(Name) > 1) OR (COUNT(Name) > 2) OR (COUNT(Name) > 3) OR (COUNT(Name) > 4) OR (COUNT(Name) > 5) OR (COUNT(Name) > 6) OR (COUNT(Name) > 7) OR (COUNT(Name) > 8) OR (COUNT(Name) > 9) OR (COUNT(Name) > 10) OR (COUNT(Name) > 11)', soql);
+        Assert.areEqual(
+            'SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING (COUNT(Name) > 1) OR (COUNT(Name) > 2) OR (COUNT(Name) > 3) OR (COUNT(Name) > 4) OR (COUNT(Name) > 5) OR (COUNT(Name) > 6) OR (COUNT(Name) > 7) OR (COUNT(Name) > 8) OR (COUNT(Name) > 9) OR (COUNT(Name) > 10) OR (COUNT(Name) > 11)',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
     }
 
     @IsTest
@@ -2502,7 +2710,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING (COUNT(Name) > 100 OR City LIKE \'San%\')', soql);
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING (COUNT(Name) > 100 OR City LIKE \'San%\')', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2519,7 +2727,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING COUNT(Name) > 100 OR City LIKE \'San%\'', soql);
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING COUNT(Name) > 100 OR City LIKE \'San%\'', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2536,7 +2744,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING COUNT(Name) > 100 OR City LIKE \'San%\'', soql);
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING COUNT(Name) > 100 OR City LIKE \'San%\'', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2558,7 +2766,11 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING ((COUNT(Name) > 100 AND COUNT(Name) < 200) AND (COUNT(Name) > 400 AND COUNT(Name) < 500))', soql);
+        Assert.areEqual(
+            'SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING ((COUNT(Name) > 100 AND COUNT(Name) < 200) AND (COUNT(Name) > 400 AND COUNT(Name) < 500))',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
     }
 
     @IsTest
@@ -2572,7 +2784,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING COUNT(Name) > 100 AND COUNT(Name) < 200', soql);
+        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING COUNT(Name) > 100 AND COUNT(Name) < 200', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2589,7 +2801,11 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING (COUNT(Name) > 100 AND COUNT(Name) < 200) AND (COUNT(Name) > 400 AND COUNT(Name) < 500)', soql);
+        Assert.areEqual(
+            'SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING (COUNT(Name) > 100 AND COUNT(Name) < 200) AND (COUNT(Name) > 400 AND COUNT(Name) < 500)',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
     }
 
     @IsTest
@@ -2605,7 +2821,11 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING ((COUNT(Name) > 100 AND COUNT(Name) < 200) AND COUNT(Name) < 500)', soql);
+        Assert.areEqual(
+            'SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING ((COUNT(Name) > 100 AND COUNT(Name) < 200) AND COUNT(Name) < 500)',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
     }
 
     @IsTest
@@ -2617,7 +2837,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account ORDER BY Industry DESC NULLS LAST, Id ASC NULLS FIRST', soql);
+        Assert.areEqual('SELECT Id FROM Account ORDER BY Industry DESC NULLS LAST, Id ASC NULLS FIRST', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2628,7 +2848,19 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account ORDER BY Industry ASC NULLS FIRST', soql);
+        Assert.areEqual('SELECT Id FROM Account ORDER BY Industry ASC NULLS FIRST', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void orderByDynamicWithSort() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .orderBy('Industry')
+            .sort('ASC')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account ORDER BY Industry ASC NULLS FIRST', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2640,7 +2872,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account ORDER BY Industry DESC NULLS LAST, Id ASC NULLS FIRST', soql);
+        Assert.areEqual('SELECT Id FROM Account ORDER BY Industry DESC NULLS LAST, Id ASC NULLS FIRST', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2651,9 +2883,8 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Contact ORDER BY Account.Name ASC NULLS FIRST', soql);
+        Assert.areEqual('SELECT Id FROM Contact ORDER BY Account.Name ASC NULLS FIRST', soql, 'The generated SOQL should match the expected one.');
     }
-
 
     @IsTest
     static void setLimit() {
@@ -2663,7 +2894,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account LIMIT 100', soql);
+        Assert.areEqual('SELECT Id FROM Account LIMIT 100', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2674,7 +2905,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account OFFSET 100', soql);
+        Assert.areEqual('SELECT Id FROM Account OFFSET 100', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2685,7 +2916,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account FOR REFERENCE', soql);
+        Assert.areEqual('SELECT Id FROM Account FOR REFERENCE', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2696,7 +2927,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account FOR VIEW', soql);
+        Assert.areEqual('SELECT Id FROM Account FOR VIEW', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2707,7 +2938,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account FOR UPDATE', soql);
+        Assert.areEqual('SELECT Id FROM Account FOR UPDATE', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2718,7 +2949,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account ALL ROWS', soql);
+        Assert.areEqual('SELECT Id FROM Account ALL ROWS', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2728,10 +2959,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Id = :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Id = :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(FAKE_ACCOUNT_ID, binding.get('v1'));
+        Assert.areEqual(FAKE_ACCOUNT_ID, binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -2744,10 +2975,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Case WHERE Id = :v1', soql);
+        Assert.areEqual('SELECT Id FROM Case WHERE Id = :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(cases[0].Id, binding.get('v1'));
+        Assert.areEqual(cases[0].Id, binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -2758,10 +2989,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Id IN :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Id IN :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(accountIds, binding.get('v1'));
+        Assert.areEqual(accountIds, binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -2774,10 +3005,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE Id IN :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE Id IN :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(accountIds, binding.get('v1'));
+        Assert.areEqual(accountIds, binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -2790,10 +3021,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Case WHERE Id IN :v1', soql);
+        Assert.areEqual('SELECT Id FROM Case WHERE Id IN :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(cases, binding.get('v1'));
+        Assert.areEqual(cases, binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -2806,10 +3037,10 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Id FROM Account WHERE RecordType.DeveloperName = :v1', soql);
+        Assert.areEqual('SELECT Id FROM Account WHERE RecordType.DeveloperName = :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(recordTypeDeveloperName, binding.get('v1'));
+        Assert.areEqual(recordTypeDeveloperName, binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -2823,7 +3054,7 @@ private class SOQL_Test {
             Case resultCase = (Case) SOQL.of(Case.SObjectType).systemMode().withoutSharing().toObject();
 
             // Verify
-            Assert.areEqual(testCase.Id, resultCase.Id);
+            Assert.areEqual(testCase.Id, resultCase.Id, 'The case should be returned even if the user does not have access to it.');
         }
     }
 
@@ -2837,7 +3068,7 @@ private class SOQL_Test {
             List<Case> cases = SOQL.of(Case.SObjectType).systemMode().withoutSharing().toList();
 
             // Verify
-            Assert.areEqual(2, cases.size());
+            Assert.areEqual(2, cases.size(), 'Cases should be returned even if the user does not have access to them.');
         }
     }
 
@@ -2851,7 +3082,7 @@ private class SOQL_Test {
             Integer casesAmount = SOQL.of(Case.SObjectType).count().systemMode().withoutSharing().toInteger();
 
             // Verify
-            Assert.areEqual(2, casesAmount);
+            Assert.areEqual(2, casesAmount, 'The amount of two cases should be returned even if the user does not have access to them.');
         }
     }
 
@@ -2865,7 +3096,7 @@ private class SOQL_Test {
             Task resultTask = (Task) SOQL.of(Task.SObjectType).systemMode().withSharing().toObject();
 
             // Verify
-            Assert.isNull(resultTask);
+            Assert.isNull(resultTask, 'The user should not have access to the task.');
         }
     }
 
@@ -2879,7 +3110,7 @@ private class SOQL_Test {
             List<Task> tasks = SOQL.of(Task.SObjectType).systemMode().withSharing().toList();
 
             // Verify
-            Assert.areEqual(0, tasks.size());
+            Assert.areEqual(0, tasks.size(), 'The user should not have access to the tasks.');
         }
     }
 
@@ -2892,7 +3123,7 @@ private class SOQL_Test {
             Integer tasksAmount = SOQL.of(Task.SObjectType).count().systemMode().withSharing().toInteger();
 
             // Verify
-            Assert.areEqual(0, tasksAmount);
+            Assert.areEqual(0, tasksAmount, 'The user should not have access to the tasks.');
         }
     }
 
@@ -2915,7 +3146,7 @@ private class SOQL_Test {
             }
 
             // Verify
-            Assert.isTrue(queryException.getMessage().contains('No such column \'Type\' on entity \'Task\'.'));
+            Assert.isTrue(queryException.getMessage().contains('No such column \'Type\' on entity \'Task\'.'), 'The user should not have access to the \'Type\' field.');
         }
     }
 
@@ -2946,7 +3177,8 @@ private class SOQL_Test {
             // Verify
             Assert.areEqual(
                 'SObject row was retrieved via SOQL without querying the requested field: Task.Type',
-                queryException.getMessage()
+                queryException.getMessage(),
+                'The user should not have access to the \'Type\' field.'
             );
         }
     }
@@ -2978,7 +3210,8 @@ private class SOQL_Test {
             // Verify
             Assert.areEqual(
                 'SObject row was retrieved via SOQL without querying the requested field: Task.Type',
-                queryException.getMessage()
+                queryException.getMessage(),
+                'The user should not have access to the \'Type\' field.'
             );
         }
     }
@@ -2996,7 +3229,7 @@ private class SOQL_Test {
         List<Account> result = SOQL.of(Account.SObjectType).mockId('mockingQuery').toList();
 
         // Verify
-        Assert.areEqual(accounts, result);
+        Assert.areEqual(accounts, result, 'The mocked accounts should be returned.');
     }
 
     @IsTest
@@ -3009,7 +3242,7 @@ private class SOQL_Test {
         Account result = (Account) SOQL.of(Account.sObjectType).mockId('mockingQuery').toObject();
 
         // Verify
-        Assert.areEqual(testAccount, result);
+        Assert.areEqual(testAccount, result, 'The mocked account should be returned.');
     }
 
     @IsTest
@@ -3019,7 +3252,7 @@ private class SOQL_Test {
         Integer result = SOQL.of(Account.sObjectType).count().mockId('mockingQuery').toInteger();
 
         // Verify
-        Assert.areEqual(2, result);
+        Assert.areEqual(2, result, 'The mocked count should be returned.');
     }
 
     @IsTest
@@ -3032,7 +3265,7 @@ private class SOQL_Test {
         Id accountId = SOQL.of(Account.SObjectType).byId(acc).toId();
 
         // Verify
-        Assert.areEqual(acc.Id, accountId);
+        Assert.areEqual(acc.Id, accountId, 'The returned Id should match the expected one.');
     }
 
     @IsTest
@@ -3045,7 +3278,7 @@ private class SOQL_Test {
         Boolean isRecordExist = SOQL.of(Account.SObjectType).byId(acc).doExist();
 
         // Verify
-        Assert.isTrue(isRecordExist);
+        Assert.isTrue(isRecordExist, 'The record with given Id should exist.');
     }
 
     @IsTest
@@ -3070,26 +3303,28 @@ private class SOQL_Test {
         }
 
         // Verify
-        Assert.isNull(soqlException);
+        Assert.isNull(soqlException, 'The SOQL should be generated without any exceptions.');
 
-        Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 AND Industry = :v2)', builder.toString());
+        Assert.areEqual('SELECT Id FROM Account WHERE (Name = :v1 AND Industry = :v2)', builder.toString(), 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual('Test', binding.get('v1'));
-        Assert.areEqual('IT', binding.get('v2'));
+        Assert.areEqual('Test', binding.get('v1'), 'The binding variable should match the expected value.');
+        Assert.areEqual('IT', binding.get('v2'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
     static void toValueOf() {
         // Setup
-        Account acc = new Account(Name = 'Test 1');
+        String accountName = 'Test 1';
+
+        Account acc = new Account(Name = accountName);
         insert acc;
 
         // Test
         String resultAccName = (String) SOQL.of(Account.SObjectType).byId(acc).toValueOf(Account.Name);
 
         // Verify
-        Assert.areEqual('Test 1', resultAccName);
+        Assert.areEqual(accountName, resultAccName, 'The returned account name should match the expected one.');
     }
 
     @IsTest
@@ -3101,7 +3336,7 @@ private class SOQL_Test {
         Set<String> accountNames = SOQL.of(Account.SObjectType).byIds(accounts).toValuesOf(Account.Name);
 
         // Verify
-        Assert.areEqual(2, accountNames.size());
+        Assert.areEqual(2, accountNames.size(), 'The size of the account names set should be equal to the size of the accounts.');
     }
 
     @IsTest
@@ -3110,10 +3345,10 @@ private class SOQL_Test {
         insertAccounts(); // Industry is empty
 
         // Test
-        Set<String> accountNames = SOQL.of(Account.SObjectType).toValuesOf(Account.Industry);
+        Set<String> accountsIndustires = SOQL.of(Account.SObjectType).toValuesOf(Account.Industry);
 
         // Verify
-        Assert.areEqual(0, accountNames.size());
+        Assert.areEqual(0, accountsIndustires.size(), 'The size of the account industries set should be 0, because field is empty.');
     }
 
     @IsTest
@@ -3128,7 +3363,7 @@ private class SOQL_Test {
             .toValuesOf(Account.Name);
 
         // Verify
-        Assert.areEqual(2, accountNames.size());
+        Assert.areEqual(2, accountNames.size(), 'The size of the account names set should be equal to the size of the accounts.');
     }
 
     @IsTest
@@ -3139,7 +3374,7 @@ private class SOQL_Test {
             .toValueOf(Account.Industry);
 
         // Verify
-        Assert.isNull(accountIndustry);
+        Assert.isNull(accountIndustry, 'The account industry should be null, because the record does not exist.');
     }
 
     @IsTest
@@ -3152,7 +3387,7 @@ private class SOQL_Test {
         Account result = (Account) SOQL.of(Account.SObjectType).toObject();
 
         // Verify
-        Assert.areEqual(acc.Id, result.Id);
+        Assert.areEqual(acc.Id, result.Id, 'The returned account should match the expected one.');
     }
 
     @IsTest
@@ -3169,7 +3404,7 @@ private class SOQL_Test {
         }
 
         // Verify
-        Assert.isNotNull(queryException);
+        Assert.isNotNull(queryException, 'The exception should be thrown, because there are more than 1 row for assignment to SObject.');
     }
 
     @IsTest
@@ -3179,7 +3414,7 @@ private class SOQL_Test {
         Account account = (Account) SOQL.of(Account.SObjectType).toObject();
 
         // Verify
-        Assert.isNull(account);
+        Assert.isNull(account, 'The account should be null, because there are no rows for assignment to SObject.');
     }
 
     @IsTest
@@ -3191,7 +3426,7 @@ private class SOQL_Test {
         List<Account> result = SOQL.of(Account.SObjectType).toList();
 
         // Verify
-        Assert.areEqual(accounts.size(), result.size());
+        Assert.areEqual(accounts.size(), result.size(), 'The size of the result list should be equal to the size of the inserted accounts.');
     }
 
     @IsTest
@@ -3203,7 +3438,7 @@ private class SOQL_Test {
         List<AggregateResult> result = SOQL.of(Account.SObjectType).count(Account.Name, 'names').toAggregated();
 
         // Verify
-        Assert.areEqual(accounts.size(), result[0].get('names'));
+        Assert.areEqual(accounts.size(), result[0].get('names'), 'The count of the names should be equal to the size of the inserted accounts.');
     }
 
     @IsTest
@@ -3212,10 +3447,10 @@ private class SOQL_Test {
         List<Account> accounts = insertAccounts();
 
         // Test
-        Integer result = SOQL.of(Account.SObjectType).toInteger();
+        Integer accountsCount = SOQL.of(Account.SObjectType).toInteger();
 
         // Verify
-        Assert.areEqual(accounts.size(), result);
+        Assert.areEqual(accounts.size(), accountsCount, 'The COUNT() clause should be automatically added when the count() method is not specified. The count of the accounts should match the number of inserted accounts.');
     }
 
     @IsTest
@@ -3227,7 +3462,7 @@ private class SOQL_Test {
         Integer result = SOQL.of(Account.SObjectType).count().toInteger();
 
         // Verify
-        Assert.areEqual(accounts.size(), result);
+        Assert.areEqual(accounts.size(), result, 'The count of the accounts should match the number of inserted accounts.');
     }
 
     @IsTest
@@ -3239,10 +3474,10 @@ private class SOQL_Test {
         Map<Id, Account> result = (Map<Id, Account>) SOQL.of(Account.SObjectType).toMap();
 
         // Verify
-        Assert.areEqual(accounts.size(), result.size());
+        Assert.areEqual(accounts.size(), result.size(), 'Size of the result map should be equal to the size of the inserted accounts.');
 
         for (Account acc : accounts) {
-            Assert.isNotNull(result.get(acc.Id));
+            Assert.isNotNull(result.get(acc.Id), 'The result map should have a value for each inserted account Id.');
         }
     }
 
@@ -3255,11 +3490,40 @@ private class SOQL_Test {
         Map<String, Account> result = (Map<String, Account>) SOQL.of(Account.SObjectType).toMap(Account.Name);
 
         // Verify
-        Assert.areEqual(accounts.size(), result.size());
+        Assert.areEqual(accounts.size(), result.size(), 'Size of the result map should be equal to the size of the inserted accounts.');
 
         for (Account acc : accounts) {
-            Assert.isNotNull(result.get(acc.Name));
+            Assert.isNotNull(result.get(acc.Name), 'The result map should have a value for each inserted account Name.');
         }
+    }
+
+    @IsTest
+    static void toMapWithCustomRelationshipKey() {
+        // Setup
+        List<Account> accounts = insertAccountsWithParents();
+
+        // Test
+        Map<String, Account> result = (Map<String, Account>) SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(Account.ParentId).isNotNull())
+            .toMap('Parent', Account.Name);
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size(), 'Size of the result map should be equal to the size of the accounts with parents.');
+        Assert.isNotNull(result.get('Test 1 Parent'), 'The result map should have a value for the key: "Test 1 Parent".');
+        Assert.isNotNull(result.get('Test 2 Parent'), 'The result map should have a value for the key: "Test 2 Parent".');
+    }
+
+    @IsTest
+    static void toMapWithEmptyCustomRelationshipKey() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        Map<String, Account> result = (Map<String, Account>) SOQL.of(Account.SObjectType).toMap('Parent', Account.Name);
+
+        // Verify
+        Assert.areEqual(1, result.size(), 'Size of the result map should be equal to 1');
+        Assert.isNotNull(result.get(null), 'The result map should have a value for the key: null');
     }
 
     @IsTest
@@ -3271,10 +3535,11 @@ private class SOQL_Test {
         Map<String, String> result = SOQL.of(Account.SObjectType).toMap(Account.Name, Account.Id);
 
         // Verify
-        Assert.areEqual(accounts.size(), result.size());
+        Assert.areEqual(accounts.size(), result.size(), 'Size of the result map should be equal to the size of the inserted accounts.');
 
         for (Account acc : accounts) {
-            Assert.isNotNull(result.get(acc.Name));
+            Assert.isNotNull(result.get(acc.Name), 'The result map should have a value for each inserted account Name.');
+            Assert.areEqual(acc.Id, result.get(acc.Name), 'The result map should have an account Id for each account Name.');
         }
     }
 
@@ -3287,11 +3552,26 @@ private class SOQL_Test {
         Map<String, List<Account>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Name);
 
         // Verify
-        Assert.areEqual(accounts.size(), result.size());
+        Assert.areEqual(accounts.size(), result.size(), 'Size of the result map should be equal to the size of the inserted accounts.');
 
         for (Account acc : accounts) {
-            Assert.isFalse(result.get(acc.Name).isEmpty());
+            Assert.isFalse(result.get(acc.Name).isEmpty(), 'The result map should contain a non-empty account list for each account name.');
         }
+    }
+
+    @IsTest
+    static void toAggregatedMapWithCustomRelationshipKey() {
+        // Setup
+        List<Account> accounts = insertAccountsWithParents();
+
+        // Test
+        Map<String, List<Account>> result = (Map<String, List<Account>>) SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(Account.ParentId).isNotNull())
+            .toAggregatedMap('Parent.CreatedBy', User.Id);
+
+        // Verify
+        Assert.areEqual(1, result.size(), 'Size of the result map should be 1, because the same user created all accounts.');
+        Assert.areEqual(accounts.size(), result.get(UserInfo.getUserId()).size(), 'The result map should contain all accounts created by the current User.');
     }
 
     @IsTest
@@ -3303,7 +3583,8 @@ private class SOQL_Test {
         Map<String, List<Account>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Industry);
 
         // Verify
-        Assert.areEqual(1, result.size()); // grouped by empty Industry
+        Assert.areEqual(1, result.size(), 'The result map should have only one key.'); // grouped by empty Industry
+        Assert.isTrue(result.containsKey(null), 'The result map should have a null key for empty Industry.');
     }
 
     @IsTest
@@ -3315,10 +3596,10 @@ private class SOQL_Test {
         Map<String, List<String>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Name, Account.Id);
 
         // Verify
-        Assert.areEqual(accounts.size(), result.size());
+        Assert.areEqual(accounts.size(), result.size(), 'Size of the result map should be equal to the size of the inserted accounts.');
 
         for (Account acc : accounts) {
-            Assert.isFalse(result.get(acc.Name).isEmpty());
+            Assert.isFalse(result.get(acc.Name).isEmpty(), 'The result map should contain a non-empty list of account Ids for each account name.');
         }
     }
 
@@ -3331,7 +3612,7 @@ private class SOQL_Test {
             .toQueryLocator();
 
         // Verify
-        Assert.areEqual('SELECT Id, Name FROM Account', queryLocator.getQuery());
+        Assert.areEqual('SELECT Id, Name FROM Account', queryLocator.getQuery(), 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -3344,7 +3625,7 @@ private class SOQL_Test {
             Database.QueryLocator queryLocator = SOQL.of(Task.SObjectType).systemMode().withSharing().toQueryLocator();
 
             // Verify
-            Assert.isFalse(queryLocator.iterator().hasNext());
+            Assert.isFalse(queryLocator.iterator().hasNext(), 'The user should not have access to the tasks, so hasNext should return false.');
         }
     }
 
@@ -3358,8 +3639,105 @@ private class SOQL_Test {
             Database.QueryLocator queryLocator = SOQL.of(Task.SObjectType).systemMode().withoutSharing().toQueryLocator();
 
             // Verify
-            Assert.isTrue(queryLocator.iterator().hasNext());
+            Assert.isTrue(queryLocator.iterator().hasNext(), 'The user should have access to the tasks, so hasNext should return true.');
         }
+    }
+
+    @IsTest
+    static void querySynchronousCloseToLimitWithMocking() {
+        // Setup
+        Exception queryException = null;
+
+        SOQL.setMock('mockingQuery', new List<Account>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        });
+
+        // Test
+        try {
+            Test.startTest();
+                for (Integer i = 0 ; i < 100 ; i++) {
+                    SOQL.of(Account.SObjectType).mockId('mockingQuery').toList();
+                }
+            Test.stopTest();
+        } catch (QueryException e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.isNull(queryException, 'The synchronous query should not have exceeded the limit.');
+    }
+
+    @IsTest
+    static void querySynchronousLimitExceptionWithMocking() {
+        // Setup
+        Exception queryException = null;
+
+        SOQL.setMock('mockingQuery', new List<Account>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        });
+
+        // Test
+        try {
+            Test.startTest();
+                for (Integer i = 0 ; i < 101 ; i++) {
+                    SOQL.of(Account.SObjectType).mockId('mockingQuery').toList();
+                }
+            Test.stopTest();
+        } catch (QueryException e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(queryException, 'The synchronous query should have exceeded the limit.');
+        Assert.areEqual('Too many SOQL queries.', queryException.getMessage(), 'The synchronous query should not have been exceeded.');
+    }
+
+    @IsTest
+    static void querySynchronousLimitExceptionWithoutMocking() {
+        // Setup
+        Exception queryException = null;
+
+        // Test
+        try {
+            for (Integer i = 0 ; i < 102 ; i++) {
+                SOQL.of(Account.SObjectType).toList();
+            }
+        } catch (QueryException e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(queryException, 'The synchronous query should have exceeded the limit.');
+        Assert.areEqual('Too many SOQL queries.', queryException.getMessage(), 'The synchronous query should have been exceeded.');
+    }
+
+    @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
+    @IsTest
+    static void preview() {
+        // Test
+        SOQL.of(Account.SObjectType).preview().toList();
+    }
+
+    @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
+    @IsTest
+    static void previewWithConditions() {
+        // Test
+        SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.FilterGroup
+                .add(SOQL.Filter.with(Account.Name).equal('Test'))
+                .add(SOQL.Filter.with(Account.Industry).equal('IT'))
+            )
+            .preview()
+            .toList();
+    }
+
+    @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
+    @IsTest
+    static void previewCount() {
+        // Test
+        SOQL.of(Account.SObjectType).count().preview().toInteger();
     }
 
     static List<Account> insertAccounts() {
@@ -3368,6 +3746,22 @@ private class SOQL_Test {
             new Account(Name = 'Test 2')
         };
         insert accounts;
+        return accounts;
+    }
+
+    static List<Account> insertAccountsWithParents() {
+        List<Account> parentAccounts = new List<Account>{
+            new Account(Name = 'Test 1 Parent'),
+            new Account(Name = 'Test 2 Parent')
+        };
+        insert parentAccounts;
+
+        List<Account> accounts = new List<Account>{
+            new Account(Name = 'Test 1', ParentId = parentAccounts[0].Id),
+            new Account(Name = 'Test 2', ParentId = parentAccounts[1].Id)
+        };
+        insert accounts;
+
         return accounts;
     }
 
@@ -3399,32 +3793,5 @@ private class SOQL_Test {
             TimeZoneSidKey = 'America/Los_Angeles',
             UserName = 'queryselector@testorg.com'
         );
-    }
-
-    @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
-    @IsTest
-    static void preview() {
-        // Test
-        SOQL.of(Account.SObjectType).preview().toList();
-    }
-
-    @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
-    @IsTest
-    static void previewWithConditions() {
-        // Test
-        SOQL.of(Account.SObjectType)
-            .whereAre(SOQL.FilterGroup
-                .add(SOQL.Filter.with(Account.Name).equal('Test'))
-                .add(SOQL.Filter.with(Account.Industry).equal('IT'))
-            )
-            .preview()
-            .toList();
-    }
-
-    @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
-    @IsTest
-    static void previewCount() {
-        // Test
-        SOQL.of(Account.SObjectType).count().preview().toInteger();
     }
 }

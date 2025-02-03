@@ -31,6 +31,7 @@ The following are methods for `SubQuery`.
 - [`with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5)`](#with-field1---field5)
 - [`with(List<SObjectField> fields)`](#with-fields)
 - [`with(String relationshipName, Iterable<SObjectField> fields)`](#with-related-fields)
+- [`with(String fields)`](#with-string-fields)
 
 [**SUBQUERY**](#sub-query)
 
@@ -44,8 +45,10 @@ The following are methods for `SubQuery`.
 [**ORDER BY**](#order-by)
 
 - [`orderBy(SObjectField field)`](#order-by)
+- [`orderBy(String field)`](#order-by-string-fields)
 - [`orderBy(String relationshipName, SObjectField field)`](#orderby-related)
 - [`sortDesc()`](#sortdesc)
+- [`sort(String direction)`](#sort)
 - [`nullsLast()`](#nullslast)
 
 [**LIMIT**](#limit)
@@ -165,7 +168,6 @@ SOQL.of(Account.SObjectType)
 SubQuery with(String relationshipName, Iterable<SObjectField> fields)
 ```
 
-
 **Example**
 
 ```sql
@@ -180,6 +182,30 @@ SOQL.of(Account.SObjectType)
         .with('CreatedBy', new List<SObjectField>{
             User.Id, User.Name
         })
+    )
+    .toList();
+```
+
+### with string fields
+
+**Signature**
+
+```apex
+SubQuery with(String fields)
+```
+
+**Example**
+
+```sql
+SELECT Id, (
+    SELECT Id, Name, Phone, RecordTypeId, Title, Salutation
+    FROM Contacts
+) FROM Account
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .with(SOQL.SubQuery.of('Contacts')
+        .with('Id, Name, Phone, RecordTypeId, Title, Salutation')
     )
     .toList();
 ```
@@ -274,6 +300,31 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
+### orderBy string field
+
+**Signature**
+
+```apex
+SubQuery orderBy(String field)
+```
+
+**Example**
+
+```sql
+SELECT Id, (
+    SELECT Id
+    FROM Contacts
+    ORDER BY Name
+) FROM Account
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .with(SOQL.SubQuery.of('Contacts')
+        .orderBy('Name')
+    )
+    .toList();
+```
+
 ### orderBy related
 
 Order SOQL query by parent field.
@@ -325,6 +376,32 @@ SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .orderBy(Contact.Name)
         .sortDesc()
+    )
+    .toList();
+```
+
+### sort
+
+**Signature**
+
+```apex
+SubQuery sort(String direction)
+```
+
+**Example**
+
+```sql
+SELECT Id, (
+    SELECT Id
+    FROM Contacts
+    ORDER BY Name DESC
+) FROM Account
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .with(SOQL.SubQuery.of('Contacts')
+        .orderBy('Name')
+        .sort('DESC')
     )
     .toList();
 ```

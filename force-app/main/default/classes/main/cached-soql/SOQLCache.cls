@@ -61,6 +61,19 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         mock.setMock(mockId, new List<SObject>{ record });
     }
 
+    public static void removeFromCache(List<SObject> records) {
+        if (records.isEmpty()) {
+            return;
+        }
+
+        String ofObject = records[0].getSObjectType().toString();
+
+        // Record deletion will trigger an automatic cache refresh when the query is executed.
+        new CacheStorageProxy(ofObject).apexTransaction().removeRecordsFromCache(records);
+        new CacheStorageProxy(ofObject).orgCache().removeRecordsFromCache(records);
+        new CacheStorageProxy(ofObject).sessionCache().removeRecordsFromCache(records);
+    }
+
     public static Cacheable of(SObjectType ofObject) {
         return new SOQLCache(ofObject);
     }
@@ -94,17 +107,17 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     public Cacheable cacheInApexTransaction() {
-        this.cache.storage.cacheInApexTransaction();
+        this.cache.storage.apexTransaction();
         return this;
     }
 
     public Cacheable cacheInOrgCache() {
-        this.cache.storage.cacheInOrgCache();
+        this.cache.storage.orgCache();
         return this;
     }
 
     public Cacheable cacheInSessionCache() {
-        this.cache.storage.cacheInSessionCache();
+        this.cache.storage.sessionCache();
         return this;
     }
 
@@ -223,16 +236,19 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             this.ofObject = ofObject;
         }
 
-        public void cacheInApexTransaction() {
+        public CacheStorageProxy apexTransaction() {
             this.storage = CacheManager.ApexTransaction;
+            return this;
         }
 
-        public void cacheInOrgCache() {
+        public CacheStorageProxy orgCache() {
             this.storage = CacheManager.SOQLOrgCache;
+            return this;
         }
 
-        public void cacheInSessionCache() {
+        public CacheStorageProxy sessionCache() {
             this.storage = CacheManager.SOQLSessionCache;
+            return this;
         }
 
         public void putInitialRecordsToCache(List<SObject> records) {
@@ -246,19 +262,54 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         public void putRecordsToCache(List<CacheItem> records) {
-            this.storage.put(this.key(), records);
+            this.storage.put(this.ofObject, records);
         }
 
         public Boolean hasCachedRecords() {
-            return this.storage.contains(this.key());
+            return this.storage.contains(this.ofObject);
         }
 
         public List<CacheItem> getCachedRecords() {
-            return (List<CacheItem>) (this.storage.get(this.key()) ?? new List<CacheItem>());
+            return (List<CacheItem>) (this.storage.get(this.ofObject) ?? new List<CacheItem>());
         }
 
-        private String key() {
-            return Test.isRunningTest() ? this.ofObject + 'Test' : this.ofObject;
+        public void addRecordsToCache(List<SObject> recordsToAdd) {
+            List<CacheItem> allCachedRecords = getCachedRecords();
+
+            for (SObject databaseRecord : recordsToAdd) {
+                allCachedRecords.add(new CacheItem(databaseRecord));
+            }
+
+            putRecordsToCache(allCachedRecords);
+        }
+
+        public void updateRecordsInCache(List<SObject> recordsToUpdate) {
+            List<CacheItem> allCachedRecords = getCachedRecords();
+
+            for (SObject updatedRecord : recordsToUpdate) {
+                for (CacheItem cachedRecord : allCachedRecords) {
+                    if (updatedRecord.Id == cachedRecord.id) {
+                        cachedRecord.record = updatedRecord;
+                        cachedRecord.cachedDate = System.now();
+                    }
+                }
+            }
+
+            putRecordsToCache(allCachedRecords);
+        }
+
+        public void removeRecordsFromCache(List<SObject> recordsToRemove) {
+            Set<Id> recordsToRemoveIds = new Map<Id, SObject>(recordsToRemove).keySet();
+            List<CacheItem> allCachedRecords = getCachedRecords();
+            List<CacheItem> filteredCachedItems = new List<CacheItem>();
+
+            for (CacheItem cachedRecord : allCachedRecords) {
+                if (!recordsToRemoveIds.contains(cachedRecord.id)) {
+                    filteredCachedItems.add(cachedRecord);
+                }
+            }
+
+            putRecordsToCache(filteredCachedItems);
         }
     }
 
@@ -296,12 +347,14 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         public void save(List<SObject> databaseRecords) {
+            List<CacheItem> newCacheRecords = new List<CacheItem>();
+
             if (this.isRecordMissingFromCache()) {
-                new InsertAction().execute(this.storage, databaseRecords);
+                storage.addRecordsToCache(databaseRecords);
             } else if (databaseRecords.isEmpty()) { // record does not exist in database anymore
-                new DeleteAction().execute(this.storage, this.toList());
+                storage.removeRecordsFromCache(this.toList());
             } else if (this.areRequestedFieldsMissing() || this.areRecordsOutdated()) {
-                new UpdateAction().execute(this.storage, databaseRecords);
+                storage.updateRecordsInCache(databaseRecords);
             }
         }
 
@@ -315,60 +368,6 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
         public Boolean areRecordsOutdated() {
             return !this.expiration.areRecordsRecentEnough(this.cachedItemsThatMeetCriteria);
-        }
-    }
-
-    private interface CacheAction {
-        void execute(CacheStorageProxy storage, List<SObject> records);
-    }
-
-    private class InsertAction implements CacheAction {
-        public void execute(CacheStorageProxy storage, List<SObject> records) {
-            List<CacheItem> allObjectCachedRecords = storage.getCachedRecords();
-
-            for (SObject databaseRecord : records) {
-                allObjectCachedRecords.add(new CacheItem(databaseRecord));
-            }
-
-            storage.putRecordsToCache(allObjectCachedRecords);
-        }
-    }
-
-    private class UpdateAction implements CacheAction {
-        public void execute(CacheStorageProxy storage, List<SObject> records) {
-            List<CacheItem> allObjectCachedRecords = storage.getCachedRecords();
-
-            for (SObject updatedRecord : records) {
-                for (CacheItem cachedRecord : allObjectCachedRecords) {
-                    if (updatedRecord.Id == cachedRecord.id) {
-                        cachedRecord.record = updatedRecord;
-                        cachedRecord.cachedDate = System.now();
-                    }
-                }
-            }
-
-            storage.putRecordsToCache(allObjectCachedRecords);
-        }
-    }
-
-    private class DeleteAction implements CacheAction {
-        public void execute(CacheStorageProxy storage, List<SObject> records) {
-            List<CacheItem> allObjectCachedRecords = storage.getCachedRecords();
-
-            Set<Id> recordsToRemoveFromCacheIds = new Set<Id>();
-
-            for (SObject obsoleteCachedRecord : records) {
-                recordsToRemoveFromCacheIds.add(obsoleteCachedRecord.id);
-            }
-
-            List<CacheItem> clearedCacheItems = new List<CacheItem>();
-            for (CacheItem cachedRecord : allObjectCachedRecords) {
-                if (!recordsToRemoveFromCacheIds.contains(cachedRecord.id)) {
-                    clearedCacheItems.add(cachedRecord);
-                }
-            }
-
-            storage.putRecordsToCache(clearedCacheItems);
         }
     }
 

@@ -76,7 +76,9 @@ The following are methods for using `SOQL`:
 [**toLabel**](#tolabel)
 
 - [`toLabel(SObjectField field)`](#tolabel)
+- [`toLabel(SObjectField field, String alias)`](#tolabel)
 - [`toLabel(String field)`](#tolabel)
+- [`toLabel(String field, String alias)`](#tolabel)
 
 [**format**](#format)
 
@@ -128,6 +130,7 @@ The following are methods for using `SOQL`:
 - [`orderBy(String field, String direction)`](#order-by)
 - [`orderBy(String relationshipName, SObjectField field)`](#orderby-related)
 - [`sordDesc()`](#sortdesc)
+- [`sort(String direction)`](#sort)
 - [`nullsLast()`](#nullslast)
 
 [**LIMIT**](#limit)
@@ -188,8 +191,10 @@ The following are methods for using `SOQL`:
 - [`toAggregated()`](#toaggregated)
 - [`toMap()`](#tomap)
 - [`toMap(SObjectField keyField)`](#tomap-with-custom-key)
+- [`toMap(String relationshipName, SObjectField targetKeyField)`](#tomap-with-custom-relationship-key)
 - [`toMap(SObjectField keyField,  SObjectField valueField)`](#tomap-with-custom-key-and-value)
 - [`toAggregatedMap(SObjectField keyField)`](#toaggregatedmap)
+- [`toAggregatedMap(String relationshipName, SObjectField targetKeyField)`](#toaggregatedmap-with-custom-relationship-key)
 - [`toAggregatedMap(SObjectField keyField, SObjectField valueField)`](#toaggregatedmap-with-custom-value)
 - [`toQueryLocator()`](#toquerylocator)
 
@@ -997,7 +1002,9 @@ SOQL.of(OpportunityLineItem.SObjectType)
 
 ```apex
 Queryable toLabel(SObjectField field)
+Queryable toLabel(SObjectField field, String alias)
 Queryable toLabel(String field)
+Queryable toLabel(String field, String alias)
 ```
 
 **Example**
@@ -1013,12 +1020,32 @@ SOQL.of(Lead.SObjectType)
 ```
 
 ```sql
+SELECT Company, toLabel(Status) leadStatus FROM Lead
+```
+```apex
+SOQL.of(Lead.SObjectType)
+    .with(Lead.Company)
+    .toLabel(Lead.Status, 'leadStatus')
+    .toList();
+```
+
+```sql
 SELECT Company, toLabel(Recordtype.Name) FROM Lead
 ```
 ```apex
 SOQL.of(Lead.SObjectType)
     .with(Lead.Company)
     .toLabel('Recordtype.Name')
+    .toList();
+```
+
+```sql
+SELECT Company, toLabel(Recordtype.Name) recordTypeName FROM Lead
+```
+```apex
+SOQL.of(Lead.SObjectType)
+    .with(Lead.Company)
+    .toLabel('Recordtype.Name', 'recordTypeName')
     .toList();
 ```
 
@@ -1645,6 +1672,31 @@ ORDER BY Name DESC
 SOQL.of(Account.SObjectType)
     .orderBy(Account.Name)
     .sortDesc()
+    .toList();
+```
+
+### sort
+
+
+### sort
+
+**Signature**
+
+```apex
+Queryable sort(String direction)
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+ORDER BY Industry ASC NULLS FIRST
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .orderBy('Industry')
+    .sort('ASC')
     .toList();
 ```
 
@@ -2327,6 +2379,20 @@ Map<String, SObject> toMap(SObjectField keyField)
 Map<String, Account> nameToAccount = (Map<String, Account>) SOQL.of(Account.SObjectType).toMap(Account.Name);
 ```
 
+### toMap with custom relationship key
+
+**Signature**
+
+```apex
+Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField)
+```
+
+**Example**
+
+```apex
+Map<String, Account> parentCreatedByEmailToAccount = (Map<String, Account>) SOQL.of(Account.SObjectType).toMap('Parent.CreatedBy', User.Email);
+```
+
 ### toMap with custom key and value
 
 **Signature**
@@ -2368,6 +2434,20 @@ Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField va
 
 ```apex
 Map<String, List<String>> industryToAccounts = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Industry, Account.Name);
+```
+
+### toAggregatedMap with custom relationship key
+
+**Signature**
+
+```apex
+Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField)
+```
+
+**Example**
+
+```apex
+Map<String, List<Account>> parentCreatedByEmailToAccounts = (Map<String, List<Account>>) SOQL.of(Account.SObjectType).toAggregatedMap('Parent.CreatedBy', User.Email);
 ```
 
 ### toQueryLocator
