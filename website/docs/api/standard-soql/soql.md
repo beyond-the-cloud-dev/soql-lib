@@ -130,7 +130,7 @@ The following are methods for using `SOQL`:
 - [`orderBy(String field, String direction)`](#order-by)
 - [`orderBy(String relationshipName, SObjectField field)`](#orderby-related)
 - [`sordDesc()`](#sortdesc)
--  [`sort(String direction)`](#sort)
+- [`sort(String direction)`](#sort)
 - [`nullsLast()`](#nullslast)
 
 [**LIMIT**](#limit)
