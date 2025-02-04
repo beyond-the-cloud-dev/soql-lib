@@ -3233,6 +3233,77 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void mockWithManyFields() {
+        // Setup
+        List<Account> accounts = new List<Account>{
+            new Account(Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+        };
+
+        // Test
+        SOQL.setMock('mockingQuery', accounts);
+        List<Account> result = SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toList();
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size(), 'The result accounts size should be the same size of mocked accounts.');
+
+        for (Account mockedResult : result) {
+            Assert.isTrue(mockedResult.isSet(Account.Name), 'Only Account Name should be set.');
+            Assert.isFalse(mockedResult.isSet(Account.Description), 'The Account Description should not be set because it was not included in the SELECT clause.');
+            Assert.isFalse(mockedResult.isSet(Account.Website), 'The Account Website should not be set because it was not included in the SELECT clause.');
+        }
+    }
+
+    @IsTest
+    static void mockWithManyFieldAndSelectNotMockedField() {
+        // Setup
+        List<Account> accounts = new List<Account>{
+            new Account(Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+        };
+
+        // Test
+        SOQL.setMock('mockingQuery', accounts);
+        List<Account> result = SOQL.of(Account.SObjectType).with(Account.Industry).mockId('mockingQuery').toList();
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size(), 'The result accounts size should be the same size of mocked accounts.');
+
+        for (Account mockedResult : result) {
+            Assert.isTrue(mockedResult.isSet(Account.Industry), 'Only Account Industry should be set.');
+            Assert.isNull(mockedResult.Industry, 'The Account Industry should be null because it was not specify in mocked records.');
+            Assert.isFalse(mockedResult.isSet(Account.Name), 'The Account Name should not be set because it was not included in the SELECT clause.');
+            Assert.isFalse(mockedResult.isSet(Account.Description), 'The Account Description should not be set because it was not included in the SELECT clause.');
+            Assert.isFalse(mockedResult.isSet(Account.Website), 'The Account Website should not be set because it was not included in the SELECT clause.');
+        }
+    }
+
+
+    @IsTest
+    static void mockWithManyFieldAndSelectToLabel() {
+        // Setup
+        List<Account> accounts = new List<Account>{
+            new Account(Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+        };
+
+        // Test
+        SOQL.setMock('mockingQuery', accounts);
+        List<Account> result = SOQL.of(Account.SObjectType).with(Account.Name).toLabel(Account.Industry).mockId('mockingQuery').toList();
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size(), 'The result accounts size should be the same size of mocked accounts.');
+
+        for (Account mockedResult : result) {
+            Assert.isTrue(mockedResult.isSet(Account.Industry), 'Only Account Industry should be set.');
+            Assert.isNull(mockedResult.Industry, 'The Account Industry should be null because it was not specify in mocked records.');
+            Assert.isFalse(mockedResult.isSet(Account.Name), 'The Account Name should not be set because it was not included in the SELECT clause.');
+            Assert.isFalse(mockedResult.isSet(Account.Description), 'The Account Description should not be set because it was not included in the SELECT clause.');
+            Assert.isFalse(mockedResult.isSet(Account.Website), 'The Account Website should not be set because it was not included in the SELECT clause.');
+        }
+    }
+
+    @IsTest
     static void mockingSingleRecord() {
         // Setup
         Account testAccount = new Account(Name = 'Test 1');

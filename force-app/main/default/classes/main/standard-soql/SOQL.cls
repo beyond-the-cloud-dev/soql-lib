@@ -995,11 +995,16 @@ public virtual inherited sharing class SOQL implements Queryable {
     private class SoqlFields implements QueryClause {
         private String ofObject;
         private Set<String> fields = new Set<String>();
+        // TODO private Set<String> functionFields = new Set<String>();
         private Set<String> aggregateFunctions = new Set<String>();
         private Set<String> groupedFields = new Set<String>();
 
         public SoqlFields(String ofObject) {
             this.ofObject = ofObject;
+        }
+
+        public Set<String> getFields() {
+            return this.fields;
         }
 
         public void count() {
@@ -1092,9 +1097,9 @@ public virtual inherited sharing class SOQL implements Queryable {
             for (String splittedField : commaSeparatedFields.split(',')) {
                 String field = splittedField.trim();
                 if (isAggregateFunction(field)) {
-                    aggregateFunctions.add(field);
+                    this.aggregateFunctions.add(field);
                 } else {
-                    fields.add(field);
+                    this.fields.add(field);
                 }
             }
         }
@@ -1128,19 +1133,19 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public void with(SObjectField field) {
-            fields.add(field.getDescribe().getName());
+            this.fields.add(field.getDescribe().getName());
         }
 
         public void toLabel(String field) {
-            fields.add('toLabel(' + field + ')');
+            this.fields.add('toLabel(' + field + ')');
         }
 
         public void toLabel(String field, String alias) {
-            fields.add('toLabel(' + field + ') ' + alias);
+            this.fields.add('toLabel(' + field + ') ' + alias);
         }
 
         private void format(SObjectField field, String alias) {
-            fields.add('FORMAT(' + field + ') ' + alias);
+            this.fields.add('FORMAT(' + field + ') ' + alias);
         }
 
         public void with(String relationshipPath, Iterable<SObjectField> fields) {
@@ -2200,6 +2205,22 @@ public virtual inherited sharing class SOQL implements Queryable {
             return sObjectsMocks.get(mockId);
         }
 
+        public List<SObject> getStrippedSObjectMock(String mockId, Iterable<String> fields) {
+            List<SObject> mockedRecords = mock.getSObjectsMock(mockId);
+
+            for (SObject record : mockedRecords) {
+                Map<String, Object> fieldsToValue = record.getPopulatedFieldsAsMap();
+
+                record.clear();
+
+                for (String field : fields) {
+                    record.put(field, fieldsToValue.get(field));
+                }
+            }
+
+            return mockedRecords;
+        }
+
         public Integer getCountMock(String mockId) {
             return countMocks.get(mockId);
         }
@@ -2265,7 +2286,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             incrementQueryIssued();
 
             if (mock.hasMock(mockId)) {
-                return mock.getSObjectsMock(mockId);
+                return mock.getStrippedSObjectMock(mockId, this.builder.fields.getFields());
             }
 
             if (accessType == null) {
