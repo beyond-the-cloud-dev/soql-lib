@@ -5,10 +5,9 @@
 
 The SOQL Lib provides functional constructs for SOQL queries in Apex.
 
-For more details, please refer to the [documentation](https://soql-lib.vercel.app/).
+For more details, please refer to the [documentation](https://soql.beyondthecloud.dev).
 
-You may also find [this blog post](https://beyondthecloud.dev/blog/soql-lib) about SOQL Lib interesting.
-
+You may also find [this blog post](https://blog.beyondthecloud.dev/blog/soql-lib) about SOQL Lib interesting. Check why you need a selector layer in [this post](https://blog.beyondthecloud.dev/blog/why-do-you-need-selector-layer).
 
 **Standard SOQL**
 
