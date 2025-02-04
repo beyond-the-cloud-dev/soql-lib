@@ -130,11 +130,11 @@ Read about the features in the [documentation](https://soql-lib.vercel.app/docs/
 8. **Dynamic conditions**
 9. **Cache records**
 
-----
+## Contributors
 
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buycoffee.to/beyondthecloud)
-
-----
+<a href="https://github.com/beyond-the-cloud-dev/soql-lib/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=beyond-the-cloud-dev/soql-lib" />
+</a>
 
 ## License notes
 
