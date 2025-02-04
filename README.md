@@ -103,11 +103,11 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
 
 ## Documentation
 
-[SOQL Lib documentation](https://soql-lib.vercel.app/)
+[SOQL Lib documentation](https://soql.beyondthecloud.dev))
 
 ## Features
 
-Read about the features in the [documentation](https://soql-lib.vercel.app/docs/basic-features).
+Read about the features in the [documentation](https://soql.beyondthecloud.dev/docs/basic-features).
 
 1. **Dynamic SOQL**
 2. **Automatic binding**
