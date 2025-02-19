@@ -49,6 +49,11 @@ const config = {
     ({
       // Replace with your project's social card
       image: 'img/cloud-icon.png',
+      metadata: [
+        { name: 'description', content: 'SOQL Lib provides functional constructs for SOQL queries in Apex.' },
+        { name: 'keywords', content: 'SOQL Lib, Selector Layer Apex, Apex Selector Layer, Query Builder' },
+        { name: 'canonical', content: 'https://soql.beyondthecloud.dev' }
+      ],
       navbar: {
         title: 'SOQL Lib',
         logo: {
@@ -103,6 +108,73 @@ const config = {
           const items = await defaultCreateSitemapItems(rest);
           return items.filter(item => !item.url.includes('/page/'));
         }
+      },
+      footer: {
+        style: 'dark',
+        links: [
+          {
+            items: [
+              {
+                html: `
+                  <a href="https://beyondthecloud.dev" target="_blank" aria-label="Beyond The Cloud">
+                                    <img src="/img/logo.png" alt="Professional Salesforce Services - Beyond The Cloud" width="167" height="88" />
+                                    </a>
+                                    <p>
+                                    contact@beyondthecloud.dev
+                                    <br /><br />
+                                We are a Salesforce Partner specializing in AppExchange app development and technical debt emergency resolution
+                                </p>
+                        `
+              }
+            ]
+          },
+          {
+            title: 'Documentation',
+            items: [
+              {
+                label: 'Installation',
+                to: '/installation'
+              },
+              {
+                label: 'Building Your Selector',
+                to: '/building-your-selector'
+              },
+              {
+                label: 'Building Cached Selector',
+                to: '/build-cached-selector'
+              },
+              {
+                label: 'Overview',
+                to: '/overview'
+              }
+            ]
+          },
+          {
+            items: [
+              {
+                label: 'Linkedin',
+                href: 'https://www.linkedin.com/company/beyondtheclouddev'
+              },
+              {
+                label: 'Beyond The Cloud',
+                href: 'https://beyondthecloud.dev/'
+              },
+              {
+                label: 'Blog',
+                href: 'https://blog.beyondthecloud.dev/blog'
+              },
+              {
+                label: 'Learning',
+                href: 'https://learning.beyondthecloud.dev/blog'
+              },
+              {
+                label: 'GitHub',
+                href: 'https://github.com/beyond-the-cloud-dev'
+              }
+            ]
+          }
+        ],
+        copyright: `Copyright © ${new Date().getFullYear()} BeyondTheCloud`
       },
       prism: {
         additionalLanguages: ['apex'],
