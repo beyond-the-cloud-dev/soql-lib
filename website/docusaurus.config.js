@@ -138,15 +138,15 @@ const config = {
               {
                 label: 'Building Your Selector',
                 to: '/building-your-selector'
-              },
-              {
-                label: 'Building Cached Selector',
-                to: '/build-cached-selector'
-              },
-              {
-                label: 'Overview',
-                to: '/overview'
               }
+              // {
+              //   label: 'Building Cached Selector',
+              //   to: '/build-cached-selector'
+              // },
+              // {
+              //   label: 'Overview',
+              //   to: '/overview'
+              // }
             ]
           },
           {

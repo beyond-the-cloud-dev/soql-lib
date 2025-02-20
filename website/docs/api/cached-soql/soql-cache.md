@@ -29,13 +29,13 @@ The following are methods for using `SOQLCache`:
 [**CACHE EXPIRATION**](#cache-expiration)
 
 - [`maxHoursWithoutRefresh()`](#maxhourswithoutrefresh)
-- [`removeFromCache(List<SObject> records)`](#removeFromCache)
+- [`removeFromCache(List<SObject> records)`](#removefromcache)
 
 [**INITIAL QUERY**](#initial-query)
 
 - [`initialQuery()`](#initialquery)
 
-[**SELECT**](#SELECT)
+[**SELECT**](#select)
 
 - [`with(SObjectField field)`](#with-field1---field5)
 - [`with(SObjectField field1, SObjectField field2)`](#with-field1---field5)

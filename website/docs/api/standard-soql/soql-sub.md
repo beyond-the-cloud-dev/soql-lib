@@ -45,7 +45,7 @@ The following are methods for `SubQuery`.
 [**ORDER BY**](#order-by)
 
 - [`orderBy(SObjectField field)`](#order-by)
-- [`orderBy(String field)`](#order-by-string-fields)
+- [`orderBy(String field)`](#orderby-string-field)
 - [`orderBy(String relationshipName, SObjectField field)`](#orderby-related)
 - [`sortDesc()`](#sortdesc)
 - [`sort(String direction)`](#sort)

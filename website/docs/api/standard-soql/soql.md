@@ -150,7 +150,7 @@ The following are methods for using `SOQL`:
 
 [**FIELD-LEVEL SECURITY**](#field-level-security)
 
-- [`userMode()`](#userMode)
+- [`userMode()`](#usermode)
 - [`systemMode()`](#systemmode)
 - [`stripInaccessible()`](#stripinaccessible)
 - [`stripInaccessible(AccessType accessType)`](#stripinaccessible)
@@ -1559,7 +1559,7 @@ HAVING COUNT(Name) > 100 OR City LIKE 'San%'
 
 ### anyHavingConditionMatching
 
-When the [havingConditionLogic](#havingConditionLogic) is not specified, all conditions are joined using the `AND` operator by default.
+When the [havingConditionLogic](#havingconditionlogic) is not specified, all conditions are joined using the `AND` operator by default.
 
 To change the default condition logic, you can utilize the `anyHavingConditionMatching` method, which joins conditions using the `OR` operator.
 
