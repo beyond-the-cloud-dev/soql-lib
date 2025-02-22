@@ -145,6 +145,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         SObject toObject();
         List<SObject> toList();
         List<AggregateResult> toAggregated();
+        // List<AggregateResultProxy> toAggregatedProxy(); // when mocking needed
         Map<Id, SObject> toMap();
         Map<String, SObject> toMap(SObjectField keyField);
         Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField);
@@ -321,24 +322,38 @@ public virtual inherited sharing class SOQL implements Queryable {
         get { return new SoqlHavingFilter(); }
     }
 
+    public interface Mockable {
+        void thenReturn(SObject record);
+        void thenReturn(List<SObject> records);
+        void thenReturn(Integer count);
+    }
+
+    // SOQL.mock('MyQuery').thenReturn(record);
     @TestVisible
+    private static Mockable mock(String mockId) {
+        queryIdToMock.put(mockId, new Mock());
+        return queryIdToMock.get(mockId);
+    }
+
+    @TestVisible // deprecated
     private static void setMock(String mockId, SObject record) {
-        setMock(mockId, new List<SObject>{ record });
+        mock(mockId).thenReturn(record);
     }
 
-    @TestVisible
+    @TestVisible // deprecated
     private static void setMock(String mockId, List<SObject> records) {
-        mock.setMock(mockId, records);
+        mock(mockId).thenReturn(records);
     }
 
-    @TestVisible
+    @TestVisible // deprecated
     private static void setCountMock(String mockId, Integer amount) {
-        mock.setCountMock(mockId, amount);
+        mock(mockId).thenReturn(amount);
     }
 
     // Implementation
 
-    private static Mock mock = new Mock();
+    private static Map<String, Mock> queryIdToMock = new Map<String, Mock>();
+
     private static Binder binder = new Binder();
     private static Integer syncQueriesIssued = 0;
 
@@ -1098,6 +1113,23 @@ public virtual inherited sharing class SOQL implements Queryable {
                 }
             }
         }
+
+//         AggregateResult aa = new AggregateResult();
+//         List<AggregateResult> aa = [SELECT CALENDAR_YEAR(CreatedDate), SUM(Amount)
+// FROM Opportunity
+// GROUP BY CALENDAR_YEAR(CreatedDate)];
+// System.debug(aa);
+
+// String jsonMock = '{"attributes":{"type":"AggregateResult"},"expr0":"123","expr1":"SomeGroupValue"}';
+// AggregateResult mockAgg = (AggregateResult) JSON.deserialize(jsonMock, AggregateResult.class);
+// System.debug('varName >>' + mockAgg);
+
+// SObject mockAggAsSObject = (SObject) JSON.deserialize(
+//     '{"attributes":{"type":"AggregateResult"},"expr0":"10"}',
+//     SObject.class
+// );
+// AggregateResult mockAgg = (AggregateResult)mockAggAsSObject;
+// System.debug('varName >>' + mockAgg.get('expr0'));
 
         private Boolean isAggregateFunction(String field) {
             // AVG(), COUNT(), MIN(), MAX(), SUM() or Field aliasing
@@ -2176,32 +2208,35 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class Mock {
-        private final Map<String, List<SObject>> sObjectsMocks = new Map<String, List<SObject>>();
-        private final Map<String, Integer> countMocks = new Map<String, Integer>();
+    // SOQL.mock('asasas').thenReturn(SOQL.AggregateResultProxy.with('expr0', '123').with('expr1', 'SomeGroupValue'));
 
-        public void setMock(String mockId, List<SObject> records) {
-            sObjectsMocks.put(mockId, records);
+    // 1.	List of SObjects (e.g., List<Account>)
+	// 2.	Single SObject (using LIMIT 1 and assigning to a single variable)
+	// 3.	AggregatedResult (GROUP BY, COUNT(), etc.)
+	// 4.	Integer from Database.countQuery(...) (only for SELECT COUNT() queries)
+	// 5.	Database.QueryLocator from Database.getQueryLocator(...) (Batch contexts)
+
+    private class Mock implements Mockable {
+        private Object mockedResult = null;
+
+        public void thenReturn(SObject record) {
+            thenReturn(new List<SObject>{ record });
         }
 
-        public void setCountMock(String mockId, Integer amount) {
-            countMocks.put(mockId, amount);
+        public void thenReturn(List<SObject> records) {
+            this.mockedResult = records;
         }
 
-        public Boolean hasMock(String mockId) {
-            return sObjectsMocks.containsKey(mockId);
+        public void thenReturn(Integer count) {
+            this.mockedResult = count;
         }
 
-        public Boolean hasCountMock(String mockId) {
-            return countMocks.containsKey(mockId);
+        public void stripAdditionalFields(Set<String> fields) {
+
         }
 
-        public List<SObject> getSObjectsMock(String mockId) {
-            return sObjectsMocks.get(mockId);
-        }
-
-        public Integer getCountMock(String mockId) {
-            return countMocks.get(mockId);
+        public Object get() {
+            return this.mockedResult;
         }
     }
 
@@ -2264,8 +2299,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         public List<SObject> toList() {
             incrementQueryIssued();
 
-            if (mock.hasMock(mockId)) {
-                return mock.getSObjectsMock(mockId);
+            if (queryIdToMock.containsKey(mockId)) {
+                return (List<SObject>) queryIdToMock.get(mockId).get();
             }
 
             if (accessType == null) {
@@ -2281,8 +2316,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         public Integer toInteger() {
             incrementQueryIssued();
 
-            if (mock.hasCountMock(mockId)) {
-                return mock.getCountMock(mockId);
+            if (queryIdToMock.containsKey(mockId)) {
+                return (Integer) queryIdToMock.get(mockId).get();
             }
 
             return sharingExecutor.toInteger(builder.toString(), binder.getBindingMap(), accessMode);

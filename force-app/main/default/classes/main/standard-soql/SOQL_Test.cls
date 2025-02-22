@@ -3516,7 +3516,7 @@ private class SOQL_Test {
     @IsTest
     static void toMapWithEmptyCustomRelationshipKey() {
         // Setup
-        List<Account> accounts = insertAccounts();
+        insertAccounts();
 
         // Test
         Map<String, Account> result = (Map<String, Account>) SOQL.of(Account.SObjectType).toMap('Parent', Account.Name);
