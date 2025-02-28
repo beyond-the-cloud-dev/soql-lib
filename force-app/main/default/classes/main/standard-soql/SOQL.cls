@@ -335,6 +335,16 @@ public virtual inherited sharing class SOQL implements Queryable {
         return queryIdToMock.get(mockId);
     }
 
+    public static SOQL of(SObjectType ofObject) {
+        return new SOQL(ofObject);
+    }
+
+    public static SOQL of(String ofObject) {
+        return new SOQL(ofObject);
+    }
+
+    // Back support
+
     @TestVisible // deprecated
     private static void setMock(String mockId, SObject record) {
         mock(mockId).thenReturn(record);
@@ -360,14 +370,6 @@ public virtual inherited sharing class SOQL implements Queryable {
     private SoqlBuilder builder;
     private Executor executor;
     private Converter converter;
-
-    public static SOQL of(SObjectType ofObject) {
-        return new SOQL(ofObject);
-    }
-
-    public static SOQL of(String ofObject) {
-        return new SOQL(ofObject);
-    }
 
     public SOQL(SObjectType ofObject) {
         this(ofObject.getDescribe().getName());
@@ -2191,7 +2193,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class Mock implements Mockable {
+    public class Mock implements Mockable {
         private Object mockedResult = null;
 
         public void thenReturn(SObject record) {

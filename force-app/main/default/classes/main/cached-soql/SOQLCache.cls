@@ -56,9 +56,15 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         return null;
     }
 
+    public interface Mockable {
+        // SObject
+        void thenReturn(SObject record);
+    }
+
     @TestVisible
-    private static void setMock(String mockId, SObject record) {
-        mock.setMock(mockId, new List<SObject>{ record });
+    private static Mockable mock(String mockId) {
+        queryIdToMock.put(mockId, new Mock());
+        return queryIdToMock.get(mockId);
     }
 
     public static void removeFromCache(List<SObject> records) {
@@ -82,9 +88,16 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         return new SOQLCache(ofObject);
     }
 
+    // Back support
+
+    @TestVisible  // deprecated
+    private static void setMock(String mockId, SObject record) {
+        mock(mockId).thenReturn(record);
+    }
+
     // Implementation
 
-    private static Mock mock = new Mock();
+    private static Map<String, Mock> queryIdToMock = new Map<String, Mock>();
 
     private Executor executor;
     private Cache cache;
@@ -495,19 +508,15 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
     }
 
-    private class Mock {
-        private final Map<String, List<SObject>> sObjectsMocks = new Map<String, List<SObject>>();
+    public class Mock implements Mockable {
+        private List<SObject> mockedRecords = null;
 
-        public void setMock(String mockId, List<SObject> records) {
-            sObjectsMocks.put(mockId, records);
+        public void thenReturn(SObject record) {
+            this.mockedRecords = new List<SObject>{ record };
         }
 
-        public Boolean hasMock(String mockId) {
-            return sObjectsMocks.containsKey(mockId);
-        }
-
-        public List<SObject> getSObjectsMock(String mockId) {
-            return sObjectsMocks.get(mockId);
+        public List<SObject> getMockedResult() {
+            return mockedRecords;
         }
     }
 
@@ -545,8 +554,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         private List<SObject> toList() {
-            if (mock.hasMock(mockId)) {
-                return mock.getSObjectsMock(mockId);
+            if (queryIdToMock.containsKey(mockId)) {
+                return queryIdToMock.get(mockId).getMockedResult();
             }
 
             List<SObject> records = this.cache.toList();
