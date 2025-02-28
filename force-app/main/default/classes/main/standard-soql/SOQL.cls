@@ -323,12 +323,17 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public interface Mockable {
-        void thenReturn(SObject record);
-        void thenReturn(List<SObject> records);
-        void thenReturn(Integer count);
+        // SObject
+        Mockable thenReturn(SObject record);
+        Mockable thenReturn(List<SObject> records);
+        Mockable withSubQuery(String relationship, SObject records);
+        Mockable withSubQuery(String relationship, List<SObject> records);
+        // Count
+        Mockable thenReturn(Integer count);
+        // AggregateResult
+        Mockable thenReturn(List<AggregateResultProxy> aggregateResults);
     }
 
-    // SOQL.mock('MyQuery').thenReturn(record);
     @TestVisible
     private static Mockable mock(String mockId) {
         queryIdToMock.put(mockId, new Mock());
@@ -1113,23 +1118,6 @@ public virtual inherited sharing class SOQL implements Queryable {
                 }
             }
         }
-
-//         AggregateResult aa = new AggregateResult();
-//         List<AggregateResult> aa = [SELECT CALENDAR_YEAR(CreatedDate), SUM(Amount)
-// FROM Opportunity
-// GROUP BY CALENDAR_YEAR(CreatedDate)];
-// System.debug(aa);
-
-// String jsonMock = '{"attributes":{"type":"AggregateResult"},"expr0":"123","expr1":"SomeGroupValue"}';
-// AggregateResult mockAgg = (AggregateResult) JSON.deserialize(jsonMock, AggregateResult.class);
-// System.debug('varName >>' + mockAgg);
-
-// SObject mockAggAsSObject = (SObject) JSON.deserialize(
-//     '{"attributes":{"type":"AggregateResult"},"expr0":"10"}',
-//     SObject.class
-// );
-// AggregateResult mockAgg = (AggregateResult)mockAggAsSObject;
-// System.debug('varName >>' + mockAgg.get('expr0'));
 
         private Boolean isAggregateFunction(String field) {
             // AVG(), COUNT(), MIN(), MAX(), SUM() or Field aliasing
@@ -2217,25 +2205,130 @@ public virtual inherited sharing class SOQL implements Queryable {
 	// 5.	Database.QueryLocator from Database.getQueryLocator(...) (Batch contexts)
 
     private class Mock implements Mockable {
-        private Object mockedResult = null;
+        private SoqlBuilder builder;
+
+        public Mock load(SoqlBuilder builder) {
+            this.builder = builder;
+        }
+
+        // SObject
 
         public void thenReturn(SObject record) {
-            thenReturn(new List<SObject>{ record });
+            this.thenReturn(new List<SObject>{ record });
         }
 
         public void thenReturn(List<SObject> records) {
-            this.mockedResult = records;
+            this.sobjectMock.thenReturn(records);
         }
+
+        public void withSubQuery(String relationshipName, SObject record) {
+            this.sobjectMock.withSubQuery(relationshipName, new List<SObject>{ record });
+        }
+
+        public void withSubQuery(String relationshipName, List<SObject> records) {
+            this.withSubQuery(relationshipName, records);
+        }
+
+        public List<SObject> getRecords() {
+            return this.sobjectMock.get();
+        }
+
+        // Count
+
+        public void thenReturn(Integer count) {
+            this.countMock.thenReturn(count);
+        }
+
+        public Integer getCount() {
+            return this.countMock.get();
+        }
+
+        public SObjectMock sobjectMock {
+            get {
+                if (sobjectMock == null) {
+                    sobjectMock = new SObjectMock();
+                }
+                return sobjectMock;
+            }
+        }
+
+        public CountMock countMock {
+            get {
+                if (countMock == null) {
+                    countMock = new CountMock();
+                }
+                return countMock;
+            }
+        }
+    }
+
+    public class SObjectMock {
+        private List<SObject> mockedRecords = new List<SObject>();
+
+        public void thenReturn(List<SObject> records) {
+            this.mockedRecords = records;
+        }
+
+        public void stripAdditionalFields(Iterable<String> fields) {
+            List<SObject> mockedRecords = mock.getSObjectsMock(mockId);
+
+            for (SObject record : mockedRecords) {
+                Map<String, Object> fieldsToValue = record.getPopulatedFieldsAsMap();
+
+                record.clear();
+
+                for (String field : fields) {
+                    record.put(field, fieldsToValue.get(field));
+                }
+            }
+
+            return mockedRecords;
+        }
+
+        public void withSubQuery(String relationshipName, List<SObject> records) {
+            Map<String, Object> record = new Map<String, Object>{
+                relationshipName => new Map<String, Object>{
+                    'totalSize' => records.size(),
+                    'done' => true,
+                    'records' => records
+                }
+            };
+
+            String sobjectTypeName = 'Account';
+            List<Map<String, Object>> recordsList = new List<Map<String, Object>>();
+
+            Map<String, Object> recordMap = new Map<String, Object>{
+                'attributes' => new Map<String, Object>{ 'type' => sobjectTypeName },
+                'Name' => sobjectTypeName + ' Name', // use a dynamic name if you like
+                'Contacts' => new Map<String, Object>{
+                    'totalSize' => 1,
+                    'done' => true,
+                    'records' => new List<Contact>{
+                        new Contact(FirstName = 'Contact', LastName = 'Name', Email = 'contact@email.com')
+                    }
+                }
+            };
+            recordsList.add(recordMap);
+
+            List<Account> mockRecords = (List<SObject>) JSON.deserialize(JSON.serialize(recordsList), List<SObject>.class);
+
+            System.debug(LoggingLevel.DEBUG, ': ' + mockRecords[0].Contacts);
+        }
+
+
+        public List<SObject> get() {
+            return this.mockedRecords;
+        }
+    }
+
+    public class CountMock {
+        private Integer mockedResult;
 
         public void thenReturn(Integer count) {
             this.mockedResult = count;
         }
 
-        public void stripAdditionalFields(Set<String> fields) {
-
-        }
-
-        public Object get() {
+        public Integer get() {
             return this.mockedResult;
         }
     }
@@ -2300,7 +2393,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             incrementQueryIssued();
 
             if (queryIdToMock.containsKey(mockId)) {
-                return (List<SObject>) queryIdToMock.get(mockId).get();
+                return queryIdToMock.get(mockId).getRecords();
             }
 
             if (accessType == null) {
@@ -2317,7 +2410,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             incrementQueryIssued();
 
             if (queryIdToMock.containsKey(mockId)) {
-                return (Integer) queryIdToMock.get(mockId).get();
+                return queryIdToMock.get(mockId).getCount();
             }
 
             return sharingExecutor.toInteger(builder.toString(), binder.getBindingMap(), accessMode);
