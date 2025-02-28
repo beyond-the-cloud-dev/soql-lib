@@ -321,24 +321,39 @@ public virtual inherited sharing class SOQL implements Queryable {
         get { return new SoqlHavingFilter(); }
     }
 
+    public interface Mockable {
+        // SObject
+        void thenReturn(SObject record);
+        void thenReturn(List<SObject> records);
+        // Count
+        void thenReturn(Integer count);
+    }
+
     @TestVisible
+    private static Mockable mock(String mockId) {
+        queryIdToMock.put(mockId, new Mock());
+        return queryIdToMock.get(mockId);
+    }
+
+    @TestVisible // deprecated
     private static void setMock(String mockId, SObject record) {
-        setMock(mockId, new List<SObject>{ record });
+        mock(mockId).thenReturn(record);
     }
 
-    @TestVisible
+    @TestVisible // deprecated
     private static void setMock(String mockId, List<SObject> records) {
-        mock.setMock(mockId, records);
+        mock(mockId).thenReturn(records);
     }
 
-    @TestVisible
+    @TestVisible // deprecated
     private static void setCountMock(String mockId, Integer amount) {
-        mock.setCountMock(mockId, amount);
+        mock(mockId).thenReturn(amount);
     }
 
     // Implementation
 
-    private static Mock mock = new Mock();
+    private static Map<String, Mock> queryIdToMock = new Map<String, Mock>();
+
     private static Binder binder = new Binder();
     private static Integer syncQueriesIssued = 0;
 
@@ -2176,32 +2191,23 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class Mock {
-        private final Map<String, List<SObject>> sObjectsMocks = new Map<String, List<SObject>>();
-        private final Map<String, Integer> countMocks = new Map<String, Integer>();
+    private class Mock implements Mockable {
+        private Object mockedResult = null;
 
-        public void setMock(String mockId, List<SObject> records) {
-            sObjectsMocks.put(mockId, records);
+        public void thenReturn(SObject record) {
+            this.thenReturn(new List<SObject>{ record });
         }
 
-        public void setCountMock(String mockId, Integer amount) {
-            countMocks.put(mockId, amount);
+        public void thenReturn(List<SObject> records) {
+            this.mockedResult = records;
         }
 
-        public Boolean hasMock(String mockId) {
-            return sObjectsMocks.containsKey(mockId);
+        public void thenReturn(Integer count) {
+            this.mockedResult = count;
         }
 
-        public Boolean hasCountMock(String mockId) {
-            return countMocks.containsKey(mockId);
-        }
-
-        public List<SObject> getSObjectsMock(String mockId) {
-            return sObjectsMocks.get(mockId);
-        }
-
-        public Integer getCountMock(String mockId) {
-            return countMocks.get(mockId);
+        public Object getMockedResult() {
+            return mockedResult;
         }
     }
 
@@ -2264,8 +2270,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         public List<SObject> toList() {
             incrementQueryIssued();
 
-            if (mock.hasMock(mockId)) {
-                return mock.getSObjectsMock(mockId);
+            if (queryIdToMock.containsKey(mockId)) {
+                return (List<SObject>) queryIdToMock.get(mockId).getMockedResult();
             }
 
             if (accessType == null) {
@@ -2281,8 +2287,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         public Integer toInteger() {
             incrementQueryIssued();
 
-            if (mock.hasCountMock(mockId)) {
-                return mock.getCountMock(mockId);
+            if (queryIdToMock.containsKey(mockId)) {
+                return (Integer) queryIdToMock.get(mockId).getMockedResult();
             }
 
             return sharingExecutor.toInteger(builder.toString(), binder.getBindingMap(), accessMode);
