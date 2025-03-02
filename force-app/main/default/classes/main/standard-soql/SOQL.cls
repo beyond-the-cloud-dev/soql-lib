@@ -321,20 +321,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         get { return new SoqlHavingFilter(); }
     }
 
-    public interface Mockable {
-        // SObject
-        void thenReturn(SObject record);
-        void thenReturn(List<SObject> records);
-        // Count
-        void thenReturn(Integer count);
-    }
-
-    @TestVisible
-    private static Mockable mock(String mockId) {
-        queryIdToMock.put(mockId, new Mock());
-        return queryIdToMock.get(mockId);
-    }
-
     public static SOQL of(SObjectType ofObject) {
         return new SOQL(ofObject);
     }
@@ -343,7 +329,23 @@ public virtual inherited sharing class SOQL implements Queryable {
         return new SOQL(ofObject);
     }
 
-    // Back support
+    // Mocking
+
+    public interface Mockable {
+        // SObject
+        Mockable thenReturn(SObject record);
+        Mockable thenReturn(List<SObject> records);
+        // Count
+        Mockable thenReturn(Integer count);
+    }
+
+    @TestVisible
+    private static Mockable mock(String mockId) {
+        queryIdToMock.put(mockId, new SoqlMock());
+        return queryIdToMock.get(mockId);
+    }
+
+    // Backward support
 
     @TestVisible // deprecated
     private static void setMock(String mockId, SObject record) {
@@ -362,7 +364,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     // Implementation
 
-    private static Map<String, Mock> queryIdToMock = new Map<String, Mock>();
+    private static Map<String, SoqlMock> queryIdToMock = new Map<String, SoqlMock>();
 
     private static Binder binder = new Binder();
     private static Integer syncQueriesIssued = 0;
@@ -422,7 +424,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public SOQL with(SObjectField field, String alias) {
-        builder.fields.with(field, alias);
+        builder.fields.withAggregateFunction(field, alias);
         return this;
     }
 
@@ -812,7 +814,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public SOQL mockId(String queryIdentifier) {
-        executor.mockId(queryIdentifier);
+        this.executor.setMock(queryIdToMock.get(queryIdentifier));
         return this;
     }
 
@@ -1011,6 +1013,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private class SoqlFields implements QueryClause {
         private String ofObject;
+
         private Set<String> fields = new Set<String>();
         private Set<String> aggregateFunctions = new Set<String>();
         private Set<String> groupedFields = new Set<String>();
@@ -1019,128 +1022,9 @@ public virtual inherited sharing class SOQL implements Queryable {
             this.ofObject = ofObject;
         }
 
-        public void count() {
-            clearAllFields(); // COUNT() must be the only element in the SELECT list.
-            withAggregateFunction('COUNT()', '');
-        }
-
-        public void count(SObjectField field, String alias) {
-            with('COUNT', field, alias);
-        }
-
-        public void count(String relationshipName, SObjectField field, String alias) {
-            with('COUNT', relationshipName, field, alias);
-        }
-
-        public void avg(SObjectField field, String alias) {
-            with('AVG', field, alias);
-        }
-
-        public void avg(String relationshipName, SObjectField field, String alias) {
-            with('AVG', relationshipName, field, alias);
-        }
-
-        public void countDistinct(SObjectField field, String alias) {
-            with('COUNT_DISTINCT', field, alias);
-        }
-
-        public void countDistinct(String relationshipName, SObjectField field, String alias) {
-            with('COUNT_DISTINCT', relationshipName, field, alias);
-        }
-
-        public void min(SObjectField field, String alias) {
-            with('MIN', field, alias);
-        }
-
-        public void min(String relationshipName, SObjectField field, String alias) {
-            with('MIN', relationshipName, field, alias);
-        }
-
-        public void max(SObjectField field, String alias) {
-            with('MAX', field, alias);
-        }
-
-        public void max(String relationshipName, SObjectField field, String alias) {
-            with('MAX', relationshipName, field, alias);
-        }
-
-        public void sum(SObjectField field, String alias) {
-            with('SUM', field, alias);
-        }
-
-        public void sum(String relationshipName, SObjectField field, String alias) {
-            with('SUM', relationshipName, field, alias);
-        }
-
-        public void grouping(SObjectField field, String alias) {
-            with('GROUPING', field, alias);
-        }
-
-        public void with(String function, String relationshipName, SObjectField field, String alias) {
-            withAggregateFunction(function + '(' + relationshipName + '.' + field + ')', alias);
-        }
-
-        public void with(String function, SObjectField field, String alias) {
-            withAggregateFunction(function + '(' + field + ')', alias);
-        }
-
-        public void with(SObjectField field, String alias) {
-            withAggregateFunction(field.getDescribe().getName(), alias);
-        }
-
-        private void withAggregateFunction(String aggregateFunction, String alias) {
-            if (String.isNotBlank(alias)) {
-                aggregateFunction += ' ' + alias;
-            }
-
-            aggregateFunctions.add(aggregateFunction);
-        }
-
-        public void withGroupedField(SObjectField field) {
-            groupedFields.add(field.getDescribe().getName());
-        }
-
-        public void withGroupedField(String relationshipName, SObjectField field) {
-            groupedFields.add(relationshipName + '.' + field);
-        }
-
-        public void with(String commaSeparatedFields) {
-            // Added to Set to avoid field duplicates in query
-            for (String splittedField : commaSeparatedFields.split(',')) {
-                String field = splittedField.trim();
-                if (isAggregateFunction(field)) {
-                    aggregateFunctions.add(field);
-                } else {
-                    fields.add(field);
-                }
-            }
-        }
-
-        private Boolean isAggregateFunction(String field) {
-            // AVG(), COUNT(), MIN(), MAX(), SUM() or Field aliasing
-            // Exclude other SOQL Funcions ex. toLabel(), convertCurrency(), FORMAT()
-            Set<String> exceptionFunctions = new Set<String>{ 'toLabel', 'convertCurrency', 'FORMAT' };
-            Pattern exceptionFunctionsRegexPattern = Pattern.compile('(?i)\\b(' + String.join(new List<String>(exceptionFunctions), '|') + ')\\s*\\(');
-            Matcher exceptionFunctionsMatcher = exceptionFunctionsRegexPattern.matcher(field);
-
-            return field.contains('(') && field.contains(')') && !exceptionFunctionsMatcher.find() || field.contains(' ');
-        }
-
         public void with(Iterable<SObjectField> fields) {
             for (SObjectField field : fields) {
                 with(field);
-            }
-        }
-
-        public void withFieldSet(String fieldSetName) {
-            FieldSet fieldSet = Schema.describeSObjects(new List<String>{ ofObject })[0].FieldSets.getMap().get(fieldSetName);
-
-            if (fieldSet == null) {
-                throw new QueryException('FieldSet with name ' + fieldSetName + ' does not exist!');
-            }
-
-            for (Schema.FieldSetMember field : fieldSet.getFields()) {
-                with(field.getFieldPath());
             }
         }
 
@@ -1168,6 +1052,129 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public void with(String relationshipPath, SObjectField field) {
             fields.add(relationshipPath + '.' + field);
+        }
+
+        public void with(String commaSeparatedFields) {
+            // Added to Set to avoid field duplicates in query
+            for (String splittedField : commaSeparatedFields.split(',')) {
+                String field = splittedField.trim();
+                if (isAggregateFunction(field)) {
+                    aggregateFunctions.add(field);
+                } else {
+                    fields.add(field);
+                }
+            }
+        }
+
+        private Boolean isAggregateFunction(String field) {
+            // AVG(), COUNT(), MIN(), MAX(), SUM() or Field aliasing
+            // Exclude other SOQL Funcions ex. toLabel(), convertCurrency(), FORMAT()
+            Set<String> exceptionFunctions = new Set<String>{ 'toLabel', 'convertCurrency', 'FORMAT' };
+            Pattern exceptionFunctionsRegexPattern = Pattern.compile('(?i)\\b(' + String.join(new List<String>(exceptionFunctions), '|') + ')\\s*\\(');
+            Matcher exceptionFunctionsMatcher = exceptionFunctionsRegexPattern.matcher(field);
+
+            return field.contains('(') && field.contains(')') && !exceptionFunctionsMatcher.find() || field.contains(' ');
+        }
+
+        public void count() {
+            clearAllFields(); // COUNT() must be the only element in the SELECT list.
+            withAggregateFunction('COUNT()', '');
+        }
+
+        public void count(SObjectField field, String alias) {
+            withAggregateFunction('COUNT', field, alias);
+        }
+
+        public void count(String relationshipName, SObjectField field, String alias) {
+            withAggregateFunction('COUNT', relationshipName, field, alias);
+        }
+
+        public void avg(SObjectField field, String alias) {
+            withAggregateFunction('AVG', field, alias);
+        }
+
+        public void avg(String relationshipName, SObjectField field, String alias) {
+            withAggregateFunction('AVG', relationshipName, field, alias);
+        }
+
+        public void countDistinct(SObjectField field, String alias) {
+            withAggregateFunction('COUNT_DISTINCT', field, alias);
+        }
+
+        public void countDistinct(String relationshipName, SObjectField field, String alias) {
+            withAggregateFunction('COUNT_DISTINCT', relationshipName, field, alias);
+        }
+
+        public void min(SObjectField field, String alias) {
+            withAggregateFunction('MIN', field, alias);
+        }
+
+        public void min(String relationshipName, SObjectField field, String alias) {
+            withAggregateFunction('MIN', relationshipName, field, alias);
+        }
+
+        public void max(SObjectField field, String alias) {
+            withAggregateFunction('MAX', field, alias);
+        }
+
+        public void max(String relationshipName, SObjectField field, String alias) {
+            withAggregateFunction('MAX', relationshipName, field, alias);
+        }
+
+        public void sum(SObjectField field, String alias) {
+            withAggregateFunction('SUM', field, alias);
+        }
+
+        public void sum(String relationshipName, SObjectField field, String alias) {
+            withAggregateFunction('SUM', relationshipName, field, alias);
+        }
+
+        public void grouping(SObjectField field, String alias) {
+            withAggregateFunction('GROUPING', field, alias);
+        }
+
+        public void withAggregateFunction(String function, String relationshipName, SObjectField field, String alias) {
+            withAggregateFunction(function + '(' + relationshipName + '.' + field + ')', alias);
+        }
+
+        public void withAggregateFunction(String function, SObjectField field, String alias) {
+            withAggregateFunction(function + '(' + field + ')', alias);
+        }
+
+        public void withAggregateFunction(SObjectField field, String alias) {
+            withAggregateFunction(field.getDescribe().getName(), alias);
+        }
+
+        private void withAggregateFunction(String aggregateFunction, String alias) {
+            if (String.isNotBlank(alias)) {
+                aggregateFunction += ' ' + alias;
+            }
+
+            aggregateFunctions.add(aggregateFunction);
+        }
+
+        public void withGroupedField(SObjectField field) {
+            groupedFields.add(field.getDescribe().getName());
+        }
+
+        public void withGroupedField(String relationshipName, SObjectField field) {
+            groupedFields.add(relationshipName + '.' + field);
+        }
+
+        public void withFieldSet(String fieldSetName) {
+            FieldSet fieldSet = Schema.describeSObjects(new List<String>{ ofObject })[0].FieldSets.getMap().get(fieldSetName);
+
+            if (fieldSet == null) {
+                throw new QueryException('FieldSet with name ' + fieldSetName + ' does not exist!');
+            }
+
+            for (Schema.FieldSetMember field : fieldSet.getFields()) {
+                with(field.getFieldPath());
+            }
+        }
+
+        public Set<String> getFields() {
+            return this.fields;
         }
 
         public void clearAllFields() {
@@ -2193,23 +2200,65 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public class Mock implements Mockable {
-        private Object mockedResult = null;
+    private class SoqlMock implements Mockable {
+        public SObjectMock sObjectMock = new SObjectMock();
+        public CountMock countMock = new CountMock();
 
-        public void thenReturn(SObject record) {
-            this.thenReturn(new List<SObject>{ record });
+        public Mockable thenReturn(SObject record) {
+            this.sObjectMock.add(record);
+            return this;
         }
 
-        public void thenReturn(List<SObject> records) {
-            this.mockedResult = records;
+        public Mockable thenReturn(List<SObject> records) {
+            this.sObjectMock.add(records);
+            return this;
         }
 
-        public void thenReturn(Integer count) {
-            this.mockedResult = count;
+        public Mockable thenReturn(Integer count) {
+            this.countMock.set(count);
+            return this;
+        }
+    }
+
+    public class SObjectMock {
+        private List<SObject> mockedRecords = new List<SObject>();
+
+        public void add(SObject record) {
+            mockedRecords.add(record);
         }
 
-        public Object getMockedResult() {
-            return mockedResult;
+        public void add(List<SObject> records) {
+            mockedRecords.addAll(records);
+        }
+
+        public SObjectMock stripAdditionalFields(Iterable<String> requestedFields) {
+            for (SObject record : this.mockedRecords) {
+                Map<String, Object> fieldsToValue = record.getPopulatedFieldsAsMap();
+
+                record.clear();
+
+                for (String field : requestedFields) {
+                    record.put(field, fieldsToValue.get(field));
+                }
+            }
+
+            return this;
+        }
+
+        public List<SObject> get() {
+            return this.mockedRecords;
+        }
+    }
+
+    public class CountMock {
+        private Integer countMock;
+
+        public void set(Integer count) {
+            this.countMock = count;
+        }
+
+        public Integer get() {
+            return this.countMock;
         }
     }
 
@@ -2217,42 +2266,42 @@ public virtual inherited sharing class SOQL implements Queryable {
         private DatabaseQuery sharingExecutor;
         private AccessLevel accessMode;
         private AccessType accessType;
-        private String mockId;
         private SoqlBuilder builder;
+        private SoqlMock mock;
 
         public Executor(SoqlBuilder builder) {
             this.builder = builder;
 
-            userMode();
-            inheritedSharing();
+            this.userMode();
+            this.inheritedSharing();
         }
 
         public void inheritedSharing() {
-            sharingExecutor = new InheritedSharing();
+            this.sharingExecutor = new InheritedSharing();
         }
 
         public void withSharing() {
-            sharingExecutor = new WithSharing();
+            this.sharingExecutor = new WithSharing();
         }
 
         public void withoutSharing() {
-            sharingExecutor = new WithoutSharing();
+            this.sharingExecutor = new WithoutSharing();
         }
 
         public void stripInaccessible(AccessType type) {
-            accessType = type;
+            this.accessType = type;
         }
 
         public void userMode() { // The object permissions, field-level security, sharing rules are enforced.
-            accessMode = AccessLevel.USER_MODE;
+            this.accessMode = AccessLevel.USER_MODE;
         }
 
         public void systemMode() { // The object permissions, field-level permissions are ignored, sharing rules are controlled by the sharingMode.
-            accessMode = AccessLevel.SYSTEM_MODE;
+            this.accessMode = AccessLevel.SYSTEM_MODE;
         }
 
-        public void mockId(String id) {
-            mockId = id;
+        public void setMock(SoqlMock mock) {
+            this.mock = mock;
         }
 
         public SObject toObject() {
@@ -2270,10 +2319,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public List<SObject> toList() {
-            incrementQueryIssued();
+            this.incrementQueryIssued();
 
-            if (queryIdToMock.containsKey(mockId)) {
-                return (List<SObject>) queryIdToMock.get(mockId).getMockedResult();
+            if (this.mock != null) {
+                return this.mock.sObjectMock.stripAdditionalFields(this.builder.fields.getFields()).get();
             }
 
             if (accessType == null) {
@@ -2287,17 +2336,17 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Integer toInteger() {
-            incrementQueryIssued();
+            this.incrementQueryIssued();
 
-            if (queryIdToMock.containsKey(mockId)) {
-                return (Integer) queryIdToMock.get(mockId).getMockedResult();
+            if (this.mock != null) {
+                return this.mock.countMock.get();
             }
 
             return sharingExecutor.toInteger(builder.toString(), binder.getBindingMap(), accessMode);
         }
 
         public Database.QueryLocator toQueryLocator() {
-            incrementQueryIssued();
+            this.incrementQueryIssued();
 
             return sharingExecutor.toQueryLocator(builder.toString(), binder.getBindingMap(), accessMode);
         }

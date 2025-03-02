@@ -56,8 +56,17 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         return null;
     }
 
+    public static Cacheable of(SObjectType ofObject) {
+        return new SOQLCache(ofObject);
+    }
+
+    public static Cacheable of(String ofObject) {
+        return new SOQLCache(ofObject);
+    }
+
+    // Mocking
+
     public interface Mockable {
-        // SObject
         void thenReturn(SObject record);
     }
 
@@ -78,14 +87,6 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         new CacheStorageProxy(ofObject).apexTransaction().removeRecordsFromCache(records);
         new CacheStorageProxy(ofObject).orgCache().removeRecordsFromCache(records);
         new CacheStorageProxy(ofObject).sessionCache().removeRecordsFromCache(records);
-    }
-
-    public static Cacheable of(SObjectType ofObject) {
-        return new SOQLCache(ofObject);
-    }
-
-    public static Cacheable of(String ofObject) {
-        return new SOQLCache(ofObject);
     }
 
     // Back support
