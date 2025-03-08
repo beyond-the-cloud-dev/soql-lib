@@ -264,6 +264,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         // ORDER
         HavingFilterGroup anyConditionMatching();
         HavingFilterGroup conditionLogic(String order);
+
+        Boolean hasValues();
     }
 
     public interface HavingFilter {
@@ -297,6 +299,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         HavingFilter notEndsWith(String value);
         HavingFilter isIn(Iterable<Object> iterable);
         HavingFilter notIn(Iterable<Object> iterable);
+
+        Boolean hasValue();
     }
 
     public static SubQuery SubQuery {
@@ -1035,11 +1039,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         public void with(String commaSeparatedFields) {
             // Add to Set to avoid "duplicate field selected" error
             for (String splittedField : commaSeparatedFields.split(',')) {
-                this.qualifyField(splittedField);
+                this.classifyField(splittedField);
             }
         }
 
-        private void qualifyField(String field) {
+        private void classifyField(String field) {
             String trimmedField = field.trim();
 
             if (this.functionsFields.isQualified(trimmedField)) {
@@ -1379,27 +1383,59 @@ public virtual inherited sharing class SOQL implements Queryable {
         Boolean hasValue();
     }
 
-    private virtual class SoqlFilterGroup implements FilterGroup {
-        private List<FilterClause> queryConditions = new List<FilterClause>();
-        private String customOrder;
-        private String connector = 'AND';
+    private virtual class FilterBuilder {
+        protected List<FilterClause> conditions = new List<FilterClause>();
+        protected String customOrder;
+        protected String connector = 'AND';
 
+        protected void add(FilterClause condition) {
+            if (condition.hasValue()) {
+                this.conditions.add(condition);
+            }
+        }
+
+        protected String buildNested() {
+            return String.format(this.getOrderWithSpecialCharacters(), this.conditions);
+        }
+
+        private String getOrderWithSpecialCharacters() {
+            String orderWithSpecialCharacters = this.getConditionsLogic();
+
+            for (Integer i = 0; i < this.conditions.size(); i++) {
+                orderWithSpecialCharacters = orderWithSpecialCharacters.replaceAll('\\b' + String.valueOf(i + 1) + '\\b', '{' + i + '}');
+            }
+
+            return orderWithSpecialCharacters; // e.g ({0} AND ({1} AND {2}))
+        }
+
+        private String getConditionsLogic() {
+            if (String.isNotEmpty(this.customOrder)) {
+                return this.customOrder;
+            }
+
+            List<String> defaultOrder = new List<String>();
+
+            for (Integer i = 0; i < this.conditions.size(); i++) {
+                defaultOrder.add(String.valueOf(i + 1));
+            }
+
+            return String.join(defaultOrder, ' ' + this.connector + ' '); // e.g (0 AND 1 AND 2)
+        }
+    }
+
+    private virtual class SoqlFilterGroup extends FilterBuilder implements FilterGroup {
         public FilterGroup add(FilterGroup filterGroup) {
-            return this.add(new FilterGroupAdapter(filterGroup));
+            this.add(new FilterGroupAdapter(filterGroup));
+            return this;
         }
 
         public FilterGroup add(Filter filter) {
-            return this.add(new FilterAdapter(filter));
+            this.add(new FilterAdapter(filter));
+            return this;
         }
 
         public FilterGroup add(String dynamicCondition) {
-            return this.add(new StringConditionAdapter(dynamicCondition));
-        }
-
-        public FilterGroup add(FilterClause condition) {
-            if (condition.hasValue()) {
-                this.queryConditions.add(condition);
-            }
+            this.add(new StringConditionAdapter(dynamicCondition));
             return this;
         }
 
@@ -1429,45 +1465,17 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public FilterGroup ignoreWhen(Boolean logicExpression) {
             if (logicExpression) {
-                this.queryConditions = new List<FilterClause>();
+                this.conditions = new List<FilterClause>();
             }
             return this;
         }
 
         public Boolean hasValues() {
-            return !this.queryConditions.isEmpty();
+            return !this.conditions.isEmpty();
         }
 
         public virtual override String toString() {
             return '(' + this.buildNested() + ')';
-        }
-
-        public String buildNested() {
-            return String.format(this.getOrderWithSpecialCharacters(), this.queryConditions);
-        }
-
-        private String getOrderWithSpecialCharacters() {
-            String orderWithSpecialCharacters = this.getConditionsLogic();
-
-            for (Integer i = 0; i < this.queryConditions.size(); i++) {
-                orderWithSpecialCharacters = orderWithSpecialCharacters.replaceAll('\\b' + String.valueOf(i + 1) + '\\b', '{' + i + '}');
-            }
-
-            return orderWithSpecialCharacters; // e.g ({0} AND ({1} AND {2}))
-        }
-
-        private String getConditionsLogic() {
-            if (String.isNotEmpty(this.customOrder)) {
-                return this.customOrder;
-            }
-
-            List<String> defaultOrder = new List<String>();
-
-            for (Integer i = 0; i < this.queryConditions.size(); i++) {
-                defaultOrder.add(String.valueOf(i + 1));
-            }
-
-            return String.join(defaultOrder, ' ' + this.connector + ' '); // e.g (0 AND 1 AND 2)
         }
     }
 
@@ -1825,25 +1833,19 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private virtual class SoqlHavingFilterGroup implements HavingFilterGroup, HavingFilterClause {
-        private List<HavingFilterClause> havingConditions = new List<HavingFilterClause>();
-        private String customOrder;
-        private String connector = 'AND';
-
+    private virtual class SoqlHavingFilterGroup extends FilterBuilder implements HavingFilterGroup {
         public HavingFilterGroup add(HavingFilterGroup filterGroup) {
-            return this.add(new HavingFilterGroupAdapter(filterGroup));
+            this.add(new HavingFilterGroupAdapter(filterGroup));
+            return this;
         }
 
         public HavingFilterGroup add(HavingFilter filter) {
-            return this.add(new HavingFilterAdapter(filter));
+            this.add(new HavingFilterAdapter(filter));
+            return this;
         }
 
         public HavingFilterGroup add(String filter) {
-            return this.add(new HavingStringAdapter(filter));
-        }
-
-        public HavingFilterGroup add(HavingFilterClause condition) {
-            this.havingConditions.add(condition);
+            this.add(new HavingStringAdapter(filter));
             return this;
         }
 
@@ -1861,32 +1863,8 @@ public virtual inherited sharing class SOQL implements Queryable {
             return '(' + this.buildNested() + ')';
         }
 
-        public String buildNested() {
-            return String.format(this.getOrderWithSpecialCharacters(), this.havingConditions);
-        }
-
-        private String getOrderWithSpecialCharacters() {
-            String orderWithSpecialCharacters = this.getConditionsLogic();
-
-            for (Integer i = 0; i < this.havingConditions.size(); i++) {
-                orderWithSpecialCharacters = orderWithSpecialCharacters.replaceFirst(String.valueOf(i + 1), '{' + i + '}');
-            }
-
-            return orderWithSpecialCharacters; // e.g ({0} AND ({1} AND {2}))
-        }
-
-        private String getConditionsLogic() {
-            if (String.isNotEmpty(this.customOrder)) {
-                return this.customOrder;
-            }
-
-            List<String> defaultOrder = new List<String>();
-
-            for (Integer i = 0; i < this.havingConditions.size(); i++) {
-                defaultOrder.add(String.valueOf(i + 1));
-            }
-
-            return String.join(defaultOrder, ' ' + this.connector + ' '); // e.g (0 AND 1 AND 2)
+        public Boolean hasValues() {
+            return !this.conditions.isEmpty();
         }
     }
 
@@ -1896,47 +1874,55 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private interface HavingFilterClause {
-        String toString();
-    }
-
-    private class HavingFilterGroupAdapter implements HavingFilterClause {
+    private class HavingFilterGroupAdapter implements FilterClause {
         private HavingFilterGroup havingFilterGroup;
 
         public HavingFilterGroupAdapter(HavingFilterGroup havingFilterGroup) {
             this.havingFilterGroup = havingFilterGroup;
         }
 
+        public Boolean hasValue() {
+            return this.havingFilterGroup.hasValues();
+        }
+
         public override String toString() {
-            return havingFilterGroup.toString();
+            return this.havingFilterGroup.toString();
         }
     }
 
-    private class HavingFilterAdapter implements HavingFilterClause {
+    private class HavingFilterAdapter implements FilterClause {
         private HavingFilter havingFilter;
 
         public HavingFilterAdapter(HavingFilter havingFilter) {
             this.havingFilter = havingFilter;
         }
 
+        public Boolean hasValue() {
+            return this.havingFilter.hasValue();
+        }
+
         public override String toString() {
-            return havingFilter.toString();
+            return this.havingFilter.toString();
         }
     }
 
-    private class HavingStringAdapter implements HavingFilterClause {
+    private class HavingStringAdapter implements FilterClause {
         private String condition;
 
         public HavingStringAdapter(String condition) {
             this.condition = condition;
         }
 
+        public Boolean hasValue() {
+            return String.isNotEmpty(this.condition);
+        }
+
         public override String toString() {
-            return condition.toString();
+            return this.condition.toString();
         }
     }
 
-    private class SoqlHavingFilter implements HavingFilter, HavingFilterClause {
+    private class SoqlHavingFilter implements HavingFilter, FilterClause {
         private String field;
         private String comperator;
         private Object value;
@@ -2083,6 +2069,10 @@ public virtual inherited sharing class SOQL implements Queryable {
             this.comperator = comperator;
             this.value = value instanceof String ? '\'' + value + '\'' : value;
             return this;
+        }
+
+        public Boolean hasValue() {
+            return String.isNotEmpty(this.field);
         }
 
         public override String toString() {
