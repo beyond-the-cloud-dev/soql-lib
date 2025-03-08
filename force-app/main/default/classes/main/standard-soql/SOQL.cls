@@ -667,37 +667,45 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable groupBy(String field) {
-        this.builder.groupBy.with(field);
         this.builder.fields.withGroupedField(field);
+        this.builder.groupBy.with(field);
         return this;
     }
 
     public Queryable groupBy(String relationshipName, SObjectField field) {
-        this.builder.groupBy.with(relationshipName, field);
         this.builder.fields.withGroupedField(relationshipName, field);
+        this.builder.groupBy.with(relationshipName, field);
         return this;
     }
 
     public Queryable groupByRollup(SObjectField field) {
-        this.builder.groupBy.rollup(field);
         this.builder.fields.withGroupedField(field.getDescribe().getName());
-        return this;
+        return this.groupBy(field, 'ROLLUP');
     }
 
     public Queryable groupByRollup(String relationshipName, SObjectField field) {
-        this.builder.groupBy.rollup(relationshipName, field);
         this.builder.fields.withGroupedField(relationshipName, field);
-        return this;
+        return this.groupBy(relationshipName, field, 'ROLLUP');
     }
 
     public Queryable groupByCube(SObjectField field) {
-        this.builder.groupBy.cube(field);
+        this.builder.fields.withGroupedField(field.getDescribe().getName());
+        return this.groupBy(field, 'CUBE');
+    }
+
+    public Queryable groupByCube(String relationshipName, SObjectField field) {
+        this.builder.fields.withGroupedField(relationshipName, field);
+        return this.groupBy(relationshipName, field, 'CUBE');
+    }
+
+    private Queryable groupBy(SObjectField field, String function) {
+        this.builder.groupBy.with(field.getDescribe().getName(), function);
         this.builder.fields.withGroupedField(field.getDescribe().getName());
         return this;
     }
 
-    public Queryable groupByCube(String relationshipName, SObjectField field) {
-        this.builder.groupBy.cube(relationshipName, field);
+    private Queryable groupBy(String relationshipName, SObjectField field, String function) {
+        this.builder.groupBy.with(relationshipName, field.getDescribe().getName(), function);
         this.builder.fields.withGroupedField(relationshipName, field);
         return this;
     }
@@ -1759,10 +1767,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         private Set<String> groupByFields = new Set<String>();
         private String groupByFunction = '';
 
-        public void with(SObjectField field) {
-            this.with(field.getDescribe().getName());
-        }
-
         public void with(String relationshipName, SObjectField field) {
             this.with(relationshipName + '.' + field);
         }
@@ -1772,30 +1776,14 @@ public virtual inherited sharing class SOQL implements Queryable {
             this.groupByFields.add(field.trim());
         }
 
-        public void rollup(SObjectField field) {
-            this.rollup(field.getDescribe().getName());
-        }
-
-        public void rollup(String relationshipName, SObjectField field) {
-            this.rollup(relationshipName + '.' + field);
-        }
-
-        private void rollup(String field) {
-            this.setGroupByFunction('ROLLUP({0})');
+        public void with(String field, String function) {
+            this.setGroupByFunction(function + '({0})');
             this.groupByFields.add(field.trim());
         }
 
-        public void cube(SObjectField field) {
-            this.cube(field.getDescribe().getName());
-        }
-
-        public void cube(String relationshipName, SObjectField field) {
-            this.cube(relationshipName + '.' + field);
-        }
-
-        private void cube(String field) {
-            this.setGroupByFunction('CUBE({0})');
-            this.groupByFields.add(field.trim());
+        public void with(String relationshipName, String field, String function) {
+            this.setGroupByFunction(function + '({0})');
+            this.groupByFields.add((relationshipName + '.' + field).trim());
         }
 
         public void setGroupByFunction(String newGroupByFunction) {
@@ -1906,7 +1894,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class SoqlHavingFilter implements HavingFilter, FilterClause {
+    private class SoqlHavingFilter implements HavingFilter {
         private String field;
         private String comperator;
         private Object value;
