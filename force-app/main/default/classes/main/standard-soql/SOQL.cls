@@ -386,28 +386,28 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable with(SObjectField field) {
-        this.builder.fields.with(field);
+        this.builder.fields.plainFields.add(field);
         return this;
     }
 
     public Queryable with(SObjectField field1, SObjectField field2) {
-        return this.with(new List<SObjectField>{ field1, field2 });
+        return this.with(field1).with(field2);
     }
 
     public Queryable with(SObjectField field1, SObjectField field2, SObjectField field3) {
-        return this.with(new List<SObjectField>{ field1, field2, field3 });
+        return this.with(field1).with(field2).with(field3);
     }
 
     public Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
-        return this.with(new List<SObjectField>{ field1, field2, field3, field4 });
+        return this.with(field1).with(field2).with(field3).with(field4);
     }
 
     public Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
-        return this.with(new List<SObjectField>{ field1, field2, field3, field4, field5 });
+        return this.with(field1).with(field2).with(field3).with(field4).with(field5);
     }
 
     public Queryable with(List<SObjectField> fields) {
-        this.builder.fields.with(fields);
+        this.builder.fields.plainFields.add(fields);
         return this;
     }
 
@@ -426,7 +426,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable with(SObjectField field, String alias) {
-        this.builder.fields.withFieldAlias(field, alias);
+        this.builder.fields.aggregateFields.add(field.getDescribe().getName(), alias);
         return this;
     }
 
@@ -451,7 +451,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable with(String relationshipName, Iterable<SObjectField> fields) {
-        this.builder.fields.with(relationshipName, fields);
+        this.builder.fields.relationshipFields.add(relationshipName, fields);
         return this;
     }
 
@@ -566,12 +566,12 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private Queryable withAggregateFunction(String function, SObjectField field, String alias) {
-        this.builder.fields.withAggregateFunction(function, field, alias);
+        this.builder.fields.aggregateFields.add(function, field, alias);
         return this;
     }
 
     private Queryable withAggregateFunction(String function, String relationship, SObjectField field, String alias) {
-        this.builder.fields.withAggregateFunction(function, relationship, field, alias);
+        this.builder.fields.aggregateFields.add(function, relationship, field, alias);
         return this;
     }
 
@@ -600,7 +600,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private Queryable withFunction(String function, String field, String alias) {
-        this.builder.fields.withFunction(function, field, alias);
+        this.builder.fields.functionsFields.add(function, field, alias);
         return this;
     }
 
@@ -659,9 +659,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable groupBy(SObjectField field) {
-        this.builder.groupBy.with(field);
-        this.builder.fields.withGroupedField(field);
-        return this;
+        return this.groupBy(field.getDescribe().getName());
     }
 
     public Queryable groupBy(String field) {
@@ -678,7 +676,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public Queryable groupByRollup(SObjectField field) {
         this.builder.groupBy.rollup(field);
-        this.builder.fields.withGroupedField(field);
+        this.builder.fields.withGroupedField(field.getDescribe().getName());
         return this;
     }
 
@@ -690,7 +688,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public Queryable groupByCube(SObjectField field) {
         this.builder.groupBy.cube(field);
-        this.builder.fields.withGroupedField(field);
+        this.builder.fields.withGroupedField(field.getDescribe().getName());
         return this;
     }
 
@@ -1017,58 +1015,21 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class SoqlFields implements QueryClause {
-        private String ofObject;
-
         public PlainFields plainFields = new PlainFields();
         public RelationshipFields relationshipFields = new RelationshipFields();
         public FunctionsFields functionsFields = new FunctionsFields(); // toLabel, FORMAT
         public AggregateFunctionsFields aggregateFields = new AggregateFunctionsFields();
 
+        private String ofObject;
         private Set<String> groupedFields = new Set<String>();
 
         public SoqlFields(String ofObject) {
             this.ofObject = ofObject;
         }
 
-        public void with(Iterable<SObjectField> fields) {
-            for (SObjectField field : fields) {
-                this.with(field);
-            }
-        }
-
-        public void with(SObjectField field) {
-            this.plainFields.add(field);
-        }
-
-        public void with(String relationshipPath, Iterable<SObjectField> fields) {
-            for (SObjectField field : fields) {
-                this.with(relationshipPath, field);
-            }
-        }
-
-        public void with(String relationshipPath, SObjectField field) {
-            this.relationshipFields.add(relationshipPath, field);
-        }
-
         public void count() {
             this.clearAllFields(); // COUNT() must be the only element in the SELECT list.
             this.aggregateFields.add('COUNT()', '');
-        }
-
-        public void withFieldAlias(SObjectField field, String alias) {
-            this.aggregateFields.add(field.getDescribe().getName(), alias);
-        }
-
-        public void withAggregateFunction(String function, SObjectField field, String alias) {
-            this.aggregateFields.add(function + '(' + field + ')', alias);
-        }
-
-        public void withAggregateFunction(String function, String relationship, SObjectField field, String alias) {
-            this.aggregateFields.add(function + '(' + relationship + '.' + field + ')', alias);
-        }
-
-        public void withFunction(String function, String field, String alias) {
-            this.functionsFields.add(function + '(' + field + ')', alias);
         }
 
         public void with(String commaSeparatedFields) {
@@ -1078,7 +1039,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             }
         }
 
-        public void qualifyField(String field) {
+        private void qualifyField(String field) {
             String trimmedField = field.trim();
 
             if (this.functionsFields.isQualified(trimmedField)) {
@@ -1092,10 +1053,6 @@ public virtual inherited sharing class SOQL implements Queryable {
             }
         }
 
-        public void withGroupedField(SObjectField field) {
-           this.withGroupedField(field.getDescribe().getName());
-        }
-
         public void withGroupedField(String field) {
             this.groupedFields.add(field);
          }
@@ -1105,7 +1062,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public void withFieldSet(String fieldSetName) {
-            FieldSet fieldSet = Schema.describeSObjects(new List<String>{ ofObject })[0].FieldSets.getMap().get(fieldSetName);
+            FieldSet fieldSet = Schema.describeSObjects(new List<String>{ this.ofObject })[0].FieldSets.getMap().get(fieldSetName);
 
             if (fieldSet == null) {
                 throw new QueryException('FieldSet with name ' + fieldSetName + ' does not exist!');
@@ -1188,12 +1145,24 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class PlainFields extends SelectFields {
+        public void add(Iterable<SObjectField> fields) {
+            for (SObjectField field : fields) {
+                this.add(field);
+            }
+        }
+
         public void add(SObjectField field) {
             this.add(field.getDescribe().getName());
         }
     }
 
     private class RelationshipFields extends SelectFields {
+        public void add(String relationshipPath, Iterable<SObjectField> fields) {
+            for (SObjectField field : fields) {
+                this.add(relationshipPath, field);
+            }
+        }
+
         public void add(String relationshipPath, SObjectField field) {
             this.add(relationshipPath + '.' + field);
         }
@@ -1207,20 +1176,24 @@ public virtual inherited sharing class SOQL implements Queryable {
         private final Set<String> AGGREGATE_FUNCTIONS = new Set<String>{ 'COUNT', 'AVG', 'COUNT_DISTINCT', 'MIN', 'MAX', 'SUM' };
         private final Set<String> DATE_FUNCTIONS = new Set<String>{ 'CALENDAR_MONTH', 'CALENDAR_QUARTER', 'CALENDAR_YEAR', 'DAY_IN_MONTH', 'DAY_IN_WEEK', 'DAY_IN_YEAR', 'DAY_ONLY', 'FISCAL_MONTH', 'FISCAL_QUARTER', 'FISCAL_YEAR', 'HOUR_IN_DAY', 'WEEK_IN_MONTH', 'WEEK_IN_YEAR' };
 
-        private Set<String> groupedFields = new Set<String>();
+        public void add(String function, SObjectField field, String alias) {
+            this.add(function + '(' + field + ')', alias);
+        }
+
+        public void add(String function, String relationship, SObjectField field, String alias) {
+            this.add(function + '(' + relationship + '.' + field + ')', alias);
+        }
 
         private void add(String aggregateFunction, String alias) {
             if (String.isNotBlank(alias)) {
                 aggregateFunction += ' ' + alias;
             }
-
-            this.fields.add(aggregateFunction);
+            this.add(aggregateFunction);
         }
 
         private Boolean isQualified(String field) {
             Boolean isFieldAliasing = !field.contains('(') && !field.contains(')') && field.contains(' ');
             String functionName = field.split('\\(')[0].toUpperCase();
-
             return AGGREGATE_FUNCTIONS.contains(functionName) || DATE_FUNCTIONS.contains(functionName) || isFieldAliasing;
         }
     }
@@ -1228,17 +1201,19 @@ public virtual inherited sharing class SOQL implements Queryable {
     private class FunctionsFields extends SelectFields {
         private final Set<String> FUNCTIONS = new Set<String>{ 'CONVERTCURRENCY', 'CONVERTTIMEZONE', 'FORMAT', 'GROUPING', 'TOLABEL' };
 
+        public void add(String function, String field, String alias) {
+            this.add(function + '(' + field + ')', alias);
+        }
+
         public void add(String function, String alias) {
             if (String.isNotBlank(alias)) {
                 function += ' ' + alias;
             }
-
-            this.fields.add(function);
+            this.add(function);
         }
 
         public Boolean isQualified(String field) {
             String functionName = field.split('\\(')[0].toUpperCase();
-
             return FUNCTIONS.contains(functionName);
         }
     }
@@ -1252,28 +1227,28 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public SubQuery with(SObjectField field) {
-            this.builder.fields.with(field);
+            this.builder.fields.plainFields.add(field);
             return this;
         }
 
         public SubQuery with(SObjectField field1, SObjectField field2) {
-            return this.with(new List<SObjectField>{ field1, field2 });
+            return this.with(field1).with(field2);
         }
 
         public SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3) {
-            return this.with(new List<SObjectField>{ field1, field2, field3 });
+            return this.with(field1).with(field2).with(field3);
         }
 
         public SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
-            return this.with(new List<SObjectField>{ field1, field2, field3, field4 });
+            return this.with(field1).with(field2).with(field3).with(field4);
         }
 
         public SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
-            return this.with(new List<SObjectField>{ field1, field2, field3, field4, field5 });
+            return this.with(field1).with(field2).with(field3).with(field4).with(field5);
         }
 
         public SubQuery with(Iterable<SObjectField> fields) {
-            this.builder.fields.with(fields);
+            this.builder.fields.plainFields.add(fields);
             return this;
         }
 
@@ -1283,7 +1258,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public SubQuery with(String relationshipName, Iterable<SObjectField> fields) {
-            this.builder.fields.with(relationshipName, fields);
+            this.builder.fields.relationshipFields.add(relationshipName, fields);
             return this;
         }
 
@@ -1753,7 +1728,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public InnerJoin with(SObjectField field) {
-            builder.fields.with(field);
+            builder.fields.plainFields.add(field);
             return this;
         }
 
@@ -2229,7 +2204,6 @@ public virtual inherited sharing class SOQL implements Queryable {
             }
 
             if (fields.relationshipFields.isEmpty() && fields.functionsFields.isEmpty()) {
-                // record is cleared from additional plain fields
                 this.stripAdditionalPlainFields(fields.plainFields.get());
             }
 
@@ -2270,7 +2244,6 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public Executor(SoqlBuilder builder) {
             this.builder = builder;
-
             this.accessMode = AccessLevel.USER_MODE;
             this.sharingExecutor = new InheritedSharing();
         }
@@ -2338,11 +2311,11 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public Database.QueryLocator toQueryLocator() {
             this.incrementQueryIssued();
-
             return this.sharingExecutor.toQueryLocator(this.builder.toString(), binder.getBindingMap(), this.accessMode);
         }
 
         private void incrementQueryIssued() {
+            // This counter is used only in unit tests to also track mocked queries.
             if (!Test.isRunningTest() || System.isBatch() || System.isFuture() || System.isQueueable() || System.isScheduled()) {
                 return;
             }
