@@ -1731,27 +1731,27 @@ public virtual inherited sharing class SOQL implements Queryable {
         private SoqlBuilder builder;
 
         public InnerJoin of(SObjectType ofObject) {
-            builder = new SoqlBuilder(ofObject.getDescribe().getName());
+            this.builder = new SoqlBuilder(ofObject.getDescribe().getName());
             return this;
         }
 
         public InnerJoin with(SObjectField field) {
-            builder.fields.plainFields.add(field);
+            this.builder.fields.plainFields.add(field);
             return this;
         }
 
         public InnerJoin whereAre(FilterGroup filterGroup) {
-            builder.conditions.add(filterGroup);
+            this.builder.conditions.add(filterGroup);
             return this;
         }
 
         public InnerJoin whereAre(Filter filter) {
-            builder.conditions.add(filter);
+            this.builder.conditions.add(filter);
             return this;
         }
 
         public override String toString() {
-            return '(' + builder.toString() + ')';
+            return '(' +  this.builder.toString() + ')';
         }
     }
 
@@ -1760,42 +1760,42 @@ public virtual inherited sharing class SOQL implements Queryable {
         private String groupByFunction = '';
 
         public void with(SObjectField field) {
-            with(field.getDescribe().getName());
+            this.with(field.getDescribe().getName());
         }
 
         public void with(String relationshipName, SObjectField field) {
-            with(relationshipName + '.' + field);
+            this.with(relationshipName + '.' + field);
         }
 
         private void with(String field) {
-            setGroupByFunction('{0}');
-            groupByFields.add(field.trim());
+            this.setGroupByFunction('{0}');
+            this.groupByFields.add(field.trim());
         }
 
         public void rollup(SObjectField field) {
-            rollup(field.getDescribe().getName());
+            this.rollup(field.getDescribe().getName());
         }
 
         public void rollup(String relationshipName, SObjectField field) {
-            rollup(relationshipName + '.' + field);
+            this.rollup(relationshipName + '.' + field);
         }
 
         private void rollup(String field) {
-            setGroupByFunction('ROLLUP({0})');
-            groupByFields.add(field.trim());
+            this.setGroupByFunction('ROLLUP({0})');
+            this.groupByFields.add(field.trim());
         }
 
         public void cube(SObjectField field) {
-            cube(field.getDescribe().getName());
+            this.cube(field.getDescribe().getName());
         }
 
         public void cube(String relationshipName, SObjectField field) {
-            cube(relationshipName + '.' + field);
+            this.cube(relationshipName + '.' + field);
         }
 
         private void cube(String field) {
-            setGroupByFunction('CUBE({0})');
-            groupByFields.add(field.trim());
+            this.setGroupByFunction('CUBE({0})');
+            this.groupByFields.add(field.trim());
         }
 
         public void setGroupByFunction(String newGroupByFunction) {
@@ -1806,7 +1806,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            return 'GROUP BY ' + String.format(groupByFunction, new List<String>{ String.join(groupByFields, ', ') });
+            return 'GROUP BY ' + String.format( this.groupByFunction, new List<String>{ String.join( this.groupByFields, ', ') });
         }
     }
 
@@ -1845,7 +1845,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public HavingFilterGroup add(String filter) {
-            this.add(new HavingStringAdapter(filter));
+            this.add(new StringConditionAdapter(filter));
             return this;
         }
 
@@ -1903,22 +1903,6 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public override String toString() {
             return this.havingFilter.toString();
-        }
-    }
-
-    private class HavingStringAdapter implements FilterClause {
-        private String condition;
-
-        public HavingStringAdapter(String condition) {
-            this.condition = condition;
-        }
-
-        public Boolean hasValue() {
-            return String.isNotEmpty(this.condition);
-        }
-
-        public override String toString() {
-            return this.condition.toString();
         }
     }
 
