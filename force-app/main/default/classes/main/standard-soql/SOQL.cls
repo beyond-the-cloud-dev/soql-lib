@@ -411,9 +411,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable with(List<SObjectField> fields) {
-        for (SObjectField field : fields) {
-            this.with(field);
-        }
+        this.builder.fields.plainFields.add(fields);
         return this;
     }
 
@@ -675,7 +673,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable groupBy(String relationshipName, SObjectField field) {
-        this.builder.fields.withGroupedField(relationshipName, field);
+        this.builder.fields.withGroupedField(relationshipName + '.' + field);
         this.builder.groupBy.with(relationshipName, field);
         return this;
     }
@@ -686,7 +684,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable groupByRollup(String relationshipName, SObjectField field) {
-        this.builder.fields.withGroupedField(relationshipName, field);
+        this.builder.fields.withGroupedField(relationshipName + '.' + field);
         return this.groupBy(relationshipName, field, 'ROLLUP');
     }
 
@@ -696,7 +694,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable groupByCube(String relationshipName, SObjectField field) {
-        this.builder.fields.withGroupedField(relationshipName, field);
+        this.builder.fields.withGroupedField(relationshipName + '.' + field);
         return this.groupBy(relationshipName, field, 'CUBE');
     }
 
@@ -708,7 +706,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private Queryable groupBy(String relationshipName, SObjectField field, String function) {
         this.builder.groupBy.with(relationshipName, field + '', function);
-        this.builder.fields.withGroupedField(relationshipName, field);
+        this.builder.fields.withGroupedField(relationshipName + '.' + field);
         return this;
     }
 
@@ -1037,8 +1035,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         private String ofObject;
         private Set<String> groupedFields = new Set<String>();
 
-        public Set<String> plainFieldsList = new Set<String>();
-
         public SoqlFields(String ofObject) {
             this.ofObject = ofObject;
         }
@@ -1072,10 +1068,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         public void withGroupedField(String field) {
             this.groupedFields.add(field);
          }
-
-        public void withGroupedField(String relationshipName, SObjectField field) {
-            this.groupedFields.add(relationshipName + '.' + field);
-        }
 
         public void withFieldSet(String fieldSetName) {
             FieldSet fieldSet = Schema.describeSObjects(new List<String>{ this.ofObject })[0].FieldSets.getMap().get(fieldSetName);
@@ -1160,7 +1152,13 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class PlainFields extends SelectFields {}
+    private class PlainFields extends SelectFields {
+        public void add(Iterable<SObjectField> fields) {
+            for (SObjectField field : fields) {
+                this.add(field + '');
+            }
+        }
+    }
 
     private class RelationshipFields extends SelectFields {
         public void add(String relationshipPath, Iterable<SObjectField> fields) {
@@ -1254,9 +1252,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public SubQuery with(Iterable<SObjectField> fields) {
-            for (SObjectField field : fields) {
-                this.with(field);
-            }
+            this.builder.fields.plainFields.add(fields);
             return this;
         }
 
@@ -2070,7 +2066,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            return orderField + ' ' + sortingOrder + ' NULLS ' + nullsOrder;
+            return this.orderField + ' ' + this.sortingOrder + ' NULLS ' + this.nullsOrder;
         }
     }
 
@@ -2090,11 +2086,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         private Integer soqlOffset;
 
         public void set(Integer fromRow) {
-            soqlOffset = fromRow;
+            this.soqlOffset = fromRow;
         }
 
         public override String toString() {
-            return 'OFFSET ' + soqlOffset;
+            return 'OFFSET ' + this.soqlOffset;
         }
     }
 
@@ -2106,7 +2102,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            return forStatement;
+            return this.forStatement;
         }
     }
 
