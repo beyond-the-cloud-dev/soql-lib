@@ -58,17 +58,24 @@ public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selecto
         whereAre(Filter.with(Contact.AccountId).equal(accountId));
         return this;
     }
+
+    public SOQL_Contact bySource(String source) {
+        whereAre(Filter.with(Contact.ContactSource).equal(source));
+        return this;
+    }
 }
 ```
+
+**Usage**
 
 ```apex
 public with sharing class ExampleController {
     @AuraEnabled
     public static List<Contact> getAccountContacts(Id accountId) {
         return SOQL_Contact.query()
-            .byRecordType('Partner')
             .byAccountId(accountId)
-            .with(Contact.Email)
+            .bySource('Website')
+            .with(Contact.Email, Contact.Department)
             .toList();
     }
 }
@@ -95,6 +102,22 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
     public SOQL_ProfileCache byName(String name) {
         whereEqual(Profile.Name, name);
         return this;
+    }
+}
+```
+
+**Usage**
+
+```apex
+public with sharing class ExampleController {
+    @AuraEnabled
+    public static void createNewAdministrator(User newUser) {
+        Profile adminProfile = (Profile) SOQL_ProfileCache.query()
+            .byName('System Administrator')
+            .toObject();
+
+        newUser.ProfileId = adminProfile.Id;
+        insert newUser;
     }
 }
 ```
