@@ -89,7 +89,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         new CacheStorageProxy(ofObject).sessionCache().removeRecordsFromCache(records);
     }
 
-    // Back support
+    // Backward support
 
     @TestVisible  // deprecated
     private static void setMock(String mockId, SObject record) {
