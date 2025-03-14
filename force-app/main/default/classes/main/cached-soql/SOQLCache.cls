@@ -72,7 +72,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     @TestVisible
     private static Mockable mock(String mockId) {
-        queryIdToMock.put(mockId, new Mock());
+        queryIdToMock.put(mockId, new SoqlMock());
         return queryIdToMock.get(mockId);
     }
 
@@ -98,7 +98,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     // Implementation
 
-    private static Map<String, Mock> queryIdToMock = new Map<String, Mock>();
+    private static Map<String, SoqlMock> queryIdToMock = new Map<String, SoqlMock>();
 
     private Executor executor;
     private Cache cache;
@@ -201,7 +201,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     public Cacheable mockId(String queryIdentifier) {
         this.currentyQuery.mockId(queryIdentifier);
-        this.executor.mockId(queryIdentifier);
+        this.executor.mock(queryIdToMock.get(queryIdentifier));
         return this;
     }
 
@@ -516,7 +516,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
     }
 
-    public class Mock implements Mockable {
+    public class SoqlMock implements Mockable {
         private List<SObject> mockedRecords = null;
 
         public void thenReturn(SObject record) {
@@ -532,7 +532,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         private SOQL.Queryable currentyQuery;
         private Cache cache;
         private AccessType accessType = null;
-        private String mockId;
+        private SoqlMock mock;
 
         public Executor(SOQL.Queryable currentyQuery, Cache cache) {
             this.currentyQuery = currentyQuery;
@@ -543,8 +543,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             accessType = type;
         }
 
-        public void mockId(String id) {
-            mockId = id;
+        public void mock(SoqlMock mock) {
+            this.mock = mock;
         }
 
         public SObject toObject() {
@@ -562,8 +562,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         private List<SObject> toList() {
-            if (queryIdToMock.containsKey(mockId)) {
-                return queryIdToMock.get(mockId).getMockedResult();
+            if (this.mock != null) {
+                return this.mock.getMockedResult();
             }
 
             List<SObject> records = this.cache.toList();
