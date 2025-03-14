@@ -3270,9 +3270,47 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void mockingMultipleRecords() {
+        List<Account> testAccounts = new List<Account>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        };
+
+        // Test
+        SOQL.setMock('mockingQuery', testAccounts);
+        List<Account> result = SOQL.of(Account.sObjectType).mockId('mockingQuery').toList();
+
+        // Verify
+        Assert.areEqual(testAccounts, result, 'The mocked accounts should be returned.');
+    }
+
+    @IsTest
+    static void mockingSingleRecordWithMockableInterface() {
+        // Setup
+        Account testAccount = new Account(Name = 'Test 1');
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(testAccount);
+        Account result = (Account) SOQL.of(Account.sObjectType).mockId('mockingQuery').toObject();
+
+        // Verify
+        Assert.areEqual(testAccount, result, 'The mocked account should be returned.');
+    }
+
+    @IsTest
     static void mockingCount() {
         // Test
         SOQL.setCountMock('mockingQuery', 2);
+        Integer result = SOQL.of(Account.sObjectType).count().mockId('mockingQuery').toInteger();
+
+        // Verify
+        Assert.areEqual(2, result, 'The mocked count should be returned.');
+    }
+
+    @IsTest
+    static void mockingCountWithMockableInterface() {
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(2);
         Integer result = SOQL.of(Account.sObjectType).count().mockId('mockingQuery').toInteger();
 
         // Verify
@@ -3288,7 +3326,7 @@ private class SOQL_Test {
         };
 
         // Test
-        SOQL.setMock('mockingQuery', accounts);
+        SOQL.mock('mockingQuery').thenReturn(accounts);
         List<Account> result = SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toList();
 
         // Verify
@@ -3310,7 +3348,7 @@ private class SOQL_Test {
         };
 
         // Test
-        SOQL.setMock('mockingQuery', accounts);
+        SOQL.mock('mockingQuery').thenReturn(accounts);
         List<Account> result = SOQL.of(Account.SObjectType).with(Account.Industry).mockId('mockingQuery').toList();
 
         // Verify
@@ -3334,7 +3372,7 @@ private class SOQL_Test {
         };
 
         // Test
-        SOQL.setMock('mockingQuery', accounts);
+        SOQL.mock('mockingQuery').thenReturn(accounts);
         List<Account> result = SOQL.of(Account.SObjectType).with(Account.Name).toLabel(Account.Industry).mockId('mockingQuery').toList();
 
         // Verify
@@ -3357,7 +3395,7 @@ private class SOQL_Test {
         QueryException soqlException = null;
 
         // Test
-        SOQL.setMock('mockingQuery', accounts);
+        SOQL.mock('mockingQuery').thenReturn(accounts);
 
         try {
             SOQL.of(Account.SObjectType).with(Account.Name).with(Account.Industry, 'accIndustry').mockId('mockingQuery').toList();
@@ -3381,7 +3419,7 @@ private class SOQL_Test {
         QueryException soqlException = null;
 
         // Test
-        SOQL.setMock('mockingQuery', accounts);
+        SOQL.mock('mockingQuery').thenReturn(accounts);
 
         try {
             SOQL.of(Account.SObjectType).count(Account.Industry).mockId('mockingQuery').toAggregated();
@@ -3405,7 +3443,7 @@ private class SOQL_Test {
         QueryException soqlException = null;
 
         // Test
-        SOQL.setMock('mockingQuery', accounts);
+        SOQL.mock('mockingQuery').thenReturn(accounts);
         List<Account> result = SOQL.of(Account.SObjectType).with(Account.Name, Account.Industry).with('Parent', Account.Name).mockId('mockingQuery').toList();
 
         // Verify
@@ -3813,7 +3851,7 @@ private class SOQL_Test {
         // Setup
         Exception queryException = null;
 
-        SOQL.setMock('mockingQuery', new List<Account>{
+        SOQL.mock('mockingQuery').thenReturn(new List<Account>{
             new Account(Name = 'Test 1'),
             new Account(Name = 'Test 2')
         });
@@ -3838,7 +3876,7 @@ private class SOQL_Test {
         // Setup
         Exception queryException = null;
 
-        SOQL.setMock('mockingQuery', new List<Account>{
+        SOQL.mock('mockingQuery').thenReturn(new List<Account>{
             new Account(Name = 'Test 1'),
             new Account(Name = 'Test 2')
         });
