@@ -399,15 +399,15 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable with(SObjectField field1, SObjectField field2, SObjectField field3) {
-        return this.with(field1).with(field2).with(field3);
+        return this.with(field1, field2).with(field3);
     }
 
     public Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
-        return this.with(field1).with(field2).with(field3).with(field4);
+        return this.with(field1, field2, field3).with(field4);
     }
 
     public Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
-        return this.with(field1).with(field2).with(field3).with(field4).with(field5);
+        return this.with(field1, field2, field3, field4).with(field5);
     }
 
     public Queryable with(List<SObjectField> fields) {

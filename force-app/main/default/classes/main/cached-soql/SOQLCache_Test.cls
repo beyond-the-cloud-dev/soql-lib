@@ -267,6 +267,28 @@ private class SOQLCache_Test {
     }
 
     @IsTest
+    static void withListOfSObjectFields() {
+        // Test
+        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+           .with(new List<SObjectField>{
+                Profile.Id,
+                Profile.Name,
+                Profile.UserType,
+                Profile.Description,
+                Profile.UserLicenseId
+           })
+           .whereEqual(Profile.Name, 'System Administrator')
+           .toObject();
+
+        // Verify
+        Assert.isTrue(profile.isSet('Id'), 'The profile Id should not be set.');
+        Assert.isTrue(profile.isSet('Name'), 'The profile Name should not be set.');
+        Assert.isTrue(profile.isSet('UserType'), 'The profile UserType should not be set.');
+        Assert.isTrue(profile.isSet('Description'), 'The profile Description should not be set.');
+        Assert.isTrue(profile.isSet('UserLicenseId'), 'The profile UserLicenseId should not be set.');
+    }
+
+    @IsTest
     static void whereEqualSObjectField() {
         // Test
         Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)

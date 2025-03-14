@@ -107,7 +107,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     public SOQL.Queryable currentyQuery = null;
 
     protected SOQLCache(SObjectType ofObject) {
-        this(ofObject.getDescribe().getName());
+        this(ofObject + '');
     }
 
     protected SOQLCache(String ofObject) {
@@ -140,24 +140,27 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         return this;
     }
 
-    public Cacheable with(SObjectField field1) {
-        return this.with(new List<SObjectField>{ field1 });
+    public Cacheable with(SObjectField field) {
+        this.initialQuery?.with(field);
+        this.currentyQuery.with(field);
+        this.cache.fields.with(field);
+        return this;
     }
 
     public Cacheable with(SObjectField field1, SObjectField field2) {
-        return this.with(new List<SObjectField>{ field1, field2 });
+        return this.with(field1).with(field2);
     }
 
     public Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3) {
-        return this.with(new List<SObjectField>{ field1, field2, field3 });
+        return this.with(field1, field2).with(field3);
     }
 
     public Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
-        return this.with(new List<SObjectField>{ field1, field2, field3, field4 });
+        return this.with(field1, field2, field3).with(field4);
     }
 
     public Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
-        return this.with(new List<SObjectField>{ field1, field2, field3, field4, field5 });
+        return this.with(field1, field2, field3, field4).with(field5);
     }
 
     public Cacheable with(List<SObjectField> fields) {
@@ -175,7 +178,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     public Cacheable whereEqual(SObjectField field, Object value) {
-        return this.whereEqual(field.getDescribe().getName(), value);
+        return this.whereEqual(field + '', value);
     }
 
     public Cacheable whereEqual(String field, Object value) {
@@ -462,9 +465,13 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             }
         }
 
+        public void with(SObjectField field) {
+            this.cachedFields.add(field + '');
+        }
+
         public void with(List<SObjectField> fields) {
             for (SObjectField field : fields) {
-                this.cachedFields.add(field.getDescribe().getName());
+                this.cachedFields.add(field + '');
             }
         }
 
