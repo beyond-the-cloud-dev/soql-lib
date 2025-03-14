@@ -5,12 +5,14 @@ sidebar_position: 17
 
 # Building Your Selector
 
-Check examples in the [repository](https://github.com/beyond-the-cloud-dev/soql-lib/tree/main/force-app/main/default/classes/example).
+Check examples in the [repository](https://github.com/beyond-the-cloud-dev/soql-lib/tree/main/force-app/main/default/classes/examples/standard-selectors).
 
 
 SOQL-Lib is agile, so you can adjust the solution according to your needs. We don't force one approach over another, you can choose your own. Here are our propositions:
 
 ## A - Inheritance - extends SOQL, implements Interface + static (Recommended)
+
+Most flexible approach: Only generic and reusable queries are kept in the Selector class. Everything else is built inline. This approach allows you to chain methods from the selector class, as shown in the example below.
 
 ```apex
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
@@ -58,8 +60,8 @@ public with sharing class ExampleController {
     @AuraEnabled
     public static List<Account> getAccountsByRecordType(String recordType) {
         return SOQL_Account.query()
-            .byRecordType(recordType)
             .byIndustry('IT')
+            .byRecordType(recordType)
             .with(Account.Industry, Account.AccountSource)
             .toList();
     }

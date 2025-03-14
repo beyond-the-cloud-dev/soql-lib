@@ -10,10 +10,6 @@ Specify fields that will be retrieved via query. Check [SOQL API - SELECT](../..
 
 You are able to add a default fields to selector class. More fields can be added in a place of usage.
 
-```sql
-SELECT Id, Name, BillingCity, BillingState, BillingStreet
-FROM Account
-```
 ```apex
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
     public static SOQL_Account query() {
@@ -25,9 +21,17 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
         with(Account.Id, Account.Name);
     }
 }
+```
 
+SOQL includes all default fields from the Selector class, as well as any additional fields specified inline.
+
+```sql
+SELECT Id, Name, BillingCity, BillingState, BillingStreet
+FROM Account
+```
+
+```apex
 public with sharing class MyController {
-
     public static List<Account> getAccounts() {
         return SOQL_Account.query()
             .with(Account.BillingCity, Account.BillingState, Account.BillingStreet)
@@ -69,9 +73,9 @@ public with sharing class MyController {
 
 ```sql
 SELECT COUNT() FROM Account
-
 SELECT COUNT(Name) names FROM Account
 ```
+
 ```apex
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
     public static SOQL_Account query() {
@@ -82,7 +86,9 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
         super(Account.SObjectType);
     }
 }
+```
 
+```apex
 public with sharing class MyController {
     public static Integer getAccountAmount() {
         return SOQL_Account.query().count().toInteger();

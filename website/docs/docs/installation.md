@@ -7,7 +7,7 @@ sidebar_position: 15
 
 **System Requirements**
 
-- API: 62.0
+- API: 63.0
 
 ## Deploy
 
@@ -31,8 +31,6 @@ Copy:
 and deploy them to your environment.
 
 #### Cached SOQL
-
-Do you need cached selectors?
 
 Copy:
 
