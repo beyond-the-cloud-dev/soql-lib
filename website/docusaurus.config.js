@@ -76,7 +76,7 @@ const config = {
         title: 'SOQL Lib',
         logo: {
           alt: 'SOQL Lib logo',
-          src: 'img/cloud-icon.png',
+          src: 'img/logo.png',
         },
         items: [
           {
