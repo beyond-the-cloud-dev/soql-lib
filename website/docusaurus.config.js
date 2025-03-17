@@ -39,6 +39,19 @@ const config = {
         },
       }),
     ],
+
+  ],
+  plugins: [
+    async function tailwindPlugin(context, options) {
+      return {
+        name: 'docusaurus-tailwindcss',
+        configurePostCss(postcssOptions) {
+          postcssOptions.plugins.push(require('tailwindcss'));
+          postcssOptions.plugins.push(require('autoprefixer'));
+          return postcssOptions;
+        },
+      };
+    },
   ],
   markdown: {
     mermaid: true,
@@ -54,6 +67,11 @@ const config = {
         { name: 'keywords', content: 'SOQL Lib, Selector Layer Apex, Apex Selector Layer, Query Builder' },
         { name: 'canonical', content: 'https://soql.beyondthecloud.dev' }
       ],
+      docs: {
+        sidebar: {
+          hideable: true,
+        },
+      },
       navbar: {
         title: 'SOQL Lib',
         logo: {
@@ -139,14 +157,6 @@ const config = {
                 label: 'Building Your Selector',
                 to: '/building-your-selector'
               }
-              // {
-              //   label: 'Building Cached Selector',
-              //   to: '/build-cached-selector'
-              // },
-              // {
-              //   label: 'Overview',
-              //   to: '/overview'
-              // }
             ]
           },
           {

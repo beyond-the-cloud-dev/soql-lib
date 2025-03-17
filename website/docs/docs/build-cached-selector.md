@@ -20,6 +20,7 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
     private SOQL_ProfileCache() {
         super(Profile.SObjectType);
         cacheInOrgCache();
+        maxHoursWithoutRefresh(48);
         with(Profile.Id, Profile.Name, Profile.UserType);
     }
 

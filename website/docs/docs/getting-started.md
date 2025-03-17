@@ -1,5 +1,5 @@
 ---
-slug: '/'
+slug: '/getting-started'
 sidebar_position: 10
 ---
 
