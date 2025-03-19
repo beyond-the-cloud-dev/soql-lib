@@ -97,6 +97,13 @@ const config = {
           },
         ],
       },
+      algolia: {
+        appId: '9UMSI1LBRW',
+        apiKey: '85f2736a0fa16fbd643f48cddcd3111f',
+        indexName: 'soql-lib-crawler',
+        startUrls: ['https://soql.beyondthecloud.dev'],
+        contextualSearch: false
+      },
       sitemap: {
         lastmod: 'date',
         changefreq: 'weekly',
