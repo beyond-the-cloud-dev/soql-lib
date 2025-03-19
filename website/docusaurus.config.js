@@ -135,7 +135,7 @@ const config = {
               {
                 html: `
                   <a href="https://beyondthecloud.dev" target="_blank" aria-label="Beyond The Cloud">
-                                    <img src="/img/logo.png" alt="Professional Salesforce Services - Beyond The Cloud" width="167" height="88" />
+                                    <img src="/img/btc-logo.png" alt="Professional Salesforce Services - Beyond The Cloud" width="167" height="88" />
                                     </a>
                                     <p>
                                     contact@beyondthecloud.dev

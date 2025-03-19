@@ -14,55 +14,12 @@ FROM Account
 WHERE Id = :accountId OR Name LIKE :'%' + accountName + '%'
 ```
 ```apex
-public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
-    public static SOQL_Account query() {
-        return new SOQL_Account();
-    }
-
-    private SOQL_Account() {
-        super(Account.SObjectType);
-        with(Account.Id, Account.Name);
-    }
-
-    public SOQL_Account byRecordType(String rt) {
-        whereAre(Filter.recordType().equal(rt));
-        return this;
-    }
-
-    public SOQL_Account byIndustry(String industry) {
-        with(Account.Industry)
-            .whereAre(Filter.with(Account.Industry).equal(industry));
-        return this;
-    }
-
-    public SOQL_Account byParentId(Id parentId) {
-        with(Account.ParentId)
-            .whereAre(Filter.with(Account.ParentId).equal(parentId));
-        return this;
-    }
-}
-
-public with sharing class MyController {
-    @AuraEnabled
-    public static List<Account> getAccountsByRecordType(String recordType) {
-        return SOQL_Account.query()
-            .byRecordType(recordType)
-            .byIndustry('IT')
-            .with(Account.Industry, Account.AccountSource)
-            .toList();
-    }
-
-    @AuraEnabled
-    public static List<Account> getByIdOrName(Id accountId, String accountName) {
-        return SOQL_Account.query()
-            .whereAre(SOQL.FilterGroup
-                .add(SOQL.Filter.id().equal(accountId))
-                .add(SOQL.Filter.name().contains(accountName))
-                .anyConditionMatching() // OR
-            )
-            .toList();
-    }
-}
+SOQL.of(Account.SObject)
+    .with(Account.Id, Account.Name)
+    .whereAre(SOQL.FilterGroup
+        .add(SOQL.Filter.with(Account.Id).equal(account.Id))
+        .add(SOQL.Filter.with(Account.Name).contains(accountName))
+    )
 ```
 
 ## Custom Order

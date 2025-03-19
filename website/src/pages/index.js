@@ -41,8 +41,7 @@ export default function Home() {
             description="The SOQL Lib provides functional constructs for SOQL queries in Apex.">
             <div class="relative isolate px-6 pt-14 lg:px-8">
                 <div class="text-center">
-                    <Heading class="text-5xl font-semibold tracking-tight text-balance text-gray-900 sm:text-7xl" as="h1">SOQL Lib</Heading>
-
+                    <Heading class="text-5xl mb-10 font-semibold tracking-tight text-balance text-gray-900 sm:text-7xl" as="h1">SOQL Lib</Heading>
                     <a href="/installation" class="rounded-md bg-sky-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-sky-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600">Get started</a>
                 </div>
             </div>
@@ -56,8 +55,8 @@ export function Features() {
         <div className='my-10 flex flex-col max-w-5xl mx-auto gap-10'>
             {
                 FEATURES.map(feature => (
-                    <div class="flex gap-10 justify-between">
-                        <div>
+                    <div class="flex px-10 lg:px-0 gap-10 flex-col items-center lg:flex-row lg:items-start lg:justify-between">
+                        <div class="max-w-2xl text-justify">
                             <Heading as="h2">
                                 {feature.title}
                             </Heading>
