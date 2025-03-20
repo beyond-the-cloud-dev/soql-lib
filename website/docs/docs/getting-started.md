@@ -1,11 +1,13 @@
 ---
-slug: '/'
+slug: '/getting-started'
 sidebar_position: 10
 ---
 
 # Getting Started
 
 Read about the SOQL Lib in [blog post](https://beyondthecloud.dev/blog/soql-lib).
+
+[Why do you need Apex Selector Layer?](https://blog.beyondthecloud.dev/blog/why-do-you-need-selector-layer)
 
 ![Deploy to Scratch Org and run tests](https://github.com/beyond-the-cloud-dev/soql-lib/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/gh/beyond-the-cloud-dev/soql-lib/branch/main/graph/badge.svg)](https://codecov.io/gh/beyond-the-cloud-dev/soql-lib)
@@ -58,17 +60,24 @@ public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selecto
         whereAre(Filter.with(Contact.AccountId).equal(accountId));
         return this;
     }
+
+    public SOQL_Contact bySource(String source) {
+        whereAre(Filter.with(Contact.ContactSource).equal(source));
+        return this;
+    }
 }
 ```
+
+**Usage**
 
 ```apex
 public with sharing class ExampleController {
     @AuraEnabled
     public static List<Contact> getAccountContacts(Id accountId) {
         return SOQL_Contact.query()
-            .byRecordType('Partner')
             .byAccountId(accountId)
-            .with(Contact.Email)
+            .bySource('Website')
+            .with(Contact.Email, Contact.Department)
             .toList();
     }
 }
@@ -99,7 +108,25 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
 }
 ```
 
+**Usage**
+
+```apex
+public with sharing class ExampleController {
+    @AuraEnabled
+    public static void createNewAdministrator(User newUser) {
+        Profile adminProfile = (Profile) SOQL_ProfileCache.query()
+            .byName('System Administrator')
+            .toObject();
+
+        newUser.ProfileId = adminProfile.Id;
+        insert newUser;
+    }
+}
+```
+
 ## Benefits
+
+[Why do you need Apex Selector Layer?](https://blog.beyondthecloud.dev/blog/why-do-you-need-selector-layer)
 
 1. **Additional level of abstraction** - The selector layer is an additional level of abstraction that gives you the possibility to control the execution of SOQL.
 2. **Mocking** - Selector classes give a possibility to mock return values in unit tests.

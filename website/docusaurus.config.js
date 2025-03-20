@@ -39,6 +39,19 @@ const config = {
         },
       }),
     ],
+
+  ],
+  plugins: [
+    async function tailwindPlugin(context, options) {
+      return {
+        name: 'docusaurus-tailwindcss',
+        configurePostCss(postcssOptions) {
+          postcssOptions.plugins.push(require('tailwindcss'));
+          postcssOptions.plugins.push(require('autoprefixer'));
+          return postcssOptions;
+        },
+      };
+    },
   ],
   markdown: {
     mermaid: true,
@@ -54,11 +67,16 @@ const config = {
         { name: 'keywords', content: 'SOQL Lib, Selector Layer Apex, Apex Selector Layer, Query Builder' },
         { name: 'canonical', content: 'https://soql.beyondthecloud.dev' }
       ],
+      docs: {
+        sidebar: {
+          hideable: true,
+        },
+      },
       navbar: {
         title: 'SOQL Lib',
         logo: {
           alt: 'SOQL Lib logo',
-          src: 'img/cloud-icon.png',
+          src: 'img/logo.png',
         },
         items: [
           {
@@ -97,6 +115,13 @@ const config = {
           },
         ],
       },
+      algolia: {
+        appId: '9UMSI1LBRW',
+        apiKey: '85f2736a0fa16fbd643f48cddcd3111f',
+        indexName: 'soql-lib-crawler',
+        startUrls: ['https://soql.beyondthecloud.dev'],
+        contextualSearch: false
+      },
       sitemap: {
         lastmod: 'date',
         changefreq: 'weekly',
@@ -117,7 +142,7 @@ const config = {
               {
                 html: `
                   <a href="https://beyondthecloud.dev" target="_blank" aria-label="Beyond The Cloud">
-                                    <img src="/img/logo.png" alt="Professional Salesforce Services - Beyond The Cloud" width="167" height="88" />
+                                    <img src="/img/btc-logo.png" alt="Professional Salesforce Services - Beyond The Cloud" width="167" height="88" />
                                     </a>
                                     <p>
                                     contact@beyondthecloud.dev
@@ -139,14 +164,6 @@ const config = {
                 label: 'Building Your Selector',
                 to: '/building-your-selector'
               }
-              // {
-              //   label: 'Building Cached Selector',
-              //   to: '/build-cached-selector'
-              // },
-              // {
-              //   label: 'Overview',
-              //   to: '/overview'
-              // }
             ]
           },
           {

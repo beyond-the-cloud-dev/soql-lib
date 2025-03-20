@@ -4,40 +4,115 @@ sidebar_position: 5
 
 # USING SCOPE
 
-Get records within a specified scope.
+For more details check Check [SOQL API - USING SCOPE](../../api/standard-soql/soql.md#using-scope).
+
+> **NOTE! 🚨**
+> All examples use inline queries built with the SOQL Lib Query Builder.
+> If you are using a selector, replace `SOQL.of(...)` with `YourSelectorName.query()`.
+
+## DELEGATED
+
+**SOQL**
 
 ```sql
-SELECT Id, Name
+SELECT Id
+FROM Task
+USING SCOPE DELEGATED
+```
+
+**SOQL Lib**
+
+```apex
+SOQL.of(Task.SObjectType)
+    .delegatedScope()
+    .toList();
+```
+
+## MINE
+
+**SOQL**
+
+```sql
+SELECT Id
 FROM Account
 USING SCOPE MINE
+```
 
-SELECT Id, Name
+**SOQL Lib**
+
+```apex
+SOQL.of(Account.SObjectType)
+    .mineScope()
+    .toList();
+```
+
+## MINE_AND_MY_GROUPS
+
+**SOQL**
+
+```sql
+SELECT Id
+FROM ProcessInstanceWorkItem
+USING SCOPE MINE_AND_MY_GROUPS
+```
+
+**SOQL Lib**
+
+```apex
+SOQL.of(ProcessInstanceWorkItem.SObjectType)
+    .mineAndMyGroupsScope()
+    .toList();
+```
+
+## MY_TERRITORY
+
+**SOQL**
+
+```sql
+SELECT Id
+FROM Opportunity
+USING SCOPE MY_TERRITORY
+```
+
+**SOQL Lib**
+
+```apex
+SOQL.of(Opportunity.SObjectType)
+    .myTerritoryScope()
+    .toList();
+```
+
+## MY_TEAM_TERRITORY
+
+**SOQL**
+
+```sql
+SELECT Id
+FROM Opportunity
+USING SCOPE MY_TEAM_TERRITORY
+```
+
+**SOQL Lib**
+
+```apex
+SOQL.of(Opportunity.SObjectType)
+    .myTeamTerritoryScope()
+    .toList();
+```
+## TEAM
+
+**SOQL**
+
+```sql
+SELECT Id
 FROM Account
 USING SCOPE TEAM
 ```
+
+**SOQL Lib**
+
 ```apex
-public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
-    public static SOQL_Account query() {
-        return new SOQL_Account();
-    }
-
-    private SOQL_Account() {
-        super(Account.SObjectType);
-        with(Account.Id, Account.Name);
-    }
-}
-
-public with sharing class MyController {
-    public static List<Account> getMineAccounts() {
-        return SOQL_Account.query()
-            .mineScope()
-            .toList();
-    }
-
-    public static List<Account> getTeamAccounts() {
-        return SOQL_Account.query()
-            .myTeamScope()
-            .toList();
-    }
-}
+SOQL.of(Opportunity.SObjectType)
+    .teamScope()
+    .toList();
 ```

@@ -4,28 +4,26 @@ sidebar_position: 10
 
 # OFFSET
 
-Efficient way to handle large results sets.
+For more details check Check [SOQL API - OFFSET](../../api/standard-soql/soql.md#offset).
+
+> **NOTE! 🚨**
+> All examples use inline queries built with the SOQL Lib Query Builder.
+> If you are using a selector, replace `SOQL.of(...)` with `YourSelectorName.query()`.
+
+Specify the maximum number of rows to return.
+
+**SOQL**
 
 ```sql
-SELECT Id, Name
+SELECT Id
 FROM Account
-OFFSET 1000
+OFFSET 10
 ```
+
+**SOQL Lib**
+
 ```apex
-public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
-    public static SOQL_Account query() {
-        return new SOQL_Account();
-    }
-
-    private SOQL_Account() {
-        super(Account.SObjectType);
-        with(Account.Id, Account.Name);
-    }
-}
-
-public with sharing class MyController {
-    public static List<Account> getAccountsWithOffset() {
-        return SOQL_Account.query().offset(1000).toList();
-    }
-}
+SOQL.of(Account.SObjectType)
+    .setOffset(10)
+    .toList();
 ```

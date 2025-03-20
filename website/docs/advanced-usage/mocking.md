@@ -168,3 +168,22 @@ static void getAccountsWithContacts() {
     Assert.areEqual(1, accounts[0].contacts.size());
 }
 ```
+
+### Parent relationship
+
+```
+@IsTest
+private class ExampleControllerTest {
+    @IsTest
+    static void getPartnerAccountsCount() {
+        SOQL.setCountMock('mockingQuery', new Account(
+            Name = 'Test',
+            Parent = new Account(Name = 'Parent Name')
+        ));
+
+        Account result = (Account) ExampleController.getPartnerAccounts('MyAccount');
+
+        Assert.areEqual(2, result);
+    }
+}
+```
