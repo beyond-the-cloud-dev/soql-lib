@@ -1119,7 +1119,7 @@ Queryable mineScope()
 
 ```sql
 SELECT Id
-FROM Task
+FROM Account
 USING SCOPE MINE
 ```
 ```apex
@@ -1142,7 +1142,7 @@ Queryable mineAndMyGroupsScope()
 
 ```sql
 SELECT Id
-FROM Task
+FROM ProcessInstanceWorkItem
 USING SCOPE MINE_AND_MY_GROUPS
 ```
 ```apex
@@ -1433,7 +1433,7 @@ Queryable groupByCube(SObjectField field)
 ```sql
 SELECT Type
 FROM Account
-GROUP BY ROLLUP(Type)
+GROUP BY CUBE(Type)
 ```
 ```apex
 SOQL.of(Account.SObjectType)
@@ -1674,9 +1674,6 @@ SOQL.of(Account.SObjectType)
     .sortDesc()
     .toList();
 ```
-
-### sort
-
 
 ### sort
 
