@@ -6,6 +6,11 @@ sidebar_position: 4
 
 For more details check Check [SOQL API - SubQuery](../../api/standard-soql/soql-sub.md).
 
+> **NOTE! 🚨**
+> All examples use inline queries built with the SOQL Lib Query Builder.
+> If you are using a selector, replace `SOQL.of(...)` with `YourSelectorName.query()`.
+
+
 **SOQL**
 
 ```sql

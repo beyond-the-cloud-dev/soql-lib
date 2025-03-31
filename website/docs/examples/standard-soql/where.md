@@ -73,7 +73,7 @@ SOQL.of(Account.SObjectType)
     ).toList();
 ```
 
-## Dynamic Filters
+## Dynamic Conditions
 
 **SOQL**
 
@@ -98,5 +98,30 @@ SOQL.of(Account.SObjectType)
     .whereAre(SOQL.FilterGroup
         .add(SOQL.Filter.with(Account.Industry).equal('IT'))
         .add(group)
+    ).toList();
+```
+
+## Ignore Condition
+
+**SOQL**
+
+```sql
+SELECT Id
+FROM Account
+WHERE BillingCity = 'Krakow'
+    AND Name LIKE %accountName%
+```
+
+**SOQL Lib**
+
+```apex
+String accountName = '';
+
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.FilterGroup
+        .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
+        .add(SOQL.Filter.name().contains(accountName)
+            .ignoreWhen(String.isEmpty(accountName)) // <==
+        )
     ).toList();
 ```
