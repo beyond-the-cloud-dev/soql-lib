@@ -280,7 +280,7 @@ flowchart TD
     RecordFound[Yes: Record Found]
     RecordNotFound[No: Record Not Found]
     HasAllFields{Does the Record Have All Requested Fields and Is It Recent Enough?  }
-    AllFields[Yes: All Fields Available]
+    AllFields[Yes: All Fields Available and Record Is Recent Enough]
     MissingFields[No: Fields are missing or the record is outdated]
     RetrieveFromDB[Retrieve Record from Database - **SOQL**]
     UpdateCache[Update Cache]
@@ -313,4 +313,5 @@ There are a few scenarios where SOQL will be issued:
 
 1. The cache is empty, and an initial query is provided.
 2. The record is not found in the cache.
-3. The record is found in the cache but does not have all the requested fields.
+3. The record is found in the cache, but does not have all the requested fields.
+4. The record is found in the cache, but is outdated based on `maxHoursWithoutRefresh` method.

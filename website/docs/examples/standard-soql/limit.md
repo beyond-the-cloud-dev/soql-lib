@@ -4,28 +4,26 @@ sidebar_position: 9
 
 # LIMIT
 
+For more details check Check [SOQL API - LIMIT](../../api/standard-soql/soql.md#limit).
+
+> **NOTE! 🚨**
+> All examples use inline queries built with the SOQL Lib Query Builder.
+> If you are using a selector, replace `SOQL.of(...)` with `YourSelectorName.query()`.
+
 Specify the maximum number of rows to return.
 
+**SOQL**
+
 ```sql
-SELECT Id, Name
+SELECT Id
 FROM Account
-LIMIT 1000
+LIMIT 100
 ```
+
+**SOQL Lib**
+
 ```apex
-public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
-    public static SOQL_Account query() {
-        return new SOQL_Account();
-    }
-
-    private SOQL_Account() {
-        super(Account.SObjectType);
-        with(Account.Id, Account.Name);
-    }
-}
-
-public with sharing class MyController {
-    public static List<Account> getAccountsWithLimit() {
-        return SOQL_Account.query().setLimit(1000).toList();
-    }
-}
+SOQL.of(Account.SObjectType)
+    .setLimit(100)
+    .toList();
 ```

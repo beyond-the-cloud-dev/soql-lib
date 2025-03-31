@@ -412,6 +412,18 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void withStringDateFunction() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with('CALENDAR_YEAR(CloseDate)')
+            .groupBy('CALENDAR_YEAR(CloseDate)')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT CALENDAR_YEAR(CloseDate) FROM Lead GROUP BY CALENDAR_YEAR(CloseDate)', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
     static void toLabelWithAliasAndDuplicatedFields() {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
@@ -431,7 +443,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT FORMAT(Amount)  FROM Opportunity', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT FORMAT(Amount) FROM Opportunity', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -566,7 +578,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id, toLabel(Status), Subject FROM Case', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Subject, toLabel(Status) FROM Case', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -966,7 +978,7 @@ private class SOQL_Test {
         Date toDate = Date.newInstance(2024, 1, 30);
 
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .with(
                 SOQL.SubQuery.of('Contacts')
                     .with(Contact.Id)
@@ -1071,7 +1083,7 @@ private class SOQL_Test {
     @IsTest
     static void filterId() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.id().isNotNull());
 
         // Verify
@@ -1085,7 +1097,7 @@ private class SOQL_Test {
     @IsTest
     static void filterRecordType() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.recordType().isNotNull());
 
         // Verify
@@ -1099,7 +1111,7 @@ private class SOQL_Test {
     @IsTest
     static void filterName() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.name().isNotNull());
 
         // Verify
@@ -1113,7 +1125,7 @@ private class SOQL_Test {
     @IsTest
     static void filterWithRelatedField() {
         // Test
-        SOQL builder = SOQL.of(Contact.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Contact.SObjectType)
             .whereAre(SOQL.Filter.with('Account', Account.Name).equal('Test'));
 
         // Verify
@@ -1127,7 +1139,7 @@ private class SOQL_Test {
     @IsTest
     static void filterEqualString() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).equal('Test'));
 
         // Verify
@@ -1141,7 +1153,7 @@ private class SOQL_Test {
     @IsTest
     static void filterNotEqualString() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).notEqual('Test'));
 
         // Verify
@@ -1155,7 +1167,7 @@ private class SOQL_Test {
     @IsTest
     static void filterLessThan() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).lessThan(10));
 
         // Verify
@@ -1169,7 +1181,7 @@ private class SOQL_Test {
     @IsTest
     static void filterGreaterThan() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).greaterThan(10));
 
         // Verify
@@ -1183,7 +1195,7 @@ private class SOQL_Test {
     @IsTest
     static void filterLessOrEqual() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).lessOrEqual(10));
 
         // Verify
@@ -1197,7 +1209,7 @@ private class SOQL_Test {
     @IsTest
     static void filterGreaterOrEqual() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).greaterOrEqual(10));
 
         // Verify
@@ -1211,7 +1223,7 @@ private class SOQL_Test {
     @IsTest
     static void filterContains() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).contains('Test'));
 
         // Verify
@@ -1225,7 +1237,7 @@ private class SOQL_Test {
     @IsTest
     static void filterContainsNull() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).contains(null));
 
         // Verify
@@ -1239,7 +1251,7 @@ private class SOQL_Test {
     @IsTest
     static void filterNotContains() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).notContains('Test'));
 
         // Verify
@@ -1256,7 +1268,7 @@ private class SOQL_Test {
         List<String> names = new List<String>{ 'Acc', 'My' };
 
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).containsSome(names));
 
         // Verify
@@ -1270,7 +1282,7 @@ private class SOQL_Test {
     @IsTest
     static void filterEndsWith() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).endsWith('Test'));
 
         // Verify
@@ -1284,7 +1296,7 @@ private class SOQL_Test {
     @IsTest
     static void filterNotEndsWith() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).notEndsWith('Test'));
 
         // Verify
@@ -1298,7 +1310,7 @@ private class SOQL_Test {
     @IsTest
     static void filterStartsWith() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).startsWith('Test'));
 
         // Verify
@@ -1312,7 +1324,7 @@ private class SOQL_Test {
     @IsTest
     static void filterNotStartsWith() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).notStartsWith('Test'));
 
         // Verify
@@ -1326,7 +1338,7 @@ private class SOQL_Test {
     @IsTest
     static void filterCustomContains() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).contains('_', 'Test', '%'));
 
         // Verify
@@ -1340,7 +1352,7 @@ private class SOQL_Test {
     @IsTest
     static void filterCustomNotContains() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).notContains('_', 'Test', '%'));
 
         // Verify
@@ -1357,7 +1369,7 @@ private class SOQL_Test {
         Set<String> names = new Set<String>{ 'Test 1', 'Test 2' };
 
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).isIn(names));
 
         // Verify
@@ -1374,7 +1386,7 @@ private class SOQL_Test {
         List<String> names = new List<String>{ 'Test 1', 'Test 2' };
 
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).isIn(names));
 
         // Verify
@@ -1391,7 +1403,7 @@ private class SOQL_Test {
         Set<String> names = new Set<String>{ 'Test 1', 'Test 2' };
 
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).notIn(names));
 
         // Verify
@@ -1408,7 +1420,7 @@ private class SOQL_Test {
         List<String> names = new List<String>{ 'Test 1', 'Test 2' };
 
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .with(Account.Name, Account.BillingCity)
             .whereAre(SOQL.Filter.with(Account.Name).notIn(names));
 
@@ -1483,7 +1495,7 @@ private class SOQL_Test {
     @IsTest
     static void filterIsNull() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).isNull());
 
         // Verify
@@ -1497,7 +1509,7 @@ private class SOQL_Test {
     @IsTest
     static void filterIsNotNull() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).isNotNull());
 
         // Verify
@@ -1511,7 +1523,7 @@ private class SOQL_Test {
     @IsTest
     static void filterIsTrue() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.IsDeleted).isTrue());
 
         // Verify
@@ -1525,7 +1537,7 @@ private class SOQL_Test {
     @IsTest
     static void filterIsFalse() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.IsDeleted).isFalse());
 
         // Verify
@@ -1550,7 +1562,7 @@ private class SOQL_Test {
     @IsTest
     static void filtersGroup() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.FilterGroup
                 .add(SOQL.Filter.with(Account.Name).equal('Test'))
                 .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
@@ -1584,7 +1596,7 @@ private class SOQL_Test {
         filterGroup.add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'));
 
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(filterGroup);
 
         // Verify
@@ -1607,7 +1619,7 @@ private class SOQL_Test {
         });
 
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(filterGroup);
 
         // Verify
@@ -1695,7 +1707,7 @@ private class SOQL_Test {
     @IsTest
     static void dynamicFiltersGroupOnSoqlInstance() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Industry).equal('IT'));
 
         Assert.areEqual('SELECT Id FROM Account WHERE Industry = :v1', builder.toString(), 'The generated SOQL should match the expected one.');
@@ -1718,7 +1730,7 @@ private class SOQL_Test {
     @IsTest
     static void multipleFilterGroups() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.FilterGroup.add(SOQL.Filter.with(Account.Name).contains('1')))
             .whereAre(SOQL.FilterGroup.add(SOQL.Filter.with(Account.Name).contains('2')))
             .whereAre(SOQL.FilterGroup.add(SOQL.Filter.with(Account.Name).contains('3')))
@@ -1756,7 +1768,7 @@ private class SOQL_Test {
     @IsTest
     static void duplicatedConditionsInConditionOrder() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.FilterGroup.add(SOQL.Filter.with(Account.Name).contains('1')))
             .whereAre(SOQL.FilterGroup.add(SOQL.Filter.with(Account.Name).contains('2')))
             .whereAre(SOQL.FilterGroup.add(SOQL.Filter.with(Account.Name).contains('3')))
@@ -1795,7 +1807,7 @@ private class SOQL_Test {
     @IsTest
     static void anyConditionMatchingForInnerGroup() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.FilterGroup
                 .add(SOQL.Filter.with(Account.Name).equal('Test'))
                 .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
@@ -1814,7 +1826,7 @@ private class SOQL_Test {
     @IsTest
     static void anyConditionMatchingForMainGroup() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).equal('Test'))
             .whereAre(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
             .anyConditionMatching();
@@ -1831,7 +1843,7 @@ private class SOQL_Test {
     @IsTest
     static void conditionLogicForMainGroup() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Name).equal('Test'))
             .whereAre(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
             .conditionLogic('1 OR 2');
@@ -1848,7 +1860,7 @@ private class SOQL_Test {
     @IsTest
     static void nestedFiltersGroup() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.FilterGroup
                 .add(SOQL.Filter.with(Account.Name).equal('Test'))
                 .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
@@ -1873,7 +1885,7 @@ private class SOQL_Test {
     @IsTest
     static void innerJoinWithFilterGroup() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Id).isIn(
                 SOQL.InnerJoin.of(Contact.SObjectType)
                     .with(Contact.AccountId)
@@ -1893,7 +1905,7 @@ private class SOQL_Test {
     @IsTest
     static void inInnerJoin() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Id).isIn(
                 SOQL.InnerJoin.of(Contact.SObjectType)
                     .with(Contact.AccountId)
@@ -1911,7 +1923,7 @@ private class SOQL_Test {
     @IsTest
     static void isNotInInnerJoin() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.Id).notIn(
                 SOQL.InnerJoin.of(Contact.SObjectType)
                     .with(Contact.AccountId)
@@ -2023,6 +2035,18 @@ private class SOQL_Test {
         String soql = SOQL.of(Lead.SObjectType)
             .with(Lead.LeadSource)
             .groupBy(Lead.LeadSource)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT LeadSource FROM Lead GROUP BY LeadSource', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void groupByString() {
+        // Test
+        String soql = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .groupBy('LeadSource')
             .toString();
 
         // Verify
@@ -2646,7 +2670,7 @@ private class SOQL_Test {
     @IsTest
     static void dynamicHavingFilterGroupOnSoqlInstance() {
         // Test
-        SOQL builder = SOQL.of(Lead.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Lead.SObjectType)
             .with(Lead.LeadSource)
             .count(Lead.Name)
             .groupBy(Lead.LeadSource)
@@ -2955,7 +2979,7 @@ private class SOQL_Test {
     @IsTest
     static void byId() {
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType).byId(FAKE_ACCOUNT_ID);
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType).byId(FAKE_ACCOUNT_ID);
 
         // Verify
         String soql = builder.toString();
@@ -2971,7 +2995,7 @@ private class SOQL_Test {
         List<Case> cases = insertCases();
 
         // Test
-        SOQL builder = SOQL.of(Case.SObjectType).byId(cases[0]);
+        SOQL.Queryable builder = SOQL.of(Case.SObjectType).byId(cases[0]);
 
         // Verify
         String soql = builder.toString();
@@ -2985,7 +3009,7 @@ private class SOQL_Test {
     static void byIdsSet() {
         Set<Id> accountIds = new Set<Id>{ FAKE_ACCOUNT_ID };
 
-        SOQL builder = SOQL.of(Account.SObjectType).byIds(accountIds);
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType).byIds(accountIds);
 
         // Verify
         String soql = builder.toString();
@@ -3001,7 +3025,7 @@ private class SOQL_Test {
         List<Id> accountIds = new List<Id>{ FAKE_ACCOUNT_ID };
 
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType).byIds(accountIds);
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType).byIds(accountIds);
 
         // Verify
         String soql = builder.toString();
@@ -3017,7 +3041,7 @@ private class SOQL_Test {
         List<Case> cases = insertCases();
 
         // Test
-        SOQL builder = SOQL.of(Case.SObjectType).byIds(cases);
+        SOQL.Queryable builder = SOQL.of(Case.SObjectType).byIds(cases);
 
         // Verify
         String soql = builder.toString();
@@ -3033,7 +3057,7 @@ private class SOQL_Test {
         String recordTypeDeveloperName = 'Partner';
 
         // Test
-        SOQL builder = SOQL.of(Account.SObjectType).byRecordType(recordTypeDeveloperName);
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType).byRecordType(recordTypeDeveloperName);
 
         // Verify
         String soql = builder.toString();
@@ -3246,6 +3270,34 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void mockingMultipleRecords() {
+        List<Account> testAccounts = new List<Account>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        };
+
+        // Test
+        SOQL.setMock('mockingQuery', testAccounts);
+        List<Account> result = SOQL.of(Account.sObjectType).mockId('mockingQuery').toList();
+
+        // Verify
+        Assert.areEqual(testAccounts, result, 'The mocked accounts should be returned.');
+    }
+
+    @IsTest
+    static void mockingSingleRecordWithMockableInterface() {
+        // Setup
+        Account testAccount = new Account(Name = 'Test 1');
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(testAccount);
+        Account result = (Account) SOQL.of(Account.sObjectType).mockId('mockingQuery').toObject();
+
+        // Verify
+        Assert.areEqual(testAccount, result, 'The mocked account should be returned.');
+    }
+
+    @IsTest
     static void mockingCount() {
         // Test
         SOQL.setCountMock('mockingQuery', 2);
@@ -3253,6 +3305,157 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(2, result, 'The mocked count should be returned.');
+    }
+
+    @IsTest
+    static void mockingCountWithMockableInterface() {
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(2);
+        Integer result = SOQL.of(Account.sObjectType).count().mockId('mockingQuery').toInteger();
+
+        // Verify
+        Assert.areEqual(2, result, 'The mocked count should be returned.');
+    }
+
+    @IsTest
+    static void mockWithManyPlainFields() {
+        // Setup
+        List<Account> accounts = new List<Account>{
+            new Account(Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+        };
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(accounts);
+        List<Account> result = SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toList();
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size(), 'The result accounts size should be the same size of mocked accounts.');
+
+        for (Account mockedResult : result) {
+            Assert.isTrue(mockedResult.isSet(Account.Name), 'Only Account Name should be set.');
+            Assert.isFalse(mockedResult.isSet(Account.Description), 'The Account Description should not be set because it was not included in the SELECT clause.');
+            Assert.isFalse(mockedResult.isSet(Account.Website), 'The Account Website should not be set because it was not included in the SELECT clause.');
+        }
+    }
+
+    @IsTest
+    static void mockWithManyPlainFieldAndSelectNotMockedField() {
+        // Setup
+        List<Account> accounts = new List<Account>{
+            new Account(Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+        };
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(accounts);
+        List<Account> result = SOQL.of(Account.SObjectType).with(Account.Industry).mockId('mockingQuery').toList();
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size(), 'The result accounts size should be the same size of mocked accounts.');
+
+        for (Account mockedResult : result) {
+            Assert.isTrue(mockedResult.isSet(Account.Industry), 'Only Account Industry should be set.');
+            Assert.isNull(mockedResult.Industry, 'The Account Industry should be null because it was not specify in mocked records.');
+            Assert.isFalse(mockedResult.isSet(Account.Name), 'The Account Name should not be set because it was not included in the SELECT clause.');
+            Assert.isFalse(mockedResult.isSet(Account.Description), 'The Account Description should not be set because it was not included in the SELECT clause.');
+            Assert.isFalse(mockedResult.isSet(Account.Website), 'The Account Website should not be set because it was not included in the SELECT clause.');
+        }
+    }
+
+    @IsTest
+    static void mockWithManyFieldAndSelectToLabel() {
+        // Setup
+        List<Account> accounts = new List<Account>{
+            new Account(Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+        };
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(accounts);
+        List<Account> result = SOQL.of(Account.SObjectType).with(Account.Name).toLabel(Account.Industry).mockId('mockingQuery').toList();
+
+        // Verify
+        for (Account mockedResult : result) {
+            Assert.isTrue(mockedResult.isSet(Account.Name), 'When toLabel presented all mocked fields should be returned as they are.');
+            Assert.isTrue(mockedResult.isSet(Account.Description), 'When toLabel presented all mocked fields should be returned as they are.');
+            Assert.isTrue(mockedResult.isSet(Account.Website), 'When toLabel presented all mocked fields should be returned as they are.');
+            Assert.isFalse(mockedResult.isSet(Account.Industry), 'When toLabel presented all mocked fields should be returned as they are.');
+        }
+    }
+
+    @IsTest
+    static void mockWithManyFieldAndAliasing() {
+        // Setup
+        List<Account> accounts = new List<Account>{
+            new Account(Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+        };
+
+        QueryException soqlException = null;
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(accounts);
+
+        try {
+            SOQL.of(Account.SObjectType).with(Account.Name).with(Account.Industry, 'accIndustry').mockId('mockingQuery').toList();
+        } catch (QueryException e) {
+            soqlException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(soqlException, 'Query mocking exception should be thrown.');
+        Assert.areEqual('Aggregate functions mocking is currently not supported.', soqlException.getMessage(), 'Mocking field aliasing is not supproted');
+    }
+
+    @IsTest
+    static void mockWithManyFieldAndAggregateFunction() {
+        // Setup
+        List<Account> accounts = new List<Account>{
+            new Account(Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+        };
+
+        QueryException soqlException = null;
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(accounts);
+
+        try {
+            SOQL.of(Account.SObjectType).count(Account.Industry).mockId('mockingQuery').toAggregated();
+        } catch (QueryException e) {
+            soqlException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(soqlException, 'Query mocking exception should be thrown.');
+        Assert.areEqual('Aggregate functions mocking is currently not supported.', soqlException.getMessage(), 'Mocking field aliasing is not supproted');
+    }
+
+    @IsTest
+    static void mockWithManyFieldAndParentRelationship() {
+        // Setup
+        List<Account> accounts = new List<Account>{
+            new Account(Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev', Parent = new Account(Name = 'Parent 1')),
+            new Account(Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev', Parent = new Account(Name = 'Parent 2'))
+        };
+
+        QueryException soqlException = null;
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(accounts);
+        List<Account> result = SOQL.of(Account.SObjectType).with(Account.Name, Account.Industry).with('Parent', Account.Name).mockId('mockingQuery').toList();
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size(), 'The result accounts size should be the same size of mocked accounts.');
+
+        for (Account mockedResult : result) {
+            Assert.isNotNull(mockedResult.Name, 'Account Name should be set.');
+            Assert.isNotNull(mockedResult.Description, 'The Account Description should be set.');
+            Assert.isNotNull(mockedResult.Website, 'The Account Website should be set.');
+            Assert.isNotNull(mockedResult.Parent.Name, 'The Parent Account should be set.');
+            Assert.isFalse(mockedResult.isSet(Account.Industry), 'Account Industry should be not set, because it\'s not mocked.');
+        }
     }
 
     @IsTest
@@ -3286,7 +3489,7 @@ private class SOQL_Test {
         // Setup
         Exception soqlException = null;
 
-        SOQL builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.FilterGroup
                 .add(SOQL.Filter.with(Account.Name).equal('Test'))
                 .add(SOQL.Filter.with(Account.Industry).equal('IT'))
@@ -3648,7 +3851,7 @@ private class SOQL_Test {
         // Setup
         Exception queryException = null;
 
-        SOQL.setMock('mockingQuery', new List<Account>{
+        SOQL.mock('mockingQuery').thenReturn(new List<Account>{
             new Account(Name = 'Test 1'),
             new Account(Name = 'Test 2')
         });
@@ -3673,7 +3876,7 @@ private class SOQL_Test {
         // Setup
         Exception queryException = null;
 
-        SOQL.setMock('mockingQuery', new List<Account>{
+        SOQL.mock('mockingQuery').thenReturn(new List<Account>{
             new Account(Name = 'Test 1'),
             new Account(Name = 'Test 2')
         });
