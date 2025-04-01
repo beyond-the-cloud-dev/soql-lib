@@ -24,7 +24,7 @@ public with sharing class ExampleController {
 }
 ```
 
-Then in test simply pass data you want to get from Selector to `SOQL.setMock(id, data)` method. Acceptable formats are: `List<SObject>` or `SObject`. Then during execution Selector will return desired data.
+Then in test simply pass data you want to get from Selector to `SOQL.mock(id).thenReturn(data)` method. Acceptable formats are: `List<SObject>` or `SObject`. Then during execution Selector will return desired data.
 
 ### List of records
 
@@ -39,7 +39,7 @@ private class ExampleControllerTest {
             new Account(Name = 'MyAccount 2')
         };
 
-        SOQL.setMock('ExampleController.getPartnerAccounts', accounts);
+        SOQL.mock('ExampleController.getPartnerAccounts').thenReturn(accounts);
 
         // Test
         List<Account> result = ExampleController.getPartnerAccounts('MyAccount');
@@ -57,7 +57,7 @@ private class ExampleControllerTest {
 
     @IsTest
     static void getPartnerAccount() {
-        SOQL.setMock('ExampleController.getPartnerAccount', new Account(Name = 'MyAccount 1'));
+        SOQL.mock('ExampleController.getPartnerAccount').thenReturn(new Account(Name = 'MyAccount 1'));
 
         // Test
         Account result = (Account) ExampleController.getPartnerAccounts('MyAccount');
@@ -75,7 +75,7 @@ private class ExampleControllerTest {
 
     @IsTest
     static void getPartnerAccounts() {
-        SOQL.setMock('ExampleController.getPartnerAccounts', Test.loadData(Account.SObjectType, 'ProjectAccounts'));
+        SOQL.mock('ExampleController.getPartnerAccounts').thenReturn(Test.loadData(Account.SObjectType, 'ProjectAccounts'));
 
         // Test
         List<Account> result = ExampleController.getPartnerAccounts('MyAccount');
@@ -105,7 +105,7 @@ private class ExampleControllerTest {
 ### Sub-Query
 
 To mock a sub-query we need to use deserialization mechanism. There are two approaches, using JSON string or Serialization/Deserialization.
-Then after deserialization to desired SObjectType, pass the data to SOQL by calling `.setMock` method.
+Then after deserialization to desired SObjectType, pass the data to SOQL by calling `.mock` method.
 
 
 _Using JSON String_
@@ -120,10 +120,11 @@ static void getAccountsWithContacts() {
         List<Account>.class
     );
 
+    SOQL.mock('AccountsController.getAccountsWithContacts').thenReturn(mocks);
+
     List<Account> accounts;
 
     Test.startTest();
-    SOQL.setMock('AccountsController.getAccountsWithContacts', mocks);
     accounts = AccountsController.getAccountsWithContacts();
     Test.stopTest();
 
@@ -156,15 +157,37 @@ static void getAccountsWithContacts() {
         List<Account>.class
     );
 
+    SOQL.mock('AccountsController.getAccountsWithContacts').thenReturn(mocks);
+
     List<Account> accounts;
 
     Test.startTest();
-    SOQL.setMock('AccountsController.getAccountsWithContacts', mocks);
     accounts = AccountsController.getAccountsWithContacts();
     Test.stopTest();
 
     Assert.isNotNull(accounts);
     Assert.isNotNull(accounts[0].contacts);
     Assert.areEqual(1, accounts[0].contacts.size());
+}
+```
+
+### Parent relationship
+
+```
+@IsTest
+private class ExampleControllerTest {
+    @IsTest
+    static void getPartnerAccountsCount() {
+        SOQL.mock('mockingQuery').thenReturn(
+            new Account(
+                Name = 'Test',
+                Parent = new Account(Name = 'Parent Name')
+            )
+        );
+
+        Account result = (Account) ExampleController.getPartnerAccounts('MyAccount');
+
+        Assert.areEqual(2, result);
+    }
 }
 ```

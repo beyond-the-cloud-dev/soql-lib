@@ -89,6 +89,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable anyConditionMatching();
         // GROUP BY
         Queryable groupBy(SObjectField field);
+        Queryable groupBy(String field);
         Queryable groupBy(String relationshipName, SObjectField field);
         Queryable groupByRollup(SObjectField field);
         Queryable groupByRollup(String relationshipName, SObjectField field);
@@ -129,6 +130,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable mockId(String queryIdentifier);
         // DEBUGGING
         Queryable preview();
+        Map<String, Object> binding();
         // PREDEFINIED
         Queryable byId(SObject record);
         Queryable byId(Id recordId);
@@ -262,6 +264,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         // ORDER
         HavingFilterGroup anyConditionMatching();
         HavingFilterGroup conditionLogic(String order);
+
+        Boolean hasValues();
     }
 
     public interface HavingFilter {
@@ -295,6 +299,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         HavingFilter notEndsWith(String value);
         HavingFilter isIn(Iterable<Object> iterable);
         HavingFilter notIn(Iterable<Object> iterable);
+
+        Boolean hasValue();
     }
 
     public static SubQuery SubQuery {
@@ -321,31 +327,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         get { return new SoqlHavingFilter(); }
     }
 
-    @TestVisible
-    private static void setMock(String mockId, SObject record) {
-        setMock(mockId, new List<SObject>{ record });
-    }
-
-    @TestVisible
-    private static void setMock(String mockId, List<SObject> records) {
-        mock.setMock(mockId, records);
-    }
-
-    @TestVisible
-    private static void setCountMock(String mockId, Integer amount) {
-        mock.setCountMock(mockId, amount);
-    }
-
-    // Implementation
-
-    private static Mock mock = new Mock();
-    private static Binder binder = new Binder();
-    private static Integer syncQueriesIssued = 0;
-
-    private SoqlBuilder builder;
-    private Executor executor;
-    private Converter converter;
-
     public static SOQL of(SObjectType ofObject) {
         return new SOQL(ofObject);
     }
@@ -354,566 +335,619 @@ public virtual inherited sharing class SOQL implements Queryable {
         return new SOQL(ofObject);
     }
 
-    public SOQL(SObjectType ofObject) {
-        this(ofObject.getDescribe().getName());
-    }
-
-    public SOQL(String ofObject) {
-        builder = new SoqlBuilder(ofObject);
-        executor = new Executor(builder);
-        converter = new Converter(ofObject);
-    }
-
-    public SOQL with(SObjectField field) {
-        builder.fields.with(field);
-        return this;
-    }
-
-    public SOQL with(SObjectField field1, SObjectField field2) {
-        return with(field1).with(field2);
-    }
-
-    public SOQL with(SObjectField field1, SObjectField field2, SObjectField field3) {
-        return with(field1, field2).with(field3);
-    }
-
-    public SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
-        return with(field1, field2, field3).with(field4);
-    }
-
-    public SOQL with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
-        return with(field1, field2, field3, field4).with(field5);
-    }
-
-    public SOQL with(List<SObjectField> fields) {
-        builder.fields.with(fields);
-        return this;
-    }
-
-    public SOQL with(Iterable<String> fields) {
-        return with(String.join(fields, ','));
-    }
-
-    public SOQL withFieldSet(String fieldSetName) {
-        builder.fields.withFieldSet(fieldSetName);
-        return this;
-    }
-
-    public SOQL with(String fields) {
-        builder.fields.with(fields);
-        return this;
-    }
-
-    public SOQL with(SObjectField field, String alias) {
-        builder.fields.with(field, alias);
-        return this;
-    }
-
-    public SOQL with(String relationshipName, SObjectField field) {
-        return with(relationshipName, new List<SObjectField>{ field });
-    }
-
-    public SOQL with(String relationshipName, SObjectField field1, SObjectField field2) {
-        return with(relationshipName, new List<SObjectField>{ field1, field2 });
-    }
-
-    public SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3) {
-        return with(relationshipName, new List<SObjectField>{ field1, field2, field3 });
-    }
-
-    public SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
-        return with(relationshipName, new List<SObjectField>{ field1, field2, field3, field4 });
-    }
-
-    public SOQL with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
-        return with(relationshipName, new List<SObjectField>{ field1, field2, field3, field4, field5 });
-    }
-
-    public SOQL with(String relationshipName, Iterable<SObjectField> fields) {
-        builder.fields.with(relationshipName, fields);
-        return this;
-    }
-
-    public SOQL with(SubQuery subQuery) {
-        builder.subQueries.add(subQuery);
-        return this;
-    }
-
-    public SOQL count() {
-        builder.fields.count();
-        return this;
-    }
-
-    public SOQL count(SObjectField field) {
-        return count(field, '');
-    }
-
-    public SOQL count(SObjectField field, String alias) {
-        builder.fields.count(field, alias);
-        return this;
-    }
-
-    public SOQL count(String relationshipName, SObjectField field) {
-        return count(relationshipName, field, '');
-    }
-
-    public SOQL count(String relationshipName, SObjectField field, String alias) {
-        builder.fields.count(relationshipName, field, alias);
-        return this;
-    }
-
-    public SOQL avg(SObjectField field) {
-        return avg(field, '');
-    }
-
-    public SOQL avg(SObjectField field, String alias) {
-        builder.fields.avg(field, alias);
-        return this;
-    }
-
-    public SOQL avg(String relationshipName, SObjectField field) {
-        return avg(relationshipName, field, '');
-    }
-
-    public SOQL avg(String relationshipName, SObjectField field, String alias) {
-        builder.fields.avg(relationshipName, field, alias);
-        return this;
-    }
-
-    public SOQL countDistinct(SObjectField field) {
-        return countDistinct(field, '');
-    }
-
-    public SOQL countDistinct(SObjectField field, String alias) {
-        builder.fields.countDistinct(field, alias);
-        return this;
-    }
-
-    public SOQL countDistinct(String relationshipName, SObjectField field) {
-        return countDistinct(relationshipName, field, '');
-    }
-
-    public SOQL countDistinct(String relationshipName, SObjectField field, String alias) {
-        builder.fields.countDistinct(relationshipName, field, alias);
-        return this;
-    }
-
-    public SOQL min(SObjectField field) {
-        return min(field, '');
-    }
-
-    public SOQL min(SObjectField field, String alias) {
-        builder.fields.min(field, alias);
-        return this;
-    }
-
-    public SOQL min(String relationshipName, SObjectField field) {
-        return min(relationshipName, field, '');
-    }
-
-    public SOQL min(String relationshipName, SObjectField field, String alias) {
-        builder.fields.min(relationshipName, field, alias);
-        return this;
-    }
-
-    public SOQL max(SObjectField field) {
-        return max(field, '');
-    }
-
-    public SOQL max(SObjectField field, String alias) {
-        builder.fields.max(field, alias);
-        return this;
-    }
-
-    public SOQL max(String relationshipName, SObjectField field) {
-        return max(relationshipName, field, '');
-    }
-
-    public SOQL max(String relationshipName, SObjectField field, String alias) {
-        builder.fields.max(relationshipName, field, alias);
-        return this;
-    }
-
-    public SOQL sum(SObjectField field) {
-        return sum(field, '');
-    }
-
-    public SOQL sum(SObjectField field, String alias) {
-        builder.fields.sum(field, alias);
-        return this;
-    }
-
-    public SOQL sum(String relationshipName, SObjectField field) {
-        return sum(relationshipName, field, '');
-    }
-
-    public SOQL sum(String relationshipName, SObjectField field, String alias) {
-        builder.fields.sum(relationshipName, field, alias);
-        return this;
-    }
-
-    public SOQL grouping(SObjectField field, String alias) {
-        builder.fields.grouping(field, alias);
-        return this;
-    }
-
-    public SOQL toLabel(SObjectField field) {
-        return toLabel(field.getDescribe().getName());
-    }
-
-    public SOQL toLabel(SObjectField field, String alias) {
-        return toLabel(field.getDescribe().getName(), alias);
-    }
-
-    public SOQL toLabel(String field) {
-        builder.fields.toLabel(field);
-        return this;
-    }
-
-    public SOQL toLabel(String field, String alias) {
-        builder.fields.toLabel(field, alias);
-        return this;
-    }
-
-    public SOQL format(SObjectField field) {
-        return format(field, '');
-    }
-
-    public SOQL format(SObjectField field, String alias) {
-        builder.fields.format(field, alias);
-        return this;
-    }
-
-    public SOQL delegatedScope() {
-        builder.scope.delegated();
-        return this;
-    }
-
-    public SOQL mineScope() {
-        builder.scope.mine();
-        return this;
-    }
-
-    public SOQL mineAndMyGroupsScope() {
-        builder.scope.mineAndMyGroups();
-        return this;
-    }
-
-    public SOQL myTerritoryScope() {
-        builder.scope.myTerritory();
-        return this;
-    }
-
-    public SOQL myTeamTerritoryScope() {
-        builder.scope.myTeamTerritory();
-        return this;
-    }
-
-    public SOQL teamScope() {
-        builder.scope.team();
-        return this;
-    }
-
-    public SOQL whereAre(FilterGroup filterGroup) {
-        builder.conditions.add(filterGroup);
-        return this;
-    }
-
-    public SOQL whereAre(Filter filter) {
-        builder.conditions.add(filter);
-        return this;
-    }
-
-    public SOQL whereAre(String conditions) {
-        builder.conditions.add(conditions);
-        return this;
-    }
-
-    public SOQL conditionLogic(String conditionLogic) {
-        builder.conditions.conditionLogic(conditionLogic);
-        return this;
-    }
-
-    public SOQL anyConditionMatching() {
-        builder.conditions.anyConditionMatching();
-        return this;
-    }
-
-    public SOQL groupBy(SObjectField field) {
-        builder.groupBy.with(field);
-        builder.fields.withGroupedField(field);
-        return this;
-    }
-
-    public SOQL groupBy(String relationshipName, SObjectField field) {
-        builder.groupBy.with(relationshipName, field);
-        builder.fields.withGroupedField(relationshipName, field);
-        return this;
-    }
-
-    public SOQL groupByRollup(SObjectField field) {
-        builder.groupBy.rollup(field);
-        builder.fields.withGroupedField(field);
-        return this;
-    }
-
-    public SOQL groupByRollup(String relationshipName, SObjectField field) {
-        builder.groupBy.rollup(relationshipName, field);
-        builder.fields.withGroupedField(relationshipName, field);
-        return this;
-    }
-
-    public SOQL groupByCube(SObjectField field) {
-        builder.groupBy.cube(field);
-        builder.fields.withGroupedField(field);
-        return this;
-    }
-
-    public SOQL groupByCube(String relationshipName, SObjectField field) {
-        builder.groupBy.cube(relationshipName, field);
-        builder.fields.withGroupedField(relationshipName, field);
-        return this;
-    }
-
-    public SOQL have(HavingFilterGroup havingFilterGroup) {
-        builder.havingClause.add(havingFilterGroup);
-        return this;
-    }
-
-    public SOQL have(HavingFilter havingFilter) {
-        builder.havingClause.add(havingFilter);
-        return this;
-    }
-
-    public SOQL have(String havingConditions) {
-        builder.havingClause.add(havingConditions);
-        return this;
-    }
-
-    public SOQL havingConditionLogic(String havingConditionsOrder) {
-        builder.havingClause.conditionLogic(havingConditionsOrder);
-        return this;
-    }
-
-    public SOQL anyHavingConditionMatching() {
-        builder.havingClause.anyConditionMatching();
-        return this;
-    }
-
-    public SOQL orderBy(String field) {
-        builder.orderBys.newOrderBy().with(field);
-        return this;
-    }
-
-    public SOQL orderBy(String field, String direction) {
-        builder.orderBys.newOrderBy().with(field).sortingOrder(direction);
-        return this;
-    }
-
-    public SOQL orderBy(SObjectField field) {
-        builder.orderBys.newOrderBy().with(field);
-        return this;
-    }
-
-    public SOQL orderBy(String relationshipName, SObjectField field) {
-        builder.orderBys.newOrderBy().with(relationshipName, field);
-        return this;
-    }
-
-    public SOQL sortDesc() {
-        builder.latestOrderBy.sortDesc();
-        return this;
-    }
-
-    public Queryable sort(String direction) {
-        builder.latestOrderBy.sortingOrder(direction);
-        return this;
-    }
-
-    public SOQL nullsLast() {
-        builder.latestOrderBy.nullsLast();
-        return this;
-    }
-
-    public SOQL setLimit(Integer amount) {
-        builder.soqlLimit.max(amount);
-        return this;
-    }
-
-    public SOQL offset(Integer startingRow) {
-        builder.soqlOffset.offset(startingRow);
-        return this;
-    }
-
-    public SOQL forReference() {
-        builder.soqlFor.forReference();
-        return this;
-    }
-
-    public SOQL forView() {
-        builder.soqlFor.forView();
-        return this;
-    }
-
-    public SOQL forUpdate() {
-        builder.soqlFor.forUpdate();
-        return this;
-    }
-
-    public SOQL allRows() {
-        builder.soqlFor.allRows();
-        return this;
-    }
-
-    public SOQL userMode() {
-        executor.userMode();
-        return this;
-    }
-
-    public SOQL systemMode() {
-        executor.systemMode();
-        return this;
-    }
-
-    public SOQL stripInaccessible() {
-        return stripInaccessible(AccessType.READABLE);
-    }
-
-    public SOQL stripInaccessible(AccessType accessType) {
-        executor.stripInaccessible(accessType);
-        return this;
-    }
-
-    public SOQL withSharing() {
-        executor.withSharing();
-        return this;
-    }
-
-    public SOQL withoutSharing() {
-        executor.withoutSharing();
-        return this;
-    }
-
-    public SOQL mockId(String queryIdentifier) {
-        executor.mockId(queryIdentifier);
-        return this;
-    }
-
-    public SOQL preview() {
-        System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Preview ============\n' + toString() + '\n=======================================\n');
-        System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Binding ============\n' + JSON.serializePretty(binding()) + '\n=======================================\n');
-        return this;
+    // Mocking
+
+    public interface Mockable {
+        // SObject
+        Mockable thenReturn(SObject record);
+        Mockable thenReturn(List<SObject> records);
+        // Count
+        Mockable thenReturn(Integer count);
     }
 
     @TestVisible
-    private Map<String, Object> binding() {
+    private static Mockable mock(String mockId) {
+        queryIdToMock.put(mockId, new SoqlMock());
+        return queryIdToMock.get(mockId);
+    }
+
+    // Backward support
+
+    @TestVisible // deprecated
+    private static void setMock(String mockId, SObject record) {
+        mock(mockId).thenReturn(record);
+    }
+
+    @TestVisible // deprecated
+    private static void setMock(String mockId, List<SObject> records) {
+        mock(mockId).thenReturn(records);
+    }
+
+    @TestVisible // deprecated
+    private static void setCountMock(String mockId, Integer amount) {
+        mock(mockId).thenReturn(amount);
+    }
+
+    // Implementation
+
+    private static Map<String, SoqlMock> queryIdToMock = new Map<String, SoqlMock>();
+
+    private static Binder binder = new Binder();
+    private static Integer syncQueriesIssued = 0;
+
+    private SoqlBuilder builder;
+    private Executor executor;
+    private Converter converter;
+
+    public SOQL(SObjectType ofObject) {
+        this(ofObject + '');
+    }
+
+    public SOQL(String ofObject) {
+        this.builder = new SoqlBuilder(ofObject);
+        this.executor = new Executor(builder);
+        this.converter = new Converter(ofObject);
+    }
+
+    public Queryable with(SObjectField field) {
+        this.builder.fields.plainFields.add(field + '');
+        return this;
+    }
+
+    public Queryable with(SObjectField field1, SObjectField field2) {
+        return this.with(field1).with(field2);
+    }
+
+    public Queryable with(SObjectField field1, SObjectField field2, SObjectField field3) {
+        return this.with(field1, field2).with(field3);
+    }
+
+    public Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
+        return this.with(field1, field2, field3).with(field4);
+    }
+
+    public Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
+        return this.with(field1, field2, field3, field4).with(field5);
+    }
+
+    public Queryable with(List<SObjectField> fields) {
+        this.builder.fields.plainFields.add(fields);
+        return this;
+    }
+
+    public Queryable with(Iterable<String> fields) {
+        return this.with(String.join(fields, ','));
+    }
+
+    public Queryable withFieldSet(String fieldSetName) {
+        this.builder.fields.withFieldSet(fieldSetName);
+        return this;
+    }
+
+    public Queryable with(String fields) {
+        this.builder.fields.with(fields);
+        return this;
+    }
+
+    public Queryable with(SObjectField field, String alias) {
+        this.builder.fields.aggregateFields.add(field + '', alias);
+        return this;
+    }
+
+    public Queryable with(String relationshipName, SObjectField field) {
+        return this.with(relationshipName, new List<SObjectField>{ field });
+    }
+
+    public Queryable with(String relationshipName, SObjectField field1, SObjectField field2) {
+        return this.with(relationshipName, new List<SObjectField>{ field1, field2 });
+    }
+
+    public Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3) {
+        return this.with(relationshipName, new List<SObjectField>{ field1, field2, field3 });
+    }
+
+    public Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
+        return this.with(relationshipName, new List<SObjectField>{ field1, field2, field3, field4 });
+    }
+
+    public Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
+        return this.with(relationshipName, new List<SObjectField>{ field1, field2, field3, field4, field5 });
+    }
+
+    public Queryable with(String relationshipName, Iterable<SObjectField> fields) {
+        this.builder.fields.relationshipFields.add(relationshipName, fields);
+        return this;
+    }
+
+    public Queryable with(SubQuery subQuery) {
+        this.builder.subQueries.add(subQuery);
+        return this;
+    }
+
+    public Queryable count() {
+        this.builder.fields.count();
+        return this;
+    }
+
+    public Queryable count(SObjectField field) {
+        return this.count(field, '');
+    }
+
+    public Queryable count(SObjectField field, String alias) {
+        return this.withAggregateFunction('COUNT', field, alias);
+    }
+
+    public Queryable count(String relationshipName, SObjectField field) {
+        return this.count(relationshipName, field, '');
+    }
+
+    public Queryable count(String relationshipName, SObjectField field, String alias) {
+        return this.withAggregateFunction('COUNT', relationshipName, field, alias);
+    }
+
+    public Queryable avg(SObjectField field) {
+        return this.avg(field, '');
+    }
+
+    public Queryable avg(SObjectField field, String alias) {
+        return this.withAggregateFunction('AVG', field, alias);
+    }
+
+    public Queryable avg(String relationshipName, SObjectField field) {
+        return this.avg(relationshipName, field, '');
+    }
+
+    public Queryable avg(String relationshipName, SObjectField field, String alias) {
+        return this.withAggregateFunction('AVG', relationshipName, field, alias);
+    }
+
+    public Queryable countDistinct(SObjectField field) {
+        return this.countDistinct(field, '');
+    }
+
+    public Queryable countDistinct(SObjectField field, String alias) {
+        return this.withAggregateFunction('COUNT_DISTINCT', field, alias);
+    }
+
+    public Queryable countDistinct(String relationshipName, SObjectField field) {
+        return this.countDistinct(relationshipName, field, '');
+    }
+
+    public Queryable countDistinct(String relationshipName, SObjectField field, String alias) {
+        return this.withAggregateFunction('COUNT_DISTINCT', relationshipName, field, alias);
+    }
+
+    public Queryable min(SObjectField field) {
+        return this.min(field, '');
+    }
+
+    public Queryable min(SObjectField field, String alias) {
+        return this.withAggregateFunction('MIN', field, alias);
+    }
+
+    public Queryable min(String relationshipName, SObjectField field) {
+        return this.min(relationshipName, field, '');
+    }
+
+    public Queryable min(String relationshipName, SObjectField field, String alias) {
+        return this.withAggregateFunction('MIN', relationshipName, field, alias);
+    }
+
+    public Queryable max(SObjectField field) {
+        return this.max(field, '');
+    }
+
+    public Queryable max(SObjectField field, String alias) {
+        return this.withAggregateFunction('MAX', field, alias);
+    }
+
+    public Queryable max(String relationshipName, SObjectField field) {
+        return this.max(relationshipName, field, '');
+    }
+
+    public Queryable max(String relationshipName, SObjectField field, String alias) {
+        return this.withAggregateFunction('MAX', relationshipName, field, alias);
+    }
+
+    public Queryable sum(SObjectField field) {
+        return this.sum(field, '');
+    }
+
+    public Queryable sum(SObjectField field, String alias) {
+        return this.withAggregateFunction('SUM', field, alias);
+    }
+
+    public Queryable sum(String relationshipName, SObjectField field) {
+        return this.sum(relationshipName, field, '');
+    }
+
+    public Queryable sum(String relationshipName, SObjectField field, String alias) {
+        return this.withAggregateFunction('SUM', relationshipName, field, alias);
+    }
+
+    public Queryable grouping(SObjectField field, String alias) {
+        return this.withAggregateFunction('GROUPING', field, alias);
+    }
+
+    private Queryable withAggregateFunction(String function, SObjectField field, String alias) {
+        this.builder.fields.aggregateFields.add(function, field, alias);
+        return this;
+    }
+
+    private Queryable withAggregateFunction(String function, String relationship, SObjectField field, String alias) {
+        this.builder.fields.aggregateFields.add(function, relationship, field, alias);
+        return this;
+    }
+
+    public Queryable toLabel(SObjectField field) {
+        return this.toLabel(field + '');
+    }
+
+    public Queryable toLabel(SObjectField field, String alias) {
+        return this.toLabel(field + '', alias);
+    }
+
+    public Queryable toLabel(String field) {
+        return this.toLabel(field, '');
+    }
+
+    public Queryable toLabel(String field, String alias) {
+        return this.withFunction('toLabel', field, alias);
+    }
+
+    public Queryable format(SObjectField field) {
+        return this.format(field, '');
+    }
+
+    public Queryable format(SObjectField field, String alias) {
+        return this.withFunction('FORMAT', field + '', alias);
+    }
+
+    private Queryable withFunction(String function, String field, String alias) {
+        this.builder.fields.functionsFields.add(function, field, alias);
+        return this;
+    }
+
+    public Queryable delegatedScope() {
+        return this.scope('DELEGATED');
+    }
+
+    public Queryable mineScope() {
+        return this.scope('MINE');
+    }
+
+    public Queryable mineAndMyGroupsScope() {
+        return this.scope('MINE_AND_MY_GROUPS');
+    }
+
+    public Queryable myTerritoryScope() {
+        return this.scope('MY_TERRITORY');
+    }
+
+    public Queryable myTeamTerritoryScope() {
+        return this.scope('MY_TEAM_TERRITORY');
+    }
+
+    public Queryable teamScope() {
+        return this.scope('TEAM');
+    }
+
+    private Queryable scope(String scope) {
+        this.builder.scope.set(scope);
+        return this;
+    }
+
+    public Queryable whereAre(FilterGroup filterGroup) {
+        this.builder.conditions.add(filterGroup);
+        return this;
+    }
+
+    public Queryable whereAre(Filter filter) {
+        this.builder.conditions.add(filter);
+        return this;
+    }
+
+    public Queryable whereAre(String conditions) {
+        this.builder.conditions.add(conditions);
+        return this;
+    }
+
+    public Queryable conditionLogic(String conditionLogic) {
+        this.builder.conditions.conditionLogic(conditionLogic);
+        return this;
+    }
+
+    public Queryable anyConditionMatching() {
+        this.builder.conditions.anyConditionMatching();
+        return this;
+    }
+
+    public Queryable groupBy(SObjectField field) {
+        return this.groupBy(field + '');
+    }
+
+    public Queryable groupBy(String field) {
+        this.builder.fields.withGroupedField(field);
+        this.builder.groupBy.with(field);
+        return this;
+    }
+
+    public Queryable groupBy(String relationshipName, SObjectField field) {
+        this.builder.fields.withGroupedField(relationshipName + '.' + field);
+        this.builder.groupBy.with(relationshipName, field);
+        return this;
+    }
+
+    public Queryable groupByRollup(SObjectField field) {
+        this.builder.fields.withGroupedField(field + '');
+        return this.groupBy(field, 'ROLLUP');
+    }
+
+    public Queryable groupByRollup(String relationshipName, SObjectField field) {
+        this.builder.fields.withGroupedField(relationshipName + '.' + field);
+        return this.groupBy(relationshipName, field, 'ROLLUP');
+    }
+
+    public Queryable groupByCube(SObjectField field) {
+        this.builder.fields.withGroupedField(field + '');
+        return this.groupBy(field, 'CUBE');
+    }
+
+    public Queryable groupByCube(String relationshipName, SObjectField field) {
+        this.builder.fields.withGroupedField(relationshipName + '.' + field);
+        return this.groupBy(relationshipName, field, 'CUBE');
+    }
+
+    private Queryable groupBy(SObjectField field, String function) {
+        this.builder.groupBy.with(field + '', function);
+        this.builder.fields.withGroupedField(field + '');
+        return this;
+    }
+
+    private Queryable groupBy(String relationshipName, SObjectField field, String function) {
+        this.builder.groupBy.with(relationshipName, field + '', function);
+        this.builder.fields.withGroupedField(relationshipName + '.' + field);
+        return this;
+    }
+
+    public Queryable have(HavingFilterGroup havingFilterGroup) {
+        this.builder.havingClause.add(havingFilterGroup);
+        return this;
+    }
+
+    public Queryable have(HavingFilter havingFilter) {
+        this.builder.havingClause.add(havingFilter);
+        return this;
+    }
+
+    public Queryable have(String havingConditions) {
+        this.builder.havingClause.add(havingConditions);
+        return this;
+    }
+
+    public Queryable havingConditionLogic(String havingConditionsOrder) {
+        this.builder.havingClause.conditionLogic(havingConditionsOrder);
+        return this;
+    }
+
+    public Queryable anyHavingConditionMatching() {
+        this.builder.havingClause.anyConditionMatching();
+        return this;
+    }
+
+    public Queryable orderBy(SObjectField field) {
+        return this.orderBy(field + '');
+    }
+
+    public Queryable orderBy(String field) {
+        this.builder.orderBys.newOrderBy().with(field);
+        return this;
+    }
+
+    public Queryable orderBy(String field, String direction) {
+        this.builder.orderBys.newOrderBy().with(field);
+        this.builder.orderBys.latestOrderBy().sortingOrder(direction);
+        return this;
+    }
+
+    public Queryable orderBy(String relationshipName, SObjectField field) {
+        this.builder.orderBys.newOrderBy().with(relationshipName, field);
+        return this;
+    }
+
+    public Queryable sortDesc() {
+        return this.sort('DESC');
+    }
+
+    public Queryable sort(String direction) {
+        this.builder.latestOrderBy.sortingOrder(direction);
+        return this;
+    }
+
+    public Queryable nullsLast() {
+        this.builder.latestOrderBy.nullsOrder('LAST');
+        return this;
+    }
+
+    public Queryable setLimit(Integer amount) {
+        this.builder.soqlLimit.set(amount);
+        return this;
+    }
+
+    public Queryable offset(Integer startingRow) {
+        this.builder.soqlOffset.set(startingRow);
+        return this;
+    }
+
+    public Queryable forReference() {
+        return this.setFor('FOR REFERENCE');
+    }
+
+    public Queryable forView() {
+        return this.setFor('FOR VIEW');
+    }
+
+    public Queryable forUpdate() {
+        return this.setFor('FOR UPDATE');
+    }
+
+    public Queryable allRows() {
+        return this.setFor('ALL ROWS');
+    }
+
+    private Queryable setFor(String forStatement) {
+        this.builder.soqlFor.set(forStatement);
+        return this;
+    }
+
+    public Queryable userMode() {
+        this.executor.accessMode(AccessLevel.USER_MODE);
+        return this;
+    }
+
+    public Queryable systemMode() {
+        this.executor.accessMode(AccessLevel.SYSTEM_MODE);
+        return this;
+    }
+
+    public Queryable stripInaccessible() {
+        return this.stripInaccessible(AccessType.READABLE);
+    }
+
+    public Queryable stripInaccessible(AccessType accessType) {
+        this.executor.stripInaccessible(accessType);
+        return this;
+    }
+
+    public Queryable withSharing() {
+        this.executor.withSharing();
+        return this;
+    }
+
+    public Queryable withoutSharing() {
+        this.executor.withoutSharing();
+        return this;
+    }
+
+    public Queryable mockId(String queryIdentifier) {
+        this.executor.mock(queryIdToMock.get(queryIdentifier));
+        return this;
+    }
+
+    public Queryable preview() {
+        System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Preview ============\n' + this.toString() + '\n=======================================\n');
+        System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Binding ============\n' + JSON.serializePretty(this.binding()) + '\n=======================================\n');
+        return this;
+    }
+
+    public Map<String, Object> binding() {
         return binder.getBindingMap();
     }
 
     public Id toId() {
-        builder.fields.clearAllFields(); // other fields not needed
-        return toObject()?.Id;
+        this.builder.fields.clearAllFields(); // other fields not needed
+        return this.toObject()?.Id;
     }
 
     public Boolean doExist() {
-        builder.fields.clearAllFields(); // other fields not needed
-        return toList().size() > 0;
+        this.builder.fields.clearAllFields(); // other fields not needed
+        return this.toList().size() > 0;
     }
 
     public override String toString() {
         binder = new Binder(); // clear binding before query build
-        return builder.toString();
+        return this.builder.toString();
     }
 
     public Object toValueOf(SObjectField fieldToExtract) {
-        builder.fields.clearAllFields(); // other fields not needed
-        return with(fieldToExtract).toObject()?.get(fieldToExtract);
+        this.builder.fields.clearAllFields(); // other fields not needed
+        return this.with(fieldToExtract).toObject()?.get(fieldToExtract);
     }
 
     public Set<String> toValuesOf(SObjectField fieldToExtract) {
         // https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
-        builder.fields.clearAllFields(); // other fields not needed
-        return new Map<String, SObject>(with(fieldToExtract, 'Id')
+        this.builder.fields.clearAllFields(); // other fields not needed
+        return new Map<String, SObject>(this.with(fieldToExtract, 'Id')
             .whereAre(Filter.with(fieldToExtract).isNotNull())
             .groupBy(fieldToExtract).toAggregated())
             .keySet();
     }
 
     public Integer toInteger() {
-        builder.fields.addCountWhenNotPresented();
-        return executor.toInteger();
+        this.builder.fields.addCountWhenNotPresented();
+        return this.executor.toInteger();
     }
 
     public SObject toObject() {
-        return executor.toObject();
+        return this.executor.toObject();
     }
 
     public List<SObject> toList() {
-        return executor.toList();
+        return this.executor.toList();
     }
 
     public List<AggregateResult> toAggregated() {
-        return (List<AggregateResult>) toList();
+        return (List<AggregateResult>) this.toList();
     }
 
     public Map<Id, SObject> toMap() {
-        return converter.transform(executor.toList()).toMap();
+        return this.converter.transform(this.executor.toList()).toMap();
     }
 
     public Map<String, SObject> toMap(SObjectField keyField) {
-        with(keyField);
-        return converter.transform(executor.toList()).toMap(keyField);
+        this.with(keyField);
+        return this.converter.transform(this.executor.toList()).toMap(keyField);
     }
 
     public Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField) {
-        with(relationshipName + '.' + targetKeyField);
-        return converter.transform(executor.toList()).toMap(relationshipName, targetKeyField);
+        this.with(relationshipName + '.' + targetKeyField);
+        return this.converter.transform(this.executor.toList()).toMap(relationshipName, targetKeyField);
     }
 
     public Map<String, String> toMap(SObjectField keyField, SObjectField valueField) {
-        builder.fields.clearAllFields(); // other fields not needed
-        with(keyField, valueField);
-        return converter.transform(executor.toList()).toMap(keyField, valueField);
+        this.builder.fields.clearAllFields(); // other fields not needed
+        this.with(keyField, valueField);
+        return this.converter.transform(this.executor.toList()).toMap(keyField, valueField);
     }
 
     public Map<String, List<SObject>> toAggregatedMap(SObjectField keyField) {
-        with(keyField);
-        return converter.transform(executor.toList()).toAggregatedMap(keyField);
+        this.with(keyField);
+        return this.converter.transform(this.executor.toList()).toAggregatedMap(keyField);
     }
 
     public Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField) {
-        with(relationshipName + '.' + targetKeyField);
-        return converter.transform(executor.toList()).toAggregatedMap(relationshipName, targetKeyField);
+        this.with(relationshipName + '.' + targetKeyField);
+        return this.converter.transform(this.executor.toList()).toAggregatedMap(relationshipName, targetKeyField);
     }
 
     public Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField) {
-        builder.fields.clearAllFields(); // other fields not needed
-        with(keyField, valueField);
-        return converter.transform(executor.toList()).toAggregatedMap(keyField, valueField);
+        this.builder.fields.clearAllFields(); // other fields not needed
+        this.with(keyField, valueField);
+        return this.converter.transform(this.executor.toList()).toAggregatedMap(keyField, valueField);
     }
 
     public Database.QueryLocator toQueryLocator() {
-        return executor.toQueryLocator();
+        return this.executor.toQueryLocator();
     }
 
-    public SOQL byId(SObject record) {
-        return byId(record.Id);
+    public Queryable byId(SObject record) {
+        return this.byId(record.Id);
     }
 
-    public SOQL byId(Id recordId) {
-        return whereAre(Filter.id().equal(recordId));
+    public Queryable byId(Id recordId) {
+        return this.whereAre(Filter.id().equal(recordId));
     }
 
-    public SOQL byIds(Iterable<Id> recordIds) {
-        return whereAre(Filter.id().isIn(recordIds));
+    public Queryable byIds(Iterable<Id> recordIds) {
+        return this.whereAre(Filter.id().isIn(recordIds));
     }
 
-    public SOQL byIds(List<SObject> records) {
-        return whereAre(Filter.id().isIn(records));
+    public Queryable byIds(List<SObject> records) {
+        return this.whereAre(Filter.id().isIn(records));
     }
 
-    public SOQL byRecordType(String recordTypeDeveloperName) {
-        return whereAre(Filter.recordType().equal(recordTypeDeveloperName));
+    public Queryable byRecordType(String recordTypeDeveloperName) {
+        return this.whereAre(Filter.recordType().equal(recordTypeDeveloperName));
     }
 
     private interface QueryClause {
@@ -924,12 +958,12 @@ public virtual inherited sharing class SOQL implements Queryable {
         private List<QueryClause> clauses = new QueryClause[11];
 
         public SoqlBuilder(String ofObject) {
-            clauses.set(0, new SoqlFields(ofObject));
-            clauses.set(2, new SoqlFrom(ofObject));
+            this.clauses.set(0, new SoqlFields(ofObject));
+            this.clauses.set(2, new SoqlFrom(ofObject));
         }
 
         public SoqlFields fields {
-            get { return (SoqlFields) clauses[0]; }
+            get { return (SoqlFields) this.clauses[0]; }
         }
 
         public SoqlSubQueries subQueries {
@@ -953,7 +987,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public SoqlOrderBy latestOrderBy {
-            get { return orderBys.latestOrderBy(); }
+            get { return this.orderBys.latestOrderBy(); }
         }
 
         public SoqlOrderBys orderBys {
@@ -973,16 +1007,16 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         private QueryClause getQueryClause(Integer position, System.Type queryClause) {
-            if (clauses[position] == null) {
-                clauses.set(position, (QueryClause) queryClause.newInstance());
+            if (this.clauses[position] == null) {
+                this.clauses.set(position, (QueryClause) queryClause.newInstance());
             }
-            return clauses[position];
+            return this.clauses[position];
         }
 
         public override String toString() {
             String query = '';
 
-            for (QueryClause clause : clauses) {
+            for (QueryClause clause : this.clauses) {
                 if (clause != null) {
                     query += ' ' + clause.toString();
                 }
@@ -993,9 +1027,12 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class SoqlFields implements QueryClause {
+        public PlainFields plainFields = new PlainFields();
+        public RelationshipFields relationshipFields = new RelationshipFields();
+        public FunctionsFields functionsFields = new FunctionsFields(); // toLabel, FORMAT
+        public AggregateFunctionsFields aggregateFields = new AggregateFunctionsFields();
+
         private String ofObject;
-        private Set<String> fields = new Set<String>();
-        private Set<String> aggregateFunctions = new Set<String>();
         private Set<String> groupedFields = new Set<String>();
 
         public SoqlFields(String ofObject) {
@@ -1003,186 +1040,185 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public void count() {
-            clearAllFields(); // COUNT() must be the only element in the SELECT list.
-            withAggregateFunction('COUNT()', '');
-        }
-
-        public void count(SObjectField field, String alias) {
-            with('COUNT', field, alias);
-        }
-
-        public void count(String relationshipName, SObjectField field, String alias) {
-            with('COUNT', relationshipName, field, alias);
-        }
-
-        public void avg(SObjectField field, String alias) {
-            with('AVG', field, alias);
-        }
-
-        public void avg(String relationshipName, SObjectField field, String alias) {
-            with('AVG', relationshipName, field, alias);
-        }
-
-        public void countDistinct(SObjectField field, String alias) {
-            with('COUNT_DISTINCT', field, alias);
-        }
-
-        public void countDistinct(String relationshipName, SObjectField field, String alias) {
-            with('COUNT_DISTINCT', relationshipName, field, alias);
-        }
-
-        public void min(SObjectField field, String alias) {
-            with('MIN', field, alias);
-        }
-
-        public void min(String relationshipName, SObjectField field, String alias) {
-            with('MIN', relationshipName, field, alias);
-        }
-
-        public void max(SObjectField field, String alias) {
-            with('MAX', field, alias);
-        }
-
-        public void max(String relationshipName, SObjectField field, String alias) {
-            with('MAX', relationshipName, field, alias);
-        }
-
-        public void sum(SObjectField field, String alias) {
-            with('SUM', field, alias);
-        }
-
-        public void sum(String relationshipName, SObjectField field, String alias) {
-            with('SUM', relationshipName, field, alias);
-        }
-
-        public void grouping(SObjectField field, String alias) {
-            with('GROUPING', field, alias);
-        }
-
-        public void with(String function, String relationshipName, SObjectField field, String alias) {
-            withAggregateFunction(function + '(' + relationshipName + '.' + field + ')', alias);
-        }
-
-        public void with(String function, SObjectField field, String alias) {
-            withAggregateFunction(function + '(' + field + ')', alias);
-        }
-
-        public void with(SObjectField field, String alias) {
-            withAggregateFunction(field.getDescribe().getName(), alias);
-        }
-
-        private void withAggregateFunction(String aggregateFunction, String alias) {
-            if (String.isNotBlank(alias)) {
-                aggregateFunction += ' ' + alias;
-            }
-
-            aggregateFunctions.add(aggregateFunction);
-        }
-
-        public void withGroupedField(SObjectField field) {
-            groupedFields.add(field.getDescribe().getName());
-        }
-
-        public void withGroupedField(String relationshipName, SObjectField field) {
-            groupedFields.add(relationshipName + '.' + field);
+            this.clearAllFields(); // COUNT() must be the only element in the SELECT list.
+            this.aggregateFields.add('COUNT()', '');
         }
 
         public void with(String commaSeparatedFields) {
-            // Added to Set to avoid field duplicates in query
+            // Add to Set to avoid "duplicate field selected" error
             for (String splittedField : commaSeparatedFields.split(',')) {
-                String field = splittedField.trim();
-                if (isAggregateFunction(field)) {
-                    aggregateFunctions.add(field);
-                } else {
-                    fields.add(field);
-                }
+                this.classifyField(splittedField);
             }
         }
 
-        private Boolean isAggregateFunction(String field) {
-            // AVG(), COUNT(), MIN(), MAX(), SUM() or Field aliasing
-            // Exclude other SOQL Funcions ex. toLabel(), convertCurrency(), FORMAT()
-            Set<String> exceptionFunctions = new Set<String>{ 'toLabel', 'convertCurrency', 'FORMAT' };
-            Pattern exceptionFunctionsRegexPattern = Pattern.compile('(?i)\\b(' + String.join(new List<String>(exceptionFunctions), '|') + ')\\s*\\(');
-            Matcher exceptionFunctionsMatcher = exceptionFunctionsRegexPattern.matcher(field);
+        private void classifyField(String field) {
+            String trimmedField = field.trim();
 
-            return field.contains('(') && field.contains(')') && !exceptionFunctionsMatcher.find() || field.contains(' ');
-        }
-
-        public void with(Iterable<SObjectField> fields) {
-            for (SObjectField field : fields) {
-                with(field);
+            if (this.functionsFields.isQualified(trimmedField)) {
+                this.functionsFields.add(trimmedField);
+            } else if (this.aggregateFields.isQualified(trimmedField)) {
+                this.aggregateFields.add(trimmedField);
+            } else if (this.relationshipFields.isQualified(trimmedField)) {
+                this.relationshipFields.add(trimmedField);
+            } else {
+                this.plainFields.add(trimmedField);
             }
         }
+
+        public void withGroupedField(String field) {
+            this.groupedFields.add(field);
+         }
 
         public void withFieldSet(String fieldSetName) {
-            FieldSet fieldSet = Schema.describeSObjects(new List<String>{ ofObject })[0].FieldSets.getMap().get(fieldSetName);
+            FieldSet fieldSet = Schema.describeSObjects(new List<String>{ this.ofObject })[0].FieldSets.getMap().get(fieldSetName);
 
             if (fieldSet == null) {
                 throw new QueryException('FieldSet with name ' + fieldSetName + ' does not exist!');
             }
 
             for (Schema.FieldSetMember field : fieldSet.getFields()) {
-                with(field.getFieldPath());
+                String currentField = field.getFieldPath();
+
+                if (this.relationshipFields.isQualified(currentField)) {
+                    this.relationshipFields.add(currentField);
+                } else {
+                    this.plainFields.add(currentField);
+                }
             }
-        }
-
-        public void with(SObjectField field) {
-            fields.add(field.getDescribe().getName());
-        }
-
-        public void toLabel(String field) {
-            fields.add('toLabel(' + field + ')');
-        }
-
-        public void toLabel(String field, String alias) {
-            fields.add('toLabel(' + field + ') ' + alias);
-        }
-
-        private void format(SObjectField field, String alias) {
-            fields.add('FORMAT(' + field + ') ' + alias);
-        }
-
-        public void with(String relationshipPath, Iterable<SObjectField> fields) {
-            for (SObjectField field : fields) {
-                with(relationshipPath, field);
-            }
-        }
-
-        public void with(String relationshipPath, SObjectField field) {
-            fields.add(relationshipPath + '.' + field);
         }
 
         public void clearAllFields() {
-            fields.clear();
-            aggregateFunctions.clear();
+            this.plainFields.clear();
+            this.relationshipFields.clear();
+            this.aggregateFields.clear();
+            this.functionsFields.clear();
         }
 
         public void addCountWhenNotPresented() {
-            if (aggregateFunctions.isEmpty()) {
-                count();
+            if (this.aggregateFields.isEmpty()) {
+                this.count();
             }
         }
 
         public override String toString() {
-            if (fields.isEmpty() && aggregateFunctions.isEmpty()) {
-                return 'SELECT Id';
+            if (
+                this.plainFields.isEmpty() &&
+                this.relationshipFields.isEmpty() &&
+                this.aggregateFields.isEmpty() &&
+                this.functionsFields.isEmpty()
+            ) {
+                this.plainFields.add('Id');
             }
 
-            if (!groupedFields.isEmpty() || !aggregateFunctions.isEmpty()) {
-                List<String> selectFields = new List<String>();
-
-                // To avoid "Field must be grouped or aggregated" error
-                // retain only grouped or aggregated fields
-                fields.retainAll(groupedFields);
-
-                selectFields.addAll(fields);
-                selectFields.addAll(aggregateFunctions);
-
-                return 'SELECT ' + String.join(selectFields, ', ');
+            if (!this.groupedFields.isEmpty() || !this.aggregateFields.isEmpty()) {
+                // To avoid "Field must be grouped or aggregated" error retain only grouped or aggregated fields
+                this.plainFields.retainAll(groupedFields);
+                this.relationshipFields.retainAll(groupedFields);
+                this.functionsFields.retainAll(groupedFields);
             }
 
-            return 'SELECT ' + String.join(fields, ', ');
+            List<String> selectFields = new List<String>();
+
+            selectFields.addAll(this.plainFields.get());
+            selectFields.addAll(this.relationshipFields.get());
+            selectFields.addAll(this.functionsFields.get());
+            selectFields.addAll(this.aggregateFields.get());
+
+            return 'SELECT ' + String.join(selectFields, ', ');
+        }
+    }
+
+    private abstract class SelectFields {
+        protected Set<String> fields = new Set<String>();
+
+        public void add(String field) {
+            this.fields.add(field);
+        }
+
+        public Boolean isEmpty() {
+            return this.fields.isEmpty();
+        }
+
+        public void clear() {
+            this.fields.clear();
+        }
+
+        public Set<String> get() {
+            return this.fields;
+        }
+
+        public void retainAll(Set<String> fieldsToRetain) {
+            this.fields.retainAll(fieldsToRetain);
+        }
+    }
+
+    private class PlainFields extends SelectFields {
+        public void add(Iterable<SObjectField> fields) {
+            for (SObjectField field : fields) {
+                this.add(field + '');
+            }
+        }
+    }
+
+    private class RelationshipFields extends SelectFields {
+        public void add(String relationshipPath, Iterable<SObjectField> fields) {
+            for (SObjectField field : fields) {
+                this.add(relationshipPath, field);
+            }
+        }
+
+        public void add(String relationshipPath, SObjectField field) {
+            this.add(relationshipPath + '.' + field);
+        }
+
+        public Boolean isQualified(String field) {
+            return !field.contains('(') && !field.contains(')') && field.contains('.');
+        }
+    }
+
+    private class AggregateFunctionsFields extends SelectFields {
+        private final Set<String> AGGREGATE_FUNCTIONS = new Set<String>{ 'COUNT', 'AVG', 'COUNT_DISTINCT', 'MIN', 'MAX', 'SUM' };
+        private final Set<String> DATE_FUNCTIONS = new Set<String>{ 'CALENDAR_MONTH', 'CALENDAR_QUARTER', 'CALENDAR_YEAR', 'DAY_IN_MONTH', 'DAY_IN_WEEK', 'DAY_IN_YEAR', 'DAY_ONLY', 'FISCAL_MONTH', 'FISCAL_QUARTER', 'FISCAL_YEAR', 'HOUR_IN_DAY', 'WEEK_IN_MONTH', 'WEEK_IN_YEAR' };
+
+        public void add(String function, SObjectField field, String alias) {
+            this.add(function + '(' + field + ')', alias);
+        }
+
+        public void add(String function, String relationship, SObjectField field, String alias) {
+            this.add(function + '(' + relationship + '.' + field + ')', alias);
+        }
+
+        private void add(String aggregateFunction, String alias) {
+            if (String.isNotBlank(alias)) {
+                aggregateFunction += ' ' + alias;
+            }
+            this.add(aggregateFunction);
+        }
+
+        private Boolean isQualified(String field) {
+            Boolean isFieldAliasing = !field.contains('(') && !field.contains(')') && field.contains(' ');
+            String functionName = field.split('\\(')[0].toUpperCase();
+            return AGGREGATE_FUNCTIONS.contains(functionName) || DATE_FUNCTIONS.contains(functionName) || isFieldAliasing;
+        }
+    }
+
+    private class FunctionsFields extends SelectFields {
+        private final Set<String> FUNCTIONS = new Set<String>{ 'CONVERTCURRENCY', 'CONVERTTIMEZONE', 'FORMAT', 'GROUPING', 'TOLABEL' };
+
+        public void add(String function, String field, String alias) {
+            this.add(function + '(' + field + ')', alias);
+        }
+
+        public void add(String function, String alias) {
+            if (String.isNotBlank(alias)) {
+                function += ' ' + alias;
+            }
+            this.add(function);
+        }
+
+        public Boolean isQualified(String field) {
+            String functionName = field.split('\\(')[0].toUpperCase();
+            return FUNCTIONS.contains(functionName);
         }
     }
 
@@ -1190,113 +1226,113 @@ public virtual inherited sharing class SOQL implements Queryable {
         private SoqlBuilder builder;
 
         public SubQuery of(String ofObject) {
-            builder = new SoqlBuilder(ofObject);
+            this.builder = new SoqlBuilder(ofObject);
             return this;
         }
 
         public SubQuery with(SObjectField field) {
-            builder.fields.with(field);
+            this.builder.fields.plainFields.add(field + '');
             return this;
         }
 
         public SubQuery with(SObjectField field1, SObjectField field2) {
-            return with(field1).with(field2);
+            return this.with(field1).with(field2);
         }
 
         public SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3) {
-            return with(field1, field2).with(field3);
+            return this.with(field1).with(field2).with(field3);
         }
 
         public SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
-            return with(field1, field2, field3).with(field4);
+            return this.with(field1).with(field2).with(field3).with(field4);
         }
 
         public SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
-            return with(field1, field2, field3, field4).with(field5);
+            return this.with(field1).with(field2).with(field3).with(field4).with(field5);
         }
 
         public SubQuery with(Iterable<SObjectField> fields) {
-            builder.fields.with(fields);
+            this.builder.fields.plainFields.add(fields);
             return this;
         }
 
         public SubQuery with(String fields) {
-            builder.fields.with(fields);
+            this.builder.fields.with(fields);
             return this;
         }
 
         public SubQuery with(String relationshipName, Iterable<SObjectField> fields) {
-            builder.fields.with(relationshipName, fields);
+            this.builder.fields.relationshipFields.add(relationshipName, fields);
             return this;
         }
 
         public SubQuery with(SubQuery subQuery) {
-            builder.subQueries.add(subQuery);
+            this.builder.subQueries.add(subQuery);
             return this;
         }
 
         public SubQuery whereAre(FilterGroup filterGroup) {
-            builder.conditions.add(filterGroup);
+            this.builder.conditions.add(filterGroup);
             return this;
         }
 
         public SubQuery whereAre(Filter filter) {
-            builder.conditions.add(filter);
+            this.builder.conditions.add(filter);
             return this;
         }
 
         public SubQuery orderBy(SObjectField field) {
-            builder.orderBys.newOrderBy().with(field);
+            this.builder.orderBys.newOrderBy().with(field + '');
             return this;
         }
 
         public SubQuery orderBy(String field) {
-            builder.orderBys.newOrderBy().with(field);
+            this.builder.orderBys.newOrderBy().with(field);
             return this;
         }
 
         public SubQuery orderBy(String relationshipName, SObjectField field) {
-            builder.orderBys.newOrderBy().with(relationshipName, field);
+            this.builder.orderBys.newOrderBy().with(relationshipName, field);
             return this;
         }
 
         public SubQuery sortDesc() {
-            builder.latestOrderBy.sortDesc();
+            this.builder.latestOrderBy.sortingOrder('DESC');
             return this;
         }
 
         public SubQuery sort(String direction) {
-            builder.latestOrderBy.sortingOrder(direction);
+            this.builder.latestOrderBy.sortingOrder(direction);
             return this;
         }
 
         public SubQuery nullsLast() {
-            builder.latestOrderBy.nullsLast();
+            this.builder.latestOrderBy.nullsOrder('LAST');
             return this;
         }
 
         public SubQuery setLimit(Integer amount) {
-            builder.soqlLimit.max(amount);
+            this.builder.soqlLimit.set(amount);
             return this;
         }
 
         public SubQuery offset(Integer startingRow) {
-            builder.soqlOffset.offset(startingRow);
+            this.builder.soqlOffset.set(startingRow);
             return this;
         }
 
         public SubQuery forReference() {
-            builder.soqlFor.forReference();
+            this.builder.soqlFor.set('FOR REFERENCE');
             return this;
         }
 
         public SubQuery forView() {
-            builder.soqlFor.forView();
+            this.builder.soqlFor.set('FOR VIEW');
             return this;
         }
 
         public override String toString() {
-            return builder.toString();
+            return this.builder.toString();
         }
     }
 
@@ -1304,13 +1340,13 @@ public virtual inherited sharing class SOQL implements Queryable {
         private List<SubQuery> subQueries = new List<SubQuery>();
 
         public void add(SubQuery subQuery) {
-            subQueries.add(subQuery);
+            this.subQueries.add(subQuery);
         }
 
         public override String toString() {
             List<String> subQueriesStrings = new List<String>();
 
-            for (SubQuery sub : subQueries) {
+            for (SubQuery sub : this.subQueries) {
                 subQueriesStrings.add('(' + sub + ')');
             }
 
@@ -1322,43 +1358,23 @@ public virtual inherited sharing class SOQL implements Queryable {
         private String objectApiName;
 
         public SoqlFrom(String objectType) {
-            objectApiName = objectType;
+            this.objectApiName = objectType;
         }
 
         public override String toString() {
-            return 'FROM ' + objectApiName;
+            return 'FROM ' + this.objectApiName;
         }
     }
 
     private class SoqlScope implements QueryClause {
         private String scope = 'EVERYTHING';
 
-        public void delegated() {
-            scope = 'DELEGATED';
-        }
-
-        public void mine() {
-            scope = 'MINE';
-        }
-
-        public void mineAndMyGroups() {
-            scope = 'MINE_AND_MY_GROUPS';
-        }
-
-        public void myTerritory() {
-            scope = 'MY_TERRITORY';
-        }
-
-        public void myTeamTerritory() {
-            scope = 'MY_TEAM_TERRITORY';
-        }
-
-        public void team() {
-            scope = 'TEAM';
+        public void set(String scope) {
+            this.scope = scope;
         }
 
         public override String toString() {
-            return 'USING SCOPE ' + scope;
+            return 'USING SCOPE ' + this.scope;
         }
     }
 
@@ -1367,77 +1383,25 @@ public virtual inherited sharing class SOQL implements Queryable {
         Boolean hasValue();
     }
 
-    private virtual class SoqlFilterGroup implements FilterGroup {
-        private List<FilterClause> queryConditions = new List<FilterClause>();
-        private String customOrder;
-        private String connector = 'AND';
+    private virtual class FilterBuilder {
+        protected List<FilterClause> conditions = new List<FilterClause>();
+        protected String customOrder;
+        protected String connector = 'AND';
 
-        public FilterGroup add(FilterGroup filterGroup) {
-            return add(new FilterGroupAdapter(filterGroup));
-        }
-
-        public FilterGroup add(Filter filter) {
-            return add(new FilterAdapter(filter));
-        }
-
-        public FilterGroup add(String dynamicCondition) {
-            return add(new StringConditionAdapter(dynamicCondition));
-        }
-
-        public FilterGroup add(FilterClause condition) {
+        protected void add(FilterClause condition) {
             if (condition.hasValue()) {
-                queryConditions.add(condition);
+                this.conditions.add(condition);
             }
-            return this;
         }
 
-        public FilterGroup add(List<Filter> filters) {
-            for (Filter filter: filters) {
-                add(filter);
-            }
-            return this;
-        }
-
-        public FilterGroup add(List<String> dynamicConditions) {
-            for (String dynamicCondition: dynamicConditions) {
-                add(dynamicCondition);
-            }
-            return this;
-        }
-
-        public FilterGroup anyConditionMatching() {
-            connector = 'OR';
-            return this;
-        }
-
-        public FilterGroup conditionLogic(String order) {
-            customOrder = order;
-            return this;
-        }
-
-        public FilterGroup ignoreWhen(Boolean logicExpression) {
-            if (logicExpression) {
-                queryConditions = new List<FilterClause>();
-            }
-            return this;
-        }
-
-        public Boolean hasValues() {
-            return !queryConditions.isEmpty();
-        }
-
-        public virtual override String toString() {
-            return '(' + buildNested() + ')';
-        }
-
-        public String buildNested() {
-            return String.format(getOrderWithSpecialCharacters(), queryConditions);
+        protected String buildNested() {
+            return String.format(this.getOrderWithSpecialCharacters(), this.conditions);
         }
 
         private String getOrderWithSpecialCharacters() {
-            String orderWithSpecialCharacters = getConditionsLogic();
+            String orderWithSpecialCharacters = this.getConditionsLogic();
 
-            for (Integer i = 0; i < queryConditions.size(); i++) {
+            for (Integer i = 0; i < this.conditions.size(); i++) {
                 orderWithSpecialCharacters = orderWithSpecialCharacters.replaceAll('\\b' + String.valueOf(i + 1) + '\\b', '{' + i + '}');
             }
 
@@ -1445,27 +1409,83 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         private String getConditionsLogic() {
-            if (String.isNotEmpty(customOrder)) {
-                return customOrder;
+            if (String.isNotEmpty(this.customOrder)) {
+                return this.customOrder;
             }
 
             List<String> defaultOrder = new List<String>();
 
-            for (Integer i = 0; i < queryConditions.size(); i++) {
+            for (Integer i = 0; i < this.conditions.size(); i++) {
                 defaultOrder.add(String.valueOf(i + 1));
             }
 
-            return String.join(defaultOrder, ' ' + connector + ' '); // e.g (0 AND 1 AND 2)
+            return String.join(defaultOrder, ' ' + this.connector + ' '); // e.g (0 AND 1 AND 2)
+        }
+    }
+
+    private virtual class SoqlFilterGroup extends FilterBuilder implements FilterGroup {
+        public FilterGroup add(FilterGroup filterGroup) {
+            this.add(new FilterGroupAdapter(filterGroup));
+            return this;
+        }
+
+        public FilterGroup add(Filter filter) {
+            this.add(new FilterAdapter(filter));
+            return this;
+        }
+
+        public FilterGroup add(String dynamicCondition) {
+            this.add(new StringConditionAdapter(dynamicCondition));
+            return this;
+        }
+
+        public FilterGroup add(List<Filter> filters) {
+            for (Filter filter: filters) {
+                this.add(filter);
+            }
+            return this;
+        }
+
+        public FilterGroup add(List<String> dynamicConditions) {
+            for (String dynamicCondition: dynamicConditions) {
+                this.add(dynamicCondition);
+            }
+            return this;
+        }
+
+        public FilterGroup anyConditionMatching() {
+            this.connector = 'OR';
+            return this;
+        }
+
+        public FilterGroup conditionLogic(String order) {
+            this.customOrder = order;
+            return this;
+        }
+
+        public FilterGroup ignoreWhen(Boolean logicExpression) {
+            if (logicExpression) {
+                this.conditions = new List<FilterClause>();
+            }
+            return this;
+        }
+
+        public Boolean hasValues() {
+            return !this.conditions.isEmpty();
+        }
+
+        public virtual override String toString() {
+            return '(' + this.buildNested() + ')';
         }
     }
 
     private class MainFilterGroup extends SoqlFilterGroup implements QueryClause {
         public override String toString() {
-            if (!hasValues()) {
+            if (!this.hasValues()) {
                 return '';
             }
 
-            return 'WHERE ' + buildNested();
+            return 'WHERE ' + this.buildNested();
         }
     }
 
@@ -1477,11 +1497,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Boolean hasValue() {
-            return filterGroup.hasValues();
+            return this.filterGroup.hasValues();
         }
 
         public override String toString() {
-            return filterGroup.toString();
+            return this.filterGroup.toString();
         }
     }
 
@@ -1493,11 +1513,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Boolean hasValue() {
-            return filter.hasValue();
+            return this.filter.hasValue();
         }
 
         public override String toString() {
-            return filter.toString();
+            return this.filter.toString();
         }
     }
 
@@ -1505,15 +1525,15 @@ public virtual inherited sharing class SOQL implements Queryable {
         private String conditionString;
 
         public StringConditionAdapter(String dynamicCondition) {
-            conditionString = dynamicCondition;
+            this.conditionString = dynamicCondition;
         }
 
         public Boolean hasValue() {
-            return String.isNotEmpty(conditionString);
+            return String.isNotEmpty(this.conditionString);
         }
 
         public override String toString() {
-            return conditionString;
+            return this.conditionString;
         }
     }
 
@@ -1525,23 +1545,23 @@ public virtual inherited sharing class SOQL implements Queryable {
         private Boolean skipBinding = false;
 
         public Filter id() {
-            return with('Id');
+            return this.with('Id');
         }
 
         public Filter recordType() {
-            return with('RecordType.DeveloperName');
+            return this.with('RecordType.DeveloperName');
         }
 
         public Filter name() {
-            return with('Name');
+            return this.with('Name');
         }
 
         public Filter with(SObjectField field) {
-            return with(field.getDescribe().getName());
+            return this.with(field + '');
         }
 
         public Filter with(String relationshipName, SObjectField field) {
-            return with(relationshipName + '.' + field);
+            return this.with(relationshipName + '.' + field);
         }
 
         public Filter with(String field) {
@@ -1550,79 +1570,79 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Filter isNull() {
-            return equal(null);
+            return this.equal(null);
         }
 
         public Filter isNotNull() {
-            return notEqual(null);
+            return this.notEqual(null);
         }
 
         public Filter isTrue() {
-            return equal(true);
+            return this.equal(true);
         }
 
         public Filter isFalse() {
-            return equal(false);
+            return this.equal(false);
         }
 
         public Filter equal(Object value) {
-            return set('=', value);
+            return this.set('=', value);
         }
 
         public Filter notEqual(Object value) {
-            return set('!=', value);
+            return this.set('!=', value);
         }
 
         public Filter lessThan(Object value) {
-            return set('<', value);
+            return this.set('<', value);
         }
 
         public Filter greaterThan(Object value) {
-            return set('>', value);
+            return this.set('>', value);
         }
 
         public Filter lessOrEqual(Object value) {
-            return set('<=', value);
+            return this.set('<=', value);
         }
 
         public Filter greaterOrEqual(Object value) {
-            return set('>=', value);
+            return this.set('>=', value);
         }
 
         public Filter containsSome(Iterable<String> values) {
-            return set('LIKE', values);
+            return this.set('LIKE', values);
         }
 
         public Filter contains(String value) {
-            return contains('%', formattedString(value), '%');
+            return this.contains('%', formattedString(value), '%');
         }
 
         public Filter notContains(String value) {
-            return notLike().contains(value);
+            return this.notLike().contains(value);
         }
 
         public Filter endsWith(String value) {
-            return contains('%', formattedString(value), '');
+            return this.contains('%', formattedString(value), '');
         }
 
         public Filter notEndsWith(String value) {
-            return notLike().endsWith(value);
+            return this.notLike().endsWith(value);
         }
 
         public Filter startsWith(String value) {
-            return contains('', formattedString(value), '%');
+            return this.contains('', formattedString(value), '%');
         }
 
         public Filter notStartsWith(String value) {
-            return notLike().startsWith(value);
+            return this.notLike().startsWith(value);
         }
 
         public Filter contains(String prefix, String value, String suffix) {
-            return set('LIKE', prefix + formattedString(value) + suffix);
+            return this.set('LIKE', prefix + formattedString(value) + suffix);
         }
 
         public Filter notContains(String prefix, String value, String suffix) {
-            return notLike().contains(prefix, value, suffix);
+            return this.notLike().contains(prefix, value, suffix);
         }
 
         private String formattedString(String value) {
@@ -1630,12 +1650,12 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Filter isIn(Iterable<Object> iterable) {
-            return set('IN', iterable);
+            return this.set('IN', iterable);
         }
 
         public Filter isIn(InnerJoin joinQuery) {
-            skipBinding = true;
-            return set('IN', joinQuery);
+            this.skipBinding = true;
+            return this.set('IN', joinQuery);
         }
 
         private Filter notLike() {
@@ -1644,34 +1664,34 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Filter notIn(Iterable<Object> iterable) {
-            return set('NOT IN', iterable);
+            return this.set('NOT IN', iterable);
         }
 
         public Filter notIn(InnerJoin joinQuery) {
-            skipBinding = true;
-            return set('NOT IN', joinQuery);
+            this.skipBinding = true;
+            return this.set('NOT IN', joinQuery);
         }
 
         public Filter includesAll(Iterable<String> iterable) {
-            return setMultipicklistFilter('INCLUDES', iterable, ';');
+            return this.setMultipicklistFilter('INCLUDES', iterable, ';');
         }
 
         public Filter includesSome(Iterable<String> iterable) {
-            return setMultipicklistFilter('INCLUDES', iterable, '\', \'');
+            return this.setMultipicklistFilter('INCLUDES', iterable, '\', \'');
         }
 
         public Filter excludesAll(Iterable<String> iterable) {
-            return setMultipicklistFilter('EXCLUDES', iterable, '\', \'');
+            return this.setMultipicklistFilter('EXCLUDES', iterable, '\', \'');
         }
 
         public Filter excludesSome(Iterable<String> iterable) {
-            return setMultipicklistFilter('EXCLUDES', iterable, ';');
+            return this.setMultipicklistFilter('EXCLUDES', iterable, ';');
         }
 
         public Filter setMultipicklistFilter(String operator, Iterable<String> iterable, String separator) {
              // Bind expressions can't be used with other clauses, such as INCLUDES, EXCLUDES
-             skipBinding = true;
-             return set(operator, '(\'' + String.join(iterable, separator) + '\')');
+             this.skipBinding = true;
+             return this.set(operator, '(\'' + String.join(iterable, separator) + '\')');
         }
 
         private Filter set(String comperator, Object value) {
@@ -1681,29 +1701,29 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Boolean hasValue() {
-            return String.isNotEmpty(field);
+            return String.isNotEmpty(this.field);
         }
 
         public Filter ignoreWhen(Boolean logicExpression) {
             if (logicExpression) {
                 // Set field as empty to meet hasValue and ignore condition
-                with('');
+                this.with('');
             }
             return this;
         }
 
         public Filter asDateLiteral() {
             // Date Literals can't be binded
-            skipBinding = true;
+            this.skipBinding = true;
             return this;
         }
 
         public override String toString() {
-            if (skipBinding) {
-                return String.format(wrapper, new List<String>{ field + ' ' + comperator + ' ' + value });
+            if (this.skipBinding) {
+                return String.format(this.wrapper, new List<String>{ this.field + ' ' + this.comperator + ' ' + this.value });
             }
 
-            return String.format(wrapper, new List<String>{ field + ' ' + comperator + ' :' + binder.bind(value) });
+            return String.format(this.wrapper, new List<String>{ this.field + ' ' + this.comperator + ' :' + binder.bind(value) });
         }
     }
 
@@ -1711,27 +1731,27 @@ public virtual inherited sharing class SOQL implements Queryable {
         private SoqlBuilder builder;
 
         public InnerJoin of(SObjectType ofObject) {
-            builder = new SoqlBuilder(ofObject.getDescribe().getName());
+            this.builder = new SoqlBuilder(ofObject + '');
             return this;
         }
 
         public InnerJoin with(SObjectField field) {
-            builder.fields.with(field);
+            this.builder.fields.plainFields.add(field + '');
             return this;
         }
 
         public InnerJoin whereAre(FilterGroup filterGroup) {
-            builder.conditions.add(filterGroup);
+            this.builder.conditions.add(filterGroup);
             return this;
         }
 
         public InnerJoin whereAre(Filter filter) {
-            builder.conditions.add(filter);
+            this.builder.conditions.add(filter);
             return this;
         }
 
         public override String toString() {
-            return '(' + builder.toString() + ')';
+            return '(' +  this.builder.toString() + ')';
         }
     }
 
@@ -1739,43 +1759,23 @@ public virtual inherited sharing class SOQL implements Queryable {
         private Set<String> groupByFields = new Set<String>();
         private String groupByFunction = '';
 
-        public void with(SObjectField field) {
-            with(field.getDescribe().getName());
-        }
-
         public void with(String relationshipName, SObjectField field) {
-            with(relationshipName + '.' + field);
+            this.with(relationshipName + '.' + field);
         }
 
         private void with(String field) {
-            setGroupByFunction('{0}');
-            groupByFields.add(field.trim());
+            this.setGroupByFunction('{0}');
+            this.groupByFields.add(field.trim());
         }
 
-        public void rollup(SObjectField field) {
-            rollup(field.getDescribe().getName());
+        public void with(String field, String function) {
+            this.setGroupByFunction(function + '({0})');
+            this.groupByFields.add(field.trim());
         }
 
-        public void rollup(String relationshipName, SObjectField field) {
-            rollup(relationshipName + '.' + field);
-        }
-
-        private void rollup(String field) {
-            setGroupByFunction('ROLLUP({0})');
-            groupByFields.add(field.trim());
-        }
-
-        public void cube(SObjectField field) {
-            cube(field.getDescribe().getName());
-        }
-
-        public void cube(String relationshipName, SObjectField field) {
-            cube(relationshipName + '.' + field);
-        }
-
-        private void cube(String field) {
-            setGroupByFunction('CUBE({0})');
-            groupByFields.add(field.trim());
+        public void with(String relationshipName, String field, String function) {
+            this.setGroupByFunction(function + '({0})');
+            this.groupByFields.add((relationshipName + '.' + field).trim());
         }
 
         public void setGroupByFunction(String newGroupByFunction) {
@@ -1786,7 +1786,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            return 'GROUP BY ' + String.format(groupByFunction, new List<String>{ String.join(groupByFields, ', ') });
+            return 'GROUP BY ' + String.format( this.groupByFunction, new List<String>{ String.join( this.groupByFields, ', ') });
         }
     }
 
@@ -1794,18 +1794,18 @@ public virtual inherited sharing class SOQL implements Queryable {
         public List<SoqlOrderBy> orderBys = new List<SoqlOrderBy>();
 
         public SoqlOrderBy newOrderBy() {
-            orderBys.add(new SoqlOrderBy());
-            return latestOrderBy();
+            this.orderBys.add(new SoqlOrderBy());
+            return this.latestOrderBy();
         }
 
         public SoqlOrderBy latestOrderBy() {
-            return orderBys.get(orderBys.size() - 1);
+            return this.orderBys.get(orderBys.size() - 1);
         }
 
         public override String toString() {
             List<String> orderFields = new List<String>();
 
-            for (SoqlOrderBy orderBy : orderBys) {
+            for (SoqlOrderBy orderBy : this.orderBys) {
                 orderFields.add(orderBy.toString());
             }
 
@@ -1813,125 +1813,87 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private virtual class SoqlHavingFilterGroup implements HavingFilterGroup, HavingFilterClause {
-        private List<HavingFilterClause> havingConditions = new List<HavingFilterClause>();
-        private String customOrder;
-        private String connector = 'AND';
-
+    private virtual class SoqlHavingFilterGroup extends FilterBuilder implements HavingFilterGroup {
         public HavingFilterGroup add(HavingFilterGroup filterGroup) {
-            return add(new HavingFilterGroupAdapter(filterGroup));
+            this.add(new HavingFilterGroupAdapter(filterGroup));
+            return this;
         }
 
         public HavingFilterGroup add(HavingFilter filter) {
-            return add(new HavingFilterAdapter(filter));
+            this.add(new HavingFilterAdapter(filter));
+            return this;
         }
 
         public HavingFilterGroup add(String filter) {
-            return add(new HavingStringAdapter(filter));
-        }
-
-        public HavingFilterGroup add(HavingFilterClause condition) {
-            havingConditions.add(condition);
+            this.add(new StringConditionAdapter(filter));
             return this;
         }
 
         public HavingFilterGroup anyConditionMatching() {
-            connector = 'OR';
+            this.connector = 'OR';
             return this;
         }
 
         public HavingFilterGroup conditionLogic(String order) {
-            customOrder = order;
+            this.customOrder = order;
             return this;
         }
 
         public virtual override String toString() {
-            return '(' + buildNested() + ')';
+            return '(' + this.buildNested() + ')';
         }
 
-        public String buildNested() {
-            return String.format(getOrderWithSpecialCharacters(), havingConditions);
-        }
-
-        private String getOrderWithSpecialCharacters() {
-            String orderWithSpecialCharacters = getConditionsLogic();
-
-            for (Integer i = 0; i < havingConditions.size(); i++) {
-                orderWithSpecialCharacters = orderWithSpecialCharacters.replaceFirst(String.valueOf(i + 1), '{' + i + '}');
-            }
-
-            return orderWithSpecialCharacters; // e.g ({0} AND ({1} AND {2}))
-        }
-
-        private String getConditionsLogic() {
-            if (String.isNotEmpty(customOrder)) {
-                return customOrder;
-            }
-
-            List<String> defaultOrder = new List<String>();
-
-            for (Integer i = 0; i < havingConditions.size(); i++) {
-                defaultOrder.add(String.valueOf(i + 1));
-            }
-
-            return String.join(defaultOrder, ' ' + connector + ' '); // e.g (0 AND 1 AND 2)
+        public Boolean hasValues() {
+            return !this.conditions.isEmpty();
         }
     }
 
     private class MainHavingGroup extends SoqlHavingFilterGroup implements QueryClause {
         public override String toString() {
-            return 'HAVING ' + buildNested();
+            return 'HAVING ' + this.buildNested();
         }
     }
 
-    private interface HavingFilterClause {
-        String toString();
-    }
-
-    private class HavingFilterGroupAdapter implements HavingFilterClause {
+    private class HavingFilterGroupAdapter implements FilterClause {
         private HavingFilterGroup havingFilterGroup;
 
         public HavingFilterGroupAdapter(HavingFilterGroup havingFilterGroup) {
             this.havingFilterGroup = havingFilterGroup;
         }
 
+        public Boolean hasValue() {
+            return this.havingFilterGroup.hasValues();
+        }
+
         public override String toString() {
-            return havingFilterGroup.toString();
+            return this.havingFilterGroup.toString();
         }
     }
 
-    private class HavingFilterAdapter implements HavingFilterClause {
+    private class HavingFilterAdapter implements FilterClause {
         private HavingFilter havingFilter;
 
         public HavingFilterAdapter(HavingFilter havingFilter) {
             this.havingFilter = havingFilter;
         }
 
-        public override String toString() {
-            return havingFilter.toString();
-        }
-    }
-
-    private class HavingStringAdapter implements HavingFilterClause {
-        private String condition;
-
-        public HavingStringAdapter(String condition) {
-            this.condition = condition;
+        public Boolean hasValue() {
+            return this.havingFilter.hasValue();
         }
 
         public override String toString() {
-            return condition.toString();
+            return this.havingFilter.toString();
         }
     }
 
-    private class SoqlHavingFilter implements HavingFilter, HavingFilterClause {
+    private class SoqlHavingFilter implements HavingFilter {
         private String field;
         private String comperator;
         private Object value;
         private String wrapper = '{0}';
 
         public HavingFilter with(SObjectField field) {
-            return with(field.getDescribe().getName());
+            return this.with(field + '');
         }
 
         public HavingFilter with(String field) {
@@ -1940,31 +1902,31 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public HavingFilter count(SObjectField field) {
-            return withAggregateFunction('COUNT', field);
+            return this.withAggregateFunction('COUNT', field);
         }
 
         public HavingFilter avg(SObjectField field) {
-            return withAggregateFunction('AVG', field);
+            return this.withAggregateFunction('AVG', field);
         }
 
         public HavingFilter countDistinct(SObjectField field) {
-            return withAggregateFunction('COUNT_DISTINCT', field);
+            return this.withAggregateFunction('COUNT_DISTINCT', field);
         }
 
         public HavingFilter min(SObjectField field) {
-            return withAggregateFunction('MIN', field);
+            return this.withAggregateFunction('MIN', field);
         }
 
         public HavingFilter max(SObjectField field) {
-            return withAggregateFunction('MAX', field);
+            return this.withAggregateFunction('MAX', field);
         }
 
         public HavingFilter sum(SObjectField field) {
-            return withAggregateFunction('SUM', field);
+            return this.withAggregateFunction('SUM', field);
         }
 
         private HavingFilter withAggregateFunction(String aggregateFunction, SObjectField field) {
-            return withAggregateFunction(aggregateFunction, field.getDescribe().getName());
+            return this.withAggregateFunction(aggregateFunction, field + '');
         }
 
         private HavingFilter withAggregateFunction(String aggregateFunction, String field) {
@@ -1973,83 +1935,83 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public HavingFilter isNull() {
-            return equal(null);
+            return this.equal(null);
         }
 
         public HavingFilter isNotNull() {
-            return notEqual(null);
+            return this.notEqual(null);
         }
 
         public HavingFilter isTrue() {
-            return equal(true);
+            return this.equal(true);
         }
 
         public HavingFilter isFalse() {
-            return equal(false);
+            return this.equal(false);
         }
 
         public HavingFilter equal(Object value) {
-            return set('=', value);
+            return this.set('=', value);
         }
 
         public HavingFilter notEqual(Object value) {
-            return set('!=', value);
+            return this.set('!=', value);
         }
 
         public HavingFilter lessThan(Object value) {
-            return set('<', value);
+            return this.set('<', value);
         }
 
         public HavingFilter greaterThan(Object value) {
-            return set('>', value);
+            return this.set('>', value);
         }
 
         public HavingFilter lessOrEqual(Object value) {
-            return set('<=', value);
+            return this.set('<=', value);
         }
 
         public HavingFilter greaterOrEqual(Object value) {
-            return set('>=', value);
+            return this.set('>=', value);
         }
 
         public HavingFilter contains(String value) {
-            return contains('%', formattedString(value), '%');
+            return this.contains('%', formattedString(value), '%');
         }
 
         public HavingFilter notContains(String value) {
-            return notLike().contains(value);
+            return this.notLike().contains(value);
         }
 
         public HavingFilter endsWith(String value) {
-            return contains('%', formattedString(value), '');
+            return this.contains('%', formattedString(value), '');
         }
 
         public HavingFilter notEndsWith(String value) {
-            return notLike().endsWith(value);
+            return this.notLike().endsWith(value);
         }
 
         public HavingFilter startsWith(String value) {
-            return contains('', formattedString(value), '%');
+            return this.contains('', formattedString(value), '%');
         }
 
         public HavingFilter notStartsWith(String value) {
-            return notLike().startsWith(value);
+            return this.notLike().startsWith(value);
         }
 
         public HavingFilter contains(String prefix, String value, String suffix) {
-            return set('LIKE', prefix + formattedString(value) + suffix);
+            return this.set('LIKE', prefix + formattedString(value) + suffix);
         }
 
         public HavingFilter notContains(String prefix, String value, String suffix) {
-            return notLike().contains(prefix, value, suffix);
+            return this.notLike().contains(prefix, value, suffix);
         }
 
         public HavingFilter isIn(Iterable<Object> iterable) {
-            return set('IN', iterable, '\', \'');
+            return this.set('IN', iterable, '\', \'');
         }
 
         public HavingFilter notIn(Iterable<Object> iterable) {
-            return set('NOT IN', iterable, '\', \'');
+            return this.set('NOT IN', iterable, '\', \'');
         }
 
         private String formattedString(String value) {
@@ -2073,8 +2035,12 @@ public virtual inherited sharing class SOQL implements Queryable {
             return this;
         }
 
+        public Boolean hasValue() {
+            return String.isNotEmpty(this.field);
+        }
+
         public override String toString() {
-            return String.format(wrapper, new List<String>{ field + ' ' + comperator + ' ' + value });
+            return String.format(this.wrapper, new List<String>{ this.field + ' ' + this.comperator + ' ' + this.value });
         }
     }
 
@@ -2083,40 +2049,31 @@ public virtual inherited sharing class SOQL implements Queryable {
         private String sortingOrder = 'ASC';
         private String nullsOrder = 'FIRST';
 
-        public void with(SObjectField field) {
-            with(field.getDescribe().getName());
-        }
-
         public void with(String relationshipName, SObjectField field) {
-            with(relationshipName + '.' + field);
+            this.with(relationshipName + '.' + field);
         }
 
-        public SoqlOrderBy with(String field) {
-            orderField = field;
-            return this;
-        }
-
-        public void sortDesc() {
-            sortingOrder('DESC');
+        public void with(String field) {
+            this.orderField = field;
         }
 
         public void sortingOrder(String direction) {
             this.sortingOrder = direction;
         }
 
-        public void nullsLast() {
-            this.nullsOrder = 'LAST';
+        public void nullsOrder(String nullsOrder) {
+            this.nullsOrder = nullsOrder;
         }
 
         public override String toString() {
-            return orderField + ' ' + sortingOrder + ' NULLS ' + nullsOrder;
+            return this.orderField + ' ' + this.sortingOrder + ' NULLS ' + this.nullsOrder;
         }
     }
 
     private class SoqlLimit implements QueryClause {
         private Integer soqlLimit;
 
-        public void max(Integer soqlLimit) {
+        public void set(Integer soqlLimit) {
             this.soqlLimit = soqlLimit;
         }
 
@@ -2128,36 +2085,24 @@ public virtual inherited sharing class SOQL implements Queryable {
     private class SoqlOffset implements QueryClause {
         private Integer soqlOffset;
 
-        public void offset(Integer fromRow) {
-            soqlOffset = fromRow;
+        public void set(Integer fromRow) {
+            this.soqlOffset = fromRow;
         }
 
         public override String toString() {
-            return 'OFFSET ' + soqlOffset;
+            return 'OFFSET ' + this.soqlOffset;
         }
     }
 
     private class SoqlFor implements QueryClause {
         private String forStatement;
 
-        public void forReference() {
-            forStatement = 'FOR REFERENCE';
-        }
-
-        public void forView() {
-            forStatement = 'FOR VIEW';
-        }
-
-        public void forUpdate() {
-            forStatement = 'FOR UPDATE';
-        }
-
-        public void allRows() {
-            forStatement = 'ALL ROWS';
+        public void set(String forStatement) {
+            this.forStatement = forStatement;
         }
 
         public override String toString() {
-            return forStatement;
+            return this.forStatement;
         }
     }
 
@@ -2176,32 +2121,71 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class Mock {
-        private final Map<String, List<SObject>> sObjectsMocks = new Map<String, List<SObject>>();
-        private final Map<String, Integer> countMocks = new Map<String, Integer>();
+    private class SoqlMock implements Mockable {
+        public SObjectMock sObjectMock = new SObjectMock();
+        public CountMock countMock = new CountMock();
 
-        public void setMock(String mockId, List<SObject> records) {
-            sObjectsMocks.put(mockId, records);
+        public Mockable thenReturn(SObject record) {
+            this.sObjectMock.add(record);
+            return this;
         }
 
-        public void setCountMock(String mockId, Integer amount) {
-            countMocks.put(mockId, amount);
+        public Mockable thenReturn(List<SObject> records) {
+            this.sObjectMock.add(records);
+            return this;
         }
 
-        public Boolean hasMock(String mockId) {
-            return sObjectsMocks.containsKey(mockId);
+        public Mockable thenReturn(Integer count) {
+            this.countMock.set(count);
+            return this;
+        }
+    }
+
+    public class SObjectMock {
+        private List<SObject> mockedRecords = new List<SObject>();
+
+        public void add(SObject record) {
+            this.mockedRecords.add(record);
         }
 
-        public Boolean hasCountMock(String mockId) {
-            return countMocks.containsKey(mockId);
+        public void add(List<SObject> records) {
+            this.mockedRecords.addAll(records);
         }
 
-        public List<SObject> getSObjectsMock(String mockId) {
-            return sObjectsMocks.get(mockId);
+        public List<SObject> get(SoqlFields fields) {
+            if (!fields.aggregateFields.isEmpty()) {
+                throw new QueryException('Aggregate functions mocking is currently not supported.');
+            }
+
+            if (fields.relationshipFields.isEmpty() && fields.functionsFields.isEmpty()) {
+                this.stripAdditionalPlainFields(fields.plainFields.get());
+            }
+
+            return this.mockedRecords;
         }
 
-        public Integer getCountMock(String mockId) {
-            return countMocks.get(mockId);
+        private void stripAdditionalPlainFields(Set<String> requestedFields) {
+            for (SObject record : this.mockedRecords) {
+                Map<String, Object> fieldsToValue = record.getPopulatedFieldsAsMap();
+
+                record.clear();
+
+                for (String field : requestedFields) {
+                    record.put(field, fieldsToValue.get(field));
+                }
+            }
+        }
+    }
+
+    public class CountMock {
+        private Integer countMock;
+
+        public void set(Integer count) {
+            this.countMock = count;
+        }
+
+        public Integer get() {
+            return this.countMock;
         }
     }
 
@@ -2209,42 +2193,33 @@ public virtual inherited sharing class SOQL implements Queryable {
         private DatabaseQuery sharingExecutor;
         private AccessLevel accessMode;
         private AccessType accessType;
-        private String mockId;
         private SoqlBuilder builder;
+        private SoqlMock mock;
 
         public Executor(SoqlBuilder builder) {
             this.builder = builder;
-
-            userMode();
-            inheritedSharing();
-        }
-
-        public void inheritedSharing() {
-            sharingExecutor = new InheritedSharing();
+            this.accessMode = AccessLevel.USER_MODE;
+            this.sharingExecutor = new InheritedSharing();
         }
 
         public void withSharing() {
-            sharingExecutor = new WithSharing();
+            this.sharingExecutor = new WithSharing();
         }
 
         public void withoutSharing() {
-            sharingExecutor = new WithoutSharing();
+            this.sharingExecutor = new WithoutSharing();
         }
 
         public void stripInaccessible(AccessType type) {
-            accessType = type;
+            this.accessType = type;
         }
 
-        public void userMode() { // The object permissions, field-level security, sharing rules are enforced.
-            accessMode = AccessLevel.USER_MODE;
+        public void accessMode(AccessLevel accessMode) {
+            this.accessMode = accessMode;
         }
 
-        public void systemMode() { // The object permissions, field-level permissions are ignored, sharing rules are controlled by the sharingMode.
-            accessMode = AccessLevel.SYSTEM_MODE;
-        }
-
-        public void mockId(String id) {
-            mockId = id;
+        public void mock(SoqlMock mock) {
+            this.mock = mock;
         }
 
         public SObject toObject() {
@@ -2262,39 +2237,39 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public List<SObject> toList() {
-            incrementQueryIssued();
+            this.incrementQueryIssued();
 
-            if (mock.hasMock(mockId)) {
-                return mock.getSObjectsMock(mockId);
+            if (this.mock != null) {
+                return this.mock.sObjectMock.get(this.builder.fields);
             }
 
-            if (accessType == null) {
-                return sharingExecutor.toSObjects(builder.toString(), binder.getBindingMap(), accessMode);
+            if (this.accessType == null) {
+                return this.sharingExecutor.toSObjects(this.builder.toString(), binder.getBindingMap(), this.accessMode);
             }
 
             return Security.stripInaccessible(
-                accessType,
-                sharingExecutor.toSObjects(builder.toString(), binder.getBindingMap(), accessMode)
+                this.accessType,
+                this.sharingExecutor.toSObjects(this.builder.toString(), binder.getBindingMap(), this.accessMode)
             ).getRecords();
         }
 
         public Integer toInteger() {
-            incrementQueryIssued();
+            this.incrementQueryIssued();
 
-            if (mock.hasCountMock(mockId)) {
-                return mock.getCountMock(mockId);
+            if (this.mock != null) {
+                return this.mock.countMock.get();
             }
 
-            return sharingExecutor.toInteger(builder.toString(), binder.getBindingMap(), accessMode);
+            return this.sharingExecutor.toInteger(this.builder.toString(), binder.getBindingMap(), this.accessMode);
         }
 
         public Database.QueryLocator toQueryLocator() {
-            incrementQueryIssued();
-
-            return sharingExecutor.toQueryLocator(builder.toString(), binder.getBindingMap(), accessMode);
+            this.incrementQueryIssued();
+            return this.sharingExecutor.toQueryLocator(this.builder.toString(), binder.getBindingMap(), this.accessMode);
         }
 
         private void incrementQueryIssued() {
+            // This counter is used only in unit tests to also track mocked queries.
             if (!Test.isRunningTest() || System.isBatch() || System.isFuture() || System.isQueueable() || System.isScheduled()) {
                 return;
             }

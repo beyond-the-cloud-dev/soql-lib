@@ -58,7 +58,7 @@ The following are methods for using `SOQLCache`:
 [**MOCKING**](#mocking)
 
 - [`mockId(String id)`](#mockid)
-- [`SOQLCache.setMock(String mockId, SObject record)`](#record-mock)
+- [`SOQLCache.mock(String mockId).thenReturn(SObject record)`](#record-mock)
 
 [**DEBUGGING**](#debugging)
 
@@ -426,10 +426,10 @@ SOQLCache.of(Profile.SObjectType)
 ### mockId
 
 Developers can mock either the query or the cached result:
-- `SOQLCache.setMock('queryId', record);` mocks cached results.
-- `SOQL.setMock('queryId', record);` mocks the query when cached records are not found.
+- `SOQLCache.mock('queryId').thenReturn(record);` mocks cached results.
+- `SOQL.mock('queryId').thenReturn(record);` mocks the query when cached records are not found.
 
-We generally recommend using `SOQLCache.setMock('queryId', record);` to ensure that records from the cache are not returned, which could otherwise lead to test instability.
+We generally recommend using `SOQLCache.mock('queryId').thenReturn(record);` to ensure that records from the cache are not returned, which could otherwise lead to test instability.
 
 **Signature**
 
@@ -447,9 +447,9 @@ SOQLCache.of(Profile.SObjectType)
     .toObject();
 
 // In Unit Test
-SOQLCache.setMock('MyQuery', new Profile(Name = 'Mocked System Adminstrator'));
+SOQLCache.mock('MyQuery').thenReturn(new Profile(Name = 'Mocked System Adminstrator'));
 // or
-SOQL.setMock('MyQuery', new Profile(Name = 'Mocked System Adminstrator'));
+SOQL.mock('MyQuery').thenReturn(new Profile(Name = 'Mocked System Adminstrator'));
 ```
 
 ### record mock
@@ -457,7 +457,7 @@ SOQL.setMock('MyQuery', new Profile(Name = 'Mocked System Adminstrator'));
 **Signature**
 
 ```apex
-Cacheable setMock(String mockId, SObject record)
+Cacheable mock(String mockId).thenReturn(SObject record)
 ```
 
 **Example**
@@ -470,7 +470,7 @@ SOQLCache.of(Profile.SObjectType)
     .toObject();
 
 // In Unit Test
-SOQLCache.setMock('MyQuery', new Profile(Name = 'Mocked System Adminstrator'));
+SOQLCache.mock('MyQuery).thenReturn(new Profile(Name = 'Mocked System Adminstrator'));
 ```
 
 ## DEBUGGING

@@ -4,68 +4,124 @@ sidebar_position: 4
 
 # SUBQUERY
 
-Specify child relationship name and pass list of fields.
+For more details check Check [SOQL API - SubQuery](../../api/standard-soql/soql-sub.md).
+
+> **NOTE! 🚨**
+> All examples use inline queries built with the SOQL Lib Query Builder.
+> If you are using a selector, replace `SOQL.of(...)` with `YourSelectorName.query()`.
+
+
+**SOQL**
 
 ```sql
 SELECT Id, Name, (
     SELECT Id, Name FROM Contacts
 ) FROM Account
 ```
+
+**SOQL Lib**
+
 ```apex
-public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
-    public static SOQL_Account query() {
-        return new SOQL_Account();
-    }
-
-    private SOQL_Account() {
-        super(Account.SObjectType);
-        with(Account.Id, Account.Name);
-    }
-}
-
-public with sharing class MyController {
-
-    public static List<Account> getAccountsWithContacts() {
-        return SOQL_Account.query()
-            .with(SOQL.SubQuery.of('Contacts')
-                .with(Contact.Id, Contact.Name)
-            ).toList();
-    }
-}
+SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .with(SOQL.SubQuery.of('Contacts')
+        .with(Contact.Id, Contact.Name)
+    )
+    .toList();
 ```
 
-SOQL supports relationship queries that traverse up to five levels of parent-child records.
+## Fields
 
-[Query Five Levels of Parent-to-Child Relationships in SOQL Queries](https://help.salesforce.com/s/articleView?id=release-notes.rn_api_soql_5level.htm&release=244&type=5)
+### SObjectField Fields (Recommended)
+
+**SOQL**
 
 ```sql
-SELECT Name, (
-    SELECT LastName , (
-        SELECT AssetLevel FROM Assets
+SELECT Id, Name, (
+    SELECT Id, Name FROM Contacts
+) FROM Account
+```
+
+**SOQL Lib**
+
+```apex
+SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .with(SOQL.SubQuery.of('Contacts')
+        .with(Contact.Id, Contact.Name)
+    )
+    .toList();
+```
+
+### String Fields
+
+**SOQL**
+
+```sql
+SELECT Id, Name, (
+    SELECT Id, Name FROM Contacts
+) FROM Account
+```
+
+**SOQL Lib**
+
+```apex
+SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .with(SOQL.SubQuery.of('Contacts')
+        .with('Id, Name')
+    )
+    .toList();
+```
+
+## Parent Fields
+
+**SOQL**
+
+```sql
+SELECT Id, Name, (
+    SELECT Id, Name, CreatedBy.Id, CreatedBy.Name
+    FROM Contacts
+) FROM Account
+```
+
+**SOQL Lib**
+
+```sql
+SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .with(SOQL.SubQuery.of('Contacts')
+        .with(Contact.Id, Contact.Name)
+        .with('CreatedBy', new List<SObjectField>{
+            User.Id, User.Name
+        })
+    )
+    .toList();
+```
+
+## Nested SubQuery
+
+SOQL supports relationship queries that traverse up to five levels of parent-child records. [Query Five Levels of Parent-to-Child Relationships in SOQL Queries](https://help.salesforce.com/s/articleView?id=release-notes.rn_api_soql_5level.htm&release=244&type=5).
+
+**SOQL**
+
+```sql
+SELECT Id, Name, (
+    SELECT FirstName, LastName , (
+        SELECT Id, AssetLevel FROM Assets
     ) FROM Contacts
 ) FROM Account
 ```
+
+**SOQL Lib**
+
 ```apex
-public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
-    public static SOQL_Account query() {
-        return new SOQL_Account();
-    }
-
-    private SOQL_Account() {
-        super(Account.SObjectType);
-        with(Account.Id, Account.Name);
-    }
-}
-
-public with sharing class MyController {
-    public static List<Account> getAccountsWithContactsAndTheirAssets() {
-        return SOQL_Account.query()
-            .with(SOQL.SubQuery.of('Contacts')
-                .with(Contact.LastName)
-                .with(SOQL.SubQuery.of('Assets')
-                    .with(Asset.AssetLevel)
-                )
-            ).toList();
-    }
-}
+SOQL_Account.query()
+    .with(Account.Id, Account.Name)
+    .with(SOQL.SubQuery.of('Contacts')
+        .with(Contact.FirstName, Contact.LastName)
+        .with(SOQL.SubQuery.of('Assets')
+            .with(Asset.Id, Asset.AssetLevel)
+        )
+    ).toList();
 ```

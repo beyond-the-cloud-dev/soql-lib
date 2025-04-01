@@ -4,33 +4,32 @@ sidebar_position: 14
 
 # DEBUGGING
 
+For more details check Check [SOQL API - DEBUGGING](../../api/standard-soql/soql.md#debugging).
+
+> **NOTE! 🚨**
+> All examples use inline queries built with the SOQL Lib Query Builder.
+> If you are using a selector, replace `SOQL.of(...)` with `YourSelectorName.query()`.
+
 See query String in debug logs.
 
+**SOQL Lib**
+
 ```apex
-public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
-    public static SOQL_Account query() {
-        return new SOQL_Account();
-    }
-
-    private SOQL_Account() {
-        super(Account.SObjectType);
-        with(Account.Id, Account.Name);
-    }
-}
-
-public with sharing class MyController {
-    public static List<Account> getAccounts() {
-        return SOQL_Account.query()
-            .with(Account.BillingCity, Account.BillingCountry, Account.BillingCountryCode)
-            .whereAre(SOQL.FilterGroup
-                .add(SOQL.Filter.id().equal('0013V00000WNCw4QAH'))
-                .add(SOQL.Filter.name().contains('Test'))
-                .anyConditionMatching()
-             )
-            .preview()
-            .toList();
-    }
-}
+SOQL.of(Account.SObjectType)
+    .with(
+        Account.Id,
+        Account.Name,
+        Account.BillingCity,
+        Account.BillingCountry,
+        Account.BillingCountryCode
+    )
+    .whereAre(SOQL.FilterGroup
+        .add(SOQL.Filter.id().equal('0013V00000WNCw4QAH'))
+        .add(SOQL.Filter.name().contains('Test'))
+        .anyConditionMatching()
+    )
+    .preview()
+    .toList();
 ```
 
 You will see in debug logs:

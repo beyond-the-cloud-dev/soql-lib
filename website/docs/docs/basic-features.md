@@ -16,6 +16,16 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
+```apex
+String accountName = '';
+
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.FilterGroup
+        .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
+        .add(SOQL.Filter.name().contains(accountName).ignoreWhen(String.isEmpty(accountName)))
+    )
+    .toList();
+```
 
 ## Automatic binding
 
@@ -131,7 +141,7 @@ public with sharing class ExampleController {
 }
 ```
 
-Then in test simply pass data you want to get from Selector to `SOQL.setMock(id, data)` method. Acceptable formats are: `List<SObject>` or `SObject`. Then during execution Selector will return desired data.
+Then in test simply pass data you want to get from Selector to `SOQL.mock(id).thenReturn(data)` method. Acceptable formats are: `List<SObject>` or `SObject`. Then during execution Selector will return desired data.
 
 ### List of records
 
@@ -146,7 +156,7 @@ private class ExampleControllerTest {
             new Account(Name = 'MyAccount 2')
         };
 
-        SOQL.setMock('ExampleController.getPartnerAccounts', accounts);
+        SOQL.mock('ExampleController.getPartnerAccounts').thenReturn(accounts);
 
         // Test
         List<Account> result = ExampleController.getPartnerAccounts('MyAccount');
@@ -164,7 +174,7 @@ private class ExampleControllerTest {
 
     @IsTest
     static void getPartnerAccount() {
-        SOQL.setMock('ExampleController.getPartnerAccount', new Account(Name = 'MyAccount 1'));
+        SOQL.mock('ExampleController.getPartnerAccount').thenReturn(new Account(Name = 'MyAccount 1'));
 
         // Test
         Account result = (Account) ExampleController.getPartnerAccounts('MyAccount');
@@ -182,7 +192,7 @@ private class ExampleControllerTest {
 
     @IsTest
     static void getPartnerAccounts() {
-        SOQL.setMock('ExampleController.getPartnerAccounts', Test.loadData(Account.SObjectType, 'ProjectAccounts'));
+        SOQL.mock('ExampleController.getPartnerAccounts').thenReturn(Test.loadData(Account.SObjectType, 'ProjectAccounts'));
 
         // Test
         List<Account> result = ExampleController.getPartnerAccounts('MyAccount');
@@ -200,7 +210,7 @@ private class ExampleControllerTest {
 
     @IsTest
     static void getPartnerAccountsCount() {
-        SOQL.setCountMock('mockingQuery', 2);
+        SOQL.mock('mockingQuery').thenReturn(2);
 
         Integer result = SOQL.of(Account.sObjectType).count().mockId('mockingQuery').toInteger();
 
@@ -310,7 +320,19 @@ public List<Account> getAccounts() {
 
 ## Cache records
 
-Create cached selectors to save records in Apex transactions, Org Cache, or Session Cache.
+Did you know that?
+
+- Retrieving data from the cache takes less than 10ms.
+- Read operations (SOQL) account for approximately 70% of an org’s activity.
+
+Cache can significantly boost yours org’s performance. You can it use for objects like:
+
+- `Profile`
+- `BusinessHours`
+- `OrgWideEmailAddress`
+- `User`
+
+To use cached records you can use Cached Selectors.
 
 ```apex
 public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
@@ -321,8 +343,8 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
     private SOQL_ProfileCache() {
         super(Profile.SObjectType);
         cacheInOrgCache();
-        // default fields to cache
         with(Profile.Id, Profile.Name, Profile.UserType);
+        maxHoursWithoutRefresh(24);
     }
 
     public override SOQL.Queryable initialQuery() {
@@ -333,5 +355,78 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
         whereEqual(Profile.Name, name);
         return this;
     }
+}
+```
+
+## Enchanced SOQL
+
+Developers perform different SOQL results transformation.
+You can use many of predefined method that will reduce your code complexity.
+
+```apex
+Id toId();
+Boolean doExist();
+String toString();
+Object toValueOf(SObjectField fieldToExtract);
+Set<String> toValuesOf(SObjectField fieldToExtract);
+Integer toInteger();
+SObject toObject();
+List<SObject> toList();
+List<AggregateResult> toAggregated();
+Map<Id, SObject> toMap();
+Map<String, SObject> toMap(SObjectField keyField);
+Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField);
+Map<String, String> toMap(SObjectField keyField, SObjectField valueField);
+Map<String, List<SObject>> toAggregatedMap(SObjectField keyField);
+Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField);
+Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
+Database.QueryLocator toQueryLocator();
+```
+
+Build map with custom key:
+
+❌
+
+```apex
+public static Map<Id, Id> getContactIdByAccontId() {
+    Map<Id, Id> contactIdToAccountId = new Map<Id, Id>();
+
+    for (Contact contact : [SELECT Id, AccountId FROM Contact]) {
+        contactIdToAccountId.put(contact.Id, contact.AccountId)
+    }
+
+    return contactIdToAccountId;
+}
+```
+
+✅
+
+```apex
+public static Map<String, String> getContactIdByAccontId() {
+    return SOQL_Contact.query().toMap(Contact.Id, Contact.AccountId);
+}
+```
+
+Extract unique values from query:
+
+❌
+
+```apex
+public static Set<String> getAccountNames() {
+    Set<String> accountNames = new Set<String>();
+
+    for (Account account : [SELECT Name FROM Account]) {
+        accountNames.add(account.Name);
+    }
+
+    return accountNames;
+}
+```
+
+✅
+
+```apex
+public static Set<String> getAccountNames() {
+    return SOQL_Account.query().toValuesOf(Account.Name);
 }
 ```

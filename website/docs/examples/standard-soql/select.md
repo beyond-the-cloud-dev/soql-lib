@@ -6,90 +6,99 @@ sidebar_position: 1
 
 Specify fields that will be retrieved via query. Check [SOQL API - SELECT](../../api/standard-soql/soql.md#select).
 
+> **NOTE! 🚨**
+> All examples use inline queries built with the SOQL Lib Query Builder.
+> If you are using a selector, replace `SOQL.of(...)` with `YourSelectorName.query()`.
+
+
 ## Fields
 
-You are able to add a default fields to selector class. More fields can be added in a place of usage.
+### SObjectField fields (Recommended)
+
+**SOQL**
 
 ```sql
-SELECT Id, Name, BillingCity, BillingState, BillingStreet
+SELECT Id, Name, BillingCity
 FROM Account
 ```
+
+**SOQL Lib**
+
 ```apex
-public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
-    public static SOQL_Account query() {
-        return new SOQL_Account();
-    }
+SOQL.of(Account.SObject)
+    .with(Account.Id, Account.Name, Account.BillingCity)
+    .toList();
+```
 
-    private SOQL_Account() {
-        super(Account.SObjectType);
-        with(Account.Id, Account.Name);
-    }
-}
+More than 5 fields:
 
-public with sharing class MyController {
+**SOQL**
 
-    public static List<Account> getAccounts() {
-        return SOQL_Account.query()
-            .with(Account.BillingCity, Account.BillingState, Account.BillingStreet)
-            .toList();
-    }
-}
+```sql
+SELECT
+    Id,
+    Name,
+    Industry,
+    Rating,
+    AnnualRevenue,
+    BillingCity,
+    Phone
+FROM Account
+```
+
+**SOQL Lib**
+
+```apex
+SOQL.of(Account.SObjectType)
+    .with(new List<SObjectField> {
+        Account.Id,
+        Account.Name,
+        Account.Industry,
+        Account.Rating,
+        Account.AnnualRevenue,
+        Account.BillingCity,
+        Account.Phone
+    })
+    .toList();
+```
+
+### String fields
+
+**SOQL**
+
+```sql
+SELECT Id, Name, Industry, Rating, AnnualRevenue, BillingCity, Phone
+FROM Account
+```
+
+**SOQL Lib**
+
+```apex
+SOQL.of(Account.SObjectType)
+    .with('Id, Name, Industry, Rating, AnnualRevenue, BillingCity, Phone')
+    .toList();
 ```
 
 ## Parent Fields
 
-Specify relationship name and pass parent object fields.
+Specify relationship name and pass parent object fields. For more details check Check [SOQL API - SELECT](../../api/standard-soql/soql.md#with-related-field1---field5).
+
+**SOQL**
 
 ```sql
-SELECT Id, Name, CreatedBy.Id, CreatedBy.Name
+SELECT
+    Id, Name,
+    CreatedBy.Id, CreatedBy.Name,
+    Parent.Id, Parent.Name
 FROM Account
 ```
+
+**SOQL Lib**
+
 ```apex
-public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
-    public static SOQL_Account query() {
-        return new SOQL_Account();
-    }
-
-    private SOQL_Account() {
-        super(Account.SObjectType);
-        with(Account.Id, Account.Name);
-    }
-}
-
-public with sharing class MyController {
-    public static List<Account> getAccountsWithCreatedBy() {
-        return SOQL_Account.query()
-            .with('CreatedBy', User.Id, User.Name)
-            .toList();
-    }
-}
-```
-
-## Count
-
-```sql
-SELECT COUNT() FROM Account
-
-SELECT COUNT(Name) names FROM Account
-```
-```apex
-public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
-    public static SOQL_Account query() {
-        return new SOQL_Account();
-    }
-
-    private SOQL_Account() {
-        super(Account.SObjectType);
-    }
-}
-
-public with sharing class MyController {
-    public static Integer getAccountAmount() {
-        return SOQL_Account.query().count().toInteger();
-    }
-
-    public static Integer getUniqueAccountNameAmount() {
-        return SOQL_Account.query().count(Account.Name, 'names').toAggregated()[0].names;
-    }
-}
+SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .with('CreatedBy', User.Id, User.Name)
+    .with('Parent', Account.Id, Account.Name)
+    .toList();
 ```
