@@ -9,7 +9,7 @@ const FEATURES = [
     },
     {
         title: 'Build SOQL Inline with a Query Builder',
-        description: 'Most queries are business-specific. Define them exactly where they’re needed using SOQL Lib’s builder, keeping the Selector class for only generic or reusable queries.',
+        description: 'Most queries are business-specific. Define them exactly where they’re needed using SOQL Lib’s builder, keeping the Selector class for only generic or reusable queries. Pull only necessary fields.',
         image: '/img/build-inline.png'
     },
     {
