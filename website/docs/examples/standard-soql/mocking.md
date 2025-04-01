@@ -10,14 +10,18 @@ You need to mock external objects.
 
 > In Apex tests, use dynamic SOQL to query external objects. Tests that perform static SOQL queries of external objects fail. ~ Salesforce
 
+> **NOTE! 🚨**
+> All examples use inline queries built with the SOQL Lib Query Builder.
+> If you are using a selector, replace `SOQL.of(...)` with `YourSelectorName.query()`.
+
 ## Mock Single Record
 
 Set mocking ID in Query declaration.
 
 ```apex
 public with sharing class ExampleController {
-    public static List<Account> getAccountByName(String accountName) {
-        return SOQL_Account.query()
+    public static Account getAccountByName(String accountName) {
+        return (Account) SOQL.of(Account.SObjectType)
             .with(Account.BillingCity, Account.BillingCountry)
             .whereAre(SOQL.Filter.name().contains(accountName))
             .mockId('ExampleController.getAccountByName')
@@ -35,7 +39,8 @@ public class ExampleControllerTest {
 
     @IsTest
     static void getAccountByName() {
-        SOQL.setMock('ExampleController.getAccountByName', new Account(Name = TEST_ACCOUNT_NAME));
+        SOQL.mock('ExampleController.getAccountByName')
+            .thenReturn(new Account(Name = TEST_ACCOUNT_NAME));
 
         Test.startTest();
         Account result = (Account) ExampleController.getAccountByName(TEST_ACCOUNT_NAME);
@@ -46,7 +51,7 @@ public class ExampleControllerTest {
 }
 ```
 
-During execution Selector will return record that was set by `.setMock` method.
+During execution Selector will return record that was set by `.thenReturn` method.
 
 ## Mock Multiple Records
 
@@ -56,7 +61,7 @@ Set mocking ID in Query declaration.
 public with sharing class ExampleController {
 
     public static List<Account> getPartnerAccounts(String accountName) {
-        return SOQL_Account.query()
+        return SOQL.of(Account.SObjectType)
             .with(Account.BillingCity, Account.BillingCountry)
             .whereAre(SOQL.FilterGroup
                 .add(SOQL.Filter.name().contains(accountName))
@@ -80,7 +85,8 @@ public class ExampleControllerTest {
             new Account(Name = 'MyAccount 2')
         };
 
-        SOQL.setMock('ExampleController.getPartnerAccounts', accounts);
+        SOQL.mock('ExampleController.getPartnerAccounts')
+            .thenReturn(accounts);
 
         Test.startTest();
         List<Account> result = ExampleController.getPartnerAccounts('MyAccount');
@@ -91,7 +97,7 @@ public class ExampleControllerTest {
 }
 ```
 
-During execution Selector will return List of records that was set by `.setMock` method.
+During execution Selector will return List of records that was set by `.thenReturn` method.
 
 ## Mock Count Result
 
@@ -101,7 +107,7 @@ Set mocking ID in Query declaration.
 public with sharing class ExampleController {
 
     public static List<Account> getPartnerAccountsCount(String accountName) {
-        return SOQL_Account.query()
+        return SOQL.of(Account.SObjectType)
             .count()
             .whereAre(SOQL.FilterGroup
                 .add(SOQL.Filter.name().contains(accountName))
@@ -121,7 +127,8 @@ public class ExampleControllerTest {
 
     @IsTest
     static void getPartnerAccountsCount() {
-        SOQL.setMock('ExampleController.getPartnerAccountsCount', TEST_VALUE);
+        SOQL.mock('ExampleController.getPartnerAccountsCount')
+            .thenReturn(TEST_VALUE);
 
         Test.startTest();
         Integer result = ExampleController.getPartnerAccounts('MyAccount');
@@ -132,7 +139,7 @@ public class ExampleControllerTest {
 }
 ```
 
-During execution Selector will return Integer count that was set by `.setMock` method.
+During execution Selector will return Integer count that was set by `.thenReturn` method.
 
 ## Mock with Static Resource
 
@@ -142,7 +149,7 @@ Set mocking ID in Query declaration.
 public with sharing class ExampleController {
 
     public static List<Account> getPartnerAccounts(String accountName) {
-        return SOQL_Account.query()
+        return SOQL.of(Account.SObjectType)
             .with(Account.BillingCity, Account.BillingCountry)
             .whereAre(SOQL.FilterGroup
                 .add(SOQL.Filter.name().contains(accountName))
@@ -162,7 +169,8 @@ public class ExampleControllerTest {
 
     @IsTest
     static void getPartnerAccounts() {
-        SOQL.setMock('ExampleController.getPartnerAccounts', Test.loadData(Account.SObjectType, 'MyAccounts'));
+        SOQL.mock('ExampleController.getPartnerAccounts')
+            .thenReturn(Test.loadData(Account.SObjectType, 'MyAccounts'));
 
         Test.startTest();
         List<Account> result = ExampleController.getPartnerAccounts('MyAccount');
@@ -173,7 +181,7 @@ public class ExampleControllerTest {
 }
 ```
 
-During execution Selector will return records from Static Resource that was set by `.setMock` method.
+During execution Selector will return records from Static Resource that was set by `.thenReturn` method.
 
 ## Mock Sub-Query
 
@@ -204,10 +212,12 @@ static void getAccountsWithContacts() {
         List<Account>.class
     );
 
+    SOQL.mock('AccountsController.getAccountsWithContacts')
+        .thenReturn(mocks);
+
     List<Account> accounts;
 
     Test.startTest();
-    SOQL.setMock('AccountsController.getAccountsWithContacts', mocks);
     accounts = AccountsController.getAccountsWithContacts();
     Test.stopTest();
 
@@ -238,10 +248,12 @@ static void getAccountsWithContacts() {
         List<Account>.class
     );
 
+    SOQL.mock('AccountsController.getAccountsWithContacts')
+        .thenReturn(mocks);
+
     List<Account> accounts;
 
     Test.startTest();
-    SOQL.setMock('AccountsController.getAccountsWithContacts', mocks);
     accounts = AccountsController.getAccountsWithContacts();
     Test.stopTest();
 
