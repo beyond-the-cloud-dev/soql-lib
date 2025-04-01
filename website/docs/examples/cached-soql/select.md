@@ -4,64 +4,82 @@ sidebar_position: 10
 
 # SELECT
 
-Specify fields that will be retrieved via query. Check [SOQL Cache API - SELECT](../../api/cached-soql/soql-cache.md#select).
+Specify fields that will be retrieved via query. Check [SOQLCache Cache API - SELECT](../../api/cached-soql/soql-cache.md#select).
 
-All fields specified in the `with(...)` method will be cached.
-You can specify default fields to be cached in the selector's constructor.
+> **NOTE! 🚨**
+> All examples use inline queries built with the SOQL Lib Query Builder.
+> If you are using a selector, replace `SOQLCache.of(...)` with `YourCachedSelectorName.query()`.
 
-## Cached Fields
+## Fields
 
-**Cached Selector**
+### SObjectField fields (Recommended)
 
-```apex
-public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
-    public static SOQL_ProfileCache query() {
-        return new SOQL_ProfileCache();
-    }
+**SOQL**
 
-    private SOQL_ProfileCache() {
-        super(Profile.SObjectType);
-        cacheInOrgCache();
-        // default cached fields
-        with(Profile.Id, Profile.Name, Profile.UserType);
-    }
-
-    public override SOQL.Queryable initialQuery() {
-        return SOQL.of(Profile.SObjectType);
-    }
-
-    public SOQL_ProfileCache byName(String name) {
-        whereEqual(Profile.Name, name);
-        return this;
-    }
-}
+```sql
+SELECT Id, Name, BillingCity
+FROM Account
+WHERE Id = '1234'
 ```
 
-**Usage**
-
-All default fields specified in the `SOQL_ProfileCache` constructor will be retrieved.
+**SOQL Lib**
 
 ```apex
-// SELECT Id, Name, UserType
-// FROM Profile
-// WHERE Name = 'System Administrator'
-
-Profile systemAdminProfile = (Profile) SOQL_ProfileCache.query()
-    .byName('System Administrator')
+SOQLCache.of(Account.SObject)
+    .with(Account.Id, Account.Name, Account.BillingCity)
+    .byId('1234')
     .toObject();
 ```
 
-You can also retrieve additional fields on the fly:
+More than 5 fields:
+
+**SOQL**
+
+```sql
+SELECT
+    Id,
+    Name,
+    Industry,
+    Rating,
+    AnnualRevenue,
+    BillingCity,
+    Phone
+FROM Account
+WHERE Id = '1234'
+```
+
+**SOQL Lib**
 
 ```apex
-// SELECT Id, Name, UserType, UserLicenseId
-// FROM Profile
-// WHERE Name = 'System Administrator'
-
-Profile systemAdminProfile = (Profile) SOQL_ProfileCache.query()
-    .with(Profile.UserLicenseId)
-    .byName('System Administrator')
+SOQLCache.of(Account.SObjectType)
+    .with(new List<SObjectField> {
+        Account.Id,
+        Account.Name,
+        Account.Industry,
+        Account.Rating,
+        Account.AnnualRevenue,
+        Account.BillingCity,
+        Account.Phone
+    })
+    .byId('1234')
     .toObject();
 ```
 
-When the `UserLicenseId` field is not in the cache, the SOQL query will be executed, and the record in the cache will be updated with the additional field (`UserLicenseId`).
+### String fields
+
+**SOQL**
+
+```sql
+SELECT Id, Name, Industry, Rating, AnnualRevenue, BillingCity, Phone
+FROM Account
+WHERE Id = '1234'
+```
+
+**SOQL Lib**
+
+```apex
+SOQLCache.of(Account.SObjectType)
+    .with('Id, Name, Industry, Rating, AnnualRevenue, BillingCity, Phone')
+    .byId('1234')
+    .toObject();
+```

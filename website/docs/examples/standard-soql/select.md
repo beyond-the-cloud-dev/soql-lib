@@ -15,10 +15,14 @@ Specify fields that will be retrieved via query. Check [SOQL API - SELECT](../..
 
 ### SObjectField fields (Recommended)
 
+**SOQL**
+
 ```sql
 SELECT Id, Name, BillingCity
 FROM Account
 ```
+
+**SOQL Lib**
 
 ```apex
 SOQL.of(Account.SObject)
@@ -27,6 +31,8 @@ SOQL.of(Account.SObject)
 ```
 
 More than 5 fields:
+
+**SOQL**
 
 ```sql
 SELECT
@@ -39,6 +45,8 @@ SELECT
     Phone
 FROM Account
 ```
+
+**SOQL Lib**
 
 ```apex
 SOQL.of(Account.SObjectType)
@@ -56,10 +64,14 @@ SOQL.of(Account.SObjectType)
 
 ### String fields
 
+**SOQL**
+
 ```sql
 SELECT Id, Name, Industry, Rating, AnnualRevenue, BillingCity, Phone
 FROM Account
 ```
+
+**SOQL Lib**
 
 ```apex
 SOQL.of(Account.SObjectType)
@@ -71,6 +83,8 @@ SOQL.of(Account.SObjectType)
 
 Specify relationship name and pass parent object fields. For more details check Check [SOQL API - SELECT](../../api/standard-soql/soql.md#with-related-field1---field5).
 
+**SOQL**
+
 ```sql
 SELECT
     Id, Name,
@@ -78,6 +92,8 @@ SELECT
     Parent.Id, Parent.Name
 FROM Account
 ```
+
+**SOQL Lib**
 
 ```apex
 SOQL.of(Account.SObjectType)

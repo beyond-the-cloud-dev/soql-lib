@@ -486,6 +486,17 @@ private class SOQLCache_Test {
     }
 
     @IsTest
+    static void doNotExist() {
+        // Test
+        Boolean isProfileExist = SOQLCache.of(Profile.SObjectType)
+            .whereEqual(Profile.Name, 'System Administrator NotExist')
+            .doExist();
+
+        // Verify
+        Assert.isFalse(isProfileExist, 'The System Administrator NotExist profile must not exist.');
+    }
+
+    @IsTest
     static void toValueOf() {
         // Test
         Id profileId = (Id) SOQLCache.of(Profile.SObjectType)

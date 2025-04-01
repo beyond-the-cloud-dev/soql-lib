@@ -16,7 +16,7 @@ For more details check Check [SOQL API - SHARING MODE](../../api/standard-soql/s
 
 ### WITH USER_MODE
 
-No action needed.
+No action needed. `USER_MODE` enforces not only object and field-level security but also sharing rules (with sharing).
 
 **SOQL**
 
@@ -78,5 +78,25 @@ WITH SYSTEM_MODE
 SOQL.of(Account.SObjectType)
     .systemMode()
     .withoutSharing()
+    .toList();
+```
+
+## inherited sharing
+
+`inherited sharing` is a default sharing mode when is `.systemMode()` enabled.
+
+**SOQL**
+
+```sql
+SELECT Id
+FROM Account
+WITH SYSTEM_MODE
+```
+
+**SOQL Lib**
+
+```apex
+SOQL.of(Account.SObjectType)
+    .systemMode()
     .toList();
 ```

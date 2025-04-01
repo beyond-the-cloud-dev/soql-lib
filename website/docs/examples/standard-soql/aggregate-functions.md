@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # AGGREGATE FUNCTIONS
 
-For more details check Check [SOQL API - AGGREGATE FUNCTIONS](../../api/standard-soql/soql.md#aggregate-functions).
+For more details check [SOQL API - AGGREGATE FUNCTIONS](../../api/standard-soql/soql.md#aggregate-functions).
 
 > **NOTE! 🚨**
 > All examples use inline queries built with the SOQL Lib Query Builder.

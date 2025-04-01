@@ -4,45 +4,46 @@ sidebar_position: 20
 
 # WHERE
 
-A query requires a single condition, and that condition must filter by a unique field.
+For more details check [SOQLCache Cache API - WHERE](../../api/cached-soql/soql-cache.md#where).
 
-To ensure that cached records are aligned with the database, a single condition is required.
-A query without a condition cannot guarantee that the number of records in the cache matches the database.
+> **NOTE! 🚨**
+> All examples use inline queries built with the SOQL Lib Query Builder.
+> If you are using a selector, replace `SOQLCache.of(...)` with `YourCachedSelectorName.query()`.
 
-**Cached Selector**
+## SObjectField (Recommended)
 
-```apex
-public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
-    public static SOQL_ProfileCache query() {
-        return new SOQL_ProfileCache();
-    }
+**SOQL**
 
-    private SOQL_ProfileCache() {
-        super(Profile.SObjectType);
-        cacheInOrgCache();
-        with(Profile.Id, Profile.Name, Profile.UserType);
-    }
-
-    public override SOQL.Queryable initialQuery() {
-        return SOQL.of(Profile.SObjectType);
-    }
-
-    public SOQL_ProfileCache byName(String name) {
-        whereEqual(Profile.Name, name);
-        return this;
-    }
-}
+```sql
+SELECT Id, Name, UserType
+FROM Profile
+WHERE Name = 'System Administrator'
 ```
 
-**Usage**
+**SOQL Lib**
 
 ```apex
-// SELECT Id, Name, UserType
-// FROM Profile
-// WHERE Name = 'System Administrator'
+SOQLCache.of(Profile.SObjectType)
+    .with(Profile.Id, Profile.Name, Profile.UserType)
+    .whereEqual(Profile.Name, 'System Administrator')
+    .toObject();
+```
 
-User systemAdmin = new User(
-    // ..
-    ProfileId = SOQL_ProfileCache.query().byName('System Administrator').toId(),
-);
+## String
+
+**SOQL**
+
+```sql
+SELECT Id, Name, UserType
+FROM Profile
+WHERE Name = 'System Administrator'
+```
+
+**SOQL Lib**
+
+```apex
+SOQLCache.of(Profile.SObjectType)
+    .with(Profile.Id, Profile.Name, Profile.UserType)
+    .whereEqual('Name;, 'System Administrator')
+    .toObject();
 ```
