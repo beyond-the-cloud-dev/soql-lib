@@ -1,0 +1,141 @@
+## Lightweight Selector Classes
+
+Keep your selector classes minimal, focusing only on essential query configurations (fields, sharing settings) and generic methods (byId, byRecordType). All other queries can be built inline using the SOQL Lib builder.
+
+```apex
+public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selector {
+    public static SOQL_Contact query() {
+        return new SOQL_Contact();
+    }
+
+    private SOQL_Contact() {
+        super(Contact.SObjectType);
+        // default settings
+        with(Contact.Id, Contact.Name, Contact.AccountId)
+            .systemMode()
+            .withoutSharing();
+    }
+
+    public SOQL_Contact byAccountId(Id accountId) {
+        whereAre(Filter.with(Contact.AccountId).equal(accountId));
+        return this;
+    }
+
+    public SOQL_Contact bySource(String source) {
+        whereAre(Filter.with(Contact.ContactSource).equal(source));
+        return this;
+    }
+}
+```
+
+## Build SOQL Inline with a Query Builder
+
+Most queries are business-specific. Define them exactly where they’re needed using SOQL Lib’s builder, keeping the Selector class for only generic or reusable queries. Pull only the necessary fields.
+
+```apex
+public with sharing class ExampleController {
+    @AuraEnabled
+    public static List<Contact> getAccountContacts(Id accountId) {
+        return SOQL_Contact.query()
+            .byAccountId(accountId)
+            .bySource('Website')
+            .with(Contact.Email, Contact.Department)
+            .setLimit(100)
+            .toList();
+    }
+}
+```
+
+## Full Control of FLS and Sharing
+
+Easily enforce Field-Level Security and sharing rules using .systemMode(), .withSharing(), or .withoutSharing().
+
+```apex
+public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selector {
+    public static SOQL_Contact query() {
+        return new SOQL_Contact();
+    }
+
+    private SOQL_Contact() {
+        super(Contact.SObjectType);
+        // default settings
+        with(Contact.Id, Contact.Name, Contact.AccountId);
+        // FLS
+        systemMode();
+        // Sharing Mode
+        withoutSharing();
+    }
+}
+```
+
+## Mock SOQL for Faster Tests
+
+Boost unit test performance by mocking SOQL results, reducing the need for complex test data setups.
+
+```apex
+List<Account> accounts = new List<Account>{
+    new Account(Name = 'MyAccount 1'),
+    new Account(Name = 'MyAccount 2')
+};
+
+SOQL.mock('ExampleController.getPartnerAccounts')
+    .thenReturn(accounts);
+
+Test.startTest();
+List<Account> result = ExampleController.getPartnerAccounts('MyAccount');
+Test.stopTest();
+
+// Assert
+```
+
+## Accelerate Performance with Cached Selectors
+
+Store records in Apex transactions, Org Cache, or Session Cache, minimizing redundant queries for faster performance.
+
+```apex
+public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
+    public static SOQL_ProfileCache query() {
+        return new SOQL_ProfileCache();
+    }
+
+    private SOQL_ProfileCache() {
+        super(Profile.SObjectType);
+        cacheInOrgCache();
+        maxHoursWithoutRefresh(48);
+        with(Profile.Id, Profile.Name, Profile.UserType);
+    }
+
+    public override SOQL.Queryable initialQuery() {
+        return SOQL.of(Profile.SObjectType);
+    }
+
+    public SOQL_ProfileCache byName(String name) {
+        whereEqual(Profile.Name, name);
+        return this;
+    }
+}
+```
+
+## Enhanced SOQL Toolkit
+
+Leverage a suite of predefined methods to simplify query results and reduce code complexity.
+
+```apex
+Id toId();
+Boolean doExist();
+String toString();
+Object toValueOf(SObjectField fieldToExtract);
+Set<String> toValuesOf(SObjectField fieldToExtract);
+Integer toInteger();
+SObject toObject();
+List<SObject> toList();
+List<AggregateResult> toAggregated();
+Map<Id, SObject> toMap();
+Map<String, SObject> toMap(SObjectField keyField);
+Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField);
+Map<String, String> toMap(SObjectField keyField, SObjectField valueField);
+Map<String, List<SObject>> toAggregatedMap(SObjectField keyField);
+Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField);
+Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
+Database.QueryLocator toQueryLocator();
+```
