@@ -310,21 +310,6 @@ All crucial information is kept at the top of the class, so developers can use i
     public static HavingFilter HavingFilter {
         get { return new SoqlHavingFilter(); }
     }
-
-    @TestVisible
-    private static void setMock(String mockId, SObject record) {
-        setMock(mockId, new List<SObject>{ record });
-    }
-
-    @TestVisible
-    private static void setMock(String mockId, List<SObject> records) {
-        mock.setMock(mockId, records);
-    }
-
-    @TestVisible
-    private static void setCountMock(String mockId, Integer amount) {
-        mock.setCountMock(mockId, amount);
-    }
 ```
 
 ## Functional Programming

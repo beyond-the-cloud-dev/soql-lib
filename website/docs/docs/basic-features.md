@@ -141,7 +141,7 @@ public with sharing class ExampleController {
 }
 ```
 
-Then in test simply pass data you want to get from Selector to `SOQL.setMock(id, data)` method. Acceptable formats are: `List<SObject>` or `SObject`. Then during execution Selector will return desired data.
+Then in test simply pass data you want to get from Selector to `SOQL.mock(id).thenReturn(data)` method. Acceptable formats are: `List<SObject>` or `SObject`. Then during execution Selector will return desired data.
 
 ### List of records
 
@@ -156,7 +156,7 @@ private class ExampleControllerTest {
             new Account(Name = 'MyAccount 2')
         };
 
-        SOQL.setMock('ExampleController.getPartnerAccounts', accounts);
+        SOQL.mock('ExampleController.getPartnerAccounts').thenReturn(accounts);
 
         // Test
         List<Account> result = ExampleController.getPartnerAccounts('MyAccount');
@@ -174,7 +174,7 @@ private class ExampleControllerTest {
 
     @IsTest
     static void getPartnerAccount() {
-        SOQL.setMock('ExampleController.getPartnerAccount', new Account(Name = 'MyAccount 1'));
+        SOQL.mock('ExampleController.getPartnerAccount').thenReturn(new Account(Name = 'MyAccount 1'));
 
         // Test
         Account result = (Account) ExampleController.getPartnerAccounts('MyAccount');
@@ -192,7 +192,7 @@ private class ExampleControllerTest {
 
     @IsTest
     static void getPartnerAccounts() {
-        SOQL.setMock('ExampleController.getPartnerAccounts', Test.loadData(Account.SObjectType, 'ProjectAccounts'));
+        SOQL.mock('ExampleController.getPartnerAccounts').thenReturn(Test.loadData(Account.SObjectType, 'ProjectAccounts'));
 
         // Test
         List<Account> result = ExampleController.getPartnerAccounts('MyAccount');
@@ -210,7 +210,7 @@ private class ExampleControllerTest {
 
     @IsTest
     static void getPartnerAccountsCount() {
-        SOQL.setCountMock('mockingQuery', 2);
+        SOQL.mock('mockingQuery').thenReturn(2);
 
         Integer result = SOQL.of(Account.sObjectType).count().mockId('mockingQuery').toInteger();
 

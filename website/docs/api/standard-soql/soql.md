@@ -163,9 +163,9 @@ The following are methods for using `SOQL`:
 [**MOCKING**](#mocking)
 
 - [`mockId(String id)`](#mockid)
-- [`SOQL.setMock(String mockId, SObject record)`](#record-mock)
-- [`SOQL.setMock(String mockId, List<SObject> records)`](#record-mock)
-- [`SOQL.setCountMock(String mockId, Integer amount)`](#count-mock)
+- [`SOQL.mock(String mockId).thenReturn(SObject record)`](#record-mock)
+- [`SOQL.mock(String mockId).thenReturn(List<SObject> records)`](#record-mock)
+- [`SOQL.mock(String mockId).thenReturn(Integer amount)`](#count-mock)
 
 [**DEBUGGING**](#debugging)
 
@@ -2007,7 +2007,7 @@ SOQL.of(Account.SObjectType)
     .toList();
 
 // In Unit Test
-SOQL.setMock('MyQuery', new List<Account>{
+SOQL.mock('MyQuery').thenReturn(new List<Account>{
     new Account(Name = 'MyAccount 1'),
     new Account(Name = 'MyAccount 2')
 });
@@ -2018,7 +2018,7 @@ SOQL.setMock('MyQuery', new List<Account>{
 **Signature**
 
 ```apex
-Queryable setMock(String mockId, SObject record)
+SOQL.Mockable mock(String mockId).thenReturn(SObject record)
 ```
 
 **Example**
@@ -2029,7 +2029,7 @@ SOQL.of(Account.sObjectType)
     .toList();
 
 // In Unit Test
-SOQL.setMock('MyQuery', new Account(Name = 'MyAccount 1'));
+SOQL.mock('MyQuery').thenReturn(new Account(Name = 'MyAccount 1'));
 ```
 
 ### list mock
@@ -2037,7 +2037,7 @@ SOQL.setMock('MyQuery', new Account(Name = 'MyAccount 1'));
 **Signature**
 
 ```apex
-Queryable setMock(String mockId, List<SObject> records)
+SOQL.Mockable mock(String mockId).thenReturn(List<SObject> records)
 ```
 
 **Example**
@@ -2048,7 +2048,7 @@ SOQL.of(Account.sObjectType)
     .toList();
 
 // In Unit Test
-SOQL.setMock('MyQuery', new List<Account>{
+SOQL.mock('MyQuery').thenReturn(new List<Account>{
     new Account(Name = 'MyAccount 1'),
     new Account(Name = 'MyAccount 2')
 });
@@ -2059,7 +2059,7 @@ SOQL.setMock('MyQuery', new List<Account>{
 **Signature**
 
 ```apex
-Queryable setCountMock(String mockId, Integer amount)
+SOQL.Mockable mock(String mockId).thenReturn(Integer amount)
 ```
 
 **Example**
@@ -2071,7 +2071,7 @@ SOQL.of(Account.sObjectType)
     .toInteger();
 
 // In Unit Test
-SOQL.setMock('MyQuery', 5);
+SOQL.mock('MyQuery).thenReturn(5);
 ```
 
 ## DEBUGGING
@@ -2402,21 +2402,6 @@ Map<String, String> toMap(SObjectField keyField, , SObjectField valueField)
 
 ```apex
 Map<String, String> nameToAccount = SOQL.of(Account.SObjectType).toMap(Account.Name, Account.Industry);
-```
-
-
-### toAggregatedMap
-
-**Signature**
-
-```apex
-Map<String, List<SObject>> toAggregatedMap(SObjectField keyField)
-```
-
-**Example**
-
-```apex
-Map<String, List<Account>> industryToAccounts = (Map<String, List<Account>>) SOQL.of(Account.SObjectType).toAggregatedMap(Account.Industry);
 ```
 
 ### toAggregatedMap with custom value
