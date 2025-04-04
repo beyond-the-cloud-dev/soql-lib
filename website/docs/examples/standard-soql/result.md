@@ -27,12 +27,21 @@ Id accountId = SOQL.of(Account.SObjectType).setLimit(1).toId();
 **Apex**
 
 ```apex
+Integer accountsWithMoreThan100Employees = [
+    SELECT COUNT()
+    FROM Account
+    WHERE NumberOfEmployees > 100
+];
 
+Boolean hasAccountsWithMoreThan100Employees = accountsWithMoreThan100Employees > 0;
 ```
 
 **SOQL Lib**
 
 ```apex
+Boolean hasAccountsWithMoreThan100Employees = SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.Filter(Account.NumberOfEmployees).greaterThan(100))
+    .doExist();
 ```
 
 ## toValueOf
