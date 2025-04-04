@@ -16,7 +16,7 @@ All crucial information is kept at the top of the class, so developers can use i
 
 
 ```apex
-    public interface Selector {
+public interface Selector {
         Queryable query();
     }
 
@@ -69,7 +69,9 @@ All crucial information is kept at the top of the class, so developers can use i
         Queryable grouping(SObjectField field, String alias);
         // SELECT - toLabel
         Queryable toLabel(SObjectField field);
+        Queryable toLabel(SObjectField field, String alias);
         Queryable toLabel(String field);
+        Queryable toLabel(String field, String alias);
         // SELECT - FORMAT
         Queryable format(SObjectField field);
         Queryable format(SObjectField field, String alias);
@@ -88,6 +90,7 @@ All crucial information is kept at the top of the class, so developers can use i
         Queryable anyConditionMatching();
         // GROUP BY
         Queryable groupBy(SObjectField field);
+        Queryable groupBy(String field);
         Queryable groupBy(String relationshipName, SObjectField field);
         Queryable groupByRollup(SObjectField field);
         Queryable groupByRollup(String relationshipName, SObjectField field);
@@ -100,11 +103,12 @@ All crucial information is kept at the top of the class, so developers can use i
         Queryable havingConditionLogic(String havingConditionsOrder);
         Queryable anyHavingConditionMatching();
         // ORDER BY
+        Queryable orderBy(SObjectField field);
         Queryable orderBy(String field);
         Queryable orderBy(String field, String direction);
-        Queryable orderBy(SObjectField field);
         Queryable orderBy(String relationshipName, SObjectField field);
         Queryable sortDesc();
+        Queryable sort(String direction);
         Queryable nullsLast();
         // LIMIT
         Queryable setLimit(Integer amount);
@@ -124,9 +128,10 @@ All crucial information is kept at the top of the class, so developers can use i
         Queryable withSharing();
         Queryable withoutSharing();
         // MOCKING
-        Queryable mockId(String id);
+        Queryable mockId(String queryIdentifier);
         // DEBUGGING
         Queryable preview();
+        Map<String, Object> binding();
         // PREDEFINIED
         Queryable byId(SObject record);
         Queryable byId(Id recordId);
@@ -134,6 +139,7 @@ All crucial information is kept at the top of the class, so developers can use i
         Queryable byIds(List<SObject> records);
         Queryable byRecordType(String recordTypeDeveloperName);
         // RESULT
+        Id toId();
         Boolean doExist();
         String toString();
         Object toValueOf(SObjectField fieldToExtract);
@@ -144,8 +150,10 @@ All crucial information is kept at the top of the class, so developers can use i
         List<AggregateResult> toAggregated();
         Map<Id, SObject> toMap();
         Map<String, SObject> toMap(SObjectField keyField);
+        Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField);
         Map<String, String> toMap(SObjectField keyField, SObjectField valueField);
         Map<String, List<SObject>> toAggregatedMap(SObjectField keyField);
+        Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField);
         Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
         Database.QueryLocator toQueryLocator();
     }
@@ -159,15 +167,18 @@ All crucial information is kept at the top of the class, so developers can use i
         SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
         SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         SubQuery with(Iterable<SObjectField> fields);
+        SubQuery with(String fields);
         SubQuery with(String relationshipName, Iterable<SObjectField> fields);
         SubQuery with(SubQuery subQuery);
         // WHERE
         SubQuery whereAre(FilterGroup filterGroup);
         SubQuery whereAre(Filter filter);
-        //ORDER BY
+        // ORDER BY
         SubQuery orderBy(SObjectField field);
+        SubQuery orderBy(String field);
         SubQuery orderBy(String relationshipName, SObjectField field);
         SubQuery sortDesc();
+        SubQuery sort(String direction);
         SubQuery nullsLast();
         // LIMIT
         SubQuery setLimit(Integer amount);
@@ -183,6 +194,8 @@ All crucial information is kept at the top of the class, so developers can use i
         FilterGroup add(FilterGroup filterGroup);
         FilterGroup add(Filter filter);
         FilterGroup add(String dynamicCondition);
+        FilterGroup add(List<Filter> filters);
+        FilterGroup add(List<String> dynamicConditions);
         // ORDER
         FilterGroup anyConditionMatching();
         FilterGroup conditionLogic(String order);
@@ -208,18 +221,18 @@ All crucial information is kept at the top of the class, so developers can use i
         Filter equal(Object value);
         Filter notEqual(Object value);
         Filter lessThan(Object value);
-        Filter greaterThan(Object value);
         Filter lessOrEqual(Object value);
+        Filter greaterThan(Object value);
         Filter greaterOrEqual(Object value);
         Filter containsSome(Iterable<String> values);
         Filter contains(String value);
+        Filter contains(String prefix, String value, String suffix);
         Filter notContains(String value);
+        Filter notContains(String prefix, String value, String suffix);
         Filter endsWith(String value);
         Filter notEndsWith(String value);
         Filter startsWith(String value);
         Filter notStartsWith(String value);
-        Filter contains(String prefix, String value, String suffix);
-        Filter notContains(String prefix, String value, String suffix);
         Filter isIn(Iterable<Object> iterable);
         Filter isIn(InnerJoin joinQuery);
         Filter notIn(Iterable<Object> iterable);
@@ -246,12 +259,14 @@ All crucial information is kept at the top of the class, so developers can use i
 
     public interface HavingFilterGroup {
         // ADD CONDITION
-        HavingFilterGroup add(HavingFilterGroup filterGroup);
-        HavingFilterGroup add(HavingFilter filter);
+        HavingFilterGroup add(HavingFilterGroup havingFilterGroup);
+        HavingFilterGroup add(HavingFilter havingFilter);
         HavingFilterGroup add(String dynamicHaving);
         // ORDER
         HavingFilterGroup anyConditionMatching();
         HavingFilterGroup conditionLogic(String order);
+
+        Boolean hasValues();
     }
 
     public interface HavingFilter {
@@ -272,8 +287,8 @@ All crucial information is kept at the top of the class, so developers can use i
         HavingFilter equal(Object value);
         HavingFilter notEqual(Object value);
         HavingFilter lessThan(Object value);
-        HavingFilter greaterThan(Object value);
         HavingFilter lessOrEqual(Object value);
+        HavingFilter greaterThan(Object value);
         HavingFilter greaterOrEqual(Object value);
         HavingFilter contains(String value);
         HavingFilter contains(String prefix, String value, String suffix);
@@ -285,6 +300,8 @@ All crucial information is kept at the top of the class, so developers can use i
         HavingFilter notEndsWith(String value);
         HavingFilter isIn(Iterable<Object> iterable);
         HavingFilter notIn(Iterable<Object> iterable);
+
+        Boolean hasValue();
     }
 
     public static SubQuery SubQuery {
@@ -310,6 +327,30 @@ All crucial information is kept at the top of the class, so developers can use i
     public static HavingFilter HavingFilter {
         get { return new SoqlHavingFilter(); }
     }
+
+    public static SOQL of(SObjectType ofObject) {
+        return new SOQL(ofObject);
+    }
+
+    public static SOQL of(String ofObject) {
+        return new SOQL(ofObject);
+    }
+
+    // Mocking
+
+    @TestVisible
+    private static Mockable mock(String mockId) {
+        queryIdToMock.put(mockId, new SoqlMock());
+        return queryIdToMock.get(mockId);
+    }
+
+    public interface Mockable {
+        // SObject
+        Mockable thenReturn(SObject record);
+        Mockable thenReturn(List<SObject> records);
+        // Count
+        Mockable thenReturn(Integer count);
+    }
 ```
 
 ## Functional Programming
@@ -328,7 +369,7 @@ Queryable whereAre(Filter filter); // SOQL.Filter
 SOQL.of(Account.SObjectType)
      .with(Account.Id, Account.Name);
      .whereAre(SOQL.FilterGroup
-        .add(SOQL.Filter.id().equal(accountId))
+        .add(SOQL.Filter.with(Account.Id).equal(accountId))
         .add(SOQL.Filter.with(Account.Name).contains(accountName))
         .anyConditionMatching() // OR
       )

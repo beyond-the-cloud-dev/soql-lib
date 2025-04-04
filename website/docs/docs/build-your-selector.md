@@ -43,10 +43,6 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
             .whereAre(Filter.with(Account.ParentId).equal(parentId));
         return this;
     }
-
-    public String toIndustry(Id accountId) {
-        return (String) byId(accountId).toValueOf(Account.Industry);
-    }
 }
 ```
 
@@ -68,11 +64,6 @@ public with sharing class ExampleController {
             .byRecordType(recordType)
             .with(Account.Industry, Account.AccountSource)
             .toList();
-    }
-
-    @AuraEnabled
-    public static String getAccountIndustry(Id accountId) {
-        return SOQL_Account.query().toIndustry(accountId);
     }
 }
 ```

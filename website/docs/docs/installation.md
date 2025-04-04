@@ -15,9 +15,9 @@ sidebar_position: 15
 
 Click the button below to deploy SOQL Lib to your environment.
 
-<button href="https://githubsfdeploy.herokuapp.com?owner=beyond-the-cloud-dev&repo=soql-lib&ref=main">
-    Deploy to Salesforce
-</button>
+<a href="https://githubsfdeploy.herokuapp.com?owner=beyond-the-cloud-dev&repo=soql-lib&ref=main">
+    DEPLOY TO SALESFORCE
+</a>
 
 ### Copy and Deploy
 
@@ -25,8 +25,8 @@ Click the button below to deploy SOQL Lib to your environment.
 
 Copy:
 
-- [`SOQL.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/SOQL.cls)
-- [`SOQL_Test.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/SOQL_Test.cls)
+- [`SOQL.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/standard-soql/SOQL.cls)
+- [`SOQL_Test.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/standard-soql/SOQL_Test.cls)
 
 and deploy them to your environment.
 
