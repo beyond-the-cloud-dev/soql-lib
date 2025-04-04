@@ -1,9 +1,9 @@
-public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
-    public static SOQL_ProfileCache query() {
-        return new SOQL_ProfileCache();
+public with sharing class SOQL_CachedProfile extends SOQLCache implements SOQLCache.Selector {
+    public static SOQL_CachedProfile query() {
+        return new SOQL_CachedProfile();
     }
 
-    private SOQL_ProfileCache() {
+    private SOQL_CachedProfile() {
         super(Profile.SObjectType);
         cacheInOrgCache();
         with(Profile.Id, Profile.Name, Profile.UserType);
@@ -13,7 +13,7 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
         return SOQL.of(Profile.SObjectType);
     }
 
-    public SOQL_ProfileCache byName(String name) {
+    public SOQL_CachedProfile byName(String name) {
         whereEqual(Profile.Name, name);
         return this;
     }
