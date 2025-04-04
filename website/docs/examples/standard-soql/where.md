@@ -50,6 +50,74 @@ SOQL.of(Account.SObject)
     .toList();
 ```
 
+## Multiple Conditions
+
+**SOQL**
+
+```sql
+SELECT Id
+FROM Account
+WHERE Industry = 'IT' AND ((Name = 'My Account' AND NumberOfEmployees >= 10)
+OR (Name = 'My Account 2' AND NumberOfEmployees <= 20))
+```
+
+**SOQL Lib**
+
+```apex
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.Filter.with(Account.Industry).equal('IT'))
+    .whereAre(SOQL.Filter.name().equal('My Account'))
+    .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).greaterOrEqual(10))
+    .whereAre(SOQL.Filter.name().equal('My Account 2'))
+    .whereAre(SOQL.Filter.with(Account.NumberOfEmployees).lessOrEqual(20))
+    .conditionLogic('1 AND ((2 AND 3) OR (4 AND 5))')
+    .toList();
+
+// or
+
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.FilterGroup
+        .add(SOQL.Filter.with(Account.Industry).equal('IT'))
+        .add(SOQL.Filter.name().equal('My Account'))
+        .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterOrEqual(10))
+        .add(SOQL.Filter.name().equal('My Account 2'))
+        .add(SOQL.Filter.with(Account.NumberOfEmployees).lessOrEqual(20))
+        .conditionLogic('1 AND ((2 AND 3) OR (4 AND 5))')
+    ).toList();
+
+// or
+
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.FilterGroup
+        .add(SOQL.Filter.with(Account.Industry).equal('IT'))
+        .add(SOQL.FilterGroup
+            .add(SOQL.Filter.name().equal('My Account'))
+            .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterOrEqual(10))
+            .add(SOQL.Filter.name().equal('My Account 2'))
+            .add(SOQL.Filter.with(Account.NumberOfEmployees).lessOrEqual(20))
+            .conditionLogic('(1 AND 2) OR (3 AND 4))
+        )
+    ).toList();
+
+// or
+
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.FilterGroup
+        .add(SOQL.Filter.with(Account.Industry).equal('IT'))
+        .add(SOQL.FilterGroup
+            .add(SOQL.FilterGroup
+                .add(SOQL.Filter.name().equal('My Account'))
+                .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterOrEqual(10))
+            )
+            .add(SOQL.FilterGroup
+                .add(SOQL.Filter.name().equal('My Account 2'))
+                .add(SOQL.Filter.with(Account.NumberOfEmployees).lessOrEqual(20))
+            )
+            .anyConditionMatching()
+        )
+    ).toList();
+```
+
 ## Custom Conditions Order
 
 **SOQL**
