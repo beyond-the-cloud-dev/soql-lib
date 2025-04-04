@@ -217,9 +217,7 @@ SELECT Id FROM Account
 ```
 ```apex
 SOQL.of(Account.SObjectType).toList();
-
-String ofObject = 'Account';
-SOQL.of(ofObject).toList();
+SOQL.of('Account').toList();
 ```
 
 ## SELECT
@@ -254,6 +252,8 @@ FROM Account
 SOQL.of(Account.SObjectType)
     .with(Account.Id, Account.Name)
     .toList();
+
+// or
 
 SOQL.of(Account.SObjectType)
     .with(Account.Id)
@@ -365,8 +365,6 @@ SOQL.of(Account.SObjectType)
 ```
 
 ### with related fields
-
-[SELECT](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_fields.htm)
 
 Allows to add parent fields to a query.
 
@@ -483,6 +481,10 @@ SELECT COUNT()
 FROM Account
 ```
 ```apex
+SOQL.of(Account.SObjectType).toInteger();
+
+// or
+
 SOQL.of(Account.SObjectType)
     .count()
     .toInteger();
@@ -664,7 +666,9 @@ Queryable countDistinct(SObjectField field
 SELECT COUNT_DISTINCT(Company) FROM Lead
 ```
 ```apex
-SOQL.of(Lead.SObjectType).countDistinct(Lead.Company).toAggregate();
+SOQL.of(Lead.SObjectType)
+    .countDistinct(Lead.Company)
+    .toAggregate();
 ```
 
 ### count_distinct with alias
@@ -681,7 +685,9 @@ Queryable countDistinct(SObjectField field, String alias)
 SELECT COUNT_DISTINCT(Company) company FROM Lead
 ```
 ```apex
-SOQL.of(Lead.SObjectType).countDistinct(Lead.Company, 'company').toAggregate();
+SOQL.of(Lead.SObjectType)
+    .countDistinct(Lead.Company, 'company')
+    .toAggregate();
 ```
 
 ### count_distinct related field
@@ -906,7 +912,9 @@ Queryable sum(SObjectField field)
 SELECT SUM(Amount) FROM Opportunity
 ```
 ```apex
-SOQL.of(Opportunity.SObjectType).sum(Opportunity.Amount).toAggregate();
+SOQL.of(Opportunity.SObjectType)
+    .sum(Opportunity.Amount)
+    .toAggregate();
 ```
 
 ### sum with alias
@@ -923,7 +931,9 @@ Queryable sum(SObjectField field, String alias)
 SELECT SUM(Amount) amount FROM Opportunity
 ```
 ```apex
-SOQL.of(Opportunity.SObjectType).sum(Opportunity.Amount, 'amount').toAggregate();
+SOQL.of(Opportunity.SObjectType)
+    .sum(Opportunity.Amount, 'amount')
+    .toAggregate();
 ```
 
 ## GROUPING
@@ -1246,7 +1256,7 @@ SOQL.of(Account.SObjectType)
     .whereAre(SOQL.FilterGroup
         .add(SOQL.Filter.with(Account.Id).equal(accountId))
         .add(SOQL.Filter.with(Account.Name).contains('MyAccount'))
-        .conditionLogic('1 OR 2')
+        .anyConditionMatching()
     ).toList();
 ```
 
@@ -1677,6 +1687,8 @@ SOQL.of(Account.SObjectType)
 
 ### sort
 
+Use ONLY for dynamic order.
+
 **Signature**
 
 ```apex
@@ -1693,7 +1705,7 @@ ORDER BY Industry ASC NULLS FIRST
 ```apex
 SOQL.of(Account.SObjectType)
     .orderBy('Industry')
-    .sort('ASC')
+    .sort('DESC')
     .toList();
 ```
 

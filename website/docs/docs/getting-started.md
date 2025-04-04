@@ -5,7 +5,7 @@ sidebar_position: 10
 
 # Getting Started
 
-Read about the SOQL Lib in [blog post](https://beyondthecloud.dev/blog/soql-lib).
+Read about the SOQL Lib in [blog post](https://blog.beyondthecloud.dev/blog/soql-lib).
 
 [Why do you need Apex Selector Layer?](https://blog.beyondthecloud.dev/blog/why-do-you-need-selector-layer)
 

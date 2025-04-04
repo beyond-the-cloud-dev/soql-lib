@@ -337,18 +337,18 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     // Mocking
 
+    @TestVisible
+    private static Mockable mock(String mockId) {
+        queryIdToMock.put(mockId, new SoqlMock());
+        return queryIdToMock.get(mockId);
+    }
+
     public interface Mockable {
         // SObject
         Mockable thenReturn(SObject record);
         Mockable thenReturn(List<SObject> records);
         // Count
         Mockable thenReturn(Integer count);
-    }
-
-    @TestVisible
-    private static Mockable mock(String mockId) {
-        queryIdToMock.put(mockId, new SoqlMock());
-        return queryIdToMock.get(mockId);
     }
 
     // Backward support
