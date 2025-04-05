@@ -169,6 +169,27 @@ SOQL.of(Account.SObjectType)
     ).toList();
 ```
 
+## String Conditions
+
+**SOQL**
+
+```sql
+SELECT Id
+FROM Account
+WHERE
+    Industry = 'IT' AND
+    Name = 'My Account' AND
+    NumberOfEmployees >= 10
+```
+
+**SOQL Lib**
+
+```apex
+SOQL.of(Account.SObjectType)
+    .whereAre('Name = \'My Account\' AND NumberOfEmployees >= 10')
+    .toList();
+```
+
 ## Ignore Condition
 
 **SOQL**
