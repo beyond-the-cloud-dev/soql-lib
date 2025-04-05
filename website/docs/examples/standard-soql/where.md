@@ -95,7 +95,7 @@ SOQL.of(Account.SObjectType)
             .add(SOQL.Filter.with(Account.NumberOfEmployees).greaterOrEqual(10))
             .add(SOQL.Filter.name().equal('My Account 2'))
             .add(SOQL.Filter.with(Account.NumberOfEmployees).lessOrEqual(20))
-            .conditionLogic('(1 AND 2) OR (3 AND 4))
+            .conditionLogic('(1 AND 2) OR (3 AND 4)')
         )
     ).toList();
 
