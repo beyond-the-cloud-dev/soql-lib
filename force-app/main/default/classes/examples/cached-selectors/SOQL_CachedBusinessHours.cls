@@ -1,9 +1,9 @@
-public with sharing class SOQL_BusinessHoursCache extends SOQLCache implements SOQLCache.Selector {
-    public static SOQL_BusinessHoursCache query() {
-        return new SOQL_BusinessHoursCache();
+public without sharing class SOQL_CachedBusinessHours extends SOQLCache implements SOQLCache.Selector {
+    public static SOQL_CachedBusinessHours query() {
+        return new SOQL_CachedBusinessHours();
     }
 
-    private SOQL_BusinessHoursCache() {
+    private SOQL_CachedBusinessHours() {
         super(BusinessHours.SObjectType);
         cacheInOrgCache();
         with(BusinessHours.Id, BusinessHours.Name);
@@ -13,7 +13,7 @@ public with sharing class SOQL_BusinessHoursCache extends SOQLCache implements S
         return SOQL.of(BusinessHours.SObjectType).whereAre(SOQL.Filter.with(BusinessHours.IsActive).isTrue());
     }
 
-    public SOQL_BusinessHoursCache byName(String name) {
+    public SOQL_CachedBusinessHours byName(String name) {
         whereEqual(BusinessHours.Name, name);
         return this;
     }

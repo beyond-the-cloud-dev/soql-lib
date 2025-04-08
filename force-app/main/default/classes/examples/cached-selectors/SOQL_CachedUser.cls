@@ -1,9 +1,9 @@
-public with sharing class SOQL_UserCache extends SOQLCache implements SOQLCache.Selector {
-    public static SOQL_UserCache query() {
-        return new SOQL_UserCache();
+public without sharing class SOQL_CachedUser extends SOQLCache implements SOQLCache.Selector {
+    public static SOQL_CachedUser query() {
+        return new SOQL_CachedUser();
     }
 
-    private SOQL_UserCache() {
+    private SOQL_CachedUser() {
         super(User.SObjectType);
         cacheInSessionCache();
         with(User.Id, User.Username, User.Name, User.Country);
@@ -13,7 +13,7 @@ public with sharing class SOQL_UserCache extends SOQLCache implements SOQLCache.
         return SOQL.of(User.SObjectType).whereAre(SOQL.Filter.id().equal(UserInfo.getUserId()));
     }
 
-    public SOQL_UserCache byUsername(String username) {
+    public SOQL_CachedUser byUsername(String username) {
         whereEqual(User.Username, username);
         return this;
     }
