@@ -1402,7 +1402,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             String orderWithSpecialCharacters = this.getConditionsLogic();
 
             for (Integer i = 0; i < this.conditions.size(); i++) {
-                orderWithSpecialCharacters = orderWithSpecialCharacters.replaceAll('\\b' + String.valueOf(i + 1) + '\\b', '{' + i + '}');
+                orderWithSpecialCharacters = orderWithSpecialCharacters.replaceAll('\\b' + (i + 1).toString() + '\\b', '{' + i + '}');
             }
 
             return orderWithSpecialCharacters; // e.g ({0} AND ({1} AND {2}))
@@ -1416,7 +1416,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             List<String> defaultOrder = new List<String>();
 
             for (Integer i = 0; i < this.conditions.size(); i++) {
-                defaultOrder.add(String.valueOf(i + 1));
+                defaultOrder.add((i + 1).toString());
             }
 
             return String.join(defaultOrder, ' ' + this.connector + ' '); // e.g (0 AND 1 AND 2)
@@ -2353,7 +2353,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             Map<String, SObject> recordPerCustomKey = (Map<String, SObject>) Type.forName('Map<String, ' + this.ofObject  + ' >').newInstance();
 
             for (SObject record : this.recordsToTransform) {
-                recordPerCustomKey.put(String.valueOf(record.get(keyField)), record);
+                recordPerCustomKey.put(record.get(keyField).toString(), record);
             }
 
             return recordPerCustomKey;
@@ -2375,7 +2375,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             Map<String, String> customValuePerCustomKey = new Map<String, String>();
 
             for (SObject record : this.recordsToTransform) {
-                customValuePerCustomKey.put(String.valueOf(record.get(keyField)), String.valueOf(record.get(valueField)));
+                customValuePerCustomKey.put(record.get(keyField).toString(), record.get(valueField).toString());
             }
 
             return customValuePerCustomKey;
@@ -2418,13 +2418,13 @@ public virtual inherited sharing class SOQL implements Queryable {
             Map<String, List<String>> customValuesPerCustomKey = new Map<String, List<String>>();
 
             for (SObject record : this.recordsToTransform) {
-                String key = String.valueOf(record.get(keyField));
+                String key = record.get(keyField).toString();
 
                 if (!customValuesPerCustomKey.containsKey(key)) {
                     customValuesPerCustomKey.put(key, new List<String>());
                 }
 
-                customValuesPerCustomKey.get(key).add(String.valueOf(record.get(valueField)));
+                customValuesPerCustomKey.get(key).add(record.get(valueField).toString());
             }
 
             return customValuesPerCustomKey;
@@ -2441,7 +2441,7 @@ public virtual inherited sharing class SOQL implements Queryable {
                 }
             }
 
-            return String.valueOf(currentRecord.get(targetField));
+            return currentRecord.get(targetField).toString();
         }
     }
 }
