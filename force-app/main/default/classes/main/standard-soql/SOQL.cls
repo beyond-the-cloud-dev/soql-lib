@@ -10,10 +10,11 @@
  * - PropertyNamingConventions: It was intentional to make the lib more fluent and readable
  * - FieldDeclarationsShouldBeAtStart: Developer who uses lib should see what's important at start
  * - ApexDoc: Variable names are self-documented.
+ * - FieldNamingConventions: It was intentional to make the lib more fluent and readable
  * - ExcessiveParameterList - Make methods similar to native SOQL
  * - NcssTypeCount - It is a library and we tried to put everything into ONE class
 **/
-@SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.PropertyNamingConventions, PMD.FieldDeclarationsShouldBeAtStart, PMD.ApexDoc, PMD.ExcessiveParameterList, PMD.NcssTypeCount')
+@SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.FieldNamingConventions, PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.PropertyNamingConventions, PMD.FieldDeclarationsShouldBeAtStart, PMD.ApexDoc, PMD.ExcessiveParameterList, PMD.NcssTypeCount')
 public virtual inherited sharing class SOQL implements Queryable {
     public interface Selector {
         Queryable query();
@@ -673,7 +674,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable groupBy(String relationshipName, SObjectField field) {
-        this.builder.fields.withGroupedField(relationshipName + '.' + field);
+        this.builder.fields.withGroupedField(relationshipName + '.' + field.toString());
         this.builder.groupBy.with(relationshipName, field);
         return this;
     }
@@ -684,7 +685,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable groupByRollup(String relationshipName, SObjectField field) {
-        this.builder.fields.withGroupedField(relationshipName + '.' + field);
+        this.builder.fields.withGroupedField(relationshipName + '.' + field.toString());
         return this.groupBy(relationshipName, field, 'ROLLUP');
     }
 
@@ -694,7 +695,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable groupByCube(String relationshipName, SObjectField field) {
-        this.builder.fields.withGroupedField(relationshipName + '.' + field);
+        this.builder.fields.withGroupedField(relationshipName + '.' + field.toString());
         return this.groupBy(relationshipName, field, 'CUBE');
     }
 
@@ -706,7 +707,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private Queryable groupBy(String relationshipName, SObjectField field, String function) {
         this.builder.groupBy.with(relationshipName, field.toString(), function);
-        this.builder.fields.withGroupedField(relationshipName + '.' + field);
+        this.builder.fields.withGroupedField(relationshipName + '.' + field.toString());
         return this;
     }
 
@@ -900,7 +901,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField) {
-        this.with(relationshipName + '.' + targetKeyField);
+        this.with(relationshipName + '.' + targetKeyField.toString());
         return this.converter.transform(this.executor.toList()).toMap(relationshipName, targetKeyField);
     }
 
@@ -916,7 +917,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField) {
-        this.with(relationshipName + '.' + targetKeyField);
+        this.with(relationshipName + '.' + targetKeyField.toString());
         return this.converter.transform(this.executor.toList()).toAggregatedMap(relationshipName, targetKeyField);
     }
 
@@ -1168,7 +1169,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public void add(String relationshipPath, SObjectField field) {
-            this.add(relationshipPath + '.' + field);
+            this.add(relationshipPath + '.' + field.toString());
         }
 
         public Boolean isQualified(String field) {
@@ -1181,11 +1182,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         private final Set<String> DATE_FUNCTIONS = new Set<String>{ 'CALENDAR_MONTH', 'CALENDAR_QUARTER', 'CALENDAR_YEAR', 'DAY_IN_MONTH', 'DAY_IN_WEEK', 'DAY_IN_YEAR', 'DAY_ONLY', 'FISCAL_MONTH', 'FISCAL_QUARTER', 'FISCAL_YEAR', 'HOUR_IN_DAY', 'WEEK_IN_MONTH', 'WEEK_IN_YEAR' };
 
         public void add(String function, SObjectField field, String alias) {
-            this.add(function + '(' + field + ')', alias);
+            this.add(function + '(' + field.toString() + ')', alias);
         }
 
         public void add(String function, String relationship, SObjectField field, String alias) {
-            this.add(function + '(' + relationship + '.' + field + ')', alias);
+            this.add(function + '(' + relationship + '.' + field.toString() + ')', alias);
         }
 
         private void add(String aggregateFunction, String alias) {
@@ -1561,7 +1562,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Filter with(String relationshipName, SObjectField field) {
-            return this.with(relationshipName + '.' + field);
+            return this.with(relationshipName + '.' + field.toString());
         }
 
         public Filter with(String field) {
@@ -1760,7 +1761,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         private String groupByFunction = '';
 
         public void with(String relationshipName, SObjectField field) {
-            this.with(relationshipName + '.' + field);
+            this.with(relationshipName + '.' + field.toString());
         }
 
         private void with(String field) {
@@ -1786,7 +1787,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            return 'GROUP BY ' + String.format( this.groupByFunction, new List<String>{ String.join( this.groupByFields, ', ') });
+            return 'GROUP BY ' + String.format(this.groupByFunction, new List<String>{ String.join( this.groupByFields, ', ') });
         }
     }
 
@@ -2050,7 +2051,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         private String nullsOrder = 'FIRST';
 
         public void with(String relationshipName, SObjectField field) {
-            this.with(relationshipName + '.' + field);
+            this.with(relationshipName + '.' + field.toString());
         }
 
         public void with(String field) {
@@ -2418,7 +2419,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             Map<String, List<String>> customValuesPerCustomKey = new Map<String, List<String>>();
 
             for (SObject record : this.recordsToTransform) {
-                String key = record.get(keyField).toString();
+                String key = String.valueOf(record.get(keyField));
 
                 if (!customValuesPerCustomKey.containsKey(key)) {
                     customValuesPerCustomKey.put(key, new List<String>());
