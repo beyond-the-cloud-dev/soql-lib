@@ -380,7 +380,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     private Converter converter;
 
     public SOQL(SObjectType ofObject) {
-        this(ofObject + '');
+        this(String.valueOf(ofObject));
     }
 
     public SOQL(String ofObject) {
@@ -390,7 +390,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable with(SObjectField field) {
-        this.builder.fields.plainFields.add(field + '');
+        this.builder.fields.plainFields.add(String.valueOf(field));
         return this;
     }
 
@@ -430,7 +430,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable with(SObjectField field, String alias) {
-        this.builder.fields.aggregateFields.add(field + '', alias);
+        this.builder.fields.aggregateFields.add(String.valueOf(field), alias);
         return this;
     }
 
@@ -580,11 +580,11 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable toLabel(SObjectField field) {
-        return this.toLabel(field + '');
+        return this.toLabel(String.valueOf(field));
     }
 
     public Queryable toLabel(SObjectField field, String alias) {
-        return this.toLabel(field + '', alias);
+        return this.toLabel(String.valueOf(field), alias);
     }
 
     public Queryable toLabel(String field) {
@@ -600,7 +600,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable format(SObjectField field, String alias) {
-        return this.withFunction('FORMAT', field + '', alias);
+        return this.withFunction('FORMAT', String.valueOf(field), alias);
     }
 
     private Queryable withFunction(String function, String field, String alias) {
@@ -663,7 +663,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable groupBy(SObjectField field) {
-        return this.groupBy(field + '');
+        return this.groupBy(String.valueOf(field));
     }
 
     public Queryable groupBy(String field) {
@@ -679,7 +679,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable groupByRollup(SObjectField field) {
-        this.builder.fields.withGroupedField(field + '');
+        this.builder.fields.withGroupedField(String.valueOf(field));
         return this.groupBy(field, 'ROLLUP');
     }
 
@@ -689,7 +689,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable groupByCube(SObjectField field) {
-        this.builder.fields.withGroupedField(field + '');
+        this.builder.fields.withGroupedField(String.valueOf(field));
         return this.groupBy(field, 'CUBE');
     }
 
@@ -699,13 +699,13 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private Queryable groupBy(SObjectField field, String function) {
-        this.builder.groupBy.with(field + '', function);
-        this.builder.fields.withGroupedField(field + '');
+        this.builder.groupBy.with(String.valueOf(field), function);
+        this.builder.fields.withGroupedField(String.valueOf(field));
         return this;
     }
 
     private Queryable groupBy(String relationshipName, SObjectField field, String function) {
-        this.builder.groupBy.with(relationshipName, field + '', function);
+        this.builder.groupBy.with(relationshipName, String.valueOf(field), function);
         this.builder.fields.withGroupedField(relationshipName + '.' + field);
         return this;
     }
@@ -736,7 +736,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable orderBy(SObjectField field) {
-        return this.orderBy(field + '');
+        return this.orderBy(String.valueOf(field));
     }
 
     public Queryable orderBy(String field) {
@@ -1155,7 +1155,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     private class PlainFields extends SelectFields {
         public void add(Iterable<SObjectField> fields) {
             for (SObjectField field : fields) {
-                this.add(field + '');
+                this.add(String.valueOf(field));
             }
         }
     }
@@ -1231,7 +1231,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public SubQuery with(SObjectField field) {
-            this.builder.fields.plainFields.add(field + '');
+            this.builder.fields.plainFields.add(String.valueOf(field));
             return this;
         }
 
@@ -1282,7 +1282,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public SubQuery orderBy(SObjectField field) {
-            this.builder.orderBys.newOrderBy().with(field + '');
+            this.builder.orderBys.newOrderBy().with(String.valueOf(field));
             return this;
         }
 
@@ -1557,7 +1557,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Filter with(SObjectField field) {
-            return this.with(field + '');
+            return this.with(String.valueOf(field));
         }
 
         public Filter with(String relationshipName, SObjectField field) {
@@ -1731,12 +1731,12 @@ public virtual inherited sharing class SOQL implements Queryable {
         private SoqlBuilder builder;
 
         public InnerJoin of(SObjectType ofObject) {
-            this.builder = new SoqlBuilder(ofObject + '');
+            this.builder = new SoqlBuilder(String.valueOf(ofObject));
             return this;
         }
 
         public InnerJoin with(SObjectField field) {
-            this.builder.fields.plainFields.add(field + '');
+            this.builder.fields.plainFields.add(String.valueOf(field));
             return this;
         }
 
@@ -1893,7 +1893,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         private String wrapper = '{0}';
 
         public HavingFilter with(SObjectField field) {
-            return this.with(field + '');
+            return this.with(String.valueOf(field));
         }
 
         public HavingFilter with(String field) {
@@ -1926,7 +1926,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         private HavingFilter withAggregateFunction(String aggregateFunction, SObjectField field) {
-            return this.withAggregateFunction(aggregateFunction, field + '');
+            return this.withAggregateFunction(aggregateFunction, String.valueOf(field));
         }
 
         private HavingFilter withAggregateFunction(String aggregateFunction, String field) {
