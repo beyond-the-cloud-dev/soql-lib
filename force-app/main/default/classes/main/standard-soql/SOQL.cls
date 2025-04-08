@@ -10,10 +10,11 @@
  * - PropertyNamingConventions: It was intentional to make the lib more fluent and readable
  * - FieldDeclarationsShouldBeAtStart: Developer who uses lib should see what's important at start
  * - ApexDoc: Variable names are self-documented.
+ * - FieldNamingConventions: It was intentional to make the lib more fluent and readable
  * - ExcessiveParameterList - Make methods similar to native SOQL
  * - NcssTypeCount - It is a library and we tried to put everything into ONE class
 **/
-@SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.PropertyNamingConventions, PMD.FieldDeclarationsShouldBeAtStart, PMD.ApexDoc, PMD.ExcessiveParameterList, PMD.NcssTypeCount')
+@SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.FieldNamingConventions, PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.PropertyNamingConventions, PMD.FieldDeclarationsShouldBeAtStart, PMD.ApexDoc, PMD.ExcessiveParameterList, PMD.NcssTypeCount')
 public virtual inherited sharing class SOQL implements Queryable {
     public interface Selector {
         Queryable query();
