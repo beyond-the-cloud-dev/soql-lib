@@ -14,7 +14,7 @@ public with sharing class ExampleController {
 
     @AuraEnabled
     public static String getContactName(Id contactId) {
-        return SOQL_Contact.query().toName(contactId);
+        return (String) SOQL_Contact.query().byId(contactId).toValueOf(Contact.Name);
     }
 
     @AuraEnabled
