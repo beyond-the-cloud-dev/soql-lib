@@ -2418,7 +2418,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             Map<String, List<String>> customValuesPerCustomKey = new Map<String, List<String>>();
 
             for (SObject record : this.recordsToTransform) {
-                String key = record.get(keyField).toString();
+                String key = String.valueOf(record.get(keyField));
 
                 if (!customValuesPerCustomKey.containsKey(key)) {
                     customValuesPerCustomKey.put(key, new List<String>());

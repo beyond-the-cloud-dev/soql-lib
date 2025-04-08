@@ -3807,6 +3807,19 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void toAggregatedMapWithEmptyCustomKeyAndCustomValue() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        Map<String, List<String>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Industry, Account.Id);
+
+        // Verify
+        Assert.areEqual(1, result.size(), 'The result map should have only one key.'); // grouped by empty Industry
+        Assert.isTrue(result.containsKey(null), 'The result map should have a null key for empty Industry.');
+    }
+
+    @IsTest
     static void toQueryLocator() {
         // Test
         Database.QueryLocator queryLocator = SOQL.of(Account.SObjectType)
