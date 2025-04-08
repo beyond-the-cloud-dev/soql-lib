@@ -103,7 +103,7 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
 
 ## Documentation
 
-[SOQL Lib documentation](https://soql.beyondthecloud.dev))
+[SOQL Lib documentation](https://soql.beyondthecloud.dev)
 
 ## Features
 
