@@ -1,4 +1,4 @@
-public with sharing class SOQL_CachedBusinessHours extends SOQLCache implements SOQLCache.Selector {
+public without sharing class SOQL_CachedBusinessHours extends SOQLCache implements SOQLCache.Selector {
     public static SOQL_CachedBusinessHours query() {
         return new SOQL_CachedBusinessHours();
     }

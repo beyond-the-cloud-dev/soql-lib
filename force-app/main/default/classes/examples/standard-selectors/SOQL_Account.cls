@@ -8,25 +8,29 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
     private SOQL_Account() {
         super(Account.SObjectType);
         // default settings
-        with(Account.Id, Account.Name, Account.Type);
+        with(Account.Id, Account.Name);
         systemMode();
         withoutSharing();
         mockId(MOCK_ID);
     }
 
+    public SOQL_Account byType(String type) {
+        whereAre(Filter.with(Account.Type).equal(type));
+        return this;
+    }
+
     public SOQL_Account byIndustry(String industry) {
-        with(Account.Industry)
-            .whereAre(Filter.with(Account.Industry).equal(industry));
+        whereAre(Filter.with(Account.Industry).equal(industry));
         return this;
     }
 
     public SOQL_Account byParentId(Id parentId) {
-        with(Account.ParentId)
-            .whereAre(Filter.with(Account.ParentId).equal(parentId));
+        whereAre(Filter.with(Account.ParentId).equal(parentId));
         return this;
     }
 
-    public String toIndustry(Id accountId) {
-        return (String) byId(accountId).toValueOf(Account.Industry);
+    public SOQL_Account byOwnerId(Id ownerId) {
+        whereAre(Filter.with(Account.OwnerId).equal(ownerId));
+        return this;
     }
 }

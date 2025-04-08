@@ -38,7 +38,7 @@ public with sharing class ExampleController {
 
     @AuraEnabled
     public static String getAccountIndustry(Id accountId) {
-        return SOQL_Account.query().toIndustry(accountId);
+        return (String) SOQL_Account.query().byId(accountId).toValueOf(Account.Industry);
     }
 
     @AuraEnabled
@@ -48,6 +48,6 @@ public with sharing class ExampleController {
 
     @AuraEnabled
     public static Integer getOpportunityAmount(Id opportunityId) {
-        return SOQL_Opportunity.query().toAmount(opportunityId);
+        return (Integer) SOQL_Opportunity.query().byId(opportunityId).toValueOf(Opportunity.Amount);
     }
 }

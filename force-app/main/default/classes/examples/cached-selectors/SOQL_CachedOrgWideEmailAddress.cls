@@ -1,4 +1,4 @@
-public with sharing class SOQL_CachedOrgWideEmailAddress extends SOQLCache implements SOQLCache.Selector {
+public without sharing class SOQL_CachedOrgWideEmailAddress extends SOQLCache implements SOQLCache.Selector {
     public static SOQL_CachedOrgWideEmailAddress query() {
         return new SOQL_CachedOrgWideEmailAddress();
     }

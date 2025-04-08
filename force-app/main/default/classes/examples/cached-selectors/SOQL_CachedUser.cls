@@ -1,4 +1,4 @@
-public with sharing class SOQL_CachedUser extends SOQLCache implements SOQLCache.Selector {
+public without sharing class SOQL_CachedUser extends SOQLCache implements SOQLCache.Selector {
     public static SOQL_CachedUser query() {
         return new SOQL_CachedUser();
     }
