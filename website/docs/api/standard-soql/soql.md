@@ -2312,6 +2312,22 @@ Set<String> toValuesOf(SObjectField fieldToExtract)
 Set<String> accountNames = SOQL.of(Account.SObjectType).byId('1234').toValuesOf(Account.Name)
 ```
 
+### toValuesOf Releated Field
+
+**Signature**
+
+```apex
+Set<String> toValuesOf(String relationshipName, SObjectField targetKeyField)
+```
+
+**Example**
+
+```apex
+Set<String> parentAccountNames = SOQL.of(Account.SObjectType)
+    .byId('1234')
+    .toValuesOf('Parent', Account.Name)
+```
+
 ### toInteger
 
 **Signature**
