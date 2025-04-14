@@ -867,22 +867,20 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Set<String> toValuesOf(SObjectField fieldToExtract) {
-        // https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
-        this.builder.fields.clearAllFields(); // other fields not needed
-        return new Map<String, SObject>(
-            this.with(fieldToExtract, 'Id')
-            .whereAre(Filter.with(fieldToExtract).isNotNull())
-            .groupBy(fieldToExtract).toAggregated()
-        ).keySet();
+        return this.toValuesOf(fieldToExtract.toString());
     }
 
     public Set<String> toValuesOf(String relationshipName, SObjectField targetKeyField) {
+        return this.toValuesOf(relationshipName + '.' + targetKeyField.toString());
+    }
+
+    private Set<String> toValuesOf(String fieldToExtract) {
+        // https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
         this.builder.fields.clearAllFields(); // other fields not needed
-        String relationshipField = relationshipName + '.' + targetKeyField.toString();
         return new Map<String, SObject>(
-            this.with(relationshipField + ' Id')
-            .whereAre(Filter.with(relationshipField).isNotNull())
-            .groupBy(relationshipField).toAggregated()
+            this.with(fieldToExtract + ' Id')
+            .whereAre(Filter.with(fieldToExtract).isNotNull())
+            .groupBy(fieldToExtract).toAggregated()
         ).keySet();
     }
 
