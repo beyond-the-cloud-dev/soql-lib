@@ -753,13 +753,11 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable orderBy(String relationshipName, SObjectField field) {
-        this.builder.orderBys.newOrderBy().with(relationshipName + '.' + field.toString());
-        return this;
+        return this.orderBy(relationshipName + '.' + field.toString());
     }
 
     public Queryable orderByCount(SObjectField field) {
-        this.builder.orderBys.newOrderBy().with('COUNT(' + field.toString() + ')');
-        return this;
+        return this.orderBy('COUNT(' + field.toString() + ')');
     }
 
     public Queryable sortDesc() {
