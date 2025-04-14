@@ -2911,6 +2911,19 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void orderByCount() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Industry)
+            .groupBy(Account.Industry)
+            .orderByCount(Account.Industry).sortDesc().nullsLast()
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Industry FROM Account GROUP BY Industry ORDER BY COUNT(Industry) DESC NULLS LAST', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
     static void setLimit() {
         // Test
         String soql = SOQL.of(Account.SObjectType)

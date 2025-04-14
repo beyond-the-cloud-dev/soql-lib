@@ -107,6 +107,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable orderBy(String field);
         Queryable orderBy(String field, String direction);
         Queryable orderBy(String relationshipName, SObjectField field);
+        Queryable orderByCount(SObjectField field);
         Queryable sortDesc();
         Queryable sort(String direction);
         Queryable nullsLast();
@@ -752,7 +753,12 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable orderBy(String relationshipName, SObjectField field) {
-        this.builder.orderBys.newOrderBy().with(relationshipName, field);
+        this.builder.orderBys.newOrderBy().with(relationshipName + '.' + field.toString());
+        return this;
+    }
+
+    public Queryable orderByCount(SObjectField field) {
+        this.builder.orderBys.newOrderBy().with('COUNT(' + field.toString() + ')');
         return this;
     }
 
@@ -1293,7 +1299,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public SubQuery orderBy(String relationshipName, SObjectField field) {
-            this.builder.orderBys.newOrderBy().with(relationshipName, field);
+            this.builder.orderBys.newOrderBy().with(relationshipName + '.' + field.toString());
             return this;
         }
 
@@ -2049,10 +2055,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         private String orderField;
         private String sortingOrder = 'ASC';
         private String nullsOrder = 'FIRST';
-
-        public void with(String relationshipName, SObjectField field) {
-            this.with(relationshipName + '.' + field.toString());
-        }
 
         public void with(String field) {
             this.orderField = field;
