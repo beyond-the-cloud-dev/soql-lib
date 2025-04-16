@@ -11,9 +11,6 @@
 @SuppressWarnings('PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.NcssTypeCount, PMD.ApexDoc')
 @IsTest
 private class SOQL_Test {
-    @SuppressWarnings('PMD.AvoidHardcodingId')
-    private static final Id FAKE_ACCOUNT_ID = '0013V00000WNCwCQAX';
-
     @IsTest
     static void ofSObjectType() {
         // Test
@@ -2978,15 +2975,18 @@ private class SOQL_Test {
 
     @IsTest
     static void byId() {
+        // Setup
+        Id fakeAccountId = generateRandomId('001');
+
         // Test
-        SOQL.Queryable builder = SOQL.of(Account.SObjectType).byId(FAKE_ACCOUNT_ID);
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType).byId(fakeAccountId);
 
         // Verify
         String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE Id = :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(FAKE_ACCOUNT_ID, binding.get('v1'), 'The binding variable should match the expected value.');
+        Assert.areEqual(fakeAccountId, binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -3007,8 +3007,10 @@ private class SOQL_Test {
 
     @IsTest
     static void byIdsSet() {
-        Set<Id> accountIds = new Set<Id>{ FAKE_ACCOUNT_ID };
+        // Verify
+        Set<Id> accountIds = new Set<Id>{ generateRandomId('001') };
 
+        // Test
         SOQL.Queryable builder = SOQL.of(Account.SObjectType).byIds(accountIds);
 
         // Verify
@@ -3022,7 +3024,7 @@ private class SOQL_Test {
     @IsTest
     static void byIdsList() {
         // Setup
-        List<Id> accountIds = new List<Id>{ FAKE_ACCOUNT_ID };
+        List<Id> accountIds = new List<Id>{ generateRandomId('001') };
 
         // Test
         SOQL.Queryable builder = SOQL.of(Account.SObjectType).byIds(accountIds);
@@ -3343,8 +3345,8 @@ private class SOQL_Test {
     static void mockWithManyPlainFieldsWithId() {
         // Setup
         List<Account> accounts = new List<Account>{
-            new Account(Id = FAKE_ACCOUNT_ID, Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
-            new Account(Id = FAKE_ACCOUNT_ID, Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+            new Account(Id = generateRandomId('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Id = generateRandomId('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
         };
 
         // Test
@@ -3708,6 +3710,32 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void toMapWithMockingWhenOtherFieldsAreSpecified() {
+        // Setup
+        List<Account> accounts = new List<Account>{
+            new Account(Id = generateRandomId('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Id = generateRandomId('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+        };
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(accounts);
+        Map<Id, Account> result = (Map<Id, Account>) SOQL.of(Account.SObjectType)
+            .with(Account.Name, Account.Description)
+            .mockId('mockingQuery')
+            .toMap();
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size(), 'Size of the result map should be equal to the size of the inserted accounts.');
+
+        for (Account acc : accounts) {
+            Assert.isNotNull(result.get(acc.Id), 'The result map should have a value for each inserted account Id.');
+            Assert.isNotNull(result.get(acc.Id).Name, 'The result map should have a value for each inserted account Name.');
+            Assert.isNotNull(result.get(acc.Id).Description, 'The result map should have a value for each inserted account Description.');
+            Assert.isNull(result.get(acc.Id).Website, 'The result map should not have a value for each inserted account Website.');
+        }
+    }
+
+    @IsTest
     static void toMapWithCustomKey() {
         // Setup
         List<Account> accounts = insertAccounts();
@@ -4032,5 +4060,17 @@ private class SOQL_Test {
             TimeZoneSidKey = 'America/Los_Angeles',
             UserName = 'queryselector@testorg.com'
         );
+    }
+
+    static Id generateRandomId(String prefix) {
+        String randomStringCharacters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
+        String randomString = '';
+
+        while (randomString.length() < 8) {
+            Integer idx = Math.mod(Math.abs(Crypto.getRandomInteger()), randomStringCharacters.length());
+            randomString += randomStringCharacters.substring(idx, idx + 1);
+        }
+
+        return Id.valueOf(prefix + '0000' + randomString);
     }
 }
