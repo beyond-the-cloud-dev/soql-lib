@@ -3250,7 +3250,7 @@ private class SOQL_Test {
 
         // Test
         SOQL.setMock('mockingQuery', accounts);
-        List<Account> result = SOQL.of(Account.SObjectType).mockId('mockingQuery').toList();
+        List<Account> result = SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toList();
 
         // Verify
         Assert.areEqual(accounts, result, 'The mocked accounts should be returned.');
@@ -3263,7 +3263,7 @@ private class SOQL_Test {
 
         // Test
         SOQL.setMock('mockingQuery', testAccount);
-        Account result = (Account) SOQL.of(Account.sObjectType).mockId('mockingQuery').toObject();
+        Account result = (Account) SOQL.of(Account.sObjectType).with(Account.Name).mockId('mockingQuery').toObject();
 
         // Verify
         Assert.areEqual(testAccount, result, 'The mocked account should be returned.');
@@ -3278,7 +3278,7 @@ private class SOQL_Test {
 
         // Test
         SOQL.setMock('mockingQuery', testAccounts);
-        List<Account> result = SOQL.of(Account.sObjectType).mockId('mockingQuery').toList();
+        List<Account> result = SOQL.of(Account.sObjectType).with(Account.Name).mockId('mockingQuery').toList();
 
         // Verify
         Assert.areEqual(testAccounts, result, 'The mocked accounts should be returned.');
@@ -3291,7 +3291,7 @@ private class SOQL_Test {
 
         // Test
         SOQL.mock('mockingQuery').thenReturn(testAccount);
-        Account result = (Account) SOQL.of(Account.sObjectType).mockId('mockingQuery').toObject();
+        Account result = (Account) SOQL.of(Account.sObjectType).with(Account.Name).mockId('mockingQuery').toObject();
 
         // Verify
         Assert.areEqual(testAccount, result, 'The mocked account should be returned.');
@@ -3334,13 +3334,13 @@ private class SOQL_Test {
 
         for (Account mockedResult : result) {
             Assert.isTrue(mockedResult.isSet(Account.Name), 'Only Account Name should be set.');
-            Assert.isFalse(mockedResult.isSet(Account.Description), 'The Account Description should not be set because it was not included in the SELECT clause.');
-            Assert.isFalse(mockedResult.isSet(Account.Website), 'The Account Website should not be set because it was not included in the SELECT clause.');
+            Assert.isNull(mockedResult.Description, 'The Account Description should not be set because it was not included in the SELECT clause.');
+            Assert.isNull(mockedResult.Website, 'The Account Website should not be set because it was not included in the SELECT clause.');
         }
     }
 
     @IsTest
-    static void mockWithManyPlainFieldAndSelectNotMockedField() {
+    static void mockWithManyPlainFieldsAndSelectNotMockedField() {
         // Setup
         List<Account> accounts = new List<Account>{
             new Account(Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
@@ -3357,9 +3357,9 @@ private class SOQL_Test {
         for (Account mockedResult : result) {
             Assert.isTrue(mockedResult.isSet(Account.Industry), 'Only Account Industry should be set.');
             Assert.isNull(mockedResult.Industry, 'The Account Industry should be null because it was not specify in mocked records.');
-            Assert.isFalse(mockedResult.isSet(Account.Name), 'The Account Name should not be set because it was not included in the SELECT clause.');
-            Assert.isFalse(mockedResult.isSet(Account.Description), 'The Account Description should not be set because it was not included in the SELECT clause.');
-            Assert.isFalse(mockedResult.isSet(Account.Website), 'The Account Website should not be set because it was not included in the SELECT clause.');
+            Assert.isNull(mockedResult.Name, 'The Account Name should not be set because it was not included in the SELECT clause.');
+            Assert.isNull(mockedResult.Description, 'The Account Description should not be set because it was not included in the SELECT clause.');
+            Assert.isNull(mockedResult.Website, 'The Account Website should not be set because it was not included in the SELECT clause.');
         }
     }
 

@@ -2159,22 +2159,29 @@ public virtual inherited sharing class SOQL implements Queryable {
             }
 
             if (fields.relationshipFields.isEmpty() && fields.functionsFields.isEmpty()) {
-                this.stripAdditionalPlainFields(fields.plainFields.get());
+                this.mockedRecords = this.stripAdditionalPlainFields(fields.plainFields.get());
             }
 
             return this.mockedRecords;
         }
 
-        private void stripAdditionalPlainFields(Set<String> requestedFields) {
-            for (SObject record : this.mockedRecords) {
-                Map<String, Object> fieldsToValue = record.getPopulatedFieldsAsMap();
+        private List<SObject> stripAdditionalPlainFields(Set<String> requestedFields) {
+            List<SObject> cleanedRecords = new List<SObject>();
+            Type objectTypeName = Type.forName(this.mockedRecords[0].getSObjectType().toString());
 
-                record.clear();
+            for (SObject record : this.mockedRecords) {
+                Map<String, Object> originalFields = record.getPopulatedFieldsAsMap();
+                Map<String, Object> filteredFields = new Map<String, Object>();
 
                 for (String field : requestedFields) {
-                    record.put(field, fieldsToValue.get(field));
+                    filteredFields.put(field, originalFields.get(field) ?? null);
                 }
+
+                // JSON.serialize and JSON.deserialize are used to copy not writtable fields
+                cleanedRecords.add((SObject) JSON.deserialize(JSON.serialize(filteredFields), objectTypeName));
             }
+
+            return cleanedRecords;
         }
     }
 
