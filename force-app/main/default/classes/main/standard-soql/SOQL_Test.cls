@@ -3340,6 +3340,29 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void mockWithManyPlainFieldsWithId() {
+        // Setup
+        List<Account> accounts = new List<Account>{
+            new Account(Id = FAKE_ACCOUNT_ID, Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Id = FAKE_ACCOUNT_ID, Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+        };
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(accounts);
+        List<Account> result = SOQL.of(Account.SObjectType).with(Account.Id, Account.Name).mockId('mockingQuery').toList();
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size(), 'The result accounts size should be the same size of mocked accounts.');
+
+        for (Account mockedResult : result) {
+            Assert.isTrue(mockedResult.isSet(Account.Id), 'Only Account Id should be set.');
+            Assert.isTrue(mockedResult.isSet(Account.Name), 'Only Account Name should be set.');
+            Assert.isNull(mockedResult.Description, 'The Account Description should not be set because it was not included in the SELECT clause.');
+            Assert.isNull(mockedResult.Website, 'The Account Website should not be set because it was not included in the SELECT clause.');
+        }
+    }
+
+    @IsTest
     static void mockWithManyPlainFieldsAndSelectNotMockedField() {
         // Setup
         List<Account> accounts = new List<Account>{
