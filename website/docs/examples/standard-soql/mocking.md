@@ -67,7 +67,7 @@ public with sharing class ExampleController {
 }
 ```
 
-Pass an empty list: `thenReturn(new List<Type>())`;
+Pass an empty list: `.thenReturn(new List<Type>())`;
 - When `.toList()` is invoked, it will return a `List<Type>`.
 - When `.toObject()` is invoked, it will return `null`.
 

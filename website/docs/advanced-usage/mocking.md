@@ -191,3 +191,30 @@ private class ExampleControllerTest {
     }
 }
 ```
+
+## No Results
+
+Pass an empty list: `.thenReturn(new List<Type>())`;
+- When `.toList()` is invoked, it will return a `List<Type>`.
+- When `.toObject()` is invoked, it will return `null`.
+
+This behavior will be the same as it is during runtime.
+
+```apex
+@IsTest
+public class ExampleControllerTest {
+    private static final String TEST_ACCOUNT_NAME = 'MyAccount 1';
+
+    @IsTest
+    static void getAccountByName() {
+        SOQL.mock('ExampleController.getAccountByName')
+            .thenReturn(new List<Account>());
+
+        Test.startTest();
+        Account result = (Account) ExampleController.getAccountByName(TEST_ACCOUNT_NAME);
+        Test.stopTest();
+
+        Assert.areEqual(TEST_ACCOUNT_NAME, result.Name);
+    }
+}
+```
