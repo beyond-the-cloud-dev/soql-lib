@@ -214,7 +214,7 @@ public class ExampleControllerTest {
         Account result = (Account) ExampleController.getAccountByName(TEST_ACCOUNT_NAME);
         Test.stopTest();
 
-        Assert.areEqual(TEST_ACCOUNT_NAME, result.Name);
+        Assert.isNull(result);
     }
 }
 ```
