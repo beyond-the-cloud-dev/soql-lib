@@ -53,6 +53,45 @@ public class ExampleControllerTest {
 
 During execution Selector will return record that was set by `.thenReturn` method.
 
+## Mock No Results
+
+```apex
+public with sharing class ExampleController {
+    public static Account getAccountByName(String accountName) {
+        return (Account) SOQL.of(Account.SObjectType)
+            .with(Account.BillingCity, Account.BillingCountry)
+            .whereAre(SOQL.Filter.name().contains(accountName))
+            .mockId('ExampleController.getAccountByName')
+            .toObject();
+    }
+}
+```
+
+Pass an empty list: `.thenReturn(new List<Type>())`;
+- When `.toList()` is invoked, it will return a `List<Type>`.
+- When `.toObject()` is invoked, it will return `null`.
+
+This behavior will be the same as it is during runtime.
+
+```apex
+@IsTest
+public class ExampleControllerTest {
+    private static final String TEST_ACCOUNT_NAME = 'MyAccount 1';
+
+    @IsTest
+    static void getAccountByName() {
+        SOQL.mock('ExampleController.getAccountByName')
+            .thenReturn(new List<Account>());
+
+        Test.startTest();
+        Account result = (Account) ExampleController.getAccountByName(TEST_ACCOUNT_NAME);
+        Test.stopTest();
+
+        Assert.isNull(result);
+    }
+}
+```
+
 ## Mock Multiple Records
 
 Set mocking ID in Query declaration.

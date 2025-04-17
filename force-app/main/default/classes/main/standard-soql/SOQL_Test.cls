@@ -11,9 +11,6 @@
 @SuppressWarnings('PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.NcssTypeCount, PMD.ApexDoc')
 @IsTest
 private class SOQL_Test {
-    @SuppressWarnings('PMD.AvoidHardcodingId')
-    private static final Id FAKE_ACCOUNT_ID = '0013V00000WNCwCQAX';
-
     @IsTest
     static void ofSObjectType() {
         // Test
@@ -2978,15 +2975,18 @@ private class SOQL_Test {
 
     @IsTest
     static void byId() {
+        // Setup
+        Id fakeAccountId = generateRandomId('001');
+
         // Test
-        SOQL.Queryable builder = SOQL.of(Account.SObjectType).byId(FAKE_ACCOUNT_ID);
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType).byId(fakeAccountId);
 
         // Verify
         String soql = builder.toString();
         Assert.areEqual('SELECT Id FROM Account WHERE Id = :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
-        Assert.areEqual(FAKE_ACCOUNT_ID, binding.get('v1'), 'The binding variable should match the expected value.');
+        Assert.areEqual(fakeAccountId, binding.get('v1'), 'The binding variable should match the expected value.');
     }
 
     @IsTest
@@ -3007,8 +3007,10 @@ private class SOQL_Test {
 
     @IsTest
     static void byIdsSet() {
-        Set<Id> accountIds = new Set<Id>{ FAKE_ACCOUNT_ID };
+        // Verify
+        Set<Id> accountIds = new Set<Id>{ generateRandomId('001') };
 
+        // Test
         SOQL.Queryable builder = SOQL.of(Account.SObjectType).byIds(accountIds);
 
         // Verify
@@ -3022,7 +3024,7 @@ private class SOQL_Test {
     @IsTest
     static void byIdsList() {
         // Setup
-        List<Id> accountIds = new List<Id>{ FAKE_ACCOUNT_ID };
+        List<Id> accountIds = new List<Id>{ generateRandomId('001') };
 
         // Test
         SOQL.Queryable builder = SOQL.of(Account.SObjectType).byIds(accountIds);
@@ -3250,7 +3252,7 @@ private class SOQL_Test {
 
         // Test
         SOQL.setMock('mockingQuery', accounts);
-        List<Account> result = SOQL.of(Account.SObjectType).mockId('mockingQuery').toList();
+        List<Account> result = SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toList();
 
         // Verify
         Assert.areEqual(accounts, result, 'The mocked accounts should be returned.');
@@ -3263,10 +3265,40 @@ private class SOQL_Test {
 
         // Test
         SOQL.setMock('mockingQuery', testAccount);
-        Account result = (Account) SOQL.of(Account.sObjectType).mockId('mockingQuery').toObject();
+        Account result = (Account) SOQL.of(Account.sObjectType).with(Account.Name).mockId('mockingQuery').toObject();
 
         // Verify
         Assert.areEqual(testAccount, result, 'The mocked account should be returned.');
+    }
+
+    @IsTest
+    static void mockNoResult() {
+        // Test
+        SOQL.setMock('mockingQuery', new List<Account>());
+        Account result = (Account) SOQL.of(Account.sObjectType).with(Account.Name).mockId('mockingQuery').toObject();
+
+        // Verify
+        Assert.isNull(result, 'The result should be null when no records are mocked.');
+    }
+
+    @IsTest
+    static void mockNoResultWithNull() {
+        // Test
+        SOQL.setMock('mockingQuery', (Account) null);
+        Account result = (Account) SOQL.of(Account.sObjectType).with(Account.Name).mockId('mockingQuery').toObject();
+
+        // Verify
+        Assert.isNull(result, 'The result should be null when no records are mocked.');
+    }
+
+    @IsTest
+    static void mockNoResults() {
+        // Test
+        SOQL.setMock('mockingQuery', new List<Account>());
+        List<Account> result = SOQL.of(Account.sObjectType).with(Account.Name).mockId('mockingQuery').toList();
+
+        // Verify
+        Assert.isTrue(result.isEmpty(), 'The result should be empty when no records are mocked.');
     }
 
     @IsTest
@@ -3278,7 +3310,7 @@ private class SOQL_Test {
 
         // Test
         SOQL.setMock('mockingQuery', testAccounts);
-        List<Account> result = SOQL.of(Account.sObjectType).mockId('mockingQuery').toList();
+        List<Account> result = SOQL.of(Account.sObjectType).with(Account.Name).mockId('mockingQuery').toList();
 
         // Verify
         Assert.areEqual(testAccounts, result, 'The mocked accounts should be returned.');
@@ -3291,7 +3323,7 @@ private class SOQL_Test {
 
         // Test
         SOQL.mock('mockingQuery').thenReturn(testAccount);
-        Account result = (Account) SOQL.of(Account.sObjectType).mockId('mockingQuery').toObject();
+        Account result = (Account) SOQL.of(Account.sObjectType).with(Account.Name).mockId('mockingQuery').toObject();
 
         // Verify
         Assert.areEqual(testAccount, result, 'The mocked account should be returned.');
@@ -3334,13 +3366,36 @@ private class SOQL_Test {
 
         for (Account mockedResult : result) {
             Assert.isTrue(mockedResult.isSet(Account.Name), 'Only Account Name should be set.');
-            Assert.isFalse(mockedResult.isSet(Account.Description), 'The Account Description should not be set because it was not included in the SELECT clause.');
-            Assert.isFalse(mockedResult.isSet(Account.Website), 'The Account Website should not be set because it was not included in the SELECT clause.');
+            Assert.isNull(mockedResult.Description, 'The Account Description should not be set because it was not included in the SELECT clause.');
+            Assert.isNull(mockedResult.Website, 'The Account Website should not be set because it was not included in the SELECT clause.');
         }
     }
 
     @IsTest
-    static void mockWithManyPlainFieldAndSelectNotMockedField() {
+    static void mockWithManyPlainFieldsWithId() {
+        // Setup
+        List<Account> accounts = new List<Account>{
+            new Account(Id = generateRandomId('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Id = generateRandomId('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+        };
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(accounts);
+        List<Account> result = SOQL.of(Account.SObjectType).with(Account.Id, Account.Name).mockId('mockingQuery').toList();
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size(), 'The result accounts size should be the same size of mocked accounts.');
+
+        for (Account mockedResult : result) {
+            Assert.isTrue(mockedResult.isSet(Account.Id), 'Only Account Id should be set.');
+            Assert.isTrue(mockedResult.isSet(Account.Name), 'Only Account Name should be set.');
+            Assert.isNull(mockedResult.Description, 'The Account Description should not be set because it was not included in the SELECT clause.');
+            Assert.isNull(mockedResult.Website, 'The Account Website should not be set because it was not included in the SELECT clause.');
+        }
+    }
+
+    @IsTest
+    static void mockWithManyPlainFieldsAndSelectNotMockedField() {
         // Setup
         List<Account> accounts = new List<Account>{
             new Account(Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
@@ -3357,9 +3412,9 @@ private class SOQL_Test {
         for (Account mockedResult : result) {
             Assert.isTrue(mockedResult.isSet(Account.Industry), 'Only Account Industry should be set.');
             Assert.isNull(mockedResult.Industry, 'The Account Industry should be null because it was not specify in mocked records.');
-            Assert.isFalse(mockedResult.isSet(Account.Name), 'The Account Name should not be set because it was not included in the SELECT clause.');
-            Assert.isFalse(mockedResult.isSet(Account.Description), 'The Account Description should not be set because it was not included in the SELECT clause.');
-            Assert.isFalse(mockedResult.isSet(Account.Website), 'The Account Website should not be set because it was not included in the SELECT clause.');
+            Assert.isNull(mockedResult.Name, 'The Account Name should not be set because it was not included in the SELECT clause.');
+            Assert.isNull(mockedResult.Description, 'The Account Description should not be set because it was not included in the SELECT clause.');
+            Assert.isNull(mockedResult.Website, 'The Account Website should not be set because it was not included in the SELECT clause.');
         }
     }
 
@@ -3681,6 +3736,32 @@ private class SOQL_Test {
 
         for (Account acc : accounts) {
             Assert.isNotNull(result.get(acc.Id), 'The result map should have a value for each inserted account Id.');
+        }
+    }
+
+    @IsTest
+    static void toMapWithMockingWhenOtherFieldsAreSpecified() {
+        // Setup
+        List<Account> accounts = new List<Account>{
+            new Account(Id = generateRandomId('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Id = generateRandomId('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+        };
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(accounts);
+        Map<Id, Account> result = (Map<Id, Account>) SOQL.of(Account.SObjectType)
+            .with(Account.Name, Account.Description)
+            .mockId('mockingQuery')
+            .toMap();
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size(), 'Size of the result map should be equal to the size of the inserted accounts.');
+
+        for (Account acc : accounts) {
+            Assert.isNotNull(result.get(acc.Id), 'The result map should have a value for each inserted account Id.');
+            Assert.isNotNull(result.get(acc.Id).Name, 'The result map should have a value for each inserted account Name.');
+            Assert.isNotNull(result.get(acc.Id).Description, 'The result map should have a value for each inserted account Description.');
+            Assert.isNull(result.get(acc.Id).Website, 'The result map should not have a value for each inserted account Website.');
         }
     }
 
@@ -4009,5 +4090,17 @@ private class SOQL_Test {
             TimeZoneSidKey = 'America/Los_Angeles',
             UserName = 'queryselector@testorg.com'
         );
+    }
+
+    static Id generateRandomId(String prefix) {
+        String randomStringCharacters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
+        String randomString = '';
+
+        while (randomString.length() < 8) {
+            Integer idx = Math.mod(Math.abs(Crypto.getRandomInteger()), randomStringCharacters.length());
+            randomString += randomStringCharacters.substring(idx, idx + 1);
+        }
+
+        return Id.valueOf(prefix + '0000' + randomString);
     }
 }
