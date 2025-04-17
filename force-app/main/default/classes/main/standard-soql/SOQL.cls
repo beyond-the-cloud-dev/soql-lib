@@ -2167,7 +2167,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         private List<SObject> stripAdditionalPlainFields(Set<String> requestedFields) {
-            if (this.mockedRecords.isEmpty()) {
+            if (this.mockedRecords.isEmpty() || this.mockedRecords[0] == null) {
                 return this.mockedRecords;
             }
 

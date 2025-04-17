@@ -3272,6 +3272,36 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void mockNoResult() {
+        // Test
+        SOQL.setMock('mockingQuery', new List<Account>());
+        Account result = (Account) SOQL.of(Account.sObjectType).with(Account.Name).mockId('mockingQuery').toObject();
+
+        // Verify
+        Assert.isNull(result, 'The result should be null when no records are mocked.');
+    }
+
+    @IsTest
+    static void mockNoResultWithNull() {
+        // Test
+        SOQL.setMock('mockingQuery', (Account) null);
+        Account result = (Account) SOQL.of(Account.sObjectType).with(Account.Name).mockId('mockingQuery').toObject();
+
+        // Verify
+        Assert.isNull(result, 'The result should be null when no records are mocked.');
+    }
+
+    @IsTest
+    static void mockNoResults() {
+        // Test
+        SOQL.setMock('mockingQuery', new List<Account>());
+        List<Account> result = SOQL.of(Account.sObjectType).with(Account.Name).mockId('mockingQuery').toList();
+
+        // Verify
+        Assert.isTrue(result.isEmpty(), 'The result should be empty when no records are mocked.');
+    }
+
+    @IsTest
     static void mockingMultipleRecords() {
         List<Account> testAccounts = new List<Account>{
             new Account(Name = 'Test 1'),
