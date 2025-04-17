@@ -892,7 +892,6 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Map<Id, SObject> toMap() {
-        this.with('Id');
         return this.converter.transform(this.executor.toList()).toMap();
     }
 
@@ -1155,6 +1154,10 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class PlainFields extends SelectFields {
+        private PlainFields() {
+            this.add('Id');
+        }
+        
         public void add(Iterable<SObjectField> fields) {
             for (SObjectField field : fields) {
                 this.add(field.toString());
