@@ -68,6 +68,27 @@ SOQL.of(Contact.SObjectType)
     .toList();
 ```
 
+## COUNT
+
+**SOQL**
+
+```sql
+SELECT Industry
+FROM Account
+GROUP BY Industry
+ORDER BY COUNT(Industry) DESC NULLS LAST
+```
+
+**SOQL Lib**
+
+```apex
+SOQL.of(Account.SObjectType)
+    .with(Account.Industry)
+    .groupBy(Account.Industry)
+    .orderByCount(Account.Industry).sortDesc().nullsLast()
+    .toAggregated();
+```
+
 ## Multiple Fields
 
 ```sql

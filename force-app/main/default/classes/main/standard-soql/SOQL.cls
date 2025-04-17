@@ -107,6 +107,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable orderBy(String field);
         Queryable orderBy(String field, String direction);
         Queryable orderBy(String relationshipName, SObjectField field);
+        Queryable orderByCount(SObjectField field);
         Queryable sortDesc();
         Queryable sort(String direction);
         Queryable nullsLast();
@@ -144,6 +145,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         String toString();
         Object toValueOf(SObjectField fieldToExtract);
         Set<String> toValuesOf(SObjectField fieldToExtract);
+        Set<String> toValuesOf(String relationshipName, SObjectField targetKeyField);
         Integer toInteger();
         SObject toObject();
         List<SObject> toList();
@@ -752,8 +754,11 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable orderBy(String relationshipName, SObjectField field) {
-        this.builder.orderBys.newOrderBy().with(relationshipName, field);
-        return this;
+        return this.orderBy(relationshipName + '.' + field.toString());
+    }
+
+    public Queryable orderByCount(SObjectField field) {
+        return this.orderBy('COUNT(' + field.toString() + ')');
     }
 
     public Queryable sortDesc() {
@@ -866,12 +871,21 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Set<String> toValuesOf(SObjectField fieldToExtract) {
+        return this.toValuesOf(fieldToExtract.toString());
+    }
+
+    public Set<String> toValuesOf(String relationshipName, SObjectField targetKeyField) {
+        return this.toValuesOf(relationshipName + '.' + targetKeyField.toString());
+    }
+
+    private Set<String> toValuesOf(String fieldToExtract) {
         // https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
         this.builder.fields.clearAllFields(); // other fields not needed
-        return new Map<String, SObject>(this.with(fieldToExtract, 'Id')
+        return new Map<String, SObject>(
+            this.with(fieldToExtract + ' Id')
             .whereAre(Filter.with(fieldToExtract).isNotNull())
-            .groupBy(fieldToExtract).toAggregated())
-            .keySet();
+            .groupBy(fieldToExtract).toAggregated()
+        ).keySet();
     }
 
     public Integer toInteger() {
@@ -1293,7 +1307,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public SubQuery orderBy(String relationshipName, SObjectField field) {
-            this.builder.orderBys.newOrderBy().with(relationshipName, field);
+            this.builder.orderBys.newOrderBy().with(relationshipName + '.' + field.toString());
             return this;
         }
 
@@ -2049,10 +2063,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         private String orderField;
         private String sortingOrder = 'ASC';
         private String nullsOrder = 'FIRST';
-
-        public void with(String relationshipName, SObjectField field) {
-            this.with(relationshipName + '.' + field.toString());
-        }
 
         public void with(String field) {
             this.orderField = field;
