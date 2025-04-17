@@ -21,8 +21,12 @@ export default function Home() {
 
 export function Features() {
     return (
-        <div className='my-10 flex flex-col max-w-5xl mx-auto'>
-            <MDXContent><SOQLLibBenefits /></MDXContent>
+        <div className="my-10 px-4 sm:px-6 lg:px-8 w-full max-w-5xl mx-auto overflow-x-auto">
+            <div className="w-full">
+                <MDXContent>
+                    <SOQLLibBenefits />
+                </MDXContent>
+            </div>
         </div>
     )
 }
