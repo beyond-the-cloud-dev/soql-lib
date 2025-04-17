@@ -847,11 +847,13 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public Id toId() {
         this.builder.fields.clearAllFields(); // other fields not needed
+        this.with('Id');
         return this.toObject()?.Id;
     }
 
     public Boolean doExist() {
         this.builder.fields.clearAllFields(); // other fields not needed
+        this.with('Id');
         return this.toList().size() > 0;
     }
 
@@ -1102,15 +1104,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            if (
-                this.plainFields.isEmpty() &&
-                this.relationshipFields.isEmpty() &&
-                this.aggregateFields.isEmpty() &&
-                this.functionsFields.isEmpty()
-            ) {
-                this.plainFields.add('Id');
-            }
-
             if (!this.groupedFields.isEmpty() || !this.aggregateFields.isEmpty()) {
                 // To avoid "Field must be grouped or aggregated" error retain only grouped or aggregated fields
                 this.plainFields.retainAll(groupedFields);
@@ -1154,6 +1147,10 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class PlainFields extends SelectFields {
+        public PlainFields() {
+            this.add('Id');
+        }
+
         public void add(Iterable<SObjectField> fields) {
             for (SObjectField field : fields) {
                 this.add(field.toString());
@@ -1737,6 +1734,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public InnerJoin with(SObjectField field) {
+            this.builder.fields.clearAllFields();
             this.builder.fields.plainFields.add(field.toString());
             return this;
         }

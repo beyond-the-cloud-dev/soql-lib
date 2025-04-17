@@ -369,7 +369,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Company, toLabel(Status) FROM Lead', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Company, toLabel(Status) FROM Lead', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -381,7 +381,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Company, toLabel(RecordType.Name) FROM Lead', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Company, toLabel(RecordType.Name) FROM Lead', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -393,7 +393,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Company, toLabel(Status) leadStatus FROM Lead', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Company, toLabel(Status) leadStatus FROM Lead', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -405,7 +405,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Company, toLabel(RecordType.Name) recordTypeName FROM Lead', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Company, toLabel(RecordType.Name) recordTypeName FROM Lead', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -429,7 +429,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Company, Status, toLabel(Status) leadStatus FROM Lead', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Company, Status, toLabel(Status) leadStatus FROM Lead', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -440,7 +440,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT FORMAT(Amount) FROM Opportunity', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, FORMAT(Amount) FROM Opportunity', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -451,7 +451,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT FORMAT(Amount) amt FROM Opportunity', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, FORMAT(Amount) amt FROM Opportunity', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -463,7 +463,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Name, BillingCity FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name, BillingCity FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -474,7 +474,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Name, BillingCity FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name, BillingCity FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -611,7 +611,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Name FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name, BillingCity, CreatedBy.Name FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -623,7 +623,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name, BillingCity, CreatedBy.Id, CreatedBy.Name FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -635,7 +635,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name, BillingCity, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -647,7 +647,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias, CreatedBy.City FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name, BillingCity, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias, CreatedBy.City FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -659,7 +659,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias, CreatedBy.City, CreatedBy.CompanyName FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name, BillingCity, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias, CreatedBy.City, CreatedBy.CompanyName FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -672,7 +672,7 @@ private class SOQL_Test {
             }).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name, BillingCity, CreatedBy.Id, CreatedBy.Name FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -685,7 +685,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name , (SELECT Id FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -716,7 +716,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name , (SELECT Id, Name FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -729,7 +729,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name, AccountId FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name , (SELECT Id, Name, AccountId FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -742,7 +742,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name, AccountId, Email FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name , (SELECT Id, Name, AccountId, Email FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -755,7 +755,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name, AccountId, Email, Phone FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name , (SELECT Id, Name, AccountId, Email, Phone FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -770,7 +770,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name , (SELECT Id, Name FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -783,7 +783,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name , (SELECT Id, Name FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -799,7 +799,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name, CreatedBy.Id, CreatedBy.Name FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name , (SELECT Id, Name, CreatedBy.Id, CreatedBy.Name FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -814,7 +814,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT LastName , (SELECT AssetLevel FROM Assets) FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name , (SELECT Id, LastName , (SELECT Id, AssetLevel FROM Assets) FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -830,7 +830,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts WHERE (LastName = :v1)) FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name , (SELECT Id, Name FROM Contacts WHERE (LastName = :v1)) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -844,7 +844,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts WHERE LastName = :v1) FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name , (SELECT Id, Name FROM Contacts WHERE LastName = :v1) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -860,7 +860,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts ORDER BY Name DESC NULLS LAST) FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name , (SELECT Id, Name FROM Contacts ORDER BY Name DESC NULLS LAST) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -876,7 +876,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts ORDER BY Name DESC NULLS LAST) FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name , (SELECT Id, Name FROM Contacts ORDER BY Name DESC NULLS LAST) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -892,7 +892,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts ORDER BY Name ASC NULLS LAST) FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name , (SELECT Id, Name FROM Contacts ORDER BY Name ASC NULLS LAST) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -908,7 +908,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts ORDER BY CreatedBy.Name DESC NULLS LAST) FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name , (SELECT Id, Name FROM Contacts ORDER BY CreatedBy.Name DESC NULLS LAST) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -922,7 +922,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts LIMIT 10) FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name , (SELECT Id, Name FROM Contacts LIMIT 10) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -936,7 +936,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts OFFSET 100) FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name , (SELECT Id, Name FROM Contacts OFFSET 100) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -950,7 +950,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts FOR REFERENCE) FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name , (SELECT Id, Name FROM Contacts FOR REFERENCE) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -964,7 +964,7 @@ private class SOQL_Test {
             ).toString();
 
         // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts FOR VIEW) FROM Account', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name , (SELECT Id, Name FROM Contacts FOR VIEW) FROM Account', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1423,7 +1423,7 @@ private class SOQL_Test {
 
         // Verify
         String soql = builder.toString();
-        Assert.areEqual('SELECT Name, BillingCity FROM Account WHERE Name NOT IN :v1', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id, Name, BillingCity FROM Account WHERE Name NOT IN :v1', soql, 'The generated SOQL should match the expected one.');
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual(names, binding.get('v1'), 'The binding variable should match the expected value.');
@@ -3246,8 +3246,8 @@ private class SOQL_Test {
     static void mockId() {
         // Setup
         List<Account> accounts = new List<Account>{
-            new Account(Name = 'Test 1'),
-            new Account(Name = 'Test 2')
+            new Account(Id = generateRandomId('001'), Name = 'Test 1'),
+            new Account(Id = generateRandomId('001'), Name = 'Test 2')
         };
 
         // Test
@@ -3261,7 +3261,7 @@ private class SOQL_Test {
     @IsTest
     static void mockingSingleRecord() {
         // Setup
-        Account testAccount = new Account(Name = 'Test 1');
+        Account testAccount = new Account(Id = generateRandomId('001'), Name = 'Test 1');
 
         // Test
         SOQL.setMock('mockingQuery', testAccount);
@@ -3304,8 +3304,8 @@ private class SOQL_Test {
     @IsTest
     static void mockingMultipleRecords() {
         List<Account> testAccounts = new List<Account>{
-            new Account(Name = 'Test 1'),
-            new Account(Name = 'Test 2')
+            new Account(Id = generateRandomId('001'), Name = 'Test 1'),
+            new Account(Id = generateRandomId('001'), Name = 'Test 2')
         };
 
         // Test
@@ -3319,7 +3319,7 @@ private class SOQL_Test {
     @IsTest
     static void mockingSingleRecordWithMockableInterface() {
         // Setup
-        Account testAccount = new Account(Name = 'Test 1');
+        Account testAccount = new Account(Id = generateRandomId('001'), Name = 'Test 1');
 
         // Test
         SOQL.mock('mockingQuery').thenReturn(testAccount);
@@ -3353,8 +3353,8 @@ private class SOQL_Test {
     static void mockWithManyPlainFields() {
         // Setup
         List<Account> accounts = new List<Account>{
-            new Account(Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
-            new Account(Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+            new Account(Id = generateRandomId('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Id = generateRandomId('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
         };
 
         // Test
@@ -3398,8 +3398,8 @@ private class SOQL_Test {
     static void mockWithManyPlainFieldsAndSelectNotMockedField() {
         // Setup
         List<Account> accounts = new List<Account>{
-            new Account(Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
-            new Account(Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+            new Account(Id = generateRandomId('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Id = generateRandomId('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
         };
 
         // Test
@@ -3422,8 +3422,8 @@ private class SOQL_Test {
     static void mockWithManyFieldAndSelectToLabel() {
         // Setup
         List<Account> accounts = new List<Account>{
-            new Account(Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
-            new Account(Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+            new Account(Id = generateRandomId('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Id = generateRandomId('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
         };
 
         // Test
@@ -3443,8 +3443,8 @@ private class SOQL_Test {
     static void mockWithManyFieldAndAliasing() {
         // Setup
         List<Account> accounts = new List<Account>{
-            new Account(Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
-            new Account(Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+            new Account(Id = generateRandomId('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Id = generateRandomId('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
         };
 
         QueryException soqlException = null;
@@ -3467,8 +3467,8 @@ private class SOQL_Test {
     static void mockWithManyFieldAndAggregateFunction() {
         // Setup
         List<Account> accounts = new List<Account>{
-            new Account(Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
-            new Account(Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+            new Account(Id = generateRandomId('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Id = generateRandomId('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
         };
 
         QueryException soqlException = null;
@@ -3491,8 +3491,8 @@ private class SOQL_Test {
     static void mockWithManyFieldAndParentRelationship() {
         // Setup
         List<Account> accounts = new List<Account>{
-            new Account(Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev', Parent = new Account(Name = 'Parent 1')),
-            new Account(Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev', Parent = new Account(Name = 'Parent 2'))
+            new Account(Id = generateRandomId('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev', Parent = new Account(Name = 'Parent 1')),
+            new Account(Id = generateRandomId('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev', Parent = new Account(Name = 'Parent 2'))
         };
 
         QueryException soqlException = null;
