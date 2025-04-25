@@ -352,21 +352,24 @@ public virtual inherited sharing class SOQL implements Queryable {
         Mockable thenReturn(Integer count);
     }
 
-    // Backward support
+    // Backward support - it's going to be removed in the future
 
     @TestVisible // deprecated
     private static void setMock(String mockId, SObject record) {
-        mock(mockId).thenReturn(record);
+        queryIdToMock.put(mockId, new SoqlMock().skipStrippingAdditionalPlainFields());
+        queryIdToMock.get(mockId).thenReturn(record);
     }
 
     @TestVisible // deprecated
     private static void setMock(String mockId, List<SObject> records) {
-        mock(mockId).thenReturn(records);
+        queryIdToMock.put(mockId, new SoqlMock().skipStrippingAdditionalPlainFields());
+        queryIdToMock.get(mockId).thenReturn(records);
     }
 
     @TestVisible // deprecated
     private static void setCountMock(String mockId, Integer amount) {
-        mock(mockId).thenReturn(amount);
+        queryIdToMock.put(mockId, new SoqlMock().skipStrippingAdditionalPlainFields());
+        queryIdToMock.get(mockId).thenReturn(amount);
     }
 
     // Implementation
@@ -2140,10 +2143,16 @@ public virtual inherited sharing class SOQL implements Queryable {
             this.countMock.set(count);
             return this;
         }
+
+        public SoqlMock skipStrippingAdditionalPlainFields() {
+            this.sObjectMock.stripAdditionalPlainFields = false;
+            return this;
+        }
     }
 
     public class SObjectMock {
         private List<SObject> mockedRecords = new List<SObject>();
+        public Boolean stripAdditionalPlainFields = true;
 
         public void add(SObject record) {
             this.mockedRecords.add(record);
@@ -2158,7 +2167,7 @@ public virtual inherited sharing class SOQL implements Queryable {
                 throw new QueryException('Aggregate functions mocking is currently not supported.');
             }
 
-            if (fields.relationshipFields.isEmpty() && fields.functionsFields.isEmpty()) {
+            if (this.stripAdditionalPlainFields && fields.relationshipFields.isEmpty() && fields.functionsFields.isEmpty()) {
                 this.mockedRecords = this.stripAdditionalPlainFields(fields.plainFields.get());
             }
 
