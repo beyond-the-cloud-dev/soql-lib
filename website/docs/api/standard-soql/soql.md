@@ -129,6 +129,7 @@ The following are methods for using `SOQL`:
 - [`orderBy(String field)`](#order-by)
 - [`orderBy(String field, String direction)`](#order-by)
 - [`orderBy(String relationshipName, SObjectField field)`](#orderby-related)
+- [`orderByCount(SObjectField field)`](#orderby-count)
 - [`sordDesc()`](#sortdesc)
 - [`sort(String direction)`](#sort)
 - [`nullsLast()`](#nullslast)
@@ -1661,6 +1662,30 @@ SOQL.of(Contact.SObjectType)
     .toList();
 ```
 
+### orderBy COUNT
+
+**Signature**
+
+```apex
+Queryable orderByCount(SObjectField field)
+```
+
+**Example**
+
+```sql
+SELECT Industry
+FROM Account
+GROUP BY Industry
+ORDER BY COUNT(Industry) DESC NULLS LAST
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .with(Account.Industry)
+    .groupBy(Account.Industry)
+    .orderByCount(Account.Industry).sortDesc().nullsLast()
+    .toAggregated();
+```
+
 ### sortDesc
 
 Default order is ascending (`ASC`).
@@ -2285,6 +2310,22 @@ Set<String> toValuesOf(SObjectField fieldToExtract)
 
 ```apex
 Set<String> accountNames = SOQL.of(Account.SObjectType).byId('1234').toValuesOf(Account.Name)
+```
+
+### toValuesOf Releated Field
+
+**Signature**
+
+```apex
+Set<String> toValuesOf(String relationshipName, SObjectField targetKeyField)
+```
+
+**Example**
+
+```apex
+Set<String> parentAccountNames = SOQL.of(Account.SObjectType)
+    .byId('1234')
+    .toValuesOf('Parent', Account.Name)
 ```
 
 ### toInteger

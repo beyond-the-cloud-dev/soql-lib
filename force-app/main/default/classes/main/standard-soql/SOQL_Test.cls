@@ -2908,6 +2908,19 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void orderByCount() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Industry)
+            .groupBy(Account.Industry)
+            .orderByCount(Account.Industry).sortDesc().nullsLast()
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Industry FROM Account GROUP BY Industry ORDER BY COUNT(Industry) DESC NULLS LAST', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
     static void setLimit() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
@@ -3647,6 +3660,31 @@ private class SOQL_Test {
 
         // Verify
         Assert.isNull(accountIndustry, 'The account industry should be null, because the record does not exist.');
+    }
+
+    @IsTest
+    static void toValuesOfRelationshipField() {
+        // Setup
+        List<Account> accounts = insertAccountsWithParents();
+
+        // Test
+        Set<String> accountNames = SOQL.of(Account.SObjectType)
+            .byIds(accounts)
+            .toValuesOf('Parent', Account.Name);
+
+        // Verify
+        Assert.areEqual(2, accountNames.size(), 'Each account should have a parent, so the size of the account names set should be equal to the size of the accounts.');
+    }
+
+    @IsTest
+    static void toValuesOfRelationshipFieldWhenReleatedRecordNotExist() {
+        // Test
+        Set<String> accountNames = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.name().equal('Test'))
+            .toValuesOf('Parent', Account.Name);
+
+        // Verify
+        Assert.isTrue(accountNames.isEmpty(), 'The account names set should be empty, because the related record does not exist.');
     }
 
     @IsTest
