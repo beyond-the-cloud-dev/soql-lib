@@ -874,10 +874,12 @@ public virtual inherited sharing class SOQL implements Queryable {
     public Set<String> toValuesOf(SObjectField fieldToExtract) {
         // https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
         this.builder.fields.clearAllFields(); // other fields not needed
-        return new Map<String, SObject>(this.with(fieldToExtract, 'Id')
+        return new Map<String, SObject>(
+            this.with(fieldToExtract, 'Id')
             .whereAre(Filter.with(fieldToExtract).isNotNull())
-            .groupBy(fieldToExtract).toAggregated())
-            .keySet();
+            .groupBy(fieldToExtract)
+            .toAggregated()
+        ).keySet();
     }
 
     public Integer toInteger() {

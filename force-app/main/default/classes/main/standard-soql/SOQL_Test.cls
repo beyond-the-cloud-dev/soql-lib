@@ -3587,6 +3587,19 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void mockedToValueOf() {
+        // Setup
+        String accountName = 'Test 1';
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(new Account(Name = accountName));
+        String resultAccName = (String) SOQL.of(Account.SObjectType).mockId('mockingQuery').toValueOf(Account.Name);
+
+        // Verify
+        Assert.areEqual(accountName, resultAccName, 'The returned account name should match the expected one.');
+    }
+
+    @IsTest
     static void toValuesOf() {
         // Setup
         List<Account> accounts = insertAccounts();
@@ -3738,6 +3751,23 @@ private class SOQL_Test {
         for (Account acc : accounts) {
             Assert.isNotNull(result.get(acc.Id), 'The result map should have a value for each inserted account Id.');
         }
+    }
+
+    @IsTest
+    static void mockedToMapWithoutMockedId() {
+        // Setup
+        List<Account> accounts = new List<Account>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        };
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(accounts);
+        Map<Id, Account> result = (Map<Id, Account>) SOQL.of(Account.SObjectType).mockId('mockingQuery').toMap();
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size(), 'Size of the result map should be equal to the size of the inserted accounts.');
+        Assert.areEqual(accounts.size(), result.keySet().size(), 'Size of the result map should be equal to the size of the inserted accounts.');
     }
 
     @IsTest
