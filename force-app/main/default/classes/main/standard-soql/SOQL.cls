@@ -346,6 +346,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         return queryIdToMock.get(mockId);
     }
 
+    @TestVisible
+    private static RandomIdGenerator IdGenerator = new RandomIdGenerator();
+
     public interface Mockable {
         // SObject
         Mockable thenReturn(SObject record);
@@ -354,21 +357,24 @@ public virtual inherited sharing class SOQL implements Queryable {
         Mockable thenReturn(Integer count);
     }
 
-    // Backward support
+    // Backward support - it's going to be removed in the future
 
     @TestVisible // deprecated
     private static void setMock(String mockId, SObject record) {
-        mock(mockId).thenReturn(record);
+        queryIdToMock.put(mockId, new SoqlMock().skipStrippingAdditionalPlainFields());
+        queryIdToMock.get(mockId).thenReturn(record);
     }
 
     @TestVisible // deprecated
     private static void setMock(String mockId, List<SObject> records) {
-        mock(mockId).thenReturn(records);
+        queryIdToMock.put(mockId, new SoqlMock().skipStrippingAdditionalPlainFields());
+        queryIdToMock.get(mockId).thenReturn(records);
     }
 
     @TestVisible // deprecated
     private static void setCountMock(String mockId, Integer amount) {
-        mock(mockId).thenReturn(amount);
+        queryIdToMock.put(mockId, new SoqlMock().skipStrippingAdditionalPlainFields());
+        queryIdToMock.get(mockId).thenReturn(amount);
     }
 
     // Implementation
@@ -906,7 +912,6 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Map<Id, SObject> toMap() {
-        this.with('Id');
         return this.converter.transform(this.executor.toList()).toMap();
     }
 
@@ -2151,10 +2156,16 @@ public virtual inherited sharing class SOQL implements Queryable {
             this.countMock.set(count);
             return this;
         }
+
+        public SoqlMock skipStrippingAdditionalPlainFields() {
+            this.sObjectMock.stripAdditionalPlainFields = false;
+            return this;
+        }
     }
 
     public class SObjectMock {
         private List<SObject> mockedRecords = new List<SObject>();
+        public Boolean stripAdditionalPlainFields = true;
 
         public void add(SObject record) {
             this.mockedRecords.add(record);
@@ -2169,24 +2180,26 @@ public virtual inherited sharing class SOQL implements Queryable {
                 throw new QueryException('Aggregate functions mocking is currently not supported.');
             }
 
-            if (fields.relationshipFields.isEmpty() && fields.functionsFields.isEmpty()) {
-                this.mockedRecords = this.stripAdditionalPlainFields(fields.plainFields.get());
-            }
-
-            return this.mockedRecords;
-        }
-
-        private List<SObject> stripAdditionalPlainFields(Set<String> requestedFields) {
-            if (this.mockedRecords.isEmpty() || this.mockedRecords[0] == null) {
+            if (!this.stripAdditionalPlainFields || this.mockedRecords.isEmpty() || this.mockedRecords[0] == null || !fields.relationshipFields.isEmpty() || !fields.functionsFields.isEmpty()) {
                 return this.mockedRecords;
             }
 
+            return this.stripAdditionalPlainFields(fields.plainFields.get());
+        }
+
+        private List<SObject> stripAdditionalPlainFields(Set<String> requestedFields) {
             List<SObject> cleanedRecords = new List<SObject>();
-            Type objectTypeName = Type.forName(this.mockedRecords[0].getSObjectType().toString());
+
+            SObjectType sObjectType = this.mockedRecords[0].getSObjectType();
+            String sObjectPrefix = sObjectType.getDescribe().getKeyPrefix();
+            Type objectTypeName = Type.forName(sObjectType.toString());
 
             for (SObject record : this.mockedRecords) {
                 Map<String, Object> originalFields = record.getPopulatedFieldsAsMap();
-                Map<String, Object> filteredFields = new Map<String, Object>();
+                Map<String, Object> filteredFields = new Map<String, Object>{
+                    // Id is always added to mirror standard SOQL behavior
+                    'Id' => originalFields.get('Id') ?? IdGenerator.get(sObjectPrefix)
+                };
 
                 for (String field : requestedFields) {
                     filteredFields.put(field, originalFields.get(field) ?? null);
@@ -2398,7 +2411,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             Map<String, String> customValuePerCustomKey = new Map<String, String>();
 
             for (SObject record : this.recordsToTransform) {
-                customValuePerCustomKey.put(record.get(keyField).toString(), record.get(valueField).toString());
+                customValuePerCustomKey.put(record.get(keyField).toString(), record.get(valueField)?.toString());
             }
 
             return customValuePerCustomKey;
@@ -2465,6 +2478,21 @@ public virtual inherited sharing class SOQL implements Queryable {
             }
 
             return currentRecord.get(targetField).toString();
+        }
+    }
+
+    private class RandomIdGenerator {
+        public final String RANDOM_STRING_CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
+
+        public Id get(String prefix) {
+            String randomPart = '';
+
+            while (randomPart.length() < 8) {
+                Integer idx = Math.mod(Math.abs(Crypto.getRandomInteger()), RANDOM_STRING_CHARACTERS.length());
+                randomPart += RANDOM_STRING_CHARACTERS.substring(idx, idx + 1);
+            }
+
+            return Id.valueOf(prefix + '0000' + randomPart);
         }
     }
 }

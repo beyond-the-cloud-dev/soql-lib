@@ -2989,7 +2989,7 @@ private class SOQL_Test {
     @IsTest
     static void byId() {
         // Setup
-        Id fakeAccountId = generateRandomId('001');
+        Id fakeAccountId = SOQL.IdGenerator.get('001');
 
         // Test
         SOQL.Queryable builder = SOQL.of(Account.SObjectType).byId(fakeAccountId);
@@ -3021,7 +3021,7 @@ private class SOQL_Test {
     @IsTest
     static void byIdsSet() {
         // Verify
-        Set<Id> accountIds = new Set<Id>{ generateRandomId('001') };
+        Set<Id> accountIds = new Set<Id>{ SOQL.IdGenerator.get('001') };
 
         // Test
         SOQL.Queryable builder = SOQL.of(Account.SObjectType).byIds(accountIds);
@@ -3037,7 +3037,7 @@ private class SOQL_Test {
     @IsTest
     static void byIdsList() {
         // Setup
-        List<Id> accountIds = new List<Id>{ generateRandomId('001') };
+        List<Id> accountIds = new List<Id>{ SOQL.IdGenerator.get('001') };
 
         // Test
         SOQL.Queryable builder = SOQL.of(Account.SObjectType).byIds(accountIds);
@@ -3339,7 +3339,8 @@ private class SOQL_Test {
         Account result = (Account) SOQL.of(Account.sObjectType).with(Account.Name).mockId('mockingQuery').toObject();
 
         // Verify
-        Assert.areEqual(testAccount, result, 'The mocked account should be returned.');
+        Assert.areEqual(testAccount.Name, result.Name, 'The result account Name should be the same as the mocked account Name.');
+        Assert.isNotNull(result.Id, 'The result account Id should be always set even if the mocked account Id is not set.');
     }
 
     @IsTest
@@ -3388,8 +3389,8 @@ private class SOQL_Test {
     static void mockWithManyPlainFieldsWithId() {
         // Setup
         List<Account> accounts = new List<Account>{
-            new Account(Id = generateRandomId('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
-            new Account(Id = generateRandomId('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+            new Account(Id = SOQL.IdGenerator.get('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Id = SOQL.IdGenerator.get('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
         };
 
         // Test
@@ -3781,8 +3782,8 @@ private class SOQL_Test {
     static void toMapWithMockingWhenOtherFieldsAreSpecified() {
         // Setup
         List<Account> accounts = new List<Account>{
-            new Account(Id = generateRandomId('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
-            new Account(Id = generateRandomId('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+            new Account(Id = SOQL.IdGenerator.get('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Id = SOQL.IdGenerator.get('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
         };
 
         // Test
@@ -4128,17 +4129,5 @@ private class SOQL_Test {
             TimeZoneSidKey = 'America/Los_Angeles',
             UserName = 'queryselector@testorg.com'
         );
-    }
-
-    static Id generateRandomId(String prefix) {
-        String randomStringCharacters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
-        String randomString = '';
-
-        while (randomString.length() < 8) {
-            Integer idx = Math.mod(Math.abs(Crypto.getRandomInteger()), randomStringCharacters.length());
-            randomString += randomStringCharacters.substring(idx, idx + 1);
-        }
-
-        return Id.valueOf(prefix + '0000' + randomString);
     }
 }
