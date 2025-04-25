@@ -888,9 +888,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         // https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
         this.builder.fields.clearAllFields(); // other fields not needed
         return new Map<String, SObject>(
-            this.with(fieldToExtract + ' Id')
+            this.with(fieldToExtract, 'Id')
             .whereAre(Filter.with(fieldToExtract).isNotNull())
-            .groupBy(fieldToExtract).toAggregated()
+            .groupBy(fieldToExtract)
+            .toAggregated()
         ).keySet();
     }
 
