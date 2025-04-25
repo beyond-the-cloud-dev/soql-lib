@@ -344,6 +344,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         return queryIdToMock.get(mockId);
     }
 
+    @TestVisible
+    private static RandomIdGenerator IdGenerator = new RandomIdGenerator();
+
     public interface Mockable {
         // SObject
         Mockable thenReturn(SObject record);
@@ -374,8 +377,6 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     // Implementation
 
-    @TestVisible
-    private static RandomIdGenerator idGenerator = new RandomIdGenerator();
     private static Map<String, SoqlMock> queryIdToMock = new Map<String, SoqlMock>();
 
     private static Binder binder = new Binder();
@@ -2187,7 +2188,7 @@ public virtual inherited sharing class SOQL implements Queryable {
                 Map<String, Object> originalFields = record.getPopulatedFieldsAsMap();
                 Map<String, Object> filteredFields = new Map<String, Object>{
                     // Id is always added to mirror standard SOQL behavior
-                    'Id' => originalFields.get('Id') ?? idGenerator.get(sObjectPrefix)
+                    'Id' => originalFields.get('Id') ?? IdGenerator.get(sObjectPrefix)
                 };
 
                 for (String field : requestedFields) {

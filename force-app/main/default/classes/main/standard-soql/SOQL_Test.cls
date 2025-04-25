@@ -2976,7 +2976,7 @@ private class SOQL_Test {
     @IsTest
     static void byId() {
         // Setup
-        Id fakeAccountId = SOQL.idGenerator.get('001');
+        Id fakeAccountId = SOQL.IdGenerator.get('001');
 
         // Test
         SOQL.Queryable builder = SOQL.of(Account.SObjectType).byId(fakeAccountId);
@@ -3008,7 +3008,7 @@ private class SOQL_Test {
     @IsTest
     static void byIdsSet() {
         // Verify
-        Set<Id> accountIds = new Set<Id>{ SOQL.idGenerator.get('001') };
+        Set<Id> accountIds = new Set<Id>{ SOQL.IdGenerator.get('001') };
 
         // Test
         SOQL.Queryable builder = SOQL.of(Account.SObjectType).byIds(accountIds);
@@ -3024,7 +3024,7 @@ private class SOQL_Test {
     @IsTest
     static void byIdsList() {
         // Setup
-        List<Id> accountIds = new List<Id>{ SOQL.idGenerator.get('001') };
+        List<Id> accountIds = new List<Id>{ SOQL.IdGenerator.get('001') };
 
         // Test
         SOQL.Queryable builder = SOQL.of(Account.SObjectType).byIds(accountIds);
@@ -3376,8 +3376,8 @@ private class SOQL_Test {
     static void mockWithManyPlainFieldsWithId() {
         // Setup
         List<Account> accounts = new List<Account>{
-            new Account(Id = SOQL.idGenerator.get('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
-            new Account(Id = SOQL.idGenerator.get('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+            new Account(Id = SOQL.IdGenerator.get('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Id = SOQL.IdGenerator.get('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
         };
 
         // Test
@@ -3744,8 +3744,8 @@ private class SOQL_Test {
     static void toMapWithMockingWhenOtherFieldsAreSpecified() {
         // Setup
         List<Account> accounts = new List<Account>{
-            new Account(Id = SOQL.idGenerator.get('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
-            new Account(Id = SOQL.idGenerator.get('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+            new Account(Id = SOQL.IdGenerator.get('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Id = SOQL.IdGenerator.get('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
         };
 
         // Test
