@@ -2222,6 +2222,9 @@ public virtual inherited sharing class SOQL implements Queryable {
                 for (String field : requestedFields) {
                     filteredFields.put(field, originalFields.get(field) ?? null);
                 }
+                if(originalFields.containsKey('Id')) {
+                    filteredFields.put('Id', originalFields.get('Id'));
+                }
 
                 // JSON.serialize and JSON.deserialize are used to copy not writtable fields
                 cleanedRecords.add((SObject) JSON.deserialize(JSON.serialize(filteredFields), objectTypeName));
