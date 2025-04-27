@@ -361,19 +361,19 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     @TestVisible // deprecated
     private static void setMock(String mockId, SObject record) {
-        queryIdToMock.put(mockId, new SoqlMock().skipStrippingAdditionalPlainFields());
+        queryIdToMock.put(mockId, new SoqlMock().useLegacyMockingBehavior());
         queryIdToMock.get(mockId).thenReturn(record);
     }
 
     @TestVisible // deprecated
     private static void setMock(String mockId, List<SObject> records) {
-        queryIdToMock.put(mockId, new SoqlMock().skipStrippingAdditionalPlainFields());
+        queryIdToMock.put(mockId, new SoqlMock().useLegacyMockingBehavior());
         queryIdToMock.get(mockId).thenReturn(records);
     }
 
     @TestVisible // deprecated
     private static void setCountMock(String mockId, Integer amount) {
-        queryIdToMock.put(mockId, new SoqlMock().skipStrippingAdditionalPlainFields());
+        queryIdToMock.put(mockId, new SoqlMock().useLegacyMockingBehavior());
         queryIdToMock.get(mockId).thenReturn(amount);
     }
 
@@ -439,7 +439,11 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable with(SObjectField field, String alias) {
-        this.builder.fields.aggregateFields.add(field.toString(), alias);
+        return this.with(field.toString(), alias);
+    }
+
+    private Queryable with(String field, String alias) {
+        this.builder.fields.aggregateFields.add(field, alias);
         return this;
     }
 
@@ -2158,15 +2162,15 @@ public virtual inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public SoqlMock skipStrippingAdditionalPlainFields() {
-            this.sObjectMock.stripAdditionalPlainFields = false;
+        public SoqlMock useLegacyMockingBehavior() {
+            this.sObjectMock.useLegacyMockingBehavior = true;
             return this;
         }
     }
 
     public class SObjectMock {
         private List<SObject> mockedRecords = new List<SObject>();
-        public Boolean stripAdditionalPlainFields = true;
+        public Boolean useLegacyMockingBehavior = false;
 
         public void add(SObject record) {
             this.mockedRecords.add(record);
@@ -2177,30 +2181,43 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public List<SObject> get(SoqlFields fields) {
+            if (this.useLegacyMockingBehavior) {
+                return this.mockedRecords;
+            }
+
             if (!fields.aggregateFields.isEmpty()) {
                 throw new QueryException('Aggregate functions mocking is currently not supported.');
             }
 
-            if (!this.stripAdditionalPlainFields || this.mockedRecords.isEmpty() || this.mockedRecords[0] == null || !fields.relationshipFields.isEmpty() || !fields.functionsFields.isEmpty()) {
+            this.addIdToMockedRecords();
+
+            if (!fields.relationshipFields.isEmpty() || !fields.functionsFields.isEmpty()) {
                 return this.mockedRecords;
             }
 
             return this.stripAdditionalPlainFields(fields.plainFields.get());
         }
 
-        private List<SObject> stripAdditionalPlainFields(Set<String> requestedFields) {
-            List<SObject> cleanedRecords = new List<SObject>();
+        private void addIdToMockedRecords() {
+            // Id is always added to mirror standard SOQL behavior
+            List<SObject> recordsWithId = new List<SObject>();
 
             SObjectType sObjectType = this.mockedRecords[0].getSObjectType();
             String sObjectPrefix = sObjectType.getDescribe().getKeyPrefix();
-            Type objectTypeName = Type.forName(sObjectType.toString());
+
+            for (SObject record : this.mockedRecords) {
+                record.put('Id', record.getPopulatedFieldsAsMap()?.get('Id') ?? IdGenerator.get(sObjectPrefix));
+            }
+        }
+
+        private List<SObject> stripAdditionalPlainFields(Set<String> requestedFields) {
+            List<SObject> cleanedRecords = new List<SObject>();
+
+            Type objectTypeName = Type.forName(this.mockedRecords[0].getSObjectType().toString());
 
             for (SObject record : this.mockedRecords) {
                 Map<String, Object> originalFields = record.getPopulatedFieldsAsMap();
-                Map<String, Object> filteredFields = new Map<String, Object>{
-                    // Id is always added to mirror standard SOQL behavior
-                    'Id' => originalFields.get('Id') ?? IdGenerator.get(sObjectPrefix)
-                };
+                Map<String, Object> filteredFields = new Map<String, Object>{ 'Id' => originalFields.get('Id') };
 
                 for (String field : requestedFields) {
                     filteredFields.put(field, originalFields.get(field) ?? null);
