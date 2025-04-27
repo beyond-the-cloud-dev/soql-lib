@@ -2301,7 +2301,7 @@ public virtual inherited sharing class SOQL implements Queryable {
                 return this.sharingExecutor.toSObjects(this.builder.toString(), binder.getBindingMap(), this.accessMode);
             }
 
-            return Security.stripInaccessible(
+            return System.Security.stripInaccessible(
                 this.accessType,
                 this.sharingExecutor.toSObjects(this.builder.toString(), binder.getBindingMap(), this.accessMode)
             ).getRecords();
@@ -2324,7 +2324,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         private void incrementQueryIssued() {
             // This counter is used only in unit tests to also track mocked queries.
-            if (!Test.isRunningTest() || System.isBatch() || System.isFuture() || System.isQueueable() || System.isScheduled()) {
+            if (!System.Test.isRunningTest() || System.isBatch() || System.isFuture() || System.isQueueable() || System.isScheduled()) {
                 return;
             }
 

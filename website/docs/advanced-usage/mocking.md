@@ -99,6 +99,16 @@ Account `Description` and `Website` are null, even though they were specified. H
 **Note:**
 Currently, this field-stripping behavior applies only to simple fields (like `Name`, `Description`, etc.). Relationship fields and subqueries are not yet included in this logic — this may be addressed in future enhancements.
 
+### Queried Issued Count
+
+Mocked queries in SOQL Lib are counted towards the SOQL query limit, just like real queries. If the number of issued queries exceeds the limit, SOQL Lib will throw:
+
+```apex
+QueryException: Too many SOQL queries.
+```
+
+This behavior is consistent with Salesforce’s native limits, ensuring that your unit tests accurately reflect potential production scenarios.
+
 ## List of records
 
 ```apex
