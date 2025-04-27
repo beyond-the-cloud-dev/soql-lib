@@ -3307,7 +3307,7 @@ private class SOQL_Test {
     @IsTest
     static void mockNoResults() {
         // Test
-        SOQL.setMock('mockingQuery', new List<Account>());
+        SOQL.mock('mockingQuery').thenReturn(new List<Account>());
         List<Account> result = SOQL.of(Account.sObjectType).with(Account.Name).mockId('mockingQuery').toList();
 
         // Verify

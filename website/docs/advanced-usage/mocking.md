@@ -4,7 +4,6 @@ sidebar_position: 30
 
 # Mocking
 
-
 Mocking provides a way to substitute records from a Database with some prepared data. Data can be prepared in form of SObject records and lists in Apex code or Static Resource `.csv` file.
 Mocked queries won't make any SOQL's and simply return data set in method definition, mock __will ignore all filters and relations__, what is returned depends __solely on data provided to the method__. Mocking is working __only during test execution__. To mock SOQL query, use `.mockId(id)` method to make it identifiable. If you mark more than one query with the same ID, all marked queries will return the same data.
 
@@ -26,7 +25,81 @@ public with sharing class ExampleController {
 
 Then in test simply pass data you want to get from Selector to `SOQL.mock(id).thenReturn(data)` method. Acceptable formats are: `List<SObject>` or `SObject`. Then during execution Selector will return desired data.
 
-### List of records
+## Insights
+
+### Id Field Behavior
+
+The `Id` field is always included in mocked results, even if it wasn’t explicitly specified. This is designed to mirror standard SOQL behavior — Salesforce automatically includes the `Id` field in every query, even when it’s not listed in the `SELECT` clause.
+
+```apex
+List<Account> accounts = [SELECT Name FROM Account LIMIT 3];
+System.debug(accounts);
+/* Output:
+(
+    Account:{Name=Test 1, Id=001J5000008AvzkIAC},
+    Account:{Name=Test 2, Id=001J5000008AvzlIAC},
+    Account:{Name=Test 3, Id=001J5000008AvzmIAC}
+)
+*/
+```
+
+Similarly, when you mock records using SOQL Lib:
+
+```apex
+SOQL.mock('mockingQuery').thenReturn(new List<Account>{
+    new Account(Name = 'Test 1'),
+    new Account(Name = 'Test 2')
+});
+
+List<Account> accounts = SOQL.of(Account.SObjectType)
+    .with(Account.Name)
+    .mockId('mockingQuery')
+    .toList();
+
+/* Output:
+(
+    Account:{Name=Test 1, Id=001J5000008AvzkIAC},
+    Account:{Name=Test 2, Id=001J5000008AvzlIAC}
+)
+*/
+```
+
+Even though `Id` wasn’t specified in `.with()`, it’s automatically added.
+
+### Stripping Additional Fields
+
+When using test data factories or builders, it’s common to generate records populated with many fields. However, SOQL Lib ensures that only the fields specified in the query are retained — all other fields are stripped to simulate real SOQL behavior.
+
+```apex
+// Setup
+List<Account> accounts = new List<Account>{
+    new Account(Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+    new Account(Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+};
+
+// Test
+SOQL.mock('mockingQuery').thenReturn(accounts);
+List<Account> result = SOQL.of(Account.SObjectType)
+    .with(Account.Name)
+    .mockId('mockingQuery')
+    .toList();
+
+for (Account mockedResult : result) {
+    Assert.isTrue(mockedResult.isSet(Account.Name), 'Only Account Name should be set.');
+    Assert.isNull(mockedResult.Description, 'The Account Description should not be set because it was not included in the SELECT clause.');
+    Assert.isNull(mockedResult.Website, 'The Account Website should not be set because it was not included in the SELECT clause.');
+}
+```
+
+In this case:
+- Although `Description` and `Website` were present in the mocked data, they are removed because they weren’t part of the query.
+- Only fields explicitly defined in `.with()` (plus `Id` by default) remain.
+Account `Description` and `Website` are null, even though they were specified. Hovever SOQL specified only for `Account.Name`, so additional field are stripped.
+
+**Note:**
+Currently, this field-stripping behavior applies only to simple fields (like `Name`, `Description`, etc.). Relationship fields and subqueries are not yet included in this logic — this may be addressed in future enhancements.
+
+## List of records
 
 ```apex
 @IsTest
@@ -49,7 +122,7 @@ private class ExampleControllerTest {
 }
 ```
 
-### Single record
+## Single record
 
 ```apex
 @IsTest
@@ -67,7 +140,7 @@ private class ExampleControllerTest {
 }
 ```
 
-### Static resource
+## Static resource
 
 ```apex
 @IsTest
@@ -85,7 +158,7 @@ private class ExampleControllerTest {
 }
 ```
 
-### Count Result
+## Count Result
 
 ```
 @IsTest
@@ -102,7 +175,7 @@ private class ExampleControllerTest {
 }
 ```
 
-### Sub-Query
+## Sub-Query
 
 To mock a sub-query we need to use deserialization mechanism. There are two approaches, using JSON string or Serialization/Deserialization.
 Then after deserialization to desired SObjectType, pass the data to SOQL by calling `.mock` method.
@@ -171,7 +244,7 @@ static void getAccountsWithContacts() {
 }
 ```
 
-### Parent relationship
+## Parent relationship
 
 ```
 @IsTest

@@ -2181,7 +2181,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public List<SObject> get(SoqlFields fields) {
-            if (this.useLegacyMockingBehavior) {
+            if (this.useLegacyMockingBehavior || this.mockedRecords.isEmpty()) {
                 return this.mockedRecords;
             }
 
