@@ -102,6 +102,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable have(String havingConditions);
         Queryable havingConditionLogic(String havingConditionsOrder);
         Queryable anyHavingConditionMatching();
+        // WITH DATA CATEGORY
+        Queryable withDataCategory(DataCategoryFilterGroup dataCategoryGroup);
+        Queryable withDataCategory(DataCategoryFilter dataCategoryFilter);
         // ORDER BY
         Queryable orderBy(SObjectField field);
         Queryable orderBy(String field);
@@ -304,6 +307,24 @@ public virtual inherited sharing class SOQL implements Queryable {
         HavingFilter notIn(Iterable<Object> iterable);
 
         Boolean hasValue();
+    }
+
+    public interface DataCategoryFilterGroup {
+        DataCategoryFilterGroup add(DataCategoryFilter dataCategoryFilter);
+    }
+
+    public interface DataCategoryFilter {
+        // FIELDS
+        DataCategoryFilter with(String field);
+        // COMPERATORS
+        DataCategoryFilter at(String category);
+        DataCategoryFilter at(Iterable<String> categories);
+        DataCategoryFilter above(String category);
+        DataCategoryFilter above(Iterable<String> categories);
+        DataCategoryFilter below(String category);
+        DataCategoryFilter below(Iterable<String> categories);
+        DataCategoryFilter aboveOrBelow(String category);
+        DataCategoryFilter aboveOrBelow(Iterable<String> categories);
     }
 
     public static SubQuery SubQuery {
@@ -748,6 +769,16 @@ public virtual inherited sharing class SOQL implements Queryable {
         return this;
     }
 
+    public Queryable withDataCategory(DataCategoryFilterGroup dataCategoryGroup) {
+        // TODO
+        return this;
+    }
+
+    public Queryable withDataCategory(DataCategoryFilter dataCategoryFilter) {
+        // TODO
+        return this;
+    }
+
     public Queryable orderBy(SObjectField field) {
         return this.orderBy(field.toString());
     }
@@ -981,7 +1012,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class SoqlBuilder implements QueryClause {
-        private List<QueryClause> clauses = new QueryClause[11];
+        private List<QueryClause> clauses = new QueryClause[12];
 
         public SoqlBuilder(String ofObject) {
             this.clauses.set(0, new SoqlFields(ofObject));
@@ -1004,12 +1035,16 @@ public virtual inherited sharing class SOQL implements Queryable {
             get { return (MainFilterGroup) getQueryClause(4, MainFilterGroup.class); }
         }
 
+        public MainDataCategoryGroup dataCategory {
+            get { return (MainDataCategoryGroup) getQueryClause(5, MainDataCategoryGroup.class); }
+        }
+
         public SoqlGroupBy groupBy {
-            get { return (SoqlGroupBy) getQueryClause(5, SoqlGroupBy.class); }
+            get { return (SoqlGroupBy) getQueryClause(6, SoqlGroupBy.class); }
         }
 
         public MainHavingGroup havingClause {
-            get { return (MainHavingGroup) getQueryClause(6, MainHavingGroup.class); }
+            get { return (MainHavingGroup) getQueryClause(7, MainHavingGroup.class); }
         }
 
         public SoqlOrderBy latestOrderBy {
@@ -1017,19 +1052,19 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public SoqlOrderBys orderBys {
-            get { return (SoqlOrderBys) getQueryClause(7, SoqlOrderBys.class); }
+            get { return (SoqlOrderBys) getQueryClause(8, SoqlOrderBys.class); }
         }
 
         public SoqlLimit soqlLimit {
-            get { return (SoqlLimit) getQueryClause(8, SoqlLimit.class); }
+            get { return (SoqlLimit) getQueryClause(9, SoqlLimit.class); }
         }
 
         public SoqlOffset soqlOffset {
-            get { return (SoqlOffset) getQueryClause(9, SoqlOffset.class); }
+            get { return (SoqlOffset) getQueryClause(10, SoqlOffset.class); }
         }
 
         public SoqlFor soqlFor {
-            get { return (SoqlFor) getQueryClause(10, SoqlFor.class); }
+            get { return (SoqlFor) getQueryClause(11, SoqlFor.class); }
         }
 
         private QueryClause getQueryClause(Integer position, System.Type queryClause) {
@@ -1751,6 +1786,10 @@ public virtual inherited sharing class SOQL implements Queryable {
 
             return String.format(this.wrapper, new List<String>{ this.field + ' ' + this.comperator + ' :' + binder.bind(value) });
         }
+    }
+
+    private class MainDataCategoryGroup implements FilterClause {
+        // TODO
     }
 
     private class SoqlJoinQuery implements InnerJoin {
