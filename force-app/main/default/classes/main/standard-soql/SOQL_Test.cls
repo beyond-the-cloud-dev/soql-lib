@@ -2849,6 +2849,146 @@ private class SOQL_Test {
         );
     }
 
+    // WITH DATA CATEGORY
+
+    @IsTest
+    static void dataCategoryFilterWithStringField() {
+        // Test
+        String soql = SOQL.of('Knowledge__kav')
+            .with('Title')
+            .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').aboveOrBelow('Europe__c'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c ABOVE_OR_BELOW Europe__c', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dataCategoryFilterAt() {
+        // Test
+        String soql = SOQL.of('Knowledge__kav')
+            .with('Title')
+            .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').at('Europe__c'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c AT Europe__c', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dataCategoryFilterAtMultiple() {
+        // Test
+        String soql = SOQL.of('Knowledge__kav')
+            .with('Title')
+            .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').at(new List<String>{ 'Europe__c', 'North_America__c' }))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c AT (Europe__c, North_America__c)', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dataCategoryFilterAbove() {
+        // Test
+        String soql = SOQL.of('Knowledge__kav')
+            .with('Title')
+            .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').above('Europe__c'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c ABOVE Europe__c', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dataCategoryFilterAboveMultipe() {
+        // Test
+        String soql = SOQL.of('Knowledge__kav')
+            .with('Title')
+            .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').above(new List<String>{ 'Europe__c', 'North_America__c' }))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c ABOVE (Europe__c, North_America__c)', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dataCategoryFilterBelow() {
+        // Test
+        String soql = SOQL.of('Knowledge__kav')
+            .with('Title')
+            .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').below('Europe__c'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c BELOW Europe__c', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dataCategoryFilterBelowMultipe() {
+        // Test
+        String soql = SOQL.of('Knowledge__kav')
+            .with('Title')
+            .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').below(new List<String>{ 'Europe__c', 'North_America__c' }))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c BELOW (Europe__c, North_America__c)', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dataCategoryFilterAboveOrBelow() {
+        // Test
+        String soql = SOQL.of('Knowledge__kav')
+            .with('Title')
+            .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').aboveOrBelow('Europe__c'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c ABOVE_OR_BELOW Europe__c', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dataCategoryFilterAboveOrBelowMultipe() {
+        // Test
+        String soql = SOQL.of('Knowledge__kav')
+            .with('Title')
+            .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').aboveOrBelow(new List<String>{ 'Europe__c', 'North_America__c' }))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c ABOVE_OR_BELOW (Europe__c, North_America__c)', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dataCategoryWithMultipeDataCategoryFilters() {
+        // Test
+        String soql = SOQL.of('Knowledge__kav')
+            .with('Title')
+            .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').aboveOrBelow(new List<String>{ 'Europe__c', 'North_America__c' }))
+            .withDataCategory(SOQL.DataCategoryFilter.with('Product__c').at(new List<String>{ 'Product1__c', 'Product2__c' }))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c ABOVE_OR_BELOW (Europe__c, North_America__c) AND Product__c AT (Product1__c, Product2__c)', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dataCategoryWithMultipeFilters() {
+        // Test
+        String soql = SOQL.of('Knowledge__kav')
+            .with('Title')
+            .whereAre(SOQL.Filter.with('PublishStatus').equal('Draft'))
+            .whereAre(SOQL.Filter.with('Language').equal('en_US'))
+            .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').aboveOrBelow(new List<String>{ 'Europe__c', 'North_America__c' }))
+            .withDataCategory(SOQL.DataCategoryFilter.with('Product__c').at('Product1__c'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Title FROM Knowledge__kav WHERE PublishStatus = :v1 AND Language = :v2 WITH DATA CATEGORY Geography__c ABOVE_OR_BELOW (Europe__c, North_America__c) AND Product__c AT Product1__c', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    // ORDER BY
+
     @IsTest
     static void orderByString() {
         // Test

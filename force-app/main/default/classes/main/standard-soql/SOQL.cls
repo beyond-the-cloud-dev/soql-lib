@@ -103,7 +103,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable havingConditionLogic(String havingConditionsOrder);
         Queryable anyHavingConditionMatching();
         // WITH DATA CATEGORY
-        Queryable withDataCategory(DataCategoryFilterGroup dataCategoryGroup);
         Queryable withDataCategory(DataCategoryFilter dataCategoryFilter);
         // ORDER BY
         Queryable orderBy(SObjectField field);
@@ -325,6 +324,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         DataCategoryFilter below(Iterable<String> categories);
         DataCategoryFilter aboveOrBelow(String category);
         DataCategoryFilter aboveOrBelow(Iterable<String> categories);
+
+        Boolean hasValue();
     }
 
     public static SubQuery SubQuery {
@@ -349,6 +350,10 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public static HavingFilter HavingFilter {
         get { return new SoqlHavingFilter(); }
+    }
+
+    public static DataCategoryFilter DataCategoryFilter {
+        get { return new SoqlDataCategoryFilter(); }
     }
 
     public static SOQL of(SObjectType ofObject) {
@@ -769,13 +774,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         return this;
     }
 
-    public Queryable withDataCategory(DataCategoryFilterGroup dataCategoryGroup) {
-        // TODO
-        return this;
-    }
-
     public Queryable withDataCategory(DataCategoryFilter dataCategoryFilter) {
-        // TODO
+        this.builder.dataCategory.add(dataCategoryFilter);
         return this;
     }
 
@@ -1788,8 +1788,94 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class MainDataCategoryGroup implements FilterClause {
-        // TODO
+    private virtual class MainDataCategoryGroup extends FilterBuilder implements DataCategoryFilterGroup, QueryClause {
+        public DataCategoryFilterGroup add(DataCategoryFilter dataCategoryFilter) {
+            this.add(new DataCategoryFilterAdapter(dataCategoryFilter));
+            return this;
+        }
+
+        public override String toString() {
+            return 'WITH DATA CATEGORY ' + this.buildNested();
+        }
+    }
+
+    private class DataCategoryFilterAdapter implements FilterClause {
+        private DataCategoryFilter dataCategoryFilter;
+
+        public DataCategoryFilterAdapter(DataCategoryFilter dataCategoryFilter) {
+            this.dataCategoryFilter = dataCategoryFilter;
+        }
+
+        public Boolean hasValue() {
+            return this.dataCategoryFilter.hasValue();
+        }
+
+        public override String toString() {
+            return this.dataCategoryFilter.toString();
+        }
+    }
+
+    private class SoqlDataCategoryFilter implements DataCategoryFilter {
+        private String field;
+        private String comperator;
+        private String value;
+
+        public DataCategoryFilter with(String field) {
+            this.field = field;
+            return this;
+        }
+
+        public DataCategoryFilter at(String category) {
+            return this.set('AT', category);
+        }
+
+        public DataCategoryFilter at(Iterable<String> categories) {
+            return this.set('AT', categories);
+        }
+
+        public DataCategoryFilter above(String category) {
+            return this.set('ABOVE', category);
+        }
+
+        public DataCategoryFilter above(Iterable<String> categories) {
+            return this.set('ABOVE', categories);
+        }
+
+        public DataCategoryFilter below(String category) {
+            return this.set('BELOW', category);
+        }
+
+        public DataCategoryFilter below(Iterable<String> categories) {
+            return this.set('BELOW', categories);
+        }
+
+        public DataCategoryFilter aboveOrBelow(String category) {
+            return this.set('ABOVE_OR_BELOW', category);
+        }
+
+        public DataCategoryFilter aboveOrBelow(Iterable<String> categories) {
+            return this.set('ABOVE_OR_BELOW', categories);
+        }
+
+        public DataCategoryFilter set(String operator, Iterable<String> iterable) {
+            this.comperator = operator;
+            this.value = '(' + String.join(iterable, ', ') + ')';
+            return this;
+        }
+
+        private DataCategoryFilter set(String comperator, String value) {
+            this.comperator = comperator;
+            this.value = value;
+            return this;
+        }
+
+        public Boolean hasValue() {
+            return String.isNotEmpty(this.field);
+        }
+
+        public override String toString() {
+            return this.field + ' ' + this.comperator + ' ' + this.value;
+        }
     }
 
     private class SoqlJoinQuery implements InnerJoin {
