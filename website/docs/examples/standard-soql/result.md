@@ -76,8 +76,26 @@ for (Account acc : [SELECT Name FROM Account]) {
 
 ```apex
 Set<String> accountNames = SOQL.of(Account.SObjectType)
-    .byId('1234')
     .toValuesOf(Account.Name);
+```
+
+## toValuesOf related field
+
+**Apex**
+
+```apex
+Set<String> parentAccountNames = new Set<String>();
+
+for (Account acc : [SELECT Name, Parent.Name FROM Account]) {
+    parentAccountNames.add(acc.Parent.Name);
+}
+```
+
+**SOQL Lib**
+
+```apex
+Set<String> parentAccountNames = SOQL.of(Account.SObjectType)
+    .toValuesOf('Parent', Account.Name);
 ```
 
 ## toInteger
