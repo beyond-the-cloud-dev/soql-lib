@@ -152,6 +152,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         SObject toObject();
         List<SObject> toList();
         List<AggregateResult> toAggregated();
+        List<AggregateResultProxy> toAggregatedProxy();
         Map<Id, SObject> toMap();
         Map<String, SObject> toMap(SObjectField keyField);
         Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField);
@@ -328,6 +329,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         Boolean hasValue();
     }
 
+    public interface AggregateResultProxy {
+        Object get(String field);
+        Map<String, Object> getPopulatedFieldsAsMap();
+    }
+
     public static SubQuery SubQuery {
         get { return new SoqlSubQuery(); }
     }
@@ -379,6 +385,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         // SObject
         Mockable thenReturn(SObject record);
         Mockable thenReturn(List<SObject> records);
+        // AggregateResultProxy
+        Mockable thenReturn(List<Map<String, Object>> aggregatedResults);
+        // Mockable thenReturn(Map<String, Object> aggregatedResult);
         // Count
         Mockable thenReturn(Integer count);
     }
@@ -945,6 +954,10 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public List<AggregateResult> toAggregated() {
         return (List<AggregateResult>) this.toList();
+    }
+
+    public List<AggregateResultProxy> toAggregatedProxy() {
+        return this.executor.toAggregatedProxy();
     }
 
     public Map<Id, SObject> toMap() {
@@ -2268,9 +2281,57 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
+    private class SoqlAggregateResultProxy implements AggregateResultProxy {
+        private Map<String, Object> aggregateResult;
+
+        public SoqlAggregateResultProxy(AggregateResult aggregateResult) {
+            this.aggregateResult = aggregateResult.getPopulatedFieldsAsMap();
+        }
+
+        public SoqlAggregateResultProxy(Map<String, Object> aggregateResult) {
+            this.aggregateResult = aggregateResult;
+        }
+
+        public Object get(String field) {
+            return this.aggregateResult.get(field);
+        }
+
+        public Map<String, Object> getPopulatedFieldsAsMap() {
+            return this.aggregateResult;
+        }
+    }
+
+    private class AggregateResultProxys {
+        private List<AggregateResultProxy> aggregateResults = new List<AggregateResultProxy>();
+
+        public AggregateResultProxys add(List<AggregateResult> aggregateResults) {
+            for (AggregateResult result : aggregateResults) {
+                this.aggregateResults.add(new SoqlAggregateResultProxy(result));
+            }
+            return this;
+        }
+
+        public AggregateResultProxys add(List<Map<String, Object>> aggregateResults) {
+            for (Map<String, Object> result : aggregateResults) {
+                this.aggregateResults.add(new SoqlAggregateResultProxy(result));
+            }
+            return this;
+        }
+
+        public List<AggregateResultProxy> get() {
+            return this.aggregateResults;
+        }
+    }
+
     private class SoqlMock implements Mockable {
         public SObjectMock sObjectMock = new SObjectMock();
         public CountMock countMock = new CountMock();
+        public AggregateResultProxys aggregateResultMock = new AggregateResultProxys();
+
+        public Mockable thenReturn(List<Map<String, Object>> aggregatedResults) {
+            this.aggregateResultMock.add(aggregatedResults);
+            return this;
+        }
 
         public Mockable thenReturn(SObject record) {
             this.sObjectMock.add(record);
@@ -2433,6 +2494,15 @@ public virtual inherited sharing class SOQL implements Queryable {
                 this.accessType,
                 this.sharingExecutor.toSObjects(this.builder.toString(), binder.getBindingMap(), this.accessMode)
             ).getRecords();
+        }
+
+        public List<AggregateResultProxy> toAggregatedProxy() {
+            if (this.mock != null) {
+                this.incrementQueryIssued();
+                return this.mock.aggregateResultMock.get();
+            }
+
+            return new AggregateResultProxys().add((List<AggregateResult>) this.toList()).get();
         }
 
         public Integer toInteger() {
