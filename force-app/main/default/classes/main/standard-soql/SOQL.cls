@@ -102,6 +102,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable have(String havingConditions);
         Queryable havingConditionLogic(String havingConditionsOrder);
         Queryable anyHavingConditionMatching();
+        // WITH DATA CATEGORY
+        Queryable withDataCategory(DataCategoryFilter dataCategoryFilter);
         // ORDER BY
         Queryable orderBy(SObjectField field);
         Queryable orderBy(String field);
@@ -306,6 +308,26 @@ public virtual inherited sharing class SOQL implements Queryable {
         Boolean hasValue();
     }
 
+    public interface DataCategoryFilterGroup {
+        DataCategoryFilterGroup add(DataCategoryFilter dataCategoryFilter);
+    }
+
+    public interface DataCategoryFilter {
+        // FIELDS
+        DataCategoryFilter with(String field);
+        // COMPERATORS
+        DataCategoryFilter at(String category);
+        DataCategoryFilter at(Iterable<String> categories);
+        DataCategoryFilter above(String category);
+        DataCategoryFilter above(Iterable<String> categories);
+        DataCategoryFilter below(String category);
+        DataCategoryFilter below(Iterable<String> categories);
+        DataCategoryFilter aboveOrBelow(String category);
+        DataCategoryFilter aboveOrBelow(Iterable<String> categories);
+
+        Boolean hasValue();
+    }
+
     public static SubQuery SubQuery {
         get { return new SoqlSubQuery(); }
     }
@@ -328,6 +350,10 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public static HavingFilter HavingFilter {
         get { return new SoqlHavingFilter(); }
+    }
+
+    public static DataCategoryFilter DataCategoryFilter {
+        get { return new SoqlDataCategoryFilter(); }
     }
 
     public static SOQL of(SObjectType ofObject) {
@@ -748,6 +774,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         return this;
     }
 
+    public Queryable withDataCategory(DataCategoryFilter dataCategoryFilter) {
+        this.builder.dataCategory.add(dataCategoryFilter);
+        return this;
+    }
+
     public Queryable orderBy(SObjectField field) {
         return this.orderBy(field.toString());
     }
@@ -981,7 +1012,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class SoqlBuilder implements QueryClause {
-        private List<QueryClause> clauses = new QueryClause[11];
+        private List<QueryClause> clauses = new QueryClause[12];
 
         public SoqlBuilder(String ofObject) {
             this.clauses.set(0, new SoqlFields(ofObject));
@@ -1004,12 +1035,16 @@ public virtual inherited sharing class SOQL implements Queryable {
             get { return (MainFilterGroup) getQueryClause(4, MainFilterGroup.class); }
         }
 
+        public MainDataCategoryGroup dataCategory {
+            get { return (MainDataCategoryGroup) getQueryClause(5, MainDataCategoryGroup.class); }
+        }
+
         public SoqlGroupBy groupBy {
-            get { return (SoqlGroupBy) getQueryClause(5, SoqlGroupBy.class); }
+            get { return (SoqlGroupBy) getQueryClause(6, SoqlGroupBy.class); }
         }
 
         public MainHavingGroup havingClause {
-            get { return (MainHavingGroup) getQueryClause(6, MainHavingGroup.class); }
+            get { return (MainHavingGroup) getQueryClause(7, MainHavingGroup.class); }
         }
 
         public SoqlOrderBy latestOrderBy {
@@ -1017,19 +1052,19 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public SoqlOrderBys orderBys {
-            get { return (SoqlOrderBys) getQueryClause(7, SoqlOrderBys.class); }
+            get { return (SoqlOrderBys) getQueryClause(8, SoqlOrderBys.class); }
         }
 
         public SoqlLimit soqlLimit {
-            get { return (SoqlLimit) getQueryClause(8, SoqlLimit.class); }
+            get { return (SoqlLimit) getQueryClause(9, SoqlLimit.class); }
         }
 
         public SoqlOffset soqlOffset {
-            get { return (SoqlOffset) getQueryClause(9, SoqlOffset.class); }
+            get { return (SoqlOffset) getQueryClause(10, SoqlOffset.class); }
         }
 
         public SoqlFor soqlFor {
-            get { return (SoqlFor) getQueryClause(10, SoqlFor.class); }
+            get { return (SoqlFor) getQueryClause(11, SoqlFor.class); }
         }
 
         private QueryClause getQueryClause(Integer position, System.Type queryClause) {
@@ -1750,6 +1785,96 @@ public virtual inherited sharing class SOQL implements Queryable {
             }
 
             return String.format(this.wrapper, new List<String>{ this.field + ' ' + this.comperator + ' :' + binder.bind(value) });
+        }
+    }
+
+    private virtual class MainDataCategoryGroup extends FilterBuilder implements DataCategoryFilterGroup, QueryClause {
+        public DataCategoryFilterGroup add(DataCategoryFilter dataCategoryFilter) {
+            this.add(new DataCategoryFilterAdapter(dataCategoryFilter));
+            return this;
+        }
+
+        public override String toString() {
+            return 'WITH DATA CATEGORY ' + this.buildNested();
+        }
+    }
+
+    private class DataCategoryFilterAdapter implements FilterClause {
+        private DataCategoryFilter dataCategoryFilter;
+
+        public DataCategoryFilterAdapter(DataCategoryFilter dataCategoryFilter) {
+            this.dataCategoryFilter = dataCategoryFilter;
+        }
+
+        public Boolean hasValue() {
+            return this.dataCategoryFilter.hasValue();
+        }
+
+        public override String toString() {
+            return this.dataCategoryFilter.toString();
+        }
+    }
+
+    private class SoqlDataCategoryFilter implements DataCategoryFilter {
+        private String field;
+        private String comperator;
+        private String value;
+
+        public DataCategoryFilter with(String field) {
+            this.field = field;
+            return this;
+        }
+
+        public DataCategoryFilter at(String category) {
+            return this.set('AT', category);
+        }
+
+        public DataCategoryFilter at(Iterable<String> categories) {
+            return this.set('AT', categories);
+        }
+
+        public DataCategoryFilter above(String category) {
+            return this.set('ABOVE', category);
+        }
+
+        public DataCategoryFilter above(Iterable<String> categories) {
+            return this.set('ABOVE', categories);
+        }
+
+        public DataCategoryFilter below(String category) {
+            return this.set('BELOW', category);
+        }
+
+        public DataCategoryFilter below(Iterable<String> categories) {
+            return this.set('BELOW', categories);
+        }
+
+        public DataCategoryFilter aboveOrBelow(String category) {
+            return this.set('ABOVE_OR_BELOW', category);
+        }
+
+        public DataCategoryFilter aboveOrBelow(Iterable<String> categories) {
+            return this.set('ABOVE_OR_BELOW', categories);
+        }
+
+        public DataCategoryFilter set(String operator, Iterable<String> iterable) {
+            this.comperator = operator;
+            this.value = '(' + String.join(iterable, ', ') + ')';
+            return this;
+        }
+
+        private DataCategoryFilter set(String comperator, String value) {
+            this.comperator = comperator;
+            this.value = value;
+            return this;
+        }
+
+        public Boolean hasValue() {
+            return String.isNotEmpty(this.field);
+        }
+
+        public override String toString() {
+            return this.field + ' ' + this.comperator + ' ' + this.value;
         }
     }
 
