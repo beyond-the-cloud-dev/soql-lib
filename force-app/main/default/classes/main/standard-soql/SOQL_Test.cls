@@ -2078,6 +2078,21 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void groupByRelatedToAggregatedProxy() {
+        // Setup
+        insertAccounts();
+
+        // Test
+        List<SOQL.AggregateResultProxy> results = SOQL.of(Account.SObjectType)
+            .count(Account.Name, 'names')
+            .groupBy('Account.CreatedBy', User.Id)
+            .toAggregatedProxy();
+
+        // Verify
+        Assert.areEqual(1, results.size(), 'Only one aggregated result should be returned, as the accounts were created by the same user.');
+    }
+
+    @IsTest
     static void groupByRollup() {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
@@ -3456,6 +3471,7 @@ private class SOQL_Test {
 
     @IsTest
     static void mockingMultipleRecords() {
+        // Setup
         List<Account> testAccounts = new List<Account>{
             new Account(Name = 'Test 1'),
             new Account(Name = 'Test 2')
@@ -3614,7 +3630,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.isNotNull(soqlException, 'Query mocking exception should be thrown.');
-        Assert.areEqual('Aggregate functions mocking is currently not supported.', soqlException.getMessage(), 'Mocking field aliasing is not supproted');
+        Assert.areEqual('Use toAggregatedProxy() to mock AggregateResult records.', soqlException.getMessage(), 'Mocking field aliasing is not supproted');
     }
 
     @IsTest
@@ -3638,7 +3654,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.isNotNull(soqlException, 'Query mocking exception should be thrown.');
-        Assert.areEqual('Aggregate functions mocking is currently not supported.', soqlException.getMessage(), 'Mocking field aliasing is not supproted');
+        Assert.areEqual('Use toAggregatedProxy() to mock AggregateResult records.', soqlException.getMessage(), 'Mocking field aliasing is not supproted');
     }
 
     @IsTest
@@ -3664,6 +3680,34 @@ private class SOQL_Test {
             Assert.isNotNull(mockedResult.Website, 'The Account Website should be set.');
             Assert.isNotNull(mockedResult.Parent.Name, 'The Parent Account should be set.');
             Assert.isFalse(mockedResult.isSet(Account.Industry), 'Account Industry should be not set, because it\'s not mocked.');
+        }
+    }
+
+    @IsTest
+    static void mockWithAggregateProxy() {
+        // Setup
+        List<Map<String, Object>> aggregateResults = new List<Map<String, Object>>{
+            new Map<String, Object>{ 'LeadSource' => 'Web',  'total' => 10},
+            new Map<String, Object>{ 'LeadSource' => 'Phone', 'total' => 5},
+            new Map<String, Object>{ 'LeadSource' => 'Email', 'total' => 3}
+        };
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(aggregateResults);
+        List<SOQL.AggregateResultProxy> result = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .COUNT(Lead.Id, 'total')
+            .groupBy(Lead.LeadSource)
+            .mockId('mockingQuery')
+            .toAggregatedProxy();
+
+        // Verify
+        Assert.areEqual(3, result.size(), 'The size of the aggregate results should match the mocked size.');
+
+        for (SOQL.AggregateResultProxy aggregateResult : result) {
+            Assert.isNotNull(aggregateResult.getPopulatedFieldsAsMap(), 'AggregateResult should contain populated fields.');
+            Assert.isNotNull(aggregateResult.get('total'), 'AggregateResult should contain the total field.');
+            Assert.isNotNull(aggregateResult.get('LeadSource'), 'AggregateResult should contain the LeadSource field.');
         }
     }
 

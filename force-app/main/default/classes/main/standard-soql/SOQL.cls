@@ -387,7 +387,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         Mockable thenReturn(List<SObject> records);
         // AggregateResultProxy
         Mockable thenReturn(List<Map<String, Object>> aggregatedResults);
-        // Mockable thenReturn(Map<String, Object> aggregatedResult);
         // Count
         Mockable thenReturn(Integer count);
     }
@@ -2372,7 +2371,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             }
 
             if (!fields.aggregateFields.isEmpty()) {
-                throw new QueryException('Aggregate functions mocking is currently not supported.');
+                throw new QueryException('Use toAggregatedProxy() to mock AggregateResult records.');
             }
 
             this.addIdToMockedRecords();
@@ -2407,9 +2406,6 @@ public virtual inherited sharing class SOQL implements Queryable {
 
                 for (String field : requestedFields) {
                     filteredFields.put(field, originalFields.get(field) ?? null);
-                }
-                if(originalFields.containsKey('Id')) {
-                    filteredFields.put('Id', originalFields.get('Id'));
                 }
 
                 // JSON.serialize and JSON.deserialize are used to copy not writtable fields
