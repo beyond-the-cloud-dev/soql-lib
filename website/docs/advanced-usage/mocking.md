@@ -7,7 +7,7 @@ sidebar_position: 30
 Mocking provides a way to substitute records from a Database with some prepared data. Data can be prepared in form of SObject records and lists in Apex code or Static Resource `.csv` file.
 Mocked queries won't make any SOQL's and simply return data set in method definition, mock __will ignore all filters and relations__, what is returned depends __solely on data provided to the method__. Mocking is working __only during test execution__. To mock SOQL query, use `.mockId(id)` method to make it identifiable. If you mark more than one query with the same ID, all marked queries will return the same data.
 
-```apex
+```apex title="ExampleController.cls"
 public with sharing class ExampleController {
 
     public static List<Account> getPartnerAccounts(String accountName) {
@@ -111,7 +111,7 @@ This behavior is consistent with Salesforce’s native limits, ensuring that you
 
 ## List of records
 
-```apex
+```apex title="ExampleControllerTest.cls"
 @IsTest
 private class ExampleControllerTest {
 
@@ -134,7 +134,7 @@ private class ExampleControllerTest {
 
 ## Single record
 
-```apex
+```apex title="ExampleControllerTest.cls"
 @IsTest
 private class ExampleControllerTest {
 
@@ -152,7 +152,7 @@ private class ExampleControllerTest {
 
 ## Static resource
 
-```apex
+```apex title="ExampleControllerTest.cls"
 @IsTest
 private class ExampleControllerTest {
 
@@ -170,7 +170,7 @@ private class ExampleControllerTest {
 
 ## Count Result
 
-```
+```apex title="ExampleControllerTest.cls"
 @IsTest
 private class ExampleControllerTest {
 
@@ -195,7 +195,7 @@ _Using JSON String_
 
 By passing simple String, it is possible to write non-writable fields, like `Name` on Contact object.
 
-```
+```apex
 @IsTest
 static void getAccountsWithContacts() {
     List<Account> mocks = (List<Account>) JSON.deserialize(
@@ -221,7 +221,7 @@ _Using Serialization/Deserialization_
 
 Using this approach it is possible to bind data with additional logic, like using Test Data Factory.
 
-```
+```apex
 @IsTest
 static void getAccountsWithContacts() {
     List<Account> mocks = (List<Account>) JSON.deserialize(
@@ -256,7 +256,7 @@ static void getAccountsWithContacts() {
 
 ## Parent relationship
 
-```
+```apex
 @IsTest
 private class ExampleControllerTest {
     @IsTest
@@ -281,7 +281,7 @@ There is no way to create a `new AggregateResult()` instance in Apex. You can fi
 
 To mock `AggregateResult`, we introduced `SOQL.AggregateResultProxy`, which provides the same methods as the standard `AggregateResult` class.
 
-```apex
+```apex title="ExampleController.cls"
 public with sharing class ExampleController {
     public void getLeadAggregateResults() {
         List<SOQL.AggregateResultProxy> result = SOQL.of(Lead.SObjectType)
@@ -292,8 +292,9 @@ public with sharing class ExampleController {
             .toAggregatedProxy(); // <== use toAggregatedProxy()
     }
 }
+```
 
-
+```apex title="ExampleControllerTest.cls"
 @IsTest
 public class ExampleControllerTest {
     @IsTest
@@ -324,7 +325,7 @@ Pass an empty list: `.thenReturn(new List<Type>())`;
 
 This behavior will be the same as it is during runtime.
 
-```apex
+```apex title="ExampleControllerTest.cls"
 @IsTest
 public class ExampleControllerTest {
     private static final String TEST_ACCOUNT_NAME = 'MyAccount 1';

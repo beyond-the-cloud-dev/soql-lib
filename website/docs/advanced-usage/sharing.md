@@ -19,7 +19,7 @@ none (by default) | `USER_MODE` | `with sharing`
 
 `USER_MODE` is a enabled by default. It means that the object permissions, field-level security and **sharing rules are enforced**.
 
-```apex
+```apex title="SOQL_Account.cls"
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
     public static SOQL_Account query() {
         return new SOQL_Account();
@@ -34,7 +34,7 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
 
 The object permissions, field-level security, and sharing rules are enforced. Class sharing mode is ignored (`without sharing`).
 
-```apex
+```apex title="ExampleController.cls"
 public without sharing class ExampleController {
     public static List<Account> getAccountsByRecordType(String recordType) {
         return SOQL_Account.query().toList();
@@ -51,7 +51,7 @@ Developers can control the sharing mode (`inherited sharing`, `with sharing`, an
 
 **NOTE!** To make it work, always set `inherited sharing` in your selector class.
 
-```apex
+```apex title="SOQL_Account.cls"
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
     public static SOQL_Account query() {
         return new SOQL_Account();
@@ -67,7 +67,7 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
 
 The object permissions and field-level permissions are ignored. Sharing rules are controlled by the sharing mode (`without sharing`).
 
-```apex
+```apex title="ExampleController.cls"
 public without sharing class ExampleController {
     public static List<Account> getAccountsByRecordType(String recordType) {
         return SOQL_Account.query().toList();
@@ -79,7 +79,7 @@ public without sharing class ExampleController {
 
 You can force the sharing mode for all of your queries.
 
-```apex
+```apex title="SOQL_Account.cls"
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
     public static SOQL_Account query() {
         return new SOQL_Account();
@@ -96,7 +96,7 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
 
 The object permissions and field-level permissions are ignored. Sharing rules are controlled by the sharing mode specified in the `query()` method (`.withSharing()`).
 
-```apex
+```apex title="ExampleController.cls"
 public with sharing class ExampleController {
     public static List<Account> getAccountsByRecordType(String recordType) {
         return SOQL_Account.query().toList();
@@ -109,7 +109,7 @@ public with sharing class ExampleController {
 
 You can force the sharing mode for all of your queries.
 
-```apex
+```apex title="SOQL_Account.cls"
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
     public static SOQL_Account query() {
         return new SOQL_Account();
@@ -126,7 +126,7 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
 
 The object permissions and field-level permissions are ignored. Sharing rules are controlled by the sharing mode specified in the `query()` method (`.withoutSharing()`).
 
-```apex
+```apex title="ExampleController.cls"
 public with sharing class ExampleController {
     public static List<Account> getAccountsByRecordType(String recordType) {
         return SOQL_Account.query().toList();
