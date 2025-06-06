@@ -115,7 +115,7 @@ The following are methods for using `SOQL`:
 - [`groupByCube(SObjectField field)`](#groupbycube)
 - [`groupByCube(String relationshipName, SObjectField field)`](#groupbycube-related)
 
-[**WITH DATA_CATEGORY**]
+[**WITH DATA_CATEGORY**](#with-data_category)
 
 - [`withDataCategory(DataCategoryFilter dataCategoryFilter)`](#with-data_category)
 
