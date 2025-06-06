@@ -3684,7 +3684,32 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void mockWithAggregateProxy() {
+    static void mockWithAggregateResultProxy() {
+        // Setup
+        Map<String, Object> aggregateResult = new Map<String, Object>{ 'LeadSource' => 'Web',  'total' => 10};
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(aggregateResult);
+
+        List<SOQL.AggregateResultProxy> results = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .COUNT(Lead.Id, 'total')
+            .groupBy(Lead.LeadSource)
+            .mockId('mockingQuery')
+            .toAggregatedProxy();
+
+        // Verify
+        Assert.areEqual(1, results.size(), 'The size of the aggregate results should match the mocked size.');
+
+        SOQL.AggregateResultProxy result = results[0];
+
+        Assert.isNotNull(result.getPopulatedFieldsAsMap(), 'AggregateResult should contain populated fields.');
+        Assert.areEqual(10, result.get('total'), 'AggregateResult should contain the total field.');
+        Assert.areEqual('Web', result.get('LeadSource'), 'AggregateResult should contain the LeadSource field.');
+    }
+
+    @IsTest
+    static void mockWithAggregateResultsProxy() {
         // Setup
         List<Map<String, Object>> aggregateResults = new List<Map<String, Object>>{
             new Map<String, Object>{ 'LeadSource' => 'Web',  'total' => 10},
@@ -3694,6 +3719,7 @@ private class SOQL_Test {
 
         // Test
         SOQL.mock('mockingQuery').thenReturn(aggregateResults);
+
         List<SOQL.AggregateResultProxy> result = SOQL.of(Lead.SObjectType)
             .with(Lead.LeadSource)
             .COUNT(Lead.Id, 'total')

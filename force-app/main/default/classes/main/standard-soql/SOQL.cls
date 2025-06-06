@@ -152,7 +152,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         SObject toObject();
         List<SObject> toList();
         List<AggregateResult> toAggregated();
-        List<AggregateResultProxy> toAggregatedProxy();
+        List<SOQL.AggregateResultProxy> toAggregatedProxy();
         Map<Id, SObject> toMap();
         Map<String, SObject> toMap(SObjectField keyField);
         Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField);
@@ -387,6 +387,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Mockable thenReturn(List<SObject> records);
         // AggregateResultProxy
         Mockable thenReturn(List<Map<String, Object>> aggregatedResults);
+        Mockable thenReturn(Map<String, Object> aggregatedResult);
         // Count
         Mockable thenReturn(Integer count);
     }
@@ -2312,8 +2313,13 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public AggregateResultProxys add(List<Map<String, Object>> aggregateResults) {
             for (Map<String, Object> result : aggregateResults) {
-                this.aggregateResults.add(new SoqlAggregateResultProxy(result));
+                this.add(result);
             }
+            return this;
+        }
+
+        public AggregateResultProxys add(Map<String, Object> aggregateResult) {
+            this.aggregateResults.add(new SoqlAggregateResultProxy(aggregateResult));
             return this;
         }
 
@@ -2329,6 +2335,11 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public Mockable thenReturn(List<Map<String, Object>> aggregatedResults) {
             this.aggregateResultMock.add(aggregatedResults);
+            return this;
+        }
+
+        public Mockable thenReturn(Map<String, Object> aggregatedResult) {
+            this.aggregateResultMock.add(aggregatedResult);
             return this;
         }
 

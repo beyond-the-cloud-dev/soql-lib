@@ -2111,6 +2111,34 @@ SOQL.of(Account.sObjectType)
 SOQL.mock('MyQuery).thenReturn(5);
 ```
 
+### aggregateResult mock
+
+**Signature**
+
+```apex
+SOQL.Mockable mock(String mockId).thenReturn(List<Map<String, Object>> mock);
+SOQL.Mockable mock(String mockId).thenReturn(Map<String, Object> mock);
+```
+
+**Example**
+
+```apex
+List<Map<String, Object>> aggregateResults = new List<Map<String, Object>>{
+    new Map<String, Object>{ 'LeadSource' => 'Web',  'total' => 10},
+    new Map<String, Object>{ 'LeadSource' => 'Phone', 'total' => 5},
+    new Map<String, Object>{ 'LeadSource' => 'Email', 'total' => 3}
+};
+
+SOQL.mock('mockingQuery').thenReturn(aggregateResults);
+
+List<SOQL.AggregateResultProxy> result = SOQL.of(Lead.SObjectType)
+    .with(Lead.LeadSource)
+    .COUNT(Lead.Id, 'total')
+    .groupBy(Lead.LeadSource)
+    .mockId('mockingQuery')
+    .toAggregatedProxy();
+```
+
 ## DEBUGGING
 ### preview
 

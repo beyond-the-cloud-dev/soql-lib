@@ -53,6 +53,47 @@ public class ExampleControllerTest {
 
 During execution Selector will return record that was set by `.thenReturn` method.
 
+
+## Mock AggregateResult
+
+To mock `AggregateResult` - use `toAggregatedProxy()`.
+
+```apex
+public with sharing class ExampleController {
+    public void getLeadAggregateResults() {
+        List<SOQL.AggregateResultProxy> result = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .COUNT(Lead.Id, 'total')
+            .groupBy(Lead.LeadSource)
+            .mockId('ExampleController.getLeadAggregateResults')
+            .toAggregatedProxy(); // <== use toAggregatedProxy()
+    }
+}
+```
+
+```apex
+@IsTest
+public class ExampleControllerTest {
+    @IsTest
+    static void getLeadAggregateResults() {
+        List<Map<String, Object>> aggregateResults = new List<Map<String, Object>>{
+            new Map<String, Object>{ 'LeadSource' => 'Web',  'total' => 10},
+            new Map<String, Object>{ 'LeadSource' => 'Phone', 'total' => 5},
+            new Map<String, Object>{ 'LeadSource' => 'Email', 'total' => 3}
+        };
+
+        SOQL.mock('ExampleController.getLeadAggregateResults').thenReturn(aggregateResults);
+
+        Test.startTest();
+        List<SOQL.AggregateResultProxy> result = ExampleController.getLeadAggregateResults();
+        Test.stopTest();
+
+        // Assert
+        Assert.areEqual(3, result.size(), 'The size of the aggregate results should match the mocked size.');
+    }
+}
+```
+
 ## Mock No Results
 
 ```apex
