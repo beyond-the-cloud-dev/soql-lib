@@ -4,11 +4,10 @@ sidebar_position: 30
 
 # Mocking
 
-
 Mocking provides a way to substitute records from a Database with some prepared data. Data can be prepared in form of SObject records and lists in Apex code or Static Resource `.csv` file.
 Mocked queries won't make any SOQL's and simply return data set in method definition, mock __will ignore all filters and relations__, what is returned depends __solely on data provided to the method__. Mocking is working __only during test execution__. To mock SOQL query, use `.mockId(id)` method to make it identifiable. If you mark more than one query with the same ID, all marked queries will return the same data.
 
-```apex
+```apex title="ExampleController.cls"
 public with sharing class ExampleController {
 
     public static List<Account> getPartnerAccounts(String accountName) {
@@ -26,9 +25,93 @@ public with sharing class ExampleController {
 
 Then in test simply pass data you want to get from Selector to `SOQL.mock(id).thenReturn(data)` method. Acceptable formats are: `List<SObject>` or `SObject`. Then during execution Selector will return desired data.
 
-### List of records
+## Insights
+
+### Id Field Behavior
+
+The `Id` field is always included in mocked results, even if it wasn’t explicitly specified. This is designed to mirror standard SOQL behavior — Salesforce automatically includes the `Id` field in every query, even when it’s not listed in the `SELECT` clause.
 
 ```apex
+List<Account> accounts = [SELECT Name FROM Account LIMIT 3];
+System.debug(accounts);
+/* Output:
+(
+    Account:{Name=Test 1, Id=001J5000008AvzkIAC},
+    Account:{Name=Test 2, Id=001J5000008AvzlIAC},
+    Account:{Name=Test 3, Id=001J5000008AvzmIAC}
+)
+*/
+```
+
+Similarly, when you mock records using SOQL Lib:
+
+```apex
+SOQL.mock('mockingQuery').thenReturn(new List<Account>{
+    new Account(Name = 'Test 1'),
+    new Account(Name = 'Test 2')
+});
+
+List<Account> accounts = SOQL.of(Account.SObjectType)
+    .with(Account.Name)
+    .mockId('mockingQuery')
+    .toList();
+
+/* Output:
+(
+    Account:{Name=Test 1, Id=001J5000008AvzkIAC},
+    Account:{Name=Test 2, Id=001J5000008AvzlIAC}
+)
+*/
+```
+
+Even though `Id` wasn’t specified in `.with()`, it’s automatically added.
+
+### Stripping Additional Fields
+
+When using test data factories or builders, it’s common to generate records populated with many fields. However, SOQL Lib ensures that only the fields specified in the query are retained — all other fields are stripped to simulate real SOQL behavior.
+
+```apex
+// Setup
+List<Account> accounts = new List<Account>{
+    new Account(Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+    new Account(Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+};
+
+// Test
+SOQL.mock('mockingQuery').thenReturn(accounts);
+List<Account> result = SOQL.of(Account.SObjectType)
+    .with(Account.Name)
+    .mockId('mockingQuery')
+    .toList();
+
+for (Account mockedResult : result) {
+    Assert.isTrue(mockedResult.isSet(Account.Name), 'Only Account Name should be set.');
+    Assert.isNull(mockedResult.Description, 'The Account Description should not be set because it was not included in the SELECT clause.');
+    Assert.isNull(mockedResult.Website, 'The Account Website should not be set because it was not included in the SELECT clause.');
+}
+```
+
+In this case:
+- Although `Description` and `Website` were present in the mocked data, they are removed because they weren’t part of the query.
+- Only fields explicitly defined in `.with()` (plus `Id` by default) remain.
+Account `Description` and `Website` are null, even though they were specified. Hovever SOQL specified only for `Account.Name`, so additional field are stripped.
+
+**Note:**
+Currently, this field-stripping behavior applies only to simple fields (like `Name`, `Description`, etc.). Relationship fields and subqueries are not yet included in this logic — this may be addressed in future enhancements.
+
+### Queried Issued Count
+
+Mocked queries in SOQL Lib are counted towards the SOQL query limit, just like real queries. If the number of issued queries exceeds the limit, SOQL Lib will throw:
+
+```apex
+QueryException: Too many SOQL queries.
+```
+
+This behavior is consistent with Salesforce’s native limits, ensuring that your unit tests accurately reflect potential production scenarios.
+
+## List of records
+
+```apex title="ExampleControllerTest.cls"
 @IsTest
 private class ExampleControllerTest {
 
@@ -49,9 +132,9 @@ private class ExampleControllerTest {
 }
 ```
 
-### Single record
+## Single record
 
-```apex
+```apex title="ExampleControllerTest.cls"
 @IsTest
 private class ExampleControllerTest {
 
@@ -67,9 +150,9 @@ private class ExampleControllerTest {
 }
 ```
 
-### Static resource
+## Static resource
 
-```apex
+```apex title="ExampleControllerTest.cls"
 @IsTest
 private class ExampleControllerTest {
 
@@ -85,9 +168,9 @@ private class ExampleControllerTest {
 }
 ```
 
-### Count Result
+## Count Result
 
-```
+```apex title="ExampleControllerTest.cls"
 @IsTest
 private class ExampleControllerTest {
 
@@ -102,7 +185,7 @@ private class ExampleControllerTest {
 }
 ```
 
-### Sub-Query
+## Sub-Query
 
 To mock a sub-query we need to use deserialization mechanism. There are two approaches, using JSON string or Serialization/Deserialization.
 Then after deserialization to desired SObjectType, pass the data to SOQL by calling `.mock` method.
@@ -112,7 +195,7 @@ _Using JSON String_
 
 By passing simple String, it is possible to write non-writable fields, like `Name` on Contact object.
 
-```
+```apex
 @IsTest
 static void getAccountsWithContacts() {
     List<Account> mocks = (List<Account>) JSON.deserialize(
@@ -138,7 +221,7 @@ _Using Serialization/Deserialization_
 
 Using this approach it is possible to bind data with additional logic, like using Test Data Factory.
 
-```
+```apex
 @IsTest
 static void getAccountsWithContacts() {
     List<Account> mocks = (List<Account>) JSON.deserialize(
@@ -171,9 +254,9 @@ static void getAccountsWithContacts() {
 }
 ```
 
-### Parent relationship
+## Parent relationship
 
-```
+```apex
 @IsTest
 private class ExampleControllerTest {
     @IsTest
@@ -192,6 +275,48 @@ private class ExampleControllerTest {
 }
 ```
 
+## AggregateResult
+
+There is no way to create a `new AggregateResult()` instance in Apex. You can find more details here: [AggregateResult mocking consideration](https://github.com/beyond-the-cloud-dev/soql-lib/discussions/171).
+
+To mock `AggregateResult`, we introduced `SOQL.AggregateResultProxy`, which provides the same methods as the standard `AggregateResult` class.
+
+```apex title="ExampleController.cls"
+public with sharing class ExampleController {
+    public void getLeadAggregateResults() {
+        List<SOQL.AggregateResultProxy> result = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .COUNT(Lead.Id, 'total')
+            .groupBy(Lead.LeadSource)
+            .mockId('ExampleController.getLeadAggregateResults')
+            .toAggregatedProxy(); // <== use toAggregatedProxy()
+    }
+}
+```
+
+```apex title="ExampleControllerTest.cls"
+@IsTest
+public class ExampleControllerTest {
+    @IsTest
+    static void getLeadAggregateResults() {
+        List<Map<String, Object>> aggregateResults = new List<Map<String, Object>>{
+            new Map<String, Object>{ 'LeadSource' => 'Web',  'total' => 10},
+            new Map<String, Object>{ 'LeadSource' => 'Phone', 'total' => 5},
+            new Map<String, Object>{ 'LeadSource' => 'Email', 'total' => 3}
+        };
+
+        SOQL.mock('ExampleController.getLeadAggregateResults').thenReturn(aggregateResults);
+
+        Test.startTest();
+        List<SOQL.AggregateResultProxy> result = ExampleController.getLeadAggregateResults();
+        Test.stopTest();
+
+        // Assert
+        Assert.areEqual(3, result.size(), 'The size of the aggregate results should match the mocked size.');
+    }
+}
+```
+
 ## No Results
 
 Pass an empty list: `.thenReturn(new List<Type>())`;
@@ -200,7 +325,7 @@ Pass an empty list: `.thenReturn(new List<Type>())`;
 
 This behavior will be the same as it is during runtime.
 
-```apex
+```apex title="ExampleControllerTest.cls"
 @IsTest
 public class ExampleControllerTest {
     private static final String TEST_ACCOUNT_NAME = 'MyAccount 1';

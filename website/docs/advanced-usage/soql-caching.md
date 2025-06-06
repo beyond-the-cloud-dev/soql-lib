@@ -75,7 +75,7 @@ This clear distinction gives architects full control over which records should b
 
 Additionally, Cached Selectors look slightly different and include cache-specific methods:
 
-```apex
+```apex title="SOQL_ProfileCache.cls"
 public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
     public static SOQL_ProfileCache query() {
         return new SOQL_ProfileCache();

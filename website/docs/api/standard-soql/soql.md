@@ -115,6 +115,10 @@ The following are methods for using `SOQL`:
 - [`groupByCube(SObjectField field)`](#groupbycube)
 - [`groupByCube(String relationshipName, SObjectField field)`](#groupbycube-related)
 
+[**WITH DATA_CATEGORY**](#with-data_category)
+
+- [`withDataCategory(DataCategoryFilter dataCategoryFilter)`](#with-data_category)
+
 [**HAVING**](#having)
 
 - [`have(HavingFilterGroup filterGroup)`](#have)
@@ -129,6 +133,7 @@ The following are methods for using `SOQL`:
 - [`orderBy(String field)`](#order-by)
 - [`orderBy(String field, String direction)`](#order-by)
 - [`orderBy(String relationshipName, SObjectField field)`](#orderby-related)
+- [`orderByCount(SObjectField field)`](#orderby-count)
 - [`sordDesc()`](#sortdesc)
 - [`sort(String direction)`](#sort)
 - [`nullsLast()`](#nullslast)
@@ -1474,6 +1479,31 @@ SOQL.of(Lead.SObjectType)
     .toAggregated();
 ```
 
+## WITH DATA_CATEGORY
+
+For more details check [SOQL.DataCategoryFilter](#soql-data-category-filter.md).
+
+**Signature**
+
+```apex
+ Queryable withDataCategory(DataCategoryFilter dataCategoryFilter);
+```
+
+**Example**
+
+```sql
+SELECT Id, Title
+FROM Knowledge__kav
+WITH DATA CATEGORY Geography__c AT (Europe__c, North_America__c)
+```
+
+```apex
+SOQL.of(Knowledge__kav.SObjectType)
+    .with(Knowledge__kav.Id, Knowledge__kav.Title)
+    .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').at(new List<String>{ 'Europe__c', 'North_America__c' }))
+    .toList();
+```
+
 ## HAVING
 
 ### have
@@ -1659,6 +1689,30 @@ ORDER BY Account.Name
 SOQL.of(Contact.SObjectType)
     .orderBy('Account', Account.Name)
     .toList();
+```
+
+### orderBy COUNT
+
+**Signature**
+
+```apex
+Queryable orderByCount(SObjectField field)
+```
+
+**Example**
+
+```sql
+SELECT Industry
+FROM Account
+GROUP BY Industry
+ORDER BY COUNT(Industry) DESC NULLS LAST
+```
+```apex
+SOQL.of(Account.SObjectType)
+    .with(Account.Industry)
+    .groupBy(Account.Industry)
+    .orderByCount(Account.Industry).sortDesc().nullsLast()
+    .toAggregated();
 ```
 
 ### sortDesc
@@ -2086,6 +2140,34 @@ SOQL.of(Account.sObjectType)
 SOQL.mock('MyQuery).thenReturn(5);
 ```
 
+### aggregateResult mock
+
+**Signature**
+
+```apex
+SOQL.Mockable mock(String mockId).thenReturn(List<Map<String, Object>> mock);
+SOQL.Mockable mock(String mockId).thenReturn(Map<String, Object> mock);
+```
+
+**Example**
+
+```apex
+List<Map<String, Object>> aggregateResults = new List<Map<String, Object>>{
+    new Map<String, Object>{ 'LeadSource' => 'Web',  'total' => 10},
+    new Map<String, Object>{ 'LeadSource' => 'Phone', 'total' => 5},
+    new Map<String, Object>{ 'LeadSource' => 'Email', 'total' => 3}
+};
+
+SOQL.mock('mockingQuery').thenReturn(aggregateResults);
+
+List<SOQL.AggregateResultProxy> result = SOQL.of(Lead.SObjectType)
+    .with(Lead.LeadSource)
+    .COUNT(Lead.Id, 'total')
+    .groupBy(Lead.LeadSource)
+    .mockId('mockingQuery')
+    .toAggregatedProxy();
+```
+
 ## DEBUGGING
 ### preview
 
@@ -2285,6 +2367,22 @@ Set<String> toValuesOf(SObjectField fieldToExtract)
 
 ```apex
 Set<String> accountNames = SOQL.of(Account.SObjectType).byId('1234').toValuesOf(Account.Name)
+```
+
+### toValuesOf Releated Field
+
+**Signature**
+
+```apex
+Set<String> toValuesOf(String relationshipName, SObjectField targetKeyField)
+```
+
+**Example**
+
+```apex
+Set<String> parentAccountNames = SOQL.of(Account.SObjectType)
+    .byId('1234')
+    .toValuesOf('Parent', Account.Name)
 ```
 
 ### toInteger

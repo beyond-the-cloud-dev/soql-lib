@@ -102,11 +102,14 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable have(String havingConditions);
         Queryable havingConditionLogic(String havingConditionsOrder);
         Queryable anyHavingConditionMatching();
+        // WITH DATA CATEGORY
+        Queryable withDataCategory(DataCategoryFilter dataCategoryFilter);
         // ORDER BY
         Queryable orderBy(SObjectField field);
         Queryable orderBy(String field);
         Queryable orderBy(String field, String direction);
         Queryable orderBy(String relationshipName, SObjectField field);
+        Queryable orderByCount(SObjectField field);
         Queryable sortDesc();
         Queryable sort(String direction);
         Queryable nullsLast();
@@ -144,10 +147,12 @@ public virtual inherited sharing class SOQL implements Queryable {
         String toString();
         Object toValueOf(SObjectField fieldToExtract);
         Set<String> toValuesOf(SObjectField fieldToExtract);
+        Set<String> toValuesOf(String relationshipName, SObjectField targetKeyField);
         Integer toInteger();
         SObject toObject();
         List<SObject> toList();
         List<AggregateResult> toAggregated();
+        List<SOQL.AggregateResultProxy> toAggregatedProxy();
         Map<Id, SObject> toMap();
         Map<String, SObject> toMap(SObjectField keyField);
         Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField);
@@ -304,6 +309,31 @@ public virtual inherited sharing class SOQL implements Queryable {
         Boolean hasValue();
     }
 
+    public interface DataCategoryFilterGroup {
+        DataCategoryFilterGroup add(DataCategoryFilter dataCategoryFilter);
+    }
+
+    public interface DataCategoryFilter {
+        // FIELDS
+        DataCategoryFilter with(String field);
+        // COMPERATORS
+        DataCategoryFilter at(String category);
+        DataCategoryFilter at(Iterable<String> categories);
+        DataCategoryFilter above(String category);
+        DataCategoryFilter above(Iterable<String> categories);
+        DataCategoryFilter below(String category);
+        DataCategoryFilter below(Iterable<String> categories);
+        DataCategoryFilter aboveOrBelow(String category);
+        DataCategoryFilter aboveOrBelow(Iterable<String> categories);
+
+        Boolean hasValue();
+    }
+
+    public interface AggregateResultProxy {
+        Object get(String field);
+        Map<String, Object> getPopulatedFieldsAsMap();
+    }
+
     public static SubQuery SubQuery {
         get { return new SoqlSubQuery(); }
     }
@@ -328,6 +358,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         get { return new SoqlHavingFilter(); }
     }
 
+    public static DataCategoryFilter DataCategoryFilter {
+        get { return new SoqlDataCategoryFilter(); }
+    }
+
     public static SOQL of(SObjectType ofObject) {
         return new SOQL(ofObject);
     }
@@ -344,10 +378,16 @@ public virtual inherited sharing class SOQL implements Queryable {
         return queryIdToMock.get(mockId);
     }
 
+    @TestVisible
+    private static RandomIdGenerator IdGenerator = new RandomIdGenerator();
+
     public interface Mockable {
         // SObject
         Mockable thenReturn(SObject record);
         Mockable thenReturn(List<SObject> records);
+        // AggregateResultProxy
+        Mockable thenReturn(List<Map<String, Object>> aggregatedResults);
+        Mockable thenReturn(Map<String, Object> aggregatedResult);
         // Count
         Mockable thenReturn(Integer count);
     }
@@ -356,19 +396,19 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     @TestVisible // deprecated
     private static void setMock(String mockId, SObject record) {
-        queryIdToMock.put(mockId, new SoqlMock().skipStrippingAdditionalPlainFields());
+        queryIdToMock.put(mockId, new SoqlMock().useLegacyMockingBehavior());
         queryIdToMock.get(mockId).thenReturn(record);
     }
 
     @TestVisible // deprecated
     private static void setMock(String mockId, List<SObject> records) {
-        queryIdToMock.put(mockId, new SoqlMock().skipStrippingAdditionalPlainFields());
+        queryIdToMock.put(mockId, new SoqlMock().useLegacyMockingBehavior());
         queryIdToMock.get(mockId).thenReturn(records);
     }
 
     @TestVisible // deprecated
     private static void setCountMock(String mockId, Integer amount) {
-        queryIdToMock.put(mockId, new SoqlMock().skipStrippingAdditionalPlainFields());
+        queryIdToMock.put(mockId, new SoqlMock().useLegacyMockingBehavior());
         queryIdToMock.get(mockId).thenReturn(amount);
     }
 
@@ -434,7 +474,11 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable with(SObjectField field, String alias) {
-        this.builder.fields.aggregateFields.add(field.toString(), alias);
+        return this.with(field.toString(), alias);
+    }
+
+    private Queryable with(String field, String alias) {
+        this.builder.fields.aggregateFields.add(field, alias);
         return this;
     }
 
@@ -739,6 +783,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         return this;
     }
 
+    public Queryable withDataCategory(DataCategoryFilter dataCategoryFilter) {
+        this.builder.dataCategory.add(dataCategoryFilter);
+        return this;
+    }
+
     public Queryable orderBy(SObjectField field) {
         return this.orderBy(field.toString());
     }
@@ -755,8 +804,11 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable orderBy(String relationshipName, SObjectField field) {
-        this.builder.orderBys.newOrderBy().with(relationshipName, field);
-        return this;
+        return this.orderBy(relationshipName + '.' + field.toString());
+    }
+
+    public Queryable orderByCount(SObjectField field) {
+        return this.orderBy('COUNT(' + field.toString() + ')');
     }
 
     public Queryable sortDesc() {
@@ -869,12 +921,22 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Set<String> toValuesOf(SObjectField fieldToExtract) {
+        return this.toValuesOf(fieldToExtract.toString());
+    }
+
+    public Set<String> toValuesOf(String relationshipName, SObjectField targetKeyField) {
+        return this.toValuesOf(relationshipName + '.' + targetKeyField.toString());
+    }
+
+    private Set<String> toValuesOf(String fieldToExtract) {
         // https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
         this.builder.fields.clearAllFields(); // other fields not needed
-        return new Map<String, SObject>(this.with(fieldToExtract, 'Id')
+        return new Map<String, SObject>(
+            this.with(fieldToExtract, 'Id')
             .whereAre(Filter.with(fieldToExtract).isNotNull())
-            .groupBy(fieldToExtract).toAggregated())
-            .keySet();
+            .groupBy(fieldToExtract)
+            .toAggregated()
+        ).keySet();
     }
 
     public Integer toInteger() {
@@ -892,6 +954,10 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public List<AggregateResult> toAggregated() {
         return (List<AggregateResult>) this.toList();
+    }
+
+    public List<AggregateResultProxy> toAggregatedProxy() {
+        return this.executor.toAggregatedProxy();
     }
 
     public Map<Id, SObject> toMap() {
@@ -959,7 +1025,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class SoqlBuilder implements QueryClause {
-        private List<QueryClause> clauses = new QueryClause[11];
+        private List<QueryClause> clauses = new QueryClause[12];
 
         public SoqlBuilder(String ofObject) {
             this.clauses.set(0, new SoqlFields(ofObject));
@@ -982,12 +1048,16 @@ public virtual inherited sharing class SOQL implements Queryable {
             get { return (MainFilterGroup) getQueryClause(4, MainFilterGroup.class); }
         }
 
+        public MainDataCategoryGroup dataCategory {
+            get { return (MainDataCategoryGroup) getQueryClause(5, MainDataCategoryGroup.class); }
+        }
+
         public SoqlGroupBy groupBy {
-            get { return (SoqlGroupBy) getQueryClause(5, SoqlGroupBy.class); }
+            get { return (SoqlGroupBy) getQueryClause(6, SoqlGroupBy.class); }
         }
 
         public MainHavingGroup havingClause {
-            get { return (MainHavingGroup) getQueryClause(6, MainHavingGroup.class); }
+            get { return (MainHavingGroup) getQueryClause(7, MainHavingGroup.class); }
         }
 
         public SoqlOrderBy latestOrderBy {
@@ -995,19 +1065,19 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public SoqlOrderBys orderBys {
-            get { return (SoqlOrderBys) getQueryClause(7, SoqlOrderBys.class); }
+            get { return (SoqlOrderBys) getQueryClause(8, SoqlOrderBys.class); }
         }
 
         public SoqlLimit soqlLimit {
-            get { return (SoqlLimit) getQueryClause(8, SoqlLimit.class); }
+            get { return (SoqlLimit) getQueryClause(9, SoqlLimit.class); }
         }
 
         public SoqlOffset soqlOffset {
-            get { return (SoqlOffset) getQueryClause(9, SoqlOffset.class); }
+            get { return (SoqlOffset) getQueryClause(10, SoqlOffset.class); }
         }
 
         public SoqlFor soqlFor {
-            get { return (SoqlFor) getQueryClause(10, SoqlFor.class); }
+            get { return (SoqlFor) getQueryClause(11, SoqlFor.class); }
         }
 
         private QueryClause getQueryClause(Integer position, System.Type queryClause) {
@@ -1296,7 +1366,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public SubQuery orderBy(String relationshipName, SObjectField field) {
-            this.builder.orderBys.newOrderBy().with(relationshipName, field);
+            this.builder.orderBys.newOrderBy().with(relationshipName + '.' + field.toString());
             return this;
         }
 
@@ -1731,6 +1801,96 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
+    private virtual class MainDataCategoryGroup extends FilterBuilder implements DataCategoryFilterGroup, QueryClause {
+        public DataCategoryFilterGroup add(DataCategoryFilter dataCategoryFilter) {
+            this.add(new DataCategoryFilterAdapter(dataCategoryFilter));
+            return this;
+        }
+
+        public override String toString() {
+            return 'WITH DATA CATEGORY ' + this.buildNested();
+        }
+    }
+
+    private class DataCategoryFilterAdapter implements FilterClause {
+        private DataCategoryFilter dataCategoryFilter;
+
+        public DataCategoryFilterAdapter(DataCategoryFilter dataCategoryFilter) {
+            this.dataCategoryFilter = dataCategoryFilter;
+        }
+
+        public Boolean hasValue() {
+            return this.dataCategoryFilter.hasValue();
+        }
+
+        public override String toString() {
+            return this.dataCategoryFilter.toString();
+        }
+    }
+
+    private class SoqlDataCategoryFilter implements DataCategoryFilter {
+        private String field;
+        private String comperator;
+        private String value;
+
+        public DataCategoryFilter with(String field) {
+            this.field = field;
+            return this;
+        }
+
+        public DataCategoryFilter at(String category) {
+            return this.set('AT', category);
+        }
+
+        public DataCategoryFilter at(Iterable<String> categories) {
+            return this.set('AT', categories);
+        }
+
+        public DataCategoryFilter above(String category) {
+            return this.set('ABOVE', category);
+        }
+
+        public DataCategoryFilter above(Iterable<String> categories) {
+            return this.set('ABOVE', categories);
+        }
+
+        public DataCategoryFilter below(String category) {
+            return this.set('BELOW', category);
+        }
+
+        public DataCategoryFilter below(Iterable<String> categories) {
+            return this.set('BELOW', categories);
+        }
+
+        public DataCategoryFilter aboveOrBelow(String category) {
+            return this.set('ABOVE_OR_BELOW', category);
+        }
+
+        public DataCategoryFilter aboveOrBelow(Iterable<String> categories) {
+            return this.set('ABOVE_OR_BELOW', categories);
+        }
+
+        public DataCategoryFilter set(String operator, Iterable<String> iterable) {
+            this.comperator = operator;
+            this.value = '(' + String.join(iterable, ', ') + ')';
+            return this;
+        }
+
+        private DataCategoryFilter set(String comperator, String value) {
+            this.comperator = comperator;
+            this.value = value;
+            return this;
+        }
+
+        public Boolean hasValue() {
+            return String.isNotEmpty(this.field);
+        }
+
+        public override String toString() {
+            return this.field + ' ' + this.comperator + ' ' + this.value;
+        }
+    }
+
     private class SoqlJoinQuery implements InnerJoin {
         private SoqlBuilder builder;
 
@@ -2053,10 +2213,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         private String sortingOrder = 'ASC';
         private String nullsOrder = 'FIRST';
 
-        public void with(String relationshipName, SObjectField field) {
-            this.with(relationshipName + '.' + field.toString());
-        }
-
         public void with(String field) {
             this.orderField = field;
         }
@@ -2125,9 +2281,67 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
+    private class SoqlAggregateResultProxy implements AggregateResultProxy {
+        private Map<String, Object> aggregateResult;
+
+        public SoqlAggregateResultProxy(AggregateResult aggregateResult) {
+            this.aggregateResult = aggregateResult.getPopulatedFieldsAsMap();
+        }
+
+        public SoqlAggregateResultProxy(Map<String, Object> aggregateResult) {
+            this.aggregateResult = aggregateResult;
+        }
+
+        public Object get(String field) {
+            return this.aggregateResult.get(field);
+        }
+
+        public Map<String, Object> getPopulatedFieldsAsMap() {
+            return this.aggregateResult;
+        }
+    }
+
+    private class AggregateResultProxys {
+        private List<AggregateResultProxy> aggregateResults = new List<AggregateResultProxy>();
+
+        public AggregateResultProxys add(List<AggregateResult> aggregateResults) {
+            for (AggregateResult result : aggregateResults) {
+                this.aggregateResults.add(new SoqlAggregateResultProxy(result));
+            }
+            return this;
+        }
+
+        public AggregateResultProxys add(List<Map<String, Object>> aggregateResults) {
+            for (Map<String, Object> result : aggregateResults) {
+                this.add(result);
+            }
+            return this;
+        }
+
+        public AggregateResultProxys add(Map<String, Object> aggregateResult) {
+            this.aggregateResults.add(new SoqlAggregateResultProxy(aggregateResult));
+            return this;
+        }
+
+        public List<AggregateResultProxy> get() {
+            return this.aggregateResults;
+        }
+    }
+
     private class SoqlMock implements Mockable {
         public SObjectMock sObjectMock = new SObjectMock();
         public CountMock countMock = new CountMock();
+        public AggregateResultProxys aggregateResultMock = new AggregateResultProxys();
+
+        public Mockable thenReturn(List<Map<String, Object>> aggregatedResults) {
+            this.aggregateResultMock.add(aggregatedResults);
+            return this;
+        }
+
+        public Mockable thenReturn(Map<String, Object> aggregatedResult) {
+            this.aggregateResultMock.add(aggregatedResult);
+            return this;
+        }
 
         public Mockable thenReturn(SObject record) {
             this.sObjectMock.add(record);
@@ -2144,15 +2358,15 @@ public virtual inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public SoqlMock skipStrippingAdditionalPlainFields() {
-            this.sObjectMock.stripAdditionalPlainFields = false;
+        public SoqlMock useLegacyMockingBehavior() {
+            this.sObjectMock.useLegacyMockingBehavior = true;
             return this;
         }
     }
 
     public class SObjectMock {
         private List<SObject> mockedRecords = new List<SObject>();
-        public Boolean stripAdditionalPlainFields = true;
+        public Boolean useLegacyMockingBehavior = false;
 
         public void add(SObject record) {
             this.mockedRecords.add(record);
@@ -2163,34 +2377,46 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public List<SObject> get(SoqlFields fields) {
-            if (!fields.aggregateFields.isEmpty()) {
-                throw new QueryException('Aggregate functions mocking is currently not supported.');
-            }
-
-            if (this.stripAdditionalPlainFields && fields.relationshipFields.isEmpty() && fields.functionsFields.isEmpty()) {
-                this.mockedRecords = this.stripAdditionalPlainFields(fields.plainFields.get());
-            }
-
-            return this.mockedRecords;
-        }
-
-        private List<SObject> stripAdditionalPlainFields(Set<String> requestedFields) {
-            if (this.mockedRecords.isEmpty() || this.mockedRecords[0] == null) {
+            if (this.useLegacyMockingBehavior || this.mockedRecords.isEmpty()) {
                 return this.mockedRecords;
             }
 
+            if (!fields.aggregateFields.isEmpty()) {
+                throw new QueryException('Use toAggregatedProxy() to mock AggregateResult records.');
+            }
+
+            this.addIdToMockedRecords();
+
+            if (!fields.relationshipFields.isEmpty() || !fields.functionsFields.isEmpty()) {
+                return this.mockedRecords;
+            }
+
+            return this.stripAdditionalPlainFields(fields.plainFields.get());
+        }
+
+        private void addIdToMockedRecords() {
+            // Id is always added to mirror standard SOQL behavior
+            List<SObject> recordsWithId = new List<SObject>();
+
+            SObjectType sObjectType = this.mockedRecords[0].getSObjectType();
+            String sObjectPrefix = sObjectType.getDescribe().getKeyPrefix();
+
+            for (SObject record : this.mockedRecords) {
+                record.put('Id', record.getPopulatedFieldsAsMap()?.get('Id') ?? IdGenerator.get(sObjectPrefix));
+            }
+        }
+
+        private List<SObject> stripAdditionalPlainFields(Set<String> requestedFields) {
             List<SObject> cleanedRecords = new List<SObject>();
+
             Type objectTypeName = Type.forName(this.mockedRecords[0].getSObjectType().toString());
 
             for (SObject record : this.mockedRecords) {
                 Map<String, Object> originalFields = record.getPopulatedFieldsAsMap();
-                Map<String, Object> filteredFields = new Map<String, Object>();
+                Map<String, Object> filteredFields = new Map<String, Object>{ 'Id' => originalFields.get('Id') };
 
                 for (String field : requestedFields) {
                     filteredFields.put(field, originalFields.get(field) ?? null);
-                }
-                if(originalFields.containsKey('Id')) {
-                    filteredFields.put('Id', originalFields.get('Id'));
                 }
 
                 // JSON.serialize and JSON.deserialize are used to copy not writtable fields
@@ -2271,10 +2497,19 @@ public virtual inherited sharing class SOQL implements Queryable {
                 return this.sharingExecutor.toSObjects(this.builder.toString(), binder.getBindingMap(), this.accessMode);
             }
 
-            return Security.stripInaccessible(
+            return System.Security.stripInaccessible(
                 this.accessType,
                 this.sharingExecutor.toSObjects(this.builder.toString(), binder.getBindingMap(), this.accessMode)
             ).getRecords();
+        }
+
+        public List<AggregateResultProxy> toAggregatedProxy() {
+            if (this.mock != null) {
+                this.incrementQueryIssued();
+                return this.mock.aggregateResultMock.get();
+            }
+
+            return new AggregateResultProxys().add((List<AggregateResult>) this.toList()).get();
         }
 
         public Integer toInteger() {
@@ -2294,7 +2529,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         private void incrementQueryIssued() {
             // This counter is used only in unit tests to also track mocked queries.
-            if (!Test.isRunningTest() || System.isBatch() || System.isFuture() || System.isQueueable() || System.isScheduled()) {
+            if (!System.Test.isRunningTest() || System.isBatch() || System.isFuture() || System.isQueueable() || System.isScheduled()) {
                 return;
             }
 
@@ -2466,6 +2701,21 @@ public virtual inherited sharing class SOQL implements Queryable {
             }
 
             return currentRecord.get(targetField).toString();
+        }
+    }
+
+    private class RandomIdGenerator {
+        public final String RANDOM_STRING_CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
+
+        public Id get(String prefix) {
+            String randomPart = '';
+
+            while (randomPart.length() < 8) {
+                Integer idx = Math.mod(Math.abs(Crypto.getRandomInteger()), RANDOM_STRING_CHARACTERS.length());
+                randomPart += RANDOM_STRING_CHARACTERS.substring(idx, idx + 1);
+            }
+
+            return Id.valueOf(prefix + '0000' + randomPart);
         }
     }
 }
