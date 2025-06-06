@@ -115,6 +115,10 @@ The following are methods for using `SOQL`:
 - [`groupByCube(SObjectField field)`](#groupbycube)
 - [`groupByCube(String relationshipName, SObjectField field)`](#groupbycube-related)
 
+[**WITH DATA_CATEGORY**]
+
+- [`withDataCategory(DataCategoryFilter dataCategoryFilter)`](#with-data_category)
+
 [**HAVING**](#having)
 
 - [`have(HavingFilterGroup filterGroup)`](#have)
@@ -1473,6 +1477,31 @@ SOQL.of(Lead.SObjectType)
     .count(Lead.Name, 'cnt')
     .groupByCube('ConvertedOpportunity', Opportunity.StageName)
     .toAggregated();
+```
+
+## WITH DATA_CATEGORY
+
+For more details check [SOQL.DataCategoryFilter](#soql-data-category-filter.md).
+
+**Signature**
+
+```apex
+ Queryable withDataCategory(DataCategoryFilter dataCategoryFilter);
+```
+
+**Example**
+
+```sql
+SELECT Id, Title
+FROM Knowledge__kav
+WITH DATA CATEGORY Geography__c AT (Europe__c, North_America__c)
+```
+
+```apex
+SOQL.of(Knowledge__kav.SObjectType)
+    .with(Knowledge__kav.Id, Knowledge__kav.Title)
+    .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').at(new List<String>{ 'Europe__c', 'North_America__c' }))
+    .toList();
 ```
 
 ## HAVING

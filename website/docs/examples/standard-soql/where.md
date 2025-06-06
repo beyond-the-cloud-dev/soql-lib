@@ -1,11 +1,10 @@
 ---
-sidebar_position: 6
+sidebar_position: 60
 ---
 
 # WHERE
 
 Use [SOQL.FilterGroup](../../api/standard-soql/soql-filters-group.md) and Use [SOQL.Filter](../../api/standard-soql/soql-filter.md) to build your `WHERE` clause.
-
 
 > **NOTE! 🚨**
 > All examples use inline queries built with the SOQL Lib Query Builder.
