@@ -113,6 +113,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable sortDesc();
         Queryable sort(String direction);
         Queryable nullsLast();
+        Queryable nullsOrder(String nullsOrder);
         // LIMIT
         Queryable setLimit(Integer amount);
         // OFFSET
@@ -821,7 +822,11 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable nullsLast() {
-        this.builder.latestOrderBy.nullsOrder('LAST');
+        return this.nullsOrder('LAST');
+    }
+
+    public Queryable nullsOrder(String nullsOrder) {
+        this.builder.latestOrderBy.nullsOrder(nullsOrder);
         return this;
     }
 

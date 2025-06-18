@@ -137,6 +137,8 @@ The following are methods for using `SOQL`:
 - [`sordDesc()`](#sortdesc)
 - [`sort(String direction)`](#sort)
 - [`nullsLast()`](#nullslast)
+- [`nullsOrder(String nullsOrder)`](#nulls-order)
+
 
 [**LIMIT**](#limit)
 
@@ -1784,6 +1786,32 @@ ORDER BY Name NULLS LAST
 SOQL.of(Account.SObjectType)
     .orderBy(Account.Industry)
     .nullsLast()
+    .toList();
+```
+
+### nulls order
+
+To build dynamic order - use `nullsOrder` method.
+
+**Signature**
+
+```apex
+Queryable nullsOrder(String order)
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+ORDER BY Name NULLS LAST
+```
+```apex
+String order = 'LAST';
+
+SOQL.of(Account.SObjectType)
+    .orderBy(Account.Industry)
+    .nullsOrder(order)
     .toList();
 ```
 

@@ -3028,6 +3028,18 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void dynamicNullsOrder() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .orderBy('Industry')
+            .nullsOrder('LAST')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account ORDER BY Industry ASC NULLS LAST', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
     static void orderByDynamicWithSort() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
