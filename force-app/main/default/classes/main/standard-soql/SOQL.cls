@@ -1411,7 +1411,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class SoqlSubQueries implements QueryClause {
-        private List<SubQuery> subQueries = new List<SubQuery>();
+        public List<SubQuery> subQueries = new List<SubQuery>();
 
         public void add(SubQuery subQuery) {
             this.subQueries.add(subQuery);
@@ -2376,7 +2376,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             this.mockedRecords.addAll(records);
         }
 
-        public List<SObject> get(SoqlFields fields) {
+        public List<SObject> get(SoqlFields fields, SoqlSubQueries subQueries) {
             if (this.useLegacyMockingBehavior || this.mockedRecords.isEmpty()) {
                 return this.mockedRecords;
             }
@@ -2387,7 +2387,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
             this.addIdToMockedRecords();
 
-            if (!fields.relationshipFields.isEmpty() || !fields.functionsFields.isEmpty()) {
+            if (!fields.relationshipFields.isEmpty() || !fields.functionsFields.isEmpty() || !subQueries.subQueries.isEmpty()) {
                 return this.mockedRecords;
             }
 
@@ -2402,7 +2402,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             String sObjectPrefix = sObjectType.getDescribe().getKeyPrefix();
 
             for (SObject record : this.mockedRecords) {
-                record.put('Id', record.getPopulatedFieldsAsMap()?.get('Id') ?? IdGenerator.get(sObjectPrefix));
+                record.put('Id', record?.Id ?? IdGenerator.get(sObjectPrefix));
             }
         }
 
@@ -2490,7 +2490,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             this.incrementQueryIssued();
 
             if (this.mock != null) {
-                return this.mock.sObjectMock.get(this.builder.fields);
+                return this.mock.sObjectMock.get(this.builder.fields, this.builder.subQueries);
             }
 
             if (this.accessType == null) {

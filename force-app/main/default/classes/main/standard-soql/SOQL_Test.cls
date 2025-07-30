@@ -3738,6 +3738,62 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void mockSubQuery() {
+        // Setup
+        List<Account> mocks = (List<Account>) JSON.deserialize(
+            JSON.serialize(
+                new List<Map<String, Object>>{
+                    new Map<String, Object>{
+                        'Name' => 'Account Name',
+                        'Industry' => 'IT',
+                        'Contacts' => new Map<String, Object>{
+                            'totalSize' => 2,
+                            'done' => true,
+                            'records' => new List<Map<String, Object>>{ 
+                                new Map<String, Object>{ 'Name' => 'Contact Name', 'Email' => 'contact.email@address.com', 'Phone' => '0987654321' },
+                                new Map<String, Object>{ 'Name' => 'Contact Name 2', 'Email' => 'contact2.email@address.com', 'Phone' => '1234567890' }
+                            }
+                        }
+                    }
+                }
+            ),
+            List<Account>.class
+        );
+
+        SOQL.mock('mockingQuery').thenReturn(mocks);
+
+        // Test
+        List<Account> result = SOQL.of(Account.SObjectType)
+            .with(Account.Name, Account.Industry)
+            .with(SOQL.SubQuery.of('Contacts')
+                .with(Contact.Id, Contact.Name, Contact.Phone)
+            )
+            .mockId('mockingQuery')
+            .toList();
+
+        // Verify
+        Assert.areEqual(1, result.size(), 'The size of the mocked accounts should match the expected one.');
+
+        Account account = result[0];
+
+        Assert.areEqual('Account Name', account.Name, 'The mocked account name should match the expected one.');
+        Assert.areEqual('IT', account.Industry, 'The mocked account industry should match the expected one.');
+        Assert.areEqual(2, account.Contacts.size(), 'The size of the mocked contacts should match the expected one.');
+
+        Contact contact1 = (Contact) account.Contacts[0];
+
+        Assert.areEqual('Contact Name', contact1.Name, 'The mocked contact name should match the expected one.');
+        Assert.areEqual('contact.email@address.com', contact1.Email, 'The mocked contact email should match the expected one.');
+        Assert.areEqual('0987654321', contact1.Phone, 'The mocked contact phone should match the expected one.');
+
+        Contact contact2 = (Contact) account.Contacts[1];
+
+        Assert.areEqual('Contact Name 2', contact2.Name, 'The mocked contact name should match the expected one.');
+        Assert.areEqual('contact2.email@address.com', contact2.Email, 'The mocked contact email should match the expected one.');
+        Assert.areEqual('1234567890', contact2.Phone, 'The mocked contact phone should match the expected one.');
+    }
+
+    @IsTest
     static void toId() {
         // Setup
         Account acc = new Account(Name = 'Test 1');
