@@ -193,6 +193,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         // FOR
         SubQuery forReference();
         SubQuery forView();
+        // ADDITIONAL
+        String getChildRelationshipName();
     }
 
     public interface FilterGroup {
@@ -1303,9 +1305,11 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private class SoqlSubQuery implements SubQuery {
         private SoqlBuilder builder;
+        private String childRelationshipName;
 
         public SubQuery of(String ofObject) {
             this.builder = new SoqlBuilder(ofObject);
+            this.childRelationshipName = ofObject;
             return this;
         }
 
@@ -1413,10 +1417,14 @@ public virtual inherited sharing class SOQL implements Queryable {
         public override String toString() {
             return this.builder.toString();
         }
+
+        public String getChildRelationshipName() {
+            return this.childRelationshipName;
+        }
     }
 
     private class SoqlSubQueries implements QueryClause {
-        public List<SubQuery> subQueries = new List<SubQuery>();
+        private List<SubQuery> subQueries = new List<SubQuery>();
 
         public void add(SubQuery subQuery) {
             this.subQueries.add(subQuery);
@@ -1430,6 +1438,16 @@ public virtual inherited sharing class SOQL implements Queryable {
             }
 
             return ', ' + String.join(subQueriesStrings, ', ');
+        }
+
+        public Set<String> get() {
+            Set<String> subQueriesRelationshipNames = new Set<String>();
+
+            for (SubQuery subQuery : this.subQueries) {
+                subQueriesRelationshipNames.add(subQuery.getChildRelationshipName());
+            }
+
+            return subQueriesRelationshipNames;
         }
     }
 
@@ -2286,53 +2304,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class SoqlAggregateResultProxy implements AggregateResultProxy {
-        private Map<String, Object> aggregateResult;
-
-        public SoqlAggregateResultProxy(AggregateResult aggregateResult) {
-            this.aggregateResult = aggregateResult.getPopulatedFieldsAsMap();
-        }
-
-        public SoqlAggregateResultProxy(Map<String, Object> aggregateResult) {
-            this.aggregateResult = aggregateResult;
-        }
-
-        public Object get(String field) {
-            return this.aggregateResult.get(field);
-        }
-
-        public Map<String, Object> getPopulatedFieldsAsMap() {
-            return this.aggregateResult;
-        }
-    }
-
-    private class AggregateResultProxys {
-        private List<AggregateResultProxy> aggregateResults = new List<AggregateResultProxy>();
-
-        public AggregateResultProxys add(List<AggregateResult> aggregateResults) {
-            for (AggregateResult result : aggregateResults) {
-                this.aggregateResults.add(new SoqlAggregateResultProxy(result));
-            }
-            return this;
-        }
-
-        public AggregateResultProxys add(List<Map<String, Object>> aggregateResults) {
-            for (Map<String, Object> result : aggregateResults) {
-                this.add(result);
-            }
-            return this;
-        }
-
-        public AggregateResultProxys add(Map<String, Object> aggregateResult) {
-            this.aggregateResults.add(new SoqlAggregateResultProxy(aggregateResult));
-            return this;
-        }
-
-        public List<AggregateResultProxy> get() {
-            return this.aggregateResults;
-        }
-    }
-
     private class SoqlMock implements Mockable {
         public SObjectMock sObjectMock = new SObjectMock();
         public CountMock countMock = new CountMock();
@@ -2392,17 +2363,14 @@ public virtual inherited sharing class SOQL implements Queryable {
 
             this.addIdToMockedRecords();
 
-            if (!fields.relationshipFields.isEmpty() || !fields.functionsFields.isEmpty() || !subQueries.subQueries.isEmpty()) {
+            if (!fields.relationshipFields.isEmpty() || !fields.functionsFields.isEmpty()) {
                 return this.mockedRecords;
             }
 
-            return this.stripAdditionalPlainFields(fields.plainFields.get());
+            return this.stripAdditionalFields(fields.plainFields.get(), subQueries.get());
         }
 
-        private void addIdToMockedRecords() {
-            // Id is always added to mirror standard SOQL behavior
-            List<SObject> recordsWithId = new List<SObject>();
-
+        private void addIdToMockedRecords() { // Id is always added to mirror standard SOQL behavior
             SObjectType sObjectType = this.mockedRecords[0].getSObjectType();
             String sObjectPrefix = sObjectType.getDescribe().getKeyPrefix();
 
@@ -2411,24 +2379,44 @@ public virtual inherited sharing class SOQL implements Queryable {
             }
         }
 
-        private List<SObject> stripAdditionalPlainFields(Set<String> requestedFields) {
+        private List<SObject> stripAdditionalFields(Set<String> requestedFields, Set<String> subQueriesRelationshipNames) {
             List<SObject> cleanedRecords = new List<SObject>();
 
             Type objectTypeName = Type.forName(this.mockedRecords[0].getSObjectType().toString());
 
             for (SObject record : this.mockedRecords) {
-                Map<String, Object> originalFields = record.getPopulatedFieldsAsMap();
-                Map<String, Object> filteredFields = new Map<String, Object>{ 'Id' => originalFields.get('Id') };
+                Map<String, Object> recordFilteredFields = new Map<String, Object>{
+                    'Id' => record.Id,
+                    'attributes' => new Map<String, Object>{
+                        'type' => objectTypeName.toString(),
+                        'url' => '/services/data/v64.0/sobjects/' + objectTypeName.toString() + '/' + record.Id
+                    }
+                };
 
-                for (String field : requestedFields) {
-                    filteredFields.put(field, originalFields.get(field) ?? null);
-                }
+                this.stripAdditionalPlainFields(recordFilteredFields, record, requestedFields);
+                this.stripAdditionalSubQueries(recordFilteredFields, record, subQueriesRelationshipNames);
 
                 // JSON.serialize and JSON.deserialize are used to copy not writtable fields
-                cleanedRecords.add((SObject) JSON.deserialize(JSON.serialize(filteredFields), objectTypeName));
+                cleanedRecords.add((SObject) JSON.deserialize(JSON.serialize(recordFilteredFields), objectTypeName));
             }
 
             return cleanedRecords;
+        }
+
+        private void stripAdditionalPlainFields(Map<String, Object> recordFilteredFields, SObject record, Set<String> requestedFields) {
+            for (String field : requestedFields) {
+                recordFilteredFields.put(field, record.get(field) ?? null);
+            }
+        }
+
+        private void stripAdditionalSubQueries(Map<String, Object> recordFilteredFields, SObject record, Set<String> subQueriesRelationshipNames) {
+            for (String subQueryRelationshipName : subQueriesRelationshipNames) {
+                recordFilteredFields.put(subQueryRelationshipName, new Map<String, Object>{
+                    'totalSize' => record.getSObjects(subQueryRelationshipName)?.size() ?? 0,
+                    'done' => true,
+                    'records' => record.getSObjects(subQueryRelationshipName) ?? new List<SObject>()
+                });
+            }
         }
     }
 
@@ -2441,6 +2429,53 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public Integer get() {
             return this.countMock;
+        }
+    }
+
+    private class AggregateResultProxys {
+        private List<AggregateResultProxy> aggregateResults = new List<AggregateResultProxy>();
+
+        public AggregateResultProxys add(List<AggregateResult> aggregateResults) {
+            for (AggregateResult result : aggregateResults) {
+                this.aggregateResults.add(new SoqlAggregateResultProxy(result));
+            }
+            return this;
+        }
+
+        public AggregateResultProxys add(List<Map<String, Object>> aggregateResults) {
+            for (Map<String, Object> result : aggregateResults) {
+                this.add(result);
+            }
+            return this;
+        }
+
+        public AggregateResultProxys add(Map<String, Object> aggregateResult) {
+            this.aggregateResults.add(new SoqlAggregateResultProxy(aggregateResult));
+            return this;
+        }
+
+        public List<AggregateResultProxy> get() {
+            return this.aggregateResults;
+        }
+    }
+
+    private class SoqlAggregateResultProxy implements AggregateResultProxy {
+        private Map<String, Object> aggregateResult;
+
+        public SoqlAggregateResultProxy(AggregateResult aggregateResult) {
+            this.aggregateResult = aggregateResult.getPopulatedFieldsAsMap();
+        }
+
+        public SoqlAggregateResultProxy(Map<String, Object> aggregateResult) {
+            this.aggregateResult = aggregateResult;
+        }
+
+        public Object get(String field) {
+            return this.aggregateResult.get(field);
+        }
+
+        public Map<String, Object> getPopulatedFieldsAsMap() {
+            return this.aggregateResult;
         }
     }
 
@@ -2509,8 +2544,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public List<AggregateResultProxy> toAggregatedProxy() {
+            this.incrementQueryIssued();
+
             if (this.mock != null) {
-                this.incrementQueryIssued();
                 return this.mock.aggregateResultMock.get();
             }
 
@@ -2710,7 +2746,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class RandomIdGenerator {
-        public final String RANDOM_STRING_CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
+        private final String RANDOM_STRING_CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
 
         public Id get(String prefix) {
             String randomPart = '';

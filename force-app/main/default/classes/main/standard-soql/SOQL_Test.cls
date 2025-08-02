@@ -3761,7 +3761,7 @@ private class SOQL_Test {
                         'Contacts' => new Map<String, Object>{
                             'totalSize' => 2,
                             'done' => true,
-                            'records' => new List<Map<String, Object>>{ 
+                            'records' => new List<Map<String, Object>>{
                                 new Map<String, Object>{ 'Name' => 'Contact Name', 'Email' => 'contact.email@address.com', 'Phone' => '0987654321' },
                                 new Map<String, Object>{ 'Name' => 'Contact Name 2', 'Email' => 'contact2.email@address.com', 'Phone' => '1234567890' }
                             }
@@ -3803,6 +3803,55 @@ private class SOQL_Test {
         Assert.areEqual('Contact Name 2', contact2.Name, 'The mocked contact name should match the expected one.');
         Assert.areEqual('contact2.email@address.com', contact2.Email, 'The mocked contact email should match the expected one.');
         Assert.areEqual('1234567890', contact2.Phone, 'The mocked contact phone should match the expected one.');
+    }
+
+    @IsTest
+    static void mockSubQueryWithStrippingAdditionalFields() {
+        // Setup
+        List<Account> mocks = (List<Account>) JSON.deserialize(
+            JSON.serialize(
+                new List<Map<String, Object>>{
+                    new Map<String, Object>{
+                        'Name' => 'Account Name',
+                        'Industry' => 'IT',
+                        'Contacts' => new Map<String, Object>{
+                            'totalSize' => 2,
+                            'done' => true,
+                            'records' => new List<Map<String, Object>>{
+                                new Map<String, Object>{ 'Name' => 'Contact Name', 'Email' => 'contact.email@address.com', 'Phone' => '0987654321' },
+                                new Map<String, Object>{ 'Name' => 'Contact Name 2', 'Email' => 'contact2.email@address.com', 'Phone' => '1234567890' }
+                            }
+                        },
+                        'Opportunities' => new Map<String, Object>{
+                            'totalSize' => 1,
+                            'done' => true,
+                            'records' => new List<Map<String, Object>>{
+                                new Map<String, Object>{ 'Name' => 'Opportunity Name', 'Amount' => 100000 }
+                            }
+                        }
+                    }
+                }
+            ),
+            List<Account>.class
+        );
+
+        SOQL.mock('mockingQuery').thenReturn(mocks);
+
+        // Test
+        List<Account> result = SOQL.of(Account.SObjectType)
+            .with(Account.Name, Account.Industry)
+            .with(SOQL.SubQuery.of('Contacts')
+                .with(Contact.Id, Contact.Name, Contact.Phone)
+            )
+            .mockId('mockingQuery')
+            .toList();
+
+        // Verify
+        Account account = result[0];
+
+        Assert.areEqual(1, result.size(), 'The size of the mocked accounts should match the expected one.');
+        Assert.areEqual(2, account.Contacts.size(), 'The size of the mocked opportunities should match the expected one.');
+        Assert.areEqual(0, account.Opportunities.size(), 'The size of the mocked opportunities should be 0, because it was not requested.');
     }
 
     @IsTest
