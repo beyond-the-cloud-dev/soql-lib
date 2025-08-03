@@ -329,6 +329,41 @@ public virtual inherited sharing class SOQL implements Queryable {
         Boolean hasValue();
     }
 
+    public interface TypeOf {
+        TypeOf of(SObjectField field);
+        TypeOf of(String field);
+        TypeOf of(String relationshipName, SObjectField field);
+
+        TypeOf when(SObjectType type);
+        TypeOf when(String type);
+
+        TypeOf then(SObjectField field);
+        TypeOf then(SObjectField field1, SObjectField field2);
+        TypeOf then(SObjectField field1, SObjectField field2, SObjectField field3);
+        TypeOf then(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+        TypeOf then(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
+        TypeOf then(Iterable<SObjectField> fields);
+
+        TypeOf otherwise(SObjectField field);
+        TypeOf otherwise(SObjectField field1, SObjectField field2);
+        TypeOf otherwise(SObjectField field1, SObjectField field2, SObjectField field3);
+        TypeOf otherwise(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+        TypeOf otherwise(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
+        TypeOf otherwise(Iterable<SObjectField> fields);
+    }
+
+    SOQL.of('Account').with(
+        SOQL.TypeOf.of('What')
+        
+            .whenThen('Account', 'Name, NumberOfEmployees')
+            .whenThen('Opportunity', 'Amount, CloseDate')
+            .otherwise('Name, Email')
+
+            .when('Account').then('Name, NumberOfEmployees')
+            .when('Opportunity').then('Amount, CloseDate')
+            .otherwise('Name, Email')
+    );
+
     public interface AggregateResultProxy {
         Object get(String field);
         Map<String, Object> getPopulatedFieldsAsMap();
