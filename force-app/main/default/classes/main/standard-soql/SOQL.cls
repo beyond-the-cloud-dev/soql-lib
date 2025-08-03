@@ -2385,13 +2385,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             Type objectTypeName = Type.forName(this.mockedRecords[0].getSObjectType().toString());
 
             for (SObject record : this.mockedRecords) {
-                Map<String, Object> recordFilteredFields = new Map<String, Object>{
-                    'Id' => record.Id,
-                    'attributes' => new Map<String, Object>{
-                        'type' => objectTypeName.toString(),
-                        'url' => '/services/data/v64.0/sobjects/' + objectTypeName.toString() + '/' + record.Id
-                    }
-                };
+                Map<String, Object> recordFilteredFields = new Map<String, Object>{ 'Id' => record.Id };
 
                 this.stripAdditionalPlainFields(recordFilteredFields, record, requestedFields);
                 this.stripAdditionalSubQueries(recordFilteredFields, record, subQueriesRelationshipNames);
