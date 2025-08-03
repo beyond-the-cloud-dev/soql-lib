@@ -377,8 +377,11 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     @TestVisible
     private static Mockable mock(String mockId) {
-        queryIdToMock.put(mockId, new SoqlMock());
-        return queryIdToMock.get(mockId);
+        if (!SOQL.queryIdToMock.containsKey(mockId)) {   
+            SOQL.queryIdToMock.put(mockId, new List<SoqlMock>());
+        }
+        SOQL.queryIdToMock.get(mockId).add(new SoqlMock());
+        return SOQL.queryIdToMock.get(mockId).get(SOQL.queryIdToMock.get(mockId).size() - 1);
     }
 
     @TestVisible
@@ -399,25 +402,25 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     @TestVisible // deprecated
     private static void setMock(String mockId, SObject record) {
-        queryIdToMock.put(mockId, new SoqlMock().useLegacyMockingBehavior());
-        queryIdToMock.get(mockId).thenReturn(record);
+        SOQL.queryIdToMock.put(mockId, new List<SoqlMock>{ new SoqlMock().useLegacyMockingBehavior() });
+        SOQL.queryIdToMock.get(mockId).get(SOQL.queryIdToMock.get(mockId).size() - 1).thenReturn(record);
     }
 
     @TestVisible // deprecated
     private static void setMock(String mockId, List<SObject> records) {
-        queryIdToMock.put(mockId, new SoqlMock().useLegacyMockingBehavior());
-        queryIdToMock.get(mockId).thenReturn(records);
+        SOQL.queryIdToMock.put(mockId, new List<SoqlMock>{ new SoqlMock().useLegacyMockingBehavior() });
+        SOQL.queryIdToMock.get(mockId).get(SOQL.queryIdToMock.get(mockId).size() - 1).thenReturn(records);
     }
 
     @TestVisible // deprecated
     private static void setCountMock(String mockId, Integer amount) {
-        queryIdToMock.put(mockId, new SoqlMock().useLegacyMockingBehavior());
-        queryIdToMock.get(mockId).thenReturn(amount);
+        SOQL.queryIdToMock.put(mockId, new List<SoqlMock>{ new SoqlMock().useLegacyMockingBehavior() });
+        SOQL.queryIdToMock.get(mockId).get(SOQL.queryIdToMock.get(mockId).size() - 1).thenReturn(amount);
     }
 
     // Implementation
 
-    private static Map<String, SoqlMock> queryIdToMock = new Map<String, SoqlMock>();
+    private static Map<String, List<SoqlMock>> queryIdToMock = new Map<String, List<SoqlMock>>();
 
     private static Binder binder = new Binder();
     private static Integer syncQueriesIssued = 0;
@@ -893,7 +896,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public Queryable mockId(String queryIdentifier) {
-        this.executor.mock(queryIdToMock.get(queryIdentifier));
+        this.executor.mock(SOQL.queryIdToMock.get(queryIdentifier));
         return this;
     }
 
@@ -2478,7 +2481,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         private AccessLevel accessMode;
         private AccessType accessType;
         private SoqlBuilder builder;
-        private SoqlMock mock;
+        private List<SoqlMock> mocks = new List<SoqlMock>();
 
         public Executor(SoqlBuilder builder) {
             this.builder = builder;
@@ -2502,8 +2505,8 @@ public virtual inherited sharing class SOQL implements Queryable {
             this.accessMode = accessMode;
         }
 
-        public void mock(SoqlMock mock) {
-            this.mock = mock;
+        public void mock(List<SoqlMock> mocks) {
+            this.mocks = mocks;
         }
 
         public SObject toObject() {
@@ -2523,8 +2526,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         public List<SObject> toList() {
             this.incrementQueryIssued();
 
-            if (this.mock != null) {
-                return this.mock.sObjectMock.get(this.builder.fields, this.builder.subQueries);
+            if (!this.mocks.isEmpty()) {
+                if (this.mocks.size() > 1) {
+                    return this.mocks.remove(this.mocks.size() - 1).sObjectMock.get(this.builder.fields, this.builder.subQueries);
+                }
+                return this.mocks[0].sObjectMock.get(this.builder.fields, this.builder.subQueries);
             }
 
             if (this.accessType == null) {
@@ -2540,8 +2546,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         public List<AggregateResultProxy> toAggregatedProxy() {
             this.incrementQueryIssued();
 
-            if (this.mock != null) {
-                return this.mock.aggregateResultMock.get();
+            if (!this.mocks.isEmpty()) {
+                if (this.mocks.size() > 1) {
+                    return this.mocks.remove(this.mocks.size() - 1).aggregateResultMock.get();
+                }
+                return this.mocks[0].aggregateResultMock.get();
             }
 
             return new AggregateResultProxys().add((List<AggregateResult>) this.toList()).get();
@@ -2550,8 +2559,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         public Integer toInteger() {
             this.incrementQueryIssued();
 
-            if (this.mock != null) {
-                return this.mock.countMock.get();
+            if (!this.mocks.isEmpty()) {
+                if (this.mocks.size() > 1) {
+                    return this.mocks.remove(this.mocks.size() - 1).countMock.get();
+                }
+                return this.mocks[0].countMock.get();
             }
 
             return this.sharingExecutor.toInteger(this.builder.toString(), binder.getBindingMap(), this.accessMode);
