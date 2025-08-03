@@ -79,6 +79,7 @@ List<Account> accounts = new List<Account>{
 
 // Test
 SOQL.mock('mockingQuery').thenReturn(accounts);
+
 List<Account> result = SOQL.of(Account.SObjectType)
     .with(Account.Name)
     .mockId('mockingQuery')
@@ -97,7 +98,9 @@ In this case:
 Account `Description` and `Website` are null, even though they were specified. Hovever SOQL specified only for `Account.Name`, so additional field are stripped.
 
 **Note:**
-Currently, this field-stripping behavior applies only to simple fields (like `Name`, `Description`, etc.). Relationship fields and subqueries are not yet included in this logic — this may be addressed in future enhancements.
+Currently, this field-stripping behavior applies only to simple fields (such as `Name`, `Description`, etc.) and subqueries. Additional subqueries are also removed — only the explicitly queried subqueries remain.
+
+Relationship fields and queries using functions are not yet covered by this logic. This means that SOQL queries involving relationship records or functions (like `COUNT`, `AVG`) will return the exact mock defined in the unit test. This may be addressed in future enhancements.
 
 ### Queried Issued Count
 
