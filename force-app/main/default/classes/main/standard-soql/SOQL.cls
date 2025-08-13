@@ -144,6 +144,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable byRecordType(String recordTypeDeveloperName);
         // RESULT
         Id toId();
+        Set<Id> toIds();
+        Set<Id> toIdsOf(SObjectField field);
+        Set<Id> toIdsOf(String relationshipName, SObjectField field);
         Boolean doExist();
         String toString();
         Object toValueOf(SObjectField fieldToExtract);
@@ -913,6 +916,30 @@ public virtual inherited sharing class SOQL implements Queryable {
     public Id toId() {
         this.builder.fields.clearAllFields(); // other fields not needed
         return this.toObject()?.Id;
+    }
+
+    public Set<Id> toIds() {
+        this.builder.fields.clearAllFields(); // other fields not needed
+        return this.toMap().keySet();
+    }
+
+    public Set<Id> toIdsOf(SObjectField field) {
+        return this.toIdsOf(field.toString());
+    }
+
+    public Set<Id> toIdsOf(String relationshipName, SObjectField field) {
+        return this.toIdsOf(relationshipName + '.' + field.toString());
+    }
+
+    private Set<Id> toIdsOf(String fieldToExtract) {
+        // https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
+        this.builder.fields.clearAllFields(); // other fields not needed
+        return new Map<Id, SObject>(
+            this.with(fieldToExtract, 'Id')
+            .whereAre(Filter.with(fieldToExtract).isNotNull())
+            .groupBy(fieldToExtract)
+            .toAggregated()
+        ).keySet();
     }
 
     public Boolean doExist() {

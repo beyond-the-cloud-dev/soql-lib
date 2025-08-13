@@ -3868,6 +3868,42 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void toIds() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        Set<Id> accountIds = SOQL.of(Account.SObjectType).byIds(accounts).toIds();
+
+        // Verify
+        Assert.areEqual(accounts.size(), accountIds.size(), 'The size of the returned set should be equal to the size of the inserted accounts.');
+    }
+
+    @IsTest
+    static void toIdsOf() {
+        // Setup
+        List<Account> accounts = insertAccountsWithParents();
+
+        // Test
+        Set<Id> parentIds = SOQL.of(Account.SObjectType).byIds(accounts).toIdsOf(Account.ParentId);
+
+        // Verify
+        Assert.areEqual(accounts.size(), parentIds.size(), 'The size of the returned set should be equal to the size of the inserted accounts.');
+    }
+
+    @IsTest
+    static void toIdsOfRelationshipField() {
+        // Setup
+        List<Account> accounts = insertAccountsWithParents();
+
+        // Test
+        Set<Id> createdByIds = SOQL.of(Account.SObjectType).byIds(accounts).toIdsOf('Parent', Account.CreatedById);
+
+        // Verify
+        Assert.areEqual(1, createdByIds.size(), 'The size of the returned set should be 1, because the same user inserted the accounts.');
+    }
+
+    @IsTest
     static void doExist() {
         // Setup
         Account acc = new Account(Name = 'Test 1');
