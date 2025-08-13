@@ -189,6 +189,9 @@ The following are methods for using `SOQL`:
 [**RESULT**](#result)
 
 - [`toId()`](#toid)
+- [`toIds()`](#toids)
+- [`toIdsOf(SObjectField field)`](#toidsof)
+- [`toIdsOf(String relationshipName, SObjectField field)`](#toidsof-related-field)
 - [`doExist()`](#doexist)
 - [`toValueOf(SObjectField fieldToExtract)`](#tovalueof)
 - [`toValuesOf(SObjectField fieldToExtract)`](#tovaluesof)
@@ -2343,6 +2346,59 @@ new User (
     // ...
     ProfileId = adminProfileId
 );
+```
+
+### toIds
+
+Extract all record IDs from query result.
+
+**Signature**
+
+```apex
+Set<Id> toIds()
+```
+
+**Example**
+
+```apex
+Set<Id> accountIds = SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.Filter.with(Account.Industry).equal('Technology'))
+    .toIds();
+```
+
+### toIdsOf
+
+Extract field values as Set of IDs from query result.
+Field will be automatically added to the query fields.
+
+**Signature**
+
+```apex
+Set<Id> toIdsOf(SObjectField field)
+```
+
+**Example**
+
+```apex
+Set<Id> ownerIds = SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.Filter.with(Account.Industry).equal('Technology'))
+    .toIdsOf(Account.OwnerId);
+```
+
+### toIdsOf Related Field
+
+**Signature**
+
+```apex
+Set<Id> toIdsOf(String relationshipName, SObjectField field)
+```
+
+**Example**
+
+```apex
+Set<Id> parentAccountIds = SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.Filter.with(Account.Industry).equal('Technology'))
+    .toIdsOf('Parent', Account.Id);
 ```
 
 ### doExist

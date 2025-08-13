@@ -430,3 +430,106 @@ public static Set<String> getAccountNames() {
     return SOQL_Account.query().toValuesOf(Account.Name);
 }
 ```
+
+Extract unique IDs from query:
+
+❌
+
+```apex
+public static Set<Id> getAccountOwnerIds() {
+    Set<Id> ownerIds = new Set<Id>();
+
+    for (Account account : [SELECT OwnerId FROM Account]) {
+        ownerIds.add(account.OwnerId);
+    }
+
+    return ownerIds;
+}
+```
+
+✅
+
+```apex
+public static Set<Id> getAccountOwnerIds() {
+    return SOQL_Account.query().toIdsOf(Account.OwnerId);
+}
+```
+
+Extract single ID from query:
+
+❌
+
+```apex
+public static Id getSystemAdminProfileId() {
+    Profile profile = [
+        SELECT Id 
+        FROM Profile 
+        WHERE Name = 'System Administrator' 
+        LIMIT 1
+    ];
+    return profile.Id;
+}
+```
+
+✅
+
+```apex
+public static Id getSystemAdminProfileId() {
+    return SOQL.of(Profile.SObjectType)
+        .whereAre(SOQL.Filter.with(Profile.Name).equal('System Administrator'))
+        .toId();
+}
+```
+
+Extract IDs from related fields:
+
+❌
+
+```apex
+public static Set<Id> getParentAccountIds() {
+    Set<Id> parentIds = new Set<Id>();
+
+    for (Account account : [SELECT Parent.Id FROM Account WHERE Parent.Id != null]) {
+        if (account.Parent != null) {
+            parentIds.add(account.Parent.Id);
+        }
+    }
+
+    return parentIds;
+}
+```
+
+✅
+
+```apex
+public static Set<Id> getParentAccountIds() {
+    return SOQL.of(Account.SObjectType)
+        .toIdsOf('Parent', Account.Id);
+}
+```
+
+Extract all record IDs from filtered query:
+
+❌
+
+```apex
+public static Set<Id> getTechnologyAccountIds() {
+    Set<Id> accountIds = new Set<Id>();
+
+    for (Account account : [SELECT Id FROM Account WHERE Industry = 'Technology']) {
+        accountIds.add(account.Id);
+    }
+
+    return accountIds;
+}
+```
+
+✅
+
+```apex
+public static Set<Id> getTechnologyAccountIds() {
+    return SOQL.of(Account.SObjectType)
+        .whereAre(SOQL.Filter.with(Account.Industry).equal('Technology'))
+        .toIds();
+}
+```
