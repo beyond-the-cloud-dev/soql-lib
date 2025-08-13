@@ -5,7 +5,7 @@ sidebar_position: 30
 # Mocking
 
 Mocking provides a way to substitute records from a database with some prepared data. Data can be prepared in the form of SObject records and lists in Apex code or Static Resource `.csv` file.
-Mocked queries won't make any SOQLs and simply return data set in method definition, mock __will ignore all filters and relations__, what is returned depends __solely on data provided to the method__. Mocking is working __only during test execution__. To mock SOQL query, use `.mockId(id)` method to make it identifiable. If you mark more than one query with the same ID, all marked queries will return the same data.
+Mocked queries won't make any SOQLs and simply return data set in method definition. Mock __will ignore all filters and relations__; what is returned depends __solely on data provided to the method__. Mocking works __only during test execution__. To mock a SOQL query, use the `.mockId(id)` method to make it identifiable. If you mark more than one query with the same ID, all marked queries will return the same data.
 
 ```apex title="ExampleController.cls"
 public with sharing class ExampleController {
@@ -23,13 +23,42 @@ public with sharing class ExampleController {
 }
 ```
 
-Then in tests simply pass data you want to get from Selector to `SOQL.mock(id).thenReturn(data)` method. Acceptable formats are: `List<SObject>` or `SObject`. Then during execution Selector will return the desired data.
+Then in tests simply pass data you want to get from the Selector to the `SOQL.mock(id).thenReturn(data)` method. Acceptable formats are: `List<SObject>`, `SObject`, `Integer` (for count queries), or `List<Map<String, Object>>` (for aggregate results). During execution, the Selector will return the desired data.
 
 ## Insights
 
+### Mocking Stack Functionality
+
+SOQL Lib implements a sophisticated mocking system that supports multiple sequential mocks for the same query identifier. This enables complex testing scenarios where the same query needs to return different results across multiple executions.
+
+**How the Stack Works:**
+
+Each call to `SOQL.mock(mockId)` creates a new mock entry and adds it to a list (stack) associated with that mock ID. When queries are executed:
+
+- **Single Mock**: If only one mock exists for the ID, it's reused for all executions
+- **Multiple Mocks**: Mocks are consumed in FIFO (First In, First Out) order - each execution removes and returns the first mock from the stack
+
+```apex
+// Setup multiple sequential mocks
+SOQL.mock('testQuery').thenReturn(new Account(Name = 'First Call'));
+SOQL.mock('testQuery').thenReturn(new Account(Name = 'Second Call'));
+SOQL.mock('testQuery').thenReturn(new Account(Name = 'Third Call'));
+
+// First execution returns "First Call", then removes that mock
+Account result1 = SOQL.of(Account.SObjectType).mockId('testQuery').toObject();
+
+// Second execution returns "Second Call", then removes that mock  
+Account result2 = SOQL.of(Account.SObjectType).mockId('testQuery').toObject();
+
+// Third execution returns "Third Call", then removes that mock
+Account result3 = SOQL.of(Account.SObjectType).mockId('testQuery').toObject();
+
+// Fourth execution would fail - no more mocks available
+```
+
 ### Id Field Behavior
 
-The `Id` field is always included in mocked results, even if it wasn’t explicitly specified. This is designed to mirror standard SOQL behavior — Salesforce automatically includes the `Id` field in every query, even when it’s not listed in the `SELECT` clause.
+The `Id` field is always included in mocked results, even if it wasn't explicitly specified. This is designed to mirror standard SOQL behavior — Salesforce automatically includes the `Id` field in every query, even when it's not listed in the `SELECT` clause.
 
 ```apex
 List<Account> accounts = [SELECT Name FROM Account LIMIT 3];
@@ -95,14 +124,14 @@ for (Account mockedResult : result) {
 In this case:
 - Although `Description` and `Website` were present in the mocked data, they are removed because they weren’t part of the query.
 - Only fields explicitly defined in `.with()` (plus `Id` by default) remain.
-Account `Description` and `Website` are null, even though they were specified. Hovever SOQL specified only for `Account.Name`, so additional field are stripped.
+Account `Description` and `Website` are null, even though they were specified. However, SOQL specified only `Account.Name`, so additional fields are stripped.
 
 **Note:**
 Currently, this field-stripping behavior applies only to simple fields (such as `Name`, `Description`, etc.) and subqueries. Additional subqueries are also removed — only the explicitly queried subqueries remain.
 
 Relationship fields and queries using functions are not yet covered by this logic. This means that SOQL queries involving relationship records or functions (like `COUNT`, `AVG`) will return the exact mock defined in the unit test. This may be addressed in future enhancements.
 
-### Queried Issued Count
+### Queries Issued Count
 
 Mocked queries in SOQL Lib are counted towards the SOQL query limit, just like real queries. If the number of issued queries exceeds the limit, SOQL Lib will throw:
 
@@ -179,7 +208,7 @@ private class ExampleControllerTest {
 
     @IsTest
     static void getPartnerAccountsCount() {
-        SOQL.setCountMock('mockingQuery', 2);
+        SOQL.mock('mockingQuery').thenReturn(2);
 
         Integer result = SOQL.of(Account.sObjectType).count().mockId('mockingQuery').toInteger();
 
@@ -190,13 +219,13 @@ private class ExampleControllerTest {
 
 ## Sub-Query
 
-To mock a sub-query we need to use deserialization mechanism. There are two approaches, using JSON string or Serialization/Deserialization.
-Then after deserialization to desired SObjectType, pass the data to SOQL by calling `.mock` method.
+To mock a sub-query, we need to use a deserialization mechanism. There are two approaches: using JSON string or Serialization/Deserialization.
+After deserialization to the desired SObjectType, pass the data to SOQL by calling the `.mock` method.
 
 
 _Using JSON String_
 
-By passing simple String, it is possible to write non-writable fields, like `Name` on Contact object.
+By passing a simple String, it is possible to write non-writable fields, like `Name` on the Contact object.
 
 ```apex
 @IsTest
@@ -222,7 +251,7 @@ static void getAccountsWithContacts() {
 
 _Using Serialization/Deserialization_
 
-Using this approach it is possible to bind data with additional logic, like using Test Data Factory.
+Using this approach, it is possible to bind data with additional logic, like using a Test Data Factory.
 
 ```apex
 @IsTest
