@@ -3439,6 +3439,15 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void mockIdSpecifiedButQueryNotMocked() {
+        // Test
+        List<Account> accounts = SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toList();
+
+        // Verify
+        Assert.areEqual(0, accounts.size(), 'The mocked accounts should be returned.');
+    }
+
+    @IsTest
     static void mockingSingleRecord() {
         // Setup
         Account testAccount = new Account(Name = 'Test 1');
