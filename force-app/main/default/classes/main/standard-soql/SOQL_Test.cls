@@ -3855,6 +3855,28 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void mockStack() {
+        // Setup
+        SOQL.mock('mockingQuery').thenReturn(new Account(Name = 'Test 1'));
+        SOQL.mock('mockingQuery').thenReturn(new Account(Name = 'Test 2'));
+        SOQL.mock('mockingQuery').thenReturn(new Account(Name = 'Test 3'));
+
+        // Test
+        SOQL.Queryable query = SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery');
+
+        Account acc1 = (Account) query.toObject();
+        Account acc2 = (Account) query.toObject();
+        Account acc3 = (Account) query.toObject();
+        Account acc4 = (Account) query.toObject();
+
+        // Verify
+        Assert.areEqual('Test 1', acc1.Name, 'The returned account name should match the expected one.');
+        Assert.areEqual('Test 2', acc2.Name, 'The returned account name should match the expected one.');
+        Assert.areEqual('Test 3', acc3.Name, 'The returned account name should match the expected one.');
+        Assert.areEqual('Test 3', acc4.Name, 'The returned account name should match the expected one.');
+    }
+
+    @IsTest
     static void toId() {
         // Setup
         Account acc = new Account(Name = 'Test 1');
