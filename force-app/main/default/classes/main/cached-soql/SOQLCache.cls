@@ -68,7 +68,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     public interface Mockable {
         // SObject
-        Mockable thenReturn(SObject record);
+        void thenReturn(SObject record);
     }
 
     @TestVisible
@@ -523,11 +523,9 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     public class SoqlMock implements Mockable {
         private List<SObject> mockedRecords = new List<SObject>();
-        private Integer countMock;
 
-        public Mockable thenReturn(SObject record) {
+        public void thenReturn(SObject record) {
             this.mockedRecords.add(record);
-            return this;
         }
 
         public List<SObject> getMockedResult() {
