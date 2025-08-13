@@ -2554,10 +2554,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             this.incrementQueryIssued();
 
             if (!this.mocks.isEmpty()) {
-                if (this.mocks.size() > 1) {
-                    return this.mocks.remove(this.mocks.size() - 1).sObjectMock.get(this.builder.fields, this.builder.subQueries);
-                }
-                return this.mocks[0].sObjectMock.get(this.builder.fields, this.builder.subQueries);
+                return this.getMockedListProxy();
             }
 
             if (this.accessType == null) {
@@ -2570,30 +2567,45 @@ public virtual inherited sharing class SOQL implements Queryable {
             ).getRecords();
         }
 
+        private List<SObject> getMockedListProxy() {
+            if (this.mocks.size() == 1) {
+                return this.mocks[0].sObjectMock.get(this.builder.fields, this.builder.subQueries);
+            }
+            return this.mocks.remove(0).sObjectMock.get(this.builder.fields, this.builder.subQueries);
+        }
+
         public List<AggregateResultProxy> toAggregatedProxy() {
             this.incrementQueryIssued();
 
             if (!this.mocks.isEmpty()) {
-                if (this.mocks.size() > 1) {
-                    return this.mocks.remove(this.mocks.size() - 1).aggregateResultMock.get();
-                }
-                return this.mocks[0].aggregateResultMock.get();
+                return this.getMockedAggregateProxy();
             }
 
             return new AggregateResultProxys().add((List<AggregateResult>) this.toList()).get();
+        }
+
+        private List<AggregateResultProxy> getMockedAggregateProxy() {
+            if (this.mocks.size() == 1) {
+                return this.mocks[0].aggregateResultMock.get();
+            }
+            return this.mocks.remove(0).aggregateResultMock.get();
         }
 
         public Integer toInteger() {
             this.incrementQueryIssued();
 
             if (!this.mocks.isEmpty()) {
-                if (this.mocks.size() > 1) {
-                    return this.mocks.remove(this.mocks.size() - 1).countMock.get();
-                }
-                return this.mocks[0].countMock.get();
+                return this.getMockedCount();
             }
 
             return this.sharingExecutor.toInteger(this.builder.toString(), binder.getBindingMap(), this.accessMode);
+        }
+
+        private Integer getMockedCount() {
+            if (this.mocks.size() == 1) {
+                return this.mocks[0].countMock.get();
+            }
+            return this.mocks.remove(0).countMock.get();
         }
 
         public Database.QueryLocator toQueryLocator() {
