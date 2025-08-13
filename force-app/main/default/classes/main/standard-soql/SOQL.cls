@@ -405,20 +405,23 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     @TestVisible // deprecated
     private static void setMock(String mockId, SObject record) {
-        SOQL.queryIdToMock.put(mockId, new List<SoqlMock>{ new SoqlMock().useLegacyMockingBehavior() });
-        SOQL.queryIdToMock.get(mockId).get(SOQL.queryIdToMock.get(mockId).size() - 1).thenReturn(record);
+        SOQL.createLegacyMock(mockId).thenReturn(record);
     }
 
     @TestVisible // deprecated
     private static void setMock(String mockId, List<SObject> records) {
-        SOQL.queryIdToMock.put(mockId, new List<SoqlMock>{ new SoqlMock().useLegacyMockingBehavior() });
-        SOQL.queryIdToMock.get(mockId).get(SOQL.queryIdToMock.get(mockId).size() - 1).thenReturn(records);
+        SOQL.createLegacyMock(mockId).thenReturn(records);
     }
 
     @TestVisible // deprecated
     private static void setCountMock(String mockId, Integer amount) {
-        SOQL.queryIdToMock.put(mockId, new List<SoqlMock>{ new SoqlMock().useLegacyMockingBehavior() });
-        SOQL.queryIdToMock.get(mockId).get(SOQL.queryIdToMock.get(mockId).size() - 1).thenReturn(amount);
+        SOQL.createLegacyMock(mockId).thenReturn(amount);
+    }
+
+    private static SoqlMock createLegacyMock(String mockId) {
+        SoqlMock mock = new SoqlMock().useLegacyMockingBehavior();
+        SOQL.queryIdToMock.put(mockId, new List<SoqlMock>{ mock });
+        return mock;
     }
 
     // Implementation
@@ -944,11 +947,11 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public Boolean doExist() {
         this.builder.fields.clearAllFields(); // other fields not needed
-        return this.toList().size() > 0;
+        return this.setLimit(1).toList().size() > 0;
     }
 
     public override String toString() {
-        binder = new Binder(); // clear binding before query build
+        binder.reset(); // clear binding before query build
         return this.builder.toString();
     }
 
@@ -1125,15 +1128,15 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            String query = '';
-
+            List<String> queryParts = new List<String>();
+    
             for (QueryClause clause : this.clauses) {
                 if (clause != null) {
-                    query += ' ' + clause.toString();
+                    queryParts.add(clause.toString());
                 }
             }
-
-            return query.trim();
+            
+            return String.join(queryParts, ' ').trim();
         }
     }
 
@@ -2329,6 +2332,11 @@ public virtual inherited sharing class SOQL implements Queryable {
             return 'v' + bindIndex;
         }
 
+        public void reset() {
+            this.bindIndex = 0;
+            this.binding.clear();
+        }
+
         public Map<String, Object> getBindingMap() {
             return binding;
         }
@@ -2429,7 +2437,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         private void stripAdditionalPlainFields(Map<String, Object> recordFilteredFields, SObject record, Set<String> requestedFields) {
             for (String field : requestedFields) {
-                recordFilteredFields.put(field, record.get(field) ?? null);
+                recordFilteredFields.put(field, record.get(field));
             }
         }
 
@@ -2539,12 +2547,12 @@ public virtual inherited sharing class SOQL implements Queryable {
         public SObject toObject() {
             List<SObject> records = toList();
 
-            if (records.size() > 1) {
-                throw new QueryException('List has more than 1 row for assignment to SObject');
+            if (records.isEmpty()) {
+                return null; // handle: List has no rows for assignment to SObject
             }
 
-            if (records.size() == 0) {
-                return null; // handle: List has no rows for assignment to SObject
+            if (records.size() > 1) {
+                throw new QueryException('List has more than 1 row for assignment to SObject');
             }
 
             return records[0];
@@ -2621,7 +2629,9 @@ public virtual inherited sharing class SOQL implements Queryable {
 
             SOQL.syncQueriesIssued++;
 
-            if (SOQL.syncQueriesIssued > 100) {
+            final Integer MAX_QUERIES_ISSUED_IN_SYNCHRONOUS_TRANSACTION = 100;
+
+            if (SOQL.syncQueriesIssued > MAX_QUERIES_ISSUED_IN_SYNCHRONOUS_TRANSACTION) {
                 throw new QueryException('Too many SOQL queries.');
             }
         }

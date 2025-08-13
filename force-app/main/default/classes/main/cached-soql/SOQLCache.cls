@@ -86,11 +86,12 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         String ofObject = records[0].getSObjectType().toString();
+        CacheStorageProxy proxy = new CacheStorageProxy(ofObject);
 
         // Record deletion will trigger an automatic cache refresh when the query is executed.
-        new CacheStorageProxy(ofObject).apexTransaction().removeRecordsFromCache(records);
-        new CacheStorageProxy(ofObject).orgCache().removeRecordsFromCache(records);
-        new CacheStorageProxy(ofObject).sessionCache().removeRecordsFromCache(records);
+        proxy.apexTransaction().removeRecordsFromCache(records);
+        proxy.orgCache().removeRecordsFromCache(records);
+        proxy.sessionCache().removeRecordsFromCache(records);
     }
 
     // Backward support
@@ -112,7 +113,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     public SOQL.Queryable currentyQuery = null;
 
     protected SOQLCache(SObjectType ofObject) {
-        this(ofObject + '');
+        this(ofObject.toString());
     }
 
     protected SOQLCache(String ofObject) {
@@ -183,7 +184,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     public Cacheable whereEqual(SObjectField field, Object value) {
-        return this.whereEqual(field + '', value);
+        return this.whereEqual(field.toString(), value);
     }
 
     public Cacheable whereEqual(String field, Object value) {
@@ -216,7 +217,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     public Id toId() {
-        return this.toObject().Id;
+        return this.toObject()?.Id;
     }
 
     public Boolean doExist() {
@@ -369,8 +370,6 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         public void save(List<SObject> databaseRecords) {
-            List<CacheItem> newCacheRecords = new List<CacheItem>();
-
             if (this.isRecordMissingFromCache()) {
                 storage.addRecordsToCache(databaseRecords);
             } else if (databaseRecords.isEmpty()) { // record does not exist in database anymore
@@ -471,12 +470,12 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         public void with(SObjectField field) {
-            this.cachedFields.add(field + '');
+            this.cachedFields.add(field.toString());
         }
 
         public void with(List<SObjectField> fields) {
             for (SObjectField field : fields) {
-                this.cachedFields.add(field + '');
+                this.cachedFields.add(field.toString());
             }
         }
 
@@ -490,11 +489,12 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         public Boolean hasAllRequestedFields(SObject record) {
-            Boolean hasCachedFields = true;
             for (String field : this.cachedFields) {
-                hasCachedFields &= record.isSet(field);
+                if (!record.isSet(field)) {
+                    return false;
+                }
             }
-            return hasCachedFields;
+            return true;
         }
     }
 
@@ -516,7 +516,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         public Boolean isRecentEnough(CacheItem cachedItem) {
-            Decimal recordAgeInHoursSinceCached = (System.now().getTime() - cachedItem.cachedDate.getTime()) / (1000 * 60 * 60);
+            Decimal recordAgeInHoursSinceCached = (System.now().getTime() - cachedItem.cachedDate.getTime()) / 3600000;
             return recordAgeInHoursSinceCached <= this.maxRecordAgeInHours;
         }
     }
@@ -555,12 +555,12 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         public SObject toObject() {
             List<SObject> records = this.toList();
 
-            if (records.size() > 1) {
-                throw new QueryException('List has more than 1 row for assignment to SObject');
+            if (records.isEmpty()) {
+                return null;
             }
 
-            if (records.size() == 0) {
-                return null;
+            if (records.size() > 1) {
+                throw new QueryException('List has more than 1 row for assignment to SObject');
             }
 
             return records[0];
