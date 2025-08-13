@@ -8,7 +8,7 @@ sidebar_position: 150
 > All examples use inline queries built with the SOQL Lib Query Builder.
 > If you are using a selector, replace `SOQL.of(...)` with `YourSelectorName.query()`.
 
-## toId()
+## toId
 
 **Apex**
 
@@ -22,7 +22,7 @@ Id accountId = [SELECT Id FROM Account LIMIT 1].Id;
 Id accountId = SOQL.of(Account.SObjectType).setLimit(1).toId();
 ```
 
-## toIds()
+## toIds
 
 **Apex**
 
