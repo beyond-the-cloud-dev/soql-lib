@@ -8,7 +8,7 @@ sidebar_position: 40
 
 Error: `System.QueryException: Variable does not exist: v1`
 
-## Root Cause
+### Root Cause
 
 This is **NOT** the lib issue but rather a Salesforce platform limitation that occurs when `Database.getQueryLocatorWithBinds` is used with insufficient permissions.
 
@@ -39,13 +39,13 @@ SOQL.of(Task.SObjectType)
     .toQueryLocator();
 ```
 
-## Solutions
+### Solutions
 
-### Ensure user has field access permissions
+#### Ensure user has field access permissions
 
 Grant the user appropriate field-level security permissions for the fields used in the query.
 
-### Use SYSTEM_MODE
+#### Use SYSTEM_MODE
 
 **Apex**
 ```apex
