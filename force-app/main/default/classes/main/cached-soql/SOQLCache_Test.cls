@@ -20,7 +20,7 @@ private class SOQLCache_Test {
             new Profile(Name = 'System Administrator'),
             new Profile(Name = 'Standard User')
         };
-        SOQL.setMock(INITIAL_QUERY_MOCK_ID, mockedProfiles);
+        SOQL.mock(INITIAL_QUERY_MOCK_ID).thenReturn(mockedProfiles);
 
         // Test
         new SOQL_ProfileCache().whereEqual('Name', 'System Administrator').toObject(); // initial query will be executed
@@ -87,7 +87,7 @@ private class SOQLCache_Test {
     @IsTest
     static void cacheInOrgCache() {
         // Test
-        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+        SOQLCache.of(Profile.SObjectType)
             .cacheInOrgCache()
             .with(Profile.Id, Profile.Name)
             .whereEqual(Profile.Name, 'System Administrator')
@@ -105,7 +105,7 @@ private class SOQLCache_Test {
     @IsTest
     static void cacheInSessionCache() {
         // Test
-        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+        SOQLCache.of(Profile.SObjectType)
             .cacheInSessionCache()
             .with(Profile.Id, Profile.Name)
             .whereEqual(Profile.Name, 'System Administrator')
@@ -406,7 +406,7 @@ private class SOQLCache_Test {
     @IsTest
     static void mockId() {
         // Setup
-        SOQLCache.setMock('ProfileQuery', new Profile(Id = '00e3V000000Nme3QAC', Name = 'System Administrator'));
+        SOQLCache.mock('ProfileQuery').thenReturn(new Profile(Id = '00e3V000000Nme3QAC', Name = 'System Administrator'));
 
         // Test
         Profile profile = (Profile) new SOQL_ProfileCache().query()
@@ -417,6 +417,30 @@ private class SOQLCache_Test {
         // Verify
         Assert.areEqual('00e3V000000Nme3QAC', profile.Id, 'The profile id should be the same as the id assigned to the profile cache.');
         Assert.areEqual('System Administrator', profile.Name, 'The profile name should be the same as the name assigned to the profile cache.');
+    }
+
+    @IsTest
+    static void mockStack() {
+        // Setup
+        SOQL.mock('mockingQuery').thenReturn(new Profile(Name = 'Test 1'));
+        SOQL.mock('mockingQuery').thenReturn(new Profile(Name = 'Test 2'));
+        SOQL.mock('mockingQuery').thenReturn(new Profile(Name = 'Test 3'));
+
+        // Test
+        SOQLCache.Cacheable query = SOQLCache.of(Profile.SObjectType)
+            .mockId('mockingQuery')
+            .whereEqual(Profile.Name, 'System Administrator');
+
+        Profile profile1 = (Profile) query.toObject();
+        Profile profile2 = (Profile) query.toObject();
+        Profile profile3 = (Profile) query.toObject();
+        Profile profile4 = (Profile) query.toObject();
+
+        // Verify
+        Assert.areEqual('Test 1', profile1.Name, 'The profile name should be the same as the name assigned to the profile cache.');
+        Assert.areEqual('Test 2', profile2.Name, 'The profile name should be the same as the name assigned to the profile cache.');
+        Assert.areEqual('Test 3', profile3.Name, 'The profile name should be the same as the name assigned to the profile cache.');
+        Assert.areEqual('Test 3', profile4.Name, 'The profile name should be the same as the name assigned to the profile cache.');
     }
 
     @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')
@@ -510,7 +534,7 @@ private class SOQLCache_Test {
     @IsTest
     static void toObjectWithMultipleRows() {
         // Setup
-        SOQL.setMock('ProfileQuery', new List<Profile>{
+        SOQL.mock('ProfileQuery').thenReturn(new List<Profile>{
             new Profile(Id = '00e3V000000Nme3QAC', Name = 'System Administrator'),
             new Profile(Id = '00e3V000000Nme3QAC', Name = 'System Administrator')
         });
@@ -535,7 +559,7 @@ private class SOQLCache_Test {
     @IsTest
     static void recordNotFoundInCache() {
         // Setup
-        SOQL.setMock('ProfileQuery', new Profile(Id = '00e3V000000Nbc3QAC', Name = 'Guest User'));
+        SOQL.mock('ProfileQuery').thenReturn(new Profile(Id = '00e3V000000Nbc3QAC', Name = 'Guest User'));
 
         // Test
         Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
@@ -552,7 +576,7 @@ private class SOQLCache_Test {
     @IsTest
     static void recordNotFoundInCacheAndNotExistInDatabase() {
         // Setup
-        SOQL.setMock('ProfileQuery', new List<Profile>());
+        SOQL.mock('ProfileQuery').thenReturn(new List<Profile>());
 
         // Test
         Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)

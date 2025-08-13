@@ -46,6 +46,130 @@ SOQL.of(Account.SObjectType)
 }
 ```
 
+
+## Minimalistic Selectors
+
+The selector constructor maintains default configurations such as default fields, sharing mode, and field-level security settings. Only essential, reusable methods are maintained in the selector class, with each method returning an instance of the selector to enable method chaining.
+
+Additional fields, complex conditions, ordering, limits, and other SOQL clauses can be built dynamically where they are needed (for example, in controller methods), keeping the selector focused on core functionality.
+
+```apex
+public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
+    public static final String MOCK_ID = 'SOQL_Account';
+
+    public static SOQL_Account query() {
+        return new SOQL_Account();
+    }
+
+    private SOQL_Account() {
+        super(Account.SObjectType);
+        // Default configuration
+        with(Account.Id, Account.Name);
+        systemMode();
+        withoutSharing();
+        mockId(MOCK_ID);
+    }
+
+    public SOQL_Account byType(String type) {
+        whereAre(Filter.with(Account.Type).equal(type));
+        return this;
+    }
+
+    public SOQL_Account byIndustry(String industry) {
+        whereAre(Filter.with(Account.Industry).equal(industry));
+        return this;
+    }
+
+    public SOQL_Account byParentId(Id parentId) {
+        whereAre(Filter.with(Account.ParentId).equal(parentId));
+        return this;
+    }
+
+    public SOQL_Account byOwnerId(Id ownerId) {
+        whereAre(Filter.with(Account.OwnerId).equal(ownerId));
+        return this;
+    }
+}
+```
+
+
+**Usage Example:**
+
+```apex
+// Basic usage with default configuration
+List<Account> allAccounts = SOQL_Account.query().toList();
+
+// Chain selector methods
+List<Account> techPartners = SOQL_Account.query()
+    .byType('Partner')
+    .byIndustry('Technology')
+    .toList();
+
+// Extend with additional fields and clauses dynamically
+List<Account> topAccounts = SOQL_Account.query()
+    .byIndustry('Technology')
+    .with(Account.AnnualRevenue, Account.BillingCity)
+    .whereAre(SOQL.Filter.with(Account.AnnualRevenue).greaterThan(1000000))
+    .orderBy(Account.AnnualRevenue).sortDesc()
+    .setLimit(10)
+    .toList();
+```
+
+## Minimal Fields
+
+SOQL Lib selectors are designed to include only a minimal set of default fields in their constructor, typically just essential identifiers and commonly used fields. This approach significantly improves query performance and promotes reusability by avoiding unnecessary data retrieval.
+
+**Design Philosophy:**
+The selector constructor defines the minimum viable field set that covers the majority of use cases. Additional fields are added dynamically where they are actually needed, following the principle of "pull only what you need, when you need it."
+
+```apex
+public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selector {
+    public static SOQL_Contact query() {
+        return new SOQL_Contact();
+    }
+
+    private SOQL_Contact() {
+        super(Contact.SObjectType);
+        // Minimal default fields - only essentials
+        with(Contact.Id, Contact.Name, Contact.AccountId)
+            .systemMode()
+            .withoutSharing();
+    }
+
+    public SOQL_Contact byAccountId(Id accountId) {
+        whereAre(Filter.with(Contact.AccountId).equal(accountId));
+        return this;
+    }
+}
+```
+
+**Dynamic Field Addition:**
+Additional fields are added at the point of use, keeping the selector lean while providing flexibility for specific business requirements.
+
+```apex
+public with sharing class ExampleController {
+    @AuraEnabled
+    public static List<Contact> getContactDetails(Id accountId) {
+        return SOQL_Contact.query()
+            .byAccountId(accountId)
+            // Add fields only when needed
+            .with(Contact.Email, Contact.Phone, Contact.Department, Contact.Title)
+            .with('Account', Account.Name, Account.Industry)
+            .orderBy(Contact.LastName)
+            .setLimit(100)
+            .toList();
+    }
+
+    @AuraEnabled
+    public static List<Contact> getBasicContacts(Id accountId) {
+        // Uses only default fields (Id, Name, AccountId)
+        return SOQL_Contact.query()
+            .byAccountId(accountId)
+            .toList();
+    }
+}
+```
+
 ## Control FLS
 
 [AccessLevel Class](https://developer.salesforce.com/docs/atlas.en-us.apexref.meta/apexref/apex_class_System_AccessLevel.htm)
@@ -353,7 +477,7 @@ public List<Account> getAccounts() {
 Did you know that?
 
 - Retrieving data from the cache takes less than 10ms.
-- Read operations (SOQL) account for approximately 70% of an org’s activity.
+- Read operations (SOQL) account for approximately 70% of an org's activity.
 
 Cache can significantly boost your org's performance. You can use it for objects like:
 
@@ -463,5 +587,108 @@ public static Set<String> getAccountNames() {
 ```apex
 public static Set<String> getAccountNames() {
     return SOQL_Account.query().toValuesOf(Account.Name);
+}
+```
+
+Extract unique IDs from query:
+
+❌
+
+```apex
+public static Set<Id> getAccountOwnerIds() {
+    Set<Id> ownerIds = new Set<Id>();
+
+    for (Account account : [SELECT OwnerId FROM Account]) {
+        ownerIds.add(account.OwnerId);
+    }
+
+    return ownerIds;
+}
+```
+
+✅
+
+```apex
+public static Set<Id> getAccountOwnerIds() {
+    return SOQL_Account.query().toIdsOf(Account.OwnerId);
+}
+```
+
+Extract single ID from query:
+
+❌
+
+```apex
+public static Id getSystemAdminProfileId() {
+    Profile profile = [
+        SELECT Id 
+        FROM Profile 
+        WHERE Name = 'System Administrator' 
+        LIMIT 1
+    ];
+    return profile.Id;
+}
+```
+
+✅
+
+```apex
+public static Id getSystemAdminProfileId() {
+    return SOQL.of(Profile.SObjectType)
+        .whereAre(SOQL.Filter.with(Profile.Name).equal('System Administrator'))
+        .toId();
+}
+```
+
+Extract IDs from related fields:
+
+❌
+
+```apex
+public static Set<Id> getParentAccountIds() {
+    Set<Id> parentIds = new Set<Id>();
+
+    for (Account account : [SELECT Parent.Id FROM Account WHERE Parent.Id != null]) {
+        if (account.Parent != null) {
+            parentIds.add(account.Parent.Id);
+        }
+    }
+
+    return parentIds;
+}
+```
+
+✅
+
+```apex
+public static Set<Id> getParentAccountIds() {
+    return SOQL.of(Account.SObjectType)
+        .toIdsOf('Parent', Account.Id);
+}
+```
+
+Extract all record IDs from filtered query:
+
+❌
+
+```apex
+public static Set<Id> getTechnologyAccountIds() {
+    Set<Id> accountIds = new Set<Id>();
+
+    for (Account account : [SELECT Id FROM Account WHERE Industry = 'Technology']) {
+        accountIds.add(account.Id);
+    }
+
+    return accountIds;
+}
+```
+
+✅
+
+```apex
+public static Set<Id> getTechnologyAccountIds() {
+    return SOQL.of(Account.SObjectType)
+        .whereAre(SOQL.Filter.with(Account.Industry).equal('Technology'))
+        .toIds();
 }
 ```

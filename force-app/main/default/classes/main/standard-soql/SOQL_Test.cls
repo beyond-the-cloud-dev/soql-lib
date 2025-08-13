@@ -3028,6 +3028,18 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void dynamicNullsOrder() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .orderBy('Industry')
+            .nullsOrder('LAST')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account ORDER BY Industry ASC NULLS LAST', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
     static void orderByDynamicWithSort() {
         // Test
         String soql = SOQL.of(Account.SObjectType)
@@ -3427,6 +3439,15 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void mockIdSpecifiedButQueryNotMocked() {
+        // Test
+        List<Account> accounts = SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toList();
+
+        // Verify
+        Assert.areEqual(0, accounts.size(), 'The mocked accounts should be returned.');
+    }
+
+    @IsTest
     static void mockingSingleRecord() {
         // Setup
         Account testAccount = new Account(Name = 'Test 1');
@@ -3749,7 +3770,7 @@ private class SOQL_Test {
                         'Contacts' => new Map<String, Object>{
                             'totalSize' => 2,
                             'done' => true,
-                            'records' => new List<Map<String, Object>>{ 
+                            'records' => new List<Map<String, Object>>{
                                 new Map<String, Object>{ 'Name' => 'Contact Name', 'Email' => 'contact.email@address.com', 'Phone' => '0987654321' },
                                 new Map<String, Object>{ 'Name' => 'Contact Name 2', 'Email' => 'contact2.email@address.com', 'Phone' => '1234567890' }
                             }
@@ -3794,6 +3815,77 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void mockSubQueryWithStrippingAdditionalFields() {
+        // Setup
+        List<Account> mocks = (List<Account>) JSON.deserialize(
+            JSON.serialize(
+                new List<Map<String, Object>>{
+                    new Map<String, Object>{
+                        'Name' => 'Account Name',
+                        'Industry' => 'IT',
+                        'Contacts' => new Map<String, Object>{
+                            'totalSize' => 2,
+                            'done' => true,
+                            'records' => new List<Map<String, Object>>{
+                                new Map<String, Object>{ 'Name' => 'Contact Name', 'Email' => 'contact.email@address.com', 'Phone' => '0987654321' },
+                                new Map<String, Object>{ 'Name' => 'Contact Name 2', 'Email' => 'contact2.email@address.com', 'Phone' => '1234567890' }
+                            }
+                        },
+                        'Opportunities' => new Map<String, Object>{
+                            'totalSize' => 1,
+                            'done' => true,
+                            'records' => new List<Map<String, Object>>{
+                                new Map<String, Object>{ 'Name' => 'Opportunity Name', 'Amount' => 100000 }
+                            }
+                        }
+                    }
+                }
+            ),
+            List<Account>.class
+        );
+
+        SOQL.mock('mockingQuery').thenReturn(mocks);
+
+        // Test
+        List<Account> result = SOQL.of(Account.SObjectType)
+            .with(Account.Name, Account.Industry)
+            .with(SOQL.SubQuery.of('Contacts')
+                .with(Contact.Id, Contact.Name, Contact.Phone)
+            )
+            .mockId('mockingQuery')
+            .toList();
+
+        // Verify
+        Account account = result[0];
+
+        Assert.areEqual(1, result.size(), 'The size of the mocked accounts should match the expected one.');
+        Assert.areEqual(2, account.Contacts.size(), 'The size of the mocked opportunities should match the expected one.');
+        Assert.areEqual(0, account.Opportunities.size(), 'The size of the mocked opportunities should be 0, because it was not requested.');
+    }
+
+    @IsTest
+    static void mockStack() {
+        // Setup
+        SOQL.mock('mockingQuery').thenReturn(new Account(Name = 'Test 1'));
+        SOQL.mock('mockingQuery').thenReturn(new Account(Name = 'Test 2'));
+        SOQL.mock('mockingQuery').thenReturn(new Account(Name = 'Test 3'));
+
+        // Test
+        SOQL.Queryable query = SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery');
+
+        Account acc1 = (Account) query.toObject();
+        Account acc2 = (Account) query.toObject();
+        Account acc3 = (Account) query.toObject();
+        Account acc4 = (Account) query.toObject();
+
+        // Verify
+        Assert.areEqual('Test 1', acc1.Name, 'The returned account name should match the expected one.');
+        Assert.areEqual('Test 2', acc2.Name, 'The returned account name should match the expected one.');
+        Assert.areEqual('Test 3', acc3.Name, 'The returned account name should match the expected one.');
+        Assert.areEqual('Test 3', acc4.Name, 'The returned account name should match the expected one.');
+    }
+
+    @IsTest
     static void toId() {
         // Setup
         Account acc = new Account(Name = 'Test 1');
@@ -3804,6 +3896,42 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(acc.Id, accountId, 'The returned Id should match the expected one.');
+    }
+
+    @IsTest
+    static void toIds() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        Set<Id> accountIds = SOQL.of(Account.SObjectType).byIds(accounts).toIds();
+
+        // Verify
+        Assert.areEqual(accounts.size(), accountIds.size(), 'The size of the returned set should be equal to the size of the inserted accounts.');
+    }
+
+    @IsTest
+    static void toIdsOf() {
+        // Setup
+        List<Account> accounts = insertAccountsWithParents();
+
+        // Test
+        Set<Id> parentIds = SOQL.of(Account.SObjectType).byIds(accounts).toIdsOf(Account.ParentId);
+
+        // Verify
+        Assert.areEqual(accounts.size(), parentIds.size(), 'The size of the returned set should be equal to the size of the inserted accounts.');
+    }
+
+    @IsTest
+    static void toIdsOfRelationshipField() {
+        // Setup
+        List<Account> accounts = insertAccountsWithParents();
+
+        // Test
+        Set<Id> createdByIds = SOQL.of(Account.SObjectType).byIds(accounts).toIdsOf('Parent', Account.CreatedById);
+
+        // Verify
+        Assert.areEqual(1, createdByIds.size(), 'The size of the returned set should be 1, because the same user inserted the accounts.');
     }
 
     @IsTest
