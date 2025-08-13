@@ -34,7 +34,7 @@ The following are methods for `FilterGroup`.
 ## INIT
 ### of
 
-Conctructs an `JoinQuery`.
+Constructs a `JoinQuery`.
 
 **Signature**
 

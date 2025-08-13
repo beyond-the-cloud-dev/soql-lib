@@ -84,7 +84,7 @@ By default, all queries are executed `with sharing`, enforced by `AccessLevel.US
 
 `AccessLevel.USER_MODE` enforces object permissions and field-level security.
 
-Developer can skip FLS by adding `.systemMode()` and `.withSharing()`.
+Developers can skip FLS by adding `.systemMode()` and `.withSharing()`.
 
 ```apex
 // Query executed in without sharing
@@ -97,7 +97,7 @@ SOQL.of(Account.SObjectType)
 
 ### without sharing
 
-Developer can control sharing rules by adding `.systemMode()` (record sharing rules are controlled by the sharingMode) and `.withoutSharing()`.
+Developers can control sharing rules by adding `.systemMode()` (record sharing rules are controlled by the sharingMode) and `.withoutSharing()`.
 
 ```apex
 // Query executed in with sharing
@@ -110,7 +110,7 @@ SOQL.of(Account.SObjectType)
 
 ### inherited sharing
 
-Developer can control sharing rules by adding `.systemMode()` (record sharing rules are controlled by the sharingMode) by default it is `inherited sharing`.
+Developers can control sharing rules by adding `.systemMode()` (record sharing rules are controlled by the sharingMode); by default it is `inherited sharing`.
 
 ```apex
 // Query executed in inherited sharing
@@ -204,7 +204,7 @@ private class ExampleControllerTest {
 
 ### Count Result
 
-```
+```apex
 @IsTest
 private class ExampleControllerTest {
 
@@ -219,9 +219,39 @@ private class ExampleControllerTest {
 }
 ```
 
+### Aggregate Result
+
+```apex
+@IsTest
+private class ExampleControllerTest {
+
+    @IsTest
+    static void getLeadSourceCounts() {
+        List<Map<String, Object>> aggregateResults = new List<Map<String, Object>>{
+            new Map<String, Object>{ 'LeadSource' => 'Web',  'total' => 10},
+            new Map<String, Object>{ 'LeadSource' => 'Phone', 'total' => 5},
+            new Map<String, Object>{ 'LeadSource' => 'Email', 'total' => 3}
+        };
+
+        SOQL.mock('mockingQuery').thenReturn(aggregateResults);
+
+        List<SOQL.AggregateResultProxy> result = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .count(Lead.Id, 'total')
+            .groupBy(Lead.LeadSource)
+            .mockId('mockingQuery')
+            .toAggregatedProxy();
+
+        Assert.areEqual(3, result.size());
+        Assert.areEqual(10, result[0].get('total'));
+        Assert.areEqual('Web', result[0].get('LeadSource'));
+    }
+}
+```
+
 ## Avoid duplicates
 
-Generic SOQLs can be keep in selector class.
+Generic SOQLs can be kept in the selector class.
 
 ```apex
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
@@ -325,7 +355,7 @@ Did you know that?
 - Retrieving data from the cache takes less than 10ms.
 - Read operations (SOQL) account for approximately 70% of an org’s activity.
 
-Cache can significantly boost yours org’s performance. You can it use for objects like:
+Cache can significantly boost your org's performance. You can use it for objects like:
 
 - `Profile`
 - `BusinessHours`
@@ -358,21 +388,26 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
 }
 ```
 
-## Enchanced SOQL
+## Enhanced SOQL
 
-Developers perform different SOQL results transformation.
-You can use many of predefined method that will reduce your code complexity.
+Developers perform different SOQL result transformations.
+You can use many predefined methods that will reduce your code complexity.
 
 ```apex
 Id toId();
+Set<Id> toIds();
+Set<Id> toIdsOf(SObjectField field);
+Set<Id> toIdsOf(String relationshipName, SObjectField field);
 Boolean doExist();
 String toString();
 Object toValueOf(SObjectField fieldToExtract);
 Set<String> toValuesOf(SObjectField fieldToExtract);
+Set<String> toValuesOf(String relationshipName, SObjectField targetKeyField);
 Integer toInteger();
 SObject toObject();
 List<SObject> toList();
 List<AggregateResult> toAggregated();
+List<AggregateResultProxy> toAggregatedProxy();
 Map<Id, SObject> toMap();
 Map<String, SObject> toMap(SObjectField keyField);
 Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField);
