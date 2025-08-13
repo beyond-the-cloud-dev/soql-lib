@@ -67,13 +67,17 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     // Mocking
 
     public interface Mockable {
-        void thenReturn(SObject record);
+        // SObject
+        Mockable thenReturn(SObject record);
     }
 
     @TestVisible
     private static Mockable mock(String mockId) {
-        queryIdToMock.put(mockId, new SoqlMock());
-        return queryIdToMock.get(mockId);
+        if (!SOQLCache.queryIdToMock.containsKey(mockId)) {   
+            SOQLCache.queryIdToMock.put(mockId, new List<SoqlMock>());
+        }
+        SOQLCache.queryIdToMock.get(mockId).add(new SoqlMock());
+        return SOQLCache.queryIdToMock.get(mockId).get(SOQLCache.queryIdToMock.get(mockId).size() - 1);
     }
 
     public static void removeFromCache(List<SObject> records) {
@@ -93,12 +97,13 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     @TestVisible  // deprecated
     private static void setMock(String mockId, SObject record) {
-        mock(mockId).thenReturn(record);
+        SOQLCache.queryIdToMock.put(mockId, new List<SoqlMock>{ new SoqlMock() });
+        SOQLCache.queryIdToMock.get(mockId).get(SOQLCache.queryIdToMock.get(mockId).size() - 1).thenReturn(record);
     }
 
     // Implementation
 
-    private static Map<String, SoqlMock> queryIdToMock = new Map<String, SoqlMock>();
+    private static Map<String, List<SoqlMock>> queryIdToMock = new Map<String, List<SoqlMock>>();
 
     private Executor executor;
     private Cache cache;
@@ -517,10 +522,12 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     public class SoqlMock implements Mockable {
-        private List<SObject> mockedRecords = null;
+        private List<SObject> mockedRecords = new List<SObject>();
+        private Integer countMock;
 
-        public void thenReturn(SObject record) {
-            this.mockedRecords = new List<SObject>{ record };
+        public Mockable thenReturn(SObject record) {
+            this.mockedRecords.add(record);
+            return this;
         }
 
         public List<SObject> getMockedResult() {
@@ -532,7 +539,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         private SOQL.Queryable currentyQuery;
         private Cache cache;
         private AccessType accessType = null;
-        private SoqlMock mock;
+        private List<SoqlMock> mocks = new List<SoqlMock>();
 
         public Executor(SOQL.Queryable currentyQuery, Cache cache) {
             this.currentyQuery = currentyQuery;
@@ -540,11 +547,11 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         public void stripInaccessible(AccessType type) {
-            accessType = type;
+            this.accessType = type;
         }
 
-        public void mock(SoqlMock mock) {
-            this.mock = mock;
+        public void mock(List<SoqlMock> mocks) {
+            this.mocks = mocks ?? new List<SoqlMock>();
         }
 
         public SObject toObject() {
@@ -562,8 +569,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         private List<SObject> toList() {
-            if (this.mock != null) {
-                return this.mock.getMockedResult();
+            if (!this.mocks.isEmpty()) {
+                return this.getMockedList();
             }
 
             List<SObject> records = this.cache.toList();
@@ -582,6 +589,13 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             }
 
             return Security.stripInaccessible(this.accessType, records).getRecords();
+        }
+
+        private List<SObject> getMockedList() {
+            if (this.mocks.size() == 1) {
+                return this.mocks[0].getMockedResult();
+            }
+            return this.mocks.remove(0).getMockedResult();
         }
     }
 

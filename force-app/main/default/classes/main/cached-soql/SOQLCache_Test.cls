@@ -87,7 +87,7 @@ private class SOQLCache_Test {
     @IsTest
     static void cacheInOrgCache() {
         // Test
-        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+        SOQLCache.of(Profile.SObjectType)
             .cacheInOrgCache()
             .with(Profile.Id, Profile.Name)
             .whereEqual(Profile.Name, 'System Administrator')
@@ -105,7 +105,7 @@ private class SOQLCache_Test {
     @IsTest
     static void cacheInSessionCache() {
         // Test
-        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+        SOQLCache.of(Profile.SObjectType)
             .cacheInSessionCache()
             .with(Profile.Id, Profile.Name)
             .whereEqual(Profile.Name, 'System Administrator')

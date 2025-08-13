@@ -2533,7 +2533,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public void mock(List<SoqlMock> mocks) {
-            this.mocks = mocks;
+            this.mocks = mocks ?? new List<SoqlMock>();
         }
 
         public SObject toObject() {
