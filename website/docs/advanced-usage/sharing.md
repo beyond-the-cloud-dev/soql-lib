@@ -17,7 +17,7 @@ none (by default) | `USER_MODE` | `with sharing`
 
 ## Default
 
-`USER_MODE` is a enabled by default. It means that the object permissions, field-level security and **sharing rules are enforced**.
+`USER_MODE` is enabled by default. It means that the object permissions, field-level security and **sharing rules are enforced**.
 
 ```apex title="SOQL_Account.cls"
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {

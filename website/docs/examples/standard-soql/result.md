@@ -22,6 +22,68 @@ Id accountId = [SELECT Id FROM Account LIMIT 1].Id;
 Id accountId = SOQL.of(Account.SObjectType).setLimit(1).toId();
 ```
 
+## toIds()
+
+**Apex**
+
+```apex
+Set<Id> accountIds = new Set<Id>();
+
+for (Account acc : [SELECT Id FROM Account WHERE Industry = 'Technology']) {
+    accountIds.add(acc.Id);
+}
+```
+
+**SOQL Lib**
+
+```apex
+Set<Id> accountIds = SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.Filter.with(Account.Industry).equal('Technology'))
+    .toIds();
+```
+
+## toIdsOf
+
+**Apex**
+
+```apex
+Set<Id> ownerIds = new Set<Id>();
+
+for (Account acc : [SELECT OwnerId FROM Account WHERE Industry = 'Technology']) {
+    ownerIds.add(acc.OwnerId);
+}
+```
+
+**SOQL Lib**
+
+```apex
+Set<Id> ownerIds = SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.Filter.with(Account.Industry).equal('Technology'))
+    .toIdsOf(Account.OwnerId);
+```
+
+## toIdsOf related field
+
+**Apex**
+
+```apex
+Set<Id> parentAccountIds = new Set<Id>();
+
+for (Account acc : [SELECT Parent.Id FROM Account WHERE Industry = 'Technology']) {
+    if (acc.Parent != null) {
+        parentAccountIds.add(acc.Parent.Id);
+    }
+}
+```
+
+**SOQL Lib**
+
+```apex
+Set<Id> parentAccountIds = SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.Filter.with(Account.Industry).equal('Technology'))
+    .toIdsOf('Parent', Account.Id);
+```
+
 ## doExist
 
 **Apex**

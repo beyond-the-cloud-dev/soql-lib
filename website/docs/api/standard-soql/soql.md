@@ -206,7 +206,7 @@ The following are methods for using `SOQL`:
 ## INIT
 ### of
 
-Conctructs an `SOQL`.
+Constructs an `SOQL`.
 
 **Signature**
 

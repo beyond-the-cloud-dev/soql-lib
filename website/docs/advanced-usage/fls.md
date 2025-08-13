@@ -16,7 +16,7 @@ none (by default) | `USER_MODE` | enforced
 
 ## Default
 
-`USER_MODE` is a enabled by default. It means that **the object permissions, field-level security**, as well as sharing rules, **are enforced**.
+`USER_MODE` is enabled by default. It means that **the object permissions, field-level security**, as well as sharing rules, **are enforced**.
 
 ```apex title="SOQL_Account.cls"
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
@@ -46,7 +46,7 @@ public without sharing class ExampleController {
 
 ### System Mode
 
-Developer can disable `USER_MODE` and enable `SYSTEM_MODE` using `.systemMode()` method.
+Developers can disable `USER_MODE` and enable `SYSTEM_MODE` using the `.systemMode()` method.
 
 ```apex title="SOQL_Account.cls"
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
