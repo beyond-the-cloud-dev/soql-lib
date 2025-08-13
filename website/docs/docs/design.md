@@ -14,9 +14,132 @@ You don't need to think about dependencies; everything you need is stored in [SO
 Different clauses are encapsulated in small, inner classes.
 All crucial information is kept at the top of the class, so developers can use it even without reading the documentation.
 
+## Class Architecture
+
+The following diagram shows the internal structure and relationships between the main classes and interfaces in SOQL Lib:
+
+## Core Architecture
+
+```mermaid
+flowchart LR
+    %% Main Vertical Column - Left Side
+    subgraph MainComponents ["Main Architecture"]
+        direction TB
+        SOQL["SOQL<br/>(Main Class)<br/>implements Queryable"]
+        SoqlBuilder["SoqlBuilder<br/>(Query Construction)"]
+        Executor["Executor<br/>(Database Operations)"]
+        Converter["Converter<br/>(Result Transformation)"]
+        Binder["Binder<br/>(Variable Binding)"]
+        
+        SOQL --> SoqlBuilder
+        SOQL --> Executor
+        SOQL --> Converter
+        SOQL --> Binder
+    end
+    
+    %% Implementation Details - Right Side
+    subgraph FieldDetails ["Field System"]
+        direction TB
+        PlainFields["PlainFields"]
+        RelationshipFields["RelationshipFields"]
+        AggregateFunctionsFields["AggregateFunctionsFields"]
+        FunctionsFields["FunctionsFields"]
+    end
+    
+    subgraph FilterDetails ["Filter System"]
+        direction TB
+        SoqlFilterGroup["SoqlFilterGroup<br/>implements FilterGroup"]
+        SoqlFilter["SoqlFilter<br/>implements Filter"]
+        SoqlJoinQuery["SoqlJoinQuery<br/>implements InnerJoin"]
+        
+        SoqlFilterGroup --> SoqlFilter
+        SoqlFilter --> SoqlJoinQuery
+    end
+    
+    subgraph HavingDetails ["Having System"]
+        direction TB
+        SoqlHavingFilterGroup["SoqlHavingFilterGroup<br/>implements HavingFilterGroup"]
+        SoqlHavingFilter["SoqlHavingFilter<br/>implements HavingFilter"]
+        
+        SoqlHavingFilterGroup --> SoqlHavingFilter
+    end
+    
+    subgraph SharingDetails ["Sharing System"]
+        direction TB
+        InheritedSharing["InheritedSharing"]
+        WithSharing["WithSharing"]
+        WithoutSharing["WithoutSharing"]
+    end
+    
+    subgraph MockingDetails ["Mocking System"]
+        direction TB
+        SObjectMock["SObjectMock"]
+        CountMock["CountMock"]
+        AggregateResultProxys["AggregateResultProxys"]
+        SoqlAggregateResultProxy["SoqlAggregateResultProxy<br/>implements AggregateResultProxy"]
+        RandomIdGenerator["RandomIdGenerator"]
+        
+        AggregateResultProxys --> SoqlAggregateResultProxy
+        SObjectMock --> RandomIdGenerator
+    end
+    
+    subgraph OtherComponents ["Other Components"]
+        direction TB
+        SoqlSubQuery["SoqlSubQuery<br/>implements SubQuery"]
+        SoqlOrderBy["SoqlOrderBy"]
+        SoqlFrom["SoqlFrom"]
+        SoqlGroupBy["SoqlGroupBy"]
+        SoqlLimit["SoqlLimit"]
+        SoqlOffset["SoqlOffset"]
+        SoqlFor["SoqlFor"]
+        SoqlScope["SoqlScope"]
+        SoqlDataCategoryFilter["SoqlDataCategoryFilter<br/>implements DataCategoryFilter"]
+    end
+    
+    %% Connections from Main to Details
+    SoqlBuilder -.-> FieldDetails
+    SoqlBuilder -.-> FilterDetails
+    SoqlBuilder -.-> HavingDetails
+    SoqlBuilder -.-> OtherComponents
+    Executor -.-> SharingDetails
+    Executor -.-> MockingDetails
+    
+    %% Styling
+    classDef mainClass fill:#e1f5fe,stroke:#01579b,stroke-width:4px,font-size:16px
+    classDef coreComponent fill:#f3e5f5,stroke:#4a148c,stroke-width:3px,font-size:14px
+    classDef implementation fill:#fff3e0,stroke:#e65100,stroke-width:1px,font-size:11px
+    classDef subgraphStyle fill:#f9f9f9,stroke:#666,stroke-width:2px
+    
+    class SOQL mainClass
+    class SoqlBuilder,Executor,Converter,Binder coreComponent
+    class PlainFields,RelationshipFields,AggregateFunctionsFields,FunctionsFields,SoqlFilterGroup,SoqlFilter,SoqlJoinQuery,SoqlHavingFilterGroup,SoqlHavingFilter,SoqlSubQuery,SoqlOrderBy,SoqlFrom,SoqlGroupBy,SoqlLimit,SoqlOffset,SoqlFor,SoqlScope,SoqlDataCategoryFilter,InheritedSharing,WithSharing,WithoutSharing,SObjectMock,CountMock,AggregateResultProxys,SoqlAggregateResultProxy,RandomIdGenerator implementation
+```
+
+## Public API
+
+### Static Factory Methods
+- `SOQL.FilterGroup` → creates FilterGroup
+- `SOQL.Filter` → creates Filter  
+- `SOQL.HavingFilterGroup` → creates HavingFilterGroup
+- `SOQL.HavingFilter` → creates HavingFilter
+- `SOQL.SubQuery` → creates SubQuery
+- `SOQL.InnerJoin` → creates InnerJoin
+- `SOQL.DataCategoryFilter` → creates DataCategoryFilter
+
+### Public Interfaces
+- `Queryable` - Main query interface
+- `FilterGroup` - Filter grouping
+- `Filter` - Individual filters
+- `HavingFilterGroup` - Having clause grouping  
+- `HavingFilter` - Having clause filters
+- `SubQuery` - Subquery operations
+- `InnerJoin` - Join operations
+- `DataCategoryFilter` - Data category filtering
+- `Mockable` - Mocking interface
+- `AggregateResultProxy` - Aggregate result handling
 
 ```apex
-public interface Selector {
+    public interface Selector {
         Queryable query();
     }
 
@@ -102,11 +225,14 @@ public interface Selector {
         Queryable have(String havingConditions);
         Queryable havingConditionLogic(String havingConditionsOrder);
         Queryable anyHavingConditionMatching();
+        // WITH DATA CATEGORY
+        Queryable withDataCategory(DataCategoryFilter dataCategoryFilter);
         // ORDER BY
         Queryable orderBy(SObjectField field);
         Queryable orderBy(String field);
         Queryable orderBy(String field, String direction);
         Queryable orderBy(String relationshipName, SObjectField field);
+        Queryable orderByCount(SObjectField field);
         Queryable sortDesc();
         Queryable sort(String direction);
         Queryable nullsLast();
@@ -144,10 +270,12 @@ public interface Selector {
         String toString();
         Object toValueOf(SObjectField fieldToExtract);
         Set<String> toValuesOf(SObjectField fieldToExtract);
+        Set<String> toValuesOf(String relationshipName, SObjectField targetKeyField);
         Integer toInteger();
         SObject toObject();
         List<SObject> toList();
         List<AggregateResult> toAggregated();
+        List<SOQL.AggregateResultProxy> toAggregatedProxy();
         Map<Id, SObject> toMap();
         Map<String, SObject> toMap(SObjectField keyField);
         Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField);
@@ -304,6 +432,31 @@ public interface Selector {
         Boolean hasValue();
     }
 
+    public interface DataCategoryFilterGroup {
+        DataCategoryFilterGroup add(DataCategoryFilter dataCategoryFilter);
+    }
+
+    public interface DataCategoryFilter {
+        // FIELDS
+        DataCategoryFilter with(String field);
+        // COMPERATORS
+        DataCategoryFilter at(String category);
+        DataCategoryFilter at(Iterable<String> categories);
+        DataCategoryFilter above(String category);
+        DataCategoryFilter above(Iterable<String> categories);
+        DataCategoryFilter below(String category);
+        DataCategoryFilter below(Iterable<String> categories);
+        DataCategoryFilter aboveOrBelow(String category);
+        DataCategoryFilter aboveOrBelow(Iterable<String> categories);
+
+        Boolean hasValue();
+    }
+
+    public interface AggregateResultProxy {
+        Object get(String field);
+        Map<String, Object> getPopulatedFieldsAsMap();
+    }
+
     public static SubQuery SubQuery {
         get { return new SoqlSubQuery(); }
     }
@@ -328,6 +481,10 @@ public interface Selector {
         get { return new SoqlHavingFilter(); }
     }
 
+    public static DataCategoryFilter DataCategoryFilter {
+        get { return new SoqlDataCategoryFilter(); }
+    }
+
     public static SOQL of(SObjectType ofObject) {
         return new SOQL(ofObject);
     }
@@ -344,10 +501,16 @@ public interface Selector {
         return queryIdToMock.get(mockId);
     }
 
+    @TestVisible
+    private static RandomIdGenerator IdGenerator = new RandomIdGenerator();
+
     public interface Mockable {
         // SObject
         Mockable thenReturn(SObject record);
         Mockable thenReturn(List<SObject> records);
+        // AggregateResultProxy
+        Mockable thenReturn(List<Map<String, Object>> aggregatedResults);
+        Mockable thenReturn(Map<String, Object> aggregatedResult);
         // Count
         Mockable thenReturn(Integer count);
     }
