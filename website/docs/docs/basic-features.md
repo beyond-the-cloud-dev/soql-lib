@@ -649,9 +649,7 @@ public static Set<Id> getParentAccountIds() {
     Set<Id> parentIds = new Set<Id>();
 
     for (Account account : [SELECT Parent.Id FROM Account WHERE Parent.Id != null]) {
-        if (account.Parent != null) {
-            parentIds.add(account.Parent.Id);
-        }
+        parentIds.add(account.Parent.Id);
     }
 
     return parentIds;

@@ -70,9 +70,7 @@ Set<Id> ownerIds = SOQL.of(Account.SObjectType)
 Set<Id> parentAccountIds = new Set<Id>();
 
 for (Account acc : [SELECT Parent.Id FROM Account WHERE Industry = 'Technology']) {
-    if (acc.Parent != null) {
-        parentAccountIds.add(acc.Parent.Id);
-    }
+    parentAccountIds.add(acc.Parent.Id);
 }
 ```
 
