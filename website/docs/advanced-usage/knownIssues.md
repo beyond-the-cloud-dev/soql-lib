@@ -119,3 +119,39 @@ List<Contact> contacts = SOQL.of(Contact.SObjectType)
     .setLimit(10)
     .toList();
 ```
+
+## Method does not exist or incorrect signature: void of(Schema.SObjectField)
+
+Error: `Error: Method does not exist or incorrect signature: void of(Schema.SObjectField) from the type SOQL`
+
+### Root Cause
+
+This error occurs due to **Salesforce's incomplete SObjectType implementation** for certain system objects. The issue stems from Salesforce's internal architecture where certain objects are treated as "pseudo-SObjects" that don't fully implement the standard SObject interface, leading to missing or incomplete method signatures.
+
+### Technical Context
+
+**Primary Object Affected:**
+
+- RecordType
+
+**Example that fails:**
+
+```apex
+SOQL.of(RecordType.SObjectType)
+    .setLimit(1)
+    .toObject();
+```
+
+### Solution
+
+#### Use String API Name Instead of SObjectType
+
+Use `SOQL.of('RecordType')` with the string API name instead of using the SObjectType reference.
+
+**Example that works:**
+
+```apex
+SOQL.of('RecordType')
+    .setLimit(1)
+    .toObject();
+```
