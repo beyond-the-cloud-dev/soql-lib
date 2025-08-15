@@ -518,7 +518,7 @@ flowchart LR
 
 ## Functional Programming
 
-SOQL Lib uses the concept called [Apex Functional Programming](https://www.apexfp.org/).
+SOQL Lib uses the concept called [Apex Functional Programming](https://github.com/ipavlic/apex-fp).
 
 You can see an example of it with `SOQL.SubQuery`, `SOQL.FilterGroup`, `SOQL.Filter` and `SOQL.InnerJoin`.
 Those classes encapsulate the logic, and only necessary methods are exposed via interfaces.
