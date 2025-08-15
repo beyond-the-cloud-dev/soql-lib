@@ -2078,6 +2078,21 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void groupByRelatedToAggregatedProxy() {
+        // Setup
+        insertAccounts();
+
+        // Test
+        List<SOQL.AggregateResultProxy> results = SOQL.of(Account.SObjectType)
+            .count(Account.Name, 'names')
+            .groupBy('Account.CreatedBy', User.Id)
+            .toAggregatedProxy();
+
+        // Verify
+        Assert.areEqual(1, results.size(), 'Only one aggregated result should be returned, as the accounts were created by the same user.');
+    }
+
+    @IsTest
     static void groupByRollup() {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
@@ -2849,6 +2864,146 @@ private class SOQL_Test {
         );
     }
 
+    // WITH DATA CATEGORY
+
+    @IsTest
+    static void dataCategoryFilterWithStringField() {
+        // Test
+        String soql = SOQL.of('Knowledge__kav')
+            .with('Title')
+            .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').aboveOrBelow('Europe__c'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c ABOVE_OR_BELOW Europe__c', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dataCategoryFilterAt() {
+        // Test
+        String soql = SOQL.of('Knowledge__kav')
+            .with('Title')
+            .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').at('Europe__c'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c AT Europe__c', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dataCategoryFilterAtMultiple() {
+        // Test
+        String soql = SOQL.of('Knowledge__kav')
+            .with('Title')
+            .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').at(new List<String>{ 'Europe__c', 'North_America__c' }))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c AT (Europe__c, North_America__c)', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dataCategoryFilterAbove() {
+        // Test
+        String soql = SOQL.of('Knowledge__kav')
+            .with('Title')
+            .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').above('Europe__c'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c ABOVE Europe__c', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dataCategoryFilterAboveMultipe() {
+        // Test
+        String soql = SOQL.of('Knowledge__kav')
+            .with('Title')
+            .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').above(new List<String>{ 'Europe__c', 'North_America__c' }))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c ABOVE (Europe__c, North_America__c)', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dataCategoryFilterBelow() {
+        // Test
+        String soql = SOQL.of('Knowledge__kav')
+            .with('Title')
+            .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').below('Europe__c'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c BELOW Europe__c', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dataCategoryFilterBelowMultipe() {
+        // Test
+        String soql = SOQL.of('Knowledge__kav')
+            .with('Title')
+            .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').below(new List<String>{ 'Europe__c', 'North_America__c' }))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c BELOW (Europe__c, North_America__c)', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dataCategoryFilterAboveOrBelow() {
+        // Test
+        String soql = SOQL.of('Knowledge__kav')
+            .with('Title')
+            .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').aboveOrBelow('Europe__c'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c ABOVE_OR_BELOW Europe__c', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dataCategoryFilterAboveOrBelowMultipe() {
+        // Test
+        String soql = SOQL.of('Knowledge__kav')
+            .with('Title')
+            .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').aboveOrBelow(new List<String>{ 'Europe__c', 'North_America__c' }))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c ABOVE_OR_BELOW (Europe__c, North_America__c)', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dataCategoryWithMultipeDataCategoryFilters() {
+        // Test
+        String soql = SOQL.of('Knowledge__kav')
+            .with('Title')
+            .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').aboveOrBelow(new List<String>{ 'Europe__c', 'North_America__c' }))
+            .withDataCategory(SOQL.DataCategoryFilter.with('Product__c').at(new List<String>{ 'Product1__c', 'Product2__c' }))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c ABOVE_OR_BELOW (Europe__c, North_America__c) AND Product__c AT (Product1__c, Product2__c)', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dataCategoryWithMultipeFilters() {
+        // Test
+        String soql = SOQL.of('Knowledge__kav')
+            .with('Title')
+            .whereAre(SOQL.Filter.with('PublishStatus').equal('Draft'))
+            .whereAre(SOQL.Filter.with('Language').equal('en_US'))
+            .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').aboveOrBelow(new List<String>{ 'Europe__c', 'North_America__c' }))
+            .withDataCategory(SOQL.DataCategoryFilter.with('Product__c').at('Product1__c'))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Title FROM Knowledge__kav WHERE PublishStatus = :v1 AND Language = :v2 WITH DATA CATEGORY Geography__c ABOVE_OR_BELOW (Europe__c, North_America__c) AND Product__c AT Product1__c', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    // ORDER BY
+
     @IsTest
     static void orderByString() {
         // Test
@@ -2870,6 +3025,18 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual('SELECT Id FROM Account ORDER BY Industry ASC NULLS FIRST', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void dynamicNullsOrder() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .orderBy('Industry')
+            .nullsOrder('LAST')
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account ORDER BY Industry ASC NULLS LAST', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2905,6 +3072,19 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual('SELECT Id FROM Contact ORDER BY Account.Name ASC NULLS FIRST', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void orderByCount() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Industry)
+            .groupBy(Account.Industry)
+            .orderByCount(Account.Industry).sortDesc().nullsLast()
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Industry FROM Account GROUP BY Industry ORDER BY COUNT(Industry) DESC NULLS LAST', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2976,7 +3156,7 @@ private class SOQL_Test {
     @IsTest
     static void byId() {
         // Setup
-        Id fakeAccountId = generateRandomId('001');
+        Id fakeAccountId = SOQL.IdGenerator.get('001');
 
         // Test
         SOQL.Queryable builder = SOQL.of(Account.SObjectType).byId(fakeAccountId);
@@ -3008,7 +3188,7 @@ private class SOQL_Test {
     @IsTest
     static void byIdsSet() {
         // Verify
-        Set<Id> accountIds = new Set<Id>{ generateRandomId('001') };
+        Set<Id> accountIds = new Set<Id>{ SOQL.IdGenerator.get('001') };
 
         // Test
         SOQL.Queryable builder = SOQL.of(Account.SObjectType).byIds(accountIds);
@@ -3024,7 +3204,7 @@ private class SOQL_Test {
     @IsTest
     static void byIdsList() {
         // Setup
-        List<Id> accountIds = new List<Id>{ generateRandomId('001') };
+        List<Id> accountIds = new List<Id>{ SOQL.IdGenerator.get('001') };
 
         // Test
         SOQL.Queryable builder = SOQL.of(Account.SObjectType).byIds(accountIds);
@@ -3259,6 +3439,15 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void mockIdSpecifiedButQueryNotMocked() {
+        // Test
+        List<Account> accounts = SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toList();
+
+        // Verify
+        Assert.areEqual(0, accounts.size(), 'The mocked accounts should be returned.');
+    }
+
+    @IsTest
     static void mockingSingleRecord() {
         // Setup
         Account testAccount = new Account(Name = 'Test 1');
@@ -3294,7 +3483,7 @@ private class SOQL_Test {
     @IsTest
     static void mockNoResults() {
         // Test
-        SOQL.setMock('mockingQuery', new List<Account>());
+        SOQL.mock('mockingQuery').thenReturn(new List<Account>());
         List<Account> result = SOQL.of(Account.sObjectType).with(Account.Name).mockId('mockingQuery').toList();
 
         // Verify
@@ -3303,6 +3492,7 @@ private class SOQL_Test {
 
     @IsTest
     static void mockingMultipleRecords() {
+        // Setup
         List<Account> testAccounts = new List<Account>{
             new Account(Name = 'Test 1'),
             new Account(Name = 'Test 2')
@@ -3326,7 +3516,8 @@ private class SOQL_Test {
         Account result = (Account) SOQL.of(Account.sObjectType).with(Account.Name).mockId('mockingQuery').toObject();
 
         // Verify
-        Assert.areEqual(testAccount, result, 'The mocked account should be returned.');
+        Assert.areEqual(testAccount.Name, result.Name, 'The result account Name should be the same as the mocked account Name.');
+        Assert.isNotNull(result.Id, 'The result account Id should be always set even if the mocked account Id is not set.');
     }
 
     @IsTest
@@ -3375,8 +3566,8 @@ private class SOQL_Test {
     static void mockWithManyPlainFieldsWithId() {
         // Setup
         List<Account> accounts = new List<Account>{
-            new Account(Id = generateRandomId('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
-            new Account(Id = generateRandomId('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+            new Account(Id = SOQL.IdGenerator.get('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Id = SOQL.IdGenerator.get('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
         };
 
         // Test
@@ -3460,7 +3651,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.isNotNull(soqlException, 'Query mocking exception should be thrown.');
-        Assert.areEqual('Aggregate functions mocking is currently not supported.', soqlException.getMessage(), 'Mocking field aliasing is not supproted');
+        Assert.areEqual('Use toAggregatedProxy() to mock AggregateResult records.', soqlException.getMessage(), 'Mocking field aliasing is not supproted');
     }
 
     @IsTest
@@ -3484,7 +3675,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.isNotNull(soqlException, 'Query mocking exception should be thrown.');
-        Assert.areEqual('Aggregate functions mocking is currently not supported.', soqlException.getMessage(), 'Mocking field aliasing is not supproted');
+        Assert.areEqual('Use toAggregatedProxy() to mock AggregateResult records.', soqlException.getMessage(), 'Mocking field aliasing is not supproted');
     }
 
     @IsTest
@@ -3514,6 +3705,187 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void mockWithAggregateResultProxy() {
+        // Setup
+        Map<String, Object> aggregateResult = new Map<String, Object>{ 'LeadSource' => 'Web',  'total' => 10};
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(aggregateResult);
+
+        List<SOQL.AggregateResultProxy> results = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .COUNT(Lead.Id, 'total')
+            .groupBy(Lead.LeadSource)
+            .mockId('mockingQuery')
+            .toAggregatedProxy();
+
+        // Verify
+        Assert.areEqual(1, results.size(), 'The size of the aggregate results should match the mocked size.');
+
+        SOQL.AggregateResultProxy result = results[0];
+
+        Assert.isNotNull(result.getPopulatedFieldsAsMap(), 'AggregateResult should contain populated fields.');
+        Assert.areEqual(10, result.get('total'), 'AggregateResult should contain the total field.');
+        Assert.areEqual('Web', result.get('LeadSource'), 'AggregateResult should contain the LeadSource field.');
+    }
+
+    @IsTest
+    static void mockWithAggregateResultsProxy() {
+        // Setup
+        List<Map<String, Object>> aggregateResults = new List<Map<String, Object>>{
+            new Map<String, Object>{ 'LeadSource' => 'Web',  'total' => 10},
+            new Map<String, Object>{ 'LeadSource' => 'Phone', 'total' => 5},
+            new Map<String, Object>{ 'LeadSource' => 'Email', 'total' => 3}
+        };
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(aggregateResults);
+
+        List<SOQL.AggregateResultProxy> result = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .COUNT(Lead.Id, 'total')
+            .groupBy(Lead.LeadSource)
+            .mockId('mockingQuery')
+            .toAggregatedProxy();
+
+        // Verify
+        Assert.areEqual(3, result.size(), 'The size of the aggregate results should match the mocked size.');
+
+        for (SOQL.AggregateResultProxy aggregateResult : result) {
+            Assert.isNotNull(aggregateResult.getPopulatedFieldsAsMap(), 'AggregateResult should contain populated fields.');
+            Assert.isNotNull(aggregateResult.get('total'), 'AggregateResult should contain the total field.');
+            Assert.isNotNull(aggregateResult.get('LeadSource'), 'AggregateResult should contain the LeadSource field.');
+        }
+    }
+
+    @IsTest
+    static void mockSubQuery() {
+        // Setup
+        List<Account> mocks = (List<Account>) JSON.deserialize(
+            JSON.serialize(
+                new List<Map<String, Object>>{
+                    new Map<String, Object>{
+                        'Name' => 'Account Name',
+                        'Industry' => 'IT',
+                        'Contacts' => new Map<String, Object>{
+                            'totalSize' => 2,
+                            'done' => true,
+                            'records' => new List<Map<String, Object>>{
+                                new Map<String, Object>{ 'Name' => 'Contact Name', 'Email' => 'contact.email@address.com', 'Phone' => '0987654321' },
+                                new Map<String, Object>{ 'Name' => 'Contact Name 2', 'Email' => 'contact2.email@address.com', 'Phone' => '1234567890' }
+                            }
+                        }
+                    }
+                }
+            ),
+            List<Account>.class
+        );
+
+        SOQL.mock('mockingQuery').thenReturn(mocks);
+
+        // Test
+        List<Account> result = SOQL.of(Account.SObjectType)
+            .with(Account.Name, Account.Industry)
+            .with(SOQL.SubQuery.of('Contacts')
+                .with(Contact.Id, Contact.Name, Contact.Phone)
+            )
+            .mockId('mockingQuery')
+            .toList();
+
+        // Verify
+        Assert.areEqual(1, result.size(), 'The size of the mocked accounts should match the expected one.');
+
+        Account account = result[0];
+
+        Assert.areEqual('Account Name', account.Name, 'The mocked account name should match the expected one.');
+        Assert.areEqual('IT', account.Industry, 'The mocked account industry should match the expected one.');
+        Assert.areEqual(2, account.Contacts.size(), 'The size of the mocked contacts should match the expected one.');
+
+        Contact contact1 = (Contact) account.Contacts[0];
+
+        Assert.areEqual('Contact Name', contact1.Name, 'The mocked contact name should match the expected one.');
+        Assert.areEqual('contact.email@address.com', contact1.Email, 'The mocked contact email should match the expected one.');
+        Assert.areEqual('0987654321', contact1.Phone, 'The mocked contact phone should match the expected one.');
+
+        Contact contact2 = (Contact) account.Contacts[1];
+
+        Assert.areEqual('Contact Name 2', contact2.Name, 'The mocked contact name should match the expected one.');
+        Assert.areEqual('contact2.email@address.com', contact2.Email, 'The mocked contact email should match the expected one.');
+        Assert.areEqual('1234567890', contact2.Phone, 'The mocked contact phone should match the expected one.');
+    }
+
+    @IsTest
+    static void mockSubQueryWithStrippingAdditionalFields() {
+        // Setup
+        List<Account> mocks = (List<Account>) JSON.deserialize(
+            JSON.serialize(
+                new List<Map<String, Object>>{
+                    new Map<String, Object>{
+                        'Name' => 'Account Name',
+                        'Industry' => 'IT',
+                        'Contacts' => new Map<String, Object>{
+                            'totalSize' => 2,
+                            'done' => true,
+                            'records' => new List<Map<String, Object>>{
+                                new Map<String, Object>{ 'Name' => 'Contact Name', 'Email' => 'contact.email@address.com', 'Phone' => '0987654321' },
+                                new Map<String, Object>{ 'Name' => 'Contact Name 2', 'Email' => 'contact2.email@address.com', 'Phone' => '1234567890' }
+                            }
+                        },
+                        'Opportunities' => new Map<String, Object>{
+                            'totalSize' => 1,
+                            'done' => true,
+                            'records' => new List<Map<String, Object>>{
+                                new Map<String, Object>{ 'Name' => 'Opportunity Name', 'Amount' => 100000 }
+                            }
+                        }
+                    }
+                }
+            ),
+            List<Account>.class
+        );
+
+        SOQL.mock('mockingQuery').thenReturn(mocks);
+
+        // Test
+        List<Account> result = SOQL.of(Account.SObjectType)
+            .with(Account.Name, Account.Industry)
+            .with(SOQL.SubQuery.of('Contacts')
+                .with(Contact.Id, Contact.Name, Contact.Phone)
+            )
+            .mockId('mockingQuery')
+            .toList();
+
+        // Verify
+        Account account = result[0];
+
+        Assert.areEqual(1, result.size(), 'The size of the mocked accounts should match the expected one.');
+        Assert.areEqual(2, account.Contacts.size(), 'The size of the mocked opportunities should match the expected one.');
+        Assert.areEqual(0, account.Opportunities.size(), 'The size of the mocked opportunities should be 0, because it was not requested.');
+    }
+
+    @IsTest
+    static void mockStack() {
+        // Setup
+        SOQL.mock('mockingQuery').thenReturn(new Account(Name = 'Test 1'));
+        SOQL.mock('mockingQuery').thenReturn(new Account(Name = 'Test 2'));
+        SOQL.mock('mockingQuery').thenReturn(new Account(Name = 'Test 3'));
+
+        // Test
+        SOQL.Queryable query = SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery');
+
+        Account acc1 = (Account) query.toObject();
+        Account acc2 = (Account) query.toObject();
+        Account acc3 = (Account) query.toObject();
+        Account acc4 = (Account) query.toObject();
+
+        // Verify
+        Assert.areEqual('Test 1', acc1.Name, 'The returned account name should match the expected one.');
+        Assert.areEqual('Test 2', acc2.Name, 'The returned account name should match the expected one.');
+        Assert.areEqual('Test 3', acc3.Name, 'The returned account name should match the expected one.');
+        Assert.areEqual('Test 3', acc4.Name, 'The returned account name should match the expected one.');
+    }
+
+    @IsTest
     static void toId() {
         // Setup
         Account acc = new Account(Name = 'Test 1');
@@ -3524,6 +3896,42 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(acc.Id, accountId, 'The returned Id should match the expected one.');
+    }
+
+    @IsTest
+    static void toIds() {
+        // Setup
+        List<Account> accounts = insertAccounts();
+
+        // Test
+        Set<Id> accountIds = SOQL.of(Account.SObjectType).byIds(accounts).toIds();
+
+        // Verify
+        Assert.areEqual(accounts.size(), accountIds.size(), 'The size of the returned set should be equal to the size of the inserted accounts.');
+    }
+
+    @IsTest
+    static void toIdsOf() {
+        // Setup
+        List<Account> accounts = insertAccountsWithParents();
+
+        // Test
+        Set<Id> parentIds = SOQL.of(Account.SObjectType).byIds(accounts).toIdsOf(Account.ParentId);
+
+        // Verify
+        Assert.areEqual(accounts.size(), parentIds.size(), 'The size of the returned set should be equal to the size of the inserted accounts.');
+    }
+
+    @IsTest
+    static void toIdsOfRelationshipField() {
+        // Setup
+        List<Account> accounts = insertAccountsWithParents();
+
+        // Test
+        Set<Id> createdByIds = SOQL.of(Account.SObjectType).byIds(accounts).toIdsOf('Parent', Account.CreatedById);
+
+        // Verify
+        Assert.areEqual(1, createdByIds.size(), 'The size of the returned set should be 1, because the same user inserted the accounts.');
     }
 
     @IsTest
@@ -3586,6 +3994,19 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void mockedToValueOf() {
+        // Setup
+        String accountName = 'Test 1';
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(new Account(Name = accountName));
+        String resultAccName = (String) SOQL.of(Account.SObjectType).mockId('mockingQuery').toValueOf(Account.Name);
+
+        // Verify
+        Assert.areEqual(accountName, resultAccName, 'The returned account name should match the expected one.');
+    }
+
+    @IsTest
     static void toValuesOf() {
         // Setup
         List<Account> accounts = insertAccounts();
@@ -3633,6 +4054,31 @@ private class SOQL_Test {
 
         // Verify
         Assert.isNull(accountIndustry, 'The account industry should be null, because the record does not exist.');
+    }
+
+    @IsTest
+    static void toValuesOfRelationshipField() {
+        // Setup
+        List<Account> accounts = insertAccountsWithParents();
+
+        // Test
+        Set<String> accountNames = SOQL.of(Account.SObjectType)
+            .byIds(accounts)
+            .toValuesOf('Parent', Account.Name);
+
+        // Verify
+        Assert.areEqual(2, accountNames.size(), 'Each account should have a parent, so the size of the account names set should be equal to the size of the accounts.');
+    }
+
+    @IsTest
+    static void toValuesOfRelationshipFieldWhenReleatedRecordNotExist() {
+        // Test
+        Set<String> accountNames = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.name().equal('Test'))
+            .toValuesOf('Parent', Account.Name);
+
+        // Verify
+        Assert.isTrue(accountNames.isEmpty(), 'The account names set should be empty, because the related record does not exist.');
     }
 
     @IsTest
@@ -3740,11 +4186,28 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void mockedToMapWithoutMockedId() {
+        // Setup
+        List<Account> accounts = new List<Account>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        };
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(accounts);
+        Map<Id, Account> result = (Map<Id, Account>) SOQL.of(Account.SObjectType).mockId('mockingQuery').toMap();
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size(), 'Size of the result map should be equal to the size of the inserted accounts.');
+        Assert.areEqual(accounts.size(), result.keySet().size(), 'Size of the result map should be equal to the size of the inserted accounts.');
+    }
+
+    @IsTest
     static void toMapWithMockingWhenOtherFieldsAreSpecified() {
         // Setup
         List<Account> accounts = new List<Account>{
-            new Account(Id = generateRandomId('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
-            new Account(Id = generateRandomId('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+            new Account(Id = SOQL.IdGenerator.get('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Id = SOQL.IdGenerator.get('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
         };
 
         // Test
@@ -4090,17 +4553,5 @@ private class SOQL_Test {
             TimeZoneSidKey = 'America/Los_Angeles',
             UserName = 'queryselector@testorg.com'
         );
-    }
-
-    static Id generateRandomId(String prefix) {
-        String randomStringCharacters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
-        String randomString = '';
-
-        while (randomString.length() < 8) {
-            Integer idx = Math.mod(Math.abs(Crypto.getRandomInteger()), randomStringCharacters.length());
-            randomString += randomStringCharacters.substring(idx, idx + 1);
-        }
-
-        return Id.valueOf(prefix + '0000' + randomString);
     }
 }

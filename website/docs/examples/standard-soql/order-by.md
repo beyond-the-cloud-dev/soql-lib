@@ -1,5 +1,5 @@
 ---
-sidebar_position: 8
+sidebar_position: 80
 ---
 
 # ORDER BY
@@ -66,6 +66,27 @@ ORDER BY Account.Name
 SOQL.of(Contact.SObjectType)
     .orderBy('Account', Account.Name)
     .toList();
+```
+
+## COUNT
+
+**SOQL**
+
+```sql
+SELECT Industry
+FROM Account
+GROUP BY Industry
+ORDER BY COUNT(Industry) DESC NULLS LAST
+```
+
+**SOQL Lib**
+
+```apex
+SOQL.of(Account.SObjectType)
+    .with(Account.Industry)
+    .groupBy(Account.Industry)
+    .orderByCount(Account.Industry).sortDesc().nullsLast()
+    .toAggregated();
 ```
 
 ## Multiple Fields

@@ -16,9 +16,9 @@ none (by default) | `USER_MODE` | enforced
 
 ## Default
 
-`USER_MODE` is a enabled by default. It means that **the object permissions, field-level security**, as well as sharing rules, **are enforced**.
+`USER_MODE` is enabled by default. It means that **the object permissions, field-level security**, as well as sharing rules, **are enforced**.
 
-```apex
+```apex title="SOQL_Account.cls"
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
     public static SOQL_Account query() {
         return new SOQL_Account();
@@ -34,7 +34,7 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
 The object permissions, field-level security, and sharing rules are enforced.
 Access to the `Account` object and fields (`Account.Name` and `Account.AccountNumber`) will be checked.
 
-```apex
+```apex title="ExampleController.cls"
 public without sharing class ExampleController {
     public static List<Account> getAccountsByRecordType(String recordType) {
         return SOQL_Account.query().toList();
@@ -46,9 +46,9 @@ public without sharing class ExampleController {
 
 ### System Mode
 
-Developer can disable `USER_MODE` and enable `SYSTEM_MODE` using `.systemMode()` method.
+Developers can disable `USER_MODE` and enable `SYSTEM_MODE` using the `.systemMode()` method.
 
-```apex
+```apex title="SOQL_Account.cls"
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
     public static SOQL_Account query() {
         return new SOQL_Account();
@@ -64,7 +64,7 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
 
 The object permissions and field-level permissions are ignored.
 
-```apex
+```apex title="ExampleController.cls"
 public without sharing class ExampleController {
     public static List<Account> getAccountsByRecordType(String recordType) {
         return SOQL_Account.query().toList();
@@ -78,7 +78,7 @@ public without sharing class ExampleController {
 You may encounter situations where you need object and field-level security but want to ignore sharing rules (`without sharing`).
 To achieve this, use `.systemMode()`, `.withoutSharing()` and `.stripInaccessible()`.
 
-```apex
+```apex title="SOQL_Account.cls"
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
     public static SOQL_Account query() {
         return new SOQL_Account();
@@ -96,7 +96,7 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
 
 The object permissions and field-level permissions are enforced, but sharing rules are ignored.
 
-```apex
+```apex title="ExampleController.cls"
 public without sharing class ExampleController {
     public static List<Account> getAccountsByRecordType(String recordType) {
         return SOQL_Account.query().toList();

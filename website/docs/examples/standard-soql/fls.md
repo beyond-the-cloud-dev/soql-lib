@@ -1,10 +1,10 @@
 ---
-sidebar_position: 11
+sidebar_position: 110
 ---
 
 # FIELD-LEVEL SECURITY
 
-For more details check Check [SOQL API - FIELD-LEVEL SECURITY](../../api/standard-soql/soql.md#field-level-security) and [Advanced - FIELD-LEVEL SECURITY](../../advanced-usage/fls.md)
+For more details check [SOQL API - FIELD-LEVEL SECURITY](../../api/standard-soql/soql.md#field-level-security) and [Advanced - FIELD-LEVEL SECURITY](../../advanced-usage/fls.md)
 
 > **NOTE! 🚨**
 > All examples use inline queries built with the SOQL Lib Query Builder.
@@ -29,7 +29,7 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
-or explicity:
+or explicitly:
 
 ```apex
 SOQL.of(Account.SObjectType)

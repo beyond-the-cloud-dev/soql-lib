@@ -67,7 +67,7 @@ The following are methods for `SubQuery`.
 ## INIT
 ### of
 
-Conctructs an `SubQuery`.
+Constructs a `SubQuery`.
 
 **Signature**
 

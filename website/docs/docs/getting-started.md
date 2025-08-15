@@ -133,13 +133,13 @@ public with sharing class ExampleController {
     - Mock external objects (__x) - External objects cannot be inserted in unit tests. You need to mock them.
     - Mock custom metadata - Custom metadata cannot be inserted in unit tests unless the developer uses the Metadata API. Mock can be a solution.
 3. **Control field-level security** - The best practice is to execute SOQLs `WITH USER_MODE` to enforce field-level security and object permissions of the running user. The selector layer can apply `WITH USER_MODE` by default to all of the queries, so the developer does not need to care about it. Developers can also add `WITH SYSTEM_MODE` to all SOQLs from a specific selector.
-4. **Control sharings rules** - The selector allows to execute of different methods in the same class in different sharing modes.
-5. **Avoid duplicates** - Generic SQOLs like `getById`, and `getByRecordType` can be stored in the selector class.
+4. **Control sharing rules** - The selector allows execution of different methods in the same class in different sharing modes.
+5. **Avoid duplicates** - Generic SOQLs like `getById` and `getByRecordType` can be stored in the selector class.
 6. **Default configuration** - The selector class can provide default SOQL configuration like default fields, FLS settings, and sharing rules.
-7. **Mocking** - The selector class has built in Mocking functionality that provides ability to dynamically return data in test execution
+7. **Mocking** - The selector class has built-in mocking functionality that provides the ability to dynamically return data in test execution
 8. **Caching** - The cached selector class allows you to cache records in Apex transactions, Session Cache, or Org Cache, which boosts your code's performance.
 
 ## License notes
 
-- For proper license management each repository should contain LICENSE file similar to this one.
-- Each original class should contain copyright mark: Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
+- For proper license management, each repository should contain a LICENSE file similar to this one.
+- Each original class should contain a copyright mark: Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
