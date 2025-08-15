@@ -118,13 +118,13 @@ flowchart LR
 ## Public API
 
 ### Static Factory Methods
-- `SOQL.FilterGroup` → creates FilterGroup
-- `SOQL.Filter` → creates Filter  
-- `SOQL.HavingFilterGroup` → creates HavingFilterGroup
-- `SOQL.HavingFilter` → creates HavingFilter
-- `SOQL.SubQuery` → creates SubQuery
-- `SOQL.InnerJoin` → creates InnerJoin
-- `SOQL.DataCategoryFilter` → creates DataCategoryFilter
+- [`SOQL.FilterGroup`](/api/standard-soql/soql-filters-group) → creates FilterGroup
+- [`SOQL.Filter`](/api/standard-soql/soql-filter) → creates Filter  
+- [`SOQL.HavingFilterGroup`](/api/standard-soql/soql-having-filter-group) → creates HavingFilterGroup
+- [`SOQL.HavingFilter`](/api/standard-soql/soql-having-filter) → creates HavingFilter
+- [`SOQL.SubQuery`](/api/standard-soql/soql-sub) → creates SubQuery
+- [`SOQL.InnerJoin`](/api/standard-soql/soql-join) → creates InnerJoin
+- [`SOQL.DataCategoryFilter`](/api/standard-soql/soql-data-category-filter) → creates DataCategoryFilter
 
 ### Public Interfaces
 - `Queryable` - Main query interface

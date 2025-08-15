@@ -16,6 +16,10 @@ The SOQL Lib provides functional constructs for SOQL queries in Apex.
 
 ## Examples
 
+⚠️ You can find more examples on the [Showcases](/examples/showcase) page.
+
+⚠️ You can find all method on the [API](/api) page.
+
 **Standard SOQL**
 
 ```apex
