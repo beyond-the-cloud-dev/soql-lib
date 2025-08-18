@@ -20,6 +20,18 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable query();
     }
 
+    public static Queryable of(SObjectType ofObject) { // SOQL.of(Account.SObjectType)
+        return new SOQL(ofObject);
+    }
+
+    public static Queryable of(String ofObject) { // SOQL.of('Account')
+        return new SOQL(ofObject);
+    }
+
+    public static Evaluatable evaluate(List<SObject> staticQuery) { // SOQL.evaluate([SELECT Id FROM Account])
+        return null;//new SoqlEvaluator(expression);
+    }
+
     public interface Queryable {
         // SELECT
         Queryable with(SObjectField field);
@@ -165,6 +177,31 @@ public virtual inherited sharing class SOQL implements Queryable {
         Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField);
         Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
         Database.QueryLocator toQueryLocator();
+    }
+
+    public interface Evaluatable {
+        // MOCKING
+        Evaluatable mockId(String mockId);
+        // RESULT
+        Id toId();
+        Set<Id> toIds();
+        // Set<Id> toIdsOf(SObjectField field);
+        // Set<Id> toIdsOf(String relationshipName, SObjectField field);
+        // Boolean doExist();
+        // Object toValueOf(SObjectField fieldToExtract);
+        // Set<String> toValuesOf(SObjectField fieldToExtract);
+        // Integer toInteger();
+        SObject toObject();
+        List<SObject> toList();
+        List<AggregateResult> toAggregated();
+        List<SOQL.AggregateResultProxy> toAggregatedProxy();
+        Map<Id, SObject> toMap();
+        Map<String, SObject> toMap(SObjectField keyField);
+        Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField);
+        Map<String, String> toMap(SObjectField keyField, SObjectField valueField);
+        Map<String, List<SObject>> toAggregatedMap(SObjectField keyField);
+        Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField);
+        Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
     }
 
     public interface SubQuery {
@@ -366,14 +403,6 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public static DataCategoryFilter DataCategoryFilter {
         get { return new SoqlDataCategoryFilter(); }
-    }
-
-    public static SOQL of(SObjectType ofObject) {
-        return new SOQL(ofObject);
-    }
-
-    public static SOQL of(String ofObject) {
-        return new SOQL(ofObject);
     }
 
     // Mocking
@@ -2508,6 +2537,77 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public Map<String, Object> getPopulatedFieldsAsMap() {
             return this.aggregateResult;
+        }
+    }
+
+    private class SoqlEvaluator implements Evaluatable {
+        private List<SObject> records;
+        private Converter converter;
+
+        public SoqlEvaluator(List<SObject> records) {
+            if (records.isEmpty()) {
+                throw new QueryException('List has no rows for assignment to SObject');
+            }
+
+            this.records = records;
+            this.converter = new Converter(records[0].getSObjectType().toString());
+        }
+
+        public Evaluatable mockId(String mockId) {
+            return this;
+        }
+
+        public Id toId() {
+            return this.records[0].Id;
+        }
+
+        public Set<Id> toIds() {
+            return new Map<Id, SObject>(this.records).keySet();
+        }
+
+        public List<SObject> toList() {
+            return this.records;
+        }
+
+        public SObject toObject() {
+            return this.records[0];
+        }
+
+        public List<AggregateResult> toAggregated() {
+            return (List<AggregateResult>) this.toList();
+        }
+
+        public List<SOQL.AggregateResultProxy> toAggregatedProxy() {
+            //return this.toAggregated();
+            return null;
+        }
+
+        public Map<Id, SObject> toMap() {
+            return this.converter.transform(this.records).toMap();   
+        }
+
+        public Map<String, SObject> toMap(SObjectField keyField) {
+            return this.converter.transform(this.records).toMap(keyField);
+        }
+
+        public Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField) {
+            return this.converter.transform(this.records).toMap(relationshipName, targetKeyField);
+        }
+
+        public Map<String, String> toMap(SObjectField keyField, SObjectField valueField) {
+            return this.converter.transform(this.records).toMap(keyField, valueField);
+        }
+
+        public Map<String, List<SObject>> toAggregatedMap(SObjectField keyField) {
+            return this.converter.transform(this.records).toAggregatedMap(keyField);
+        }
+
+        public Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField) {
+            return this.converter.transform(this.records).toAggregatedMap(relationshipName, targetKeyField);
+        }
+
+        public Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField) {
+            return this.converter.transform(this.records).toAggregatedMap(keyField, valueField);
         }
     }
 
