@@ -182,15 +182,17 @@ public virtual inherited sharing class SOQL implements Queryable {
     public interface SObjectEvaluatable {
         // MOCKING
         SObjectEvaluatable mockId(String mockId);
+        // FIELD-LEVEL SECURITY
+        SObjectEvaluatable stripInaccessible();
+        SObjectEvaluatable stripInaccessible(AccessType accessType);
         // RESULT
         Id toId();
         Set<Id> toIds();
-        // Set<Id> toIdsOf(SObjectField field);
-        // Set<Id> toIdsOf(String relationshipName, SObjectField field);
-        // Boolean doExist();
-        // Object toValueOf(SObjectField fieldToExtract);
-        // Set<String> toValuesOf(SObjectField fieldToExtract);
-        // Integer toInteger();
+        Set<Id> toIdsOf(SObjectField field);
+        Set<Id> toIdsOf(String relationshipName, SObjectField field);
+        Boolean doExist();
+        Object toValueOf(SObjectField fieldToExtract);
+        Set<String> toValuesOf(SObjectField fieldToExtract);
         SObject toObject();
         List<SObject> toList();
         Map<Id, SObject> toMap();
@@ -2417,6 +2419,11 @@ public virtual inherited sharing class SOQL implements Queryable {
             this.mockedRecords.addAll(records);
         }
 
+        public List<SObject> get() {
+            this.addIdToMockedRecords();
+            return this.mockedRecords;
+        }
+
         public List<SObject> get(SoqlFields fields, SoqlSubQueries subQueries) {
             if (this.useLegacyMockingBehavior || this.mockedRecords.isEmpty()) {
                 return this.mockedRecords;
@@ -2540,7 +2547,9 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private class SObjectEvaluator implements SObjectEvaluatable {
         private List<SObject> records;
+        private AccessType access;
         private Converter converter;
+        private List<SoqlMock> mocks = new List<SoqlMock>();
 
         public SObjectEvaluator(List<SObject> records) {
             this.records = records;
@@ -2548,6 +2557,16 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public SObjectEvaluatable mockId(String mockId) {
+            this.mocks = SOQL.queryIdToMock.get(mockId) ?? new List<SoqlMock>();
+            return this;
+        }
+
+        public SObjectEvaluatable stripInaccessible() {
+            return this.stripInaccessible(AccessType.READABLE);
+        }
+
+        public SObjectEvaluatable stripInaccessible(AccessType accessType) {
+            this.access = accessType;
             return this;
         }
 
@@ -2559,12 +2578,57 @@ public virtual inherited sharing class SOQL implements Queryable {
             return new Map<Id, SObject>(this.records).keySet();
         }
 
-        public List<SObject> toList() {
-            return this.records;
+        public Set<Id> toIdsOf(SObjectField field) {
+            return this.converter.transform(this.records).toIdsOf(field);
+        }
+
+        public Set<Id> toIdsOf(String relationshipName, SObjectField field) {
+            return this.converter.transform(this.records).toIdsOf(relationshipName, field);
+        }
+
+        public Boolean doExist() {
+            return !this.records.isEmpty();
+        }
+
+        public Object toValueOf(SObjectField fieldToExtract) {
+            return this.toObject()?.get(fieldToExtract);
+        }
+
+        public Set<String> toValuesOf(SObjectField fieldToExtract) {
+            return this.converter.transform(this.records).toValuesOf(fieldToExtract);
         }
 
         public SObject toObject() {
-            return this.records[0];
+            List<SObject> records = this.toList();
+
+            if (records.isEmpty()) {
+                return null; // handle: List has no rows for assignment to SObject
+            }
+
+            if (records.size() > 1) {
+                throw new QueryException('List has more than 1 row for assignment to SObject');
+            }
+
+            return records[0];
+        }
+
+        public List<SObject> toList() {
+            if (!this.mocks.isEmpty()) {
+                return this.getMockedListProxy();
+            }
+
+            if (this.access == null) {
+                return this.records;
+            }
+
+            return System.Security.stripInaccessible(this.access, this.records).getRecords();
+        }
+
+        private List<SObject> getMockedListProxy() {
+            if (this.mocks.size() == 1) {
+                return this.mocks[0].sObjectMock.get();
+            }
+            return this.mocks.remove(0).sObjectMock.get();
         }
 
         public Map<Id, SObject> toMap() {
@@ -2819,6 +2883,37 @@ public virtual inherited sharing class SOQL implements Queryable {
             }
 
             return customValuePerCustomKey;
+        }
+
+        public Set<Id> toIdsOf(SObjectField field) {
+            Set<Id> ids = new Set<Id>();
+
+            for (SObject record : this.recordsToTransform) {
+                ids.add(record.get(field).toString());
+            }
+
+            return ids;
+        }
+
+        public Set<Id> toIdsOf(String relationshipName, SObjectField field) {
+            Set<Id> ids = new Set<Id>();
+            List<String> relationshipPathFields = relationshipName.split('\\.');
+
+            for (SObject record : this.recordsToTransform) {
+                ids.add(extractNestedFieldValue(record, relationshipPathFields, field));
+            }
+
+            return ids;
+        }
+
+        public Set<String> toValuesOf(SObjectField fieldToExtract) {
+            Set<String> values = new Set<String>();
+
+            for (SObject record : this.recordsToTransform) {
+                values.add(record.get(fieldToExtract).toString());
+            }
+
+            return values;
         }
 
         public Map<String, List<SObject>> toAggregatedMap(SObjectField keyField) {
