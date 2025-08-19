@@ -20,16 +20,16 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable query();
     }
 
-    public static Queryable of(SObjectType ofObject) { // SOQL.of(Account.SObjectType)
+    public static Queryable of(SObjectType ofObject) { // SOQL.of(Account.SObjectType).with(Account.Id, Account.Name).toList();
         return new SOQL(ofObject);
     }
 
-    public static Queryable of(String ofObject) { // SOQL.of('Account')
+    public static Queryable of(String ofObject) { // SOQL.of('Account').with(Account.Id, Account.Name).toList();    
         return new SOQL(ofObject);
     }
 
-    public static Evaluatable evaluate(List<SObject> staticQuery) { // SOQL.evaluate([SELECT Id FROM Account])
-        return null;//new SoqlEvaluator(expression);
+    public static SObjectEvaluatable evaluate(List<SObject> staticQuery) { // SOQL.evaluate([SELECT Id, Name FROM Account]).toList();
+        return new SObjectEvaluator(staticQuery);
     }
 
     public interface Queryable {
@@ -179,9 +179,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         Database.QueryLocator toQueryLocator();
     }
 
-    public interface Evaluatable {
+    public interface SObjectEvaluatable {
         // MOCKING
-        Evaluatable mockId(String mockId);
+        SObjectEvaluatable mockId(String mockId);
         // RESULT
         Id toId();
         Set<Id> toIds();
@@ -193,8 +193,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         // Integer toInteger();
         SObject toObject();
         List<SObject> toList();
-        List<AggregateResult> toAggregated();
-        List<SOQL.AggregateResultProxy> toAggregatedProxy();
         Map<Id, SObject> toMap();
         Map<String, SObject> toMap(SObjectField keyField);
         Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField);
@@ -2540,20 +2538,16 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class SoqlEvaluator implements Evaluatable {
+    private class SObjectEvaluator implements SObjectEvaluatable {
         private List<SObject> records;
         private Converter converter;
 
-        public SoqlEvaluator(List<SObject> records) {
-            if (records.isEmpty()) {
-                throw new QueryException('List has no rows for assignment to SObject');
-            }
-
+        public SObjectEvaluator(List<SObject> records) {
             this.records = records;
             this.converter = new Converter(records[0].getSObjectType().toString());
         }
 
-        public Evaluatable mockId(String mockId) {
+        public SObjectEvaluatable mockId(String mockId) {
             return this;
         }
 
@@ -2571,15 +2565,6 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public SObject toObject() {
             return this.records[0];
-        }
-
-        public List<AggregateResult> toAggregated() {
-            return (List<AggregateResult>) this.toList();
-        }
-
-        public List<SOQL.AggregateResultProxy> toAggregatedProxy() {
-            //return this.toAggregated();
-            return null;
         }
 
         public Map<Id, SObject> toMap() {
