@@ -337,6 +337,78 @@ private class SOQLEvaluator_Test {
         Assert.areEqual(0, accounts.size(), 'The size of the returned map should be 0.');
     }
 
+    @IsTest
+    static void sObjectsToMapWithKeyAndValueFields() {
+        // Setup
+        insertAccounts();
+
+        // Test
+        Map<String, String> nameToDescription = SOQLEvaluator.of([SELECT Id, Name, Description FROM Account]).toMap(Account.Name, Account.Description);
+
+        // Verify
+        Assert.areEqual(2, nameToDescription.size(), 'The size of the returned map should be 2.');
+    }
+
+    @IsTest
+    static void sObjectsToMapWithKeyAndValueFieldsWithMocking() {
+        // Setup
+        SOQLEvaluator.mock('mockingQuery').thenReturn(new List<Account>{
+            new Account(Name = 'Test 1', Description = 'Description 1'),
+            new Account(Name = 'Test 2', Description = 'Description 2')
+        });
+        
+        // Test
+        Map<String, String> nameToDescription = SOQLEvaluator.of([SELECT Id, Name, Description FROM Account]).mockId('mockingQuery').toMap(Account.Name, Account.Description);
+
+        // Verify
+        Assert.areEqual(2, nameToDescription.size(), 'The size of the returned map should be 2.');
+    }
+
+    @IsTest
+    static void sObjectsToMapWithKeyAndValueFieldsWhenNoRecords() {
+        // Test
+        Map<String, String> nameToDescription = SOQLEvaluator.of([SELECT Id, Name, Description FROM Account]).toMap(Account.Name, Account.Description);
+
+        // Verify
+        Assert.areEqual(0, nameToDescription.size(), 'The size of the returned map should be 0.');
+    }
+
+    @IsTest
+    static void sObjectsToAggregatedMap() {
+        // Setup
+        insertAccounts();
+        
+        // Test
+        Map<String, List<Account>> nameToAccounts = SOQLEvaluator.of([SELECT Id, Name FROM Account]).toAggregatedMap(Account.Name);
+
+        // Verify
+        Assert.areEqual(2, nameToAccounts.size(), 'The size of the returned map should be 2.');
+    }
+
+    @IsTest
+    static void sObjectsToAggregatedMapWithMocking() {
+        // Setup
+        SOQLEvaluator.mock('mockingQuery').thenReturn(new List<Account>{
+            new Account(Name = 'Test 1', Industry = 'IT'),
+            new Account(Name = 'Test 2', Industry = 'IT')
+        });
+        
+        // Test
+        Map<String, List<Account>> industryToAccounts = SOQLEvaluator.of([SELECT Id, Name, Industry FROM Account]).mockId('mockingQuery').toAggregatedMap(Account.Industry);
+
+        // Verify
+        Assert.areEqual(1, industryToAccounts.size(), 'The size of the returned map should be 1, because there is only one industry.');
+    }
+
+    @IsTest
+    static void sObjectsToAggregatedMapWhenNoRecords() {
+        // Test
+        Map<String, List<Account>> nameToAccounts = SOQLEvaluator.of([SELECT Id, Name FROM Account]).toAggregatedMap(Account.Name);
+
+        // Verify
+        Assert.areEqual(0, nameToAccounts.size(), 'The size of the returned map should be 0.');
+    }
+
     static Account insertAccount() {
         Account account = new Account(Name = 'Test Account');
         insert account;

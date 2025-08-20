@@ -2344,7 +2344,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public class SoqlMock implements Mockable {
+    private class SoqlMock implements Mockable {
         public SObjectMock sObjectMock = new SObjectMock();
         public CountMock countMock = new CountMock();
         public AggregateResultProxys aggregateResultMock = new AggregateResultProxys();
