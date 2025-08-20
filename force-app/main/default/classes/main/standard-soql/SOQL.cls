@@ -2,6 +2,8 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
+ * v6.0.0
+ * 
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
  * - ExcessiveClassLength: It is a library and we tried to put everything into ONE class
@@ -2831,7 +2833,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class RandomIdGenerator {
+    public class RandomIdGenerator {
         private final String RANDOM_STRING_CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
 
         public Id get(String prefix) {

@@ -2,6 +2,8 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
+ * v6.0.0
+ * 
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
  * - ExcessiveClassLength: It is a library and we tried to put everything into ONE class
@@ -72,7 +74,7 @@ public inherited sharing class SOQLEvaluator {
 
         public SObjectEvaluator(List<SObject> records) {
             this.records = records;
-            this.converter = new SOQL.Converter(records[0].getSObjectType().toString());
+            this.converter = new SOQL.Converter(records.getSObjectType().toString());
         }
 
         public SObjectEvaluable mockId(String mockId) {
@@ -90,23 +92,23 @@ public inherited sharing class SOQLEvaluator {
         }
 
         public Id toId() {
-            return this.records[0].Id;
+            return this.toObject().Id;
         }
 
         public Set<Id> toIds() {
-            return new Map<Id, SObject>(this.records).keySet();
+            return new Map<Id, SObject>(this.toList()).keySet();
         }
 
         public Set<Id> toIdsOf(SObjectField field) {
-            return this.converter.transform(this.records).toIdsOf(field);
+            return this.converter.transform(this.toList()).toIdsOf(field);
         }
 
         public Set<Id> toIdsOf(String relationshipName, SObjectField field) {
-            return this.converter.transform(this.records).toIdsOf(relationshipName, field);
+            return this.converter.transform(this.toList()).toIdsOf(relationshipName, field);
         }
 
         public Boolean doExist() {
-            return !this.records.isEmpty();
+            return !this.toList().isEmpty();
         }
 
         public Object toValueOf(SObjectField fieldToExtract) {
@@ -114,7 +116,7 @@ public inherited sharing class SOQLEvaluator {
         }
 
         public Set<String> toValuesOf(SObjectField fieldToExtract) {
-            return this.converter.transform(this.records).toValuesOf(fieldToExtract);
+            return this.converter.transform(this.toList()).toValuesOf(fieldToExtract);
         }
 
         public SObject toObject() {
@@ -151,31 +153,31 @@ public inherited sharing class SOQLEvaluator {
         }
 
         public Map<Id, SObject> toMap() {
-            return this.converter.transform(this.records).toMap();   
+            return this.converter.transform(this.toList()).toMap();   
         }
 
         public Map<String, SObject> toMap(SObjectField keyField) {
-            return this.converter.transform(this.records).toMap(keyField);
+            return this.converter.transform(this.toList()).toMap(keyField);
         }
 
         public Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField) {
-            return this.converter.transform(this.records).toMap(relationshipName, targetKeyField);
+            return this.converter.transform(this.toList()).toMap(relationshipName, targetKeyField);
         }
 
         public Map<String, String> toMap(SObjectField keyField, SObjectField valueField) {
-            return this.converter.transform(this.records).toMap(keyField, valueField);
+            return this.converter.transform(this.toList()).toMap(keyField, valueField);
         }
 
         public Map<String, List<SObject>> toAggregatedMap(SObjectField keyField) {
-            return this.converter.transform(this.records).toAggregatedMap(keyField);
+            return this.converter.transform(this.toList()).toAggregatedMap(keyField);
         }
 
         public Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField) {
-            return this.converter.transform(this.records).toAggregatedMap(relationshipName, targetKeyField);
+            return this.converter.transform(this.toList()).toAggregatedMap(relationshipName, targetKeyField);
         }
 
         public Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField) {
-            return this.converter.transform(this.records).toAggregatedMap(keyField, valueField);
+            return this.converter.transform(this.toList()).toAggregatedMap(keyField, valueField);
         }
     }
 
@@ -217,7 +219,7 @@ public inherited sharing class SOQLEvaluator {
             String sObjectPrefix = sObjectType.getDescribe().getKeyPrefix();
 
             for (SObject record : this.mockedRecords) {
-                record.put('Id', record?.Id); //?? SOQL.IdGenerator.get(sObjectPrefix));
+                record.put('Id', record?.Id ?? SOQL.IdGenerator.get(sObjectPrefix));
             }
         }
     }
