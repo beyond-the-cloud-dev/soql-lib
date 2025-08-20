@@ -292,6 +292,51 @@ private class SOQLEvaluator_Test {
         Assert.areEqual(2, accounts.size(), 'The size of the returned map should be 2.');
     }
 
+    @IsTest
+    static void sObjectsToMapWithKeyFieldWhenNoRecords() {
+        // Test
+        Map<String, Account> accounts = (Map<String, Account>) SOQLEvaluator.of([SELECT Id, Name FROM Account]).toMap(Account.Name);
+
+        // Verify
+        Assert.areEqual(0, accounts.size(), 'The size of the returned map should be 0.');
+    }
+
+    @IsTest
+    static void sObjectsToMapWithRelatedKeyField() {
+        // Setup
+        insertAccountsWithParents();
+        
+        // Test
+        Map<String, Account> accounts = (Map<String, Account>) SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != null]).toMap('Parent', Account.Name);
+
+        // Verify
+        Assert.areEqual(2, accounts.size(), 'The size of the returned map should be 2.');
+    }
+
+    @IsTest
+    static void sObjectsToMapWithRelatedKeyFieldWithMocking() {
+        // Setup
+        SOQLEvaluator.mock('mockingQuery').thenReturn(new List<Account>{
+            new Account(Name = 'Test 1', Parent = new Account(Name = 'Parent 1')),
+            new Account(Name = 'Test 2', Parent = new Account(Name = 'Parent 2'))
+        });
+        
+        // Test
+        Map<String, Account> accounts = (Map<String, Account>) SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != null]).mockId('mockingQuery').toMap('Parent', Account.Name);
+            
+        // Verify
+        Assert.areEqual(2, accounts.size(), 'The size of the returned map should be 2.');
+    }
+
+    @IsTest
+    static void sObjectsToMapWithRelatedKeyFieldWhenNoRecords() {
+        // Test
+        Map<String, Account> accounts = (Map<String, Account>) SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != null]).toMap('Parent', Account.Name);
+
+        // Verify
+        Assert.areEqual(0, accounts.size(), 'The size of the returned map should be 0.');
+    }
+
     static Account insertAccount() {
         Account account = new Account(Name = 'Test Account');
         insert account;
