@@ -14,22 +14,18 @@
  * - ExcessiveParameterList - Make methods similar to native SOQL
  * - NcssTypeCount - It is a library and we tried to put everything into ONE class
 **/
-@SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.FieldNamingConventions, PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.PropertyNamingConventions, PMD.FieldDeclarationsShouldBeAtStart, PMD.ApexDoc, PMD.ExcessiveParameterList, PMD.NcssTypeCount')
+@SuppressWarnings('PMD.ExcessivePublicCount,PMD.ExcessiveClassLength,PMD.FieldNamingConventions,PMD.CyclomaticComplexity,PMD.CognitiveComplexity,PMD.PropertyNamingConventions,PMD.FieldDeclarationsShouldBeAtStart,PMD.ApexDoc,PMD.ExcessiveParameterList,PMD.NcssTypeCount')
 public virtual inherited sharing class SOQL implements Queryable {
     public interface Selector {
         Queryable query();
     }
 
-    public static Queryable of(SObjectType ofObject) { // SOQL.of(Account.SObjectType).with(Account.Id, Account.Name).toList();
+    public static Queryable of(SObjectType ofObject) {
         return new SOQL(ofObject);
     }
 
-    public static Queryable of(String ofObject) { // SOQL.of('Account').with(Account.Id, Account.Name).toList();    
+    public static Queryable of(String ofObject) {
         return new SOQL(ofObject);
-    }
-
-    public static SObjectEvaluatable evaluate(List<SObject> staticQuery) { // SOQL.evaluate([SELECT Id, Name FROM Account]).toList();
-        return new SObjectEvaluator(staticQuery);
     }
 
     public interface Queryable {
@@ -177,31 +173,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField);
         Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
         Database.QueryLocator toQueryLocator();
-    }
-
-    public interface SObjectEvaluatable {
-        // MOCKING
-        SObjectEvaluatable mockId(String mockId);
-        // FIELD-LEVEL SECURITY
-        SObjectEvaluatable stripInaccessible();
-        SObjectEvaluatable stripInaccessible(AccessType accessType);
-        // RESULT
-        Id toId();
-        Set<Id> toIds();
-        Set<Id> toIdsOf(SObjectField field);
-        Set<Id> toIdsOf(String relationshipName, SObjectField field);
-        Boolean doExist();
-        Object toValueOf(SObjectField fieldToExtract);
-        Set<String> toValuesOf(SObjectField fieldToExtract);
-        SObject toObject();
-        List<SObject> toList();
-        Map<Id, SObject> toMap();
-        Map<String, SObject> toMap(SObjectField keyField);
-        Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField);
-        Map<String, String> toMap(SObjectField keyField, SObjectField valueField);
-        Map<String, List<SObject>> toAggregatedMap(SObjectField keyField);
-        Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField);
-        Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
     }
 
     public interface SubQuery {
@@ -417,7 +388,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     @TestVisible
-    private static RandomIdGenerator IdGenerator = new RandomIdGenerator();
+    public static RandomIdGenerator IdGenerator = new RandomIdGenerator();
 
     public interface Mockable {
         // SObject
@@ -2371,7 +2342,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class SoqlMock implements Mockable {
+    public class SoqlMock implements Mockable {
         public SObjectMock sObjectMock = new SObjectMock();
         public CountMock countMock = new CountMock();
         public AggregateResultProxys aggregateResultMock = new AggregateResultProxys();
@@ -2417,11 +2388,6 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public void add(List<SObject> records) {
             this.mockedRecords.addAll(records);
-        }
-
-        public List<SObject> get() {
-            this.addIdToMockedRecords();
-            return this.mockedRecords;
         }
 
         public List<SObject> get(SoqlFields fields, SoqlSubQueries subQueries) {
@@ -2542,121 +2508,6 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public Map<String, Object> getPopulatedFieldsAsMap() {
             return this.aggregateResult;
-        }
-    }
-
-    private class SObjectEvaluator implements SObjectEvaluatable {
-        private List<SObject> records;
-        private AccessType access;
-        private Converter converter;
-        private List<SoqlMock> mocks = new List<SoqlMock>();
-
-        public SObjectEvaluator(List<SObject> records) {
-            this.records = records;
-            this.converter = new Converter(records[0].getSObjectType().toString());
-        }
-
-        public SObjectEvaluatable mockId(String mockId) {
-            this.mocks = SOQL.queryIdToMock.get(mockId) ?? new List<SoqlMock>();
-            return this;
-        }
-
-        public SObjectEvaluatable stripInaccessible() {
-            return this.stripInaccessible(AccessType.READABLE);
-        }
-
-        public SObjectEvaluatable stripInaccessible(AccessType accessType) {
-            this.access = accessType;
-            return this;
-        }
-
-        public Id toId() {
-            return this.records[0].Id;
-        }
-
-        public Set<Id> toIds() {
-            return new Map<Id, SObject>(this.records).keySet();
-        }
-
-        public Set<Id> toIdsOf(SObjectField field) {
-            return this.converter.transform(this.records).toIdsOf(field);
-        }
-
-        public Set<Id> toIdsOf(String relationshipName, SObjectField field) {
-            return this.converter.transform(this.records).toIdsOf(relationshipName, field);
-        }
-
-        public Boolean doExist() {
-            return !this.records.isEmpty();
-        }
-
-        public Object toValueOf(SObjectField fieldToExtract) {
-            return this.toObject()?.get(fieldToExtract);
-        }
-
-        public Set<String> toValuesOf(SObjectField fieldToExtract) {
-            return this.converter.transform(this.records).toValuesOf(fieldToExtract);
-        }
-
-        public SObject toObject() {
-            List<SObject> records = this.toList();
-
-            if (records.isEmpty()) {
-                return null; // handle: List has no rows for assignment to SObject
-            }
-
-            if (records.size() > 1) {
-                throw new QueryException('List has more than 1 row for assignment to SObject');
-            }
-
-            return records[0];
-        }
-
-        public List<SObject> toList() {
-            if (!this.mocks.isEmpty()) {
-                return this.getMockedListProxy();
-            }
-
-            if (this.access == null) {
-                return this.records;
-            }
-
-            return System.Security.stripInaccessible(this.access, this.records).getRecords();
-        }
-
-        private List<SObject> getMockedListProxy() {
-            if (this.mocks.size() == 1) {
-                return this.mocks[0].sObjectMock.get();
-            }
-            return this.mocks.remove(0).sObjectMock.get();
-        }
-
-        public Map<Id, SObject> toMap() {
-            return this.converter.transform(this.records).toMap();   
-        }
-
-        public Map<String, SObject> toMap(SObjectField keyField) {
-            return this.converter.transform(this.records).toMap(keyField);
-        }
-
-        public Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField) {
-            return this.converter.transform(this.records).toMap(relationshipName, targetKeyField);
-        }
-
-        public Map<String, String> toMap(SObjectField keyField, SObjectField valueField) {
-            return this.converter.transform(this.records).toMap(keyField, valueField);
-        }
-
-        public Map<String, List<SObject>> toAggregatedMap(SObjectField keyField) {
-            return this.converter.transform(this.records).toAggregatedMap(keyField);
-        }
-
-        public Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField) {
-            return this.converter.transform(this.records).toAggregatedMap(relationshipName, targetKeyField);
-        }
-
-        public Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField) {
-            return this.converter.transform(this.records).toAggregatedMap(keyField, valueField);
         }
     }
 
@@ -2834,7 +2685,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private inherited sharing class Converter {
+    public inherited sharing class Converter {
         private String ofObject;
         private List<SObject> recordsToTransform;
 
@@ -2863,7 +2714,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             return recordPerCustomKey;
         }
 
-        private Map<String, SObject> toMap(String relationshipName, SObjectField keyField) {
+        public Map<String, SObject> toMap(String relationshipName, SObjectField keyField) {
             Map<String, SObject> recordPerCustomKey = (Map<String, SObject>) Type.forName('Map<String, ' + this.ofObject  + ' >').newInstance();
             List<String> relationshipPathFields = relationshipName.split('\\.');
 

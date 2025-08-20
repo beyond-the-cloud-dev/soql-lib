@@ -8,7 +8,7 @@
  * - NcssTypeCount - It is a library and we tried to put everything into ONE test class
  * - ApexDoc: Variable names are self-documented.
 **/
-@SuppressWarnings('PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.NcssTypeCount, PMD.ApexDoc')
+@SuppressWarnings('PMD.CyclomaticComplexity,PMD.CognitiveComplexity,PMD.NcssTypeCount,PMD.ApexDoc')
 @IsTest
 private class SOQL_Test {
     @IsTest

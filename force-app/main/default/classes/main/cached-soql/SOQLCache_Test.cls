@@ -8,7 +8,7 @@
  * - ApexDoc: Variable names are self-documented.
  * - AvoidHardcodingId: Hardcoded Ids are used to mock SOQL results
 **/
-@SuppressWarnings('PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.ApexDoc, PMD.AvoidHardcodingId')
+@SuppressWarnings('PMD.CyclomaticComplexity,PMD.CognitiveComplexity,PMD.ApexDoc,PMD.AvoidHardcodingId')
 @IsTest
 private class SOQLCache_Test {
     private static final String INITIAL_QUERY_MOCK_ID = 'cachedProfile';
