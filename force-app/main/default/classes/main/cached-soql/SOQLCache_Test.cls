@@ -2,13 +2,14 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
+ * v6.0.0
+ * 
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
  * - CognitiveComplexity: It is a library and we tried to put everything into ONE class
  * - ApexDoc: Variable names are self-documented.
- * - AvoidHardcodingId: Hardcoded Ids are used to mock SOQL results
 **/
-@SuppressWarnings('PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.ApexDoc, PMD.AvoidHardcodingId')
+@SuppressWarnings('PMD.CyclomaticComplexity,PMD.CognitiveComplexity,PMD.ApexDoc')
 @IsTest
 private class SOQLCache_Test {
     private static final String INITIAL_QUERY_MOCK_ID = 'cachedProfile';
@@ -172,9 +173,9 @@ private class SOQLCache_Test {
     @IsTest
     static void maxHoursWithoutRefreshRecordDoesNotExistAnymore() {
         // Setup
-        SOQLCache.CacheItem cachedItem1 = new SOQLCache.CacheItem(new Profile(Id = '00e3V000000Nme3QAC', Name = 'ProfileNotExistName'));
+        SOQLCache.CacheItem cachedItem1 = new SOQLCache.CacheItem(new Profile(Id = SOQL.IdGenerator.get(Profile.SObjectType), Name = 'ProfileNotExistName'));
         cachedItem1.cachedDate = DateTime.now().addHours(-6);
-        SOQLCache.CacheItem cachedItem2 = new SOQLCache.CacheItem(new Profile(Id = '00e3V000000Nme3QAD', Name = 'System Administrator'));
+        SOQLCache.CacheItem cachedItem2 = new SOQLCache.CacheItem(new Profile(Id = SOQL.IdGenerator.get(Profile.SObjectType), Name = 'System Administrator'));
 
         CacheManager.ApexTransaction.put('Profile', new List<SOQLCache.CacheItem>{ cachedItem1, cachedItem2 });
 
@@ -361,7 +362,7 @@ private class SOQLCache_Test {
             SOQLCache.of(Profile.SObjectType)
                 .with(Profile.Id, Profile.Name)
                 .whereEqual(Profile.Name, 'System Administrator')
-                .whereEqual(Profile.Id, '00e3V000000NmefQAC')
+                .whereEqual(Profile.Id, SOQL.IdGenerator.get(Profile.SObjectType))
                 .toObject();
         } catch (SOQLCache.SoqlCacheException e) {
             soqlException = e;
@@ -406,7 +407,8 @@ private class SOQLCache_Test {
     @IsTest
     static void mockId() {
         // Setup
-        SOQLCache.mock('ProfileQuery').thenReturn(new Profile(Id = '00e3V000000Nme3QAC', Name = 'System Administrator'));
+        Id profileId = SOQL.IdGenerator.get(Profile.SObjectType);
+        SOQLCache.mock('ProfileQuery').thenReturn(new Profile(Id = profileId, Name = 'System Administrator'));
 
         // Test
         Profile profile = (Profile) new SOQL_ProfileCache().query()
@@ -415,7 +417,7 @@ private class SOQLCache_Test {
             .toObject();
 
         // Verify
-        Assert.areEqual('00e3V000000Nme3QAC', profile.Id, 'The profile id should be the same as the id assigned to the profile cache.');
+        Assert.areEqual(profileId, profile.Id, 'The profile id should be the same as the id assigned to the profile cache.');
         Assert.areEqual('System Administrator', profile.Name, 'The profile name should be the same as the name assigned to the profile cache.');
     }
 
@@ -535,8 +537,8 @@ private class SOQLCache_Test {
     static void toObjectWithMultipleRows() {
         // Setup
         SOQL.mock('ProfileQuery').thenReturn(new List<Profile>{
-            new Profile(Id = '00e3V000000Nme3QAC', Name = 'System Administrator'),
-            new Profile(Id = '00e3V000000Nme3QAC', Name = 'System Administrator')
+            new Profile(Id = SOQL.IdGenerator.get(Profile.SObjectType), Name = 'System Administrator'),
+            new Profile(Id = SOQL.IdGenerator.get(Profile.SObjectType), Name = 'System Administrator')
         });
 
         QueryException queryException = null;
@@ -559,7 +561,8 @@ private class SOQLCache_Test {
     @IsTest
     static void recordNotFoundInCache() {
         // Setup
-        SOQL.mock('ProfileQuery').thenReturn(new Profile(Id = '00e3V000000Nbc3QAC', Name = 'Guest User'));
+        Id profileId = SOQL.IdGenerator.get(Profile.SObjectType);
+        SOQL.mock('ProfileQuery').thenReturn(new Profile(Id = profileId, Name = 'Guest User'));
 
         // Test
         Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
@@ -569,7 +572,7 @@ private class SOQLCache_Test {
             .toObject();
 
         // Verify
-        Assert.areEqual('00e3V000000Nbc3QAC', profile.Id, 'Record not found in cache should be retrieved from SOQL and cached.');
+        Assert.areEqual(profileId, profile.Id, 'Record not found in cache should be retrieved from SOQL and cached.');
         Assert.areEqual('Guest User', profile.Name, 'Record not found in cache should be retrieved from SOQL and cached.');
     }
 
