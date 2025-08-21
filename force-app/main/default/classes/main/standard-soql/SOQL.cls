@@ -2812,7 +2812,7 @@ public virtual inherited sharing class SOQL implements Queryable {
                     customValuesPerCustomKey.put(key, new List<String>());
                 }
 
-                customValuesPerCustomKey.get(key).add(record.get(valueField).toString());
+                customValuesPerCustomKey.get(key).add(record.get(valueField)?.toString());
             }
 
             return customValuesPerCustomKey;

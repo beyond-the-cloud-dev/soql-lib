@@ -4551,7 +4551,7 @@ private class SOQL_Test {
             LastName = 'Testing',
             LanguageLocaleKey = 'en_US',
             LocaleSidKey = 'en_US',
-            ProfileId = [SELECT Id FROM Profile WHERE Name = 'Minimum Access - Salesforce'].Id,
+            Profile = new Profile(Name = 'Minimum Access - Salesforce'),
             TimeZoneSidKey = 'America/Los_Angeles',
             UserName = 'queryselector@testorg.com'
         );

@@ -8,6 +8,35 @@
 @IsTest
 private class SOQLEvaluator_Test {
     @IsTest
+    static void sObjectStripInaccessible() {
+        // Setup
+        insert new Task(Subject = 'Test', Type = 'Other');
+
+        System.runAs(minimumAccessUser()) {
+            // Test
+            Task task = (Task) SOQLEvaluator.of(new WithoutSharing().getTasks()).stripInaccessible().toObject();
+
+            Exception queryException = null;
+
+            String inaccessibleFieldValue;
+
+            try {
+                inaccessibleFieldValue = task.Type;
+            } catch(Exception e) {
+                queryException = e;
+            }
+
+            // Verify
+            Assert.isNotNull(queryException, 'The query exception should not be null.');
+            Assert.areEqual(
+                'SObject row was retrieved via SOQL without querying the requested field: Task.Type',
+                queryException.getMessage(),
+                'The user should not have access to the \'Type\' field.'
+            );
+        }
+    }
+
+    @IsTest
     static void sObjectToId() {
         // Setup
         insertAccount();
@@ -409,6 +438,78 @@ private class SOQLEvaluator_Test {
         Assert.areEqual(0, nameToAccounts.size(), 'The size of the returned map should be 0.');
     }
 
+    @IsTest
+    static void sObjectsToAggregatedMapWithRelatedKeyField() {
+        // Setup
+        insertAccountsWithParents();
+        
+        // Test
+        Map<String, List<Account>> parentNameToAccounts = SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != null]).toAggregatedMap('Parent', Account.Name);
+
+        // Verify
+        Assert.areEqual(2, parentNameToAccounts.size(), 'The size of the returned map should be 2.');
+    }
+
+    @IsTest
+    static void sObjectsToAggregatedMapWithRelatedKeyFieldWithMocking() {
+        // Setup
+        SOQLEvaluator.mock('mockingQuery').thenReturn(new List<Account>{
+            new Account(Name = 'Test 1', Parent = new Account(Name = 'Parent 1')),
+            new Account(Name = 'Test 2', Parent = new Account(Name = 'Parent 2'))
+        });
+        
+        // Test
+        Map<String, List<Account>> parentNameToAccounts = SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != null]).mockId('mockingQuery').toAggregatedMap('Parent', Account.Name);
+
+        // Verify
+        Assert.areEqual(2, parentNameToAccounts.size(), 'The size of the returned map should be 2.');
+    }
+
+    @IsTest
+    static void sObjectsToAggregatedMapWithRelatedKeyFieldWhenNoRecords() {
+        // Test
+        Map<String, List<Account>> parentNameToAccounts = SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != null]).toAggregatedMap('Parent', Account.Name);
+
+        // Verify
+        Assert.areEqual(0, parentNameToAccounts.size(), 'The size of the returned map should be 0.');
+    }
+
+    @IsTest
+    static void sObjectsToAggregatedMapWithKeyAndValueFields() {
+        // Setup
+        insertAccounts();
+        
+        // Test
+        Map<String, List<String>> nameToDescriptions = SOQLEvaluator.of([SELECT Id, Name, Description FROM Account]).toAggregatedMap(Account.Name, Account.Description);
+
+        // Verify
+        Assert.areEqual(2, nameToDescriptions.size(), 'The size of the returned map should be 2.');
+    }
+
+    @IsTest
+    static void sObjectsToAggregatedMapWithKeyAndValueFieldsWithMocking() {
+        // Setup
+        SOQLEvaluator.mock('mockingQuery').thenReturn(new List<Account>{
+            new Account(Name = 'Test 1', Description = 'Description 1'),
+            new Account(Name = 'Test 2', Description = 'Description 2')
+        });
+        
+        // Test
+        Map<String, List<String>> nameToDescriptions = SOQLEvaluator.of([SELECT Id, Name, Description FROM Account]).mockId('mockingQuery').toAggregatedMap(Account.Name, Account.Description);
+
+        // Verify
+        Assert.areEqual(2, nameToDescriptions.size(), 'The size of the returned map should be 2.');
+    }
+
+    @IsTest
+    static void sObjectsToAggregatedMapWithKeyAndValueFieldsWhenNoRecords() {
+        // Test
+        Map<String, List<String>> nameToDescriptions = SOQLEvaluator.of([SELECT Id, Name, Description FROM Account]).toAggregatedMap(Account.Name, Account.Description);
+
+        // Verify
+        Assert.areEqual(0, nameToDescriptions.size(), 'The size of the returned map should be 0.');
+    }
+
     static Account insertAccount() {
         Account account = new Account(Name = 'Test Account');
         insert account;
@@ -417,8 +518,8 @@ private class SOQLEvaluator_Test {
 
     static List<Account> insertAccounts() {
         List<Account> accounts = new List<Account>{
-            new Account(Name = 'Test 1'),
-            new Account(Name = 'Test 2')
+            new Account(Name = 'Test 1', Description = 'Description 1'),
+            new Account(Name = 'Test 2', Description = 'Description 2')
         };
         insert accounts;
         return accounts;
@@ -438,5 +539,25 @@ private class SOQLEvaluator_Test {
         insert accounts;
 
         return accounts;
+    }
+
+    static User minimumAccessUser() {
+        return new User(
+            Alias = 'newUser',
+            Email = 'newuser@testorg.com',
+            EmailEncodingKey = 'UTF-8',
+            LastName = 'Testing',
+            LanguageLocaleKey = 'en_US',
+            LocaleSidKey = 'en_US',
+            Profile = new Profile(Name = 'Minimum Access - Salesforce'),
+            TimeZoneSidKey = 'America/Los_Angeles',
+            UserName = 'queryselector@testorg.com'
+        );
+    }
+
+    public without sharing class WithoutSharing {
+        public List<Task> getTasks() {
+            return [SELECT Id, Subject, Type FROM Task WITH SYSTEM_MODE];
+        }
     }
 }

@@ -5,19 +5,10 @@
  * v6.0.0
  * 
  * PMD False Positives:
- * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
- * - ExcessiveClassLength: It is a library and we tried to put everything into ONE class
- * - CyclomaticComplexity: It is a library and we tried to put everything into ONE class
  * - CognitiveComplexity: It is a library and we tried to put everything into ONE class
- * - PropertyNamingConventions: It was intentional to make the lib more fluent and readable
- * - FieldDeclarationsShouldBeAtStart: Developer who uses lib should see what's important at start
- * - ApexDoc: Variable names are self-documented.
- * - FieldNamingConventions: It was intentional to make the lib more fluent and readable
- * - ExcessiveParameterList - Make methods similar to native SOQL
- * - NcssTypeCount - It is a library and we tried to put everything into ONE class
 **/
-@SuppressWarnings('PMD.ExcessivePublicCount,PMD.ExcessiveClassLength,PMD.FieldNamingConventions,PMD.CyclomaticComplexity,PMD.CognitiveComplexity,PMD.PropertyNamingConventions,PMD.FieldDeclarationsShouldBeAtStart,PMD.ApexDoc,PMD.ExcessiveParameterList,PMD.NcssTypeCount')
-public inherited sharing class SOQLEvaluator {
+@SuppressWarnings('PMD.CognitiveComplexity')
+public inherited sharing class SOQLEvaluator {    
     public static SObjectEvaluable of(List<SObject> staticQuery) {
         return new SObjectEvaluator(staticQuery);
     }
