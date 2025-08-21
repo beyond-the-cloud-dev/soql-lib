@@ -191,8 +191,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     public Cacheable whereEqual(String field, Object value) {
         this.with(field);
-        this.cache.filter.singleFilterValidation();
-        this.cache.filter.with(field).equal(value);
+        this.cache.filterGroup.singleFilterValidation();
+        this.cache.filterGroup.add(new CacheFilter().with(field).equal(value));
         this.currentyQuery.whereAre(SOQL.Filter.with(field).equal(value));
         return this;
     }
@@ -232,7 +232,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     public SObject toObject() {
-        this.cache.filter.hasFilterValidation();
+        this.cache.filterGroup.hasFilterValidation();
         this.executeInitialQuery();
         return this.executor.toObject();
     }
@@ -339,13 +339,13 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     private class Cache {
-        public CacheFilter filter;
-        public CacheStorageProxy storage;
         public CacheFields fields;
         public CacheExpiration expiration;
+        public CacheFilterGroup filterGroup;
+        public CacheStorageProxy storage;
 
         public Cache(String ofObject) {
-            this.filter = new CacheFilter(ofObject);
+            this.filterGroup = new CacheFilterGroup(ofObject);
             this.storage = new CacheStorageProxy(ofObject);
             this.fields = new CacheFields();
             this.expiration = new CacheExpiration();
@@ -354,7 +354,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         private List<CacheItem> cachedItemsThatMeetCriteria {
             get {
                 if (this.cachedItemsThatMeetCriteria == null) {
-                    this.cachedItemsThatMeetCriteria = this.filter.filter(this.storage.getCachedRecords());
+                    this.cachedItemsThatMeetCriteria = this.filterGroup.filter(this.storage.getCachedRecords());
                 }
                 return this.cachedItemsThatMeetCriteria;
             }
@@ -407,18 +407,58 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
     }
 
+    private class CacheFilterGroup {
+        private List<CacheFilter> filters = new List<CacheFilter>();
+        private String ofObject;
+
+        public CacheFilterGroup(String ofObject) {
+            this.ofObject = ofObject;
+        }
+
+        public void add(CacheFilter filter) {
+            filter.setOfObject(this.ofObject);
+            filter.validate();
+            this.filters.add(filter);
+        }
+
+        public void singleFilterValidation() {
+            if (this.filters.size() > 0) {
+                throw new SoqlCacheException('Only one condition can be used in a cached query.');
+            }
+        }
+
+        public void hasFilterValidation() {
+            if (this.filters.isEmpty()) {
+                throw new SoqlCacheException('A condition is missing. Please provide a filter to retrieve the cached record.');
+            }
+        }
+
+        public List<CacheItem> filter(List<CacheItem> cachedItems) {
+            List<CacheItem> cacheItemsThatMeetCriteria = new List<CacheItem>();
+
+            for (CacheItem cacheItem : cachedItems) {
+                Boolean isCachedItemsMatchingAllCriteria = true;
+
+                for (CacheFilter filter : this.filters) {
+                    isCachedItemsMatchingAllCriteria &= filter.isMatching(cacheItem);
+                }
+
+                if (isCachedItemsMatchingAllCriteria) {
+                    cacheItemsThatMeetCriteria.add(cacheItem);
+                }
+            }
+
+            return cacheItemsThatMeetCriteria;
+        }
+    }
+
     private class CacheFilter {
         private String ofObject;
         private String field;
         private Object value;
 
-        public CacheFilter(String ofObject) {
-            this.ofObject = ofObject;
-        }
-
         public CacheFilter with(String field) {
             this.field = field;
-            this.fieldValidation();
             return this;
         }
 
@@ -427,16 +467,12 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             return this;
         }
 
-        public void singleFilterValidation() {
-            if (String.isNotBlank(this.field)) {
-                throw new SoqlCacheException('Only one condition can be used in a cached query.');
-            }
+        public void setOfObject(String ofObject) {
+            this.ofObject = ofObject;
         }
 
-        public void hasFilterValidation() {
-            if (String.isBlank(this.field)) {
-                throw new SoqlCacheException('A condition is missing. Please provide a filter to retrieve the cached record.');
-            }
+        public void validate() {
+            this.fieldValidation();
         }
 
         private void fieldValidation() {
@@ -449,16 +485,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             return Schema.getGlobalDescribe().get(this.ofObject).getDescribe().fields.getMap().get(this.field).getDescribe().isUnique();
         }
 
-        public List<CacheItem> filter(List<CacheItem> cachedItems) {
-            List<CacheItem> cacheItemsThatMeetCriteria = new List<CacheItem>();
-
-            for (CacheItem cacheItem : cachedItems) {
-                if (cacheItem.record.get(this.field) == this.value) {
-                    cacheItemsThatMeetCriteria.add(cacheItem);
-                }
-            }
-
-            return cacheItemsThatMeetCriteria;
+        public Boolean isMatching(CacheItem cachedItem) {
+            return cachedItem.record.get(this.field) == this.value;
         }
     }
 
