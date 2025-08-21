@@ -7,7 +7,7 @@
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
  * - CognitiveComplexity: It is a library and we tried to put everything into ONE test class
- * - NcssTypeCount - It is a library and we tried to put everything into ONE test class
+ * - NcssTypeCount: It is a library and we tried to put everything into ONE test class
  * - ApexDoc: Variable names are self-documented.
 **/
 @SuppressWarnings('PMD.CyclomaticComplexity,PMD.CognitiveComplexity,PMD.NcssTypeCount,PMD.ApexDoc')

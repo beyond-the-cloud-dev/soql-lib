@@ -13,8 +13,8 @@
  * - FieldDeclarationsShouldBeAtStart: Developer who uses lib should see what's important at start
  * - ApexDoc: Variable names are self-documented.
  * - FieldNamingConventions: It was intentional to make the lib more fluent and readable
- * - ExcessiveParameterList - Make methods similar to native SOQL
- * - NcssTypeCount - It is a library and we tried to put everything into ONE class
+ * - ExcessiveParameterList: Make methods similar to native SOQL
+ * - NcssTypeCount: It is a library and we tried to put everything into ONE class
 **/
 @SuppressWarnings('PMD.ExcessivePublicCount,PMD.ExcessiveClassLength,PMD.FieldNamingConventions,PMD.CyclomaticComplexity,PMD.CognitiveComplexity,PMD.PropertyNamingConventions,PMD.FieldDeclarationsShouldBeAtStart,PMD.ApexDoc,PMD.ExcessiveParameterList,PMD.NcssTypeCount')
 public virtual inherited sharing class SOQL implements Queryable {
@@ -2631,9 +2631,9 @@ public virtual inherited sharing class SOQL implements Queryable {
 
             SOQL.syncQueriesIssued++;
 
-            final Integer MAX_QUERIES_ISSUED_IN_SYNCHRONOUS_TRANSACTION = 100;
+            final Integer maxQueriesIssuedInSynchronousTransaction = 100;
 
-            if (SOQL.syncQueriesIssued > MAX_QUERIES_ISSUED_IN_SYNCHRONOUS_TRANSACTION) {
+            if (SOQL.syncQueriesIssued > maxQueriesIssuedInSynchronousTransaction) {
                 throw new QueryException('Too many SOQL queries.');
             }
         }
@@ -2835,6 +2835,10 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     public class RandomIdGenerator {
         private final String RANDOM_STRING_CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
+
+        public Id get(SObjectType objectType) {
+            return get(objectType.getDescribe().getKeyPrefix());
+        }
 
         public Id get(String prefix) {
             String randomPart = '';

@@ -12,7 +12,7 @@
  * - PropertyNamingConventions: It was intentional to make the lib more fluent and readable
  * - FieldDeclarationsShouldBeAtStart: Developer who uses lib should see what's important at start
  * - ApexDoc: Variable names are self-documented.
- * - ExcessiveParameterList - Make methods similar to native SOQL
+ * - ExcessiveParameterList: Make methods similar to native SOQL
 **/
 @SuppressWarnings('PMD.ExcessivePublicCount,PMD.ExcessiveClassLength,PMD.CyclomaticComplexity,PMD.CognitiveComplexity,PMD.PropertyNamingConventions,PMD.FieldDeclarationsShouldBeAtStart,PMD.ApexDoc,PMD.ExcessiveParameterList')
 public virtual inherited sharing class SOQLCache implements Cacheable {
