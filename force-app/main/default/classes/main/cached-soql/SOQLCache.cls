@@ -34,6 +34,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         Cacheable cacheInOrgCache();
         Cacheable cacheInSessionCache();
         Cacheable maxHoursWithoutRefresh(Integer hours);
+        Cacheable ignoreUniqueConditionValidation();
+        Cacheable ignoreMandatoryConditionValidation();
         // SELECT
         Cacheable with(SObjectField field);
         Cacheable with(SObjectField field1, SObjectField field2);
@@ -45,6 +47,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         // WHERE
         Cacheable whereEqual(SObjectField field, Object value);
         Cacheable whereEqual(String field, Object value);
+        Cacheable whereEqual(String relationshipName, SObjectField field, Object value);
         // FIELD-LEVEL SECURITY
         Cacheable stripInaccessible();
         Cacheable stripInaccessible(AccessType accessType);
@@ -148,6 +151,16 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         return this;
     }
 
+    public Cacheable ignoreUniqueConditionValidation() {
+        this.cache.filterGroup.ignoreUniqueConditionValidation();
+        return this;
+    }
+
+    public Cacheable ignoreMandatoryConditionValidation() {
+        this.cache.filterGroup.ignoreMandatoryConditionValidation();
+        return this;
+    }
+
     public Cacheable with(SObjectField field) {
         this.initialQuery?.with(field);
         this.currentyQuery.with(field);
@@ -189,9 +202,12 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         return this.whereEqual(field.toString(), value);
     }
 
+    public Cacheable whereEqual(String relationshipName, SObjectField field, Object value) {
+        return this.whereEqual(relationshipName + '.' + field.toString(), value);
+    }
+
     public Cacheable whereEqual(String field, Object value) {
         this.with(field);
-        this.cache.filterGroup.singleFilterValidation();
         this.cache.filterGroup.add(new CacheFilter().with(field).equal(value));
         this.currentyQuery.whereAre(SOQL.Filter.with(field).equal(value));
         return this;
@@ -232,7 +248,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     public SObject toObject() {
-        this.cache.filterGroup.hasFilterValidation();
+        this.cache.filterGroup.validateIfQueryHasAtLeastOneCondition();
         this.executeInitialQuery();
         return this.executor.toObject();
     }
@@ -408,32 +424,54 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     private class CacheFilterGroup {
-        private List<CacheFilter> filters = new List<CacheFilter>();
         private String ofObject;
+
+        private List<CacheFilter> filters = new List<CacheFilter>();
+
+        private Boolean ignoreUniqueConditionValidation = false;
+        private Boolean ignoreMandatoryConditionValidation = false;
 
         public CacheFilterGroup(String ofObject) {
             this.ofObject = ofObject;
         }
 
         public void add(CacheFilter filter) {
-            filter.setOfObject(this.ofObject);
-            filter.validate();
             this.filters.add(filter);
         }
 
-        public void singleFilterValidation() {
-            if (this.filters.size() > 0) {
-                throw new SoqlCacheException('Only one condition can be used in a cached query.');
+        public void ignoreUniqueConditionValidation() {
+            this.ignoreUniqueConditionValidation = true;
+        }
+
+        public void ignoreMandatoryConditionValidation() {
+            this.ignoreMandatoryConditionValidation = true;
+        }
+
+        public void validateUniqueCondition(CacheFilter filter) {
+            if (this.ignoreUniqueConditionValidation) {
+                return;
+            }
+
+            if (!(new List<String>{ 'Id', 'Name', 'DeveloperName' }.contains(filter.field) || Schema.getGlobalDescribe().get(this.ofObject).getDescribe().fields.getMap().get(filter.field).getDescribe().isUnique())) {
+                throw new SoqlCacheException('A cached query can be filtered only by Id, Name, DeveloperName, or a unique field. You can ignore this validation by calling ignoreMandatoryConditionValidation()');
             }
         }
 
-        public void hasFilterValidation() {
-            if (this.filters.isEmpty()) {
-                throw new SoqlCacheException('A condition is missing. Please provide a filter to retrieve the cached record.');
+        public void validateIfQueryHasAtLeastOneCondition() {
+            if (!this.ignoreMandatoryConditionValidation && this.filters.isEmpty()) {
+                throw new SoqlCacheException('A condition is missing. Please provide a filter to retrieve the cached record. You can ignore this validation by calling ignoreUniqueConditionValidation()');
+            }
+        }
+
+        private void validateConditions() {
+            for (CacheFilter filter : this.filters) {
+                this.validateUniqueCondition(filter);
             }
         }
 
         public List<CacheItem> filter(List<CacheItem> cachedItems) {
+            this.validateConditions();
+
             List<CacheItem> cacheItemsThatMeetCriteria = new List<CacheItem>();
 
             for (CacheItem cacheItem : cachedItems) {
@@ -453,8 +491,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     private class CacheFilter {
-        private String ofObject;
-        private String field;
+        public String field;
         private Object value;
 
         public CacheFilter with(String field) {
@@ -465,24 +502,6 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         public CacheFilter equal(Object value) {
             this.value = value;
             return this;
-        }
-
-        public void setOfObject(String ofObject) {
-            this.ofObject = ofObject;
-        }
-
-        public void validate() {
-            this.fieldValidation();
-        }
-
-        private void fieldValidation() {
-            if (!(new List<String>{ 'Id', 'Name', 'DeveloperName' }.contains(this.field) || this.isFilterFieldUnique())) {
-                throw new SoqlCacheException('A cached query can be filtered only by Id, Name, DeveloperName, or a unique field.');
-            }
-        }
-
-        private Boolean isFilterFieldUnique() {
-            return Schema.getGlobalDescribe().get(this.ofObject).getDescribe().fields.getMap().get(this.field).getDescribe().isUnique();
         }
 
         public Boolean isMatching(CacheItem cachedItem) {

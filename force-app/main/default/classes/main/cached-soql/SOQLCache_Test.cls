@@ -196,6 +196,58 @@ private class SOQLCache_Test {
     }
 
     @IsTest
+    static void ignoreMandatoryConditionValidation() {
+        // Setup
+        insert new Account(Name = 'Test Account');
+
+        // Test
+        Account account = (Account) SOQLCache.of(Account.SObjectType)
+            .with(Account.Id, Account.Name)
+            .ignoreMandatoryConditionValidation()
+            .toObject();
+
+        // Verify
+        Assert.isNotNull(account, 'The account should be not null');
+        Assert.areEqual('Test Account', account.Name, 'The account name should be "Test Account"');
+    }
+
+    @IsTest
+    static void ignoreUniqueConditionValidation() {
+        // Setup
+        insert new Account(Name = 'Test Account');
+        
+        // Setup
+        Account account = (Account) SOQLCache.of(Account.SObjectType)
+            .with(Account.Id, Account.Name)
+            .whereEqual(Account.Name, 'Test Account')
+            .ignoreUniqueConditionValidation()
+            .toObject();
+
+        // Verify
+        Assert.isNotNull(account, 'The account should be not null');
+        Assert.areEqual('Test Account', account.Name, 'The account name should be "Test Account"');
+    }
+
+    @IsTest
+    static void listHasMoreThanOneRowForAssignmentToSObject() {
+        // Setup
+        System.QueryException queryException = null;
+
+        // Test
+        try {
+            SOQLCache.of(Profile.SObjectType)
+                .ignoreMandatoryConditionValidation()
+                .toObject();
+        } catch (System.QueryException e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(queryException, 'An exception should be thrown');
+        Assert.areEqual(queryException.getMessage(), 'List has more than 1 row for assignment to SObject', 'The exception message should be "List has more than 1 row for assignment to SObject"');
+    }
+
+    @IsTest
     static void withOneField() {
         // Test
         Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
@@ -313,6 +365,18 @@ private class SOQLCache_Test {
         Assert.areEqual('System Administrator', profile.Name, 'The cached profile record should be "System Administrator".');
     }
 
+    // @IsTest
+    // static void whereEqualRelationshipField() {
+    //     // Test
+    //     User user = (User) SOQLCache.of(User.SObjectType)
+    //         .with(User.Id, User.Name)
+    //         .whereEqual('CreatedBy', User.Name, 'System Administrator')
+    //         .toObject();
+
+    //     // Verify
+    //     Assert.areEqual('System Administrator', user.Name, 'The cached user record should be "System Administrator".');
+    // }
+
     @IsTest
     static void whereEqualNotUniqueField() {
         // Setup
@@ -330,7 +394,7 @@ private class SOQLCache_Test {
 
         // Verify
         Assert.isNotNull(soqlException, 'An exception should be thrown when the field is not Id, Name, DeveloperName, or a unique field.');
-        Assert.areEqual('A cached query can be filtered only by Id, Name, DeveloperName, or a unique field.', soqlException.getMessage(), 'The exception message should be "A cached query can be filtered only by Id, Name, DeveloperName, or a unique field."');
+        Assert.areEqual('A cached query can be filtered only by Id, Name, DeveloperName, or a unique field. You can ignore this validation by calling ignoreMandatoryConditionValidation()', soqlException.getMessage(), 'The exception message should be "A cached query can be filtered only by Id, Name, DeveloperName, or a unique field."');
     }
 
     @IsTest
@@ -349,17 +413,17 @@ private class SOQLCache_Test {
 
         // Verify
         Assert.isNotNull(soqlException, 'An exception should be thrown when a condition is missing.');
-        Assert.areEqual('A condition is missing. Please provide a filter to retrieve the cached record.', soqlException.getMessage(), 'The exception message should be "A condition is missing. Please provide a filter to retrieve the cached record."');
+        Assert.areEqual('A condition is missing. Please provide a filter to retrieve the cached record. You can ignore this validation by calling ignoreUniqueConditionValidation()', soqlException.getMessage(), 'The exception message should be "A condition is missing. Please provide a filter to retrieve the cached record."');
     }
 
     @IsTest
     static void multipleConditions() {
         // Setup
-        SOQLCache.SoqlCacheException soqlException;
+        SOQLCache.SoqlCacheException soqlException = null;
 
         // Test
         try {
-            SOQLCache.of(Profile.SObjectType)
+            Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
                 .with(Profile.Id, Profile.Name)
                 .whereEqual(Profile.Name, 'System Administrator')
                 .whereEqual(Profile.Id, SOQL.IdGenerator.get(Profile.SObjectType))
@@ -369,8 +433,7 @@ private class SOQLCache_Test {
         }
 
         // Verify
-        Assert.isNotNull(soqlException, 'An exception should be thrown when more than one condition is introduced.');
-        Assert.areEqual('Only one condition can be used in a cached query.', soqlException.getMessage(), 'The exception message should be "Only one condition can be used in a cached query."');
+        Assert.isNull(soqlException, 'An exception should not be thrown when more than one condition is introduced.');
     }
 
     @IsTest
@@ -675,7 +738,7 @@ private class SOQLCache_Test {
         );
     }
 
-    public class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector{
+    public class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
         public SOQL_ProfileCache query() {
             return new SOQL_ProfileCache();
         }
@@ -690,7 +753,7 @@ private class SOQLCache_Test {
         }
     }
 
-    public class SOQL_ProfileCacheDefault extends SOQLCache implements SOQLCache.Selector{
+    public class SOQL_ProfileCacheDefault extends SOQLCache implements SOQLCache.Selector {
         public SOQL_ProfileCacheDefault query() {
             return new SOQL_ProfileCacheDefault();
         }
