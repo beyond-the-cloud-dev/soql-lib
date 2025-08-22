@@ -47,7 +47,6 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         // WHERE
         Cacheable whereEqual(SObjectField field, Object value);
         Cacheable whereEqual(String field, Object value);
-        Cacheable whereEqual(String relationshipName, SObjectField field, Object value);
         // FIELD-LEVEL SECURITY
         Cacheable stripInaccessible();
         Cacheable stripInaccessible(AccessType accessType);
@@ -206,10 +205,6 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     public Cacheable whereEqual(SObjectField field, Object value) {
         return this.whereEqual(field.toString(), value);
-    }
-
-    public Cacheable whereEqual(String relationshipName, SObjectField field, Object value) {
-        return this.whereEqual(relationshipName + '.' + field.toString(), value);
     }
 
     public Cacheable whereEqual(String field, Object value) {

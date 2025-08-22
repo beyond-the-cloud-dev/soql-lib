@@ -21,6 +21,7 @@ private class SOQLCache_Test {
             new Profile(Name = 'System Administrator'),
             new Profile(Name = 'Standard User')
         };
+
         SOQL.mock(INITIAL_QUERY_MOCK_ID).thenReturn(mockedProfiles);
 
         // Test
@@ -380,18 +381,6 @@ private class SOQLCache_Test {
         // Verify
         Assert.areEqual('System Administrator', profile.Name, 'The cached profile record should be "System Administrator".');
     }
-
-    // @IsTest
-    // static void whereEqualRelationshipField() {
-    //     // Test
-    //     User user = (User) SOQLCache.of(User.SObjectType)
-    //         .with(User.Id, User.Name)
-    //         .whereEqual('CreatedBy', User.Name, 'System Administrator')
-    //         .toObject();
-
-    //     // Verify
-    //     Assert.areEqual('System Administrator', user.Name, 'The cached user record should be "System Administrator".');
-    // }
 
     @IsTest
     static void whereEqualNotUniqueField() {
