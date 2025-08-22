@@ -213,14 +213,14 @@ private class SOQLCache_Test {
     }
 
     @IsTest
-    static void bypassMandatoryConditionValidation() {
+    static void allowQueriesWithoutConditions() {
         // Setup
         insert new Account(Name = 'Test Account');
 
         // Test
         Account account = (Account) SOQLCache.of(Account.SObjectType)
             .with(Account.Id, Account.Name)
-            .bypassMandatoryConditionValidation()
+            .allowQueriesWithoutConditions()
             .toObject();
 
         // Verify
@@ -229,7 +229,7 @@ private class SOQLCache_Test {
     }
 
     @IsTest
-    static void bypassUniqueFieldConditionValidation() {
+    static void allowFilteringByNonUniqueFields() {
         // Setup
         insert new Account(Name = 'Test Account');
         
@@ -237,7 +237,7 @@ private class SOQLCache_Test {
         Account account = (Account) SOQLCache.of(Account.SObjectType)
             .with(Account.Id, Account.Name)
             .whereEqual(Account.Name, 'Test Account')
-            .bypassUniqueFieldConditionValidation()
+            .allowFilteringByNonUniqueFields()
             .toObject();
 
         // Verify
@@ -253,7 +253,7 @@ private class SOQLCache_Test {
         // Test
         try {
             SOQLCache.of(Profile.SObjectType)
-                .bypassMandatoryConditionValidation()
+                .allowQueriesWithoutConditions()
                 .toObject();
         } catch (System.QueryException e) {
             queryException = e;
@@ -399,7 +399,7 @@ private class SOQLCache_Test {
 
         // Verify
         Assert.isNotNull(soqlException, 'An exception should be thrown when the field is not Id, Name, DeveloperName, or a unique field.');
-        Assert.areEqual('A cached query can be filtered only by Id, Name, DeveloperName, or a unique field. You can ignore this validation by calling bypassMandatoryConditionValidation()', soqlException.getMessage(), 'The exception message should be "A cached query can be filtered only by Id, Name, DeveloperName, or a unique field."');
+        Assert.areEqual('A cached query can be filtered only by Id, Name, DeveloperName, or a unique field. You can ignore this validation by calling allowQueriesWithoutConditions()', soqlException.getMessage(), 'The exception message should be "A cached query can be filtered only by Id, Name, DeveloperName, or a unique field."');
     }
 
     @IsTest
@@ -418,7 +418,7 @@ private class SOQLCache_Test {
 
         // Verify
         Assert.isNotNull(soqlException, 'An exception should be thrown when a condition is missing.');
-        Assert.areEqual('A condition is missing. Please provide a filter to retrieve the cached record. You can ignore this validation by calling bypassUniqueFieldConditionValidation()', soqlException.getMessage(), 'The exception message should be "A condition is missing. Please provide a filter to retrieve the cached record."');
+        Assert.areEqual('A condition is missing. Please provide a filter to retrieve the cached record. You can ignore this validation by calling allowFilteringByNonUniqueFields()', soqlException.getMessage(), 'The exception message should be "A condition is missing. Please provide a filter to retrieve the cached record."');
     }
 
     @IsTest

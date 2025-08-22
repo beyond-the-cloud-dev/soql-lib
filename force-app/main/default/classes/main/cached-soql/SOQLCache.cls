@@ -34,8 +34,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         Cacheable cacheInOrgCache();
         Cacheable cacheInSessionCache();
         Cacheable maxHoursWithoutRefresh(Integer hours);
-        Cacheable bypassUniqueFieldConditionValidation();
-        Cacheable bypassMandatoryConditionValidation();
+        Cacheable allowFilteringByNonUniqueFields();
+        Cacheable allowQueriesWithoutConditions();
         // SELECT
         Cacheable with(SObjectField field);
         Cacheable with(SObjectField field1, SObjectField field2);
@@ -156,13 +156,13 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         return this;
     }
 
-    public Cacheable bypassUniqueFieldConditionValidation() {
-        this.cache.filterGroup.bypassUniqueFieldConditionValidation();
+    public Cacheable allowFilteringByNonUniqueFields() {
+        this.cache.filterGroup.allowFilteringByNonUniqueFields();
         return this;
     }
 
-    public Cacheable bypassMandatoryConditionValidation() {
-        this.cache.filterGroup.bypassMandatoryConditionValidation();
+    public Cacheable allowQueriesWithoutConditions() {
+        this.cache.filterGroup.allowQueriesWithoutConditions();
         return this;
     }
 
@@ -434,8 +434,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         private List<CacheFilter> filters = new List<CacheFilter>();
         private List<String> additionalAllowedConditionFields = new List<String>();
 
-        private Boolean bypassUniqueFieldConditionValidation = false;
-        private Boolean bypassMandatoryConditionValidation = false;
+        private Boolean allowFilteringByNonUniqueFields = false;
+        private Boolean allowQueriesWithoutConditions = false;
 
         public CacheFilterGroup(String ofObject) {
             this.ofObject = ofObject;
@@ -451,27 +451,27 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             }
         }
 
-        public void bypassUniqueFieldConditionValidation() {
-            this.bypassUniqueFieldConditionValidation = true;
+        public void allowFilteringByNonUniqueFields() {
+            this.allowFilteringByNonUniqueFields = true;
         }
 
-        public void bypassMandatoryConditionValidation() {
-            this.bypassMandatoryConditionValidation = true;
+        public void allowQueriesWithoutConditions() {
+            this.allowQueriesWithoutConditions = true;
         }
 
         public void validateUniqueCondition(CacheFilter filter) {
-            if (this.bypassUniqueFieldConditionValidation) {
+            if (this.allowFilteringByNonUniqueFields) {
                 return;
             }
 
             if (!(new List<String>{ 'Id', 'Name', 'DeveloperName' }.contains(filter.field) || this.additionalAllowedConditionFields.contains(filter.field) || Schema.getGlobalDescribe().get(this.ofObject).getDescribe().fields.getMap().get(filter.field).getDescribe().isUnique())) {
-                throw new SoqlCacheException('A cached query can be filtered only by Id, Name, DeveloperName, or a unique field. You can ignore this validation by calling bypassMandatoryConditionValidation()');
+                throw new SoqlCacheException('A cached query can be filtered only by Id, Name, DeveloperName, or a unique field. You can ignore this validation by calling allowQueriesWithoutConditions()');
             }
         }
 
         public void validateIfQueryHasAtLeastOneCondition() {
-            if (!this.bypassMandatoryConditionValidation && this.filters.isEmpty()) {
-                throw new SoqlCacheException('A condition is missing. Please provide a filter to retrieve the cached record. You can ignore this validation by calling bypassUniqueFieldConditionValidation()');
+            if (!this.allowQueriesWithoutConditions && this.filters.isEmpty()) {
+                throw new SoqlCacheException('A condition is missing. Please provide a filter to retrieve the cached record. You can ignore this validation by calling allowFilteringByNonUniqueFields()');
             }
         }
 
