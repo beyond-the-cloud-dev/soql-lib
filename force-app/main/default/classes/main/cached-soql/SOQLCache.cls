@@ -34,8 +34,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         Cacheable cacheInOrgCache();
         Cacheable cacheInSessionCache();
         Cacheable maxHoursWithoutRefresh(Integer hours);
-        Cacheable ignoreUniqueConditionValidation();
-        Cacheable ignoreMandatoryConditionValidation();
+        Cacheable bypassUniqueFieldConditionValidation();
+        Cacheable bypassMandatoryConditionValidation();
         // SELECT
         Cacheable with(SObjectField field);
         Cacheable with(SObjectField field1, SObjectField field2);
@@ -67,6 +67,10 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     protected virtual SOQL.Queryable initialQuery() {
         return null;
+    }
+
+    public virtual List<SObjectField> additionalAllowedConditionFields() {
+        return new List<SObjectField>();
     }
 
     // Mocking
@@ -126,6 +130,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         this.currentyQuery = SOQL.of(ofObject).systemMode().withoutSharing();
 
         this.cache = new Cache(ofObject);
+        this.cache.filterGroup.setAdditionalAllowedConditionFields(this.additionalAllowedConditionFields());
         this.executor = new Executor(this.currentyQuery, this.cache);
 
         this.with('Id');
@@ -151,13 +156,13 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         return this;
     }
 
-    public Cacheable ignoreUniqueConditionValidation() {
-        this.cache.filterGroup.ignoreUniqueConditionValidation();
+    public Cacheable bypassUniqueFieldConditionValidation() {
+        this.cache.filterGroup.bypassUniqueFieldConditionValidation();
         return this;
     }
 
-    public Cacheable ignoreMandatoryConditionValidation() {
-        this.cache.filterGroup.ignoreMandatoryConditionValidation();
+    public Cacheable bypassMandatoryConditionValidation() {
+        this.cache.filterGroup.bypassMandatoryConditionValidation();
         return this;
     }
 
@@ -427,9 +432,10 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         private String ofObject;
 
         private List<CacheFilter> filters = new List<CacheFilter>();
+        private List<String> additionalAllowedConditionFields = new List<String>();
 
-        private Boolean ignoreUniqueConditionValidation = false;
-        private Boolean ignoreMandatoryConditionValidation = false;
+        private Boolean bypassUniqueFieldConditionValidation = false;
+        private Boolean bypassMandatoryConditionValidation = false;
 
         public CacheFilterGroup(String ofObject) {
             this.ofObject = ofObject;
@@ -439,27 +445,33 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             this.filters.add(filter);
         }
 
-        public void ignoreUniqueConditionValidation() {
-            this.ignoreUniqueConditionValidation = true;
+        public void setAdditionalAllowedConditionFields(List<SObjectField> additionalAllowedConditionFields) {
+            for (SObjectField field : additionalAllowedConditionFields) {
+                this.additionalAllowedConditionFields.add(field.toString());
+            }
         }
 
-        public void ignoreMandatoryConditionValidation() {
-            this.ignoreMandatoryConditionValidation = true;
+        public void bypassUniqueFieldConditionValidation() {
+            this.bypassUniqueFieldConditionValidation = true;
+        }
+
+        public void bypassMandatoryConditionValidation() {
+            this.bypassMandatoryConditionValidation = true;
         }
 
         public void validateUniqueCondition(CacheFilter filter) {
-            if (this.ignoreUniqueConditionValidation) {
+            if (this.bypassUniqueFieldConditionValidation) {
                 return;
             }
 
-            if (!(new List<String>{ 'Id', 'Name', 'DeveloperName' }.contains(filter.field) || Schema.getGlobalDescribe().get(this.ofObject).getDescribe().fields.getMap().get(filter.field).getDescribe().isUnique())) {
-                throw new SoqlCacheException('A cached query can be filtered only by Id, Name, DeveloperName, or a unique field. You can ignore this validation by calling ignoreMandatoryConditionValidation()');
+            if (!(new List<String>{ 'Id', 'Name', 'DeveloperName' }.contains(filter.field) || this.additionalAllowedConditionFields.contains(filter.field) || Schema.getGlobalDescribe().get(this.ofObject).getDescribe().fields.getMap().get(filter.field).getDescribe().isUnique())) {
+                throw new SoqlCacheException('A cached query can be filtered only by Id, Name, DeveloperName, or a unique field. You can ignore this validation by calling bypassMandatoryConditionValidation()');
             }
         }
 
         public void validateIfQueryHasAtLeastOneCondition() {
-            if (!this.ignoreMandatoryConditionValidation && this.filters.isEmpty()) {
-                throw new SoqlCacheException('A condition is missing. Please provide a filter to retrieve the cached record. You can ignore this validation by calling ignoreUniqueConditionValidation()');
+            if (!this.bypassMandatoryConditionValidation && this.filters.isEmpty()) {
+                throw new SoqlCacheException('A condition is missing. Please provide a filter to retrieve the cached record. You can ignore this validation by calling bypassUniqueFieldConditionValidation()');
             }
         }
 

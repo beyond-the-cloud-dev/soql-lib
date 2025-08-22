@@ -44,6 +44,22 @@ private class SOQLCache_Test {
     }
 
     @IsTest
+    static void additionalAllowedConditionFields() {
+        // Setup
+        SOQLCache.SoqlCacheException soqlException;
+
+        // Test
+        try {
+            User user = (User) new SOQL_UserCache().whereEqual(User.Username, 'test@test.com').toObject();
+        } catch (SOQLCache.SoqlCacheException e) {
+            soqlException = e;
+        }
+
+        // Verify
+        Assert.isNull(soqlException, 'An exception should not be thrown, because Username is an additional allowed condition field.');
+    }
+
+    @IsTest
     static void multipleSelectorInvocation() {
         // Test
         SOQLCache.of(Profile.SObjectType).with(Profile.Id, Profile.Name).whereEqual(Profile.Name, 'System Administrator').toObject();
@@ -196,14 +212,14 @@ private class SOQLCache_Test {
     }
 
     @IsTest
-    static void ignoreMandatoryConditionValidation() {
+    static void bypassMandatoryConditionValidation() {
         // Setup
         insert new Account(Name = 'Test Account');
 
         // Test
         Account account = (Account) SOQLCache.of(Account.SObjectType)
             .with(Account.Id, Account.Name)
-            .ignoreMandatoryConditionValidation()
+            .bypassMandatoryConditionValidation()
             .toObject();
 
         // Verify
@@ -212,7 +228,7 @@ private class SOQLCache_Test {
     }
 
     @IsTest
-    static void ignoreUniqueConditionValidation() {
+    static void bypassUniqueFieldConditionValidation() {
         // Setup
         insert new Account(Name = 'Test Account');
         
@@ -220,7 +236,7 @@ private class SOQLCache_Test {
         Account account = (Account) SOQLCache.of(Account.SObjectType)
             .with(Account.Id, Account.Name)
             .whereEqual(Account.Name, 'Test Account')
-            .ignoreUniqueConditionValidation()
+            .bypassUniqueFieldConditionValidation()
             .toObject();
 
         // Verify
@@ -236,7 +252,7 @@ private class SOQLCache_Test {
         // Test
         try {
             SOQLCache.of(Profile.SObjectType)
-                .ignoreMandatoryConditionValidation()
+                .bypassMandatoryConditionValidation()
                 .toObject();
         } catch (System.QueryException e) {
             queryException = e;
@@ -394,7 +410,7 @@ private class SOQLCache_Test {
 
         // Verify
         Assert.isNotNull(soqlException, 'An exception should be thrown when the field is not Id, Name, DeveloperName, or a unique field.');
-        Assert.areEqual('A cached query can be filtered only by Id, Name, DeveloperName, or a unique field. You can ignore this validation by calling ignoreMandatoryConditionValidation()', soqlException.getMessage(), 'The exception message should be "A cached query can be filtered only by Id, Name, DeveloperName, or a unique field."');
+        Assert.areEqual('A cached query can be filtered only by Id, Name, DeveloperName, or a unique field. You can ignore this validation by calling bypassMandatoryConditionValidation()', soqlException.getMessage(), 'The exception message should be "A cached query can be filtered only by Id, Name, DeveloperName, or a unique field."');
     }
 
     @IsTest
@@ -413,7 +429,7 @@ private class SOQLCache_Test {
 
         // Verify
         Assert.isNotNull(soqlException, 'An exception should be thrown when a condition is missing.');
-        Assert.areEqual('A condition is missing. Please provide a filter to retrieve the cached record. You can ignore this validation by calling ignoreUniqueConditionValidation()', soqlException.getMessage(), 'The exception message should be "A condition is missing. Please provide a filter to retrieve the cached record."');
+        Assert.areEqual('A condition is missing. Please provide a filter to retrieve the cached record. You can ignore this validation by calling bypassUniqueFieldConditionValidation()', soqlException.getMessage(), 'The exception message should be "A condition is missing. Please provide a filter to retrieve the cached record."');
     }
 
     @IsTest
@@ -761,6 +777,21 @@ private class SOQLCache_Test {
         private SOQL_ProfileCacheDefault() {
             super(Profile.SObjectType);
             with(Profile.Id, Profile.Name, Profile.UserType);
+        }
+    }
+
+    public class SOQL_UserCache extends SOQLCache implements SOQLCache.Selector {
+        public SOQL_UserCache query() {
+            return new SOQL_UserCache();
+        }
+
+        private SOQL_UserCache() {
+            super(User.SObjectType);
+            with(User.Id, User.Name);
+        }
+
+        public override List<SObjectField> additionalAllowedConditionFields() {
+            return new List<SObjectField>{ User.Username };
         }
     }
 }
