@@ -60,6 +60,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         Cacheable byId(Id recordId);
         // RESULT
         Id toId();
+        Id toIdOf(SObjectField field);
         Boolean doExist();
         SObject toObject();
         Object toValueOf(SObjectField fieldToExtract);
@@ -241,6 +242,10 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     public Id toId() {
         return this.toObject()?.Id;
+    }
+
+    public Id toIdOf(SObjectField field) {
+        return (Id) this.toObject()?.get(field);
     }
 
     public Boolean doExist() {

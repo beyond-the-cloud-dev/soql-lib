@@ -580,6 +580,17 @@ private class SOQLCache_Test {
     }
 
     @IsTest
+    static void toIdOf() {
+        // Test
+        Id systemAdministratorProfileId = SOQLCache.of(Profile.SObjectType)
+            .whereEqual(Profile.Name, 'System Administrator')
+            .toIdOf(Profile.Id);
+
+        // Verify
+        Assert.isNotNull(systemAdministratorProfileId, 'The System Administrator profile Id must exist.');
+    }
+
+    @IsTest
     static void doExist() {
         // Test
         Boolean isProfileExist = SOQLCache.of(Profile.SObjectType)
