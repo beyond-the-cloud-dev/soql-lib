@@ -20,6 +20,14 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         Cacheable query();
     }
 
+    public static Cacheable of(SObjectType ofObject) {
+        return new SOQLCache(ofObject);
+    }
+
+    public static Cacheable of(String ofObject) {
+        return new SOQLCache(ofObject);
+    }
+
     public interface Cacheable {
         // CONFIG
         Cacheable cacheInApexTransaction();
@@ -56,14 +64,6 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     protected virtual SOQL.Queryable initialQuery() {
         return null;
-    }
-
-    public static Cacheable of(SObjectType ofObject) {
-        return new SOQLCache(ofObject);
-    }
-
-    public static Cacheable of(String ofObject) {
-        return new SOQLCache(ofObject);
     }
 
     // Mocking
