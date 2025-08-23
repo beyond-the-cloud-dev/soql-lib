@@ -44,6 +44,12 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         Cacheable with(List<SObjectField> fields);
         Cacheable with(String fields);
+        Cacheable with(String relationshipName, SObjectField field);
+        Cacheable with(String relationshipName, SObjectField field1, SObjectField field2);
+        Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
+        Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+        Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
+        Cacheable with(String relationshipName, Iterable<SObjectField> fields);
         // WHERE
         Cacheable whereEqual(SObjectField field, Object value);
         Cacheable whereEqual(String field, Object value);
@@ -200,6 +206,36 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         this.initialQuery?.with(fields);
         this.currentQuery.with(fields);
         this.cache.fields.with(fields);
+        return this;
+    }
+
+    public Cacheable with(String relationshipName, SObjectField field) {
+        this.initialQuery?.with(relationshipName, field);
+        this.currentQuery.with(relationshipName, field);
+        this.cache.fields.with(relationshipName, field);
+        return this;
+    }
+
+    public Cacheable with(String relationshipName, SObjectField field1, SObjectField field2) {
+        return this.with(relationshipName, new List<SObjectField>{ field1, field2 });
+    }
+
+    public Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3) {
+        return this.with(relationshipName, new List<SObjectField>{ field1, field2, field3 });
+    }
+
+    public Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
+        return this.with(relationshipName, new List<SObjectField>{ field1, field2, field3, field4 });
+    }
+
+    public Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
+        return this.with(relationshipName, new List<SObjectField>{ field1, field2, field3, field4, field5 });
+    }
+
+    public Cacheable with(String relationshipName, Iterable<SObjectField> fields) {
+        this.initialQuery?.with(relationshipName, fields);
+        this.currentQuery.with(relationshipName, fields);
+        this.cache.fields.with(relationshipName, fields);
         return this;
     }
 
@@ -538,10 +574,21 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     private class CacheFields {
         private Set<String> cachedFields = new Set<String>();
+        private Set<String> cachedRelationshipFields = new Set<String>();
 
-        public void with(String fields) {
-            for (String field : fields.split(',')) {
-                this.cachedFields.add(field.trim());
+        public void with(String commaSeparatedFields) {
+            for (String field : commaSeparatedFields.split(',')) {
+                this.classifyField(field);
+            }
+        }
+
+        private void classifyField(String field) {
+            String trimmedField = field.trim();
+
+            if (trimmedField.contains('.')) {
+                this.cachedRelationshipFields.add(trimmedField);
+            } else {
+                this.cachedFields.add(trimmedField);
             }
         }
 
@@ -555,22 +602,67 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             }
         }
 
+        public void with(String relationshipName, SObjectField field) {
+            this.cachedRelationshipFields.add(relationshipName + '.' + field.toString());
+        }
+
+        public void with(String relationshipName, Iterable<SObjectField> fields) {
+            for (SObjectField field : fields) {
+                this.with(relationshipName, field);
+            }
+        }
+
         public Boolean haveAllRequestedFields(List<CacheItem> cachedItems) {
             for (CacheItem cachedItem : cachedItems) {
-                if (!this.hasAllRequestedFields(cachedItem.record)) {
+                if (!this.hasAllRequestedPlainFields(cachedItem.record) || 
+                    !this.hasAllRequestedRelationshipFields(cachedItem.record)) {
                     return false;
                 }
             }
             return true;
         }
 
-        public Boolean hasAllRequestedFields(SObject record) {
+        private Boolean hasAllRequestedPlainFields(SObject record) {
             for (String field : this.cachedFields) {
                 if (!record.isSet(field)) {
                     return false;
                 }
             }
+            
             return true;
+        }
+
+        private Boolean hasAllRequestedRelationshipFields(SObject record) {
+            for (String relationship : this.cachedRelationshipFields) {
+                if (!this.isRelationshipFieldSet(record, relationship)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private Boolean isRelationshipFieldSet(SObject record, String relationship) {
+            List<String> relationshipPath = relationship.split('\\.');
+
+            String targetField = relationshipPath.remove(relationshipPath.size() - 1);
+            SObject targetRelationshipSObject = this.getTargetRelationshipSObject(record, relationshipPath);
+
+            return targetRelationshipSObject == null ? false : targetRelationshipSObject.isSet(targetField);
+        }
+
+        private SObject getTargetRelationshipSObject(SObject record, List<String> relationshipPath) {
+            SObject currentRecord = record;
+
+            for (String relationshipField : relationshipPath) {
+                currentRecord = currentRecord.getSObject(relationshipField);
+
+                if (currentRecord == null) {
+                    return null;
+                }
+            }
+
+            return currentRecord;
         }
     }
 
