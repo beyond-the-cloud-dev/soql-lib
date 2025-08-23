@@ -13,6 +13,10 @@ public without sharing class SOQL_CachedUser extends SOQLCache implements SOQLCa
         return SOQL.of(User.SObjectType).whereAre(SOQL.Filter.id().equal(UserInfo.getUserId()));
     }
 
+    public override List<SObjectField> additionalAllowedConditionFields() {
+        return new List<SObjectField>{ User.Username };
+    }
+
     public SOQL_CachedUser byUsername(String username) {
         whereEqual(User.Username, username);
         return this;
