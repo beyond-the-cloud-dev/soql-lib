@@ -2,7 +2,7 @@
   <a href="https://nextjs.org">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://soql.beyondthecloud.dev/img/logo.png">
-      <img alt="SOQL Lib logo" src="https://soql.beyondthecloud.dev/img/logo.png" height="128">
+      <img alt="SOQL Lib logo" src="https://soql.beyondthecloud.dev/img/logo.png" height="98">
     </picture>
   </a>
   <h1>SOQL Lib</h1>
@@ -10,7 +10,7 @@
 <a href="https://beyondthecloud.dev"><img alt="Beyond The Cloud logo" src="https://img.shields.io/badge/MADE_BY_BEYOND_THE_CLOUD-555?style=for-the-badge"></a>
 
 <a ><img alt="API version" src="https://img.shields.io/badge/api-v64.0-blue?style=for-the-badge"></a>
-<a href="https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/LICENSE-MIT-GREEN?style=for-the-badge
+<a href="https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/license-mit-green?style=for-the-badge
 "></a>
 
 ![Deploy to Scratch Org and run tests](https://github.com/beyond-the-cloud-dev/soql-lib/actions/workflows/ci.yml/badge.svg)
