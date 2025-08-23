@@ -67,6 +67,10 @@ const config = {
         { name: 'keywords', content: 'SOQL Lib, Selector Layer Apex, Apex Selector Layer, Query Builder' },
         { name: 'canonical', content: 'https://soql.beyondthecloud.dev' }
       ],
+      colorMode: {
+        defaultMode: 'dark',
+        disableSwitch: true,
+      },
       docs: {
         sidebar: {
           hideable: true,

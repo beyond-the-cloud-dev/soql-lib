@@ -56,4 +56,4 @@ Click the button below to deploy SOQL Lib to your environment.
 
 You are ready to build your selector classes.
 
-Go to the [Build Your Selector](./build-your-selector.md) section to see more details.
+Go to the [Build Your Selector](../soql/build-selector.md) section to see more details.
