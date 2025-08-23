@@ -8,7 +8,7 @@ sidebar_position: 15
 
 SOQLCache provides three different cache storage levels, each with different scope and persistence:
 
-```apex
+```apex title="Apex Transaction Cache"
 // Cache in Apex Transaction - fastest, limited to current transaction
 Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
     .with(Profile.Id, Profile.Name)
@@ -17,7 +17,7 @@ Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
     .toObject();
 ```
 
-```apex
+```apex title="Org Cache"
 // Cache in Org Cache - persists across transactions and users
 Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
     .with(Profile.Id, Profile.Name)
@@ -26,7 +26,7 @@ Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
     .toObject();
 ```
 
-```apex
+```apex title="Session Cache"
 // Cache in Session Cache - persists for user session
 Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
     .with(Profile.Id, Profile.Name)
@@ -41,7 +41,7 @@ Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
 
 All cached records have an additional field called `cachedDate`. To avoid using outdated records, you can configure `maxHoursWithoutRefresh` to automatically refresh stale cache entries:
 
-```apex
+```apex title="Auto-refresh Configuration"
 // Auto-refresh cache after 12 hours
 Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
     .with(Profile.Id, Profile.Name, Profile.UserType)
@@ -50,7 +50,7 @@ Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
     .toObject();
 ```
 
-```apex
+```apex title="SOQL_CachedProfile.cls"
 // Custom refresh interval in cached selector
 public inherited sharing class SOQL_CachedProfile extends SOQLCache implements SOQLCache.Selector {
     private SOQL_CachedProfile() {
@@ -66,7 +66,7 @@ public inherited sharing class SOQL_CachedProfile extends SOQLCache implements S
 
 Cached selectors extend SOQLCache and provide default cache configurations, fields, and reusable methods. Each cached selector focuses on a single SObjectType with optimal caching strategy.
 
-```apex
+```apex title="SOQL_CachedProfile.cls"
 public inherited sharing class SOQL_CachedProfile extends SOQLCache implements SOQLCache.Selector {
     public static SOQL_CachedProfile query() {
         return new SOQL_CachedProfile();
@@ -99,7 +99,7 @@ public inherited sharing class SOQL_CachedProfile extends SOQLCache implements S
 
 **Usage Example:**
 
-```apex
+```apex title="Cached Selector Usage"
 // Get single profile from cache
 Profile adminProfile = (Profile) SOQL_CachedProfile.query()
     .byName('System Administrator')
@@ -128,7 +128,7 @@ The initial query allows for bulk population of records in the cache when it's e
 **Design Philosophy:**
 When the cache is empty, execute a single query to populate all commonly used records. This dramatically reduces the number of database queries for frequently accessed data like Profiles, BusinessHours, or OrgWideEmailAddress.
 
-```apex
+```apex title="SOQL_CachedProfile.cls"
 public inherited sharing class SOQL_CachedProfile extends SOQLCache implements SOQLCache.Selector {
     private SOQL_CachedProfile() {
         super(Profile.SObjectType);
@@ -147,7 +147,7 @@ public inherited sharing class SOQL_CachedProfile extends SOQLCache implements S
 **How It Works:**
 When `SOQL_CachedProfile.query().byName('System Administrator').toObject()` is called and the cache is empty, the initial query executes to populate ALL profiles in cache. Subsequent queries retrieve from cache without hitting the database.
 
-```apex
+```apex title="ExampleController.cls"
 public with sharing class ExampleController {
     @AuraEnabled
     public static Id getSystemAdminProfileId() {
@@ -175,7 +175,7 @@ Unlike standard SOQL queries that use `WITH USER_MODE`, cached records require t
 
 The `Security.stripInaccessible` method is the only FLS method that works with cached records, as it can remove inaccessible fields from already retrieved data.
 
-```apex
+```apex title="Default FLS"
 // Apply FLS to cached records
 Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
     .with(Profile.Id, Profile.Name, Profile.UserType)
@@ -184,7 +184,7 @@ Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
     .toObject();
 ```
 
-```apex
+```apex title="Custom AccessType"
 // Apply specific AccessType
 Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
     .with(Profile.Id, Profile.Name, Profile.UserType)
@@ -201,7 +201,7 @@ Cached queries have specific filtering requirements to ensure data consistency a
 
 By default, cached queries can only filter by unique fields (`Id`, `Name`, `DeveloperName`, or schema-defined unique fields). This prevents inconsistencies between cached and database records.
 
-```apex
+```apex title="Allowed - Unique Field"
 // ✅ Allowed - filtering by unique field
 Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
     .with(Profile.Id, Profile.Name)
@@ -209,7 +209,7 @@ Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
     .toObject();
 ```
 
-```apex
+```apex title="Not Allowed - Non-unique Field"
 // ❌ Not allowed - UserType is not unique
 // Throws: SoqlCacheException
 Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
@@ -222,7 +222,7 @@ Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
 
 For specific use cases, you can override the unique field requirement:
 
-```apex
+```apex title="Override Non-unique Filter"
 // Allow filtering by non-unique fields
 Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
     .with(Profile.Id, Profile.Name, Profile.UserType)
@@ -235,7 +235,7 @@ Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
 
 Cached queries require at least one WHERE condition to ensure specific record retrieval:
 
-```apex
+```apex title="Query Without Conditions"
 // Allow queries without conditions (for small datasets)
 Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
     .with(Profile.Id, Profile.Name)
@@ -249,7 +249,7 @@ SOQLCache supports mocking for unit tests. You can mock either the cached result
 
 ### Mock Cached Results
 
-```apex
+```apex title="ExampleController.cls"
 public with sharing class ExampleController {
     public static Profile getSystemAdminProfile() {
         return (Profile) SOQL_CachedProfile.query()
@@ -262,7 +262,7 @@ public with sharing class ExampleController {
 
 **Test Implementation:**
 
-```apex
+```apex title="ExampleControllerTest.cls"
 @IsTest
 private class ExampleControllerTest {
     @IsTest
@@ -289,7 +289,7 @@ private class ExampleControllerTest {
 
 You can also mock the underlying SOQL query that populates the cache:
 
-```apex
+```apex title="SOQL_CachedProfileTest.cls"
 @IsTest
 private class SOQL_CachedProfileTest {
     @IsTest
@@ -319,7 +319,7 @@ Manual cache removal allows you to clear specific records from cache, triggering
 
 ### Trigger-Based Cache Invalidation
 
-```apex
+```apex title="ProfileTrigger.trigger"
 trigger ProfileTrigger on Profile (after update, after delete) {
     // Clear cached profiles when they're updated or deleted
     SOQLCache.removeFromCache(Trigger.old);
@@ -328,7 +328,7 @@ trigger ProfileTrigger on Profile (after update, after delete) {
 
 ### Programmatic Cache Removal
 
-```apex
+```apex title="ProfileController.cls"
 public with sharing class ProfileController {
     @AuraEnabled
     public static void updateProfileSettings(Id profileId, String newName) {
@@ -377,7 +377,7 @@ Cache is most effective for:
 
 ### Memory Usage
 
-```apex
+```apex title="Efficient Memory Usage"
 // Efficient - minimal fields cached
 SOQL_CachedProfile.query()
     .with(Profile.Id, Profile.Name)  // Only cache needed fields
@@ -391,7 +391,7 @@ SOQLCache provides streamlined result methods optimized for cached data retrieva
 
 ### Available Result Methods
 
-```apex
+```apex title="Available Result Methods"
 Id toId()                                    // Get record ID
 Id toIdOf(SObjectField field)                // Get ID from specific field
 Boolean doExist()                            // Check if record exists
@@ -403,7 +403,7 @@ SObject toObject()                           // Get single record
 
 ❌ **Traditional approach:**
 
-```apex
+```apex title="Traditional SOQL"
 public static Id getSystemAdminProfileId() {
     Profile profile = [
         SELECT Id 
@@ -417,7 +417,7 @@ public static Id getSystemAdminProfileId() {
 
 ✅ **With SOQLCache:**
 
-```apex
+```apex title="With SOQLCache"
 public static Id getSystemAdminProfileId() {
     return SOQL_CachedProfile.query()
         .byName('System Administrator')
@@ -429,7 +429,7 @@ public static Id getSystemAdminProfileId() {
 
 ❌ **Traditional approach:**
 
-```apex
+```apex title="Traditional SOQL"
 public static String getSystemAdminUserType() {
     Profile profile = [
         SELECT UserType
@@ -443,7 +443,7 @@ public static String getSystemAdminUserType() {
 
 ✅ **With SOQLCache:**
 
-```apex
+```apex title="With SOQLCache"
 public static String getSystemAdminUserType() {
     return (String) SOQL_CachedProfile.query()
         .byName('System Administrator')
@@ -455,7 +455,7 @@ public static String getSystemAdminUserType() {
 
 ❌ **Traditional approach:**
 
-```apex
+```apex title="Traditional SOQL"
 public static Boolean hasStandardUserProfile() {
     List<Profile> profiles = [
         SELECT Id 
@@ -469,7 +469,7 @@ public static Boolean hasStandardUserProfile() {
 
 ✅ **With SOQLCache:**
 
-```apex
+```apex title="With SOQLCache"
 public static Boolean hasStandardUserProfile() {
     return SOQL_CachedProfile.query()
         .byName('Standard User')
@@ -479,7 +479,7 @@ public static Boolean hasStandardUserProfile() {
 
 ### Get Related Field ID from Cache
 
-```apex
+```apex title="Related Field ID"
 // Get UserLicenseId from cached Profile
 public static Id getProfileUserLicenseId(String profileName) {
     return SOQL_CachedProfile.query()

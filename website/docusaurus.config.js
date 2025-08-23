@@ -161,12 +161,24 @@ const config = {
             title: 'Documentation',
             items: [
               {
+                label: 'Get Started',
+                to: '/docs/getting-started'
+              },
+              {
                 label: 'Installation',
                 to: '/installation'
               },
               {
-                label: 'Building Your Selector',
-                to: '/building-your-selector'
+                label: 'SOQL Module',
+                to: '/soql/getting-started'
+              },
+              {
+                label: 'Cache Module',
+                to: '/cache/getting-started'
+              },
+              {
+                label: 'Evaluator Module',
+                to: '/evaluator/getting-started'
               }
             ]
           },
