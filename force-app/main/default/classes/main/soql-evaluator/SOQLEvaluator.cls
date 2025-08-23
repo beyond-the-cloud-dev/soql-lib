@@ -9,8 +9,8 @@
 **/
 @SuppressWarnings('PMD.CognitiveComplexity')
 public inherited sharing class SOQLEvaluator {    
-    public static SObjectEvaluable of(List<SObject> staticQuery) {
-        return new SObjectEvaluator(staticQuery);
+    public static SObjectEvaluable of(List<SObject> staticQueryRecords) {
+        return new SObjectEvaluator(staticQueryRecords);
     }
 
     public interface SObjectEvaluable {
@@ -83,7 +83,7 @@ public inherited sharing class SOQLEvaluator {
         }
 
         public Id toId() {
-            return this.toObject().Id;
+            return this.toObject()?.Id;
         }
 
         public Set<Id> toIds() {

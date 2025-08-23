@@ -345,11 +345,15 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         public void removeRecordsFromCache(List<SObject> recordsToRemove) {
+            if (recordsToRemove.isEmpty()) {
+                return;
+            }
+
             Set<Id> recordsToRemoveIds = new Map<Id, SObject>(recordsToRemove).keySet();
-            List<CacheItem> allCachedRecords = getCachedRecords();
+            
             List<CacheItem> filteredCachedItems = new List<CacheItem>();
 
-            for (CacheItem cachedRecord : allCachedRecords) {
+            for (CacheItem cachedRecord : getCachedRecords()) {
                 if (!recordsToRemoveIds.contains(cachedRecord.id)) {
                     filteredCachedItems.add(cachedRecord);
                 }
@@ -433,6 +437,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
         private List<CacheFilter> filters = new List<CacheFilter>();
         private List<String> additionalAllowedConditionFields = new List<String>();
+        private Map<String, Boolean> fieldIsUniqueCache = new Map<String, Boolean>();
 
         private Boolean allowFilteringByNonUniqueFields = false;
         private Boolean allowQueriesWithoutConditions = false;
@@ -464,7 +469,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
                 return;
             }
 
-            if (!(new List<String>{ 'Id', 'Name', 'DeveloperName' }.contains(filter.field) || this.additionalAllowedConditionFields.contains(filter.field) || Schema.getGlobalDescribe().get(this.ofObject).getDescribe().fields.getMap().get(filter.field).getDescribe().isUnique())) {
+            if (!(new List<String>{ 'Id', 'Name', 'DeveloperName' }.contains(filter.field) || this.additionalAllowedConditionFields.contains(filter.field) || this.isFieldUnique(filter.field))) {
                 throw new SoqlCacheException('A cached query can be filtered only by Id, Name, DeveloperName, or a unique field. You can ignore this validation by calling allowFilteringByNonUniqueFields()');
             }
         }
@@ -479,6 +484,16 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             for (CacheFilter filter : this.filters) {
                 this.validateUniqueCondition(filter);
             }
+        }
+
+        private Boolean isFieldUnique(String field) {
+            if (this.fieldIsUniqueCache.containsKey(field)) {
+                return this.fieldIsUniqueCache.get(field);
+            }
+
+            Boolean isUnique = Schema.getGlobalDescribe().get(this.ofObject).getDescribe().fields.getMap().get(field).getDescribe().isUnique();
+            this.fieldIsUniqueCache.put(field, isUnique);
+            return isUnique;
         }
 
         public List<CacheItem> filter(List<CacheItem> cachedItems) {
