@@ -1,5 +1,5 @@
 ---
-slug: '/building-your-selector'
+slug: '/building-selector'
 sidebar_position: 17
 ---
 

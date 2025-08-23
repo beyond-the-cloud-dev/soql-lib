@@ -10,44 +10,9 @@ sidebar_position: 10
 
 The SOQL Lib provides functional constructs for SOQL queries in Apex. The SOQL Lib consists of 3 main modules:
 
-```mermaid
-flowchart TD
-    SOQLLib[SOQL Lib]
-    
-    subgraph SOQL_Module [" SOQL (main)"]
-        direction TB
-        SOQLBuilder["SOQL Builder"]
-        SOQLSelectors["SOQL Selectors"]
-    end
-    
-    subgraph SOQLCache_Module [" SOQL Cache (optional) "]
-        direction TB
-        SOQLCacheBuilder["Cached SOQL Builder"]
-        SOQLCachedSelectors["Cached SOQL Selectors"]
-    end
-    
-    subgraph SOQLEvaluator_Module [" SOQL Evaluator (optional) "]
-        direction TB
-        SOQLEvaluator["SOQL Evaluator"]
-    end
-    
-    SOQLLib --> SOQL_Module
-    SOQLLib --> SOQLCache_Module
-    SOQLLib --> SOQLEvaluator_Module
-    
-    %% Styling
-    classDef moduleBox fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
-    classDef componentBox fill:#f3e5f5,stroke:#7b1fa2,stroke-width:1px
-    classDef mainBox fill:#fff3e0,stroke:#f57c00,stroke-width:3px
-    
-    class SOQLLib mainBox
-    class SOQL_Module,SOQLCache_Module,SOQLEvaluator_Module moduleBox
-    class SOQLBuilder,SOQLSelectors,SOQLCacheBuilder,SOQLCachedSelectors,SOQLEvaluator componentBox
-```
-
-⚠️ You can find more examples on the [Showcases](/examples/showcase) page.
-
-⚠️ You can find all method on the [API](/api) page.
+- [SOQL (main)](./soql/getting-started) - SOQL Builder and Selectors
+- [Cache (optional)](./cache/getting-started) - Cached SOQL Builder and Cached Selectors
+- [Evaluator (optional)](./evaluator/getting-started) - SOQL Evaluator
 
 ## Examples
 
