@@ -119,7 +119,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     private Cache cache;
 
     public SOQL.Queryable initialQuery = null;
-    public SOQL.Queryable currentyQuery = null;
+    public SOQL.Queryable currentQuery = null;
 
     protected SOQLCache(SObjectType ofObject) {
         this(ofObject.toString());
@@ -127,11 +127,11 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     protected SOQLCache(String ofObject) {
         this.initialQuery = this.initialQuery()?.systemMode()?.withoutSharing();
-        this.currentyQuery = SOQL.of(ofObject).systemMode().withoutSharing();
+        this.currentQuery = SOQL.of(ofObject).systemMode().withoutSharing();
 
         this.cache = new Cache(ofObject);
         this.cache.filterGroup.setAdditionalAllowedConditionFields(this.additionalAllowedConditionFields());
-        this.executor = new Executor(this.currentyQuery, this.cache);
+        this.executor = new Executor(this.currentQuery, this.cache);
 
         this.with('Id');
     }
@@ -168,7 +168,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     public Cacheable with(SObjectField field) {
         this.initialQuery?.with(field);
-        this.currentyQuery.with(field);
+        this.currentQuery.with(field);
         this.cache.fields.with(field);
         return this;
     }
@@ -191,14 +191,14 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     public Cacheable with(List<SObjectField> fields) {
         this.initialQuery?.with(fields);
-        this.currentyQuery.with(fields);
+        this.currentQuery.with(fields);
         this.cache.fields.with(fields);
         return this;
     }
 
     public Cacheable with(String fields) {
         this.initialQuery?.with(fields);
-        this.currentyQuery.with(fields);
+        this.currentQuery.with(fields);
         this.cache.fields.with(fields);
         return this;
     }
@@ -210,7 +210,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     public Cacheable whereEqual(String field, Object value) {
         this.with(field);
         this.cache.filterGroup.add(new CacheFilter().with(field).equal(value));
-        this.currentyQuery.whereAre(SOQL.Filter.with(field).equal(value));
+        this.currentQuery.whereAre(SOQL.Filter.with(field).equal(value));
         return this;
     }
 
@@ -219,19 +219,19 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     public Cacheable stripInaccessible(AccessType accessType) {
-        this.currentyQuery.stripInaccessible(accessType);
+        this.currentQuery.stripInaccessible(accessType);
         this.executor.stripInaccessible(accessType);
         return this;
     }
 
     public Cacheable mockId(String queryIdentifier) {
-        this.currentyQuery.mockId(queryIdentifier);
+        this.currentQuery.mockId(queryIdentifier);
         this.executor.mock(queryIdToMock.get(queryIdentifier));
         return this;
     }
 
     public Cacheable preview() {
-        this.currentyQuery.preview();
+        this.currentQuery.preview();
         return this;
     }
 
@@ -332,12 +332,12 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         public void updateRecordsInCache(List<SObject> recordsToUpdate) {
             List<CacheItem> allCachedRecords = getCachedRecords();
 
-            for (SObject updatedRecord : recordsToUpdate) {
-                for (CacheItem cachedRecord : allCachedRecords) {
-                    if (updatedRecord.Id == cachedRecord.id) {
-                        cachedRecord.record = updatedRecord;
-                        cachedRecord.cachedDate = System.now();
-                    }
+            Map<Id, SObject> updatedRecordsById = new Map<Id, SObject>(recordsToUpdate);
+
+            for (CacheItem cachedRecord : allCachedRecords) {
+                if (updatedRecordsById.containsKey(cachedRecord.id)) {
+                    cachedRecord.record = updatedRecordsById.get(cachedRecord.id);
+                    cachedRecord.cachedDate = System.now();
                 }
             }
 
@@ -465,13 +465,13 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             }
 
             if (!(new List<String>{ 'Id', 'Name', 'DeveloperName' }.contains(filter.field) || this.additionalAllowedConditionFields.contains(filter.field) || Schema.getGlobalDescribe().get(this.ofObject).getDescribe().fields.getMap().get(filter.field).getDescribe().isUnique())) {
-                throw new SoqlCacheException('A cached query can be filtered only by Id, Name, DeveloperName, or a unique field. You can ignore this validation by calling allowQueriesWithoutConditions()');
+                throw new SoqlCacheException('A cached query can be filtered only by Id, Name, DeveloperName, or a unique field. You can ignore this validation by calling allowFilteringByNonUniqueFields()');
             }
         }
 
         public void validateIfQueryHasAtLeastOneCondition() {
             if (!this.allowQueriesWithoutConditions && this.filters.isEmpty()) {
-                throw new SoqlCacheException('A condition is missing. Please provide a filter to retrieve the cached record. You can ignore this validation by calling allowFilteringByNonUniqueFields()');
+                throw new SoqlCacheException('A condition is missing. Please provide a filter to retrieve the cached record. You can ignore this validation by calling allowQueriesWithoutConditions()');
             }
         }
 
@@ -595,13 +595,13 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     private inherited sharing class Executor {
-        private SOQL.Queryable currentyQuery;
+        private SOQL.Queryable currentQuery;
         private Cache cache;
         private AccessType accessType = null;
         private List<SoqlMock> mocks = new List<SoqlMock>();
 
-        public Executor(SOQL.Queryable currentyQuery, Cache cache) {
-            this.currentyQuery = currentyQuery;
+        public Executor(SOQL.Queryable currentQuery, Cache cache) {
+            this.currentQuery = currentQuery;
             this.cache = cache;
         }
 
@@ -639,7 +639,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
                 this.cache.areRequestedFieldsMissing() ||
                 this.cache.areRecordsOutdated()
             ) {
-                records = this.currentyQuery.toList(); // SOQL query execution
+                records = this.currentQuery.toList(); // SOQL query execution
                 cache.save(records);
             }
 
