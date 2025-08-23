@@ -22,10 +22,6 @@
 
 The SOQL Lib provides functional constructs for SOQL queries in Apex.
 
-For more details, please refer to the [documentation](https://soql.beyondthecloud.dev).
-
-You may also find [this blog post](https://blog.beyondthecloud.dev/blog/soql-lib) about SOQL Lib interesting. Check why you need a selector layer in [this post](https://blog.beyondthecloud.dev/blog/why-do-you-need-selector-layer).
-
 **Standard SOQL**
 
 ```apex
@@ -120,11 +116,11 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
 
 ## Documentation
 
-Visit [https://soql.beyondthecloud.dev](https://soql.beyondthecloud.dev) to view the full documentation.
+Visit the [documentation](https://soql.beyondthecloud.dev) to view the full documentation.
 
 ## Features
 
-Read about the features in the [https://soql.beyondthecloud.dev/docs/basic-features](https://soql.beyondthecloud.dev/docs/basic-features).
+Read about the features in the [basic features](https://soql.beyondthecloud.dev/docs/basic-features).
 
 ## Contributors
 
