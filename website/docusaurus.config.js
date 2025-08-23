@@ -10,8 +10,8 @@ const config = {
   favicon: 'img/favicon.ico',
   url: 'https://soql.beyondthecloud.dev/',
   baseUrl: '/',
-  organizationName: 'Beyond The Cloud', // Usually your GitHub org/user name.
-  projectName: 'soql-lib', // Usually your repo name.
+  organizationName: 'Beyond The Cloud',
+  projectName: 'soql-lib',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'throw',
   // Even if you don't use internalization, you can use this field to set useful

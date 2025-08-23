@@ -1,5 +1,4 @@
 ---
-slug: '/getting-started'
 sidebar_position: 10
 ---
 
@@ -8,13 +7,21 @@ sidebar_position: 10
 ![Deploy to Scratch Org and run tests](https://github.com/beyond-the-cloud-dev/soql-lib/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/gh/beyond-the-cloud-dev/soql-lib/branch/main/graph/badge.svg)](https://codecov.io/gh/beyond-the-cloud-dev/soql-lib)
 
-The SOQL Lib provides functional constructs for SOQL queries in Apex. The SOQL Lib consists of 3 main modules:
+The SOQL Lib provides functional constructs for SOQL queries in Apex. 
 
-- [SOQL (main)](./soql/getting-started) - SOQL Builder and Selectors
-- [Cache (optional)](./cache/getting-started) - Cached SOQL Builder and Cached Selectors
-- [Evaluator (optional)](./evaluator/getting-started) - SOQL Evaluator
+:::danger[SOQL Lib Modules]
 
-## Examples
+- [SOQL](./soql/getting-started) - the main module of the lib provides functional constructs for queries.
+- [Cache](./cache/getting-started) _(optional)_ - Use when you want to cache query results.
+- [Evaluator](./evaluator/getting-started) _(optional)_ - Use when you don't want to learn the lib.
+:::
+
+**What Next?**
+
+- Continue with the [Overview](overview.md) to understand the idea behind the SOQL Lib. 🚀
+- [Install](installation.md) the SOQL Lib in your org.
+
+## Quick Start
 
 **Standard SOQL**
 
@@ -127,26 +134,13 @@ public with sharing class ExampleController {
 }
 ```
 
-## Benefits
-
-Check the [Basic Features](./basic-features.md) section for more details.
-
-1. **Additional level of abstraction** - The selector layer is an additional level of abstraction that gives you the possibility to control the execution of SOQL.
-2. **Mocking** - Selector classes give a possibility to mock return values in unit tests.
-    - Mock external objects (__x) - External objects cannot be inserted in unit tests. You need to mock them.
-    - Mock custom metadata - Custom metadata cannot be inserted in unit tests unless the developer uses the Metadata API. Mock can be a solution.
-3. **Control field-level security** - The best practice is to execute SOQLs `WITH USER_MODE` to enforce field-level security and object permissions of the running user. The selector layer can apply `WITH USER_MODE` by default to all of the queries, so the developer does not need to care about it. Developers can also add `WITH SYSTEM_MODE` to all SOQLs from a specific selector.
-4. **Control sharing rules** - The selector allows execution of different methods in the same class in different sharing modes.
-5. **Avoid duplicates** - Generic SOQLs like `getById` and `getByRecordType` can be stored in the selector class.
-6. **Default configuration** - The selector class can provide default SOQL configuration like default fields, FLS settings, and sharing rules.
-7. **Mocking** - The selector class has built-in mocking functionality that provides the ability to dynamically return data in test execution
-8. **Caching** - The cached selector class allows you to cache records in Apex transactions, Session Cache, or Org Cache, which boosts your code's performance.
-9. **Result Functions** - Transform your results easily using result SOQL Lib functions.
-
 ## Resources
 
 - [SOQL Lib Explanation](https://blog.beyondthecloud.dev/blog/soql-lib)
 - [Why do you need Apex Selector Layer?](https://blog.beyondthecloud.dev/blog/why-do-you-need-selector-layer)
+- [Trying out SOQL Lib - Sandbox Sessions - CloudBites TV](https://youtu.be/pVtmmJSNnRA?t=2444)
+- [AWAF Selector Classes](https://awaf.dev/AWAF/selector-classes.html)
+- [Good Day, Sir! Salesforce podcast](https://www.gooddaysirpodcast.com/309)
 
 ## License notes
 
