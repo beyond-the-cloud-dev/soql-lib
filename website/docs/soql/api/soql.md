@@ -1486,7 +1486,7 @@ SOQL.of(Lead.SObjectType)
 
 ## WITH DATA_CATEGORY
 
-For more details check [SOQL.DataCategoryFilter](#soql-data-category-filter.md).
+For more details check [SOQL.DataCategoryFilter](./soql-data-category-filter.md).
 
 **Signature**
 

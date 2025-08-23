@@ -22,7 +22,7 @@ The following are methods for `DataCategory Filter`.
 
 [**FIELDS**](#fields)
 
-- [`with(String field)`](#with-string-field)
+- [`with(String field)`](#with)
 
 [**COMPERATORS**](#comperators)
 
