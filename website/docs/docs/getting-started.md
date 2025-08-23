@@ -52,7 +52,7 @@ Profile systemAdminProfile = (Profile) SOQLCache.of(Profile.SObjectType)
 
 ## Selector
 
-```apex
+```apex title="SOQL_Contact.cls"
 public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selector {
     public static SOQL_Contact query() {
         return new SOQL_Contact();
@@ -80,7 +80,7 @@ public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selecto
 
 **Usage**
 
-```apex
+```apex title="ExampleController.cls"
 public with sharing class ExampleController {
     @AuraEnabled
     public static List<Contact> getAccountContacts(Id accountId) {
@@ -95,7 +95,7 @@ public with sharing class ExampleController {
 
 ## Cached Selector
 
-```apex
+```apex title="SOQL_ProfileCache.cls"
 public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
     public static SOQL_ProfileCache query() {
         return new SOQL_ProfileCache();
@@ -120,7 +120,7 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
 
 **Usage**
 
-```apex
+```apex title="ExampleController.cls"
 public with sharing class ExampleController {
     @AuraEnabled
     public static void createNewAdministrator(User newUser) {

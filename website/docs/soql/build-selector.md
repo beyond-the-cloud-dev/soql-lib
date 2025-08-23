@@ -19,6 +19,35 @@ SOQL Lib is agile, so you can adjust the solution according to your needs.
 
 **We don't force one approach over another; you can choose your own**. 
 
+## Old Approach
+
+[FFLIB Selector](https://github.com/apex-enterprise-patterns/fflib-apex-common/blob/master/sfdx-source/apex-common/main/classes/fflib_SObjectSelector.cls) concept assumes that all queries should be stored in the Selector class.
+
+- To avoid duplicates.
+- One place to manage all queries.
+
+**Issues**:
+- One-time queries (like aggregation, case specific) added to Selector.
+- Huge class with a lot of methods.
+- Queries are difficult to reuse.
+- Similar methods with small differences like limit, offset.
+- Problem with naming methods.
+- Merge conflicts.
+
+## New Approach
+
+The SOQL Lib has a slightly different approach.
+
+**Assumption**:
+
+Most of the SOQLs on the project are **one-time** queries executed for specific business cases.
+
+**Solution**:
+1. **Small Selector Classes** - Selector class should be small and contain ONLY query base configuration (fields, sharing settings) and very generic methods (`byId`, `byRecordType`)
+2. **Build SOQL inline in a place of need** - Business-specific SOQLs should be built inline via the SOQL builder in the place of need.
+3. **Do not spend time on selector method naming** - Queries are created inline, so there's no need to find a name.
+4. **Keep Selector Strengths** - Set default Selector configuration (default fields, sharing settings), keep generic methods.
+
 ## A - Inheritance - extends SOQL, implements Interface + static _(Recommended)_
 
 Most Flexible Approach:
