@@ -6,7 +6,7 @@ sidebar_position: 10
 
 The main module of the SOQL Lib consists of two concepts: **SOQL Builder** and **SOQL Selectors**.
 
-**SOQL Builder**
+## SOQL Builder
 
 Our library does not force developers to create selectors. Queries can be built directly via fluent API provided by the lib.
 
@@ -22,7 +22,7 @@ List<Account> accounts = SOQL.of(Account.SObjectType)
    .toList();
 ```
 
-**SOQL Selectors** _(Recommended)_
+## SOQL Selectors _(Recommended)_
 
 However, we recommend building a selector per `SObjectType`. 
 

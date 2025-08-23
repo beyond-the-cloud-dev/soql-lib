@@ -472,46 +472,6 @@ public List<Account> getAccounts() {
 }
 ```
 
-## Cache records
-
-Did you know that?
-
-- Retrieving data from the cache takes less than 10ms.
-- Read operations (SOQL) account for approximately 70% of an org's activity.
-
-Cache can significantly boost your org's performance. You can use it for objects like:
-
-- `Profile`
-- `BusinessHours`
-- `OrgWideEmailAddress`
-- `User`
-
-To use cached records you can use Cached Selectors.
-
-```apex
-public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
-    public static SOQL_ProfileCache query() {
-        return new SOQL_ProfileCache();
-    }
-
-    private SOQL_ProfileCache() {
-        super(Profile.SObjectType);
-        cacheInOrgCache();
-        with(Profile.Id, Profile.Name, Profile.UserType);
-        maxHoursWithoutRefresh(24);
-    }
-
-    public override SOQL.Queryable initialQuery() {
-        return SOQL.of(Profile.SObjectType);
-    }
-
-    public SOQL_ProfileCache byName(String name) {
-        whereEqual(Profile.Name, name);
-        return this;
-    }
-}
-```
-
 ## Enhanced SOQL
 
 Developers perform different SOQL result transformations.
