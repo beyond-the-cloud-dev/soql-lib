@@ -451,7 +451,7 @@ SOQL.of(Account.SObjectType)
 
 **Filter Group**
 
-Create [SOQL.FilterGroup](../api/standard-soql/soql-filters-group.md) and assign conditions dynamically based on your own criteria.
+Create [SOQL.FilterGroup](../soql//api/soql-filters-group.md) and assign conditions dynamically based on your own criteria.
 
 ```apex
 public List<Account> getAccounts() {
