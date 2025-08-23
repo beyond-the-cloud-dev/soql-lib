@@ -10,14 +10,14 @@ For more details check [SOQLEvaluator API - RESULT](../api/soql-evaluator.md#res
 
 **Apex**
 
-```apex
+```apex title="Traditional Approach"
 List<Account> accounts = [SELECT Id FROM Account WITH USER_MODE LIMIT 1];
 Id accountId = accounts.isEmpty() ? null : accounts[0].Id;
 ```
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQLEvaluator Approach"
 Id accountId = SOQLEvaluator.of([
     SELECT Id 
     FROM Account 
@@ -30,7 +30,7 @@ Id accountId = SOQLEvaluator.of([
 
 **Apex**
 
-```apex
+```apex title="Traditional Approach"
 Set<Id> accountIds = new Set<Id>();
 
 for (Account acc : [SELECT Id FROM Account WHERE Industry = 'Technology' WITH USER_MODE]) {
@@ -40,7 +40,7 @@ for (Account acc : [SELECT Id FROM Account WHERE Industry = 'Technology' WITH US
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQLEvaluator Approach"
 Set<Id> accountIds = SOQLEvaluator.of([
     SELECT Id 
     FROM Account 
@@ -53,7 +53,7 @@ Set<Id> accountIds = SOQLEvaluator.of([
 
 **Apex**
 
-```apex
+```apex title="Traditional Approach"
 Set<Id> ownerIds = new Set<Id>();
 
 for (Account acc : [SELECT OwnerId FROM Account WHERE Industry = 'Technology' WITH USER_MODE]) {
@@ -65,7 +65,7 @@ for (Account acc : [SELECT OwnerId FROM Account WHERE Industry = 'Technology' WI
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQLEvaluator Approach"
 Set<Id> ownerIds = SOQLEvaluator.of([
     SELECT OwnerId 
     FROM Account 

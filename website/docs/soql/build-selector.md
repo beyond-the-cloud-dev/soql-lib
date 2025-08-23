@@ -4,56 +4,54 @@ sidebar_position: 17
 
 # Building Your Selector
 
-:::info[New Selectors Approach!]
+:::info[New Selector Approach!]
 
 The concept of selectors in SOQL Lib is different from FFLib Selectors!
 
-SOQL Lib Selectors:
-- Not all queries are kept in selectors. Only very generic methods are maintained in the selector class like byParentId, bySource, byRecordType, byId. Each method returns an instance of that selector. This approach allows you to chain methods from the selector class.
-- The selector constructor keeps default configurations, such as default fields, sharing mode, and field-level security.
 :::
-
-Check examples in the [repository](https://github.com/beyond-the-cloud-dev/soql-lib/tree/main/force-app/main/default/classes/examples/standard-selectors).
-
-SOQL Lib is agile, so you can adjust the solution according to your needs.
-
-**We don't force one approach over another; you can choose your own**. 
 
 ## Old Approach
 
-[FFLIB Selector](https://github.com/apex-enterprise-patterns/fflib-apex-common/blob/master/sfdx-source/apex-common/main/classes/fflib_SObjectSelector.cls) concept assumes that all queries should be stored in the Selector class.
+The [FFLib Selector](https://github.com/apex-enterprise-patterns/fflib-apex-common/blob/master/sfdx-source/apex-common/main/classes/fflib_SObjectSelector.cls) concept assumes that all queries should be stored in the selector class.
 
-- To avoid duplicates.
-- One place to manage all queries.
+**Benefits:**
+- Avoids query duplication
+- Provides one place to manage all queries
 
-**Issues**:
-- One-time queries (like aggregation, case specific) added to Selector.
-- Huge class with a lot of methods.
-- Queries are difficult to reuse.
-- Similar methods with small differences like limit, offset.
-- Problem with naming methods.
-- Merge conflicts.
+**Issues:**
+- One-time queries (like aggregation or case-specific queries) get added to selectors
+- Huge classes with numerous methods
+- Queries become difficult to reuse
+- Similar methods with small differences (limit, offset, etc.)
+- Challenges with method naming conventions
+- Frequent merge conflicts in team environments
 
 ## New Approach
 
-The SOQL Lib has a slightly different approach.
+SOQL Lib takes a different approach based on real-world project analysis.
 
-**Assumption**:
+**Core Assumption:**
 
-Most of the SOQLs on the project are **one-time** queries executed for specific business cases.
+Most SOQL queries in a project are **one-time** queries executed for specific business cases.
 
-**Solution**:
-1. **Small Selector Classes** - Selector class should be small and contain ONLY query base configuration (fields, sharing settings) and very generic methods (`byId`, `byRecordType`)
-2. **Build SOQL inline in a place of need** - Business-specific SOQLs should be built inline via the SOQL builder in the place of need.
-3. **Do not spend time on selector method naming** - Queries are created inline, so there's no need to find a name.
-4. **Keep Selector Strengths** - Set default Selector configuration (default fields, sharing settings), keep generic methods.
+**Our Solution:**
+1. **Small Selector Classes** - Selector classes should be small and contain ONLY base query configurations (fields, sharing settings) and very generic methods (`byId`, `byRecordType`)
+2. **Build SOQL Inline Where Needed** - Business-specific SOQL queries should be built inline using the SOQL builder exactly where they're needed
+3. **Eliminate Method Naming Overhead** - Since queries are created inline, there's no need to spend time finding appropriate method names
+4. **Preserve Selector Strengths** - Maintain default selector configurations (default fields, sharing settings) and keep generic methods
+
+Check examples in our [repository](https://github.com/beyond-the-cloud-dev/soql-lib/tree/main/force-app/main/default/classes/examples/standard-selectors).
+
+SOQL Lib is flexible, allowing you to adjust the solution according to your specific needs.
+
+**We don't enforce one approach over another; you can choose what works best for your team**. 
 
 ## A - Inheritance - extends SOQL, implements Interface + static _(Recommended)_
 
-Most Flexible Approach:
-- The selector constructor keeps default configurations, such as default fields, sharing mode, and field-level security.
-- Only very generic methods are maintained in the selector class, and each method returns an instance of that selector. This approach allows you to chain methods from the selector class.
-- Additional fields, more complex conditions, ordering, limits, and other SOQL clauses can be built where they are needed (for example, in a controller method).
+**The Most Flexible Approach:**
+- The selector constructor maintains default configurations such as default fields, sharing mode, and field-level security
+- Only very generic methods are kept in the selector class, with each method returning an instance of the selector to enable method chaining
+- Additional fields, complex conditions, ordering, limits, and other SOQL clauses are built exactly where they're needed (e.g., in controller methods)
 
 ```apex title="SOQL_Account.cls"
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
@@ -105,7 +103,7 @@ public with sharing class ExampleController {
 
 ## B - Composition - implements Interface + static
 
-Use `SOQL.Selector` and create `static` methods.
+This approach uses `SOQL.Selector` interface with `static` methods for query construction.
 
 ```apex title="SOQL_Contact.cls"
 public inherited sharing class SOQL_Contact implements SOQL.Selector {
@@ -210,7 +208,7 @@ public with sharing class ExampleController {
 
 ## D - Composition - implements Interface + non-static
 
-This approach is very useful when you have different teams/streams that need different query configurations.
+This approach is particularly useful when you have different teams or development streams that require different query configurations.
 
 ```apex title="BaseAccountSelector.cls"
 public inherited sharing virtual class BaseAccountSelector implements SOQL.Selector {
@@ -257,7 +255,7 @@ public with sharing class ExampleController {
 
 ## E - Custom
 
-Create Selectors in your own way.
+Create selectors using your own custom approach and conventions.
 
 ```apex title="SOQL_Account.cls"
 public inherited sharing class SOQL_Account {
@@ -291,7 +289,9 @@ public with sharing class ExampleController {
 }
 ```
 
-## F - FFLib Approach
+## F - Traditional FFLib Approach
+
+This approach follows the traditional FFLib selector pattern for comparison purposes.
 
 ```apex title="OpportunitySelector.cls"
 public inherited sharing class OpportunitySelector extends SOQL {

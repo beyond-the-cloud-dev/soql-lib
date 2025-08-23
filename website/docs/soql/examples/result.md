@@ -12,13 +12,13 @@ sidebar_position: 150
 
 **Apex**
 
-```apex
+```apex title="Traditional Approach"
 Id accountId = [SELECT Id FROM Account LIMIT 1].Id;
 ```
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 Id accountId = SOQL.of(Account.SObjectType).setLimit(1).toId();
 ```
 
@@ -26,7 +26,7 @@ Id accountId = SOQL.of(Account.SObjectType).setLimit(1).toId();
 
 **Apex**
 
-```apex
+```apex title="Traditional Approach"
 Set<Id> accountIds = new Set<Id>();
 
 for (Account acc : [SELECT Id FROM Account WHERE Industry = 'Technology']) {
@@ -36,7 +36,7 @@ for (Account acc : [SELECT Id FROM Account WHERE Industry = 'Technology']) {
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 Set<Id> accountIds = SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Industry).equal('Technology'))
     .toIds();
@@ -46,7 +46,7 @@ Set<Id> accountIds = SOQL.of(Account.SObjectType)
 
 **Apex**
 
-```apex
+```apex title="Traditional Approach"
 Set<Id> ownerIds = new Set<Id>();
 
 for (Account acc : [SELECT OwnerId FROM Account WHERE Industry = 'Technology']) {
@@ -56,7 +56,7 @@ for (Account acc : [SELECT OwnerId FROM Account WHERE Industry = 'Technology']) 
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 Set<Id> ownerIds = SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Industry).equal('Technology'))
     .toIdsOf(Account.OwnerId);
@@ -66,7 +66,7 @@ Set<Id> ownerIds = SOQL.of(Account.SObjectType)
 
 **Apex**
 
-```apex
+```apex title="Traditional Approach"
 Set<Id> parentAccountIds = new Set<Id>();
 
 for (Account acc : [SELECT Parent.Id FROM Account WHERE Industry = 'Technology']) {
@@ -76,7 +76,7 @@ for (Account acc : [SELECT Parent.Id FROM Account WHERE Industry = 'Technology']
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 Set<Id> parentAccountIds = SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Industry).equal('Technology'))
     .toIdsOf('Parent', Account.Id);
@@ -86,7 +86,7 @@ Set<Id> parentAccountIds = SOQL.of(Account.SObjectType)
 
 **Apex**
 
-```apex
+```apex title="Traditional Approach"
 Integer accountsWithMoreThan100Employees = [
     SELECT COUNT()
     FROM Account
@@ -98,7 +98,7 @@ Boolean hasAccountsWithMoreThan100Employees = accountsWithMoreThan100Employees >
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 Boolean hasAccountsWithMoreThan100Employees = SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter(Account.NumberOfEmployees).greaterThan(100))
     .doExist();
@@ -108,13 +108,13 @@ Boolean hasAccountsWithMoreThan100Employees = SOQL.of(Account.SObjectType)
 
 **Apex**
 
-```apex
+```apex title="Traditional Approach"
 String accountName = [SELECT Name FROM Account WHERE Id = '1234'].Name;
 ```
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 String accountName = (String) SOQL.of(Account.SObjectType)
     .byId('1234')
     .toValueOf(Account.Name);
@@ -124,7 +124,7 @@ String accountName = (String) SOQL.of(Account.SObjectType)
 
 **Apex**
 
-```apex
+```apex title="Traditional Approach"
 Set<String> accountNames = new Set<String>();
 
 for (Account acc : [SELECT Name FROM Account]) {
@@ -134,7 +134,7 @@ for (Account acc : [SELECT Name FROM Account]) {
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 Set<String> accountNames = SOQL.of(Account.SObjectType)
     .toValuesOf(Account.Name);
 ```
@@ -143,7 +143,7 @@ Set<String> accountNames = SOQL.of(Account.SObjectType)
 
 **Apex**
 
-```apex
+```apex title="Traditional Approach"
 Set<String> parentAccountNames = new Set<String>();
 
 for (Account acc : [SELECT Name, Parent.Name FROM Account]) {
@@ -153,7 +153,7 @@ for (Account acc : [SELECT Name, Parent.Name FROM Account]) {
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 Set<String> parentAccountNames = SOQL.of(Account.SObjectType)
     .toValuesOf('Parent', Account.Name);
 ```
@@ -162,13 +162,13 @@ Set<String> parentAccountNames = SOQL.of(Account.SObjectType)
 
 **Apex**
 
-```apex
+```apex title="Traditional Approach"
 Integer amountOfExistingAccounts = [SELECT COUNT() FROM Account];
 ```
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 Integer amountOfExistingAccounts = SOQL.of(Account.SObjectType).toInteger();
 ```
 
@@ -176,7 +176,7 @@ Integer amountOfExistingAccounts = SOQL.of(Account.SObjectType).toInteger();
 
 **Apex**
 
-```apex
+```apex title="Traditional Approach"
 Account account = [
     SELECT Id, Name
     FROM Account
@@ -186,7 +186,7 @@ Account account = [
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 Account account = (Account) SOQL.of(Account.SObjectType)
     .with(Account.Id, Account.Name)
     .byId('1234')
@@ -197,13 +197,13 @@ Account account = (Account) SOQL.of(Account.SObjectType)
 
 **Apex**
 
-```apex
+```apex title="Traditional Approach"
 Account account = [SELECT Id, Name FROM Account];
 ```
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 List<Account> accounts = SOQL.of(Account.SObjectType).with(Account.Id, Account.Name).toList();
 ```
 
@@ -211,7 +211,7 @@ List<Account> accounts = SOQL.of(Account.SObjectType).with(Account.Id, Account.N
 
 **Apex**
 
-```apex
+```apex title="Traditional Approach"
 List<AggregateResult> result = [
     SELECT LeadSource
     FROM Lead
@@ -221,7 +221,7 @@ List<AggregateResult> result = [
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 List<AggregateResult> result = SOQL.of(Lead.SObjectType)
     .with(Lead.LeadSource)
     .groupBy(Lead.LeadSource)
@@ -232,13 +232,13 @@ List<AggregateResult> result = SOQL.of(Lead.SObjectType)
 
 **Apex**
 
-```apex
+```apex title="Traditional Approach"
 Map<Id, Account> idToAccount = new Map<Id, Account>([SELECT Id FROM Account]);
 ```
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 Map<Id, Account> idToAccount = (Map<Id, Account>) SOQL.of(Account.SObjectType).toMap();
 ```
 
@@ -246,7 +246,7 @@ Map<Id, Account> idToAccount = (Map<Id, Account>) SOQL.of(Account.SObjectType).t
 
 **Apex**
 
-```apex
+```apex title="Traditional Approach"
 Map<String, Account> nameToAccount = new Map<String, Account>();
 
 for (Account acc : [SELECT Id, Name FROM Account]) {
@@ -256,7 +256,7 @@ for (Account acc : [SELECT Id, Name FROM Account]) {
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 Map<String, Account> nameToAccount = (Map<String, Account>) SOQL.of(Account.SObjectType)
     .toMap(Account.Name);
 ```
@@ -265,7 +265,7 @@ Map<String, Account> nameToAccount = (Map<String, Account>) SOQL.of(Account.SObj
 
 **Apex**
 
-```apex
+```apex title="Traditional Approach"
 Map<String, Account> parentCreatedByEmailToAccount = new Map<String, Account>();
 
 for (Account acc : [SELECT Id, Parent.CreatedBy.Email FROM Account]) {
@@ -275,7 +275,7 @@ for (Account acc : [SELECT Id, Parent.CreatedBy.Email FROM Account]) {
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 Map<String, Account> parentCreatedByEmailToAccount = (Map<String, Account>) SOQL.of(Account.SObjectType)
     .toMap('Parent.CreatedBy', User.Email);
 ```
@@ -284,7 +284,7 @@ Map<String, Account> parentCreatedByEmailToAccount = (Map<String, Account>) SOQL
 
 **Apex**
 
-```apex
+```apex title="Traditional Approach"
 Map<String, String> accountNameToIndustry = new Map<String, String>();
 
 for (Account acc : [SELECT Id, Name, Industry FROM Account]) {
@@ -294,7 +294,7 @@ for (Account acc : [SELECT Id, Name, Industry FROM Account]) {
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 Map<String, String> accountNameToIndustry = SOQL.of(Account.SObjectType)
     .toMap(Account.Name, Account.Industry);
 ```
@@ -303,7 +303,7 @@ Map<String, String> accountNameToIndustry = SOQL.of(Account.SObjectType)
 
 **Apex**
 
-```apex
+```apex title="Traditional Approach"
 Map<String, List<Account>> industryToAccounts = new Map<String, List<Account>>();
 
 for (Account acc : [SELECT Id, Name, Industry FROM Account]) {
@@ -317,7 +317,7 @@ for (Account acc : [SELECT Id, Name, Industry FROM Account]) {
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 Map<String, List<Account>> industryToAccounts = (Map<String, List<Account>>) SOQL.of(Account.SObjectType)
     .toAggregatedMap(Account.Industry);
 ```
@@ -326,7 +326,7 @@ Map<String, List<Account>> industryToAccounts = (Map<String, List<Account>>) SOQ
 
 **Apex**
 
-```apex
+```apex title="Traditional Approach"
 Map<String, List<Account>> parentCreatedByEmailToAccounts = new Map<String, List<Account>>();
 
 for (Account acc : [SELECT Id, Name, Parent.CreatedBy.Email FROM Account]) {
@@ -340,7 +340,7 @@ for (Account acc : [SELECT Id, Name, Parent.CreatedBy.Email FROM Account]) {
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 Map<String, List<Account>> parentCreatedByEmailToAccounts = (Map<String, List<Account>>) SOQL.of(Account.SObjectType)
     .toAggregatedMap('Parent.CreatedBy', User.Email);
 ```
@@ -349,7 +349,7 @@ Map<String, List<Account>> parentCreatedByEmailToAccounts = (Map<String, List<Ac
 
 **Apex**
 
-```apex
+```apex title="Traditional Approach"
 Map<String, List<Account>> accountNamesByIndustry = new Map<String, List<String>>();
 
 for (Account acc : [SELECT Id, Name, Industry FROM Account]) {
@@ -363,7 +363,7 @@ for (Account acc : [SELECT Id, Name, Industry FROM Account]) {
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 Map<String, List<String>> accountNamesByIndustry = SOQL.of(Account.SObjectType)
     .toAggregatedMap(Account.Industry, Account.Name);
 ```
@@ -372,12 +372,12 @@ Map<String, List<String>> accountNamesByIndustry = SOQL.of(Account.SObjectType)
 
 **Apex**
 
-```apex
+```apex title="Traditional Approach"
 Database.QueryLocator queryLocator = Database.getQueryLocator('SELECT Id FROM ACCOUNT');
 ```
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 Database.QueryLocator queryLocator = SOQL.of(Account.SObjectType).toQueryLocator();
 ```

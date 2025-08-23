@@ -8,7 +8,7 @@ Apex Classes: `SOQLCache.cls` and `SOQLCache_Test.cls`.
 
 The lib cache main class necessary to create cached selectors.
 
-```apex
+```apex title="Basic Usage Example"
 SOQLCache.of(Profile.SObjectType)
     .with(Profile.Id, Profile.Name, Profile.UserType)
     .whereEqual(Profile.Name, 'System Administrator')
@@ -94,13 +94,13 @@ The following are methods for using `SOQLCache`:
 
 **Signature**
 
-```apex
+```apex title="Method Signature"
 Cacheable cacheInApexTransaction();
 ```
 
 **Example**
 
-```apex
+```apex title="Apex Transaction Cache Implementation"
 public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
     public static SOQL_ProfileCache query() {
         return new SOQL_ProfileCache();
@@ -121,13 +121,13 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
 
 **Signature**
 
-```apex
+```apex title="Method Signature"
 Cacheable cacheInOrgCache();
 ```
 
 **Example**
 
-```apex
+```apex title="Org Cache Implementation"
 public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
     public static SOQL_ProfileCache query() {
         return new SOQL_ProfileCache();
@@ -148,13 +148,13 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
 
 **Signature**
 
-```apex
+```apex title="Method Signature"
 Cacheable cacheInSessionCache();
 ```
 
 **Example**
 
-```apex
+```apex title="Session Cache Implementation"
 public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
     public static SOQL_ProfileCache query() {
         return new SOQL_ProfileCache();
@@ -181,13 +181,13 @@ All cached records have an additional field called `cachedDate`. To avoid using 
 
 **Signature**
 
-```apex
+```apex title="Method Signature"
 Cacheable maxHoursWithoutRefresh(Integer hours)
 ```
 
 **Example**
 
-```apex
+```apex title="Cache Auto-Refresh Example"
 SOQLCache.of(Profile.SObjectType)
     .with(Profile.Id, Profile.Name, Profile.UserType)
     .whereEqual(Profile.Name, 'System Administrator')
@@ -201,13 +201,13 @@ The `removeFromCache` method allows clearing records from the cache, triggering 
 
 **Signature**
 
-```apex
+```apex title="Method Signature"
 Cacheable removeFromCache(List<SObject> records)
 ```
 
 **Example**
 
-```apex
+```apex title="Cache Removal in Trigger"
 trigger SomeObjectTrigger on SomeObject (after update, after delete) {
     SOQLCache.removeFromCache(Trigger.new);
 }
@@ -221,13 +221,13 @@ By default, cached queries can only filter by unique fields (Id, Name, Developer
 
 **Signature**
 
-```apex
+```apex title="Method Signature"
 Cacheable allowFilteringByNonUniqueFields()
 ```
 
 **Example**
 
-```apex
+```apex title="Non-Unique Field Filtering"
 SOQLCache.of(Profile.SObjectType)
     .with(Profile.Id, Profile.Name, Profile.UserType)
     .allowFilteringByNonUniqueFields()
@@ -241,13 +241,13 @@ By default, cached queries require at least one condition. This method allows qu
 
 **Signature**
 
-```apex
+```apex title="Method Signature"
 Cacheable allowQueryWithoutConditions()
 ```
 
 **Example**
 
-```apex
+```apex title="Query Without Conditions Implementation"
 public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
     public static SOQL_ProfileCache query() {
         return new SOQL_ProfileCache();
@@ -278,7 +278,7 @@ The initial query allows for the bulk population of records in the cache (if it 
 
 For instance:
 
-```apex
+```apex title="Initial Query Bulk Population"
 public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
     public static SOQL_ProfileCache query() {
         return new SOQL_ProfileCache();
@@ -307,13 +307,13 @@ When the cache is empty, the `initialQuery` will be executed to populate the dat
 
 **Signature**
 
-```apex
+```apex title="Method Signature"
 SOQL.Queryable initialQuery()
 ```
 
 **Example**
 
-```apex
+```apex title="Initial Query Implementation"
 public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
     public static SOQL_ProfileCache query() {
         return new SOQL_ProfileCache();
@@ -339,7 +339,7 @@ All selected fields are going to be cached.
 
 **Signature**
 
-```apex
+```apex title="Method Signatures"
 Cacheable with(SObjectField field)
 Cacheable with(SObjectField field1, SObjectField field2);
 Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3);
@@ -349,7 +349,7 @@ Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3, SO
 
 **Example**
 
-```apex
+```apex title="Field Selection Example"
 SOQLCache.of(Profile.SObjectType)
     .with(Profile.Id, Profile.Name, Profile.UserType)
     .whereEqual(Profile.Name, 'System Administrator')
@@ -368,13 +368,13 @@ Use for more than 5 fields.
 
 **Signature**
 
-```apex
+```apex title="Method Signature"
 Cacheable with(List<SObjectField> fields)
 ```
 
 **Example**
 
-```apex
+```apex title="List of Fields Example"
 SOQLCache.of(Profile.SObjectType)
     .with(new List<SObjectField>{ Profile.Id, Profile.Name, Profile.UserType })
     .whereEqual(Profile.Name, 'System Administrator')
@@ -387,13 +387,13 @@ SOQLCache.of(Profile.SObjectType)
 
 **Signature**
 
-```apex
+```apex title="Method Signature"
 Cacheable with(String fields)
 ```
 
 **Example**
 
-```apex
+```apex title="String Fields Example"
 SOQLCache.of(Profile.SObjectType)
     .with('Id, Name, UserType')
     .whereEqual(Profile.Name, 'System Administrator')
@@ -404,13 +404,13 @@ SOQLCache.of(Profile.SObjectType)
 
 **Signature**
 
-```apex
+```apex title="Method Signature"
 Cacheable with(String relationshipName, SObjectField field)
 ```
 
 **Example**
 
-```apex
+```apex title="Relationship Field Example"
 SOQLCache.of(Account.SObjectType)
     .with(Account.Id, Account.Name)
     .with('Owner', User.Name)
@@ -422,7 +422,7 @@ SOQLCache.of(Account.SObjectType)
 
 **Signature**
 
-```apex
+```apex title="Method Signatures"
 Cacheable with(String relationshipName, SObjectField field1, SObjectField field2)
 Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3)
 Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4)
@@ -431,7 +431,7 @@ Cacheable with(String relationshipName, SObjectField field1, SObjectField field2
 
 **Example**
 
-```apex
+```apex title="Multiple Relationship Fields Example"
 SOQLCache.of(Account.SObjectType)
     .with(Account.Id, Account.Name)
     .with('Owner', User.Name, User.Email)
@@ -451,13 +451,13 @@ Use for more than 5 relationship fields.
 
 **Signature**
 
-```apex
+```apex title="Method Signature"
 Cacheable with(String relationshipName, Iterable<SObjectField> fields)
 ```
 
 **Example**
 
-```apex
+```apex title="Relationship Fields List Example"
 SOQLCache.of(Account.SObjectType)
     .with(Account.Id, Account.Name)
     .with('Owner', new List<SObjectField>{ User.Id, User.Name, User.Email, User.Title })
@@ -514,20 +514,20 @@ Sometimes, certain limitations can ensure that code functions in a deterministic
 
 **Signature**
 
-```apex
+```apex title="Method Signatures"
 Cacheable whereEqual(SObjectField field, Object value);
 Cacheable whereEqual(String field, Object value);
 ```
 
 **Example**
 
-```apex
+```apex title="SObjectField Filter Example"
 SOQLCache.of(Profile.SObjectType)
     .with(Profile.Id, Profile.Name, Profile.UserType)
     .whereEqual(Profile.Name, 'System Administrator')
     .toObject();
 ```
-```apex
+```apex title="String Field Filter Example"
 SOQLCache.of(Profile.SObjectType)
     .with(Profile.Id, Profile.Name, Profile.UserType)
     .whereEqual('Name', 'System Administrator')
@@ -542,14 +542,14 @@ The `Security.stripInaccessible` method is the only one that works with cached r
 
 **Signature**
 
-```apex
+```apex title="Method Signatures"
 Cacheable stripInaccessible()
 Cacheable stripInaccessible(AccessType accessType)
 ```
 
 **Example**
 
-```apex
+```apex title="Field-Level Security Example"
 SOQLCache.of(Profile.SObjectType)
     .with(Profile.Id, Profile.Name, Profile.UserType)
     .whereEqual('Name', 'System Administrator')
@@ -569,13 +569,13 @@ We generally recommend using `SOQLCache.mock('queryId').thenReturn(record);` to 
 
 **Signature**
 
-```apex
+```apex title="Method Signature"
 Cacheable mockId(String queryIdentifier)
 ```
 
 **Example**
 
-```apex
+```apex title="Mock ID Assignment and Unit Test"
 SOQLCache.of(Profile.SObjectType)
     .with(Profile.Id, Profile.Name, Profile.UserType)
     .whereEqual('Name', 'System Administrator')
@@ -592,13 +592,13 @@ SOQL.mock('MyQuery').thenReturn(new Profile(Name = 'Mocked System Adminstrator')
 
 **Signature**
 
-```apex
+```apex title="Method Signature"
 Cacheable mock(String mockId).thenReturn(SObject record)
 ```
 
 **Example**
 
-```apex
+```apex title="Record Mock Implementation"
 SOQLCache.of(Profile.SObjectType)
     .with(Profile.Id, Profile.Name, Profile.UserType)
     .whereEqual('Name', 'System Administrator')
@@ -615,13 +615,13 @@ SOQLCache.mock('MyQuery).thenReturn(new Profile(Name = 'Mocked System Adminstrat
 
 **Signature**
 
-```apex
+```apex title="Method Signature"
 Cacheable preview()
 ```
 
 **Example**
 
-```apex
+```apex title="Query Preview Example"
 SOQLCache.of(Profile.SObjectType)
     .with(Profile.Id, Profile.Name, Profile.UserType)
     .whereEqual('Name', 'System Administrator')
@@ -631,7 +631,7 @@ SOQLCache.of(Profile.SObjectType)
 
 Query preview will be available in debug logs:
 
-```
+```text title="Debug Log Output"
 ============ Query Preview ============
 SELECT Id, Name, UserType
 FROM Profile
@@ -651,21 +651,21 @@ WHERE Name = :v1
 
 **Signature**
 
-```apex
+```apex title="Method Signatures"
 Cacheable byId(Id recordId)
 Cacheable byId(SObject record)
 ```
 
 **Example**
 
-```apex
+```apex title="Filter by Record ID"
 SOQLCache.of(Profile.SObjectType)
     .with(Profile.Id, Profile.Name, Profile.UserType)
     .byId('00e3V000000Nme3QAC')
     .toObject();
 ```
 
-```apex
+```apex title="Filter by SObject Record"
 Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
 
 SOQLCache.of(Profile.SObjectType)
@@ -678,13 +678,13 @@ SOQLCache.of(Profile.SObjectType)
 
 ### toId
 
-```apex
+```apex title="Method Signature"
 Id toId()
 ```
 
 **Example**
 
-```apex
+```apex title="Extract Single ID"
 new User (
     // ...
     ProfileId = SOQLCache.of(Profile.SObjectType).whereEqual('Name', 'System Administrator').toId()
@@ -695,13 +695,13 @@ new User (
 
 **Signature**
 
-```apex
+```apex title="Method Signature"
 Id toIdOf(SObjectField field)
 ```
 
 **Example**
 
-```apex
+```apex title="Extract Field ID Value"
 new User (
     // ...
     ProfileId = SOQLCache.of(Profile.SObjectType)
@@ -715,13 +715,13 @@ new User (
 
 **Signature**
 
-```apex
+```apex title="Method Signature"
 Boolean doExist()
 ```
 
 **Example**
 
-```apex
+```apex title="Check Record Existence"
 Boolean isAdminProfileExists = SOQLCache.of(Profile.SObjectType)
     .whereEqual('Name', 'System Administrator')
     .doExist();
@@ -734,13 +734,13 @@ The field must be in cached fields.
 
 **Signature**
 
-```apex
+```apex title="Method Signature"
 Object toValueOf(SObjectField fieldToExtract)
 ```
 
 **Example**
 
-```apex
+```apex title="Extract Field Value"
 String systemAdminUserType = (String) SOQLCache.of(Profile.SObjectType).byId('00e3V000000Nme3QAC').toValueOf(Profile.UserType);
 ```
 
@@ -752,13 +752,13 @@ When there are no records to assign, the error `List has no rows for assignment 
 
 **Signature**
 
-```apex
-Sbject toObject()
+```apex title="Method Signature"
+SObject toObject()
 ```
 
 **Example**
 
-```apex
+```apex title="Extract Single Record"
 Profile systemAdministratorProfile = (Profile) SOQLCache.of(Profile.SObjectType)
     .whereEqual(Profile.Name, 'System Administrator')
     .toObject();

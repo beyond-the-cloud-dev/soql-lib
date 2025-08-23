@@ -12,7 +12,7 @@ Use [SOQL.FilterGroup](../api/soql-filters-group.md) and Use [SOQL.Filter](../ap
 
 **SOQL**
 
-```sql
+```sql title="Traditional SOQL"
 SELECT Id, Name
 FROM Account
 WHERE Id = :accountId OR Name LIKE :'%' + accountName + '%'
@@ -20,7 +20,7 @@ WHERE Id = :accountId OR Name LIKE :'%' + accountName + '%'
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 SOQL.of(Account.SObject)
     .with(Account.Id, Account.Name)
     .whereAre(SOQL.FilterGroup
@@ -34,7 +34,7 @@ SOQL.of(Account.SObject)
 
 **SOQL**
 
-```sql
+```sql title="Traditional SOQL"
 SELECT Id, Name
 FROM Account
 WHERE Name LIKE :'%' + accountName + '%'
@@ -42,7 +42,7 @@ WHERE Name LIKE :'%' + accountName + '%'
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 SOQL.of(Account.SObject)
     .with(Account.Id, Account.Name)
     .whereAre(SOQL.Filter.with(Account.Name).contains(accountName))
@@ -53,7 +53,7 @@ SOQL.of(Account.SObject)
 
 **SOQL**
 
-```sql
+```sql title="Traditional SOQL"
 SELECT Id
 FROM Account
 WHERE Industry = 'IT' AND ((Name = 'My Account' AND NumberOfEmployees >= 10)
@@ -62,7 +62,7 @@ OR (Name = 'My Account 2' AND NumberOfEmployees <= 20))
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Multiple Conditions"
 SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Industry).equal('IT'))
     .whereAre(SOQL.Filter.name().equal('My Account'))
@@ -121,7 +121,7 @@ SOQL.of(Account.SObjectType)
 
 **SOQL**
 
-```sql
+```sql title="Traditional SOQL"
 SELECT Id
 FROM Account
 WHERE (Name = 'My Account' AND NumberOfEmployees >= 10)
@@ -130,7 +130,7 @@ OR (Name = 'My Account' AND Industry = 'IT')
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Custom Conditions Order"
 SOQL.of(Account.SObjectType)
     .whereAre(SOQL.FilterGroup
         .add(SOQL.Filter.name().equal('My Account'))

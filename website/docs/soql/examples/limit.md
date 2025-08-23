@@ -14,7 +14,7 @@ Specify the maximum number of rows to return.
 
 **SOQL**
 
-```sql
+```sql title="Traditional SOQL"
 SELECT Id
 FROM Account
 LIMIT 100
@@ -22,7 +22,7 @@ LIMIT 100
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 SOQL.of(Account.SObjectType)
     .setLimit(100)
     .toList();

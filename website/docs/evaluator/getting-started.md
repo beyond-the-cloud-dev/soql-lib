@@ -12,7 +12,7 @@ We recommend using the **SOQL module** instead, as it provides significantly mor
 
 ## Basic Processing
 
-SOQL Evaluator processes existing `List<SObject>` collections (typically from SOQL query results) without hitting the database.
+SOQL Evaluator processes static query `List<SObject>` records.
 
 ```apex
 // Process query results with enhanced methods

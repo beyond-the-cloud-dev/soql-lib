@@ -16,7 +16,7 @@ Control the order of the query results.
 
 **SOQL**
 
-```sql
+```sql title="Traditional SOQL"
 SELECT Id
 FROM Account
 ORDER BY Name DESC
@@ -24,7 +24,7 @@ ORDER BY Name DESC
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 SOQL.of(Account.SObjectType)
     .orderBy(Account.Name)
     .sortDesc()
@@ -35,7 +35,7 @@ SOQL.of(Account.SObjectType)
 
 **SOQL**
 
-```sql
+```sql title="Traditional SOQL"
 SELECT Id
 FROM Account
 ORDER BY Name DESC
@@ -43,7 +43,7 @@ ORDER BY Name DESC
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 SOQL.of(Account.SObjectType)
     .orderBy('Name')
     .sortDesc()

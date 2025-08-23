@@ -8,7 +8,7 @@ Apex Classes: `SOQL.cls` and `SOQL_Test.cls`.
 
 The lib main class for query construction.
 
-```apex
+```apex title="Basic Usage Example"
 SOQL.of(Account.SObjectType)
     .with(Account.Id, Account.Name)
     .toList();
@@ -215,17 +215,17 @@ Constructs an `SOQL`.
 
 **Signature**
 
-```apex
+```apex title="Method Signatures"
 Queryable of(SObjectType ofObject)
 Queryable of(String ofObject)
 ```
 
 **Example**
 
-```sql
+```sql title="SOQL Query"
 SELECT Id FROM Account
 ```
-```apex
+```apex title="SOQL Lib Implementation"
 SOQL.of(Account.SObjectType).toList();
 SOQL.of('Account').toList();
 ```
@@ -236,29 +236,29 @@ SOQL.of('Account').toList();
 
 **Signature**
 
-```apex
+```apex title="Single Field Method"
 Queryable with(SObjectField field)
 ```
-```apex
+```apex title="Two Fields Method"
 Queryable with(SObjectField field1, SObjectField field2);
 ```
-```apex
+```apex title="Three Fields Method"
 Queryable with(SObjectField field1, SObjectField field2, SObjectField field3);
 ```
-```apex
+```apex title="Four Fields Method"
 Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
 ```
-```apex
+```apex title="Five Fields Method"
 Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
 ```
 
 **Example**
 
-```sql
+```sql title="SOQL Query"
 SELECT Id, Name
 FROM Account
 ```
-```apex
+```apex title="SOQL Lib Field Selection"
 SOQL.of(Account.SObjectType)
     .with(Account.Id, Account.Name)
     .toList();
@@ -281,18 +281,18 @@ Use for more than 5 fields.
 
 **Signature**
 
-```apex
+```apex title="Method Signatures"
 Queryable with(List<SObjectField> fields)
 Queryable with(List<String> fields)
 ```
 
 **Example**
 
-```sql
+```sql title="SOQL Query"
 SELECT Id, Name, Industry, AccountNumber, AnnualRevenue, BillingCity
 FROM Account
 ```
-```apex
+```apex title="SOQL Lib with List of SObjectFields"
 SOQL.of(Account.SObjectType)
     .with(new List<SObjectField>{
         Account.Id,
@@ -320,17 +320,17 @@ SOQL.of(Account.SObjectType)
 
 **Signature**
 
-```apex
+```apex title="Method Signature"
 Queryable with(String fields)
 ```
 
 **Example**
 
-```sql
+```sql title="SOQL Query"
 SELECT Id, Name, Industry
 FROM Account
 ```
-```apex
+```apex title="SOQL Lib with String Fields"
 SOQL.of(Account.SObjectType)
     .with('Id, Name, Industry')
     .toList();
@@ -342,29 +342,29 @@ Allows to add parent field to a query.
 
 **Signature**
 
-```apex
+```apex title="Single Related Field Method"
 Queryable with(String relationshipName, SObjectField field)
 ```
-```apex
+```apex title="Two Related Fields Method"
 Queryable with(String relationshipName, SObjectField field1, SObjectField field2);
 ```
-```apex
+```apex title="Three Related Fields Method"
 Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
 ```
-```apex
+```apex title="Four Related Fields Method"
 Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
 ```
-```apex
+```apex title="Five Related Fields Method"
 Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
 ```
 
 **Example**
 
-```sql
+```sql title="SOQL Query"
 SELECT CreatedBy.Name
 FROM Account
 ```
-```apex
+```apex title="SOQL Lib Related Fields"
 SOQL.of(Account.SObjectType)
     .with('CreatedBy', User.Name)
     .toList();
@@ -382,7 +382,7 @@ Use for more than 5 parent fields.
 
 **Signature**
 
-```apex
+```apex title="Method Signature"
 Queryable with(String relationshipName, Iterable<SObjectField> fields)
 ```
 

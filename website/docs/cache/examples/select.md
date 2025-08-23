@@ -16,7 +16,7 @@ Specify fields that will be retrieved via query. Check [SOQLCache Cache API - SE
 
 **SOQL**
 
-```sql
+```sql title="Traditional SOQL"
 SELECT Id, Name, BillingCity
 FROM Account
 WHERE Id = '1234'
@@ -24,7 +24,7 @@ WHERE Id = '1234'
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Cache Approach"
 SOQLCache.of(Account.SObject)
     .with(Account.Id, Account.Name, Account.BillingCity)
     .byId('1234')
@@ -35,7 +35,7 @@ More than 5 fields:
 
 **SOQL**
 
-```sql
+```sql title="Traditional SOQL"
 SELECT
     Id,
     Name,
@@ -50,7 +50,7 @@ WHERE Id = '1234'
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Cache Approach"
 SOQLCache.of(Account.SObjectType)
     .with(new List<SObjectField> {
         Account.Id,
@@ -69,7 +69,7 @@ SOQLCache.of(Account.SObjectType)
 
 **SOQL**
 
-```sql
+```sql title="Traditional SOQL"
 SELECT Id, Name, Industry, Rating, AnnualRevenue, BillingCity, Phone
 FROM Account
 WHERE Id = '1234'
@@ -77,7 +77,7 @@ WHERE Id = '1234'
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Cache Approach"
 SOQLCache.of(Account.SObjectType)
     .with('Id, Name, Industry, Rating, AnnualRevenue, BillingCity, Phone')
     .byId('1234')

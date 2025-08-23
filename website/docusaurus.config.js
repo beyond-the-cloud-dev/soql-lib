@@ -198,7 +198,7 @@ const config = {
               },
               {
                 label: 'Learning',
-                href: 'https://learning.beyondthecloud.dev/blog'
+                href: 'https://learning.beyondthecloud.dev/'
               },
               {
                 label: 'GitHub',

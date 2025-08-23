@@ -4,534 +4,118 @@ sidebar_position: 15
 
 # Basic Features
 
-## Dynamic SOQL
+## Processing Static Query Results
 
-The `SOQL.cls` class provides methods for building SOQL clauses dynamically.
+SOQLEvaluator processes static query `List<SObject>` collections. It provides enhanced result transformation methods while keeping your traditional SOQL syntax.
 
-```apex
-// SELECT Id FROM Account LIMIT 100
-SOQL.of(Account.SObjectType)
-    .with(Account.Id, Account.Name)
-    .setLimit(100)
+```apex title="Direct Query Processing"
+// Process query results directly
+Set<Id> contactIds = SOQLEvaluator.of([SELECT Id, AccountId FROM Contact]).toIds();
+Set<Id> accountIds = SOQLEvaluator.of([SELECT Id, AccountId FROM Contact]).toIdsOf(Contact.AccountId);
+```
+
+## Field-Level Security
+
+SOQLEvaluator can apply field-level security to existing records using the `stripInaccessible()` method, which removes fields the current user cannot access.
+
+```apex title="Default FLS Processing"
+// Apply FLS with default AccessType.READABLE
+Task processedTask = (Task) SOQLEvaluator.of([
+        SELECT Id, Subject, Type 
+        FROM Task 
+        WITH SYSTEM_MODE
+    ])
+    .stripInaccessible()
+    .toObject();
+```
+
+```apex title="Custom AccessType"
+// Specify AccessType explicitly
+List<Task> processedTasks = SOQLEvaluator.of([SELECT Id, Subject, Type FROM Task WITH SYSTEM_MODE])
+    .stripInaccessible(AccessType.READABLE)
     .toList();
 ```
 
-```apex
-String accountName = '';
+## Mocking for Tests
 
-SOQL.of(Account.SObjectType)
-    .whereAre(SOQL.FilterGroup
-        .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
-        .add(SOQL.Filter.name().contains(accountName).ignoreWhen(String.isEmpty(accountName)))
-    )
-    .toList();
-```
+SOQLEvaluator supports mocking for unit tests, allowing you to substitute real database results with prepared test data. This is particularly useful when you want to test your result processing logic without depending on actual database records.
 
-## Automatic binding
+**How it works:** Use `.mockId(id)` to identify your evaluator call, then in tests use `SOQLEvaluator.mock(id).thenReturn(data)` to provide test data.
 
-All variables used in the `WHERE` condition are automatically binded.
-
-```apex
-// SELECT Id, Name FROM Account WHERE Name = :v1
-SOQL.of(Account.SObjectType)
-    .with(Account.Id, Account.Name)
-    .whereAre(SOQL.Filter.with(Account.Name).contains('Test'))
-    .toList();
-```
-
-```apex
-// Binding Map
-{
-  "v1" : "%Test%"
-}
-```
-
-
-## Minimalistic Selectors
-
-The selector constructor maintains default configurations such as default fields, sharing mode, and field-level security settings. Only essential, reusable methods are maintained in the selector class, with each method returning an instance of the selector to enable method chaining.
-
-Additional fields, complex conditions, ordering, limits, and other SOQL clauses can be built dynamically where they are needed (for example, in controller methods), keeping the selector focused on core functionality.
-
-```apex
-public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
-    public static final String MOCK_ID = 'SOQL_Account';
-
-    public static SOQL_Account query() {
-        return new SOQL_Account();
-    }
-
-    private SOQL_Account() {
-        super(Account.SObjectType);
-        // Default configuration
-        with(Account.Id, Account.Name);
-        systemMode();
-        withoutSharing();
-        mockId(MOCK_ID);
-    }
-
-    public SOQL_Account byType(String type) {
-        whereAre(Filter.with(Account.Type).equal(type));
-        return this;
-    }
-
-    public SOQL_Account byIndustry(String industry) {
-        whereAre(Filter.with(Account.Industry).equal(industry));
-        return this;
-    }
-
-    public SOQL_Account byParentId(Id parentId) {
-        whereAre(Filter.with(Account.ParentId).equal(parentId));
-        return this;
-    }
-
-    public SOQL_Account byOwnerId(Id ownerId) {
-        whereAre(Filter.with(Account.OwnerId).equal(ownerId));
-        return this;
-    }
-}
-```
-
-
-**Usage Example:**
-
-```apex
-// Basic usage with default configuration
-List<Account> allAccounts = SOQL_Account.query().toList();
-
-// Chain selector methods
-List<Account> techPartners = SOQL_Account.query()
-    .byType('Partner')
-    .byIndustry('Technology')
-    .toList();
-
-// Extend with additional fields and clauses dynamically
-List<Account> topAccounts = SOQL_Account.query()
-    .byIndustry('Technology')
-    .with(Account.AnnualRevenue, Account.BillingCity)
-    .whereAre(SOQL.Filter.with(Account.AnnualRevenue).greaterThan(1000000))
-    .orderBy(Account.AnnualRevenue).sortDesc()
-    .setLimit(10)
-    .toList();
-```
-
-## Minimal Fields
-
-SOQL Lib selectors are designed to include only a minimal set of default fields in their constructor, typically just essential identifiers and commonly used fields. This approach significantly improves query performance and promotes reusability by avoiding unnecessary data retrieval.
-
-**Design Philosophy:**
-The selector constructor defines the minimum viable field set that covers the majority of use cases. Additional fields are added dynamically where they are actually needed, following the principle of "pull only what you need, when you need it."
-
-```apex
-public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selector {
-    public static SOQL_Contact query() {
-        return new SOQL_Contact();
-    }
-
-    private SOQL_Contact() {
-        super(Contact.SObjectType);
-        // Minimal default fields - only essentials
-        with(Contact.Id, Contact.Name, Contact.AccountId)
-            .systemMode()
-            .withoutSharing();
-    }
-
-    public SOQL_Contact byAccountId(Id accountId) {
-        whereAre(Filter.with(Contact.AccountId).equal(accountId));
-        return this;
-    }
-}
-```
-
-**Dynamic Field Addition:**
-Additional fields are added at the point of use, keeping the selector lean while providing flexibility for specific business requirements.
-
-```apex
+```apex title="ExampleController.cls"
 public with sharing class ExampleController {
-    @AuraEnabled
-    public static List<Contact> getContactDetails(Id accountId) {
-        return SOQL_Contact.query()
-            .byAccountId(accountId)
-            // Add fields only when needed
-            .with(Contact.Email, Contact.Phone, Contact.Department, Contact.Title)
-            .with('Account', Account.Name, Account.Industry)
-            .orderBy(Contact.LastName)
-            .setLimit(100)
-            .toList();
+    public static Set<Id> getAccountIds(String industry) {
+        return SOQLEvaluator.of([SELECT Id FROM Account WHERE Industry = :industry])
+            .mockId('ExampleController.getAccountIds')
+            .toIds();
     }
 
-    @AuraEnabled
-    public static List<Contact> getBasicContacts(Id accountId) {
-        // Uses only default fields (Id, Name, AccountId)
-        return SOQL_Contact.query()
-            .byAccountId(accountId)
-            .toList();
+    public static Account getFirstTechAccount() {
+        return (Account) SOQLEvaluator.of([SELECT Id, Name, Industry FROM Account WHERE Industry = 'Technology'])
+            .mockId('ExampleController.getFirstTechAccount')
+            .toObject();
     }
 }
 ```
 
-## Control FLS
+### Mock List of Records
 
-[AccessLevel Class](https://developer.salesforce.com/docs/atlas.en-us.apexref.meta/apexref/apex_class_System_AccessLevel.htm)
-
-Object permissions and field-level security are controlled by the lib. Developers can change FLS settings to match business requirements.
-
-### User mode
-
-By default, all queries are executed in `AccessLevel.USER_MODE`.
-
-> The object permissions, field-level security, and sharing rules of the current user are enforced.
-
-### System mode
-
-Developers can change the mode to `AccessLevel.SYSTEM_MODE` by using the `.systemMode()` method.
-
-> The object and field-level permissions of the current user are ignored, and the record sharing rules are controlled by the sharingMode.
-
-```apex
-// SELECT Id FROM Account - skip FLS
-SOQL.of(Account.SObjectType)
-    .with(Account.Id, Account.Name)
-    .systemMode()
-    .toList();
-```
-
-## Control Sharings
-
-[Apex Sharing](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_classes_keywords_sharing.htm)
-
-> Use the with sharing or without sharing keywords on a class to specify whether sharing rules must be enforced. Use the inherited sharing keyword on a class to run the class in the sharing mode of the class that called it.
-
-### with sharing
-
-By default, all queries are executed `with sharing`, enforced by `AccessLevel.USER_MODE`.
-
-`AccessLevel.USER_MODE` enforces object permissions and field-level security.
-
-Developers can skip FLS by adding `.systemMode()` and `.withSharing()`.
-
-```apex
-// Query executed in without sharing
-SOQL.of(Account.SObjectType)
-    .with(Account.Id, Account.Name)
-    .systemMode()
-    .withSharing()
-    .toList();
-```
-
-### without sharing
-
-Developers can control sharing rules by adding `.systemMode()` (record sharing rules are controlled by the sharingMode) and `.withoutSharing()`.
-
-```apex
-// Query executed in with sharing
-SOQL.of(Account.SObjectType)
-    .with(Account.Id, Account.Name)
-    .systemMode()
-    .withoutSharing()
-    .toList();
-```
-
-### inherited sharing
-
-Developers can control sharing rules by adding `.systemMode()` (record sharing rules are controlled by the sharingMode); by default it is `inherited sharing`.
-
-```apex
-// Query executed in inherited sharing
-SOQL.of(Account.SObjectType)
-    .with(Account.Id, Account.Name)
-    .systemMode()
-    .toList();
-```
-
-## Mocking
-
-Mocking provides a way to substitute records from a Database with some prepared data. Data can be prepared in form of SObject records and lists in Apex code or Static Resource `.csv` file.
-Mocked queries won't make any SOQL's and simply return data set in method definition, mock __will ignore all filters and relations__, what is returned depends __solely on data provided to the method__. Mocking is working __only during test execution__. To mock SOQL query, use `.mockId(id)` method to make it identifiable. If you mark more than one query with the same ID, all marked queries will return the same data.
-
-```apex
-public with sharing class ExampleController {
-
-    public static List<Account> getPartnerAccounts(String accountName) {
-        return SOQL_Account.query()
-            .with(Account.BillingCity, Account.BillingCountry)
-            .whereAre(SOQL.FilterGroup
-                .add(SOQL.Filter.name().contains(accountName))
-                .add(SOQL.Filter.recordType().equal('Partner'))
-            )
-            .mockId('ExampleController.getPartnerAccounts')
-            .toList();
-    }
-}
-```
-
-Then in test simply pass data you want to get from Selector to `SOQL.mock(id).thenReturn(data)` method. Acceptable formats are: `List<SObject>` or `SObject`. Then during execution Selector will return desired data.
-
-### List of records
-
-```apex
+```apex title="Test - List of Records"
 @IsTest
 private class ExampleControllerTest {
-
     @IsTest
-    static void getPartnerAccounts() {
-        List<Account> accounts = new List<Account>{
-            new Account(Name = 'MyAccount 1'),
-            new Account(Name = 'MyAccount 2')
-        };
-
-        SOQL.mock('ExampleController.getPartnerAccounts').thenReturn(accounts);
+    static void testGetAccountIds() {
+        // Mock the evaluator results
+        SOQLEvaluator.mock('ExampleController.getAccountIds').thenReturn(new List<Account>{
+            new Account(Name = 'Test Account 1'),
+            new Account(Name = 'Test Account 2')
+        });
 
         // Test
-        List<Account> result = ExampleController.getPartnerAccounts('MyAccount');
+        Set<Id> result = ExampleController.getAccountIds('Technology');
 
-        Assert.areEqual(accounts, result);
+        // Verify
+        Assert.areEqual(2, result.size(), 'Should return 2 account IDs');
     }
 }
 ```
 
-### Single record
+### Mock Single Record
 
-```apex
+```apex title="Test - Single Record"
 @IsTest
 private class ExampleControllerTest {
-
     @IsTest
-    static void getPartnerAccount() {
-        SOQL.mock('ExampleController.getPartnerAccount').thenReturn(new Account(Name = 'MyAccount 1'));
+    static void testGetFirstTechAccount() {
+        // Mock the evaluator result
+        SOQLEvaluator.mock('ExampleController.getFirstTechAccount')
+            .thenReturn(new Account(Name = 'Mocked Tech Account', Industry = 'Technology'));
 
         // Test
-        Account result = (Account) ExampleController.getPartnerAccounts('MyAccount');
+        Account result = ExampleController.getFirstTechAccount();
 
-        Assert.areEqual('MyAccount 1', result.Name);
+        // Verify
+        Assert.areEqual('Mocked Tech Account', result.Name);
+        Assert.areEqual('Technology', result.Industry);
     }
 }
 ```
 
-### Static resource
+## Enhanced Result Methods
 
-```apex
-@IsTest
-private class ExampleControllerTest {
+SOQLEvaluator provides enhanced result transformation methods to simplify common data operations.
+You can use many predefined methods that reduce code complexity and improve readability.
 
-    @IsTest
-    static void getPartnerAccounts() {
-        SOQL.mock('ExampleController.getPartnerAccounts').thenReturn(Test.loadData(Account.SObjectType, 'ProjectAccounts'));
-
-        // Test
-        List<Account> result = ExampleController.getPartnerAccounts('MyAccount');
-
-        Assert.areEqual(5, result.size());
-    }
-}
-```
-
-### Count Result
-
-```apex
-@IsTest
-private class ExampleControllerTest {
-
-    @IsTest
-    static void getPartnerAccountsCount() {
-        SOQL.mock('mockingQuery').thenReturn(2);
-
-        Integer result = SOQL.of(Account.sObjectType).count().mockId('mockingQuery').toInteger();
-
-        Assert.areEqual(2, result);
-    }
-}
-```
-
-### Aggregate Result
-
-```apex
-@IsTest
-private class ExampleControllerTest {
-
-    @IsTest
-    static void getLeadSourceCounts() {
-        List<Map<String, Object>> aggregateResults = new List<Map<String, Object>>{
-            new Map<String, Object>{ 'LeadSource' => 'Web',  'total' => 10},
-            new Map<String, Object>{ 'LeadSource' => 'Phone', 'total' => 5},
-            new Map<String, Object>{ 'LeadSource' => 'Email', 'total' => 3}
-        };
-
-        SOQL.mock('mockingQuery').thenReturn(aggregateResults);
-
-        List<SOQL.AggregateResultProxy> result = SOQL.of(Lead.SObjectType)
-            .with(Lead.LeadSource)
-            .count(Lead.Id, 'total')
-            .groupBy(Lead.LeadSource)
-            .mockId('mockingQuery')
-            .toAggregatedProxy();
-
-        Assert.areEqual(3, result.size());
-        Assert.areEqual(10, result[0].get('total'));
-        Assert.areEqual('Web', result[0].get('LeadSource'));
-    }
-}
-```
-
-## Avoid duplicates
-
-Generic SOQLs can be kept in the selector class.
-
-```apex
-public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
-    public static SOQL_Account query() {
-        return new SOQL_Account();
-    }
-
-    private SOQL_Account() {
-        super(Account.SObjectType);
-        // default settings
-        with(Account.Id, Account.Name, Account.Type)
-            .systemMode()
-            .withoutSharing();
-    }
-
-    public SOQL_Account byIndustry(String industry) {
-        with(Account.Industry)
-            .whereAre(Filter.with(Account.Industry).equal(industry));
-        return this;
-    }
-
-    public SOQL_Account byParentId(Id parentId) {
-        with(Account.ParentId)
-            .whereAre(Filter.with(Account.ParentId).equal(parentId));
-        return this;
-    }
-
-    public String toIndustry(Id accountId) {
-        return (String) byId(accountId).toValueOf(Account.Industry);
-    }
-}
-```
-
-## Default configuration
-
-The selector class can provide default SOQL configuration like default fields, FLS settings, and sharing rules that will be applied to all queries.
-
-```apex
-public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
-    public static SOQL_Account query() {
-        return new SOQL_Account();
-    }
-
-    private SOQL_Account() {
-        super(Account.SObjectType);
-        // default configuration
-        with(Account.Id, Account.Name, Account.Type)
-            .systemMode()
-            .withoutSharing();
-    }
-}
-```
-
-## Dynamic conditions
-
-Build your conditions in a dynamic way.
-
-**Ignore condition**
-
-Ignore condition when logic expression evaluate to true.
-
-```apex
-// SELECT Id FROM Account WHERE BillingCity = 'Krakow'
-
-String accountName = '';
-
-SOQL.of(Account.SObjectType)
-    .whereAre(SOQL.FilterGroup
-        .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
-        .add(SOQL.Filter.name().contains(accountName).ignoreWhen(String.isEmpty(accountName)))
-    ).toList();
-```
-
-**Filter Group**
-
-Create [SOQL.FilterGroup](../soql//api/soql-filters-group.md) and assign conditions dynamically based on your own criteria.
-
-```apex
-public List<Account> getAccounts() {
-    SOQL.FilterGroup filterGroup;
-
-    if (UserInfo.getUserType() == 'PowerPartner')
-        filterGroup = SOQL.FilterGroup
-            .add(SOQL.Filter.with(Account.Name).equal('Test'));
-            .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'));
-    } else {
-        filterGroup = SOQL.FilterGroup
-            .add(SOQL.Filter.with(Account.Name).equal('Other Test'));
-    }
-
-    return SOQL.of(Account.SObjectType)
-        .whereAre(filterGroup)
-        .toList();
-}
-```
-
-## Cache records
-
-Did you know that?
-
-- Retrieving data from the cache takes less than 10ms.
-- Read operations (SOQL) account for approximately 70% of an org's activity.
-
-Cache can significantly boost your org's performance. You can use it for objects like:
-
-- `Profile`
-- `BusinessHours`
-- `OrgWideEmailAddress`
-- `User`
-
-To use cached records you can use Cached Selectors.
-
-```apex
-public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
-    public static SOQL_ProfileCache query() {
-        return new SOQL_ProfileCache();
-    }
-
-    private SOQL_ProfileCache() {
-        super(Profile.SObjectType);
-        cacheInOrgCache();
-        with(Profile.Id, Profile.Name, Profile.UserType);
-        maxHoursWithoutRefresh(24);
-    }
-
-    public override SOQL.Queryable initialQuery() {
-        return SOQL.of(Profile.SObjectType);
-    }
-
-    public SOQL_ProfileCache byName(String name) {
-        whereEqual(Profile.Name, name);
-        return this;
-    }
-}
-```
-
-## Enhanced SOQL
-
-Developers perform different SOQL result transformations.
-You can use many predefined methods that will reduce your code complexity.
-
-```apex
+```apex title="Available Result Methods"
 Id toId();
 Set<Id> toIds();
 Set<Id> toIdsOf(SObjectField field);
 Set<Id> toIdsOf(String relationshipName, SObjectField field);
 Boolean doExist();
-String toString();
 Object toValueOf(SObjectField fieldToExtract);
 Set<String> toValuesOf(SObjectField fieldToExtract);
-Set<String> toValuesOf(String relationshipName, SObjectField targetKeyField);
-Integer toInteger();
 SObject toObject();
 List<SObject> toList();
-List<AggregateResult> toAggregated();
-List<AggregateResultProxy> toAggregatedProxy();
 Map<Id, SObject> toMap();
 Map<String, SObject> toMap(SObjectField keyField);
 Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField);
@@ -539,19 +123,42 @@ Map<String, String> toMap(SObjectField keyField, SObjectField valueField);
 Map<String, List<SObject>> toAggregatedMap(SObjectField keyField);
 Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField);
 Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
-Database.QueryLocator toQueryLocator();
 ```
 
-Build map with custom key:
+Extract unique IDs from query:
 
 ❌
 
-```apex
-public static Map<Id, Id> getContactIdByAccontId() {
+```apex title="Traditional Approach - Extract IDs"
+public static Set<Id> getAccountOwnerIds() {
+    Set<Id> ownerIds = new Set<Id>();
+    
+    for (Account account : [SELECT OwnerId FROM Account]) {
+        ownerIds.add(account.OwnerId);
+    }
+    
+    return ownerIds;
+}
+```
+
+✅
+
+```apex title="SOQLEvaluator Approach - Extract IDs"
+public static Set<Id> getAccountOwnerIds() {
+    return SOQLEvaluator.of([SELECT OwnerId FROM Account]).toIdsOf(Account.OwnerId);
+}
+```
+
+Create custom maps:
+
+❌
+
+```apex title="Traditional Approach - Custom Map"
+public static Map<Id, Id> getContactIdByAccountId() {
     Map<Id, Id> contactIdToAccountId = new Map<Id, Id>();
 
     for (Contact contact : [SELECT Id, AccountId FROM Contact]) {
-        contactIdToAccountId.put(contact.Id, contact.AccountId)
+        contactIdToAccountId.put(contact.Id, contact.AccountId);
     }
 
     return contactIdToAccountId;
@@ -560,9 +167,9 @@ public static Map<Id, Id> getContactIdByAccontId() {
 
 ✅
 
-```apex
-public static Map<String, String> getContactIdByAccontId() {
-    return SOQL_Contact.query().toMap(Contact.Id, Contact.AccountId);
+```apex title="SOQLEvaluator Approach - Custom Map"
+public static Map<String, String> getContactIdByAccountId() {
+    return SOQLEvaluator.of([SELECT Id, AccountId FROM Contact]).toMap(Contact.Id, Contact.AccountId);
 }
 ```
 
@@ -570,7 +177,7 @@ Extract unique values from query:
 
 ❌
 
-```apex
+```apex title="Traditional Approach - Unique Values"
 public static Set<String> getAccountNames() {
     Set<String> accountNames = new Set<String>();
 
@@ -584,109 +191,49 @@ public static Set<String> getAccountNames() {
 
 ✅
 
-```apex
+```apex title="SOQLEvaluator Approach - Unique Values"
 public static Set<String> getAccountNames() {
-    return SOQL_Account.query().toValuesOf(Account.Name);
+    return SOQLEvaluator.of([SELECT Name FROM Account]).toValuesOf(Account.Name);
 }
 ```
 
-Extract unique IDs from query:
+Check if records exist:
 
 ❌
 
-```apex
-public static Set<Id> getAccountOwnerIds() {
-    Set<Id> ownerIds = new Set<Id>();
-
-    for (Account account : [SELECT OwnerId FROM Account]) {
-        ownerIds.add(account.OwnerId);
-    }
-
-    return ownerIds;
+```apex title="Traditional Approach - Check Existence"
+public static Boolean hasActiveContacts() {
+    List<Contact> contacts = [SELECT Id FROM Contact WHERE IsActive__c = true LIMIT 1];
+    return !contacts.isEmpty();
 }
 ```
 
 ✅
 
-```apex
-public static Set<Id> getAccountOwnerIds() {
-    return SOQL_Account.query().toIdsOf(Account.OwnerId);
+```apex title="SOQLEvaluator Approach - Check Existence"
+public static Boolean hasActiveContacts() {
+    return SOQLEvaluator.of([SELECT Id FROM Contact WHERE IsActive__c = true]).doExist();
 }
 ```
 
-Extract single ID from query:
+Extract single field value:
 
 ❌
 
-```apex
-public static Id getSystemAdminProfileId() {
-    Profile profile = [
-        SELECT Id 
-        FROM Profile 
-        WHERE Name = 'System Administrator' 
-        LIMIT 1
-    ];
-    return profile.Id;
+```apex title="Traditional Approach - Single Field"
+public static String getAccountIndustry(Id accountId) {
+    Account account = [SELECT Industry FROM Account WHERE Id = :accountId LIMIT 1];
+    return account.Industry;
 }
 ```
 
 ✅
 
-```apex
-public static Id getSystemAdminProfileId() {
-    return SOQL.of(Profile.SObjectType)
-        .whereAre(SOQL.Filter.with(Profile.Name).equal('System Administrator'))
-        .toId();
+```apex title="SOQLEvaluator Approach - Single Field"
+public static String getAccountIndustry(Id accountId) {
+    return (String) SOQLEvaluator.of([SELECT Industry FROM Account WHERE Id = :accountId])
+        .toValueOf(Account.Industry);
 }
 ```
 
-Extract IDs from related fields:
-
-❌
-
-```apex
-public static Set<Id> getParentAccountIds() {
-    Set<Id> parentIds = new Set<Id>();
-
-    for (Account account : [SELECT Parent.Id FROM Account WHERE Parent.Id != null]) {
-        parentIds.add(account.Parent.Id);
-    }
-
-    return parentIds;
-}
-```
-
-✅
-
-```apex
-public static Set<Id> getParentAccountIds() {
-    return SOQL.of(Account.SObjectType)
-        .toIdsOf('Parent', Account.Id);
-}
-```
-
-Extract all record IDs from filtered query:
-
-❌
-
-```apex
-public static Set<Id> getTechnologyAccountIds() {
-    Set<Id> accountIds = new Set<Id>();
-
-    for (Account account : [SELECT Id FROM Account WHERE Industry = 'Technology']) {
-        accountIds.add(account.Id);
-    }
-
-    return accountIds;
-}
-```
-
-✅
-
-```apex
-public static Set<Id> getTechnologyAccountIds() {
-    return SOQL.of(Account.SObjectType)
-        .whereAre(SOQL.Filter.with(Account.Industry).equal('Technology'))
-        .toIds();
-}
-```
+SOQLEvaluator provides a simple way to enhance your existing SOQL-based code with powerful result transformation methods, making your code more concise and readable while maintaining the familiar SOQL syntax you already know.

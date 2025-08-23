@@ -61,7 +61,7 @@ List<Account> accounts = SOQL.of(Account.SObjectType)
    .toList();
 ```
 
-### [`Cache`](../cache/getting-started.md) - Performance Module _(Optional)_
+### [`Cache`](../cache/getting-started.md) _(Optional)_
 
 An optional but highly recommended module that dramatically improves application performance by caching query results across different storage levels. Ideal for frequently accessed, slowly-changing data such as configuration records, metadata, and reference data.
 
@@ -80,7 +80,7 @@ Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
     .toObject();
 ```
 
-### [`Evaluator`](../evaluator/getting-started.md) - Legacy Bridge Module _(Optional)_
+### [`Evaluator`](../evaluator/getting-started.md) _(Optional)_
 
 Designed for developers who prefer traditional SOQL syntax but want to leverage SOQL Lib's enhanced capabilities. This module processes static query result, providing advanced result transformation methods and mocking capabilities without requiring adoption of the full SOQL Builder syntax.
 

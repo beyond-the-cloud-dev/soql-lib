@@ -14,7 +14,7 @@ For more details check [SOQL API - AGGREGATE FUNCTIONS](../api/soql.md#aggregate
 
 **SOQL**
 
-```sql
+```sql title="Traditional SOQL"
 SELECT CampaignId, AVG(Amount) amount
 FROM Opportunity
 GROUP BY CampaignId
@@ -22,7 +22,7 @@ GROUP BY CampaignId
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 SOQL.of(Opportunity.SObjectType)
     .with(Opportunity.CampaignId)
     .avg(Opportunity.Amount, 'amount')
@@ -34,14 +34,14 @@ SOQL.of(Opportunity.SObjectType)
 
 **SOQL**
 
-```sql
+```sql title="Traditional SOQL"
 SELECT AVG(Opportunity.Amount)
 FROM OpportunityLineItem
 ```
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 SOQL.of(OpportunityLineItem.SObjectType)
     .avg('Opportunity', Opportunity.Amount)
     .toAggregate();

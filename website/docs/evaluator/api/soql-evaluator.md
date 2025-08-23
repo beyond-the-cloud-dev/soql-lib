@@ -8,7 +8,7 @@ Apex Classes: `SOQLEvaluator.cls` and `SOQLEvaluator_Test.cls`.
 
 The lib evaluator class for processing of queried records.
 
-```apex
+```apex title="Basic Usage Example"
 List<Account> accounts = SOQLEvaluator.of([
     SELECT Id, Name 
     FROM Account
@@ -61,13 +61,13 @@ Constructs a `SOQLEvaluator` from existing SObject records.
 
 **Signature**
 
-```apex
+```apex title="Method Signature"
 SObjectEvaluable of(List<SObject> staticQueryRecords)
 ```
 
 **Example**
 
-```apex
+```apex title="Constructor Example"
 SOQLEvaluator.of([
     SELECT Id, Name, Industry 
     FROM Account
@@ -83,14 +83,14 @@ The `Security.stripInaccessible` method removes inaccessible fields from the exi
 
 **Signature**
 
-```apex
+```apex title="Method Signatures"
 SObjectEvaluable stripInaccessible()
 SObjectEvaluable stripInaccessible(AccessType accessType)
 ```
 
 **Example**
 
-```apex
+```apex title="Strip Inaccessible Fields Example"
 List<Account> accessibleAccounts = SOQLEvaluator.of([
     SELECT Id, Name, Industry 
     FROM Account

@@ -17,14 +17,14 @@ Specify fields that will be retrieved via query. Check [SOQL API - SELECT](../ap
 
 **SOQL**
 
-```sql
+```sql title="Traditional SOQL"
 SELECT Id, Name, BillingCity
 FROM Account
 ```
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 SOQL.of(Account.SObject)
     .with(Account.Id, Account.Name, Account.BillingCity)
     .toList();
@@ -34,7 +34,7 @@ More than 5 fields:
 
 **SOQL**
 
-```sql
+```sql title="Traditional SOQL"
 SELECT
     Id,
     Name,
@@ -48,7 +48,7 @@ FROM Account
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 SOQL.of(Account.SObjectType)
     .with(new List<SObjectField> {
         Account.Id,
@@ -66,14 +66,14 @@ SOQL.of(Account.SObjectType)
 
 **SOQL**
 
-```sql
+```sql title="Traditional SOQL"
 SELECT Id, Name, Industry, Rating, AnnualRevenue, BillingCity, Phone
 FROM Account
 ```
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 SOQL.of(Account.SObjectType)
     .with('Id, Name, Industry, Rating, AnnualRevenue, BillingCity, Phone')
     .toList();
@@ -85,7 +85,7 @@ Specify relationship name and pass parent object fields. For more details check 
 
 **SOQL**
 
-```sql
+```sql title="Traditional SOQL"
 SELECT
     Id, Name,
     CreatedBy.Id, CreatedBy.Name,
@@ -95,7 +95,7 @@ FROM Account
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 SOQL.of(Account.SObjectType)
     .with(Account.Id, Account.Name)
     .with('CreatedBy', User.Id, User.Name)

@@ -18,7 +18,7 @@ Group of records instead of processing many individual records.
 
 **SOQL**
 
-```sql
+```sql title="Traditional SOQL"
 SELECT LeadSource
 FROM Lead
 GROUP BY LeadSource
@@ -26,7 +26,7 @@ GROUP BY LeadSource
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 SOQL.of(Lead.SObjectType)
     .with(Lead.LeadSource)
     .groupBy(Lead.LeadSource)
@@ -37,7 +37,7 @@ SOQL.of(Lead.SObjectType)
 
 **SOQL**
 
-```sql
+```sql title="Traditional SOQL"
 SELECT COUNT(Name) count
 FROM OpportunityLineItem
 GROUP BY OpportunityLineItem.Opportunity.Account.Id
@@ -45,7 +45,7 @@ GROUP BY OpportunityLineItem.Opportunity.Account.Id
 
 **SOQL Lib**
 
-```apex
+```apex title="SOQL Lib Approach"
 SOQL.of(OpportunityLineItem.SObjectType)
     .count(OpportunityLineItem.Name, 'count')
     .groupBy('OpportunityLineItem.Opportunity.Account', Account.Id)

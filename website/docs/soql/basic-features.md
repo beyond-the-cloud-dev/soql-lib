@@ -8,7 +8,7 @@ sidebar_position: 15
 
 The `SOQL.cls` class provides methods for building SOQL clauses dynamically.
 
-```apex
+```apex title="Basic SOQL Query"
 // SELECT Id FROM Account LIMIT 100
 SOQL.of(Account.SObjectType)
     .with(Account.Id, Account.Name)
@@ -16,7 +16,7 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
-```apex
+```apex title="Dynamic Conditional Query"
 String accountName = '';
 
 SOQL.of(Account.SObjectType)
@@ -27,11 +27,11 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
-## Automatic binding
+## Automatic Binding
 
-All variables used in the `WHERE` condition are automatically binded.
+All variables used in the `WHERE` condition are automatically bound.
 
-```apex
+```apex title="Automatic Variable Binding"
 // SELECT Id, Name FROM Account WHERE Name = :v1
 SOQL.of(Account.SObjectType)
     .with(Account.Id, Account.Name)
@@ -39,7 +39,7 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
-```apex
+```apex title="Generated Binding Map"
 // Binding Map
 {
   "v1" : "%Test%"
@@ -53,7 +53,7 @@ The selector constructor maintains default configurations such as default fields
 
 Additional fields, complex conditions, ordering, limits, and other SOQL clauses can be built dynamically where they are needed (for example, in controller methods), keeping the selector focused on core functionality.
 
-```apex
+```apex title="SOQL_Account.cls"
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
     public static final String MOCK_ID = 'SOQL_Account';
 
@@ -95,7 +95,7 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
 
 **Usage Example:**
 
-```apex
+```apex title="Selector Usage Examples"
 // Basic usage with default configuration
 List<Account> allAccounts = SOQL_Account.query().toList();
 
@@ -122,7 +122,7 @@ SOQL Lib selectors are designed to include only a minimal set of default fields 
 **Design Philosophy:**
 The selector constructor defines the minimum viable field set that covers the majority of use cases. Additional fields are added dynamically where they are actually needed, following the principle of "pull only what you need, when you need it."
 
-```apex
+```apex title="SOQL_Contact.cls - Minimal Fields"
 public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selector {
     public static SOQL_Contact query() {
         return new SOQL_Contact();
@@ -146,7 +146,7 @@ public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selecto
 **Dynamic Field Addition:**
 Additional fields are added at the point of use, keeping the selector lean while providing flexibility for specific business requirements.
 
-```apex
+```apex title="ExampleController.cls - Dynamic Field Addition"
 public with sharing class ExampleController {
     @AuraEnabled
     public static List<Contact> getContactDetails(Id accountId) {
@@ -170,25 +170,25 @@ public with sharing class ExampleController {
 }
 ```
 
-## Control FLS
+## Field-Level Security Control
 
 [AccessLevel Class](https://developer.salesforce.com/docs/atlas.en-us.apexref.meta/apexref/apex_class_System_AccessLevel.htm)
 
-Object permissions and field-level security are controlled by the lib. Developers can change FLS settings to match business requirements.
+Object permissions and field-level security are controlled by SOQL Lib. Developers can change FLS settings to match business requirements.
 
-### User mode
+### User Mode
 
 By default, all queries are executed in `AccessLevel.USER_MODE`.
 
 > The object permissions, field-level security, and sharing rules of the current user are enforced.
 
-### System mode
+### System Mode
 
 Developers can change the mode to `AccessLevel.SYSTEM_MODE` by using the `.systemMode()` method.
 
-> The object and field-level permissions of the current user are ignored, and the record sharing rules are controlled by the sharingMode.
+> The object and field-level permissions of the current user are ignored, and the record sharing rules are controlled by the sharing mode.
 
-```apex
+```apex title="System Mode Query"
 // SELECT Id FROM Account - skip FLS
 SOQL.of(Account.SObjectType)
     .with(Account.Id, Account.Name)
@@ -196,13 +196,13 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
-## Control Sharings
+## Sharing Control
 
 [Apex Sharing](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_classes_keywords_sharing.htm)
 
 > Use the with sharing or without sharing keywords on a class to specify whether sharing rules must be enforced. Use the inherited sharing keyword on a class to run the class in the sharing mode of the class that called it.
 
-### with sharing
+### With Sharing
 
 By default, all queries are executed `with sharing`, enforced by `AccessLevel.USER_MODE`.
 
@@ -210,8 +210,8 @@ By default, all queries are executed `with sharing`, enforced by `AccessLevel.US
 
 Developers can skip FLS by adding `.systemMode()` and `.withSharing()`.
 
-```apex
-// Query executed in without sharing
+```apex title="With Sharing Example"
+// Query executed with sharing (respects sharing rules)
 SOQL.of(Account.SObjectType)
     .with(Account.Id, Account.Name)
     .systemMode()
@@ -219,12 +219,12 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
-### without sharing
+### Without Sharing
 
-Developers can control sharing rules by adding `.systemMode()` (record sharing rules are controlled by the sharingMode) and `.withoutSharing()`.
+Developers can control sharing rules by adding `.systemMode()` (record sharing rules are controlled by the sharing mode) and `.withoutSharing()`.
 
-```apex
-// Query executed in with sharing
+```apex title="Without Sharing Example"
+// Query executed without sharing (bypasses sharing rules)
 SOQL.of(Account.SObjectType)
     .with(Account.Id, Account.Name)
     .systemMode()
@@ -232,11 +232,11 @@ SOQL.of(Account.SObjectType)
     .toList();
 ```
 
-### inherited sharing
+### Inherited Sharing
 
-Developers can control sharing rules by adding `.systemMode()` (record sharing rules are controlled by the sharingMode); by default it is `inherited sharing`.
+Developers can control sharing rules by adding `.systemMode()` (record sharing rules are controlled by the sharing mode); by default it is `inherited sharing`.
 
-```apex
+```apex title="Inherited Sharing Example"
 // Query executed in inherited sharing
 SOQL.of(Account.SObjectType)
     .with(Account.Id, Account.Name)
@@ -246,10 +246,13 @@ SOQL.of(Account.SObjectType)
 
 ## Mocking
 
-Mocking provides a way to substitute records from a Database with some prepared data. Data can be prepared in form of SObject records and lists in Apex code or Static Resource `.csv` file.
-Mocked queries won't make any SOQL's and simply return data set in method definition, mock __will ignore all filters and relations__, what is returned depends __solely on data provided to the method__. Mocking is working __only during test execution__. To mock SOQL query, use `.mockId(id)` method to make it identifiable. If you mark more than one query with the same ID, all marked queries will return the same data.
+Mocking provides a way to substitute database records with prepared test data. Data can be prepared as SObject records and lists in Apex code or as Static Resource `.csv` files.
 
-```apex
+Mocked queries won't execute any SOQL statements and simply return the data set in the method definition. **Mocks will ignore all filters and relations** - what is returned depends **solely on the data provided to the method**. Mocking works **only during test execution**. 
+
+To mock a SOQL query, use the `.mockId(id)` method to make it identifiable. If you mark more than one query with the same ID, all marked queries will return the same data.
+
+```apex title="ExampleController.cls - With Mocking"
 public with sharing class ExampleController {
 
     public static List<Account> getPartnerAccounts(String accountName) {
@@ -269,7 +272,7 @@ Then in test simply pass data you want to get from Selector to `SOQL.mock(id).th
 
 ### List of records
 
-```apex
+```apex title="Mock Test - List of Records"
 @IsTest
 private class ExampleControllerTest {
 
@@ -292,7 +295,7 @@ private class ExampleControllerTest {
 
 ### Single record
 
-```apex
+```apex title="Mock Test - Single Record"
 @IsTest
 private class ExampleControllerTest {
 
@@ -310,7 +313,7 @@ private class ExampleControllerTest {
 
 ### Static resource
 
-```apex
+```apex title="Mock Test - Static Resource"
 @IsTest
 private class ExampleControllerTest {
 
@@ -328,7 +331,7 @@ private class ExampleControllerTest {
 
 ### Count Result
 
-```apex
+```apex title="Mock Test - Count Result"
 @IsTest
 private class ExampleControllerTest {
 
@@ -345,7 +348,7 @@ private class ExampleControllerTest {
 
 ### Aggregate Result
 
-```apex
+```apex title="Mock Test - Aggregate Result"
 @IsTest
 private class ExampleControllerTest {
 
@@ -373,11 +376,11 @@ private class ExampleControllerTest {
 }
 ```
 
-## Avoid duplicates
+## Avoid Query Duplication
 
-Generic SOQLs can be kept in the selector class.
+Generic SOQL queries can be kept in the selector class to promote reusability and maintainability.
 
-```apex
+```apex title="SOQL_Account.cls - Reusable Methods"
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
     public static SOQL_Account query() {
         return new SOQL_Account();
@@ -409,11 +412,11 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
 }
 ```
 
-## Default configuration
+## Default Configuration
 
-The selector class can provide default SOQL configuration like default fields, FLS settings, and sharing rules that will be applied to all queries.
+The selector class can provide default SOQL configurations including default fields, FLS settings, and sharing rules that will be applied to all queries.
 
-```apex
+```apex title="SOQL_Account.cls - Default Configuration"
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
     public static SOQL_Account query() {
         return new SOQL_Account();
@@ -429,15 +432,15 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
 }
 ```
 
-## Dynamic conditions
+## Dynamic Conditions
 
-Build your conditions in a dynamic way.
+Build your conditions dynamically based on runtime logic.
 
-**Ignore condition**
+**Ignore Condition**
 
-Ignore condition when logic expression evaluate to true.
+Ignore a condition when a logical expression evaluates to true.
 
-```apex
+```apex title="Dynamic Conditions - Ignore When"
 // SELECT Id FROM Account WHERE BillingCity = 'Krakow'
 
 String accountName = '';
@@ -451,15 +454,15 @@ SOQL.of(Account.SObjectType)
 
 **Filter Group**
 
-Create [SOQL.FilterGroup](../soql//api/soql-filters-group.md) and assign conditions dynamically based on your own criteria.
+Create [SOQL.FilterGroup](../soql/api/soql-filters-group.md) and assign conditions dynamically based on your specific criteria.
 
-```apex
+```apex title="Dynamic Conditions - Filter Group"
 public List<Account> getAccounts() {
     SOQL.FilterGroup filterGroup;
 
-    if (UserInfo.getUserType() == 'PowerPartner')
+    if (UserInfo.getUserType() == 'PowerPartner') {
         filterGroup = SOQL.FilterGroup
-            .add(SOQL.Filter.with(Account.Name).equal('Test'));
+            .add(SOQL.Filter.with(Account.Name).equal('Test'))
             .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'));
     } else {
         filterGroup = SOQL.FilterGroup
@@ -472,12 +475,12 @@ public List<Account> getAccounts() {
 }
 ```
 
-## Enhanced SOQL
+## Enhanced Result Methods
 
-Developers perform different SOQL result transformations.
-You can use many predefined methods that will reduce your code complexity.
+SOQL Lib provides enhanced result transformation methods to simplify common data operations.
+You can use many predefined methods that reduce code complexity and improve readability.
 
-```apex
+```apex title="Available Result Methods"
 Id toId();
 Set<Id> toIds();
 Set<Id> toIdsOf(SObjectField field);
@@ -506,7 +509,7 @@ Build map with custom key:
 
 ❌
 
-```apex
+```apex title="Traditional Approach - Custom Map"
 public static Map<Id, Id> getContactIdByAccontId() {
     Map<Id, Id> contactIdToAccountId = new Map<Id, Id>();
 
@@ -520,7 +523,7 @@ public static Map<Id, Id> getContactIdByAccontId() {
 
 ✅
 
-```apex
+```apex title="SOQL Lib Approach - Custom Map"
 public static Map<String, String> getContactIdByAccontId() {
     return SOQL_Contact.query().toMap(Contact.Id, Contact.AccountId);
 }
@@ -530,7 +533,7 @@ Extract unique values from query:
 
 ❌
 
-```apex
+```apex title="Traditional Approach - Unique Values"
 public static Set<String> getAccountNames() {
     Set<String> accountNames = new Set<String>();
 
@@ -544,7 +547,7 @@ public static Set<String> getAccountNames() {
 
 ✅
 
-```apex
+```apex title="SOQL Lib Approach - Unique Values"
 public static Set<String> getAccountNames() {
     return SOQL_Account.query().toValuesOf(Account.Name);
 }
@@ -554,7 +557,7 @@ Extract unique IDs from query:
 
 ❌
 
-```apex
+```apex title="Traditional Approach - Unique IDs"
 public static Set<Id> getAccountOwnerIds() {
     Set<Id> ownerIds = new Set<Id>();
 
@@ -568,7 +571,7 @@ public static Set<Id> getAccountOwnerIds() {
 
 ✅
 
-```apex
+```apex title="SOQL Lib Approach - Unique IDs"
 public static Set<Id> getAccountOwnerIds() {
     return SOQL_Account.query().toIdsOf(Account.OwnerId);
 }
@@ -578,7 +581,7 @@ Extract single ID from query:
 
 ❌
 
-```apex
+```apex title="Traditional Approach - Single ID"
 public static Id getSystemAdminProfileId() {
     Profile profile = [
         SELECT Id 
@@ -592,7 +595,7 @@ public static Id getSystemAdminProfileId() {
 
 ✅
 
-```apex
+```apex title="SOQL Lib Approach - Single ID"
 public static Id getSystemAdminProfileId() {
     return SOQL.of(Profile.SObjectType)
         .whereAre(SOQL.Filter.with(Profile.Name).equal('System Administrator'))
@@ -604,7 +607,7 @@ Extract IDs from related fields:
 
 ❌
 
-```apex
+```apex title="Traditional Approach - Related IDs"
 public static Set<Id> getParentAccountIds() {
     Set<Id> parentIds = new Set<Id>();
 
@@ -618,7 +621,7 @@ public static Set<Id> getParentAccountIds() {
 
 ✅
 
-```apex
+```apex title="SOQL Lib Approach - Related IDs"
 public static Set<Id> getParentAccountIds() {
     return SOQL.of(Account.SObjectType)
         .toIdsOf('Parent', Account.Id);
@@ -629,7 +632,7 @@ Extract all record IDs from filtered query:
 
 ❌
 
-```apex
+```apex title="Traditional Approach - Filtered IDs"
 public static Set<Id> getTechnologyAccountIds() {
     Set<Id> accountIds = new Set<Id>();
 
@@ -643,7 +646,7 @@ public static Set<Id> getTechnologyAccountIds() {
 
 ✅
 
-```apex
+```apex title="SOQL Lib Approach - Filtered IDs"
 public static Set<Id> getTechnologyAccountIds() {
     return SOQL.of(Account.SObjectType)
         .whereAre(SOQL.Filter.with(Account.Industry).equal('Technology'))
