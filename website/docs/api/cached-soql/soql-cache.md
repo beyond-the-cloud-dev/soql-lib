@@ -31,6 +31,11 @@ The following are methods for using `SOQLCache`:
 - [`maxHoursWithoutRefresh()`](#maxhourswithoutrefresh)
 - [`removeFromCache(List<SObject> records)`](#removefromcache)
 
+[**CACHE OPTIONS**](#cache-options)
+
+- [`allowFilteringByNonUniqueFields()`](#allowfilteringbynonuniquefields)
+- [`allowQueryWithoutConditions()`](#allowQueryWithoutConditions)
+
 [**INITIAL QUERY**](#initial-query)
 
 - [`initialQuery()`](#initialquery)
@@ -44,6 +49,12 @@ The following are methods for using `SOQLCache`:
 - [`with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5)`](#with-field1---field5)
 - [`with(List<SObjectField> fields)`](#with-fields)
 - [`with(String fields)`](#with-string-fields)
+- [`with(String relationshipName, SObjectField field)`](#with-relationship-field)
+- [`with(String relationshipName, SObjectField field1, SObjectField field2)`](#with-relationship-field1---field5)
+- [`with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3)`](#with-relationship-field1---field5)
+- [`with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4)`](#with-relationship-field1---field5)
+- [`with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5)`](#with-relationship-field1---field5)
+- [`with(String relationshipName, Iterable<SObjectField> fields)`](#with-relationship-fields)
 
 [**WHERE**](#where)
 
@@ -72,6 +83,7 @@ The following are methods for using `SOQLCache`:
 [**RESULT**](#result)
 
 - [`toId()`](#toid)
+- [`toIdOf(SObjectField field)`](#toidof)
 - [`doExist()`](#doexist)
 - [`toValueOf(SObjectField fieldToExtract)`](#tovalueof)
 - [`toObject()`](#toobject)
@@ -201,6 +213,65 @@ trigger SomeObjectTrigger on SomeObject (after update, after delete) {
 }
 ```
 
+## CACHE OPTIONS
+
+### allowFilteringByNonUniqueFields
+
+By default, cached queries can only filter by unique fields (Id, Name, DeveloperName, or fields marked as unique in the schema). This method allows filtering by non-unique fields.
+
+**Signature**
+
+```apex
+Cacheable allowFilteringByNonUniqueFields()
+```
+
+**Example**
+
+```apex
+SOQLCache.of(Profile.SObjectType)
+    .with(Profile.Id, Profile.Name, Profile.UserType)
+    .allowFilteringByNonUniqueFields()
+    .whereEqual(Profile.UserType, 'Standard')
+    .toObject();
+```
+
+### allowQueryWithoutConditions
+
+By default, cached queries require at least one condition. This method allows queries without any WHERE conditions.
+
+**Signature**
+
+```apex
+Cacheable allowQueryWithoutConditions()
+```
+
+**Example**
+
+```apex
+public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
+    public static SOQL_ProfileCache query() {
+        return new SOQL_ProfileCache();
+    }
+
+    private SOQL_ProfileCache() {
+        super(Profile.SObjectType);
+        cacheInOrgCache();
+        allowQueryWithoutConditions();
+        with(Profile.Id, Profile.Name, Profile.UserType)
+    }
+
+    public override SOQL.Queryable initialQuery() {
+        return SOQL.of(Profile.SObjectType).systemMode().withoutSharing();
+    }
+    
+    public List<Profile> getAllProfiles() {
+        // This would require implementing toList() method in SOQLCache
+        // For now, this demonstrates the concept of allowing queries without conditions
+        return new List<Profile>();
+    }
+}
+```
+
 ## INITIAL QUERY
 
 The initial query allows for the bulk population of records in the cache (if it is empty), ensuring that every subsequent query in the cached selector will use the cached records.
@@ -326,6 +397,71 @@ Cacheable with(String fields)
 SOQLCache.of(Profile.SObjectType)
     .with('Id, Name, UserType')
     .whereEqual(Profile.Name, 'System Administrator')
+    .toObject();
+```
+
+### with relationship field
+
+**Signature**
+
+```apex
+Cacheable with(String relationshipName, SObjectField field)
+```
+
+**Example**
+
+```apex
+SOQLCache.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .with('Owner', User.Name)
+    .whereEqual(Account.Id, '001000000000000AAA')
+    .toObject();
+```
+
+### with relationship field1 - field5
+
+**Signature**
+
+```apex
+Cacheable with(String relationshipName, SObjectField field1, SObjectField field2)
+Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3)
+Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4)
+Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5)
+```
+
+**Example**
+
+```apex
+SOQLCache.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .with('Owner', User.Name, User.Email)
+    .whereEqual(Account.Id, '001000000000000AAA')
+    .toObject();
+
+SOQLCache.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .with('CreatedBy', User.Id, User.Name, User.Email)
+    .whereEqual(Account.Id, '001000000000000AAA')
+    .toObject();
+```
+
+### with relationship fields
+
+Use for more than 5 relationship fields.
+
+**Signature**
+
+```apex
+Cacheable with(String relationshipName, Iterable<SObjectField> fields)
+```
+
+**Example**
+
+```apex
+SOQLCache.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .with('Owner', new List<SObjectField>{ User.Id, User.Name, User.Email, User.Title })
+    .whereEqual(Account.Id, '001000000000000AAA')
     .toObject();
 ```
 
@@ -552,6 +688,26 @@ Id toId()
 new User (
     // ...
     ProfileId = SOQLCache.of(Profile.SObjectType).whereEqual('Name', 'System Administrator').toId()
+);
+```
+
+### toIdOf
+
+**Signature**
+
+```apex
+Id toIdOf(SObjectField field)
+```
+
+**Example**
+
+```apex
+new User (
+    // ...
+    ProfileId = SOQLCache.of(Profile.SObjectType)
+        .with(Profile.Id, Profile.Name)
+        .whereEqual(Profile.Name, 'System Administrator')
+        .toIdOf(Profile.Id)
 );
 ```
 

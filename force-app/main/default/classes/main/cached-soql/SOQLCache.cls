@@ -35,7 +35,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         Cacheable cacheInSessionCache();
         Cacheable maxHoursWithoutRefresh(Integer hours);
         Cacheable allowFilteringByNonUniqueFields();
-        Cacheable allowQueriesWithoutConditions();
+        Cacheable allowQueryWithoutConditions();
         // SELECT
         Cacheable with(SObjectField field);
         Cacheable with(SObjectField field1, SObjectField field2);
@@ -167,8 +167,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         return this;
     }
 
-    public Cacheable allowQueriesWithoutConditions() {
-        this.cache.filterGroup.allowQueriesWithoutConditions();
+    public Cacheable allowQueryWithoutConditions() {
+        this.cache.filterGroup.allowQueryWithoutConditions();
         return this;
     }
 
@@ -476,7 +476,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         private Map<String, Boolean> fieldIsUniqueCache = new Map<String, Boolean>();
 
         private Boolean allowFilteringByNonUniqueFields = false;
-        private Boolean allowQueriesWithoutConditions = false;
+        private Boolean allowQueryWithoutConditions = false;
 
         public CacheFilterGroup(String ofObject) {
             this.ofObject = ofObject;
@@ -496,8 +496,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             this.allowFilteringByNonUniqueFields = true;
         }
 
-        public void allowQueriesWithoutConditions() {
-            this.allowQueriesWithoutConditions = true;
+        public void allowQueryWithoutConditions() {
+            this.allowQueryWithoutConditions = true;
         }
 
         public void validateUniqueCondition(CacheFilter filter) {
@@ -511,8 +511,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         public void validateIfQueryHasAtLeastOneCondition() {
-            if (!this.allowQueriesWithoutConditions && this.filters.isEmpty()) {
-                throw new SoqlCacheException('A condition is missing. Please provide a filter to retrieve the cached record. You can ignore this validation by calling allowQueriesWithoutConditions()');
+            if (!this.allowQueryWithoutConditions && this.filters.isEmpty()) {
+                throw new SoqlCacheException('A condition is missing. Please provide a filter to retrieve the cached record. You can ignore this validation by calling allowQueryWithoutConditions()');
             }
         }
 

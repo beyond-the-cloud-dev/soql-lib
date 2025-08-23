@@ -2,7 +2,13 @@
 sidebar_position: 40
 ---
 
+import Availability from '@site/src/components/Availability';
+
 # Known Issues
+
+<Availability
+  modules={['SOQL']}
+></Availability>
 
 ## Variable does not exist
 

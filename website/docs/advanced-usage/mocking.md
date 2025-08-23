@@ -2,7 +2,13 @@
 sidebar_position: 30
 ---
 
+import Availability from '@site/src/components/Availability';
+
 # Mocking
+
+<Availability
+  modules={['SOQL', 'SOQL Cache', 'SOQL Evaluator']}
+></Availability>
 
 Mocking provides a way to substitute records from a database with some prepared data. Data can be prepared in the form of SObject records and lists in Apex code or Static Resource `.csv` file.
 Mocked queries won't make any SOQLs and simply return data set in method definition. Mock __will ignore all filters and relations__; what is returned depends __solely on data provided to the method__. Mocking works __only during test execution__. To mock a SOQL query, use the `.mockId(id)` method to make it identifiable. If you mark more than one query with the same ID, all marked queries will return the same data.

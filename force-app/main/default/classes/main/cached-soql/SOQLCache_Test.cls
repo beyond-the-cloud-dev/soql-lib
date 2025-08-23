@@ -295,14 +295,14 @@ private class SOQLCache_Test {
     }
 
     @IsTest
-    static void allowQueriesWithoutConditions() {
+    static void allowQueryWithoutConditions() {
         // Setup
         insert new Account(Name = 'Test Account');
 
         // Test
         Account account = (Account) SOQLCache.of(Account.SObjectType)
             .with(Account.Id, Account.Name)
-            .allowQueriesWithoutConditions()
+            .allowQueryWithoutConditions()
             .toObject();
 
         // Verify
@@ -335,7 +335,7 @@ private class SOQLCache_Test {
         // Test
         try {
             SOQLCache.of(Profile.SObjectType)
-                .allowQueriesWithoutConditions()
+                .allowQueryWithoutConditions()
                 .toObject();
         } catch (System.QueryException e) {
             queryException = e;
@@ -621,7 +621,7 @@ private class SOQLCache_Test {
 
         // Verify
         Assert.isNotNull(soqlException, 'An exception should be thrown when a condition is missing.');
-        Assert.areEqual('A condition is missing. Please provide a filter to retrieve the cached record. You can ignore this validation by calling allowQueriesWithoutConditions()', soqlException.getMessage(), 'The exception message should be "A condition is missing. Please provide a filter to retrieve the cached record."');
+        Assert.areEqual('A condition is missing. Please provide a filter to retrieve the cached record. You can ignore this validation by calling allowQueryWithoutConditions()', soqlException.getMessage(), 'The exception message should be "A condition is missing. Please provide a filter to retrieve the cached record."');
     }
 
     @IsTest

@@ -2,7 +2,13 @@
 sidebar_position: 10
 ---
 
+import Availability from '@site/src/components/Availability';
+
 # Field-Level Security
+
+<Availability
+  modules={['SOQL']}
+></Availability>
 
 [Enforce User Mode for Database Operations](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_classes_enforce_usermode.htm)
 

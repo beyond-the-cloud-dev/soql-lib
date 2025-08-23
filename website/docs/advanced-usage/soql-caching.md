@@ -2,7 +2,13 @@
 sidebar_position: 5
 ---
 
+import Availability from '@site/src/components/Availability';
+
 # Caching
+
+<Availability
+  modules={['SOQL Cache']}
+></Availability>
 
 SOQL caching is more complex than it seems. From our perspective, it is much more important to make the code predictable, bug-proof, and intuitive rather than adding numerous features that could confuse developers.
 
