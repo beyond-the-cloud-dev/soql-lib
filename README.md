@@ -124,27 +124,7 @@ Visit [https://soql.beyondthecloud.dev](https://soql.beyondthecloud.dev) to view
 
 ## Features
 
-Read about the features in the [documentation](https://soql.beyondthecloud.dev/docs/basic-features).
-
-1. **Dynamic SOQL**
-2. **Automatic binding**
-3. **Control FLS**
-- 3.1 **User Mode**
-- 3.2 **System Mode**
-- 3.3 **stripInaccessible**
-4. **Control Sharings Mode**
-- 4.1 **with sharing**
-- 4.2 **without sharing**
-- 4.3 **inherited sharing**
-5. **Mocking**
-- 5.1 **Mock list of records**
-- 5.2 **Mock single record**
-- 5.3 **Mock with static resources**
-- 5.4 **Mock count result**
-6. **Avoid query duplicates**
-7. **The default configuration for all queries**
-8. **Dynamic conditions**
-9. **Cache records**
+Read about the features in the [https://soql.beyondthecloud.dev/docs/basic-features](https://soql.beyondthecloud.dev/docs/basic-features).
 
 ## Contributors
 
