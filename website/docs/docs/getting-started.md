@@ -11,9 +11,9 @@ The SOQL Lib provides functional constructs for SOQL queries in Apex.
 
 :::danger[SOQL Lib Modules]
 
-- [SOQL](./soql/getting-started) - the main module of the lib provides functional constructs for queries.
-- [Cache](./cache/getting-started) _(optional)_ - Use when you want to cache query results.
-- [Evaluator](./evaluator/getting-started) _(optional)_ - Use when you don't want to learn the lib.
+- [SOQL](../soql/getting-started) - the main module of the lib provides functional constructs for queries.
+- [Cache](../cache/getting-started) _(optional)_ - Use when you want to cache query results.
+- [Evaluator](../evaluator/getting-started) _(optional)_ - Use when you don't want to learn the lib.
 :::
 
 **What Next?**
