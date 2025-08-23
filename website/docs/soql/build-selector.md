@@ -1,24 +1,32 @@
 ---
-slug: '/building-selector'
 sidebar_position: 17
 ---
 
 # Building Your Selector
 
+:::info[New Selectors Approach!]
+
+The concept of selectors in SOQL Lib is different from FFLib Selectors!
+
+SOQL Lib Selectors:
+- Not all queries are kept in selectors. Only very generic methods are maintained in the selector class like byParentId, bySource, byRecordType, byId. Each method returns an instance of that selector. This approach allows you to chain methods from the selector class.
+- The selector constructor keeps default configurations, such as default fields, sharing mode, and field-level security.
+:::
+
 Check examples in the [repository](https://github.com/beyond-the-cloud-dev/soql-lib/tree/main/force-app/main/default/classes/examples/standard-selectors).
 
+SOQL Lib is agile, so you can adjust the solution according to your needs.
 
-SOQL-Lib is agile, so you can adjust the solution according to your needs.
-We don't force one approach over another; you can choose your own. Here are our suggestions:
+**We don't force one approach over another; you can choose your own**. 
 
-## A - Inheritance - extends SOQL, implements Interface + static (Recommended)
+## A - Inheritance - extends SOQL, implements Interface + static _(Recommended)_
 
 Most Flexible Approach:
 - The selector constructor keeps default configurations, such as default fields, sharing mode, and field-level security.
 - Only very generic methods are maintained in the selector class, and each method returns an instance of that selector. This approach allows you to chain methods from the selector class.
 - Additional fields, more complex conditions, ordering, limits, and other SOQL clauses can be built where they are needed (for example, in a controller method).
 
-```apex
+```apex title="SOQL_Account.cls"
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
     public static SOQL_Account query() {
         return new SOQL_Account();
@@ -33,20 +41,18 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
     }
 
     public SOQL_Account byIndustry(String industry) {
-        with(Account.Industry)
-            .whereAre(Filter.with(Account.Industry).equal(industry));
+        whereAre(Filter.with(Account.Industry).equal(industry));
         return this;
     }
 
     public SOQL_Account byParentId(Id parentId) {
-        with(Account.ParentId)
-            .whereAre(Filter.with(Account.ParentId).equal(parentId));
+        whereAre(Filter.with(Account.ParentId).equal(parentId));
         return this;
     }
 }
 ```
 
-```apex
+```apex title="ExampleController.cls"
 public with sharing class ExampleController {
     @AuraEnabled
     public static List<Account> getPartnerAccounts(String accountName) {
@@ -72,7 +78,7 @@ public with sharing class ExampleController {
 
 Use `SOQL.Selector` and create `static` methods.
 
-```apex
+```apex title="SOQL_Contact.cls"
 public inherited sharing class SOQL_Contact implements SOQL.Selector {
     public static SOQL query() {
         // default settings
@@ -93,9 +99,8 @@ public inherited sharing class SOQL_Contact implements SOQL.Selector {
 }
 ```
 
-```apex
+```apex title="ExampleController.cls"
 public with sharing class ExampleController {
-
     @AuraEnabled
     public static List<Contact> getContactsByRecordType(String recordType) {
         return SOQL_Contact.byRecordType(recordType)
@@ -117,7 +122,7 @@ public with sharing class ExampleController {
 
 ## C - Inheritance - extends SOQL + non-static
 
-```apex
+```apex title="SOQL_Account.cls"
 public inherited sharing class SOQL_Account extends SOQL {
     public SOQL_Account() {
         super(Account.SObjectType);
@@ -145,7 +150,7 @@ public inherited sharing class SOQL_Account extends SOQL {
 }
 ```
 
-```apex
+```apex title="ExampleController.cls"
 public with sharing class ExampleController {
     @AuraEnabled
     public static List<Account> getPartnerAccounts(String accountName) {
@@ -176,9 +181,9 @@ public with sharing class ExampleController {
 
 ## D - Composition - implements Interface + non-static
 
-Very useful when you have different teams/streams that need different query configurations.
+This approach is very useful when you have different teams/streams that need different query configurations.
 
-```apex
+```apex title="BaseAccountSelector.cls"
 public inherited sharing virtual class BaseAccountSelector implements SOQL.Selector {
     public virtual SOQL query() {
         return SOQL.of(Account.SObjectType)
@@ -193,7 +198,7 @@ public inherited sharing virtual class BaseAccountSelector implements SOQL.Selec
 }
 ```
 
-```apex
+```apex title="MyTeam_AccountSelector.cls"
 public with sharing class MyTeam_AccountSelector extends BaseAccountSelector implements SOQL.Selector {
     public override SOQL query() {
         return SOQL.of(Account.SObjectType)
@@ -204,9 +209,8 @@ public with sharing class MyTeam_AccountSelector extends BaseAccountSelector imp
 }
 ```
 
-```apex
+```apex title="ExampleController.cls"
 public with sharing class ExampleController {
-
     public static List<Account> getAccounts(String accountName) {
         return new MyTeam_AccountSelector().query()
             .with(Account.BillingCity, Account.BillingCountry)
@@ -216,8 +220,8 @@ public with sharing class ExampleController {
 
     public static List<Account> getAccountsByRecordType(String recordType) {
         return new MyTeam_AccountSelector().byRecordType(recordType)
-                .with(Account.ParentId)
-                .toList();
+            .with(Account.ParentId)
+            .toList();
     }
 }
 ```
@@ -226,7 +230,7 @@ public with sharing class ExampleController {
 
 Create Selectors in your own way.
 
-```apex
+```apex title="SOQL_Account.cls"
 public inherited sharing class SOQL_Account {
     public static SOQL query {
         return SOQL.of(Account.SObjectType)
@@ -241,9 +245,8 @@ public inherited sharing class SOQL_Account {
 }
 ```
 
-```apex
+```apex title="ExampleController.cls"
 public with sharing class ExampleController {
-
     public static List<Account> getAccounts(String accountName) {
         return SOQL_Account.query
             .with(Account.BillingCity, Account.BillingCountry)
@@ -253,18 +256,17 @@ public with sharing class ExampleController {
 
     public static List<Account> getAccountsByRecordType(String recordType) {
         return SOQL_Account.byRecordType(recordType)
-                .with(Account.ParentId)
-                .toList();
+            .with(Account.ParentId)
+            .toList();
     }
 }
 ```
 
 ## F - FFLib Approach
 
-```apex
-
-public inherited sharing class SOQL_Opportunity extends SOQL {
-    public SOQL_Opportunity() {
+```apex title="OpportunitySelector.cls"
+public inherited sharing class OpportunitySelector extends SOQL {
+    public OpportunitySelector() {
         super(Opportunity.SObjectType);
         // default settings
         with(Opportunity.Id, Opportunity.AccountId)
