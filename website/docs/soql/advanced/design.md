@@ -17,13 +17,13 @@ All crucial information is kept at the top of the class, so developers can use i
 ## Public API
 
 ### Static Factory Methods
-- [`SOQL.FilterGroup`](/api/standard-soql/soql-filters-group) → creates FilterGroup
-- [`SOQL.Filter`](/api/standard-soql/soql-filter) → creates Filter  
-- [`SOQL.HavingFilterGroup`](/api/standard-soql/soql-having-filter-group) → creates HavingFilterGroup
-- [`SOQL.HavingFilter`](/api/standard-soql/soql-having-filter) → creates HavingFilter
-- [`SOQL.SubQuery`](/api/standard-soql/soql-sub) → creates SubQuery
-- [`SOQL.InnerJoin`](/api/standard-soql/soql-join) → creates InnerJoin
-- [`SOQL.DataCategoryFilter`](/api/standard-soql/soql-data-category-filter) → creates DataCategoryFilter
+- [`SOQL.FilterGroup`](../api/soql-filters-group) → creates FilterGroup
+- [`SOQL.Filter`](../api/soql-filter) → creates Filter  
+- [`SOQL.HavingFilterGroup`](../api/soql-having-filter-group) → creates HavingFilterGroup
+- [`SOQL.HavingFilter`](../api/soql-having-filter) → creates HavingFilter
+- [`SOQL.SubQuery`](../api/soql-sub) → creates SubQuery
+- [`SOQL.InnerJoin`](../api/soql-join) → creates InnerJoin
+- [`SOQL.DataCategoryFilter`](../api/soql-data-category-filter) → creates DataCategoryFilter
 
 ### Public Interfaces
 - `Queryable` - Main query interface
