@@ -5,30 +5,61 @@ sidebar_position: 10
 
 # Getting Started
 
-Read about the SOQL Lib in [blog post](https://blog.beyondthecloud.dev/blog/soql-lib).
-
-[Why do you need Apex Selector Layer?](https://blog.beyondthecloud.dev/blog/why-do-you-need-selector-layer)
-
 ![Deploy to Scratch Org and run tests](https://github.com/beyond-the-cloud-dev/soql-lib/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/gh/beyond-the-cloud-dev/soql-lib/branch/main/graph/badge.svg)](https://codecov.io/gh/beyond-the-cloud-dev/soql-lib)
 
-The SOQL Lib provides functional constructs for SOQL queries in Apex.
+The SOQL Lib provides functional constructs for SOQL queries in Apex. The SOQL Lib consists of 3 main modules:
 
-## Examples
+```mermaid
+flowchart TD
+    SOQLLib[SOQL Lib]
+    
+    subgraph SOQL_Module [" SOQL (main)"]
+        direction TB
+        SOQLBuilder["SOQL Builder"]
+        SOQLSelectors["SOQL Selectors"]
+    end
+    
+    subgraph SOQLCache_Module [" SOQL Cache (optional) "]
+        direction TB
+        SOQLCacheBuilder["Cached SOQL Builder"]
+        SOQLCachedSelectors["Cached SOQL Selectors"]
+    end
+    
+    subgraph SOQLEvaluator_Module [" SOQL Evaluator (optional) "]
+        direction TB
+        SOQLEvaluator["SOQL Evaluator"]
+    end
+    
+    SOQLLib --> SOQL_Module
+    SOQLLib --> SOQLCache_Module
+    SOQLLib --> SOQLEvaluator_Module
+    
+    %% Styling
+    classDef moduleBox fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef componentBox fill:#f3e5f5,stroke:#7b1fa2,stroke-width:1px
+    classDef mainBox fill:#fff3e0,stroke:#f57c00,stroke-width:3px
+    
+    class SOQLLib mainBox
+    class SOQL_Module,SOQLCache_Module,SOQLEvaluator_Module moduleBox
+    class SOQLBuilder,SOQLSelectors,SOQLCacheBuilder,SOQLCachedSelectors,SOQLEvaluator componentBox
+```
 
 ⚠️ You can find more examples on the [Showcases](/examples/showcase) page.
 
 ⚠️ You can find all method on the [API](/api) page.
 
+## Examples
+
 **Standard SOQL**
 
 ```apex
-// SELECT Id FROM Account
+// SELECT Id FROM Account WITH USER_MODE
 List<Account> accounts = SOQL.of(Account.SObjectType).toList();
 ```
 
 ```apex
-// SELECT Id, Name, Industry FROM Account
+// SELECT Id, Name, Industry FROM Account WITH USER_MODE
 List<Account> accounts = SOQL.of(Account.SObjectType)
    .with(Account.Id, Account.Name, Account.Industry)
    .toList();
@@ -37,7 +68,10 @@ List<Account> accounts = SOQL.of(Account.SObjectType)
 **Cached SOQL**
 
 ```apex
-// SELECT Id, Name, UserType FROM Profile WHERE Name = 'System Administrator'
+// SELECT Id, Name, UserType 
+// FROM Profile 
+// WHERE Name = 'System Administrator' 
+// WITH SYSTEM_MODE
 Profile systemAdminProfile = (Profile) SOQLCache.of(Profile.SObjectType)
    .with(Profile.Id, Profile.Name, Profile.UserType)
    .whereEqual(Profile.Name, 'System Administrator')
@@ -81,7 +115,7 @@ public with sharing class ExampleController {
         return SOQL_Contact.query()
             .byAccountId(accountId)
             .bySource('Website')
-            .with(Contact.Email, Contact.Department)
+            .with(Contact.Email, Contact.Department) // additional fields
             .toList();
     }
 }
@@ -130,7 +164,7 @@ public with sharing class ExampleController {
 
 ## Benefits
 
-[Why do you need Apex Selector Layer?](https://blog.beyondthecloud.dev/blog/why-do-you-need-selector-layer)
+Check the [Basic Features](./basic-features.md) section for more details.
 
 1. **Additional level of abstraction** - The selector layer is an additional level of abstraction that gives you the possibility to control the execution of SOQL.
 2. **Mocking** - Selector classes give a possibility to mock return values in unit tests.
@@ -142,6 +176,12 @@ public with sharing class ExampleController {
 6. **Default configuration** - The selector class can provide default SOQL configuration like default fields, FLS settings, and sharing rules.
 7. **Mocking** - The selector class has built-in mocking functionality that provides the ability to dynamically return data in test execution
 8. **Caching** - The cached selector class allows you to cache records in Apex transactions, Session Cache, or Org Cache, which boosts your code's performance.
+9. **Result Functions** - Transform your results easily using result SOQL Lib functions.
+
+## Resources
+
+- [SOQL Lib Explanation](https://blog.beyondthecloud.dev/blog/soql-lib)
+- [Why do you need Apex Selector Layer?](https://blog.beyondthecloud.dev/blog/why-do-you-need-selector-layer)
 
 ## License notes
 

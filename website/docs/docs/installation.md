@@ -23,16 +23,14 @@ Click the button below to deploy SOQL Lib to your environment.
 
 #### Standard SOQL
 
-Copy:
+**Apex**
 
 - [`SOQL.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/standard-soql/SOQL.cls)
 - [`SOQL_Test.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/standard-soql/SOQL_Test.cls)
 
-and deploy them to your environment.
+#### Cached SOQL (optional)
 
-#### Cached SOQL
-
-Copy:
+**Apex**
 
 - [`SOQL.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/standard-soql/SOQL.cls)
 - [`SOQL_Test.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/standard-soql/SOQL_Test.cls)
@@ -40,9 +38,19 @@ Copy:
 - [`CacheManagerTest.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/cached-soql/CacheManagerTest.cls)
 - [`SOQLCache.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/cached-soql/SOQLCache.cls)
 - [`SOQLCache_Test.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/cached-soql/SOQLCache_Test.cls)
+
+**Cache Partitions**
+
 - [`SOQL.cachePartition-meta.xml`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/cachePartitions/SOQL.cachePartition-meta.xml)
 
-and deploy them to your environment.
+#### SOQL Evaluator (optional)
+
+**Apex**
+
+- [`SOQL.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/standard-soql/SOQL.cls)
+- [`SOQL_Test.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/standard-soql/SOQL_Test.cls)
+- [`SOQLEvaluator.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/soql-evaluator/SOQLEvaluator.cls)
+- [`SOQLEvaluatorTest.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/soql-evaluator/SOQLEvaluator_Test.cls)
 
 ## Build Your Selector
 

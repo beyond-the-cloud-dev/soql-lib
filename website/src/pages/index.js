@@ -12,7 +12,7 @@ export default function Home() {
                 <div class="text-center">
                     <Heading class="text-5xl mb-10 font-semibold tracking-tight text-balance text-gray-900 sm:text-7xl" as="h1">SOQL Lib</Heading>
                     <div class="space-x-4">
-                        <a href="/installation" class="rounded-md bg-sky-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-sky-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600">Get started</a>
+                        <a href="/installation" class="rounded-md bg-sky-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-sky-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600">Get Started</a>
                         <a href="/api" class="rounded-md bg-green-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-green-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600">API</a>
                         <a href="/examples/showcase" class="rounded-md bg-sky-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-sky-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600">Examples</a>
                     </div>
