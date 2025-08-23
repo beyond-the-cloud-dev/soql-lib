@@ -606,7 +606,7 @@ SOQLCache.of(Profile.SObjectType)
     .toObject();
 
 // In Unit Test
-SOQLCache.mock('MyQuery).thenReturn(new Profile(Name = 'Mocked System Adminstrator'));
+SOQLCache.mock('MyQuery').thenReturn(new Profile(Name = 'Mocked System Adminstrator'));
 ```
 
 ## DEBUGGING

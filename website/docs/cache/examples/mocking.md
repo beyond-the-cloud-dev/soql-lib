@@ -35,18 +35,16 @@ Pass single SObject record to SOQL class, and use mock ID to target query to be 
 ```apex
 @IsTest
 public class ExampleControllerTest {
-    private static final String TEST_ACCOUNT_NAME = 'MyAccount 1';
-
     @IsTest
     static void getAccount() {
-        SOQL.mock('ExampleController.getAccount')
-            .thenReturn(new Account(Name = TEST_ACCOUNT_NAME));
+        SOQLCache.mock('ExampleController.getAccount')
+            .thenReturn(new Account(Name = 'MyAccount 1'));
 
         Test.startTest();
-        Account result = (Account) ExampleController.getAccountByName(TEST_ACCOUNT_NAME);
+        Account result = (Account) ExampleController.getAccountByName('MyAccount 1');
         Test.stopTest();
 
-        Assert.areEqual(TEST_ACCOUNT_NAME, result.Name);
+        Assert.areEqual('MyAccount 1', result.Name);
     }
 }
 ```

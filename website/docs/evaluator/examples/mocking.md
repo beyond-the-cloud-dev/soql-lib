@@ -6,11 +6,11 @@ sidebar_position: 20
 
 Mock SOQLEvaluator results in Unit Tests.
 
-## Mock Single Record
+## Single Record
 
 Set mocking ID in Query declaration.
 
-```apex
+```apex title="Controller with SOQLEvaluator Mock ID"
 public with sharing class ExampleController {
     public static Account getAccountFromCollection(String accountName) {
         return (Account) SOQLEvaluator.of([
@@ -27,7 +27,7 @@ public with sharing class ExampleController {
 
 Pass single SObject record to SOQLEvaluator class, and use mock ID to target evaluation to be mocked.
 
-```apex
+```apex title="Unit Test with Single Record Mock"
 @IsTest
 public class ExampleControllerTest {
     @IsTest
@@ -46,11 +46,11 @@ public class ExampleControllerTest {
 
 During execution SOQLEvaluator will return record that was set by `.thenReturn` method.
 
-## Mock Multiple Records
+## Multiple Records
 
 Set mocking ID in Query declaration.
 
-```apex
+```apex title="Controller with Multiple Records Processing"
 public with sharing class ExampleController {
     public static List<Account> getAccountsFromCollection(String industry) {
         return SOQLEvaluator.of([
@@ -67,7 +67,7 @@ public with sharing class ExampleController {
 
 Pass List of SObject records to SOQLEvaluator class, and use mock ID to target evaluation to be mocked.
 
-```apex
+```apex title="Unit Test with Multiple Records Mock"
 @IsTest
 public class ExampleControllerTest {
     @IsTest
@@ -92,9 +92,9 @@ public class ExampleControllerTest {
 
 During execution SOQLEvaluator will return List of records that was set by `.thenReturn` method.
 
-## Mock No Results
+## No Results
 
-```apex
+```apex title="Controller for No Results Example"
 public with sharing class ExampleController {
     public static Account getAccountFromCollection(String accountName) {
         return (Account) SOQLEvaluator.of([
@@ -115,7 +115,7 @@ Pass an empty list: `.thenReturn(new List<Type>())`;
 
 This behavior will be the same as it is during runtime.
 
-```apex
+```apex title="Unit Test with Empty List Mock"
 @IsTest
 public class ExampleControllerTest {
     @IsTest
@@ -132,11 +132,11 @@ public class ExampleControllerTest {
 }
 ```
 
-## Mock Data Processing with Static Resource
+## Data Processing with Static Resource
 
 Set mocking ID in Query declaration.
 
-```apex
+```apex title="Controller with Static Resource Processing"
 public with sharing class ExampleController {
     public static List<Account> processAccountCollection(String industry) {
         return SOQLEvaluator.of([
@@ -153,7 +153,7 @@ public with sharing class ExampleController {
 
 Pass records from Static Resource to SOQLEvaluator class, and use mock ID to target evaluation to be mocked.
 
-```apex
+```apex title="Unit Test with Static Resource Mock"
 @IsTest
 public class ExampleControllerTest {
     @IsTest

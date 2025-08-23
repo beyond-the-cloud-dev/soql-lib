@@ -14,11 +14,11 @@ You need to mock external objects.
 > All examples use inline queries built with the SOQL Lib Query Builder.
 > If you are using a selector, replace `SOQL.of(...)` with `YourSelectorName.query()`.
 
-## Mock Single Record
+## Single Record
 
 Set mocking ID in Query declaration.
 
-```apex
+```apex title="Controller with Mock ID"
 public with sharing class ExampleController {
     public static Account getAccountByName(String accountName) {
         return (Account) SOQL.of(Account.SObjectType)
@@ -32,7 +32,7 @@ public with sharing class ExampleController {
 
 Pass single SObject record to SOQL class, and use mock ID to target query to be mocked.
 
-```apex
+```apex title="Unit Test with Single Record Mock"
 @IsTest
 public class ExampleControllerTest {
     private static final String TEST_ACCOUNT_NAME = 'MyAccount 1';
@@ -54,11 +54,11 @@ public class ExampleControllerTest {
 During execution Selector will return record that was set by `.thenReturn` method.
 
 
-## Mock AggregateResult
+## AggregateResult
 
 To mock `AggregateResult` - use `toAggregatedProxy()`.
 
-```apex
+```apex title="Controller with Aggregate Query Mock"
 public with sharing class ExampleController {
     public void getLeadAggregateResults() {
         List<SOQL.AggregateResultProxy> result = SOQL.of(Lead.SObjectType)
@@ -71,7 +71,7 @@ public with sharing class ExampleController {
 }
 ```
 
-```apex
+```apex title="Unit Test with Aggregate Result Mock"
 @IsTest
 public class ExampleControllerTest {
     @IsTest
@@ -94,9 +94,9 @@ public class ExampleControllerTest {
 }
 ```
 
-## Mock No Results
+## No Results
 
-```apex
+```apex title="Controller for No Results Example"
 public with sharing class ExampleController {
     public static Account getAccountByName(String accountName) {
         return (Account) SOQL.of(Account.SObjectType)
@@ -114,7 +114,7 @@ Pass an empty list: `.thenReturn(new List<Type>())`;
 
 This behavior will be the same as it is during runtime.
 
-```apex
+```apex title="Unit Test with Empty List Mock"
 @IsTest
 public class ExampleControllerTest {
     private static final String TEST_ACCOUNT_NAME = 'MyAccount 1';
@@ -133,11 +133,11 @@ public class ExampleControllerTest {
 }
 ```
 
-## Mock Multiple Records
+## Multiple Records
 
 Set mocking ID in Query declaration.
 
-```apex
+```apex title="Controller with Multiple Records Query"
 public with sharing class ExampleController {
 
     public static List<Account> getPartnerAccounts(String accountName) {
@@ -154,7 +154,7 @@ public with sharing class ExampleController {
 ```
 Pass List of SObject records to SOQL class, and use mock ID to target query to be mocked.
 
-```apex
+```apex title="Unit Test with Multiple Records Mock"
 @IsTest
 public class ExampleControllerTest {
 
@@ -179,11 +179,11 @@ public class ExampleControllerTest {
 
 During execution Selector will return List of records that was set by `.thenReturn` method.
 
-## Mock Count Result
+## Count Result
 
 Set mocking ID in Query declaration.
 
-```apex
+```apex title="Controller with Count Query"
 public with sharing class ExampleController {
 
     public static List<Account> getPartnerAccountsCount(String accountName) {
@@ -200,7 +200,7 @@ public with sharing class ExampleController {
 ```
 Pass Integer value to SOQL class, and use mock ID to target query to be mocked.
 
-```apex
+```apex title="Unit Test with Count Mock"
 @IsTest
 public class ExampleControllerTest {
     private static final Integer TEST_VALUE = 5;
@@ -221,11 +221,11 @@ public class ExampleControllerTest {
 
 During execution Selector will return Integer count that was set by `.thenReturn` method.
 
-## Mock with Static Resource
+## With Static Resource
 
 Set mocking ID in Query declaration.
 
-```apex
+```apex title="Controller with Static Resource Mock"
 public with sharing class ExampleController {
 
     public static List<Account> getPartnerAccounts(String accountName) {
@@ -243,7 +243,7 @@ public with sharing class ExampleController {
 
 Pass String value with name of Static Resource file with `.csv` records, and use mock ID to target query to be mocked.
 
-```apex
+```apex title="Unit Test with Static Resource Mock"
 @IsTest
 public class ExampleControllerTest {
 
@@ -263,11 +263,11 @@ public class ExampleControllerTest {
 
 During execution Selector will return records from Static Resource that was set by `.thenReturn` method.
 
-## Mock Sub-Query
+## Sub-Query
 
 Set mocking ID in Query declaration.
 
-```
+```apex title="Controller with Sub-Query Mock"
 public without sharing class AccountsController {
     public static List<Account> getAccountsWithContacts() {
         return SOQL.of(Account.SObjectType)
@@ -284,7 +284,7 @@ public without sharing class AccountsController {
 
 Deserialize desired data from JSON format to selected SObjectType. And pass data in form of single record or list of records.
 
-```
+```apex title="Unit Test with JSON Deserialized Mock"
 @IsTest
 static void getAccountsWithContacts() {
     List<Account> mocks = (List<Account>) JSON.deserialize(
@@ -309,7 +309,7 @@ static void getAccountsWithContacts() {
 
 Or create data with Test Data Factory and Serialize/Deserialize it to use as a Mock.
 
-```
+```apex title="Unit Test with Serialized Data Mock"
 @IsTest
 static void getAccountsWithContacts() {
     List<Account> mocks = (List<Account>) JSON.deserialize(
@@ -344,3 +344,24 @@ static void getAccountsWithContacts() {
 ```
 
 During execution Selector will ignore filters and return data set by a mock.
+
+## Parent Relationship
+
+```apex title="Unit Test with Parent Relationship Mock"
+@IsTest
+private class ExampleControllerTest {
+    @IsTest
+    static void getPartnerAccountsCount() {
+        SOQL.mock('mockingQuery').thenReturn(
+            new Account(
+                Name = 'Test',
+                Parent = new Account(Name = 'Parent Name')
+            )
+        );
+
+        Account result = (Account) ExampleController.getPartnerAccounts('MyAccount');
+
+        Assert.areEqual(2, result);
+    }
+}
+```
