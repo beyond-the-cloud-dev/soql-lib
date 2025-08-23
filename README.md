@@ -1,13 +1,25 @@
-# SOQL Lib
+<div align="center">
+  <a href="https://nextjs.org">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://soql.beyondthecloud.dev/img/logo.png">
+      <img alt="SOQL Lib logo" src="https://soql.beyondthecloud.dev/img/logo.png" height="98">
+    </picture>
+  </a>
+  <h1>SOQL Lib</h1>
+
+<a href="https://beyondthecloud.dev"><img alt="Beyond The Cloud logo" src="https://img.shields.io/badge/MADE_BY_BEYOND_THE_CLOUD-555?style=for-the-badge"></a>
+<a ><img alt="API version" src="https://img.shields.io/badge/api-v64.0-blue?style=for-the-badge"></a>
+<a href="https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/license-mit-green?style=for-the-badge"></a>
 
 ![Deploy to Scratch Org and run tests](https://github.com/beyond-the-cloud-dev/soql-lib/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/gh/beyond-the-cloud-dev/soql-lib/branch/main/graph/badge.svg)](https://codecov.io/gh/beyond-the-cloud-dev/soql-lib)
 
+
+</div>
+
+# Getting Started
+
 The SOQL Lib provides functional constructs for SOQL queries in Apex.
-
-For more details, please refer to the [documentation](https://soql.beyondthecloud.dev).
-
-You may also find [this blog post](https://blog.beyondthecloud.dev/blog/soql-lib) about SOQL Lib interesting. Check why you need a selector layer in [this post](https://blog.beyondthecloud.dev/blog/why-do-you-need-selector-layer).
 
 **Standard SOQL**
 
@@ -103,31 +115,11 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
 
 ## Documentation
 
-[SOQL Lib documentation](https://soql.beyondthecloud.dev)
+Visit the [documentation](https://soql.beyondthecloud.dev) to view the full documentation.
 
 ## Features
 
-Read about the features in the [documentation](https://soql.beyondthecloud.dev/docs/basic-features).
-
-1. **Dynamic SOQL**
-2. **Automatic binding**
-3. **Control FLS**
-- 3.1 **User Mode**
-- 3.2 **System Mode**
-- 3.3 **stripInaccessible**
-4. **Control Sharings Mode**
-- 4.1 **with sharing**
-- 4.2 **without sharing**
-- 4.3 **inherited sharing**
-5. **Mocking**
-- 5.1 **Mock list of records**
-- 5.2 **Mock single record**
-- 5.3 **Mock with static resources**
-- 5.4 **Mock count result**
-6. **Avoid query duplicates**
-7. **The default configuration for all queries**
-8. **Dynamic conditions**
-9. **Cache records**
+Read about the features in the [basic features](https://soql.beyondthecloud.dev/docs/basic-features).
 
 ## Contributors
 
