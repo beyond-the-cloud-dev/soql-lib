@@ -12,7 +12,7 @@ We don't force one approach over another; you can choose your own. Here are our 
 
 ## A - Inheritance - extends SOQLCache, implements Interface + static (Recommended)
 
-In this configuration, you can specify default fields, the cache storage type `cacheIn...` (Org Cache, Session Cache, or Apex transaction), and the time in hours before a refresh is required (`maxHoursWithoutRefresh`). Additionally, you can add an `initialQuery()` to prepopulate records in the cache, ensuring that subsequent queries retrieve records from the prepopulated set.
+In this configuration, you can specify default fields, the cache storage type `cacheIn...` (Org Cache, Session Cache, or Apex transaction), and the time in hours before a refresh is required (`maxHoursWithoutRefresh`). Additionally, you can add an `initialQuery()` to prepopulate records in the cache, ensuring that subsequent queries retrieve records from the prepopulated set. The `additionalAllowedConditionFields` allows you to specify which additional fields can be used in conditions besides `Id, Name, DeveloperName` and unique fields. You change it at your own risk, because non-unique fields cannot guarantee that the correct records are returned from the cache. More details [here](./advanced/design#cached-query-required-single-condition).
 
 ```apex
 public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
@@ -29,6 +29,12 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
 
     public override SOQL.Queryable initialQuery() {
         return SOQL.of(Profile.SObjectType);
+    }
+
+    public override List<SObjectField> additionalAllowedConditionFields() {
+        return new List<SObjectField>{
+            Profile.UserType // not unique field that !!!
+        };
     }
 
     public SOQL_ProfileCache byName(String name) {

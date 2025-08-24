@@ -207,7 +207,7 @@ const config = {
             ]
           }
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} BeyondTheCloud`
+        copyright: `Copyright © ${new Date().getFullYear()} Beyond The Cloud Sp. z o.o.`
       },
       prism: {
         additionalLanguages: ['apex'],

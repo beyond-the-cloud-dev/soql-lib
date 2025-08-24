@@ -8,7 +8,7 @@ sidebar_position: 15
 
 SOQL Lib is a modern Apex library designed as an intuitive alternative to the popular [FFLib Selectors](https://github.com/apex-enterprise-patterns/fflib-apex-common) framework. While FFLib was created over 10 years ago, we believe it hasn't kept up with modern Apex development practices, becoming a complex and cumbersome solution that often makes code more complicated than necessary.
 
-Drawing from the best aspects of FFLib and other selector patterns, we've built SOQL Lib to be intuitive, performant, and reliable. This library is part of the Beyond The Cloud ecosystem, designed specifically for modern Salesforce development.
+Drawing from the best aspects of FFLib and other selector patterns, we've built SOQL Lib to be intuitive, performant, and reliable. This library is part of the [Beyond The Cloud](https://beyondthecloud.dev/) ecosystem, designed specifically for modern Salesforce development.
 
 ## Design Principles
 

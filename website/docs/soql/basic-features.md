@@ -8,18 +8,29 @@ sidebar_position: 15
 
 The `SOQL.cls` class provides methods for building SOQL clauses dynamically.
 
-```apex title="Basic SOQL Query"
-// SELECT Id FROM Account LIMIT 100
-SOQL.of(Account.SObjectType)
-    .with(Account.Id, Account.Name)
-    .setLimit(100)
-    .toList();
+❌
+
+```apex title="Dynamic Query with String"
+String accountName = '';
+
+String query = 'SELECT Id, Name WHERE BillingCity = \'Krakow\'';
+
+if (String.isNotEmpty(accountName)) {
+    query += ' AND Name LIKE \'%' + accountName +'\%';
+}
+
+query += ' FROM Account';
+
+Database.query(query);
 ```
 
-```apex title="Dynamic Conditional Query"
+✅
+
+```apex title="Dynamic Query with SOQL Lib"
 String accountName = '';
 
 SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
     .whereAre(SOQL.FilterGroup
         .add(SOQL.Filter.with(Account.BillingCity).equal('Krakow'))
         .add(SOQL.Filter.name().contains(accountName).ignoreWhen(String.isEmpty(accountName)))
@@ -97,19 +108,35 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
 
 ```apex title="Selector Usage Examples"
 // Basic usage with default configuration
+// SELECT Id, NAME FROM Account WITH SYSTEM_MODE
 List<Account> allAccounts = SOQL_Account.query().toList();
 
 // Chain selector methods
+/*
+    SELECT Id, Name, AnnualRevenue 
+    FROM Account
+    WHERE Type = 'Partner' AND Industry = 'Technology'
+    WITH SYSTEM_MODE
+*/
 List<Account> techPartners = SOQL_Account.query()
     .byType('Partner')
     .byIndustry('Technology')
+    .with(Account.AnnualRevenue) // pull additional fields
     .toList();
 
 // Extend with additional fields and clauses dynamically
+/*
+    SELECT Id, Name, AnnualRevenue, BillingCity
+    FROM Account
+    WHERE Industry = 'Technology' AND AnnualRevenue > 1000000
+    ORDER BY AnnualRevenue DESC
+    WITH SYSTEM_MODE
+    LIMIT 10
+*/
 List<Account> topAccounts = SOQL_Account.query()
     .byIndustry('Technology')
-    .with(Account.AnnualRevenue, Account.BillingCity)
     .whereAre(SOQL.Filter.with(Account.AnnualRevenue).greaterThan(1000000))
+    .with(Account.AnnualRevenue, Account.BillingCity)
     .orderBy(Account.AnnualRevenue).sortDesc()
     .setLimit(10)
     .toList();
@@ -120,7 +147,7 @@ List<Account> topAccounts = SOQL_Account.query()
 SOQL Lib selectors are designed to include only a minimal set of default fields in their constructor, typically just essential identifiers and commonly used fields. This approach significantly improves query performance and promotes reusability by avoiding unnecessary data retrieval.
 
 **Design Philosophy:**
-The selector constructor defines the minimum viable field set that covers the majority of use cases. Additional fields are added dynamically where they are actually needed, following the principle of "pull only what you need, when you need it."
+The selector constructor defines the minimum viable field set that covers the majority of use cases. Additional fields are added dynamically where they are actually needed, following the principle of <u>**"pull only what you need, when you need it."**</u>
 
 ```apex title="SOQL_Contact.cls - Minimal Fields"
 public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selector {

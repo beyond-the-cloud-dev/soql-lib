@@ -25,7 +25,7 @@ WHERE Id = '1234'
 **SOQL Lib**
 
 ```apex title="SOQL Cache Approach"
-SOQLCache.of(Account.SObject)
+SOQLCache.of(Account.SObjectType)
     .with(Account.Id, Account.Name, Account.BillingCity)
     .byId('1234')
     .toObject();
@@ -80,6 +80,70 @@ WHERE Id = '1234'
 ```apex title="SOQL Cache Approach"
 SOQLCache.of(Account.SObjectType)
     .with('Id, Name, Industry, Rating, AnnualRevenue, BillingCity, Phone')
+    .byId('1234')
+    .toObject();
+```
+
+## Relationship Fields
+
+### Single Relationship Field
+
+**SOQL**
+
+```sql title="Traditional SOQL"
+SELECT Id, Name, Owner.Name
+FROM Account
+WHERE Id = '1234'
+```
+
+**SOQL Lib**
+
+```apex title="SOQL Cache Approach"
+SOQLCache.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .with('Owner', User.Name)
+    .byId('1234')
+    .toObject();
+```
+
+### Multiple Relationship Fields
+
+**SOQL**
+
+```sql title="Traditional SOQL"
+SELECT Id, Name, Owner.Name, Owner.Email, CreatedBy.Name
+FROM Account
+WHERE Id = '1234'
+```
+
+**SOQL Lib**
+
+```apex title="SOQL Cache Approach"
+SOQLCache.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .with('Owner', User.Name, User.Email)
+    .with('CreatedBy', User.Name)
+    .byId('1234')
+    .toObject();
+```
+
+### Relationship Fields with List
+
+**SOQL**
+
+```sql title="Traditional SOQL"
+SELECT Id, Name, Owner.Name, Owner.Email, Owner.Profile.Name
+FROM Account
+WHERE Id = '1234'
+```
+
+**SOQL Lib**
+
+```apex title="SOQL Cache Approach"
+SOQLCache.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .with('Owner', new List<SObjectField>{ User.Name, User.Email })
+    .with('Owner.Profile', Profile.Name)
     .byId('1234')
     .toObject();
 ```

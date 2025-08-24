@@ -8,7 +8,7 @@ The main module of the SOQL Lib consists of two concepts: **SOQL Builder** and *
 
 ## SOQL Builder
 
-Our library does not force developers to create selectors. Queries can be built directly via fluent API provided by the lib.
+Our library does <u>NOT</u> force developers to create selectors. Queries can be built directly via fluent API provided by the lib.
 
 ```apex
 // SELECT Id FROM Account WITH USER_MODE
@@ -26,7 +26,7 @@ List<Account> accounts = SOQL.of(Account.SObjectType)
 
 However, we recommend building a selector per `SObjectType`. 
 
-Selectors allow you to set default SOQL settings for a given `SObjectType` and keep all reusable queries in one place.
+Selectors allow you to set default SOQL settings for a given `SObjectType` and keep all reusable conditions in one place.
 Check how to build a selector in the [Build Your Selector](./build-selector.md) section.
 
 ```apex title="SOQL_Contact.cls"

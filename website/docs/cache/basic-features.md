@@ -100,22 +100,22 @@ public inherited sharing class SOQL_CachedProfile extends SOQLCache implements S
 **Usage Example:**
 
 ```apex title="Cached Selector Usage"
-// Get single profile from cache
+// Get single profile
 Profile adminProfile = (Profile) SOQL_CachedProfile.query()
     .byName('System Administrator')
     .toObject();
 
-// Check if profile exists in cache
+// Check if profile with give criteria exists
 Boolean profileExists = SOQL_CachedProfile.query()
     .byName('Standard User')
     .doExist();
 
-// Get profile ID from cache
+// Get profile ID from profile
 Id profileId = SOQL_CachedProfile.query()
     .byName('System Administrator')
     .toId();
 
-// Extract specific field value from cache
+// Extract specific field value from profile
 String userType = (String) SOQL_CachedProfile.query()
     .byName('System Administrator')
     .toValueOf(Profile.UserType);
@@ -152,13 +152,10 @@ public with sharing class ExampleController {
     @AuraEnabled
     public static Id getSystemAdminProfileId() {
         // First call: executes initial query and caches all profiles
-        return SOQL_CachedProfile.query()
+        Profile adminProfile = (Profile) SOQL_CachedProfile.query()
             .byName('System Administrator')
             .toId();
-    }
 
-    @AuraEnabled
-    public static Id getStandardUserProfileId() {
         // Subsequent call: retrieves from cache, no database query
         return SOQL_CachedProfile.query()
             .byName('Standard User')
@@ -169,7 +166,7 @@ public with sharing class ExampleController {
 
 ## Field-Level Security
 
-Unlike standard SOQL queries that use `WITH USER_MODE`, cached records require the `Security.stripInaccessible` method to enforce field-level security. This method works with both fresh query results and cached records.
+Unlike standard SOQL queries that use `WITH USER_MODE` all cached queries are executed `WITH SYSTEM_MODE`. To apply FLY to the cached records the `.stripInaccessible()` has to me invoked. 
 
 ### stripInaccessible
 
@@ -248,6 +245,8 @@ Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
 SOQLCache supports mocking for unit tests. You can mock either the cached results directly or the underlying SOQL query when cache is empty. For stable tests, prefer mocking the cached results with `SOQLCache.mock()`.
 
 ### Mock Cached Results
+
+To learn more about mocking in the cache module check the [Mocking](./examples/mocking.md) section.
 
 ```apex title="ExampleController.cls"
 public with sharing class ExampleController {
@@ -401,7 +400,7 @@ SObject toObject()                           // Get single record
 
 ### Extract Record ID from Cache
 
-❌ **Traditional approach:**
+❌ 
 
 ```apex title="Traditional SOQL"
 public static Id getSystemAdminProfileId() {
@@ -415,7 +414,7 @@ public static Id getSystemAdminProfileId() {
 }
 ```
 
-✅ **With SOQLCache:**
+✅ 
 
 ```apex title="With SOQLCache"
 public static Id getSystemAdminProfileId() {
@@ -427,7 +426,7 @@ public static Id getSystemAdminProfileId() {
 
 ### Extract Field Value from Cache
 
-❌ **Traditional approach:**
+❌ 
 
 ```apex title="Traditional SOQL"
 public static String getSystemAdminUserType() {
@@ -441,7 +440,7 @@ public static String getSystemAdminUserType() {
 }
 ```
 
-✅ **With SOQLCache:**
+✅ 
 
 ```apex title="With SOQLCache"
 public static String getSystemAdminUserType() {
@@ -453,7 +452,7 @@ public static String getSystemAdminUserType() {
 
 ### Check Record Existence in Cache
 
-❌ **Traditional approach:**
+❌
 
 ```apex title="Traditional SOQL"
 public static Boolean hasStandardUserProfile() {
@@ -467,7 +466,7 @@ public static Boolean hasStandardUserProfile() {
 }
 ```
 
-✅ **With SOQLCache:**
+✅ 
 
 ```apex title="With SOQLCache"
 public static Boolean hasStandardUserProfile() {

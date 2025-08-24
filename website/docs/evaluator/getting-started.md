@@ -10,7 +10,7 @@ The SOQL Evaluator module was created for developers who don't want to learn a n
 We recommend using the **SOQL module** instead, as it provides significantly more benefits including query building, caching, field-level security, and sharing controls. However, SOQL Evaluator can still be a valid choice for developers who prefer to stick with traditional SOQL queries while gaining some additional functionality.
 :::
 
-## Basic Processing
+## Evaluator
 
 SOQL Evaluator processes static query `List<SObject>` records.
 

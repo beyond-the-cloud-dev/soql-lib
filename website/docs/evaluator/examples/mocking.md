@@ -132,6 +132,148 @@ public class ExampleControllerTest {
 }
 ```
 
+## Sub-Query
+
+Set mocking ID in Query declaration for queries with subqueries.
+
+```apex title="Controller with Sub-Query Processing"
+public with sharing class ExampleController {
+    public static List<Account> getAccountsWithContacts() {
+        return SOQLEvaluator.of([
+            SELECT Id, Name, 
+                (SELECT Id, Name, Email FROM Contacts)
+            FROM Account 
+            WHERE Name LIKE 'ACME%'
+            WITH USER_MODE
+        ])
+        .mockId('ExampleController.getAccountsWithContacts')
+        .toList();
+    }
+}
+```
+
+Deserialize desired data from JSON format to selected SObjectType and pass data as list of records.
+
+```apex title="Unit Test with JSON Deserialized Mock"
+@IsTest
+public class ExampleControllerTest {
+    @IsTest
+    static void getAccountsWithContacts() {
+        List<Account> mocks = (List<Account>) JSON.deserialize(
+            '[{ "Name": "ACME Corp", "Contacts": { "totalSize": 1, "done": true, "records": [{ "Name": "John Doe", "Email": "john.doe@acme.com" }] }}]',
+            List<Account>.class
+        );
+
+        SOQLEvaluator.mock('ExampleController.getAccountsWithContacts')
+            .thenReturn(mocks);
+
+        Test.startTest();
+        List<Account> result = ExampleController.getAccountsWithContacts();
+        Test.stopTest();
+
+        Assert.isNotNull(result);
+        Assert.isNotNull(result[0].Contacts);
+        Assert.areEqual(1, result[0].Contacts.size());
+        Assert.areEqual('John Doe', result[0].Contacts[0].Name);
+    }
+}
+```
+
+Or create data with Test Data Factory and Serialize/Deserialize it to use as a Mock.
+
+```apex title="Unit Test with Serialized Data Mock"
+@IsTest
+public class ExampleControllerTest {
+    @IsTest
+    static void getAccountsWithContacts_WithFactory() {
+        List<Account> mocks = (List<Account>) JSON.deserialize(
+            JSON.serialize(
+                new List<Map<String, Object>>{
+                    new Map<String, Object>{
+                        'Name' => 'ACME Corp',
+                        'Contacts' => new Map<String, Object>{
+                            'totalSize' => 2,
+                            'done' => true,
+                            'records' => new List<Contact>{ 
+                                new Contact(FirstName = 'John', LastName = 'Doe', Email = 'john.doe@acme.com'),
+                                new Contact(FirstName = 'Jane', LastName = 'Smith', Email = 'jane.smith@acme.com')
+                            }
+                        }
+                    }
+                }
+            ),
+            List<Account>.class
+        );
+
+        SOQLEvaluator.mock('ExampleController.getAccountsWithContacts')
+            .thenReturn(mocks);
+
+        Test.startTest();
+        List<Account> result = ExampleController.getAccountsWithContacts();
+        Test.stopTest();
+
+        Assert.isNotNull(result);
+        Assert.isNotNull(result[0].Contacts);
+        Assert.areEqual(2, result[0].Contacts.size());
+    }
+}
+```
+
+## Parent Relationship
+
+Set mocking ID in Query declaration for queries with parent relationships.
+
+```apex title="Controller with Parent Relationship Processing"
+public with sharing class ExampleController {
+    public static Account getAccountWithOwnerInfo(Id accountId) {
+        return (Account) SOQLEvaluator.of([
+            SELECT Id, Name, Owner.Name, Owner.Email, Owner.Profile.Name
+            FROM Account 
+            WHERE Id = :accountId
+            WITH USER_MODE
+        ])
+        .mockId('ExampleController.getAccountWithOwnerInfo')
+        .toObject();
+    }
+}
+```
+
+Create mock data with parent relationship structure.
+
+```apex title="Unit Test with Parent Relationship Mock"
+@IsTest
+public class ExampleControllerTest {
+    @IsTest
+    static void getAccountWithOwnerInfo() {
+        Account mockAccount = new Account(
+            Id = '001000000000001',
+            Name = 'Test Account',
+            Owner = new User(
+                Id = '005000000000001',
+                Name = 'John Doe',
+                Email = 'john.doe@company.com',
+                Profile = new Profile(
+                    Name = 'System Administrator'
+                )
+            )
+        );
+
+        SOQLEvaluator.mock('ExampleController.getAccountWithOwnerInfo')
+            .thenReturn(mockAccount);
+
+        Test.startTest();
+        Account result = ExampleController.getAccountWithOwnerInfo('001000000000001');
+        Test.stopTest();
+
+        Assert.isNotNull(result);
+        Assert.areEqual('Test Account', result.Name);
+        Assert.areEqual('John Doe', result.Owner.Name);
+        Assert.areEqual('john.doe@company.com', result.Owner.Email);
+        Assert.areEqual('System Administrator', result.Owner.Profile.Name);
+    }
+}
+```
+
 ## Data Processing with Static Resource
 
 Set mocking ID in Query declaration.

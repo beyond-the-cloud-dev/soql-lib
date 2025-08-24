@@ -14,7 +14,7 @@ For more details check [SOQLCache Cache API - RESULT](../api/soql-cache.md#resul
 
 **Apex**
 
-```apex
+```apex title="Traditional SOQL Query"
 Id adminProfileId = [
     SELECT Id
     FROM Profile
@@ -24,7 +24,7 @@ Id adminProfileId = [
 
 **SOQL Lib**
 
-```apex
+```apex title="Cached Query - Extract ID"
 Id adminProfileId = SOQLCache.of(Profile.SObjectType)
     .whereEqual(Profile.Name, 'System Administrator')
     .toId();
@@ -34,8 +34,8 @@ Id adminProfileId = SOQLCache.of(Profile.SObjectType)
 
 **Apex**
 
-```apex
-Boolean adminProfileId = ![
+```apex title="Traditional SOQL Query"
+Boolean isProfileExist = ![
     SELECT Id
     FROM Profile
     WHERE Name = 'System Administrator'
@@ -44,7 +44,7 @@ Boolean adminProfileId = ![
 
 **SOQL Lib**
 
-```apex
+```apex title="Cached Query - Check Existence"
 Boolean isProfileExist = SOQLCache.of(Profile.SObjectType)
     .whereEqual(Profile.Name, 'System Administrator')
     .doExist();
@@ -54,7 +54,7 @@ Boolean isProfileExist = SOQLCache.of(Profile.SObjectType)
 
 **Apex**
 
-```apex
+```apex title="Traditional SOQL Query"
 Id profileId = [
     SELECT Id
     FROM Profile
@@ -64,7 +64,7 @@ Id profileId = [
 
 **SOQL Lib**
 
-```apex
+```apex title="Cached Query - Extract Field Value"
 Id profileId = (Id) SOQLCache.of(Profile.SObjectType)
     .whereEqual(Profile.Name, 'System Administrator')
     .toValueOf(Profile.Id);
@@ -74,7 +74,7 @@ Id profileId = (Id) SOQLCache.of(Profile.SObjectType)
 
 **Apex**
 
-```apex
+```apex title="Traditional SOQL Query"
 Profile profile = [
     SELECT Id, Name
     FROM Profile
@@ -84,10 +84,21 @@ Profile profile = [
 
 **SOQL Lib**
 
-```apex
+```apex title="Cached Query - Get SObject"
 Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
     .with(Profile.Id, Profile.Name)
     .whereEqual(Profile.Name, 'System Administrator')
     .cacheInOrgCache()
-    .toObject()
+    .toObject();
+```
+
+## toIdOf
+
+Extract an ID from a specific field in the cached record:
+
+```apex title="Cached Query - Extract ID from Field"
+Id ownerId = SOQLCache.of(Account.SObjectType)
+    .with(Account.Id, Account.Name, Account.OwnerId)
+    .whereEqual(Account.Name, 'ACME Corp')
+    .toIdOf(Account.OwnerId);
 ```
