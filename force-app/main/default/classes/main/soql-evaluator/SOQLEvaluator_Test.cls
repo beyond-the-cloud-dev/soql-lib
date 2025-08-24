@@ -115,6 +115,33 @@ private class SOQLEvaluator_Test {
     }
 
     @IsTest
+    static void sObjectsToIdsOfRelationshipField() {
+        // Setup
+        insertAccountsWithParents();
+        
+        // Test
+        Set<Id> createdByIds = SOQLEvaluator.of([SELECT Id, Parent.CreatedById FROM Account WHERE ParentId != null]).toIdsOf('Parent', Account.CreatedById);
+
+        // Verify
+        Assert.areEqual(1, createdByIds.size(), 'The size of the returned set should be 1, because the same user inserted the accounts.');
+    }
+
+    @IsTest
+    static void sObjectsToIdsOfRelationshipFieldWithMocking() {
+        // Setup
+        SOQLEvaluator.mock('mockingQuery').thenReturn(new List<Account>{
+            new Account(Name = 'Test 1', Parent = new Account(CreatedById = UserInfo.getUserId())),
+            new Account(Name = 'Test 2', Parent = new Account(CreatedById = UserInfo.getUserId()))
+        });
+        
+        // Test
+        Set<Id> createdByIds = SOQLEvaluator.of([SELECT Id, Parent.CreatedById FROM Account WHERE ParentId != null]).mockId('mockingQuery').toIdsOf('Parent', Account.CreatedById);
+
+        // Verify
+        Assert.areEqual(1, createdByIds.size(), 'The size of the returned set should be 1, because the same user inserted the accounts.');
+    }
+
+    @IsTest
     static void sObjectDoExist() {
         // Setup
         insertAccount();
@@ -195,10 +222,27 @@ private class SOQLEvaluator_Test {
         insertAccount();
         
         // Test
-        Account account = (Account)SOQLEvaluator.of([SELECT Id, Name FROM Account]).toObject();
+        Account account = (Account) SOQLEvaluator.of([SELECT Id, Name FROM Account]).toObject();
 
         // Verify
         Assert.areEqual('Test Account', account.get('Name'), 'The account name should be "Test Account".');
+    }
+
+    @IsTest
+    static void sObjectToObjectWithMultipleRows() {
+        // Setup
+        insertAccounts();
+        Exception queryException = null;
+
+        // Test 
+        try {
+            Account account = (Account) SOQLEvaluator.of([SELECT Id, Name FROM Account]).toObject();
+        } catch (Exception e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(queryException, 'The exception should be thrown, because there are more than 1 row for assignment to SObject.');
     }
 
     @IsTest
@@ -508,6 +552,26 @@ private class SOQLEvaluator_Test {
 
         // Verify
         Assert.areEqual(0, nameToDescriptions.size(), 'The size of the returned map should be 0.');
+    }
+
+    @IsTest
+    static void sObjectsMockStack() {
+        // Setup
+        SOQLEvaluator.mock('mockingQuery').thenReturn(new Account(Name = 'Test 1'));
+        SOQLEvaluator.mock('mockingQuery').thenReturn(new Account(Name = 'Test 2'));
+        SOQLEvaluator.mock('mockingQuery').thenReturn(new Account(Name = 'Test 3'));
+        
+        // Test
+        Account account1 = (Account) SOQLEvaluator.of([SELECT Id, Name FROM Account]).mockId('mockingQuery').toObject();
+        Account account2 = (Account) SOQLEvaluator.of([SELECT Id, Name FROM Account]).mockId('mockingQuery').toObject();
+        Account account3 = (Account) SOQLEvaluator.of([SELECT Id, Name FROM Account]).mockId('mockingQuery').toObject();
+        Account account4 = (Account) SOQLEvaluator.of([SELECT Id, Name FROM Account]).mockId('mockingQuery').toObject();
+
+        // Verify
+        Assert.areEqual('Test 1', account1.get('Name'), 'The account name should be "Test 1".');
+        Assert.areEqual('Test 2', account2.get('Name'), 'The account name should be "Test 2".');
+        Assert.areEqual('Test 3', account3.get('Name'), 'The account name should be "Test 3".');
+        Assert.areEqual('Test 3', account4.get('Name'), 'The account name should be "Test 3".');
     }
 
     static Account insertAccount() {
