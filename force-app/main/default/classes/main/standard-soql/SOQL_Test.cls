@@ -3158,7 +3158,7 @@ private class SOQL_Test {
     @IsTest
     static void byId() {
         // Setup
-        Id fakeAccountId = SOQL.IdGenerator.get('001');
+        Id fakeAccountId = SOQL.IdGenerator.get(Account.SObjectType);
 
         // Test
         SOQL.Queryable builder = SOQL.of(Account.SObjectType).byId(fakeAccountId);
@@ -3190,7 +3190,7 @@ private class SOQL_Test {
     @IsTest
     static void byIdsSet() {
         // Verify
-        Set<Id> accountIds = new Set<Id>{ SOQL.IdGenerator.get('001') };
+        Set<Id> accountIds = new Set<Id>{ SOQL.IdGenerator.get(Account.SObjectType) };
 
         // Test
         SOQL.Queryable builder = SOQL.of(Account.SObjectType).byIds(accountIds);
@@ -3206,7 +3206,7 @@ private class SOQL_Test {
     @IsTest
     static void byIdsList() {
         // Setup
-        List<Id> accountIds = new List<Id>{ SOQL.IdGenerator.get('001') };
+        List<Id> accountIds = new List<Id>{ SOQL.IdGenerator.get(Account.SObjectType) };
 
         // Test
         SOQL.Queryable builder = SOQL.of(Account.SObjectType).byIds(accountIds);
@@ -3568,8 +3568,8 @@ private class SOQL_Test {
     static void mockWithManyPlainFieldsWithId() {
         // Setup
         List<Account> accounts = new List<Account>{
-            new Account(Id = SOQL.IdGenerator.get('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
-            new Account(Id = SOQL.IdGenerator.get('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+            new Account(Id = SOQL.IdGenerator.get(Account.SObjectType), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Id = SOQL.IdGenerator.get(Account.SObjectType), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
         };
 
         // Test
@@ -3866,7 +3866,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void mockStack() {
+    static void sObjectsMockStack() {
         // Setup
         SOQL.mock('mockingQuery').thenReturn(new Account(Name = 'Test 1'));
         SOQL.mock('mockingQuery').thenReturn(new Account(Name = 'Test 2'));
@@ -3885,6 +3885,80 @@ private class SOQL_Test {
         Assert.areEqual('Test 2', acc2.Name, 'The returned account name should match the expected one.');
         Assert.areEqual('Test 3', acc3.Name, 'The returned account name should match the expected one.');
         Assert.areEqual('Test 3', acc4.Name, 'The returned account name should match the expected one.');
+    }
+
+    @IsTest
+    static void countMockStack() {
+        // Setup
+        SOQL.mock('mockingQuery').thenReturn(1);
+        SOQL.mock('mockingQuery').thenReturn(2);
+        SOQL.mock('mockingQuery').thenReturn(3);
+        
+        // Test
+        Integer result1 = SOQL.of(Account.SObjectType).mockId('mockingQuery').count().toInteger();
+        Integer result2 = SOQL.of(Account.SObjectType).mockId('mockingQuery').count().toInteger();
+        Integer result3 = SOQL.of(Account.SObjectType).mockId('mockingQuery').count().toInteger();
+        Integer result4 = SOQL.of(Account.SObjectType).mockId('mockingQuery').count().toInteger();
+
+        // Verify
+        Assert.areEqual(1, result1, 'The returned count should match the expected one.');
+        Assert.areEqual(2, result2, 'The returned count should match the expected one.');
+        Assert.areEqual(3, result3, 'The returned count should match the expected one.');
+        Assert.areEqual(3, result4, 'The returned count should match the expected one.');
+    }
+
+    @IsTest
+    static void aggregatedMockStack() {
+        // Setup
+        SOQL.mock('mockingQuery').thenReturn(new Map<String, Object>{ 'LeadSource' => 'Web',  'total' => 10});
+        SOQL.mock('mockingQuery').thenReturn(new Map<String, Object>{ 'LeadSource' => 'Phone', 'total' => 5});
+        SOQL.mock('mockingQuery').thenReturn(new Map<String, Object>{ 'LeadSource' => 'Email', 'total' => 3});
+        
+        // Test
+        List<SOQL.AggregateResultProxy> result1 = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .COUNT(Lead.Id, 'total')
+            .groupBy(Lead.LeadSource)
+            .mockId('mockingQuery')
+            .toAggregatedProxy();
+
+        List<SOQL.AggregateResultProxy> result2 = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .COUNT(Lead.Id, 'total')
+            .groupBy(Lead.LeadSource)
+            .mockId('mockingQuery')
+            .toAggregatedProxy();
+
+        List<SOQL.AggregateResultProxy> result3 = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .COUNT(Lead.Id, 'total')
+            .groupBy(Lead.LeadSource)
+            .mockId('mockingQuery')
+            .toAggregatedProxy();
+
+        List<SOQL.AggregateResultProxy> result4 = SOQL.of(Lead.SObjectType)
+            .with(Lead.LeadSource)
+            .COUNT(Lead.Id, 'total')
+            .groupBy(Lead.LeadSource)
+            .mockId('mockingQuery')
+            .toAggregatedProxy();
+
+        // Verify
+        Assert.areEqual(1, result1.size(), 'The size of the aggregate results should match the mocked size.');
+        Assert.areEqual(10, result1[0].get('total'), 'The total should match the expected one.');
+        Assert.areEqual('Web', result1[0].get('LeadSource'), 'The LeadSource should match the expected one.');
+
+        Assert.areEqual(1, result2.size(), 'The size of the aggregate results should match the mocked size.');
+        Assert.areEqual(5, result2[0].get('total'), 'The total should match the expected one.');
+        Assert.areEqual('Phone', result2[0].get('LeadSource'), 'The LeadSource should match the expected one.');
+
+        Assert.areEqual(1, result3.size(), 'The size of the aggregate results should match the mocked size.');
+        Assert.areEqual(3, result3[0].get('total'), 'The total should match the expected one.');
+        Assert.areEqual('Email', result3[0].get('LeadSource'), 'The LeadSource should match the expected one.');
+
+        Assert.areEqual(1, result4.size(), 'The size of the aggregate results should match the mocked size.');
+        Assert.areEqual(3, result4[0].get('total'), 'The total should match the expected one.');
+        Assert.areEqual('Email', result4[0].get('LeadSource'), 'The LeadSource should match the expected one.');
     }
 
     @IsTest
@@ -4208,8 +4282,8 @@ private class SOQL_Test {
     static void toMapWithMockingWhenOtherFieldsAreSpecified() {
         // Setup
         List<Account> accounts = new List<Account>{
-            new Account(Id = SOQL.IdGenerator.get('001'), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
-            new Account(Id = SOQL.IdGenerator.get('001'), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
+            new Account(Id = SOQL.IdGenerator.get(Account.SObjectType), Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev'),
+            new Account(Id = SOQL.IdGenerator.get(Account.SObjectType), Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev')
         };
 
         // Test
@@ -4473,6 +4547,53 @@ private class SOQL_Test {
         // Verify
         Assert.isNotNull(queryException, 'The synchronous query should have exceeded the limit.');
         Assert.areEqual('Too many SOQL queries.', queryException.getMessage(), 'The synchronous query should have been exceeded.');
+    }
+
+    @IsTest
+    static void queryConverterToIdsOf() {
+        // Setup
+        List<Account> accounts = new List<Account>{
+            new Account(Id = SOQL.IdGenerator.get(Account.SObjectType), ParentId = SOQL.IdGenerator.get(Account.SObjectType)),
+            new Account(Id = SOQL.IdGenerator.get(Account.SObjectType), ParentId = SOQL.IdGenerator.get(Account.SObjectType))
+        };
+
+        // Test
+        Set<Id> accountIds = new SOQL.Converter('Account').transform(accounts).toIdsOf(Account.ParentId);
+       
+        // Verify
+        Assert.areEqual(accounts.size(), accountIds.size(), 'The size of the returned set should be equal to the size of the inserted accounts.');        
+    }
+
+    @IsTest
+    static void queryConverterToIdsOfRelationshipField() {
+        // Setup
+        List<Account> accounts = new List<Account>{
+            new Account(Id = SOQL.IdGenerator.get(Account.SObjectType), Parent = new Account(Id = SOQL.IdGenerator.get(Account.SObjectType))),
+            new Account(Id = SOQL.IdGenerator.get(Account.SObjectType), Parent = new Account(Id = SOQL.IdGenerator.get(Account.SObjectType)))
+        };
+
+        // Test
+        Set<Id> accountIds = new SOQL.Converter('Account').transform(accounts).toIdsOf('Parent', Account.Id);
+       
+        // Verify
+        Assert.areEqual(accounts.size(), accountIds.size(), 'The size of the returned set should be equal to the size of the inserted accounts.');        
+    }
+
+    @IsTest
+    static void queryConverterToValuesOf() {
+        // Setup
+        List<Account> accounts = new List<Account>{
+            new Account(Id = SOQL.IdGenerator.get(Account.SObjectType), Name = 'Test 1'),
+            new Account(Id = SOQL.IdGenerator.get(Account.SObjectType), Name = 'Test 2')
+        };
+
+        // Test
+        Set<String> accountNames = new SOQL.Converter('Account').transform(accounts).toValuesOf(Account.Name);
+        
+        // Verify
+        Assert.areEqual(accounts.size(), accountNames.size(), 'The size of the returned set should be equal to the size of the inserted accounts.');
+        Assert.isTrue(accountNames.contains('Test 1'), 'The returned set should contain the account name "Test 1".');
+        Assert.isTrue(accountNames.contains('Test 2'), 'The returned set should contain the account name "Test 2".');
     }
 
     @SuppressWarnings('PMD.ApexUnitTestClassShouldHaveAsserts')

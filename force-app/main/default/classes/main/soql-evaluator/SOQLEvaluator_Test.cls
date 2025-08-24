@@ -103,8 +103,8 @@ private class SOQLEvaluator_Test {
     static void sObjectsToIdsOfWithMocking() {
         // Setup
         SOQLEvaluator.mock('mockingQuery').thenReturn(new List<Contact>{
-            new Contact(FirstName = 'Test 1', LastName = 'Test 1', AccountId = SOQL.IdGenerator.get('001')),
-            new Contact(FirstName = 'Test 2', LastName = 'Test 2', AccountId = SOQL.IdGenerator.get('001'))
+            new Contact(FirstName = 'Test 1', LastName = 'Test 1', AccountId = SOQL.IdGenerator.get(Account.SObjectType)),
+            new Contact(FirstName = 'Test 2', LastName = 'Test 2', AccountId = SOQL.IdGenerator.get(Account.SObjectType))
         });
 
         // Test
