@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://nextjs.org">
+  <a href="https://soql.beyondthecloud.dev">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://soql.beyondthecloud.dev/img/logo.png">
       <img alt="SOQL Lib logo" src="https://soql.beyondthecloud.dev/img/logo.png" height="98">
@@ -13,8 +13,6 @@
 
 ![Deploy to Scratch Org and run tests](https://github.com/beyond-the-cloud-dev/soql-lib/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/gh/beyond-the-cloud-dev/soql-lib/branch/main/graph/badge.svg)](https://codecov.io/gh/beyond-the-cloud-dev/soql-lib)
-
-
 </div>
 
 # Getting Started

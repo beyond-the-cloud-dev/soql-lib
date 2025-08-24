@@ -12,6 +12,10 @@ public without sharing class SOQL_CachedOrgWideEmailAddress extends SOQLCache im
         return SOQL.of(OrgWideEmailAddress.SObjectType);
     }
 
+    public override List<SObjectField> additionalAllowedConditionFields() {
+        return new List<SObjectField>{ OrgWideEmailAddress.Address };
+    }
+
     public SOQL_CachedOrgWideEmailAddress byAddress(String address) {
         whereEqual(OrgWideEmailAddress.Address, address);
         return this;

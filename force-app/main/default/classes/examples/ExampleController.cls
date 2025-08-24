@@ -9,7 +9,10 @@ public with sharing class ExampleController {
 
     @AuraEnabled
     public static List<Contact> getContactsRelatedToAccount(Id accountId) {
-        return SOQL_Contact.query().byAccountId(accountId).toList();
+        return SOQL_Contact.query()
+            .byAccountId(accountId)
+            .with(Contact.Email, Contact.Title)
+            .toList();
     }
 
     @AuraEnabled
@@ -43,11 +46,19 @@ public with sharing class ExampleController {
 
     @AuraEnabled
     public static List<Opportunity> getOpportunitiesRelatedToAccount(Id accountId) {
-        return SOQL_Opportunity.query().byAccountId(accountId).toList();
+        return SOQL_Opportunity.query()
+            .byAccountId(accountId)
+            .with(Opportunity.Name, Opportunity.StageName)
+            .toList();
     }
 
     @AuraEnabled
     public static Integer getOpportunityAmount(Id opportunityId) {
         return (Integer) SOQL_Opportunity.query().byId(opportunityId).toValueOf(Opportunity.Amount);
+    }
+
+    @AuraEnabled
+    public static List<Account> getAllAccount() {
+        return SOQLEvaluator.of([SELECT Id, Name FROM Account WITH USER_MODE]).toList();
     }
 }

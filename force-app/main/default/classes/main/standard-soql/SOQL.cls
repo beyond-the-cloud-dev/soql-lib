@@ -2,6 +2,8 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
+ * v6.0.0
+ * 
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
  * - ExcessiveClassLength: It is a library and we tried to put everything into ONE class
@@ -11,13 +13,21 @@
  * - FieldDeclarationsShouldBeAtStart: Developer who uses lib should see what's important at start
  * - ApexDoc: Variable names are self-documented.
  * - FieldNamingConventions: It was intentional to make the lib more fluent and readable
- * - ExcessiveParameterList - Make methods similar to native SOQL
- * - NcssTypeCount - It is a library and we tried to put everything into ONE class
+ * - ExcessiveParameterList: Make methods similar to native SOQL
+ * - NcssTypeCount: It is a library and we tried to put everything into ONE class
 **/
-@SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.FieldNamingConventions, PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.PropertyNamingConventions, PMD.FieldDeclarationsShouldBeAtStart, PMD.ApexDoc, PMD.ExcessiveParameterList, PMD.NcssTypeCount')
+@SuppressWarnings('PMD.ExcessivePublicCount,PMD.ExcessiveClassLength,PMD.FieldNamingConventions,PMD.CyclomaticComplexity,PMD.CognitiveComplexity,PMD.PropertyNamingConventions,PMD.FieldDeclarationsShouldBeAtStart,PMD.ApexDoc,PMD.ExcessiveParameterList,PMD.NcssTypeCount')
 public virtual inherited sharing class SOQL implements Queryable {
     public interface Selector {
         Queryable query();
+    }
+
+    public static Queryable of(SObjectType ofObject) {
+        return new SOQL(ofObject);
+    }
+
+    public static Queryable of(String ofObject) {
+        return new SOQL(ofObject);
     }
 
     public interface Queryable {
@@ -368,14 +378,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         get { return new SoqlDataCategoryFilter(); }
     }
 
-    public static SOQL of(SObjectType ofObject) {
-        return new SOQL(ofObject);
-    }
-
-    public static SOQL of(String ofObject) {
-        return new SOQL(ofObject);
-    }
-
     // Mocking
 
     @TestVisible
@@ -388,7 +390,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     @TestVisible
-    private static RandomIdGenerator IdGenerator = new RandomIdGenerator();
+    public static RandomIdGenerator IdGenerator = new RandomIdGenerator();
 
     public interface Mockable {
         // SObject
@@ -2629,9 +2631,9 @@ public virtual inherited sharing class SOQL implements Queryable {
 
             SOQL.syncQueriesIssued++;
 
-            final Integer MAX_QUERIES_ISSUED_IN_SYNCHRONOUS_TRANSACTION = 100;
+            final Integer maxQueriesIssuedInSynchronousTransaction = 100;
 
-            if (SOQL.syncQueriesIssued > MAX_QUERIES_ISSUED_IN_SYNCHRONOUS_TRANSACTION) {
+            if (SOQL.syncQueriesIssued > maxQueriesIssuedInSynchronousTransaction) {
                 throw new QueryException('Too many SOQL queries.');
             }
         }
@@ -2685,7 +2687,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private inherited sharing class Converter {
+    public inherited sharing class Converter {
         private String ofObject;
         private List<SObject> recordsToTransform;
 
@@ -2714,7 +2716,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             return recordPerCustomKey;
         }
 
-        private Map<String, SObject> toMap(String relationshipName, SObjectField keyField) {
+        public Map<String, SObject> toMap(String relationshipName, SObjectField keyField) {
             Map<String, SObject> recordPerCustomKey = (Map<String, SObject>) Type.forName('Map<String, ' + this.ofObject  + ' >').newInstance();
             List<String> relationshipPathFields = relationshipName.split('\\.');
 
@@ -2734,6 +2736,37 @@ public virtual inherited sharing class SOQL implements Queryable {
             }
 
             return customValuePerCustomKey;
+        }
+
+        public Set<Id> toIdsOf(SObjectField field) {
+            Set<Id> ids = new Set<Id>();
+
+            for (SObject record : this.recordsToTransform) {
+                ids.add(record.get(field).toString());
+            }
+
+            return ids;
+        }
+
+        public Set<Id> toIdsOf(String relationshipName, SObjectField field) {
+            Set<Id> ids = new Set<Id>();
+            List<String> relationshipPathFields = relationshipName.split('\\.');
+
+            for (SObject record : this.recordsToTransform) {
+                ids.add(extractNestedFieldValue(record, relationshipPathFields, field));
+            }
+
+            return ids;
+        }
+
+        public Set<String> toValuesOf(SObjectField fieldToExtract) {
+            Set<String> values = new Set<String>();
+
+            for (SObject record : this.recordsToTransform) {
+                values.add(record.get(fieldToExtract).toString());
+            }
+
+            return values;
         }
 
         public Map<String, List<SObject>> toAggregatedMap(SObjectField keyField) {
@@ -2779,7 +2812,7 @@ public virtual inherited sharing class SOQL implements Queryable {
                     customValuesPerCustomKey.put(key, new List<String>());
                 }
 
-                customValuesPerCustomKey.get(key).add(record.get(valueField).toString());
+                customValuesPerCustomKey.get(key).add(record.get(valueField)?.toString());
             }
 
             return customValuesPerCustomKey;
@@ -2800,8 +2833,12 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class RandomIdGenerator {
+    public class RandomIdGenerator {
         private final String RANDOM_STRING_CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
+
+        public Id get(SObjectType objectType) {
+            return get(objectType.getDescribe().getKeyPrefix());
+        }
 
         public Id get(String prefix) {
             String randomPart = '';

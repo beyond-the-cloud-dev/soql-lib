@@ -1,5 +1,6 @@
 public inherited sharing class SOQL_Opportunity extends SOQL implements SOQL.Selector {
-    public static final String MOCK_ID = 'SOQL_Opportunity';
+    @TestVisible
+    private static final String MOCK_ID = 'SOQL_Opportunity';
 
     public static SOQL_Opportunity query() {
         return new SOQL_Opportunity();

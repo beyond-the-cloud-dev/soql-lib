@@ -1,34 +1,37 @@
 ---
-slug: '/getting-started'
 sidebar_position: 10
 ---
 
 # Getting Started
 
-Read about the SOQL Lib in [blog post](https://blog.beyondthecloud.dev/blog/soql-lib).
-
-[Why do you need Apex Selector Layer?](https://blog.beyondthecloud.dev/blog/why-do-you-need-selector-layer)
-
 ![Deploy to Scratch Org and run tests](https://github.com/beyond-the-cloud-dev/soql-lib/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/gh/beyond-the-cloud-dev/soql-lib/branch/main/graph/badge.svg)](https://codecov.io/gh/beyond-the-cloud-dev/soql-lib)
 
-The SOQL Lib provides functional constructs for SOQL queries in Apex.
+The SOQL Lib provides functional constructs for SOQL queries in Apex. 
 
-## Examples
+:::danger[SOQL Lib Modules]
 
-⚠️ You can find more examples on the [Showcases](/examples/showcase) page.
+- [SOQL](../soql/getting-started) _(recommended)_ - the main module of the lib provides functional constructs for queries.
+- [Cache](../cache/getting-started) _(optional)_ - when you want to cache query results.
+- [Evaluator](../evaluator/getting-started) _(optional)_ - when you don't want to learn the lib.
+:::
 
-⚠️ You can find all method on the [API](/api) page.
+**What Next?**
+
+- Continue with the [Overview](overview.md) to understand the idea behind the SOQL Lib. 🚀
+- [Install](installation.md) the SOQL Lib in your org.
+
+## Quick Start
 
 **Standard SOQL**
 
 ```apex
-// SELECT Id FROM Account
+// SELECT Id FROM Account WITH USER_MODE
 List<Account> accounts = SOQL.of(Account.SObjectType).toList();
 ```
 
 ```apex
-// SELECT Id, Name, Industry FROM Account
+// SELECT Id, Name, Industry FROM Account WITH USER_MODE
 List<Account> accounts = SOQL.of(Account.SObjectType)
    .with(Account.Id, Account.Name, Account.Industry)
    .toList();
@@ -37,7 +40,10 @@ List<Account> accounts = SOQL.of(Account.SObjectType)
 **Cached SOQL**
 
 ```apex
-// SELECT Id, Name, UserType FROM Profile WHERE Name = 'System Administrator'
+// SELECT Id, Name, UserType 
+// FROM Profile 
+// WHERE Name = 'System Administrator' 
+// WITH SYSTEM_MODE
 Profile systemAdminProfile = (Profile) SOQLCache.of(Profile.SObjectType)
    .with(Profile.Id, Profile.Name, Profile.UserType)
    .whereEqual(Profile.Name, 'System Administrator')
@@ -46,7 +52,7 @@ Profile systemAdminProfile = (Profile) SOQLCache.of(Profile.SObjectType)
 
 ## Selector
 
-```apex
+```apex title="SOQL_Contact.cls"
 public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selector {
     public static SOQL_Contact query() {
         return new SOQL_Contact();
@@ -74,14 +80,14 @@ public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selecto
 
 **Usage**
 
-```apex
+```apex title="ExampleController.cls"
 public with sharing class ExampleController {
     @AuraEnabled
     public static List<Contact> getAccountContacts(Id accountId) {
         return SOQL_Contact.query()
             .byAccountId(accountId)
             .bySource('Website')
-            .with(Contact.Email, Contact.Department)
+            .with(Contact.Email, Contact.Department) // additional fields
             .toList();
     }
 }
@@ -89,7 +95,7 @@ public with sharing class ExampleController {
 
 ## Cached Selector
 
-```apex
+```apex title="SOQL_ProfileCache.cls"
 public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
     public static SOQL_ProfileCache query() {
         return new SOQL_ProfileCache();
@@ -114,7 +120,7 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
 
 **Usage**
 
-```apex
+```apex title="ExampleController.cls"
 public with sharing class ExampleController {
     @AuraEnabled
     public static void createNewAdministrator(User newUser) {
@@ -128,20 +134,13 @@ public with sharing class ExampleController {
 }
 ```
 
-## Benefits
+## Resources
 
-[Why do you need Apex Selector Layer?](https://blog.beyondthecloud.dev/blog/why-do-you-need-selector-layer)
-
-1. **Additional level of abstraction** - The selector layer is an additional level of abstraction that gives you the possibility to control the execution of SOQL.
-2. **Mocking** - Selector classes give a possibility to mock return values in unit tests.
-    - Mock external objects (__x) - External objects cannot be inserted in unit tests. You need to mock them.
-    - Mock custom metadata - Custom metadata cannot be inserted in unit tests unless the developer uses the Metadata API. Mock can be a solution.
-3. **Control field-level security** - The best practice is to execute SOQLs `WITH USER_MODE` to enforce field-level security and object permissions of the running user. The selector layer can apply `WITH USER_MODE` by default to all of the queries, so the developer does not need to care about it. Developers can also add `WITH SYSTEM_MODE` to all SOQLs from a specific selector.
-4. **Control sharing rules** - The selector allows execution of different methods in the same class in different sharing modes.
-5. **Avoid duplicates** - Generic SOQLs like `getById` and `getByRecordType` can be stored in the selector class.
-6. **Default configuration** - The selector class can provide default SOQL configuration like default fields, FLS settings, and sharing rules.
-7. **Mocking** - The selector class has built-in mocking functionality that provides the ability to dynamically return data in test execution
-8. **Caching** - The cached selector class allows you to cache records in Apex transactions, Session Cache, or Org Cache, which boosts your code's performance.
+- [SOQL Lib Explanation](https://blog.beyondthecloud.dev/blog/soql-lib)
+- [Why do you need Apex Selector Layer?](https://blog.beyondthecloud.dev/blog/why-do-you-need-selector-layer)
+- [Trying out SOQL Lib - Sandbox Sessions - CloudBites TV](https://youtu.be/pVtmmJSNnRA?t=2444)
+- [AWAF Selector Classes](https://awaf.dev/AWAF/selector-classes.html)
+- [Good Day, Sir! Salesforce podcast](https://www.gooddaysirpodcast.com/309)
 
 ## License notes
 

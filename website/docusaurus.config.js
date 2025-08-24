@@ -10,8 +10,8 @@ const config = {
   favicon: 'img/favicon.ico',
   url: 'https://soql.beyondthecloud.dev/',
   baseUrl: '/',
-  organizationName: 'Beyond The Cloud', // Usually your GitHub org/user name.
-  projectName: 'soql-lib', // Usually your repo name.
+  organizationName: 'Beyond The Cloud',
+  projectName: 'soql-lib',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'throw',
   // Even if you don't use internalization, you can use this field to set useful
@@ -67,6 +67,10 @@ const config = {
         { name: 'keywords', content: 'SOQL Lib, Selector Layer Apex, Apex Selector Layer, Query Builder' },
         { name: 'canonical', content: 'https://soql.beyondthecloud.dev' }
       ],
+      colorMode: {
+        defaultMode: 'dark',
+        disableSwitch: true,
+      },
       docs: {
         sidebar: {
           hideable: true,
@@ -88,20 +92,20 @@ const config = {
           {
             type: 'docSidebar',
             position: 'left',
-            sidebarId: 'api',
-            label: 'API',
+            sidebarId: 'soql',
+            label: 'SOQL',
           },
           {
             type: 'docSidebar',
             position: 'left',
-            sidebarId: 'examples',
-            label: 'Showcase',
+            sidebarId: 'soqlCache',
+            label: 'Cache',
           },
           {
             type: 'docSidebar',
             position: 'left',
-            sidebarId: 'advanced',
-            label: 'Advanced',
+            sidebarId: 'soqlEvaluator',
+            label: 'Evaluator',
           },
           {
             href: 'https://github.com/beyond-the-cloud-dev/soql-lib',
@@ -157,12 +161,24 @@ const config = {
             title: 'Documentation',
             items: [
               {
+                label: 'Get Started',
+                to: '/docs/getting-started'
+              },
+              {
                 label: 'Installation',
                 to: '/installation'
               },
               {
-                label: 'Building Your Selector',
-                to: '/building-your-selector'
+                label: 'SOQL Module',
+                to: '/soql/getting-started'
+              },
+              {
+                label: 'Cache Module',
+                to: '/cache/getting-started'
+              },
+              {
+                label: 'Evaluator Module',
+                to: '/evaluator/getting-started'
               }
             ]
           },
@@ -182,7 +198,7 @@ const config = {
               },
               {
                 label: 'Learning',
-                href: 'https://learning.beyondthecloud.dev/blog'
+                href: 'https://learning.beyondthecloud.dev/'
               },
               {
                 label: 'GitHub',
@@ -191,7 +207,7 @@ const config = {
             ]
           }
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} BeyondTheCloud`
+        copyright: `Copyright © ${new Date().getFullYear()} Beyond The Cloud Sp. z o.o.`
       },
       prism: {
         additionalLanguages: ['apex'],

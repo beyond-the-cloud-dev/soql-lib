@@ -7,7 +7,7 @@
  * - PropertyNamingConventions: It was intentional to make the lib more fluent and readable
  * - FieldNamingConventions: It was intentional to make the lib more fluent and readable
 **/
-@SuppressWarnings('PMD.CognitiveComplexity, PMD.PropertyNamingConventions, PMD.FieldNamingConventions')
+@SuppressWarnings('PMD.CognitiveComplexity,PMD.PropertyNamingConventions,PMD.FieldNamingConventions')
 public with sharing class CacheManager {
     public interface Cacheable {
         Boolean contains(String key);

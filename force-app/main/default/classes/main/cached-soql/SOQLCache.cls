@@ -2,6 +2,8 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
+ * v6.0.0
+ * 
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
  * - ExcessiveClassLength: It is a library and we tried to put everything into ONE class
@@ -10,12 +12,20 @@
  * - PropertyNamingConventions: It was intentional to make the lib more fluent and readable
  * - FieldDeclarationsShouldBeAtStart: Developer who uses lib should see what's important at start
  * - ApexDoc: Variable names are self-documented.
- * - ExcessiveParameterList - Make methods similar to native SOQL
+ * - ExcessiveParameterList: Make methods similar to native SOQL
 **/
-@SuppressWarnings('PMD.ExcessivePublicCount, PMD.ExcessiveClassLength, PMD.CyclomaticComplexity, PMD.CognitiveComplexity, PMD.PropertyNamingConventions, PMD.FieldDeclarationsShouldBeAtStart, PMD.ApexDoc, PMD.ExcessiveParameterList')
+@SuppressWarnings('PMD.ExcessivePublicCount,PMD.ExcessiveClassLength,PMD.CyclomaticComplexity,PMD.CognitiveComplexity,PMD.PropertyNamingConventions,PMD.FieldDeclarationsShouldBeAtStart,PMD.ApexDoc,PMD.ExcessiveParameterList')
 public virtual inherited sharing class SOQLCache implements Cacheable {
     public interface Selector {
         Cacheable query();
+    }
+
+    public static Cacheable of(SObjectType ofObject) {
+        return new SOQLCache(ofObject);
+    }
+
+    public static Cacheable of(String ofObject) {
+        return new SOQLCache(ofObject);
     }
 
     public interface Cacheable {
@@ -24,6 +34,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         Cacheable cacheInOrgCache();
         Cacheable cacheInSessionCache();
         Cacheable maxHoursWithoutRefresh(Integer hours);
+        Cacheable allowFilteringByNonUniqueFields();
+        Cacheable allowQueryWithoutConditions();
         // SELECT
         Cacheable with(SObjectField field);
         Cacheable with(SObjectField field1, SObjectField field2);
@@ -32,6 +44,12 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         Cacheable with(List<SObjectField> fields);
         Cacheable with(String fields);
+        Cacheable with(String relationshipName, SObjectField field);
+        Cacheable with(String relationshipName, SObjectField field1, SObjectField field2);
+        Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
+        Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+        Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
+        Cacheable with(String relationshipName, Iterable<SObjectField> fields);
         // WHERE
         Cacheable whereEqual(SObjectField field, Object value);
         Cacheable whereEqual(String field, Object value);
@@ -47,6 +65,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         Cacheable byId(Id recordId);
         // RESULT
         Id toId();
+        Id toIdOf(SObjectField field);
         Boolean doExist();
         SObject toObject();
         Object toValueOf(SObjectField fieldToExtract);
@@ -56,12 +75,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         return null;
     }
 
-    public static Cacheable of(SObjectType ofObject) {
-        return new SOQLCache(ofObject);
-    }
-
-    public static Cacheable of(String ofObject) {
-        return new SOQLCache(ofObject);
+    public virtual List<SObjectField> additionalAllowedConditionFields() {
+        return new List<SObjectField>();
     }
 
     // Mocking
@@ -110,7 +125,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     private Cache cache;
 
     public SOQL.Queryable initialQuery = null;
-    public SOQL.Queryable currentyQuery = null;
+    public SOQL.Queryable currentQuery = null;
 
     protected SOQLCache(SObjectType ofObject) {
         this(ofObject.toString());
@@ -118,10 +133,11 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     protected SOQLCache(String ofObject) {
         this.initialQuery = this.initialQuery()?.systemMode()?.withoutSharing();
-        this.currentyQuery = SOQL.of(ofObject).systemMode().withoutSharing();
+        this.currentQuery = SOQL.of(ofObject).systemMode().withoutSharing();
 
         this.cache = new Cache(ofObject);
-        this.executor = new Executor(this.currentyQuery, this.cache);
+        this.cache.filterGroup.setAdditionalAllowedConditionFields(this.additionalAllowedConditionFields());
+        this.executor = new Executor(this.currentQuery, this.cache);
 
         this.with('Id');
     }
@@ -146,9 +162,19 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         return this;
     }
 
+    public Cacheable allowFilteringByNonUniqueFields() {
+        this.cache.filterGroup.allowFilteringByNonUniqueFields();
+        return this;
+    }
+
+    public Cacheable allowQueryWithoutConditions() {
+        this.cache.filterGroup.allowQueryWithoutConditions();
+        return this;
+    }
+
     public Cacheable with(SObjectField field) {
         this.initialQuery?.with(field);
-        this.currentyQuery.with(field);
+        this.currentQuery.with(field);
         this.cache.fields.with(field);
         return this;
     }
@@ -171,15 +197,45 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     public Cacheable with(List<SObjectField> fields) {
         this.initialQuery?.with(fields);
-        this.currentyQuery.with(fields);
+        this.currentQuery.with(fields);
         this.cache.fields.with(fields);
         return this;
     }
 
     public Cacheable with(String fields) {
         this.initialQuery?.with(fields);
-        this.currentyQuery.with(fields);
+        this.currentQuery.with(fields);
         this.cache.fields.with(fields);
+        return this;
+    }
+
+    public Cacheable with(String relationshipName, SObjectField field) {
+        this.initialQuery?.with(relationshipName, field);
+        this.currentQuery.with(relationshipName, field);
+        this.cache.fields.with(relationshipName, field);
+        return this;
+    }
+
+    public Cacheable with(String relationshipName, SObjectField field1, SObjectField field2) {
+        return this.with(relationshipName, new List<SObjectField>{ field1, field2 });
+    }
+
+    public Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3) {
+        return this.with(relationshipName, new List<SObjectField>{ field1, field2, field3 });
+    }
+
+    public Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
+        return this.with(relationshipName, new List<SObjectField>{ field1, field2, field3, field4 });
+    }
+
+    public Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
+        return this.with(relationshipName, new List<SObjectField>{ field1, field2, field3, field4, field5 });
+    }
+
+    public Cacheable with(String relationshipName, Iterable<SObjectField> fields) {
+        this.initialQuery?.with(relationshipName, fields);
+        this.currentQuery.with(relationshipName, fields);
+        this.cache.fields.with(relationshipName, fields);
         return this;
     }
 
@@ -189,9 +245,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     public Cacheable whereEqual(String field, Object value) {
         this.with(field);
-        this.cache.filter.singleFilterValidation();
-        this.cache.filter.with(field).equal(value);
-        this.currentyQuery.whereAre(SOQL.Filter.with(field).equal(value));
+        this.cache.filterGroup.add(new CacheFilter().with(field).equal(value));
+        this.currentQuery.whereAre(SOQL.Filter.with(field).equal(value));
         return this;
     }
 
@@ -200,24 +255,28 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     public Cacheable stripInaccessible(AccessType accessType) {
-        this.currentyQuery.stripInaccessible(accessType);
+        this.currentQuery.stripInaccessible(accessType);
         this.executor.stripInaccessible(accessType);
         return this;
     }
 
     public Cacheable mockId(String queryIdentifier) {
-        this.currentyQuery.mockId(queryIdentifier);
+        this.currentQuery.mockId(queryIdentifier);
         this.executor.mock(queryIdToMock.get(queryIdentifier));
         return this;
     }
 
     public Cacheable preview() {
-        this.currentyQuery.preview();
+        this.currentQuery.preview();
         return this;
     }
 
     public Id toId() {
         return this.toObject()?.Id;
+    }
+
+    public Id toIdOf(SObjectField field) {
+        return (Id) this.toObject()?.get(field);
     }
 
     public Boolean doExist() {
@@ -230,7 +289,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     public SObject toObject() {
-        this.cache.filter.hasFilterValidation();
+        this.cache.filterGroup.validateIfQueryHasAtLeastOneCondition();
         this.executeInitialQuery();
         return this.executor.toObject();
     }
@@ -309,12 +368,12 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         public void updateRecordsInCache(List<SObject> recordsToUpdate) {
             List<CacheItem> allCachedRecords = getCachedRecords();
 
-            for (SObject updatedRecord : recordsToUpdate) {
-                for (CacheItem cachedRecord : allCachedRecords) {
-                    if (updatedRecord.Id == cachedRecord.id) {
-                        cachedRecord.record = updatedRecord;
-                        cachedRecord.cachedDate = System.now();
-                    }
+            Map<Id, SObject> updatedRecordsById = new Map<Id, SObject>(recordsToUpdate);
+
+            for (CacheItem cachedRecord : allCachedRecords) {
+                if (updatedRecordsById.containsKey(cachedRecord.id)) {
+                    cachedRecord.record = updatedRecordsById.get(cachedRecord.id);
+                    cachedRecord.cachedDate = System.now();
                 }
             }
 
@@ -323,10 +382,10 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
         public void removeRecordsFromCache(List<SObject> recordsToRemove) {
             Set<Id> recordsToRemoveIds = new Map<Id, SObject>(recordsToRemove).keySet();
-            List<CacheItem> allCachedRecords = getCachedRecords();
+            
             List<CacheItem> filteredCachedItems = new List<CacheItem>();
 
-            for (CacheItem cachedRecord : allCachedRecords) {
+            for (CacheItem cachedRecord : getCachedRecords()) {
                 if (!recordsToRemoveIds.contains(cachedRecord.id)) {
                     filteredCachedItems.add(cachedRecord);
                 }
@@ -337,13 +396,13 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     private class Cache {
-        public CacheFilter filter;
-        public CacheStorageProxy storage;
         public CacheFields fields;
         public CacheExpiration expiration;
+        public CacheFilterGroup filterGroup;
+        public CacheStorageProxy storage;
 
         public Cache(String ofObject) {
-            this.filter = new CacheFilter(ofObject);
+            this.filterGroup = new CacheFilterGroup(ofObject);
             this.storage = new CacheStorageProxy(ofObject);
             this.fields = new CacheFields();
             this.expiration = new CacheExpiration();
@@ -352,7 +411,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         private List<CacheItem> cachedItemsThatMeetCriteria {
             get {
                 if (this.cachedItemsThatMeetCriteria == null) {
-                    this.cachedItemsThatMeetCriteria = this.filter.filter(this.storage.getCachedRecords());
+                    this.cachedItemsThatMeetCriteria = this.filterGroup.filter(this.storage.getCachedRecords());
                 }
                 return this.cachedItemsThatMeetCriteria;
             }
@@ -405,53 +464,76 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
     }
 
-    private class CacheFilter {
+    private class CacheFilterGroup {
         private String ofObject;
-        private String field;
-        private Object value;
 
-        public CacheFilter(String ofObject) {
+        private List<CacheFilter> filters = new List<CacheFilter>();
+        private List<String> additionalAllowedConditionFields = new List<String>();
+
+        private Boolean allowFilteringByNonUniqueFields = false;
+        private Boolean allowQueryWithoutConditions = false;
+
+        public CacheFilterGroup(String ofObject) {
             this.ofObject = ofObject;
         }
 
-        public CacheFilter with(String field) {
-            this.field = field;
-            this.fieldValidation();
-            return this;
+        public void add(CacheFilter filter) {
+            this.filters.add(filter);
         }
 
-        public CacheFilter equal(Object value) {
-            this.value = value;
-            return this;
-        }
-
-        public void singleFilterValidation() {
-            if (String.isNotBlank(this.field)) {
-                throw new SoqlCacheException('Only one condition can be used in a cached query.');
+        public void setAdditionalAllowedConditionFields(List<SObjectField> additionalAllowedConditionFields) {
+            for (SObjectField field : additionalAllowedConditionFields) {
+                this.additionalAllowedConditionFields.add(field.toString());
             }
         }
 
-        public void hasFilterValidation() {
-            if (String.isBlank(this.field)) {
-                throw new SoqlCacheException('A condition is missing. Please provide a filter to retrieve the cached record.');
+        public void allowFilteringByNonUniqueFields() {
+            this.allowFilteringByNonUniqueFields = true;
+        }
+
+        public void allowQueryWithoutConditions() {
+            this.allowQueryWithoutConditions = true;
+        }
+
+        public void validateUniqueCondition(CacheFilter filter) {
+            if (this.allowFilteringByNonUniqueFields) {
+                return;
+            }
+
+            if (!(new List<String>{ 'Id', 'Name', 'DeveloperName' }.contains(filter.field) || this.additionalAllowedConditionFields.contains(filter.field) || this.isFieldUnique(filter.field))) {
+                throw new SoqlCacheException('A cached query can be filtered only by Id, Name, DeveloperName, or a unique field. You can ignore this validation by calling allowFilteringByNonUniqueFields()');
             }
         }
 
-        private void fieldValidation() {
-            if (!(new List<String>{ 'Id', 'Name', 'DeveloperName' }.contains(this.field) || this.isFilterFieldUnique())) {
-                throw new SoqlCacheException('A cached query can be filtered only by Id, Name, DeveloperName, or a unique field.');
+        public void validateIfQueryHasAtLeastOneCondition() {
+            if (!this.allowQueryWithoutConditions && this.filters.isEmpty()) {
+                throw new SoqlCacheException('A condition is missing. Please provide a filter to retrieve the cached record. You can ignore this validation by calling allowQueryWithoutConditions()');
             }
         }
 
-        private Boolean isFilterFieldUnique() {
-            return Schema.getGlobalDescribe().get(this.ofObject).getDescribe().fields.getMap().get(this.field).getDescribe().isUnique();
+        private void validateConditions() {
+            for (CacheFilter filter : this.filters) {
+                this.validateUniqueCondition(filter);
+            }
+        }
+
+        private Boolean isFieldUnique(String field) {
+            return Schema.getGlobalDescribe().get(this.ofObject).getDescribe().fields.getMap().get(field).getDescribe().isUnique();
         }
 
         public List<CacheItem> filter(List<CacheItem> cachedItems) {
+            this.validateConditions();
+
             List<CacheItem> cacheItemsThatMeetCriteria = new List<CacheItem>();
 
             for (CacheItem cacheItem : cachedItems) {
-                if (cacheItem.record.get(this.field) == this.value) {
+                Boolean isCachedItemsMatchingAllCriteria = true;
+
+                for (CacheFilter filter : this.filters) {
+                    isCachedItemsMatchingAllCriteria &= filter.isMatching(cacheItem);
+                }
+
+                if (isCachedItemsMatchingAllCriteria) {
                     cacheItemsThatMeetCriteria.add(cacheItem);
                 }
             }
@@ -460,12 +542,42 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
     }
 
+    private class CacheFilter {
+        public String field;
+        private Object value;
+
+        public CacheFilter with(String field) {
+            this.field = field;
+            return this;
+        }
+
+        public CacheFilter equal(Object value) {
+            this.value = value;
+            return this;
+        }
+
+        public Boolean isMatching(CacheItem cachedItem) {
+            return cachedItem.record.get(this.field) == this.value;
+        }
+    }
+
     private class CacheFields {
         private Set<String> cachedFields = new Set<String>();
+        private Set<String> cachedRelationshipFields = new Set<String>();
 
-        public void with(String fields) {
-            for (String field : fields.split(',')) {
-                this.cachedFields.add(field.trim());
+        public void with(String commaSeparatedFields) {
+            for (String field : commaSeparatedFields.split(',')) {
+                this.classifyField(field);
+            }
+        }
+
+        private void classifyField(String field) {
+            String trimmedField = field.trim();
+
+            if (trimmedField.contains('.')) {
+                this.cachedRelationshipFields.add(trimmedField);
+            } else {
+                this.cachedFields.add(trimmedField);
             }
         }
 
@@ -479,22 +591,69 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             }
         }
 
+        public void with(String relationshipName, SObjectField field) {
+            this.cachedRelationshipFields.add(relationshipName + '.' + field.toString());
+        }
+
+        public void with(String relationshipName, Iterable<SObjectField> fields) {
+            for (SObjectField field : fields) {
+                this.with(relationshipName, field);
+            }
+        }
+
         public Boolean haveAllRequestedFields(List<CacheItem> cachedItems) {
             for (CacheItem cachedItem : cachedItems) {
-                if (!this.hasAllRequestedFields(cachedItem.record)) {
+                if (!this.hasAllRequestedPlainFields(cachedItem.record) || 
+                    !this.hasAllRequestedRelationshipFields(cachedItem.record)) {
                     return false;
                 }
             }
             return true;
         }
 
-        public Boolean hasAllRequestedFields(SObject record) {
+        private Boolean hasAllRequestedPlainFields(SObject record) {
             for (String field : this.cachedFields) {
                 if (!record.isSet(field)) {
                     return false;
                 }
             }
+            
             return true;
+        }
+
+        private Boolean hasAllRequestedRelationshipFields(SObject record) {
+            for (String relationship : this.cachedRelationshipFields) {
+                if (!this.isRelationshipFieldSet(record, relationship)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private Boolean isRelationshipFieldSet(SObject record, String relationship) {
+            List<String> relationshipPath = relationship.split('\\.');
+
+            String targetField = relationshipPath.remove(relationshipPath.size() - 1);
+            SObject targetRelationshipSObject = this.getTargetRelationshipSObject(record, relationshipPath);
+
+            return targetRelationshipSObject == null ? false : targetRelationshipSObject.isSet(targetField);
+        }
+
+        private SObject getTargetRelationshipSObject(SObject record, List<String> relationshipPath) {
+            SObject currentRecord = record;
+
+            for (String relationshipField : relationshipPath) {
+                try {
+                    currentRecord = currentRecord.getSObject(relationshipField);
+                } catch (System.SObjectException e) {
+                    // Calling getSObject() on a SObject throws an exception if the field is not queried
+                    // We need to return null to avoid what means that the relationship field is not set
+                    return null;
+                }
+            }
+
+            return currentRecord;
         }
     }
 
@@ -534,13 +693,13 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     private inherited sharing class Executor {
-        private SOQL.Queryable currentyQuery;
+        private SOQL.Queryable currentQuery;
         private Cache cache;
         private AccessType accessType = null;
         private List<SoqlMock> mocks = new List<SoqlMock>();
 
-        public Executor(SOQL.Queryable currentyQuery, Cache cache) {
-            this.currentyQuery = currentyQuery;
+        public Executor(SOQL.Queryable currentQuery, Cache cache) {
+            this.currentQuery = currentQuery;
             this.cache = cache;
         }
 
@@ -578,7 +737,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
                 this.cache.areRequestedFieldsMissing() ||
                 this.cache.areRecordsOutdated()
             ) {
-                records = this.currentyQuery.toList(); // SOQL query execution
+                records = this.currentQuery.toList(); // SOQL query execution
                 cache.save(records);
             }
 
