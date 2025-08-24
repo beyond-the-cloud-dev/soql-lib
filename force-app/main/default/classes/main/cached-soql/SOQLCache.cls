@@ -381,10 +381,6 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         public void removeRecordsFromCache(List<SObject> recordsToRemove) {
-            if (recordsToRemove.isEmpty()) {
-                return;
-            }
-
             Set<Id> recordsToRemoveIds = new Map<Id, SObject>(recordsToRemove).keySet();
             
             List<CacheItem> filteredCachedItems = new List<CacheItem>();
@@ -473,7 +469,6 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
         private List<CacheFilter> filters = new List<CacheFilter>();
         private List<String> additionalAllowedConditionFields = new List<String>();
-        private Map<String, Boolean> fieldIsUniqueCache = new Map<String, Boolean>();
 
         private Boolean allowFilteringByNonUniqueFields = false;
         private Boolean allowQueryWithoutConditions = false;
@@ -523,13 +518,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         private Boolean isFieldUnique(String field) {
-            if (this.fieldIsUniqueCache.containsKey(field)) {
-                return this.fieldIsUniqueCache.get(field);
-            }
-
-            Boolean isUnique = Schema.getGlobalDescribe().get(this.ofObject).getDescribe().fields.getMap().get(field).getDescribe().isUnique();
-            this.fieldIsUniqueCache.put(field, isUnique);
-            return isUnique;
+            return Schema.getGlobalDescribe().get(this.ofObject).getDescribe().fields.getMap().get(field).getDescribe().isUnique();
         }
 
         public List<CacheItem> filter(List<CacheItem> cachedItems) {
@@ -655,9 +644,11 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             SObject currentRecord = record;
 
             for (String relationshipField : relationshipPath) {
-                currentRecord = currentRecord.getSObject(relationshipField);
-
-                if (currentRecord == null) {
+                try {
+                    currentRecord = currentRecord.getSObject(relationshipField);
+                } catch (System.SObjectException e) {
+                    // Calling getSObject() on a SObject throws an exception if the field is not queried
+                    // We need to return null to avoid what means that the relationship field is not set
                     return null;
                 }
             }

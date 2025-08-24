@@ -562,6 +562,32 @@ private class SOQLCache_Test {
     }
 
     @IsTest
+    static void withInvalidRelationshipField() {
+        // Setup
+        System.QueryException queryException;
+
+        // Test
+        try {
+            // First query to cache plain fields
+            SOQLCache.of(Profile.SObjectType)
+                .with(Profile.Id, Profile.Name)
+                .whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR)
+                .toObject();
+
+            SOQLCache.of(Profile.SObjectType)
+                .with(Profile.Id, Profile.Name)
+                .with('UserLicense.InvalidPath', UserLicense.Name)
+                .whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR)
+                .toObject();
+        } catch (System.QueryException e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(queryException, 'An exception should be thrown when the relationship field is invalid.');
+    }
+
+    @IsTest
     static void whereEqualSObjectField() {
         // Test
         Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
@@ -695,9 +721,9 @@ private class SOQLCache_Test {
     @IsTest
     static void mockStack() {
         // Setup
-        SOQL.mock('mockingQuery').thenReturn(new Profile(Name = 'Test 1'));
-        SOQL.mock('mockingQuery').thenReturn(new Profile(Name = 'Test 2'));
-        SOQL.mock('mockingQuery').thenReturn(new Profile(Name = 'Test 3'));
+        SOQLCache.mock('mockingQuery').thenReturn(new Profile(Name = 'Test 1'));
+        SOQLCache.mock('mockingQuery').thenReturn(new Profile(Name = 'Test 2'));
+        SOQLCache.mock('mockingQuery').thenReturn(new Profile(Name = 'Test 3'));
 
         // Test
         SOQLCache.Cacheable query = SOQLCache.of(Profile.SObjectType)
@@ -844,7 +870,7 @@ private class SOQLCache_Test {
     static void recordNotFoundInCache() {
         // Setup
         Id profileId = SOQL.IdGenerator.get(Profile.SObjectType);
-        SOQL.mock('ProfileQuery').thenReturn(new Profile(Id = profileId, Name = 'Guest User'));
+        SOQLCache.mock('ProfileQuery').thenReturn(new Profile(Id = profileId, Name = 'Guest User'));
 
         // Test
         Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
@@ -905,7 +931,7 @@ private class SOQLCache_Test {
     }
 
     @IsTest
-    static void cachedRecordDoesNotHaveRelationshipField() {
+    static void cachedRecordMissingRelationshipField() {
         // Test
         Profile profile1 = (Profile) SOQLCache.of(Profile.SObjectType)
             .with('UserLicense', UserLicense.Name)
@@ -929,6 +955,31 @@ private class SOQLCache_Test {
 
         Assert.isNotNull(profile2.UserLicense.Name, 'The profile2 UserLicense.Name should not be null.');
         Assert.isNotNull(profile2.UserLicense.Status, 'The profile2 UserLicense.Status should not be null.');
+    }
+
+    @IsTest
+    static void cachedRecordDoesNotHaveRelationshipField() {
+        // Test
+        Profile profile1 = (Profile) SOQLCache.of(Profile.SObjectType)
+            .with(Profile.Id, Profile.Name)
+            .whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR)
+            .toObject();
+
+        Profile profile2 = (Profile) SOQLCache.of(Profile.SObjectType)
+            .with(Profile.Id, Profile.Name)
+            .with('UserLicense', UserLicense.Name)
+            .whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR)
+            .toObject();
+
+        // Verify
+        Assert.areEqual(2, Limits.getQueries(), 'Two queries should be issued. The second query should retrieve the missing relationship fields.');
+
+        Assert.isNotNull(profile1.Id, 'The profile1 Id should not be null.');
+        Assert.isNotNull(profile1.Name, 'The profile1 Name should not be null.');
+
+        Assert.isNotNull(profile2.Id, 'The profile2 Id should not be null.');
+        Assert.isNotNull(profile2.Name, 'The profile2 Name should not be null.');
+        Assert.isNotNull(profile2.UserLicense.Name, 'The profile2 UserLicense.Name should not be null.');
     }
 
     @IsTest
@@ -988,6 +1039,22 @@ private class SOQLCache_Test {
         // Verify
         Assert.isTrue(CacheManager.SOQLOrgCache.contains('Profile'), 'Key should still exist.');
         Assert.isFalse(((List<SOQLCache.CacheItem>) CacheManager.SOQLOrgCache.get('Profile')).isEmpty(), 'Cache items should be not empty.');
+    }
+
+    @IsTest
+    static void setMock() {
+        // Setup
+        SOQLCache.setMock('ProfileQuery', new Profile(Name = 'Random Profile Name'));
+
+        // Test
+        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+            .with(Profile.Id, Profile.Name)
+            .mockId('ProfileQuery')
+            .whereEqual(Profile.Name, 'Random Profile Name')
+            .toObject();
+
+        // Verify
+        Assert.areEqual('Random Profile Name', profile.Name, 'The profile name should be the same as the name assigned to the profile cache.');
     }
 
     static User minimumAccessUser() {
