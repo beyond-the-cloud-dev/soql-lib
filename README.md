@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://nextjs.org">
+  <a href="https://soql.beyondthecloud.dev">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://soql.beyondthecloud.dev/img/logo.png">
       <img alt="SOQL Lib logo" src="https://soql.beyondthecloud.dev/img/logo.png" height="98">
