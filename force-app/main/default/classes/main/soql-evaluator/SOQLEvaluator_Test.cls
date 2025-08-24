@@ -130,15 +130,15 @@ private class SOQLEvaluator_Test {
     static void sObjectsToIdsOfRelationshipFieldWithMocking() {
         // Setup
         SOQLEvaluator.mock('mockingQuery').thenReturn(new List<Account>{
-            new Account(Name = 'Test 1', Parent = new Account(CreatedById = UserInfo.getUserId())),
-            new Account(Name = 'Test 2', Parent = new Account(CreatedById = UserInfo.getUserId()))
+            new Account(Name = 'Test 1', Parent = new Account(ParentId = SOQL.IdGenerator.get(Account.SObjectType))),
+            new Account(Name = 'Test 2', Parent = new Account(ParentId = SOQL.IdGenerator.get(Account.SObjectType)))
         });
         
         // Test
-        Set<Id> createdByIds = SOQLEvaluator.of([SELECT Id, Parent.CreatedById FROM Account WHERE ParentId != null]).mockId('mockingQuery').toIdsOf('Parent', Account.CreatedById);
-
+        Set<Id> parentIds = SOQLEvaluator.of([SELECT Id, Parent.ParentId FROM Account WHERE ParentId != null]).mockId('mockingQuery').toIdsOf('Parent', Account.ParentId);
+        
         // Verify
-        Assert.areEqual(1, createdByIds.size(), 'The size of the returned set should be 1, because the same user inserted the accounts.');
+        Assert.areEqual(2, parentIds.size(), 'The size of the returned set should be 2, because the accounts have a parent.');
     }
 
     @IsTest
