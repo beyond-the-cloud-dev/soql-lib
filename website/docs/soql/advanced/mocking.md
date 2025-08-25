@@ -50,10 +50,11 @@ Account result1 = SOQL.of(Account.SObjectType).mockId('testQuery').toObject();
 // Second execution returns "Second Call", then removes that mock  
 Account result2 = SOQL.of(Account.SObjectType).mockId('testQuery').toObject();
 
-// Third execution returns "Third Call", then removes that mock
+// Third execution returns "Third Call", but do not removes that mock - it's the last mock on the stack
 Account result3 = SOQL.of(Account.SObjectType).mockId('testQuery').toObject();
 
-// Fourth execution would fail - no more mocks available
+// Fourth execution returns "Third Call" - it's the last mock on the stack
+Account result4 = SOQL.of(Account.SObjectType).mockId('testQuery').toObject();
 ```
 
 ### Id Field Behavior
