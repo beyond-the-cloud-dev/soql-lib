@@ -652,21 +652,21 @@ private class SOQLCache_Test {
         // Test
         // First query to cache the record
         Account account1 = (Account) SOQLCache.of(Account.SObjectType)
-            .with(Account.Id, Account.IsPartner)
+            .with(Account.Id, Account.IsDeleted)
             .allowFilteringByNonUniqueFields()
-            .whereEqual(Account.IsPartner, FALSE)
+            .whereEqual(Account.IsDeleted, FALSE)
             .toObject();
 
         // Second query to retrieve the cached record
         Account account2 = (Account) SOQLCache.of(Account.SObjectType)
-            .with(Account.Id, Account.IsPartner)
+            .with(Account.Id, Account.IsDeleted)
             .allowFilteringByNonUniqueFields()
-            .whereEqual(Account.IsPartner, FALSE)
+            .whereEqual(Account.IsDeleted, FALSE)
             .toObject();
 
         // Verify
-        Assert.areEqual(FALSE, account1.IsPartner, 'The cached account record should be FALSE.');
-        Assert.areEqual(FALSE, account2.IsPartner, 'The cached account record should be FALSE.');
+        Assert.areEqual(FALSE, account1.IsDeleted, 'The cached account record should be FALSE.');
+        Assert.areEqual(FALSE, account2.IsDeleted, 'The cached account record should be FALSE.');
         Assert.areEqual(1, Limits.getQueries(), 'The number of queries should be 1.');
     }
 
