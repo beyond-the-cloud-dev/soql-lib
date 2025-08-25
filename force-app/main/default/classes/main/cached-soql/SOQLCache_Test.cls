@@ -602,13 +602,72 @@ private class SOQLCache_Test {
     @IsTest
     static void whereEqualStringField() {
         // Test
-        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+        // First query to cache the record
+        Profile profile1 = (Profile) SOQLCache.of(Profile.SObjectType)
+            .with(Profile.Id, Profile.Name)
+            .whereEqual('Name', SYSTEM_ADMINISTRATOR)
+            .toObject();
+
+        // Second query to retrieve the cached record
+        Profile profile2 = (Profile) SOQLCache.of(Profile.SObjectType)
             .with(Profile.Id, Profile.Name)
             .whereEqual('Name', SYSTEM_ADMINISTRATOR)
             .toObject();
 
         // Verify
-        Assert.areEqual(SYSTEM_ADMINISTRATOR, profile.Name, 'The cached profile record should be "System Administrator".');
+        Assert.areEqual(SYSTEM_ADMINISTRATOR, profile1.Name, 'The cached profile record should be "System Administrator".');
+        Assert.areEqual(SYSTEM_ADMINISTRATOR, profile2.Name, 'The cached profile record should be "System Administrator".');
+        Assert.areEqual(1, Limits.getQueries(), 'The number of queries should be 1.');
+    }
+
+    @IsTest
+    static void whereEqualIntegerField() {
+        insertAccount();
+
+        // Test
+        // First query to cache the record
+        Account account1 = (Account) SOQLCache.of(Account.SObjectType)
+            .with(Account.Id, Account.Name)
+            .allowFilteringByNonUniqueFields()
+            .whereEqual(Account.NumberOfEmployees, 1000)
+            .toObject();
+
+        // Second query to retrieve the cached record
+        Account account2 = (Account) SOQLCache.of(Account.SObjectType)
+            .with(Account.Id, Account.Name)
+            .allowFilteringByNonUniqueFields()
+            .whereEqual(Account.NumberOfEmployees, 1000)
+            .toObject();
+
+        // Verify
+        Assert.areEqual(1000, account1.NumberOfEmployees, 'The cached account record should be 1000.');
+        Assert.areEqual(1000, account2.NumberOfEmployees, 'The cached account record should be 1000.');
+        Assert.areEqual(1, Limits.getQueries(), 'The number of queries should be 1.');
+    }
+
+    @IsTest
+    static void whereEqualBooleanField() {
+        insertAccount();
+
+        // Test
+        // First query to cache the record
+        Account account1 = (Account) SOQLCache.of(Account.SObjectType)
+            .with(Account.Id, Account.IsPartner)
+            .allowFilteringByNonUniqueFields()
+            .whereEqual(Account.IsPartner, FALSE)
+            .toObject();
+
+        // Second query to retrieve the cached record
+        Account account2 = (Account) SOQLCache.of(Account.SObjectType)
+            .with(Account.Id, Account.IsPartner)
+            .allowFilteringByNonUniqueFields()
+            .whereEqual(Account.IsPartner, FALSE)
+            .toObject();
+
+        // Verify
+        Assert.areEqual(FALSE, account1.IsPartner, 'The cached account record should be FALSE.');
+        Assert.areEqual(FALSE, account2.IsPartner, 'The cached account record should be FALSE.');
+        Assert.areEqual(1, Limits.getQueries(), 'The number of queries should be 1.');
     }
 
     @IsTest
@@ -1065,10 +1124,16 @@ private class SOQLCache_Test {
             LastName = 'Testing',
             LanguageLocaleKey = 'en_US',
             LocaleSidKey = 'en_US',
-            ProfileId = [SELECT Id FROM Profile WHERE Name = 'Minimum Access - Salesforce'].Id,
+            Profile = new Profile(Name = 'Minimum Access - Salesforce'),
             TimeZoneSidKey = 'America/Los_Angeles',
             UserName = 'queryselector@testorg.com'
         );
+    }
+
+    static Account insertAccount() {
+        Account account = new Account(Name = 'Test 1', NumberOfEmployees = 1000);
+        insert account;
+        return account;
     }
 
     public class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
