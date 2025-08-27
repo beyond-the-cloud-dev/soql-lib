@@ -3,7 +3,7 @@
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
  * v6.0.0
- * 
+ *
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
  * - ExcessiveClassLength: It is a library and we tried to put everything into ONE class
@@ -382,7 +382,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     @TestVisible
     private static Mockable mock(String mockId) {
-        if (!SOQL.queryIdToMock.containsKey(mockId)) {   
+        if (!SOQL.queryIdToMock.containsKey(mockId)) {
             SOQL.queryIdToMock.put(mockId, new List<SoqlMock>());
         }
         SOQL.queryIdToMock.get(mockId).add(new SoqlMock());
@@ -1131,13 +1131,13 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public override String toString() {
             List<String> queryParts = new List<String>();
-    
+
             for (QueryClause clause : this.clauses) {
                 if (clause != null) {
                     queryParts.add(clause.toString());
                 }
             }
-            
+
             return String.join(queryParts, ' ').trim();
         }
     }
@@ -2393,7 +2393,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public List<SObject> get(SoqlFields fields, SoqlSubQueries subQueries) {
-            if (this.useLegacyMockingBehavior || this.mockedRecords.isEmpty()) {
+            // AggregateResult can be mocked only with Id field for toIdsOf, toValueOf
+            if (this.useLegacyMockingBehavior || this.mockedRecords.isEmpty() || this.mockedRecords[0]?.getSObjectType() == AggregateResult.SObjectType) {
                 return this.mockedRecords;
             }
 
