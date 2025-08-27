@@ -47,7 +47,7 @@ SOQL.mock('testQuery').thenReturn(new Account(Name = 'Third Call'));
 // First execution returns "First Call", then removes that mock
 Account result1 = SOQL.of(Account.SObjectType).mockId('testQuery').toObject();
 
-// Second execution returns "Second Call", then removes that mock  
+// Second execution returns "Second Call", then removes that mock
 Account result2 = SOQL.of(Account.SObjectType).mockId('testQuery').toObject();
 
 // Third execution returns "Third Call", but do not removes that mock - it's the last mock on the stack
@@ -373,6 +373,55 @@ public class ExampleControllerTest {
         Test.stopTest();
 
         Assert.isNull(result);
+    }
+}
+```
+
+# toIdsOf, toValuesOf
+
+We are using field aliasing: https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
+
+It’s approximately 2x more efficient than a standard for loop. Because of this, mocking works differently for the following methods:
+
+- `toIdsOf(SObjectField field)`
+- `toIdsOf(String relationshipName, SObjectField field)`
+- `toValuesOf(SObjectField fieldToExtract)`
+- `toValuesOf(String relationshipName, SObjectField targetKeyField)`
+
+```apex title="ExampleController.cls"
+public with sharing class ExampleController {
+    public Set<String> getAccountNames() {
+        return SOQL.of(Account.SObjectType)
+            .mockId('ExampleController.getAccountNames')
+            .toValuesOf(Account.Name);
+    }
+}
+```
+
+```apex title="ExampleControllerTest.cls"
+@IsTest
+public class ExampleControllerTest {
+    @IsTest
+    static void getAccountByName() {
+         SOQL.mock('mockingQuery').thenReturn(
+            (List<AggregateResult>) JSON.deserialize(
+                JSON.serialize(new List<Map<String, Object>>{
+                    new Map<String, Object>{
+                        'Id' => 'Account Name 1'
+                    },
+                    new Map<String, Object>{
+                        'Id' => 'Account Name 2'
+                    }
+                }),
+                List<AggregateResult>.class
+            )
+        );
+
+        Test.startTest();
+        Set<String> result = ExampleController.getAccountNames();
+        Test.stopTest();
+
+        Assert.areEqual(2, result.size());
     }
 }
 ```

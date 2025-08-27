@@ -3,7 +3,7 @@
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
  * v6.0.0
- * 
+ *
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
  * - CognitiveComplexity: It is a library and we tried to put everything into ONE test class
@@ -3893,7 +3893,7 @@ private class SOQL_Test {
         SOQL.mock('mockingQuery').thenReturn(1);
         SOQL.mock('mockingQuery').thenReturn(2);
         SOQL.mock('mockingQuery').thenReturn(3);
-        
+
         // Test
         Integer result1 = SOQL.of(Account.SObjectType).mockId('mockingQuery').count().toInteger();
         Integer result2 = SOQL.of(Account.SObjectType).mockId('mockingQuery').count().toInteger();
@@ -3913,7 +3913,7 @@ private class SOQL_Test {
         SOQL.mock('mockingQuery').thenReturn(new Map<String, Object>{ 'LeadSource' => 'Web',  'total' => 10});
         SOQL.mock('mockingQuery').thenReturn(new Map<String, Object>{ 'LeadSource' => 'Phone', 'total' => 5});
         SOQL.mock('mockingQuery').thenReturn(new Map<String, Object>{ 'LeadSource' => 'Email', 'total' => 3});
-        
+
         // Test
         List<SOQL.AggregateResultProxy> result1 = SOQL.of(Lead.SObjectType)
             .with(Lead.LeadSource)
@@ -3975,6 +3975,18 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void toIdWithMocking() {
+        // Setup
+        SOQL.mock('mockingQuery').thenReturn(new Account(Name = 'Test 1'));
+
+        // Test
+        Id accountId = SOQL.of(Account.SObjectType).mockId('mockingQuery').toId();
+
+        // Verify
+        Assert.isNotNull(accountId, 'The returned Id should match the expected one.');
+    }
+
+    @IsTest
     static void toIds() {
         // Setup
         List<Account> accounts = insertAccounts();
@@ -3984,6 +3996,21 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(accounts.size(), accountIds.size(), 'The size of the returned set should be equal to the size of the inserted accounts.');
+    }
+
+    @IsTest
+    static void toIdsWithMocking() {
+        // Setup
+        SOQL.mock('mockingQuery').thenReturn(new List<SObject>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        });
+
+        // Test
+        Set<Id> accountIds = SOQL.of(Account.SObjectType).mockId('mockingQuery').toIds();
+
+        // Verify
+        Assert.areEqual(2, accountIds.size(), 'The size of the returned set should be equal to the size of the mocked accounts.');
     }
 
     @IsTest
@@ -3999,12 +4026,55 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void toIdsOfWithMocking() {
+        // Setup
+        SOQL.mock('mockingQuery').thenReturn(
+            (List<AggregateResult>) JSON.deserialize(
+                JSON.serialize(new List<Map<String, Object>>{
+                    new Map<String, Object>{
+                        'Id' => SOQL.IdGenerator.get(Account.SObjectType)
+                    },
+                    new Map<String, Object>{
+                        'Id' => SOQL.IdGenerator.get(Account.SObjectType)
+                    }
+                }),
+                List<AggregateResult>.class
+            )
+        );
+
+        // Test
+        Set<Id> parentIds = SOQL.of(Account.SObjectType).mockId('mockingQuery').toIdsOf(Account.ParentId);
+
+        // Verify
+        Assert.areEqual(2, parentIds.size(), 'The size of the returned set should be equal to the size of the mocked accounts.');
+    }
+
+    @IsTest
     static void toIdsOfRelationshipField() {
         // Setup
         List<Account> accounts = insertAccountsWithParents();
 
         // Test
         Set<Id> createdByIds = SOQL.of(Account.SObjectType).byIds(accounts).toIdsOf('Parent', Account.CreatedById);
+
+        // Verify
+        Assert.areEqual(1, createdByIds.size(), 'The size of the returned set should be 1, because the same user inserted the accounts.');
+    }
+
+    @IsTest
+    static void toIdsOfRelationshipFieldWithMocking() {
+        // Setup
+        SOQL.mock('mockingQuery').thenReturn(
+            (AggregateResult) JSON.deserialize(
+                JSON.serialize(new Map<String, Object>{
+                    'Id' => SOQL.IdGenerator.get(User.SObjectType)
+                }),
+                AggregateResult.class
+            )
+        );
+
+        // Test
+        Set<Id> createdByIds = SOQL.of(Account.SObjectType).mockId('mockingQuery').toIdsOf('Parent', Account.CreatedById);
 
         // Verify
         Assert.areEqual(1, createdByIds.size(), 'The size of the returned set should be 1, because the same user inserted the accounts.');
@@ -4488,7 +4558,7 @@ private class SOQL_Test {
             new Account(Name = 'Test 1'),
             new Account(Name = 'Test 2')
         });
-        
+
         // Test
         try {
             Test.startTest();
@@ -4559,9 +4629,9 @@ private class SOQL_Test {
 
         // Test
         Set<Id> accountIds = new SOQL.Converter('Account').transform(accounts).toIdsOf(Account.ParentId);
-       
+
         // Verify
-        Assert.areEqual(accounts.size(), accountIds.size(), 'The size of the returned set should be equal to the size of the inserted accounts.');        
+        Assert.areEqual(accounts.size(), accountIds.size(), 'The size of the returned set should be equal to the size of the inserted accounts.');
     }
 
     @IsTest
@@ -4574,9 +4644,9 @@ private class SOQL_Test {
 
         // Test
         Set<Id> accountIds = new SOQL.Converter('Account').transform(accounts).toIdsOf('Parent', Account.Id);
-       
+
         // Verify
-        Assert.areEqual(accounts.size(), accountIds.size(), 'The size of the returned set should be equal to the size of the inserted accounts.');        
+        Assert.areEqual(accounts.size(), accountIds.size(), 'The size of the returned set should be equal to the size of the inserted accounts.');
     }
 
     @IsTest
@@ -4589,7 +4659,7 @@ private class SOQL_Test {
 
         // Test
         Set<String> accountNames = new SOQL.Converter('Account').transform(accounts).toValuesOf(Account.Name);
-        
+
         // Verify
         Assert.areEqual(accounts.size(), accountNames.size(), 'The size of the returned set should be equal to the size of the inserted accounts.');
         Assert.isTrue(accountNames.contains('Test 1'), 'The returned set should contain the account name "Test 1".');
