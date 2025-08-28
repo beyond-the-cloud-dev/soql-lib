@@ -1,9 +1,9 @@
 /**
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
- * 
- * v6.0.0
- * 
+ *
+ * v6.0.1
+ *
  **/
 @IsTest
 private class SOQLEvaluator_Test {
@@ -118,7 +118,7 @@ private class SOQLEvaluator_Test {
     static void sObjectsToIdsOfRelationshipField() {
         // Setup
         insertAccountsWithParents();
-        
+
         // Test
         Set<Id> createdByIds = SOQLEvaluator.of([SELECT Id, Parent.CreatedById FROM Account WHERE ParentId != null]).toIdsOf('Parent', Account.CreatedById);
 
@@ -133,10 +133,10 @@ private class SOQLEvaluator_Test {
             new Account(Name = 'Test 1', Parent = new Account(ParentId = SOQL.IdGenerator.get(Account.SObjectType))),
             new Account(Name = 'Test 2', Parent = new Account(ParentId = SOQL.IdGenerator.get(Account.SObjectType)))
         });
-        
+
         // Test
         Set<Id> parentIds = SOQLEvaluator.of([SELECT Id, Parent.ParentId FROM Account WHERE ParentId != null]).mockId('mockingQuery').toIdsOf('Parent', Account.ParentId);
-        
+
         // Verify
         Assert.areEqual(2, parentIds.size(), 'The size of the returned set should be 2, because the accounts have a parent.');
     }
@@ -157,7 +157,7 @@ private class SOQLEvaluator_Test {
     static void sObjectDoExistWithMocking() {
         // Setup
         SOQLEvaluator.mock('mockingQuery').thenReturn(new Account(Name = 'Test Account'));
-        
+
         // Test
         Boolean doesExist = SOQLEvaluator.of([SELECT Id, Name FROM Account]).mockId('mockingQuery').doExist();
 
@@ -181,7 +181,7 @@ private class SOQLEvaluator_Test {
     static void sObjectToValueOfWithMocking() {
         // Setup
         SOQLEvaluator.mock('mockingQuery').thenReturn(new Account(Name = 'Test Account'));
-        
+
         // Test
         String accountName = (String)SOQLEvaluator.of([SELECT Id, Name FROM Account]).mockId('mockingQuery').toValueOf(Account.Name);
 
@@ -193,7 +193,7 @@ private class SOQLEvaluator_Test {
     static void sObjectsToValuesOf() {
         // Setup
         insertAccounts();
-        
+
         // Test
         Set<String> accountNames = SOQLEvaluator.of([SELECT Id, Name FROM Account]).toValuesOf(Account.Name);
 
@@ -220,7 +220,7 @@ private class SOQLEvaluator_Test {
     static void sObjectToObject() {
         // Setup
         insertAccount();
-        
+
         // Test
         Account account = (Account) SOQLEvaluator.of([SELECT Id, Name FROM Account]).toObject();
 
@@ -234,7 +234,7 @@ private class SOQLEvaluator_Test {
         insertAccounts();
         Exception queryException = null;
 
-        // Test 
+        // Test
         try {
             Account account = (Account) SOQLEvaluator.of([SELECT Id, Name FROM Account]).toObject();
         } catch (Exception e) {
@@ -249,7 +249,7 @@ private class SOQLEvaluator_Test {
     static void sObjectToObjectWithMocking() {
         // Setup
         SOQLEvaluator.mock('mockingQuery').thenReturn(new Account(Name = 'Test Account'));
-        
+
         // Test
         Account account = (Account) SOQLEvaluator.of([SELECT Id, Name FROM Account]).mockId('mockingQuery').toObject();
 
@@ -270,13 +270,13 @@ private class SOQLEvaluator_Test {
     static void sObjectsToList() {
         // Setup
         insertAccounts();
-        
+
         // Test
         List<Account> accounts = SOQLEvaluator.of([SELECT Id, Name FROM Account]).toList();
 
         // Verify
         Assert.areEqual(2, accounts.size(), 'The size of the returned list should be 2.');
-    }   
+    }
 
     @IsTest
     static void sObjectsToListWithMocking() {
@@ -292,12 +292,12 @@ private class SOQLEvaluator_Test {
         // Verify
         Assert.areEqual(2, accounts.size(), 'The size of the returned list should be 2.');
     }
-    
+
     @IsTest
     static void sObjectsToListWhenNoRecords() {
         // Test
         List<Account> accounts = SOQLEvaluator.of([SELECT Id, Name FROM Account]).toList();
-        
+
         // Verify
         Assert.areEqual(0, accounts.size(), 'The size of the returned list should be 0.');
     }
@@ -306,7 +306,7 @@ private class SOQLEvaluator_Test {
     static void sObjectsToMap() {
         // Setup
         insertAccounts();
-        
+
         // Test
         Map<Id, Account> accounts = (Map<Id, Account>) SOQLEvaluator.of([SELECT Id, Name FROM Account]).toMap();
 
@@ -321,7 +321,7 @@ private class SOQLEvaluator_Test {
             new Account(Name = 'Test 1'),
             new Account(Name = 'Test 2')
         });
-        
+
         // Test
         Map<Id, Account> accounts = (Map<Id, Account>) SOQLEvaluator.of([SELECT Id, Name FROM Account]).mockId('mockingQuery').toMap();
 
@@ -357,7 +357,7 @@ private class SOQLEvaluator_Test {
             new Account(Name = 'Test 1'),
             new Account(Name = 'Test 2')
         });
-        
+
         // Test
         Map<String, Account> accounts = (Map<String, Account>) SOQLEvaluator.of([SELECT Id, Name FROM Account]).mockId('mockingQuery').toMap(Account.Name);
 
@@ -378,7 +378,7 @@ private class SOQLEvaluator_Test {
     static void sObjectsToMapWithRelatedKeyField() {
         // Setup
         insertAccountsWithParents();
-        
+
         // Test
         Map<String, Account> accounts = (Map<String, Account>) SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != null]).toMap('Parent', Account.Name);
 
@@ -393,10 +393,10 @@ private class SOQLEvaluator_Test {
             new Account(Name = 'Test 1', Parent = new Account(Name = 'Parent 1')),
             new Account(Name = 'Test 2', Parent = new Account(Name = 'Parent 2'))
         });
-        
+
         // Test
         Map<String, Account> accounts = (Map<String, Account>) SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != null]).mockId('mockingQuery').toMap('Parent', Account.Name);
-            
+
         // Verify
         Assert.areEqual(2, accounts.size(), 'The size of the returned map should be 2.');
     }
@@ -429,7 +429,7 @@ private class SOQLEvaluator_Test {
             new Account(Name = 'Test 1', Description = 'Description 1'),
             new Account(Name = 'Test 2', Description = 'Description 2')
         });
-        
+
         // Test
         Map<String, String> nameToDescription = SOQLEvaluator.of([SELECT Id, Name, Description FROM Account]).mockId('mockingQuery').toMap(Account.Name, Account.Description);
 
@@ -450,7 +450,7 @@ private class SOQLEvaluator_Test {
     static void sObjectsToAggregatedMap() {
         // Setup
         insertAccounts();
-        
+
         // Test
         Map<String, List<Account>> nameToAccounts = SOQLEvaluator.of([SELECT Id, Name FROM Account]).toAggregatedMap(Account.Name);
 
@@ -465,7 +465,7 @@ private class SOQLEvaluator_Test {
             new Account(Name = 'Test 1', Industry = 'IT'),
             new Account(Name = 'Test 2', Industry = 'IT')
         });
-        
+
         // Test
         Map<String, List<Account>> industryToAccounts = SOQLEvaluator.of([SELECT Id, Name, Industry FROM Account]).mockId('mockingQuery').toAggregatedMap(Account.Industry);
 
@@ -486,7 +486,7 @@ private class SOQLEvaluator_Test {
     static void sObjectsToAggregatedMapWithRelatedKeyField() {
         // Setup
         insertAccountsWithParents();
-        
+
         // Test
         Map<String, List<Account>> parentNameToAccounts = SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != null]).toAggregatedMap('Parent', Account.Name);
 
@@ -501,7 +501,7 @@ private class SOQLEvaluator_Test {
             new Account(Name = 'Test 1', Parent = new Account(Name = 'Parent 1')),
             new Account(Name = 'Test 2', Parent = new Account(Name = 'Parent 2'))
         });
-        
+
         // Test
         Map<String, List<Account>> parentNameToAccounts = SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != null]).mockId('mockingQuery').toAggregatedMap('Parent', Account.Name);
 
@@ -522,7 +522,7 @@ private class SOQLEvaluator_Test {
     static void sObjectsToAggregatedMapWithKeyAndValueFields() {
         // Setup
         insertAccounts();
-        
+
         // Test
         Map<String, List<String>> nameToDescriptions = SOQLEvaluator.of([SELECT Id, Name, Description FROM Account]).toAggregatedMap(Account.Name, Account.Description);
 
@@ -537,7 +537,7 @@ private class SOQLEvaluator_Test {
             new Account(Name = 'Test 1', Description = 'Description 1'),
             new Account(Name = 'Test 2', Description = 'Description 2')
         });
-        
+
         // Test
         Map<String, List<String>> nameToDescriptions = SOQLEvaluator.of([SELECT Id, Name, Description FROM Account]).mockId('mockingQuery').toAggregatedMap(Account.Name, Account.Description);
 
@@ -560,7 +560,7 @@ private class SOQLEvaluator_Test {
         SOQLEvaluator.mock('mockingQuery').thenReturn(new Account(Name = 'Test 1'));
         SOQLEvaluator.mock('mockingQuery').thenReturn(new Account(Name = 'Test 2'));
         SOQLEvaluator.mock('mockingQuery').thenReturn(new Account(Name = 'Test 3'));
-        
+
         // Test
         Account account1 = (Account) SOQLEvaluator.of([SELECT Id, Name FROM Account]).mockId('mockingQuery').toObject();
         Account account2 = (Account) SOQLEvaluator.of([SELECT Id, Name FROM Account]).mockId('mockingQuery').toObject();

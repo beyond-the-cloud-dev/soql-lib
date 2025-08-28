@@ -2,13 +2,13 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.0.0
- * 
+ * v6.0.1
+ *
  * PMD False Positives:
  * - CognitiveComplexity: It is a library and we tried to put everything into ONE class
 **/
 @SuppressWarnings('PMD.CognitiveComplexity')
-public inherited sharing class SOQLEvaluator {    
+public inherited sharing class SOQLEvaluator {
     public static SObjectEvaluable of(List<SObject> staticQueryRecords) {
         return new SObjectEvaluator(staticQueryRecords);
     }
@@ -46,7 +46,7 @@ public inherited sharing class SOQLEvaluator {
 
     @TestVisible
     private static Mockable mock(String mockId) {
-        if (!SOQLEvaluator.queryIdToMock.containsKey(mockId)) {   
+        if (!SOQLEvaluator.queryIdToMock.containsKey(mockId)) {
             SOQLEvaluator.queryIdToMock.put(mockId, new List<SoqlMock>());
         }
         SOQLEvaluator.queryIdToMock.get(mockId).add(new SoqlMock());
@@ -144,7 +144,7 @@ public inherited sharing class SOQLEvaluator {
         }
 
         public Map<Id, SObject> toMap() {
-            return this.converter.transform(this.toList()).toMap();   
+            return this.converter.transform(this.toList()).toMap();
         }
 
         public Map<String, SObject> toMap(SObjectField keyField) {

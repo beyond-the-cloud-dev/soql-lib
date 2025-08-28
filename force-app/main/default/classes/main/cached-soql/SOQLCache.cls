@@ -2,8 +2,8 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.0.0
- * 
+ * v6.0.1
+ *
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
  * - ExcessiveClassLength: It is a library and we tried to put everything into ONE class
@@ -88,7 +88,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     @TestVisible
     private static Mockable mock(String mockId) {
-        if (!SOQLCache.queryIdToMock.containsKey(mockId)) {   
+        if (!SOQLCache.queryIdToMock.containsKey(mockId)) {
             SOQLCache.queryIdToMock.put(mockId, new List<SoqlMock>());
         }
         SOQLCache.queryIdToMock.get(mockId).add(new SoqlMock());
@@ -382,7 +382,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
         public void removeRecordsFromCache(List<SObject> recordsToRemove) {
             Set<Id> recordsToRemoveIds = new Map<Id, SObject>(recordsToRemove).keySet();
-            
+
             List<CacheItem> filteredCachedItems = new List<CacheItem>();
 
             for (CacheItem cachedRecord : getCachedRecords()) {
@@ -603,7 +603,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
         public Boolean haveAllRequestedFields(List<CacheItem> cachedItems) {
             for (CacheItem cachedItem : cachedItems) {
-                if (!this.hasAllRequestedPlainFields(cachedItem.record) || 
+                if (!this.hasAllRequestedPlainFields(cachedItem.record) ||
                     !this.hasAllRequestedRelationshipFields(cachedItem.record)) {
                     return false;
                 }
@@ -617,7 +617,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
                     return false;
                 }
             }
-            
+
             return true;
         }
 
