@@ -995,7 +995,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public List<AggregateResult> toAggregated() {
-        return (List<AggregateResult>) this.toList();
+        return this.toList();
     }
 
     public List<AggregateResultProxy> toAggregatedProxy() {
@@ -2592,7 +2592,7 @@ public virtual inherited sharing class SOQL implements Queryable {
                 return this.getMockedAggregateProxy();
             }
 
-            return new AggregateResultProxys().add((List<AggregateResult>) this.toList()).get();
+            return new AggregateResultProxys().add(this.toList()).get();
         }
 
         private List<AggregateResultProxy> getMockedAggregateProxy() {
