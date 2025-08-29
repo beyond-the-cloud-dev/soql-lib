@@ -745,7 +745,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
                 return records;
             }
 
-            return Security.stripInaccessible(this.accessType, records).getRecords();
+            return System.Security.stripInaccessible(this.accessType, records).getRecords();
         }
 
         private List<SObject> getMockedList() {
