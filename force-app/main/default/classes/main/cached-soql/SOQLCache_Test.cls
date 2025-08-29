@@ -960,6 +960,23 @@ private class SOQLCache_Test {
     }
 
     @IsTest
+    static void mockEmptyRecord() {
+        // Setup
+        SOQLCache.mock('ProfileQuery').thenReturn(null);
+
+        // Test
+        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+            .with(Profile.Id, Profile.Name)
+            .mockId('ProfileQuery')
+            .whereEqual(Profile.Name, 'Profile That Not Exist')
+            .toObject();
+
+        // Verify
+        Assert.isNull(profile, 'The profile should be null.');
+        Assert.areEqual(0, Limits.getQueries(), 'No query should be issued.');
+    }
+
+    @IsTest
     static void cachedRecordDoesNotHaveNecessaryFields() {
         // Test
         Profile profile1 = (Profile) SOQLCache.of(Profile.SObjectType)

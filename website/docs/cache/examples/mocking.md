@@ -12,7 +12,7 @@ Mock SOQLCache results in Unit Tests.
 
 ## Single Record
 
-Set mocking ID in Query declaration.
+Set the mocking ID in the query declaration.
 
 ```apex title="Controller with Mock ID"
 public with sharing class ExampleController {
@@ -26,7 +26,7 @@ public with sharing class ExampleController {
 }
 ```
 
-Pass single SObject record to SOQLCache class, and use mock ID to target query to be mocked.
+Pass a single SObject record to the SOQLCache class, and use the mock ID to target the query to be mocked.
 
 ```apex title="Unit Test with Single Record Mock"
 @IsTest
@@ -47,7 +47,7 @@ public class ExampleControllerTest {
 }
 ```
 
-During execution SOQLCache will return record that was set by `.thenReturn` method.
+During execution, SOQLCache will return the record that was set by the `.thenReturn` method.
 
 ## No Results
 
@@ -63,33 +63,30 @@ public with sharing class ExampleController {
 }
 ```
 
-Pass an empty list: `.thenReturn(new List<Type>())`;
-- When `.toObject()` is invoked, it will return `null`.
+Pass `null` to the `.thenReturn()` method. When `.toObject()` is invoked, it will return `null`, which mimics that the record was not found in the database. SOQL Lib automatically handles `System.QueryException: List has no rows for assignment to SObject` and returns null, so to mimic that behavior use `null` to mock no results.
 
 This behavior will be the same as it is during runtime.
 
 ```apex title="Unit Test with Empty List Mock"
 @IsTest
 public class ExampleControllerTest {
-    private static final String TEST_ACCOUNT_NAME = 'MyAccount 1';
-
     @IsTest
     static void getAccountByName_NoResults() {
         SOQLCache.mock('ExampleController.getAccountByName')
-            .thenReturn(new Account()); // Empty record
+            .thenReturn(null); // Empty record
 
         Test.startTest();
-        Account result = ExampleController.getAccountByName(TEST_ACCOUNT_NAME);
+        Account result = ExampleController.getAccountByName('MyAccount 1');
         Test.stopTest();
 
-        Assert.isNull(result?.Name);
+        Assert.isNull(result);
     }
 }
 ```
 
 ## Parent Relationship
 
-Set mocking ID in Query declaration for queries with parent relationships.
+Set the mocking ID in the query declaration for queries with parent relationships.
 
 ```apex title="Controller with Parent Relationship Query"
 public with sharing class ExampleController {
@@ -105,7 +102,7 @@ public with sharing class ExampleController {
 }
 ```
 
-Create mock data with parent relationship structure.
+Create mock data with the parent relationship structure.
 
 ```apex title="Unit Test with Parent Relationship Mock"
 @IsTest
@@ -143,7 +140,7 @@ public class ExampleControllerTest {
 
 ## With Static Resource
 
-Set mocking ID in Query declaration.
+Set the mocking ID in the query declaration.
 
 ```apex title="Controller with Static Resource Query"
 public with sharing class ExampleController {
@@ -158,7 +155,7 @@ public with sharing class ExampleController {
 }
 ```
 
-Pass records from Static Resource to SOQLCache class, and use mock ID to target query to be mocked.
+Pass records from a Static Resource to the SOQLCache class, and use the mock ID to target the query to be mocked.
 
 ```apex title="Unit Test with Static Resource Mock"
 @IsTest
@@ -179,4 +176,4 @@ public class ExampleControllerTest {
 }
 ```
 
-During execution SOQLCache will return records from Static Resource that was set by `.thenReturn` method.
+During execution, SOQLCache will return records from the Static Resource that were set by the `.thenReturn` method.

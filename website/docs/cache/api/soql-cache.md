@@ -92,6 +92,15 @@ The following are methods for using `SOQLCache`:
 
 ### cacheInApexTransaction
 
+Queried records are stored in Apex cache (static variable) only for one Apex Transaction. 
+Very useful when data doesn't change often during one transaction like `User`.
+
+:::info[Default]
+
+Apex Transaction is the default cache storage when none is specified.
+
+:::
+
 **Signature**
 
 ```apex title="Method Signature"
@@ -257,7 +266,7 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
         super(Profile.SObjectType);
         cacheInOrgCache();
         allowQueryWithoutConditions();
-        with(Profile.Id, Profile.Name, Profile.UserType)
+        with(Profile.Id, Profile.Name, Profile.UserType);
     }
 
     public override SOQL.Queryable initialQuery() {
@@ -274,7 +283,7 @@ public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCac
 
 ## INITIAL QUERY
 
-The initial query allows for the bulk population of records in the cache (if it is empty), ensuring that every subsequent query in the cached selector will use the cached records.
+The initial query enables bulk population of records in the cache (if it is empty), ensuring that every subsequent query in the cached selector will use the cached records.
 
 For instance:
 
@@ -467,18 +476,19 @@ SOQLCache.of(Account.SObjectType)
 
 ## WHERE
 
-A cached query must include one condition. The filter must use a cached field (defined in `cachedFields()`) and should be based on `Id`, `Name`, `DeveloperName`, or another unique field.
+A cached query must include at least one condition. The filter must use a cached field (defined in `cachedFields()`) and should be based on `Id`, `Name`, `DeveloperName`, or another unique field.
 
-A query requires a single condition, and that condition must filter by a unique field.
+The query requires a single condition, and that condition must filter by a unique field.
 
 To ensure that cached records are aligned with the database, a single condition is required.
 A query without a condition cannot guarantee that the number of records in the cache matches the database.
 
 For example, let’s assume a developer makes the query: `SELECT Id, Name FROM Profile`. Cached records will be returned, but they may differ from the records in the database.
 
-The filter field should be unique. Consistency issues can arise when the field is not unique. For instance, the query:
+The filter field should be unique. Consistency issues can arise when the field is not unique. For instance, consider this query:
 `SELECT Id, Name FROM Profile WHERE UserType = 'Standard'`
-may return some records, but the number of records in the cache may differ from those in the database.
+
+This query may return some records, but the number of records in the cache may differ from those in the database.
 
 Using a unique field ensures that if a record is not found in the cache, the SOQL library can look it up in the database.
 
@@ -502,13 +512,13 @@ Using a unique field ensures that if a record is not found in the cache, the SOQ
 | 00e3V000000NmeYQAS | Solution Manager             | Standard               |
 | 00e3V000000NmeHQAS | Customer Community Plus User | PowerCustomerSuccess   |
 
-Let’s assume a developer executes the query:
+Let's assume a developer executes this query:
 `SELECT Id, Name, UserType FROM Profile WHERE UserType = 'Standard'`.
 
 Since records exist in the cache, 2 records will be returned, which is incorrect. The database contains 4 records with `UserType = 'Standard'`.
 To avoid such scenarios, filtering by a unique field is required.
 
-Sometimes, certain limitations can ensure that code functions in a deterministic and expected way. From our perspective, it is better to have limitations that make the code free from bugs and prevent unintended misuse.
+Sometimes, certain limitations ensure that code functions in a deterministic and expected way. We believe it's better to have limitations that keep the code bug-free and prevent unintended misuse.
 
 ### whereEqual
 
@@ -562,10 +572,10 @@ SOQLCache.of(Profile.SObjectType)
 ### mockId
 
 Developers can mock either the query or the cached result:
-- `SOQLCache.mock('queryId').thenReturn(record);` mocks cached results.
-- `SOQL.mock('queryId').thenReturn(record);` mocks the query when cached records are not found.
+- `SOQLCache.mock('queryId').thenReturn(record);` mocks cached results
+- `SOQL.mock('queryId').thenReturn(record);` mocks the query when cached records are not found
 
-We generally recommend using `SOQLCache.mock('queryId').thenReturn(record);` to ensure that records from the cache are not returned, which could otherwise lead to test instability.
+We generally recommend using `SOQLCache.mock('queryId').thenReturn(record);` to ensure that records from the cache are not returned. This prevents test instability that could otherwise occur.
 
 **Signature**
 
@@ -583,9 +593,9 @@ SOQLCache.of(Profile.SObjectType)
     .toObject();
 
 // In Unit Test
-SOQLCache.mock('MyQuery').thenReturn(new Profile(Name = 'Mocked System Adminstrator'));
+SOQLCache.mock('MyQuery').thenReturn(new Profile(Name = 'Mocked System Administrator'));
 // or
-SOQL.mock('MyQuery').thenReturn(new Profile(Name = 'Mocked System Adminstrator'));
+SOQL.mock('MyQuery').thenReturn(new Profile(Name = 'Mocked System Administrator'));
 ```
 
 ### record mock
@@ -606,7 +616,7 @@ SOQLCache.of(Profile.SObjectType)
     .toObject();
 
 // In Unit Test
-SOQLCache.mock('MyQuery').thenReturn(new Profile(Name = 'Mocked System Adminstrator'));
+SOQLCache.mock('MyQuery').thenReturn(new Profile(Name = 'Mocked System Administrator'));
 ```
 
 ## DEBUGGING
