@@ -292,7 +292,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void maxRelatedhAlias() {
+    static void maxRelatedAlias() {
         // Test
         String soql = SOQL.of(CampaignMember.SObjectType)
             .max('Campaign', Campaign.BudgetedCost, 'budgetedCost')
@@ -1432,7 +1432,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void filterInlcudesAll() {
+    static void filterIncludesAll() {
         // Setup
         List<String> ratings = new List<String>{ 'Hot', 'Warm' };
 
@@ -1447,7 +1447,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void filterInlcudesSome() {
+    static void filterIncludesSome() {
         // Setup
         List<String> ratings = new List<String>{ 'Hot', 'Warm' };
 
@@ -2019,7 +2019,7 @@ private class SOQL_Test {
                 )
                 .add(SOQL.FilterGroup
                     .add(SOQL.Filter.with(Account.Industry).equal('IT'))
-                    .add(SOQL.Filter.name().contains('MyAcccount'))
+                    .add(SOQL.Filter.name().contains('MyAccount'))
                 )
             )
             .toString();
@@ -2752,7 +2752,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void anyonditionMatchingForMainHavingFilterGroup() {
+    static void anyConditionMatchingForMainHavingFilterGroup() {
         // Test
         String soql = SOQL.of(Lead.SObjectType)
             .with(Lead.LeadSource)
@@ -2917,7 +2917,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void dataCategoryFilterAboveMultipe() {
+    static void dataCategoryFilterAboveMultiple() {
         // Test
         String soql = SOQL.of('Knowledge__kav')
             .with('Title')
@@ -2941,7 +2941,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void dataCategoryFilterBelowMultipe() {
+    static void dataCategoryFilterBelowMultiple() {
         // Test
         String soql = SOQL.of('Knowledge__kav')
             .with('Title')
@@ -2965,7 +2965,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void dataCategoryFilterAboveOrBelowMultipe() {
+    static void dataCategoryFilterAboveOrBelowMultiple() {
         // Test
         String soql = SOQL.of('Knowledge__kav')
             .with('Title')
@@ -2977,7 +2977,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void dataCategoryWithMultipeDataCategoryFilters() {
+    static void dataCategoryWithMultipleDataCategoryFilters() {
         // Test
         String soql = SOQL.of('Knowledge__kav')
             .with('Title')
@@ -2990,7 +2990,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void dataCategoryWithMultipeFilters() {
+    static void dataCategoryWithMultipleFilters() {
         // Test
         String soql = SOQL.of('Knowledge__kav')
             .with('Title')
@@ -3653,7 +3653,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.isNotNull(soqlException, 'Query mocking exception should be thrown.');
-        Assert.areEqual('Use toAggregatedProxy() to mock AggregateResult records.', soqlException.getMessage(), 'Mocking field aliasing is not supproted');
+        Assert.areEqual('Use toAggregatedProxy() to mock AggregateResult records.', soqlException.getMessage(), 'Mocking field aliasing is not supported');
     }
 
     @IsTest
@@ -3677,7 +3677,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.isNotNull(soqlException, 'Query mocking exception should be thrown.');
-        Assert.areEqual('Use toAggregatedProxy() to mock AggregateResult records.', soqlException.getMessage(), 'Mocking field aliasing is not supproted');
+        Assert.areEqual('Use toAggregatedProxy() to mock AggregateResult records.', soqlException.getMessage(), 'Mocking field aliasing is not supported');
     }
 
     @IsTest
@@ -4170,10 +4170,10 @@ private class SOQL_Test {
         insertAccounts(); // Industry is empty
 
         // Test
-        Set<String> accountsIndustires = SOQL.of(Account.SObjectType).toValuesOf(Account.Industry);
+        Set<String> accountsIndustries = SOQL.of(Account.SObjectType).toValuesOf(Account.Industry);
 
         // Verify
-        Assert.areEqual(0, accountsIndustires.size(), 'The size of the account industries set should be 0, because field is empty.');
+        Assert.areEqual(0, accountsIndustries.size(), 'The size of the account industries set should be 0, because field is empty.');
     }
 
     @IsTest
@@ -4217,7 +4217,7 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void toValuesOfRelationshipFieldWhenReleatedRecordNotExist() {
+    static void toValuesOfRelationshipFieldWhenRelatedRecordNotExist() {
         // Test
         Set<String> accountNames = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.name().equal('Test'))
