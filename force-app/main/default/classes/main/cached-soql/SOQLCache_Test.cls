@@ -810,7 +810,7 @@ private class SOQLCache_Test {
             .preview()
             .toObject();
 
-        // Verify - imposible to verify system.debug
+        // Verify - impossible to verify system.debug
     }
 
     @IsTest
