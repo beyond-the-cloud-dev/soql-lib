@@ -146,7 +146,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         // DEBUGGING
         Queryable preview();
         Map<String, Object> binding();
-        // PREDEFINIED
+        // PREDEFINED
         Queryable byId(SObject record);
         Queryable byId(Id recordId);
         Queryable byIds(Iterable<Id> recordIds);
@@ -234,7 +234,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Filter with(SObjectField field);
         Filter with(String field);
         Filter with(String relationshipName, SObjectField field);
-        // COMPERATORS
+        // COMPARATORS
         Filter isNull();
         Filter isNotNull();
         Filter isTrue();
@@ -300,7 +300,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         HavingFilter min(SObjectField field);
         HavingFilter max(SObjectField field);
         HavingFilter sum(SObjectField field);
-        // COMPERATORS
+        // COMPARATORS
         HavingFilter isNull();
         HavingFilter isNotNull();
         HavingFilter isTrue();
@@ -332,7 +332,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     public interface DataCategoryFilter {
         // FIELDS
         DataCategoryFilter with(String field);
-        // COMPERATORS
+        // COMPARATORS
         DataCategoryFilter at(String category);
         DataCategoryFilter at(Iterable<String> categories);
         DataCategoryFilter above(String category);
@@ -2431,7 +2431,7 @@ public virtual inherited sharing class SOQL implements Queryable {
                 this.stripAdditionalPlainFields(recordFilteredFields, record, requestedFields);
                 this.stripAdditionalSubQueries(recordFilteredFields, record, subQueriesRelationshipNames);
 
-                // JSON.serialize and JSON.deserialize are used to copy not writtable fields
+                // JSON.serialize and JSON.deserialize are used to copy not writable fields
                 cleanedRecords.add((SObject) JSON.deserialize(JSON.serialize(recordFilteredFields), objectTypeName));
             }
 
