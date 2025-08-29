@@ -4458,7 +4458,7 @@ private class SOQL_Test {
         List<Account> accounts = insertAccountsWithParents();
 
         // Test
-        Map<String, List<Account>> result = (Map<String, List<Account>>) SOQL.of(Account.SObjectType)
+        Map<String, List<Account>> result = SOQL.of(Account.SObjectType)
             .whereAre(SOQL.Filter.with(Account.ParentId).isNotNull())
             .toAggregatedMap('Parent.CreatedBy', User.Id);
 
