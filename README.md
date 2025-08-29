@@ -117,7 +117,7 @@ Visit the [documentation](https://soql.beyondthecloud.dev) to view the full docu
 
 ## Features
 
-Read about the features in the [basic features](https://soql.beyondthecloud.dev/docs/basic-features).
+Read about the features in the [basic features](https://soql.beyondthecloud.dev/soql/basic-features).
 
 ## Contributors
 
