@@ -34,7 +34,7 @@ private class CacheManagerTest {
         CacheManager.ApexTransaction.put('TestKey', 'Test Value');
 
         // Verify
-        Assert.areEqual('Test Value', (String) CacheManager.ApexTransaction.get('TestKey'), 'Cached value should be the same');
+        Assert.areEqual('Test Value', CacheManager.ApexTransaction.get('TestKey'), 'Cached value should be the same');
     }
 
     @IsTest
@@ -108,7 +108,7 @@ private class CacheManagerTest {
         CacheManager.SOQLOrgCache.put('TestKey', 'Test Value');
 
         // Verify
-        Assert.areEqual('Test Value', (String) CacheManager.SOQLOrgCache.get('TestKey'), 'Cached value should be the same');
+        Assert.areEqual('Test Value', CacheManager.SOQLOrgCache.get('TestKey'), 'Cached value should be the same');
     }
 
     @IsTest
@@ -182,7 +182,7 @@ private class CacheManagerTest {
         CacheManager.SOQLSessionCache.put('TestKey', 'Test Value');
 
         // Verify
-        Assert.areEqual('Test Value', (String) CacheManager.SOQLSessionCache.get('TestKey'), 'Cached value should be the same');
+        Assert.areEqual('Test Value', CacheManager.SOQLSessionCache.get('TestKey'), 'Cached value should be the same');
     }
 
     @IsTest
