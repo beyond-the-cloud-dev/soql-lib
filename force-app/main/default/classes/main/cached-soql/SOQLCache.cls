@@ -2,7 +2,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.0.1
+ * v6.0.2
  *
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
@@ -312,10 +312,14 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     private class CacheStorageProxy {
         private CacheManager.Cacheable storage = CacheManager.ApexTransaction;
-        private String ofObject;
+        private String cacheKey;
 
         public CacheStorageProxy(String ofObject) {
-            this.ofObject = ofObject;
+            this.cacheKey = this.getAlphanumericKeyFromObjectApiName(ofObject);
+        }
+
+        private String getAlphanumericKeyFromObjectApiName(String ofObject) {
+            return Pattern.compile('[^a-zA-Z0-9]').matcher(ofObject).replaceAll('');
         }
 
         public CacheStorageProxy apexTransaction() {
@@ -344,15 +348,15 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         public void putRecordsToCache(List<CacheItem> records) {
-            this.storage.put(this.ofObject, records);
+            this.storage.put(this.cacheKey, records);
         }
 
         public Boolean hasCachedRecords() {
-            return this.storage.contains(this.ofObject);
+            return this.storage.contains(this.cacheKey);
         }
 
         public List<CacheItem> getCachedRecords() {
-            return (List<CacheItem>) (this.storage.get(this.ofObject) ?? new List<CacheItem>());
+            return (List<CacheItem>) (this.storage.get(this.cacheKey) ?? new List<CacheItem>());
         }
 
         public void addRecordsToCache(List<SObject> recordsToAdd) {
