@@ -55,12 +55,12 @@ public inherited sharing class SOQLEvaluator {
 
     // Implementation
 
-    private static Map<String, List<SoqlMock>> queryIdToMock = new Map<String, List<SoqlMock>>();
+    private static final Map<String, List<SoqlMock>> queryIdToMock = new Map<String, List<SoqlMock>>();
 
     private class SObjectEvaluator implements SObjectEvaluable {
-        private List<SObject> records;
+        private final List<SObject> records;
         private AccessType access;
-        private SOQL.Converter converter;
+        private final SOQL.Converter converter;
         private List<SoqlMock> mocks = new List<SoqlMock>();
 
         public SObjectEvaluator(List<SObject> records) {
@@ -187,7 +187,7 @@ public inherited sharing class SOQLEvaluator {
     }
 
     public class SObjectMock {
-        private List<SObject> mockedRecords = new List<SObject>();
+        private final List<SObject> mockedRecords = new List<SObject>();
 
         public void add(SObject record) {
             this.mockedRecords.add(record);
