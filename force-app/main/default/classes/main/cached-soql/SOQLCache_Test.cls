@@ -248,7 +248,7 @@ private class SOQLCache_Test {
         SOQLCache.CacheItem cachedItem = new SOQLCache.CacheItem([
             SELECT Id, Name FROM Profile WHERE Name = :SYSTEM_ADMINISTRATOR LIMIT 1
         ]);
-        cachedItem.cachedDate = DateTime.now().addHours(-6);
+        cachedItem.cachedDate = Datetime.now().addHours(-6);
 
         CacheManager.ApexTransaction.put('Profile', new List<SOQLCache.CacheItem>{ cachedItem });
 
@@ -273,7 +273,7 @@ private class SOQLCache_Test {
     static void maxHoursWithoutRefreshRecordDoesNotExistAnymore() {
         // Setup
         SOQLCache.CacheItem cachedItem1 = new SOQLCache.CacheItem(new Profile(Id = SOQL.IdGenerator.get(Profile.SObjectType), Name = 'ProfileNotExistName'));
-        cachedItem1.cachedDate = DateTime.now().addHours(-6);
+        cachedItem1.cachedDate = Datetime.now().addHours(-6);
         SOQLCache.CacheItem cachedItem2 = new SOQLCache.CacheItem(new Profile(Id = SOQL.IdGenerator.get(Profile.SObjectType), Name = SYSTEM_ADMINISTRATOR));
 
         CacheManager.ApexTransaction.put('Profile', new List<SOQLCache.CacheItem>{ cachedItem1, cachedItem2 });
@@ -654,19 +654,19 @@ private class SOQLCache_Test {
         Account account1 = (Account) SOQLCache.of(Account.SObjectType)
             .with(Account.Id, Account.IsDeleted)
             .allowFilteringByNonUniqueFields()
-            .whereEqual(Account.IsDeleted, FALSE)
+            .whereEqual(Account.IsDeleted, false)
             .toObject();
 
         // Second query to retrieve the cached record
         Account account2 = (Account) SOQLCache.of(Account.SObjectType)
             .with(Account.Id, Account.IsDeleted)
             .allowFilteringByNonUniqueFields()
-            .whereEqual(Account.IsDeleted, FALSE)
+            .whereEqual(Account.IsDeleted, false)
             .toObject();
 
         // Verify
-        Assert.areEqual(FALSE, account1.IsDeleted, 'The cached account record should be FALSE.');
-        Assert.areEqual(FALSE, account2.IsDeleted, 'The cached account record should be FALSE.');
+        Assert.isFalse(account1.IsDeleted, 'The cached account record should be false.');
+        Assert.isFalse(account2.IsDeleted, 'The cached account record should be false.');
         Assert.areEqual(1, Limits.getQueries(), 'The number of queries should be 1.');
     }
 
@@ -1143,7 +1143,7 @@ private class SOQLCache_Test {
             LocaleSidKey = 'en_US',
             Profile = new Profile(Name = 'Minimum Access - Salesforce'),
             TimeZoneSidKey = 'America/Los_Angeles',
-            UserName = 'queryselector@testorg.com'
+            Username = 'queryselector@testorg.com'
         );
     }
 

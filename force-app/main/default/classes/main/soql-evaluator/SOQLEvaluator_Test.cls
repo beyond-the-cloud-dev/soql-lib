@@ -93,7 +93,7 @@ private class SOQLEvaluator_Test {
         insertAccountsWithParents();
 
         // Test
-        Set<Id> parentAccountIds = SOQLEvaluator.of([SELECT Id, ParentId FROM Account WHERE ParentId != null]).toIdsOf(Account.ParentId);
+        Set<Id> parentAccountIds = SOQLEvaluator.of([SELECT Id, ParentId FROM Account WHERE ParentId != NULL]).toIdsOf(Account.ParentId);
 
         // Verify
         Assert.areEqual(2, parentAccountIds.size(), 'The size of the returned set should be 2, because only two accounts have a parent.');
@@ -120,7 +120,7 @@ private class SOQLEvaluator_Test {
         insertAccountsWithParents();
 
         // Test
-        Set<Id> createdByIds = SOQLEvaluator.of([SELECT Id, Parent.CreatedById FROM Account WHERE ParentId != null]).toIdsOf('Parent', Account.CreatedById);
+        Set<Id> createdByIds = SOQLEvaluator.of([SELECT Id, Parent.CreatedById FROM Account WHERE ParentId != NULL]).toIdsOf('Parent', Account.CreatedById);
 
         // Verify
         Assert.areEqual(1, createdByIds.size(), 'The size of the returned set should be 1, because the same user inserted the accounts.');
@@ -135,7 +135,7 @@ private class SOQLEvaluator_Test {
         });
 
         // Test
-        Set<Id> parentIds = SOQLEvaluator.of([SELECT Id, Parent.ParentId FROM Account WHERE ParentId != null]).mockId('mockingQuery').toIdsOf('Parent', Account.ParentId);
+        Set<Id> parentIds = SOQLEvaluator.of([SELECT Id, Parent.ParentId FROM Account WHERE ParentId != NULL]).mockId('mockingQuery').toIdsOf('Parent', Account.ParentId);
 
         // Verify
         Assert.areEqual(2, parentIds.size(), 'The size of the returned set should be 2, because the accounts have a parent.');
@@ -380,7 +380,7 @@ private class SOQLEvaluator_Test {
         insertAccountsWithParents();
 
         // Test
-        Map<String, Account> accounts = (Map<String, Account>) SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != null]).toMap('Parent', Account.Name);
+        Map<String, Account> accounts = (Map<String, Account>) SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != NULL]).toMap('Parent', Account.Name);
 
         // Verify
         Assert.areEqual(2, accounts.size(), 'The size of the returned map should be 2.');
@@ -395,7 +395,7 @@ private class SOQLEvaluator_Test {
         });
 
         // Test
-        Map<String, Account> accounts = (Map<String, Account>) SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != null]).mockId('mockingQuery').toMap('Parent', Account.Name);
+        Map<String, Account> accounts = (Map<String, Account>) SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != NULL]).mockId('mockingQuery').toMap('Parent', Account.Name);
 
         // Verify
         Assert.areEqual(2, accounts.size(), 'The size of the returned map should be 2.');
@@ -404,7 +404,7 @@ private class SOQLEvaluator_Test {
     @IsTest
     static void sObjectsToMapWithRelatedKeyFieldWhenNoRecords() {
         // Test
-        Map<String, Account> accounts = (Map<String, Account>) SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != null]).toMap('Parent', Account.Name);
+        Map<String, Account> accounts = (Map<String, Account>) SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != NULL]).toMap('Parent', Account.Name);
 
         // Verify
         Assert.areEqual(0, accounts.size(), 'The size of the returned map should be 0.');
@@ -488,7 +488,7 @@ private class SOQLEvaluator_Test {
         insertAccountsWithParents();
 
         // Test
-        Map<String, List<Account>> parentNameToAccounts = SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != null]).toAggregatedMap('Parent', Account.Name);
+        Map<String, List<Account>> parentNameToAccounts = SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != NULL]).toAggregatedMap('Parent', Account.Name);
 
         // Verify
         Assert.areEqual(2, parentNameToAccounts.size(), 'The size of the returned map should be 2.');
@@ -503,7 +503,7 @@ private class SOQLEvaluator_Test {
         });
 
         // Test
-        Map<String, List<Account>> parentNameToAccounts = SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != null]).mockId('mockingQuery').toAggregatedMap('Parent', Account.Name);
+        Map<String, List<Account>> parentNameToAccounts = SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != NULL]).mockId('mockingQuery').toAggregatedMap('Parent', Account.Name);
 
         // Verify
         Assert.areEqual(2, parentNameToAccounts.size(), 'The size of the returned map should be 2.');
@@ -512,7 +512,7 @@ private class SOQLEvaluator_Test {
     @IsTest
     static void sObjectsToAggregatedMapWithRelatedKeyFieldWhenNoRecords() {
         // Test
-        Map<String, List<Account>> parentNameToAccounts = SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != null]).toAggregatedMap('Parent', Account.Name);
+        Map<String, List<Account>> parentNameToAccounts = SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != NULL]).toAggregatedMap('Parent', Account.Name);
 
         // Verify
         Assert.areEqual(0, parentNameToAccounts.size(), 'The size of the returned map should be 0.');
@@ -615,7 +615,7 @@ private class SOQLEvaluator_Test {
             LocaleSidKey = 'en_US',
             Profile = new Profile(Name = 'Minimum Access - Salesforce'),
             TimeZoneSidKey = 'America/Los_Angeles',
-            UserName = 'queryselector@testorg.com'
+            Username = 'queryselector@testorg.com'
         );
     }
 

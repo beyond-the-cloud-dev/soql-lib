@@ -458,7 +458,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     @TestVisible
     private class CacheItem {
         public Id id;
-        public DateTime cachedDate;
+        public Datetime cachedDate;
         public SObject record;
 
         public CacheItem(SObject record) {
