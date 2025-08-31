@@ -697,7 +697,7 @@ private class SOQL_Test {
 
          // Test
          try {
-            String soql = SOQL.of(Account.SObjectType)
+            SOQL.of(Account.SObjectType)
                 .withFieldSet('FieldSetName')
                 .toString();
          } catch(Exception e) {
@@ -2177,7 +2177,7 @@ private class SOQL_Test {
 
         // Test
         try {
-           String soql = SOQL.of(Account.SObjectType)
+           SOQL.of(Account.SObjectType)
                 .with(Account.Type)
                 .groupBy(Account.Type)
                 .groupByCube(Account.Type)
@@ -3345,7 +3345,7 @@ private class SOQL_Test {
             Exception queryException = null;
 
             try {
-                Task task = (Task) SOQL.of(Task.SObjectType)
+                SOQL.of(Task.SObjectType)
                     .with(Task.Type)
                     .userMode()
                     .toObject();
@@ -3687,8 +3687,6 @@ private class SOQL_Test {
             new Account(Name = 'Test 1', Description = 'Test 1 Description', Website = 'www.beyondthecloud.dev', Parent = new Account(Name = 'Parent 1')),
             new Account(Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev', Parent = new Account(Name = 'Parent 2'))
         };
-
-        QueryException soqlException = null;
 
         // Test
         SOQL.mock('mockingQuery').thenReturn(accounts);
@@ -4248,7 +4246,7 @@ private class SOQL_Test {
 
         // Test
         try {
-            Account result = (Account) SOQL.of(Account.SObjectType).toObject();
+            SOQL.of(Account.SObjectType).toObject();
         } catch (Exception e) {
             queryException = e; // List has more than 1 row for assignment to SObject
         }
@@ -4409,7 +4407,7 @@ private class SOQL_Test {
     @IsTest
     static void toMapWithEmptyCustomRelationshipKey() {
         // Setup
-        List<Account> accounts = insertAccounts();
+        insertAccounts();
 
         // Test
         Map<String, Account> result = (Map<String, Account>) SOQL.of(Account.SObjectType).toMap('Parent', Account.Name);
@@ -4499,7 +4497,7 @@ private class SOQL_Test {
     @IsTest
     static void toAggregatedMapWithEmptyCustomKeyAndCustomValue() {
         // Setup
-        List<Account> accounts = insertAccounts();
+        insertAccounts();
 
         // Test
         Map<String, List<String>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Industry, Account.Id);
