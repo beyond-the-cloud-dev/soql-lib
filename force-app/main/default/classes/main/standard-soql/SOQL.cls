@@ -389,7 +389,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         return SOQL.queryIdToMock.get(mockId).get(SOQL.queryIdToMock.get(mockId).size() - 1);
     }
 
-    @TestVisible
     public static RandomIdGenerator IdGenerator = new RandomIdGenerator();
 
     public interface Mockable {

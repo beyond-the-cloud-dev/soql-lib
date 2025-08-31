@@ -236,7 +236,7 @@ private class SOQLEvaluator_Test {
 
         // Test
         try {
-            Account account = (Account) SOQLEvaluator.of([SELECT Id, Name FROM Account]).toObject();
+            SOQLEvaluator.of([SELECT Id, Name FROM Account]).toObject();
         } catch (Exception e) {
             queryException = e;
         }
