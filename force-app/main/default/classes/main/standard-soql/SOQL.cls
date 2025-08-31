@@ -1185,7 +1185,7 @@ public virtual inherited sharing class SOQL implements Queryable {
          }
 
         public void withFieldSet(String fieldSetName) {
-            FieldSet fieldSet = Schema.describeSObjects(new List<String>{ this.ofObject })[0].FieldSets.getMap().get(fieldSetName);
+            FieldSet fieldSet = Schema.describeSObjects(new List<String>{ this.ofObject })[0].fieldSets.getMap().get(fieldSetName);
 
             if (fieldSet == null) {
                 throw new QueryException('FieldSet with name ' + fieldSetName + ' does not exist!');
