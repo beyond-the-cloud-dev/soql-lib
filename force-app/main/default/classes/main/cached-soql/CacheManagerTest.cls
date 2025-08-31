@@ -1,7 +1,11 @@
 /**
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/cache-manager/blob/main/LICENSE)
+ *
+ * PMD False Positives:
+ * - ApexDoc: Variable names are self-documented.
 **/
+@SuppressWarnings('PMD.ApexDoc')
 @IsTest
 private class CacheManagerTest {
     @IsTest

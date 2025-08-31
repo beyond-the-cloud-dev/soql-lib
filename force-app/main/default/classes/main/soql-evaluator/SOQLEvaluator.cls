@@ -6,8 +6,9 @@
  *
  * PMD False Positives:
  * - CognitiveComplexity: It is a library and we tried to put everything into ONE class
+ * - ApexDoc: Variable names are self-documented.
 **/
-@SuppressWarnings('PMD.CognitiveComplexity')
+@SuppressWarnings('PMD.CognitiveComplexity,PMD.ApexDoc')
 public inherited sharing class SOQLEvaluator {
     public static SObjectEvaluable of(List<SObject> staticQueryRecords) {
         return new SObjectEvaluator(staticQueryRecords);
