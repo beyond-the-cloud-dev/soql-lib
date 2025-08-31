@@ -428,14 +428,14 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     // Implementation
 
-    private static Map<String, List<SoqlMock>> queryIdToMock = new Map<String, List<SoqlMock>>();
+    private static final Map<String, List<SoqlMock>> queryIdToMock = new Map<String, List<SoqlMock>>();
 
-    private static Binder binder = new Binder();
+    private static final Binder binder = new Binder();
     private static Integer syncQueriesIssued = 0;
 
-    private SoqlBuilder builder;
-    private Executor executor;
-    private Converter converter;
+    private final SoqlBuilder builder;
+    private final Executor executor;
+    private final Converter converter;
 
     public SOQL(SObjectType ofObject) {
         this(ofObject.toString());
@@ -1067,7 +1067,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class SoqlBuilder implements QueryClause {
-        private List<QueryClause> clauses = new QueryClause[12];
+        private final List<QueryClause> clauses = new QueryClause[12];
 
         public SoqlBuilder(String ofObject) {
             this.clauses.set(0, new SoqlFields(ofObject));
@@ -1148,8 +1148,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         public FunctionsFields functionsFields = new FunctionsFields(); // toLabel, FORMAT
         public AggregateFunctionsFields aggregateFields = new AggregateFunctionsFields();
 
-        private String ofObject;
-        private Set<String> groupedFields = new Set<String>();
+        private final String ofObject;
+        private final Set<String> groupedFields = new Set<String>();
 
         public SoqlFields(String ofObject) {
             this.ofObject = ofObject;
@@ -1459,7 +1459,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class SoqlSubQueries implements QueryClause {
-        private List<SubQuery> subQueries = new List<SubQuery>();
+        private final List<SubQuery> subQueries = new List<SubQuery>();
 
         public void add(SubQuery subQuery) {
             this.subQueries.add(subQuery);
@@ -1487,7 +1487,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class SoqlFrom implements QueryClause {
-        private String objectApiName;
+        private final String objectApiName;
 
         public SoqlFrom(String objectType) {
             this.objectApiName = objectType;
@@ -1622,7 +1622,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class FilterGroupAdapter implements FilterClause {
-        private FilterGroup filterGroup;
+        private final FilterGroup filterGroup;
 
         public FilterGroupAdapter(FilterGroup filterGroup) {
             this.filterGroup = filterGroup;
@@ -1638,7 +1638,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class FilterAdapter implements FilterClause {
-        private Filter filter;
+        private final Filter filter;
 
         public FilterAdapter(Filter filter) {
             this.filter = filter;
@@ -1654,7 +1654,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class StringConditionAdapter implements FilterClause {
-        private String conditionString;
+        private final String conditionString;
 
         public StringConditionAdapter(String dynamicCondition) {
             this.conditionString = dynamicCondition;
@@ -1871,7 +1871,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class DataCategoryFilterAdapter implements FilterClause {
-        private DataCategoryFilter dataCategoryFilter;
+        private final DataCategoryFilter dataCategoryFilter;
 
         public DataCategoryFilterAdapter(DataCategoryFilter dataCategoryFilter) {
             this.dataCategoryFilter = dataCategoryFilter;
@@ -1978,7 +1978,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class SoqlGroupBy implements QueryClause {
-        private Set<String> groupByFields = new Set<String>();
+        private final Set<String> groupByFields = new Set<String>();
         private String groupByFunction = '';
 
         public void with(String relationshipName, SObjectField field) {
@@ -2077,7 +2077,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class HavingFilterGroupAdapter implements FilterClause {
-        private HavingFilterGroup havingFilterGroup;
+        private final HavingFilterGroup havingFilterGroup;
 
         public HavingFilterGroupAdapter(HavingFilterGroup havingFilterGroup) {
             this.havingFilterGroup = havingFilterGroup;
@@ -2093,7 +2093,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class HavingFilterAdapter implements FilterClause {
-        private HavingFilter havingFilter;
+        private final HavingFilter havingFilter;
 
         public HavingFilterAdapter(HavingFilter havingFilter) {
             this.havingFilter = havingFilter;
@@ -2326,7 +2326,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private class Binder {
         private Integer bindIndex = 0;
-        private Map<String, Object> binding = new Map<String, Object>();
+        private final Map<String, Object> binding = new Map<String, Object>();
 
         public String bind(Object value) {
             bindIndex++;
@@ -2381,7 +2381,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public class SObjectMock {
-        private List<SObject> mockedRecords = new List<SObject>();
+        private final List<SObject> mockedRecords = new List<SObject>();
         public Boolean useLegacyMockingBehavior = false;
 
         public void add(SObject record) {
@@ -2468,7 +2468,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class AggregateResultProxys {
-        private List<AggregateResultProxy> aggregateResults = new List<AggregateResultProxy>();
+        private final List<AggregateResultProxy> aggregateResults = new List<AggregateResultProxy>();
 
         public AggregateResultProxys add(List<AggregateResult> aggregateResults) {
             for (AggregateResult result : aggregateResults) {
@@ -2495,7 +2495,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class SoqlAggregateResultProxy implements AggregateResultProxy {
-        private Map<String, Object> aggregateResult;
+        private final Map<String, Object> aggregateResult;
 
         public SoqlAggregateResultProxy(AggregateResult aggregateResult) {
             this.aggregateResult = aggregateResult.getPopulatedFieldsAsMap();
@@ -2518,7 +2518,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         private DatabaseQuery sharingExecutor;
         private AccessLevel accessMode;
         private AccessType accessType;
-        private SoqlBuilder builder;
+        private final SoqlBuilder builder;
         private List<SoqlMock> mocks = new List<SoqlMock>();
 
         public Executor(SoqlBuilder builder) {
@@ -2689,7 +2689,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     public inherited sharing class Converter {
-        private String ofObject;
+        private final String ofObject;
         private List<SObject> recordsToTransform;
 
         public Converter(String ofObject) {

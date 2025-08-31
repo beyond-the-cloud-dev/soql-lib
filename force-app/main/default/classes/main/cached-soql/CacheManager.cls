@@ -82,7 +82,7 @@ public with sharing class CacheManager {
     }
 
     private abstract class PlatformCache implements Cacheable {
-        private Cache.Partition platformCachePartition;
+        private final Cache.Partition platformCachePartition;
 
         public PlatformCache(String partitionName) {
             this.platformCachePartition = getPartition(partitionName);
