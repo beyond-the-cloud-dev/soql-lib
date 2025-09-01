@@ -6,8 +6,9 @@
  * - CognitiveComplexity: It is a library and we tried to put everything into ONE class
  * - PropertyNamingConventions: It was intentional to make the lib more fluent and readable
  * - FieldNamingConventions: It was intentional to make the lib more fluent and readable
+ * - ApexDoc: Variable names are self-documented.
 **/
-@SuppressWarnings('PMD.CognitiveComplexity,PMD.PropertyNamingConventions,PMD.FieldNamingConventions')
+@SuppressWarnings('PMD.CognitiveComplexity,PMD.PropertyNamingConventions,PMD.FieldNamingConventions,PMD.ApexDoc')
 public with sharing class CacheManager {
     public interface Cacheable {
         Boolean contains(String key);

@@ -4,7 +4,11 @@
  *
  * v6.0.2
  *
- **/
+ * PMD False Positives:
+ * - CyclomaticComplexity: It is a library and we tried to put everything into ONE class
+ * - ApexDoc: Variable names are self-documented.
+**/
+@SuppressWarnings('PMD.CyclomaticComplexity,PMD.ApexDoc')
 @IsTest
 private class SOQLEvaluator_Test {
     @IsTest
@@ -619,8 +623,8 @@ private class SOQLEvaluator_Test {
         );
     }
 
-    public without sharing class WithoutSharing {
-        public List<Task> getTasks() {
+    private without sharing class WithoutSharing {
+        private List<Task> getTasks() {
             return [SELECT Id, Subject, Type FROM Task WITH SYSTEM_MODE];
         }
     }
