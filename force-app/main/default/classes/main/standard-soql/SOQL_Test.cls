@@ -1,16 +1,16 @@
 /**
+ * @description Tests for the SOQL class.
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.0.2
+ * v6.1.0
  *
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
  * - CognitiveComplexity: It is a library and we tried to put everything into ONE test class
  * - NcssTypeCount: It is a library and we tried to put everything into ONE test class
- * - ApexDoc: Variable names are self-documented.
 **/
-@SuppressWarnings('PMD.CyclomaticComplexity,PMD.CognitiveComplexity,PMD.NcssTypeCount,PMD.ApexDoc')
+@SuppressWarnings('PMD.CyclomaticComplexity,PMD.CognitiveComplexity,PMD.NcssTypeCount')
 @IsTest
 private class SOQL_Test {
     @IsTest
@@ -697,7 +697,7 @@ private class SOQL_Test {
 
          // Test
          try {
-            String soql = SOQL.of(Account.SObjectType)
+            SOQL.of(Account.SObjectType)
                 .withFieldSet('FieldSetName')
                 .toString();
          } catch(Exception e) {
@@ -1038,7 +1038,7 @@ private class SOQL_Test {
     @IsTest
     static void mineAndMyGroupsScope() {
         // Test
-        String soql = SOQL.of(ProcessInstanceWorkItem.SObjectType)
+        String soql = SOQL.of(ProcessInstanceWorkitem.SObjectType)
             .mineAndMyGroupsScope()
             .toString();
 
@@ -2177,7 +2177,7 @@ private class SOQL_Test {
 
         // Test
         try {
-           String soql = SOQL.of(Account.SObjectType)
+           SOQL.of(Account.SObjectType)
                 .with(Account.Type)
                 .groupBy(Account.Type)
                 .groupByCube(Account.Type)
@@ -2689,7 +2689,7 @@ private class SOQL_Test {
             .count(Lead.Name)
             .groupBy(Lead.LeadSource)
             .groupBy(Lead.City)
-            .have(SOQL.HavingFilter.WITH(Lead.LeadSource).equal('Web'));
+            .have(SOQL.HavingFilter.with(Lead.LeadSource).equal('Web'));
 
         Assert.areEqual('SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING LeadSource = \'Web\'', builder.toString(), 'The generated SOQL should match the expected one.');
 
@@ -3345,7 +3345,7 @@ private class SOQL_Test {
             Exception queryException = null;
 
             try {
-                Task task = (Task) SOQL.of(Task.SObjectType)
+                SOQL.of(Task.SObjectType)
                     .with(Task.Type)
                     .userMode()
                     .toObject();
@@ -3456,7 +3456,7 @@ private class SOQL_Test {
 
         // Test
         SOQL.setMock('mockingQuery', testAccount);
-        Account result = (Account) SOQL.of(Account.sObjectType).with(Account.Name).mockId('mockingQuery').toObject();
+        Account result = (Account) SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toObject();
 
         // Verify
         Assert.areEqual(testAccount, result, 'The mocked account should be returned.');
@@ -3466,7 +3466,7 @@ private class SOQL_Test {
     static void mockNoResult() {
         // Test
         SOQL.setMock('mockingQuery', new List<Account>());
-        Account result = (Account) SOQL.of(Account.sObjectType).with(Account.Name).mockId('mockingQuery').toObject();
+        Account result = (Account) SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toObject();
 
         // Verify
         Assert.isNull(result, 'The result should be null when no records are mocked.');
@@ -3476,7 +3476,7 @@ private class SOQL_Test {
     static void mockNoResultWithNull() {
         // Test
         SOQL.setMock('mockingQuery', (Account) null);
-        Account result = (Account) SOQL.of(Account.sObjectType).with(Account.Name).mockId('mockingQuery').toObject();
+        Account result = (Account) SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toObject();
 
         // Verify
         Assert.isNull(result, 'The result should be null when no records are mocked.');
@@ -3486,7 +3486,7 @@ private class SOQL_Test {
     static void mockNoResults() {
         // Test
         SOQL.mock('mockingQuery').thenReturn(new List<Account>());
-        List<Account> result = SOQL.of(Account.sObjectType).with(Account.Name).mockId('mockingQuery').toList();
+        List<Account> result = SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toList();
 
         // Verify
         Assert.isTrue(result.isEmpty(), 'The result should be empty when no records are mocked.');
@@ -3502,7 +3502,7 @@ private class SOQL_Test {
 
         // Test
         SOQL.setMock('mockingQuery', testAccounts);
-        List<Account> result = SOQL.of(Account.sObjectType).with(Account.Name).mockId('mockingQuery').toList();
+        List<Account> result = SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toList();
 
         // Verify
         Assert.areEqual(testAccounts, result, 'The mocked accounts should be returned.');
@@ -3515,7 +3515,7 @@ private class SOQL_Test {
 
         // Test
         SOQL.mock('mockingQuery').thenReturn(testAccount);
-        Account result = (Account) SOQL.of(Account.sObjectType).with(Account.Name).mockId('mockingQuery').toObject();
+        Account result = (Account) SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toObject();
 
         // Verify
         Assert.areEqual(testAccount.Name, result.Name, 'The result account Name should be the same as the mocked account Name.');
@@ -3526,7 +3526,7 @@ private class SOQL_Test {
     static void mockingCount() {
         // Test
         SOQL.setCountMock('mockingQuery', 2);
-        Integer result = SOQL.of(Account.sObjectType).count().mockId('mockingQuery').toInteger();
+        Integer result = SOQL.of(Account.SObjectType).count().mockId('mockingQuery').toInteger();
 
         // Verify
         Assert.areEqual(2, result, 'The mocked count should be returned.');
@@ -3536,7 +3536,7 @@ private class SOQL_Test {
     static void mockingCountWithMockableInterface() {
         // Test
         SOQL.mock('mockingQuery').thenReturn(2);
-        Integer result = SOQL.of(Account.sObjectType).count().mockId('mockingQuery').toInteger();
+        Integer result = SOQL.of(Account.SObjectType).count().mockId('mockingQuery').toInteger();
 
         // Verify
         Assert.areEqual(2, result, 'The mocked count should be returned.');
@@ -3688,8 +3688,6 @@ private class SOQL_Test {
             new Account(Name = 'Test 2', Description = 'Test 2 Description', Website = 'www.beyondthecloud.dev', Parent = new Account(Name = 'Parent 2'))
         };
 
-        QueryException soqlException = null;
-
         // Test
         SOQL.mock('mockingQuery').thenReturn(accounts);
         List<Account> result = SOQL.of(Account.SObjectType).with(Account.Name, Account.Industry).with('Parent', Account.Name).mockId('mockingQuery').toList();
@@ -3716,7 +3714,7 @@ private class SOQL_Test {
 
         List<SOQL.AggregateResultProxy> results = SOQL.of(Lead.SObjectType)
             .with(Lead.LeadSource)
-            .COUNT(Lead.Id, 'total')
+            .count(Lead.Id, 'total')
             .groupBy(Lead.LeadSource)
             .mockId('mockingQuery')
             .toAggregatedProxy();
@@ -3745,7 +3743,7 @@ private class SOQL_Test {
 
         List<SOQL.AggregateResultProxy> result = SOQL.of(Lead.SObjectType)
             .with(Lead.LeadSource)
-            .COUNT(Lead.Id, 'total')
+            .count(Lead.Id, 'total')
             .groupBy(Lead.LeadSource)
             .mockId('mockingQuery')
             .toAggregatedProxy();
@@ -3917,28 +3915,28 @@ private class SOQL_Test {
         // Test
         List<SOQL.AggregateResultProxy> result1 = SOQL.of(Lead.SObjectType)
             .with(Lead.LeadSource)
-            .COUNT(Lead.Id, 'total')
+            .count(Lead.Id, 'total')
             .groupBy(Lead.LeadSource)
             .mockId('mockingQuery')
             .toAggregatedProxy();
 
         List<SOQL.AggregateResultProxy> result2 = SOQL.of(Lead.SObjectType)
             .with(Lead.LeadSource)
-            .COUNT(Lead.Id, 'total')
+            .count(Lead.Id, 'total')
             .groupBy(Lead.LeadSource)
             .mockId('mockingQuery')
             .toAggregatedProxy();
 
         List<SOQL.AggregateResultProxy> result3 = SOQL.of(Lead.SObjectType)
             .with(Lead.LeadSource)
-            .COUNT(Lead.Id, 'total')
+            .count(Lead.Id, 'total')
             .groupBy(Lead.LeadSource)
             .mockId('mockingQuery')
             .toAggregatedProxy();
 
         List<SOQL.AggregateResultProxy> result4 = SOQL.of(Lead.SObjectType)
             .with(Lead.LeadSource)
-            .COUNT(Lead.Id, 'total')
+            .count(Lead.Id, 'total')
             .groupBy(Lead.LeadSource)
             .mockId('mockingQuery')
             .toAggregatedProxy();
@@ -4248,7 +4246,7 @@ private class SOQL_Test {
 
         // Test
         try {
-            Account result = (Account) SOQL.of(Account.SObjectType).toObject();
+            SOQL.of(Account.SObjectType).toObject();
         } catch (Exception e) {
             queryException = e; // List has more than 1 row for assignment to SObject
         }
@@ -4409,7 +4407,7 @@ private class SOQL_Test {
     @IsTest
     static void toMapWithEmptyCustomRelationshipKey() {
         // Setup
-        List<Account> accounts = insertAccounts();
+        insertAccounts();
 
         // Test
         Map<String, Account> result = (Map<String, Account>) SOQL.of(Account.SObjectType).toMap('Parent', Account.Name);
@@ -4499,7 +4497,7 @@ private class SOQL_Test {
     @IsTest
     static void toAggregatedMapWithEmptyCustomKeyAndCustomValue() {
         // Setup
-        List<Account> accounts = insertAccounts();
+        insertAccounts();
 
         // Test
         Map<String, List<String>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Industry, Account.Id);
@@ -4744,7 +4742,7 @@ private class SOQL_Test {
             LocaleSidKey = 'en_US',
             Profile = new Profile(Name = 'Minimum Access - Salesforce'),
             TimeZoneSidKey = 'America/Los_Angeles',
-            UserName = 'queryselector@testorg.com'
+            Username = 'queryselector@testorg.com'
         );
     }
 }

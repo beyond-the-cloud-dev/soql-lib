@@ -2,7 +2,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.0.2
+ * v6.1.0
  *
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
@@ -458,7 +458,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     @TestVisible
     private class CacheItem {
         public Id id;
-        public DateTime cachedDate;
+        public Datetime cachedDate;
         public SObject record;
 
         public CacheItem(SObject record) {

@@ -2,12 +2,13 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.0.2
+ * v6.1.0
  *
  * PMD False Positives:
  * - CognitiveComplexity: It is a library and we tried to put everything into ONE class
+ * - ApexDoc: Variable names are self-documented.
 **/
-@SuppressWarnings('PMD.CognitiveComplexity')
+@SuppressWarnings('PMD.CognitiveComplexity,PMD.ApexDoc')
 public inherited sharing class SOQLEvaluator {
     public static SObjectEvaluable of(List<SObject> staticQueryRecords) {
         return new SObjectEvaluator(staticQueryRecords);

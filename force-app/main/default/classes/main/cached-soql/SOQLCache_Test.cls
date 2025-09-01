@@ -1,15 +1,15 @@
 /**
+ * @description Tests for the SOQLCache class.
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.0.2
+ * v6.1.0
  *
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
  * - CognitiveComplexity: It is a library and we tried to put everything into ONE class
- * - ApexDoc: Variable names are self-documented.
 **/
-@SuppressWarnings('PMD.CyclomaticComplexity,PMD.CognitiveComplexity,PMD.ApexDoc')
+@SuppressWarnings('PMD.CyclomaticComplexity,PMD.CognitiveComplexity')
 @IsTest
 private class SOQLCache_Test {
     private static final String INITIAL_QUERY_MOCK_ID = 'cachedProfile';
@@ -53,7 +53,7 @@ private class SOQLCache_Test {
 
         // Test
         try {
-            User user = (User) new SOQL_UserCache().whereEqual(User.Username, 'test@test.com').toObject();
+            new SOQL_UserCache().whereEqual(User.Username, 'test@test.com').toObject();
         } catch (SOQLCache.SoqlCacheException e) {
             soqlException = e;
         }
@@ -169,7 +169,7 @@ private class SOQLCache_Test {
     @IsTest
     static void cacheInApexTransaction() {
         // Test
-        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+        SOQLCache.of(Profile.SObjectType)
             .cacheInApexTransaction()
             .with(Profile.Id, Profile.Name)
             .whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR)
@@ -248,7 +248,7 @@ private class SOQLCache_Test {
         SOQLCache.CacheItem cachedItem = new SOQLCache.CacheItem([
             SELECT Id, Name FROM Profile WHERE Name = :SYSTEM_ADMINISTRATOR LIMIT 1
         ]);
-        cachedItem.cachedDate = DateTime.now().addHours(-6);
+        cachedItem.cachedDate = Datetime.now().addHours(-6);
 
         CacheManager.ApexTransaction.put('Profile', new List<SOQLCache.CacheItem>{ cachedItem });
 
@@ -273,13 +273,13 @@ private class SOQLCache_Test {
     static void maxHoursWithoutRefreshRecordDoesNotExistAnymore() {
         // Setup
         SOQLCache.CacheItem cachedItem1 = new SOQLCache.CacheItem(new Profile(Id = SOQL.IdGenerator.get(Profile.SObjectType), Name = 'ProfileNotExistName'));
-        cachedItem1.cachedDate = DateTime.now().addHours(-6);
+        cachedItem1.cachedDate = Datetime.now().addHours(-6);
         SOQLCache.CacheItem cachedItem2 = new SOQLCache.CacheItem(new Profile(Id = SOQL.IdGenerator.get(Profile.SObjectType), Name = SYSTEM_ADMINISTRATOR));
 
         CacheManager.ApexTransaction.put('Profile', new List<SOQLCache.CacheItem>{ cachedItem1, cachedItem2 });
 
         // Test
-        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+        SOQLCache.of(Profile.SObjectType)
             .with(Profile.Id, Profile.Name)
             .whereEqual(Profile.Name, 'ProfileNotExistName')
             .maxHoursWithoutRefresh(3)
@@ -654,19 +654,19 @@ private class SOQLCache_Test {
         Account account1 = (Account) SOQLCache.of(Account.SObjectType)
             .with(Account.Id, Account.IsDeleted)
             .allowFilteringByNonUniqueFields()
-            .whereEqual(Account.IsDeleted, FALSE)
+            .whereEqual(Account.IsDeleted, false)
             .toObject();
 
         // Second query to retrieve the cached record
         Account account2 = (Account) SOQLCache.of(Account.SObjectType)
             .with(Account.Id, Account.IsDeleted)
             .allowFilteringByNonUniqueFields()
-            .whereEqual(Account.IsDeleted, FALSE)
+            .whereEqual(Account.IsDeleted, false)
             .toObject();
 
         // Verify
-        Assert.areEqual(FALSE, account1.IsDeleted, 'The cached account record should be FALSE.');
-        Assert.areEqual(FALSE, account2.IsDeleted, 'The cached account record should be FALSE.');
+        Assert.isFalse(account1.IsDeleted, 'The cached account record should be false.');
+        Assert.isFalse(account2.IsDeleted, 'The cached account record should be false.');
         Assert.areEqual(1, Limits.getQueries(), 'The number of queries should be 1.');
     }
 
@@ -716,7 +716,7 @@ private class SOQLCache_Test {
 
         // Test
         try {
-            Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+            SOQLCache.of(Profile.SObjectType)
                 .with(Profile.Id, Profile.Name)
                 .whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR)
                 .whereEqual(Profile.Id, SOQL.IdGenerator.get(Profile.SObjectType))
@@ -744,9 +744,10 @@ private class SOQLCache_Test {
                 .toObject();
 
             Exception queryException = null;
+            String inaccessibleFieldValue;
 
             try {
-                String inaccessibleFieldValue = cachedTask.Type;
+                inaccessibleFieldValue = cachedTask.Type;
             } catch(Exception e) {
                 queryException = e;
             }
@@ -1061,12 +1062,12 @@ private class SOQLCache_Test {
     @IsTest
     static void withCommaSeparatedFieldsWereAlreadySet() {
         // Test
-        Profile profile1 = (Profile) SOQLCache.of(Profile.SObjectType)
+        SOQLCache.of(Profile.SObjectType)
             .with('Id, Name, UserType, UserLicense.Name, UserLicense.Status')
             .whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR)
             .toObject();
 
-        Profile profile2 = (Profile) SOQLCache.of(Profile.SObjectType)
+        SOQLCache.of(Profile.SObjectType)
             .with('Id, Name, UserType, UserLicense.Name, UserLicense.Status')
             .whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR)
             .toObject();
@@ -1099,7 +1100,7 @@ private class SOQLCache_Test {
     @IsTest
     static void emptyRecordsClearedFromCache() {
         // Setup
-        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+        SOQLCache.of(Profile.SObjectType)
             .with(Profile.Id, Profile.Name)
             .whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR)
             .cacheInOrgCache()
@@ -1143,7 +1144,7 @@ private class SOQLCache_Test {
             LocaleSidKey = 'en_US',
             Profile = new Profile(Name = 'Minimum Access - Salesforce'),
             TimeZoneSidKey = 'America/Los_Angeles',
-            UserName = 'queryselector@testorg.com'
+            Username = 'queryselector@testorg.com'
         );
     }
 
