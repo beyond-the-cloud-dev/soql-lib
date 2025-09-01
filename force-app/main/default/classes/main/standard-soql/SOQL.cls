@@ -1162,8 +1162,8 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public void with(String commaSeparatedFields) {
             // Add to Set to avoid "duplicate field selected" error
-            for (String splittedField : commaSeparatedFields.split(',')) {
-                this.classifyField(splittedField);
+            for (String splitField : commaSeparatedFields.split(',')) {
+                this.classifyField(splitField);
             }
         }
 
@@ -1671,7 +1671,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private class SoqlFilter implements Filter {
         private String field;
-        private String comperator;
+        private String comparator;
         private Object value;
         private String wrapper = '{0}';
         private Boolean skipBinding = false;
@@ -1826,9 +1826,9 @@ public virtual inherited sharing class SOQL implements Queryable {
              return this.set(operator, '(\'' + String.join(iterable, separator) + '\')');
         }
 
-        private Filter set(String comperator, Object value) {
+        private Filter set(String comparator, Object value) {
             this.value = value;
-            this.comperator = comperator;
+            this.comparator = comparator;
             return this;
         }
 
@@ -1845,17 +1845,17 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Filter asDateLiteral() {
-            // Date Literals can't be binded
+            // Date Literals can't be bound
             this.skipBinding = true;
             return this;
         }
 
         public override String toString() {
             if (this.skipBinding) {
-                return String.format(this.wrapper, new List<String>{ this.field + ' ' + this.comperator + ' ' + this.value });
+                return String.format(this.wrapper, new List<String>{ this.field + ' ' + this.comparator + ' ' + this.value });
             }
 
-            return String.format(this.wrapper, new List<String>{ this.field + ' ' + this.comperator + ' :' + binder.bind(value) });
+            return String.format(this.wrapper, new List<String>{ this.field + ' ' + this.comparator + ' :' + binder.bind(value) });
         }
     }
 
@@ -1888,7 +1888,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private class SoqlDataCategoryFilter implements DataCategoryFilter {
         private String field;
-        private String comperator;
+        private String comparator;
         private String value;
 
         public DataCategoryFilter with(String field) {
@@ -1929,13 +1929,13 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public DataCategoryFilter set(String operator, Iterable<String> iterable) {
-            this.comperator = operator;
+            this.comparator = operator;
             this.value = '(' + String.join(iterable, ', ') + ')';
             return this;
         }
 
-        private DataCategoryFilter set(String comperator, String value) {
-            this.comperator = comperator;
+        private DataCategoryFilter set(String comparator, String value) {
+            this.comparator = comparator;
             this.value = value;
             return this;
         }
@@ -1945,7 +1945,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            return this.field + ' ' + this.comperator + ' ' + this.value;
+            return this.field + ' ' + this.comparator + ' ' + this.value;
         }
     }
 
@@ -2110,7 +2110,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private class SoqlHavingFilter implements HavingFilter {
         private String field;
-        private String comperator;
+        private String comparator;
         private Object value;
         private String wrapper = '{0}';
 
@@ -2246,13 +2246,13 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public HavingFilter set(String operator, Iterable<String> iterable, String separator) {
-             this.comperator = operator;
+             this.comparator = operator;
              this.value = '(\'' + String.join(iterable, separator) + '\')';
              return this;
         }
 
-        private HavingFilter set(String comperator, Object value) {
-            this.comperator = comperator;
+        private HavingFilter set(String comparator, Object value) {
+            this.comparator = comparator;
             this.value = value instanceof String ? '\'' + value + '\'' : value;
             return this;
         }
@@ -2262,7 +2262,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            return String.format(this.wrapper, new List<String>{ this.field + ' ' + this.comperator + ' ' + this.value });
+            return String.format(this.wrapper, new List<String>{ this.field + ' ' + this.comparator + ' ' + this.value });
         }
     }
 
@@ -2347,7 +2347,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     private class SoqlMock implements Mockable {
         public SObjectMock sObjectMock = new SObjectMock();
         public CountMock countMock = new CountMock();
-        public AggregateResultProxys aggregateResultMock = new AggregateResultProxys();
+        public AggregateResultProxies aggregateResultMock = new AggregateResultProxies();
 
         public Mockable thenReturn(List<Map<String, Object>> aggregatedResults) {
             this.aggregateResultMock.add(aggregatedResults);
@@ -2467,24 +2467,24 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    private class AggregateResultProxys {
+    private class AggregateResultProxies {
         private List<AggregateResultProxy> aggregateResults = new List<AggregateResultProxy>();
 
-        public AggregateResultProxys add(List<AggregateResult> aggregateResults) {
+        public AggregateResultProxies add(List<AggregateResult> aggregateResults) {
             for (AggregateResult result : aggregateResults) {
                 this.aggregateResults.add(new SoqlAggregateResultProxy(result));
             }
             return this;
         }
 
-        public AggregateResultProxys add(List<Map<String, Object>> aggregateResults) {
+        public AggregateResultProxies add(List<Map<String, Object>> aggregateResults) {
             for (Map<String, Object> result : aggregateResults) {
                 this.add(result);
             }
             return this;
         }
 
-        public AggregateResultProxys add(Map<String, Object> aggregateResult) {
+        public AggregateResultProxies add(Map<String, Object> aggregateResult) {
             this.aggregateResults.add(new SoqlAggregateResultProxy(aggregateResult));
             return this;
         }
@@ -2592,7 +2592,7 @@ public virtual inherited sharing class SOQL implements Queryable {
                 return this.getMockedAggregateProxy();
             }
 
-            return new AggregateResultProxys().add(this.toList()).get();
+            return new AggregateResultProxies().add(this.toList()).get();
         }
 
         private List<AggregateResultProxy> getMockedAggregateProxy() {
