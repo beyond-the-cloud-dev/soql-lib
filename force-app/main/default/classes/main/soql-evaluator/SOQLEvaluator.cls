@@ -208,7 +208,7 @@ public inherited sharing class SOQLEvaluator {
 
         private void addIdToMockedRecords() { // Id is always added to mirror standard SOQL behavior
             SObjectType sObjectType = this.mockedRecords[0].getSObjectType();
-            String sObjectPrefix = sObjectType.getDescribe().getKeyPrefix();
+            String sObjectPrefix = sObjectType.getDescribe(SObjectDescribeOptions.DEFERRED).getKeyPrefix();
 
             for (SObject record : this.mockedRecords) {
                 record.put('Id', record?.Id ?? SOQL.IdGenerator.get(sObjectPrefix));
