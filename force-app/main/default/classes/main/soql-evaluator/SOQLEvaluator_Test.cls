@@ -624,8 +624,8 @@ private class SOQLEvaluator_Test {
         );
     }
 
-    public without sharing class WithoutSharing {
-        public List<Task> getTasks() {
+    private without sharing class WithoutSharing {
+        private List<Task> getTasks() {
             return [SELECT Id, Subject, Type FROM Task WITH SYSTEM_MODE];
         }
     }
