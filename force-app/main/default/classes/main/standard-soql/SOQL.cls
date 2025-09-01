@@ -1186,7 +1186,7 @@ public virtual inherited sharing class SOQL implements Queryable {
          }
 
         public void withFieldSet(String fieldSetName) {
-            FieldSet fieldSet = Schema.describeSObjects(new List<String>{ this.ofObject })[0].FieldSets.getMap().get(fieldSetName);
+            FieldSet fieldSet = Schema.describeSObjects(new List<String>{ this.ofObject }, SObjectDescribeOptions.DEFERRED)[0].fieldSets.getMap().get(fieldSetName);
 
             if (fieldSet == null) {
                 throw new QueryException('FieldSet with name ' + fieldSetName + ' does not exist!');
@@ -2413,7 +2413,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         private void addIdToMockedRecords() { // Id is always added to mirror standard SOQL behavior
             SObjectType sObjectType = this.mockedRecords[0].getSObjectType();
-            String sObjectPrefix = sObjectType.getDescribe().getKeyPrefix();
+            String sObjectPrefix = sObjectType.getDescribe(SObjectDescribeOptions.DEFERRED).getKeyPrefix();
 
             for (SObject record : this.mockedRecords) {
                 record.put('Id', record?.Id ?? IdGenerator.get(sObjectPrefix));
