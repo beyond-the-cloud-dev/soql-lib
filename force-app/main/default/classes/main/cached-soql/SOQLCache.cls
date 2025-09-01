@@ -119,10 +119,10 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     // Implementation
 
-    private static Map<String, List<SoqlMock>> queryIdToMock = new Map<String, List<SoqlMock>>();
+    private static final Map<String, List<SoqlMock>> queryIdToMock = new Map<String, List<SoqlMock>>();
 
-    private Executor executor;
-    private Cache cache;
+    private final Executor executor;
+    private final Cache cache;
 
     public SOQL.Queryable initialQuery = null;
     public SOQL.Queryable currentQuery = null;
@@ -312,7 +312,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
     private class CacheStorageProxy {
         private CacheManager.Cacheable storage = CacheManager.ApexTransaction;
-        private String cacheKey;
+        private final String cacheKey;
 
         public CacheStorageProxy(String ofObject) {
             this.cacheKey = this.getAlphanumericKeyFromObjectApiName(ofObject);
@@ -412,7 +412,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             this.expiration = new CacheExpiration();
         }
 
-        private List<CacheItem> cachedItemsThatMeetCriteria {
+        private final List<CacheItem> cachedItemsThatMeetCriteria {
             get {
                 if (this.cachedItemsThatMeetCriteria == null) {
                     this.cachedItemsThatMeetCriteria = this.filterGroup.filter(this.storage.getCachedRecords());
@@ -469,10 +469,10 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     private class CacheFilterGroup {
-        private String ofObject;
+        private final String ofObject;
 
-        private List<CacheFilter> filters = new List<CacheFilter>();
-        private List<String> additionalAllowedConditionFields = new List<String>();
+        private final List<CacheFilter> filters = new List<CacheFilter>();
+        private final List<String> additionalAllowedConditionFields = new List<String>();
 
         private Boolean allowFilteringByNonUniqueFields = false;
         private Boolean allowQueryWithoutConditions = false;
@@ -566,8 +566,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     private class CacheFields {
-        private Set<String> cachedFields = new Set<String>();
-        private Set<String> cachedRelationshipFields = new Set<String>();
+        private final Set<String> cachedFields = new Set<String>();
+        private final Set<String> cachedRelationshipFields = new Set<String>();
 
         public void with(String commaSeparatedFields) {
             for (String field : commaSeparatedFields.split(',')) {
@@ -685,7 +685,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     public class SoqlMock implements Mockable {
-        private List<SObject> mockedRecords = new List<SObject>();
+        private final List<SObject> mockedRecords = new List<SObject>();
 
         public void thenReturn(SObject record) {
             this.mockedRecords.add(record);
@@ -697,8 +697,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
     }
 
     private inherited sharing class Executor {
-        private SOQL.Queryable currentQuery;
-        private Cache cache;
+        private final SOQL.Queryable currentQuery;
+        private final Cache cache;
         private AccessType accessType = null;
         private List<SoqlMock> mocks = new List<SoqlMock>();
 
