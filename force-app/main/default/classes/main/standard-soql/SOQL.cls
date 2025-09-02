@@ -2380,19 +2380,19 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public class SObjectMock {
+    private class SObjectMock {
         private List<SObject> mockedRecords = new List<SObject>();
-        public Boolean useLegacyMockingBehavior = false;
+        private Boolean useLegacyMockingBehavior = false;
 
-        public void add(SObject record) {
+        private void add(SObject record) {
             this.mockedRecords.add(record);
         }
 
-        public void add(List<SObject> records) {
+        private void add(List<SObject> records) {
             this.mockedRecords.addAll(records);
         }
 
-        public List<SObject> get(SoqlFields fields, SoqlSubQueries subQueries) {
+        private List<SObject> get(SoqlFields fields, SoqlSubQueries subQueries) {
             // AggregateResult can be mocked only with Id field for toIdsOf, toValueOf
             if (this.useLegacyMockingBehavior || this.mockedRecords.isEmpty() || this.mockedRecords[0]?.getSObjectType() == AggregateResult.SObjectType) {
                 return this.mockedRecords;
@@ -2455,14 +2455,14 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
-    public class CountMock {
+    private class CountMock {
         private Integer countMock;
 
-        public void set(Integer count) {
+        private void set(Integer count) {
             this.countMock = count;
         }
 
-        public Integer get() {
+        private Integer get() {
             return this.countMock;
         }
     }
