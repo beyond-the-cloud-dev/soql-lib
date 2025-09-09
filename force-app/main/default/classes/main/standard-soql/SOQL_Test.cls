@@ -4508,6 +4508,18 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void toAggregatedMapWithCustomKeyAndCustomRelationshipValue() {
+		// Setup
+		insertAccountsWithParents();
+
+		// Test
+		Map<String, List<String>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Name, 'Parent', Account.Id);
+
+		// Verify
+		Assert.areEqual(4, result.size(), 'The result map should have 4 keys for each account name.');
+	}
+
+	@IsTest
 	static void toQueryLocator() {
 		// Test
 		Database.QueryLocator queryLocator = SOQL.of(Account.SObjectType)

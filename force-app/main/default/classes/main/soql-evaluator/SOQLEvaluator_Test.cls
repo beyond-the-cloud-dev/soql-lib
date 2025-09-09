@@ -560,6 +560,42 @@ private class SOQLEvaluator_Test {
 	}
 
 	@IsTest
+	static void sObjectsToAggregatedMapWithKeyAndRelationshipValueFields() {
+		// Setup
+		insertAccountsWithParents();
+
+		// Test
+		Map<String, List<String>> nameToDescriptions = SOQLEvaluator.of([SELECT Id, Name, Parent.Name FROM Account WHERE ParentId != NULL]).toAggregatedMap(Account.Name, 'Parent', Account.Name);
+
+		// Verify
+		Assert.areEqual(2, nameToDescriptions.size(), 'The size of the returned map should be 2.');
+	}
+
+	@IsTest
+	static void sObjectsToAggregatedMapWithKeyAndRelationshipValueFieldsWithMocking() {
+		// Setup
+		SOQLEvaluator.mock('mockingQuery').thenReturn(new List<Account>{
+			new Account(Name = 'Test 1', Parent = new Account(Name = 'Parent 1')),
+			new Account(Name = 'Test 2', Parent = new Account(Name = 'Parent 2'))
+		});
+
+		// Test
+		Map<String, List<String>> parentNameToAccountNames = SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != NULL]).mockId('mockingQuery').toAggregatedMap(Account.Name, 'Parent', Account.Name);
+
+		// Verify
+		Assert.areEqual(2, parentNameToAccountNames.size(), 'The size of the returned map should be 2.');
+	}
+
+	@IsTest
+	static void sObjectsToAggregatedMapWithKeyAndRelationshipValueFieldsWhenNoRecords() {
+		// Test
+		Map<String, List<String>> parentNameToAccountNames = SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != NULL]).toAggregatedMap(Account.Name, 'Parent', Account.Name);
+
+		// Verify
+		Assert.areEqual(0, parentNameToAccountNames.size(), 'The size of the returned map should be 0.');
+	}
+
+	@IsTest
 	static void sObjectsMockStack() {
 		// Setup
 		SOQLEvaluator.mock('mockingQuery').thenReturn(new Account(Name = 'Test 1'));
