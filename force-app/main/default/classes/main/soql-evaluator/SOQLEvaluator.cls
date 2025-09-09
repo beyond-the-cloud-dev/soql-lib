@@ -37,6 +37,7 @@ public inherited sharing class SOQLEvaluator {
 		Map<String, List<SObject>> toAggregatedMap(SObjectField keyField);
 		Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField);
 		Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
+		Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField);
 	}
 
 	public interface Mockable {
@@ -170,6 +171,10 @@ public inherited sharing class SOQLEvaluator {
 
 		public Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField) {
 			return this.converter.transform(this.toList()).toAggregatedMap(keyField, valueField);
+		}
+
+		public Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField) {
+			return this.converter.transform(this.toList()).toAggregatedMap(keyField, relationshipName, targetKeyField);
 		}
 	}
 

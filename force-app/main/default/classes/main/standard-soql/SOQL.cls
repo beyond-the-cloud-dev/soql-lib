@@ -156,7 +156,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		Id toId();
 		Set<Id> toIds();
 		Set<Id> toIdsOf(SObjectField field);
-		Set<Id> toIdsOf(String relationshipName, SObjectField field);
+		Set<Id> toIdsOf(String relationshipName, SObjectField targetKeyField);
 		Boolean doExist();
 		String toString();
 		Object toValueOf(SObjectField fieldToExtract);
@@ -174,6 +174,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		Map<String, List<SObject>> toAggregatedMap(SObjectField keyField);
 		Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField);
 		Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
+		Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField);
 		Database.QueryLocator toQueryLocator();
 	}
 
@@ -1035,6 +1036,13 @@ public virtual inherited sharing class SOQL implements Queryable {
 		this.builder.fields.clearAllFields(); // other fields not needed
 		this.with(keyField, valueField);
 		return this.converter.transform(this.executor.toList()).toAggregatedMap(keyField, valueField);
+	}
+
+	public Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField) {
+		this.builder.fields.clearAllFields(); // other fields not needed
+		this.with(keyField);
+		this.with(relationshipName + '.' + targetKeyField.toString());
+		return this.converter.transform(this.executor.toList()).toAggregatedMap(keyField, relationshipName, targetKeyField);
 	}
 
 	public Database.QueryLocator toQueryLocator() {
@@ -2813,6 +2821,24 @@ public virtual inherited sharing class SOQL implements Queryable {
 				}
 
 				customValuesPerCustomKey.get(key).add(record.get(valueField)?.toString());
+			}
+
+			return customValuesPerCustomKey;
+		}
+
+		public Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField) {
+			Map<String, List<String>> customValuesPerCustomKey = new Map<String, List<String>>();
+			List<String> relationshipPathFields = relationshipName.split('\\.');
+			
+			for (SObject record : this.recordsToTransform) {
+				String key = String.valueOf(record.get(keyField));
+				String value = extractNestedFieldValue(record, relationshipPathFields, targetKeyField);
+
+				if (!customValuesPerCustomKey.containsKey(key)) {
+					customValuesPerCustomKey.put(key, new List<String>());
+				}
+
+				customValuesPerCustomKey.get(key).add(value);
 			}
 
 			return customValuesPerCustomKey;
