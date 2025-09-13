@@ -4419,15 +4419,15 @@ private class SOQL_Test {
 	static void mockedToIdMapByRelationshipField() {
 		// Setup
 		SOQL.mock('mockingQuery').thenReturn(new List<Account>{
-			new Account(Name = 'Account 1', Parent = new Account(Name = 'Parent 1', CreatedById = SOQL.IdGenerator.get(User.SObjectType))),
-			new Account(Name = 'Account 2', Parent = new Account(Name = 'Parent 2', CreatedById = SOQL.IdGenerator.get(User.SObjectType)))
+			new Account(Name = 'Account 1', Parent = new Account(Name = 'Parent 1', Id = SOQL.IdGenerator.get(Account.SObjectType))),
+			new Account(Name = 'Account 2', Parent = new Account(Name = 'Parent 2', Id = SOQL.IdGenerator.get(Account.SObjectType)))
 		});
 
 		// Test
-		Map<Id, Account> result = (Map<Id, Account>) SOQL.of(Account.SObjectType).mockId('mockingQuery').toIdMapBy('Parent', Account.CreatedById);
+		Map<Id, Account> result = (Map<Id, Account>) SOQL.of(Account.SObjectType).mockId('mockingQuery').toIdMapBy('Parent', Account.Id);
 
 		// Verify
-		Assert.areEqual(2, result.size(), 'Size of the result map should be equal to 2, because the accounts have 2 parents.');
+		Assert.areEqual(2, result.size(), 'Size of the result map should be equal to 2, because the accounts have 2 different parents.');
 	}
 
 	@IsTest
@@ -4474,18 +4474,18 @@ private class SOQL_Test {
 	@IsTest
 	static void mockedtoAggregatedIdMapByRelationshipField() {
 		// Setup
-		Id userId = SOQL.IdGenerator.get(User.SObjectType);
+		Id parentId = SOQL.IdGenerator.get(Account.SObjectType);
 			
 		SOQL.mock('mockingQuery').thenReturn(new List<Account>{
-			new Account(Name = 'Account 1', Parent = new Account(Name = 'Parent 1', CreatedById = userId)),
-			new Account(Name = 'Account 2', Parent = new Account(Name = 'Parent 2', CreatedById = userId))
+			new Account(Name = 'Account 1', Parent = new Account(Name = 'Parent 1', Id = parentId)),
+			new Account(Name = 'Account 2', Parent = new Account(Name = 'Parent 2', Id = parentId))
 		});
 
 		// Test
-		Map<Id, List<Account>> result = (Map<Id, List<Account>>) SOQL.of(Account.SObjectType).mockId('mockingQuery').toAggregatedIdMapBy('Parent', Account.CreatedById);
+		Map<Id, List<Account>> result = (Map<Id, List<Account>>) SOQL.of(Account.SObjectType).mockId('mockingQuery').toAggregatedIdMapBy('Parent', Account.Id);
 
 		// Verify
-		Assert.areEqual(1, result.size(), 'Size of the result map should be equal to 1, because all parent accounts have the same created by user.');
+		Assert.areEqual(1, result.size(), 'Size of the result map should be equal to 1, because all parent accounts have the same parent.');
 	}
 
 	@IsTest
