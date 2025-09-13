@@ -151,7 +151,6 @@ public virtual inherited sharing class SOQL implements Queryable {
 		Queryable mockId(String queryIdentifier);
 		// DEBUGGING
 		Queryable preview();
-		Map<String, Object> binding();
 		// SOBJECT
 		SObject toObject();
 		// LIST
@@ -186,6 +185,9 @@ public virtual inherited sharing class SOQL implements Queryable {
 		Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField);
 		Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
 		Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField);
+
+		// for internal use
+		Map<String, Object> binding();
 	}
 
 	public interface SubQuery {
