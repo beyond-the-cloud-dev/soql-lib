@@ -206,6 +206,10 @@ The following are methods for using `SOQL`:
 - [`toAggregatedMap(SObjectField keyField)`](#toaggregatedmap)
 - [`toAggregatedMap(String relationshipName, SObjectField targetKeyField)`](#toaggregatedmap-with-custom-relationship-key)
 - [`toAggregatedMap(SObjectField keyField, SObjectField valueField)`](#toaggregatedmap-with-custom-value)
+- [`toIdMapBy(SObjectField field)`](#toidmapby)
+- [`toIdMapBy(String relationshipName, SObjectField targetKeyField)`](#toidmapby-with-relationship)
+- [`toAggregatedIdMapBy(SObjectField keyField)`](#toaggregateidmapby)
+- [`toAggregatedIdMapBy(String relationshipName, SObjectField targetKeyField)`](#toaggregateidmapby-with-relationship)
 - [`toQueryLocator()`](#toquerylocator)
 
 ## INIT
@@ -2558,6 +2562,8 @@ Map<Id, Account> idToAccount = (Map<Id, Account>) SOQL.of(Account.SObjectType).t
 
 ### toMap with custom key
 
+**Note!** To improve query performance, a condition checking if the keyField is not null (`WHERE keyField != null`) is automatically added to the query.
+
 **Signature**
 
 ```apex
@@ -2571,6 +2577,8 @@ Map<String, Account> nameToAccount = (Map<String, Account>) SOQL.of(Account.SObj
 ```
 
 ### toMap with custom relationship key
+
+**Note!** To improve query performance, a condition checking if the targetKeyField is not null (`WHERE relationshipName.targetKeyField != null`) is automatically added to the query.
 
 **Signature**
 
@@ -2586,6 +2594,8 @@ Map<String, Account> parentCreatedByEmailToAccount = (Map<String, Account>) SOQL
 
 ### toMap with custom key and value
 
+**Note!** To improve query performance, a condition checking if the keyField is not null (`WHERE keyField != null`) is automatically added to the query.
+
 **Signature**
 
 ```apex
@@ -2599,6 +2609,8 @@ Map<String, String> nameToAccount = SOQL.of(Account.SObjectType).toMap(Account.N
 ```
 
 ### toAggregatedMap
+
+**Note!** To improve query performance, a condition checking if the keyField is not null (`WHERE keyField != null`) is automatically added to the query.
 
 **Signature**
 
@@ -2614,6 +2626,8 @@ Map<String, List<Account>> industryToAccounts = (Map<String, List<Account>>) SOQ
 
 ### toAggregatedMap with custom value
 
+**Note!** To improve query performance, a condition checking if the keyField is not null (`WHERE keyField != null`) is automatically added to the query.
+
 **Signature**
 
 ```apex
@@ -2628,6 +2642,8 @@ Map<String, List<String>> industryToAccounts = SOQL.of(Account.SObjectType).toAg
 
 ### toAggregatedMap with custom relationship key
 
+**Note!** To improve query performance, a condition checking if the targetKeyField is not null (`WHERE relationshipName.targetKeyField != null`) is automatically added to the query.
+
 **Signature**
 
 ```apex
@@ -2638,6 +2654,78 @@ Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField
 
 ```apex
 Map<String, List<Account>> parentCreatedByEmailToAccounts = (Map<String, List<Account>>) SOQL.of(Account.SObjectType).toAggregatedMap('Parent.CreatedBy', User.Email);
+```
+
+### toIdMapBy
+
+Creates a map where the key is the Id extracted from the specified field and the value is the SObject record.
+
+**Note!** To improve query performance, a condition checking if the field is not null (`WHERE field != null`) is automatically added to the query.
+
+**Signature**
+
+```apex
+Map<Id, SObject> toIdMapBy(SObjectField field)
+```
+
+**Example**
+
+```apex
+Map<Id, Account> ownerIdToAccount = (Map<Id, Account>) SOQL.of(Account.SObjectType).toIdMapBy(Account.OwnerId);
+```
+
+### toIdMapBy with relationship
+
+Creates a map where the key is the Id extracted from the specified relationship field and the value is the SObject record.
+
+**Note!** To improve query performance, a condition checking if the targetKeyField is not null (`WHERE relationshipName.targetKeyField != null`) is automatically added to the query.
+
+**Signature**
+
+```apex
+Map<Id, SObject> toIdMapBy(String relationshipName, SObjectField targetKeyField)
+```
+
+**Example**
+
+```apex
+Map<Id, Account> parentIdToAccount = (Map<Id, Account>) SOQL.of(Account.SObjectType).toIdMapBy('Parent', Account.Id);
+```
+
+### toAggregatedIdMapBy
+
+Creates a map where the key is the Id extracted from the specified field and the value is a list of SObject records grouped by that Id.
+
+**Note!** To improve query performance, a condition checking if the keyField is not null (`WHERE keyField != null`) is automatically added to the query.
+
+**Signature**
+
+```apex
+Map<Id, List<SObject>> toAggregatedIdMapBy(SObjectField keyField)
+```
+
+**Example**
+
+```apex
+Map<Id, List<Account>> ownerIdToAccounts = (Map<Id, List<Account>>) SOQL.of(Account.SObjectType).toAggregatedIdMapBy(Account.OwnerId);
+```
+
+### toAggregatedIdMapBy with relationship
+
+Creates a map where the key is the Id extracted from the specified relationship field and the value is a list of SObject records grouped by that Id.
+
+**Note!** To improve query performance, a condition checking if the targetKeyField is not null (`WHERE relationshipName.targetKeyField != null`) is automatically added to the query.
+
+**Signature**
+
+```apex
+Map<Id, List<SObject>> toAggregatedIdMapBy(String relationshipName, SObjectField targetKeyField)
+```
+
+**Example**
+
+```apex
+Map<Id, List<Account>> parentIdToAccounts = (Map<Id, List<Account>>) SOQL.of(Account.SObjectType).toAggregatedIdMapBy('Parent', Account.Id);
 ```
 
 ### toQueryLocator

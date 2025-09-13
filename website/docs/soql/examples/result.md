@@ -368,6 +368,94 @@ Map<String, List<String>> accountNamesByIndustry = SOQL.of(Account.SObjectType)
     .toAggregatedMap(Account.Industry, Account.Name);
 ```
 
+## toIdMapBy
+
+**Apex**
+
+```apex title="Traditional Approach"
+Map<Id, Account> ownerIdToAccount = new Map<Id, Account>();
+
+for (Account acc : [SELECT Id, Name, OwnerId FROM Account WHERE OwnerId != null]) {
+    ownerIdToAccount.put(acc.OwnerId, acc);
+}
+```
+
+**SOQL Lib**
+
+```apex title="SOQL Lib Approach"
+Map<Id, Account> ownerIdToAccount = (Map<Id, Account>) SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .toIdMapBy(Account.OwnerId);
+```
+
+## toIdMapBy with relationship
+
+**Apex**
+
+```apex title="Traditional Approach"
+Map<Id, Account> parentIdToAccount = new Map<Id, Account>();
+
+for (Account acc : [SELECT Id, Name, Parent.Id FROM Account WHERE Parent.Id != null]) {
+    parentIdToAccount.put(acc.Parent.Id, acc);
+}
+```
+
+**SOQL Lib**
+
+```apex title="SOQL Lib Approach"
+Map<Id, Account> parentIdToAccount = (Map<Id, Account>) SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .toIdMapBy('Parent', Account.Id);
+```
+
+## toAggregatedIdMapBy
+
+**Apex**
+
+```apex title="Traditional Approach"
+Map<Id, List<Account>> ownerIdToAccounts = new Map<Id, List<Account>>();
+
+for (Account acc : [SELECT Id, Name, OwnerId FROM Account WHERE OwnerId != null]) {
+    if (!ownerIdToAccounts.containsKey(acc.OwnerId)) {
+        ownerIdToAccounts.put(acc.OwnerId, new List<Account>());
+    }
+
+    ownerIdToAccounts.get(acc.OwnerId).add(acc);
+}
+```
+
+**SOQL Lib**
+
+```apex title="SOQL Lib Approach"
+Map<Id, List<Account>> ownerIdToAccounts = (Map<Id, List<Account>>) SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .toAggregatedIdMapBy(Account.OwnerId);
+```
+
+## toAggregatedIdMapBy with relationship
+
+**Apex**
+
+```apex title="Traditional Approach"
+Map<Id, List<Account>> parentIdToAccounts = new Map<Id, List<Account>>();
+
+for (Account acc : [SELECT Id, Name, Parent.Id FROM Account WHERE Parent.Id != null]) {
+    if (!parentIdToAccounts.containsKey(acc.Parent.Id)) {
+        parentIdToAccounts.put(acc.Parent.Id, new List<Account>());
+    }
+
+    parentIdToAccounts.get(acc.Parent.Id).add(acc);
+}
+```
+
+**SOQL Lib**
+
+```apex title="SOQL Lib Approach"
+Map<Id, List<Account>> parentIdToAccounts = (Map<Id, List<Account>>) SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .toAggregatedIdMapBy('Parent', Account.Id);
+```
+
 ## toQueryLocator
 
 **Apex**
@@ -379,5 +467,7 @@ Database.QueryLocator queryLocator = Database.getQueryLocator('SELECT Id FROM AC
 **SOQL Lib**
 
 ```apex title="SOQL Lib Approach"
-Database.QueryLocator queryLocator = SOQL.of(Account.SObjectType).toQueryLocator();
+Database.QueryLocator queryLocator = SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .toQueryLocator();
 ```
