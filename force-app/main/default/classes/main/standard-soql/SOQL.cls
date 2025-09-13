@@ -177,6 +177,10 @@ public virtual inherited sharing class SOQL implements Queryable {
 		Set<String> toValuesOf(String relationshipName, SObjectField targetKeyField);
 		// ID MAP
 		Map<Id, SObject> toMap();
+		Map<Id, SObject> toIdMapBy(SObjectField field);
+		Map<Id, SObject> toIdMapBy(String relationshipName, SObjectField targetKeyField);
+		Map<Id, List<SObject>> toAggregatedIdMapBy(SObjectField keyField);
+		Map<Id, List<SObject>> toAggregatedIdMapBy(String relationshipName, SObjectField targetKeyField);
 		// VALUE MAP
 		Map<String, SObject> toMap(SObjectField keyField);
 		Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField);
@@ -1018,35 +1022,65 @@ public virtual inherited sharing class SOQL implements Queryable {
 		return this.converter.transform(this.executor.toList()).toMap();
 	}
 
+	public Map<Id, SObject> toIdMapBy(SObjectField field) {
+		this.with(field);
+		this.whereAre(Filter.with(field).isNotNull());
+		return this.converter.transform(this.executor.toList()).toIdMapBy(field);
+	}
+
+	public Map<Id, SObject> toIdMapBy(String relationshipName, SObjectField targetKeyField) {
+		this.with(relationshipName + '.' + targetKeyField.toString());
+		this.whereAre(Filter.with(relationshipName, targetKeyField).isNotNull());
+		return this.converter.transform(this.executor.toList()).toIdMapBy(relationshipName, targetKeyField);
+	}
+
+	public Map<Id, List<SObject>> toAggregatedIdMapBy(SObjectField keyField) {
+		this.with(keyField);
+		this.whereAre(Filter.with(keyField).isNotNull());
+		return this.converter.transform(this.executor.toList()).toAggregatedIdMapBy(keyField);
+	}
+
+	public Map<Id, List<SObject>> toAggregatedIdMapBy(String relationshipName, SObjectField targetKeyField) {
+		this.with(relationshipName + '.' + targetKeyField.toString());
+		this.whereAre(Filter.with(relationshipName, targetKeyField).isNotNull());
+		return this.converter.transform(this.executor.toList()).toAggregatedIdMapBy(relationshipName, targetKeyField);
+	}
+	
 	public Map<String, SObject> toMap(SObjectField keyField) {
 		this.with(keyField);
+		this.whereAre(Filter.with(keyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toMap(keyField);
 	}
 
 	public Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField) {
 		this.with(relationshipName + '.' + targetKeyField.toString());
+		this.whereAre(Filter.with(relationshipName, targetKeyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toMap(relationshipName, targetKeyField);
 	}
 
 	public Map<String, String> toMap(SObjectField keyField, SObjectField valueField) {
 		this.builder.fields.clearAllFields(); // other fields not needed
 		this.with(keyField, valueField);
+		this.whereAre(Filter.with(keyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toMap(keyField, valueField);
 	}
 
 	public Map<String, List<SObject>> toAggregatedMap(SObjectField keyField) {
 		this.with(keyField);
+		this.whereAre(Filter.with(keyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toAggregatedMap(keyField);
 	}
 
 	public Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField) {
 		this.with(relationshipName + '.' + targetKeyField.toString());
+		this.whereAre(Filter.with(relationshipName, targetKeyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toAggregatedMap(relationshipName, targetKeyField);
 	}
 
 	public Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField) {
 		this.builder.fields.clearAllFields(); // other fields not needed
 		this.with(keyField, valueField);
+		this.whereAre(Filter.with(keyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toAggregatedMap(keyField, valueField);
 	}
 
@@ -1054,6 +1088,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		this.builder.fields.clearAllFields(); // other fields not needed
 		this.with(keyField);
 		this.with(relationshipName + '.' + targetKeyField.toString());
+		this.whereAre(Filter.with(keyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toAggregatedMap(keyField, relationshipName, targetKeyField);
 	}
 
@@ -2724,6 +2759,60 @@ public virtual inherited sharing class SOQL implements Queryable {
 			Map<Id, SObject> recordPerId = (Map<Id, SObject>) Type.forName('Map<Id, ' + this.ofObject  + ' >').newInstance();
 			recordPerId.putAll(this.recordsToTransform);
 			return recordPerId;
+		}
+
+		public Map<Id, SObject> toIdMapBy(SObjectField field) {
+			Map<Id, SObject> recordPerCustomKey = (Map<Id, SObject>) Type.forName('Map<Id, ' + this.ofObject  + ' >').newInstance();
+
+			for (SObject record : this.recordsToTransform) {
+				recordPerCustomKey.put((Id) record.get(field), record);
+			}
+
+			return recordPerCustomKey;
+		}
+
+		public Map<Id, SObject> toIdMapBy(String relationshipName, SObjectField targetKeyField) {
+			Map<Id, SObject> recordPerCustomKey = (Map<Id, SObject>) Type.forName('Map<Id, ' + this.ofObject  + ' >').newInstance();
+			List<String> relationshipPathFields = relationshipName.split('\\.');
+
+			for (SObject record : this.recordsToTransform) {
+				recordPerCustomKey.put((Id) extractNestedFieldValue(record, relationshipPathFields, targetKeyField), record);
+			}
+
+			return recordPerCustomKey;
+		}
+
+		public Map<Id, List<SObject>> toAggregatedIdMapBy(SObjectField keyField) {
+			Map<Id, List<SObject>> recordsPerCustomKey = (Map<Id, List<SObject>>) Type.forName('Map<Id, List<' + this.ofObject  + ' >>').newInstance();
+
+			for (SObject record : this.recordsToTransform) {
+				Id key = (Id) record.get(keyField);
+
+				if (!recordsPerCustomKey.containsKey(key)) {
+					recordsPerCustomKey.put(key, new List<SObject>());
+				}
+
+				recordsPerCustomKey.get(key).add(record);
+			}
+
+			return recordsPerCustomKey;
+		}
+
+		public Map<Id, List<SObject>> toAggregatedIdMapBy(String relationshipName, SObjectField targetKeyField) {
+			Map<Id, List<SObject>> recordsPerCustomKey = (Map<Id, List<SObject>>) Type.forName('Map<Id, List<' + this.ofObject  + ' >>').newInstance();
+			List<String> relationshipPathFields = relationshipName.split('\\.');
+
+			for (SObject record : this.recordsToTransform) {
+				Id key = extractNestedFieldValue(record, relationshipPathFields, targetKeyField);
+
+				if (!recordsPerCustomKey.containsKey(key)) {
+					recordsPerCustomKey.put(key, new List<SObject>());
+				}
+
+				recordsPerCustomKey.get(key).add(record);
+			}
+
+			return recordsPerCustomKey;
 		}
 
 		public Map<String, SObject> toMap(SObjectField keyField) {

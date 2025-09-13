@@ -4356,6 +4356,7 @@ private class SOQL_Test {
 
 		// Test
 		SOQL.mock('mockingQuery').thenReturn(accounts);
+
 		Map<Id, Account> result = (Map<Id, Account>) SOQL.of(Account.SObjectType)
 			.with(Account.Name, Account.Description)
 			.mockId('mockingQuery')
@@ -4370,6 +4371,121 @@ private class SOQL_Test {
 			Assert.isNotNull(result.get(acc.Id).Description, 'The result map should have a value for each inserted account Description.');
 			Assert.isNull(result.get(acc.Id).Website, 'The result map should not have a value for each inserted account Website.');
 		}
+	}
+
+	@IsTest
+	static void toIdMapBy() {
+		// Setup
+		insertAccountsWithParents();
+
+		// Test
+		Map<Id, Account> result = (Map<Id, Account>) SOQL.of(Account.SObjectType).with(Account.Id, Account.Name).toIdMapBy(Account.ParentId);
+
+		// Verify
+		Assert.areEqual(2, result.size(), 'Size of the result map should be equal to the size of the inserted accounts with parents.');
+	}
+
+	@IsTest
+	static void mockedToIdMapBy() {
+		// Setup
+		SOQL.mock('mockingQuery').thenReturn(new List<Account>{
+			new Account(Name = 'Account 1', ParentId = SOQL.IdGenerator.get(Account.SObjectType)),
+			new Account(Name = 'Account 2', ParentId = SOQL.IdGenerator.get(Account.SObjectType))
+		});
+
+		// Test
+		Map<Id, Account> result = (Map<Id, Account>) SOQL.of(Account.SObjectType)
+			.with(Account.Id, Account.Name).mockId('mockingQuery')
+			.toIdMapBy(Account.ParentId);
+
+		// Verify
+		Assert.areEqual(2, result.size(), 'Size of the result map should be equal to the size of the inserted accounts with parents.');
+	}
+
+	@IsTest
+	static void toIdMapByRelationshipField() {
+		// Setup
+		insertAccountsWithParents();
+
+		// Test
+		Map<Id, Account> result = (Map<Id, Account>) SOQL.of(Account.SObjectType).toIdMapBy('Parent', Account.CreatedById);
+
+		// Verify
+		Assert.areEqual(1, result.size(), 'Size of the result map should be equal to 1, because the accounts have the same created by user.');
+		Assert.isTrue(result.containsKey(UserInfo.getUserId()), 'The result map should have a key: UserInfo.getUserId().');
+	}
+
+	@IsTest
+	static void mockedToIdMapByRelationshipField() {
+		// Setup
+		SOQL.mock('mockingQuery').thenReturn(new List<Account>{
+			new Account(Name = 'Account 1', Parent = new Account(Name = 'Parent 1', CreatedById = SOQL.IdGenerator.get(User.SObjectType))),
+			new Account(Name = 'Account 2', Parent = new Account(Name = 'Parent 2', CreatedById = SOQL.IdGenerator.get(User.SObjectType)))
+		});
+
+		// Test
+		Map<Id, Account> result = (Map<Id, Account>) SOQL.of(Account.SObjectType).mockId('mockingQuery').toIdMapBy('Parent', Account.CreatedById);
+
+		// Verify
+		Assert.areEqual(2, result.size(), 'Size of the result map should be equal to 2, because the accounts have 2 parents.');
+	}
+
+	@IsTest
+	static void toAggregatedIdMapBy() {
+		// Setup
+		insertAccountsWithParents();
+
+		// Test
+		Map<Id, List<Account>> result = (Map<Id, List<Account>>) SOQL.of(Account.SObjectType).toAggregatedIdMapBy(Account.ParentId);
+
+		// Verify
+		Assert.areEqual(2, result.size(), 'Size of the result map should be equal to 2, because the accounts have 2 parents.');
+	}
+
+	@IsTest
+	static void mockedtoAggregatedIdMapBy() {
+		// Setup
+		Id parentId = SOQL.IdGenerator.get(Account.SObjectType);
+
+		SOQL.mock('mockingQuery').thenReturn(new List<Account>{
+			new Account(Name = 'Account 1', ParentId = parentId),
+			new Account(Name = 'Account 2', ParentId = parentId)
+		});
+
+		// Test
+		Map<Id, List<Account>> result = (Map<Id, List<Account>>) SOQL.of(Account.SObjectType).mockId('mockingQuery').toAggregatedIdMapBy(Account.ParentId);
+
+		// Verify
+		Assert.areEqual(1, result.size(), 'Size of the result map should be equal to 1, because the accounts have common parent.');
+	}
+
+	@IsTest
+	static void toAggregatedIdMapByRelationshipField() {
+		// Setup
+		insertAccountsWithParents();
+
+		// Test
+		Map<Id, List<Account>> result = (Map<Id, List<Account>>) SOQL.of(Account.SObjectType).mockId('mockingQuery').toAggregatedIdMapBy('Parent', Account.CreatedById);
+
+		// Verify
+		Assert.areEqual(1, result.size(), 'Size of the result map should be equal to 1, because the same user created all accounts.');
+	}
+
+	@IsTest
+	static void mockedtoAggregatedIdMapByRelationshipField() {
+		// Setup
+		Id userId = SOQL.IdGenerator.get(User.SObjectType);
+			
+		SOQL.mock('mockingQuery').thenReturn(new List<Account>{
+			new Account(Name = 'Account 1', Parent = new Account(Name = 'Parent 1', CreatedById = userId)),
+			new Account(Name = 'Account 2', Parent = new Account(Name = 'Parent 2', CreatedById = userId))
+		});
+
+		// Test
+		Map<Id, List<Account>> result = (Map<Id, List<Account>>) SOQL.of(Account.SObjectType).mockId('mockingQuery').toAggregatedIdMapBy('Parent', Account.CreatedById);
+
+		// Verify
+		Assert.areEqual(1, result.size(), 'Size of the result map should be equal to 1, because all parent accounts have the same created by user.');
 	}
 
 	@IsTest
@@ -4407,14 +4523,13 @@ private class SOQL_Test {
 	@IsTest
 	static void toMapWithEmptyCustomRelationshipKey() {
 		// Setup
-		insertAccounts();
+		insertAccountsWithParents();
 
 		// Test
 		Map<String, Account> result = (Map<String, Account>) SOQL.of(Account.SObjectType).toMap('Parent', Account.Name);
 
 		// Verify
-		Assert.areEqual(1, result.size(), 'Size of the result map should be equal to 1');
-		Assert.isNotNull(result.get(null), 'The result map should have a value for the key: null');
+		Assert.areEqual(2, result.size(), 'Size of the result map should be equal to 2, because there are two accounts with different parents.');
 	}
 
 	@IsTest
@@ -4471,11 +4586,10 @@ private class SOQL_Test {
 		insertAccounts();
 
 		// Test
-		Map<String, List<Account>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Industry);
+		Map<String, List<Account>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Name);
 
 		// Verify
-		Assert.areEqual(1, result.size(), 'The result map should have only one key.'); // grouped by empty Industry
-		Assert.isTrue(result.containsKey(null), 'The result map should have a null key for empty Industry.');
+		Assert.areEqual(2, result.size(), 'The result map should have only two keys, because there are two accounts with different names.');
 	}
 
 	@IsTest
@@ -4500,11 +4614,10 @@ private class SOQL_Test {
 		insertAccounts();
 
 		// Test
-		Map<String, List<String>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Industry, Account.Id);
+		Map<String, List<String>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Name, Account.Id);
 
 		// Verify
-		Assert.areEqual(1, result.size(), 'The result map should have only one key.'); // grouped by empty Industry
-		Assert.isTrue(result.containsKey(null), 'The result map should have a null key for empty Industry.');
+		Assert.areEqual(2, result.size(), 'The result map should have only two keys, because there are two accounts with different names.');
 	}
 
 	@IsTest
