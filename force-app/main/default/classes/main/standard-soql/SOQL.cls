@@ -98,6 +98,12 @@ public virtual inherited sharing class SOQL implements Queryable {
 		Queryable whereAre(String conditions);
 		Queryable conditionLogic(String order);
 		Queryable anyConditionMatching();
+		// PREDEFINED WHERE
+		Queryable byId(SObject record);
+		Queryable byId(Id recordId);
+		Queryable byIds(Iterable<Id> recordIds);
+		Queryable byIds(List<SObject> records);
+		Queryable byRecordType(String recordTypeDeveloperName);
 		// GROUP BY
 		Queryable groupBy(SObjectField field);
 		Queryable groupBy(String field);
@@ -146,12 +152,6 @@ public virtual inherited sharing class SOQL implements Queryable {
 		// DEBUGGING
 		Queryable preview();
 		Map<String, Object> binding();
-		// PREDEFINED
-		Queryable byId(SObject record);
-		Queryable byId(Id recordId);
-		Queryable byIds(Iterable<Id> recordIds);
-		Queryable byIds(List<SObject> records);
-		Queryable byRecordType(String recordTypeDeveloperName);
 		// RESULT
 		Id toId();
 		Set<Id> toIds();
