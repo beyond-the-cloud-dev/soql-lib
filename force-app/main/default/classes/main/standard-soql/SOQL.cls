@@ -152,22 +152,33 @@ public virtual inherited sharing class SOQL implements Queryable {
 		// DEBUGGING
 		Queryable preview();
 		Map<String, Object> binding();
-		// RESULT
+		// SOBJECT
+		SObject toObject();
+		// LIST
+		List<SObject> toList();
+		// COUNT
+		Integer toInteger();
+		// QUERY LOCATOR
+		Database.QueryLocator toQueryLocator();
+		// DO EXIST
+		Boolean doExist();
+		// AGGREGATE RESULTS
+		List<AggregateResult> toAggregated();
+		List<SOQL.AggregateResultProxy> toAggregatedProxy(); // use when you need mocking
+		// STRING
+		String toString();
+		// IDS
 		Id toId();
 		Set<Id> toIds();
 		Set<Id> toIdsOf(SObjectField field);
 		Set<Id> toIdsOf(String relationshipName, SObjectField targetKeyField);
-		Boolean doExist();
-		String toString();
+		// VALUE
 		Object toValueOf(SObjectField fieldToExtract);
 		Set<String> toValuesOf(SObjectField fieldToExtract);
 		Set<String> toValuesOf(String relationshipName, SObjectField targetKeyField);
-		Integer toInteger();
-		SObject toObject();
-		List<SObject> toList();
-		List<AggregateResult> toAggregated();
-		List<SOQL.AggregateResultProxy> toAggregatedProxy();
+		// ID MAP
 		Map<Id, SObject> toMap();
+		// VALUE MAP
 		Map<String, SObject> toMap(SObjectField keyField);
 		Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField);
 		Map<String, String> toMap(SObjectField keyField, SObjectField valueField);
@@ -175,7 +186,6 @@ public virtual inherited sharing class SOQL implements Queryable {
 		Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField);
 		Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
 		Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField);
-		Database.QueryLocator toQueryLocator();
 	}
 
 	public interface SubQuery {
