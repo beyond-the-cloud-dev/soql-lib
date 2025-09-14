@@ -10,7 +10,7 @@ const config = {
   favicon: 'img/favicon.ico',
   url: 'https://soql.beyondthecloud.dev/',
   baseUrl: '/',
-  organizationName: 'Beyond The Cloud',
+  organizationName: 'Beyond The Cloud Sp. z o.o.',
   projectName: 'soql-lib',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'throw',
@@ -69,7 +69,7 @@ const config = {
       ],
       colorMode: {
         defaultMode: 'dark',
-        disableSwitch: true,
+        disableSwitch: false,
       },
       docs: {
         sidebar: {
