@@ -108,6 +108,11 @@ const config = {
             label: 'Evaluator',
           },
           {
+            to: '/playground',
+            position: 'left',
+            label: '🚀 Playground',
+          },
+          {
             href: 'https://github.com/beyond-the-cloud-dev/soql-lib',
             label: 'GitHub',
             position: 'right',
