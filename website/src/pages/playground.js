@@ -381,7 +381,7 @@ class SOQLToSOQLLibTranslator {
   }
 
   parseWhereClause(query) {
-    const whereMatch = query.match(/WHERE\s+(.*?)(?:\s+(?:GROUP\s+BY|ORDER\s+BY|LIMIT|OFFSET|FOR\s+(?:UPDATE|VIEW|REFERENCE)|ALL\s+ROWS)\s|$)/i);
+    const whereMatch = query.match(/WHERE\s+(.*?)(?:\s+(?:GROUP\s+BY|ORDER\s+BY|LIMIT|OFFSET|FOR\s+(?:UPDATE|VIEW|REFERENCE)|ALL\s+ROWS|WITH\s+(?:USER_MODE|SYSTEM_MODE))|\s*$)/i);
     if (whereMatch) {
       const whereClause = whereMatch[1].trim();
       this.whereConditions = this.parseConditions(whereClause);
@@ -636,7 +636,7 @@ class SOQLToSOQLLibTranslator {
   }
 
   parseOrderByClause(query) {
-    const orderByMatch = query.match(/ORDER\s+BY\s+(.*?)(?:\s+(?:LIMIT|OFFSET|FOR\s+(?:UPDATE|VIEW|REFERENCE)|ALL\s+ROWS)\s|$)/i);
+    const orderByMatch = query.match(/ORDER\s+BY\s+(.*?)(?:\s+(?:LIMIT|OFFSET|FOR\s+(?:UPDATE|VIEW|REFERENCE)|ALL\s+ROWS|WITH\s+(?:USER_MODE|SYSTEM_MODE))|\s*$)/i);
     if (orderByMatch) {
       const orderByClause = orderByMatch[1].trim();
       this.orderByFields = orderByClause.split(',').map(field => field.trim());
@@ -644,7 +644,7 @@ class SOQLToSOQLLibTranslator {
   }
 
   parseGroupByClause(query) {
-    const groupByMatch = query.match(/GROUP\s+BY\s+(.*?)(?:\s+(?:HAVING|ORDER\s+BY|LIMIT|OFFSET|FOR\s+(?:UPDATE|VIEW|REFERENCE)|ALL\s+ROWS)\s|$)/i);
+    const groupByMatch = query.match(/GROUP\s+BY\s+(.*?)(?:\s+(?:HAVING|ORDER\s+BY|LIMIT|OFFSET|FOR\s+(?:UPDATE|VIEW|REFERENCE)|ALL\s+ROWS|WITH\s+(?:USER_MODE|SYSTEM_MODE))|\s*$)/i);
     if (groupByMatch) {
       const groupByClause = groupByMatch[1].trim();
       this.groupByFields = groupByClause.split(',').map(field => field.trim());
@@ -652,7 +652,7 @@ class SOQLToSOQLLibTranslator {
   }
 
   parseHavingClause(query) {
-    const havingMatch = query.match(/HAVING\s+(.*?)(?:\s+(?:ORDER\s+BY|LIMIT|OFFSET|FOR\s+(?:UPDATE|VIEW|REFERENCE)|ALL\s+ROWS)\s|$)/i);
+    const havingMatch = query.match(/HAVING\s+(.*?)(?:\s+(?:ORDER\s+BY|LIMIT|OFFSET|FOR\s+(?:UPDATE|VIEW|REFERENCE)|ALL\s+ROWS|WITH\s+(?:USER_MODE|SYSTEM_MODE))|\s*$)/i);
     if (havingMatch) {
       const havingClause = havingMatch[1].trim();
       this.havingConditions = [havingClause];
@@ -1155,63 +1155,116 @@ WITH USER_MODE`);
   const examples = [
       {
         name: "Simple Query",
-        query: `SELECT Id, Name FROM Account WHERE Name LIKE '%Test%' WITH USER_MODE`
+        query: `SELECT Id, Name
+FROM Account
+WHERE Name LIKE '%Test%'
+WITH USER_MODE`
       },
     {
       name: "Multiple Conditions", 
-      query: `SELECT Id, Name, Owner.Name FROM Account WHERE Industry = 'Technology' AND BillingCity = 'San Francisco' WITH USER_MODE`
+      query: `SELECT Id, Name, Owner.Name
+FROM Account
+WHERE Industry = 'Technology'
+  AND BillingCity = 'San Francisco'
+WITH USER_MODE`
     },
     {
       name: "OR Conditions",
-      query: `SELECT Id, Name FROM Account WHERE Industry = 'Technology' OR Industry = 'Healthcare' WITH USER_MODE`
+      query: `SELECT Id, Name
+FROM Account
+WHERE Industry = 'Technology'
+   OR Industry = 'Healthcare'
+WITH USER_MODE`
     },
     {
       name: "Parent Fields",
-      query: `SELECT Id, Name, CreatedBy.Id, CreatedBy.Name, Parent.Id, Parent.Name FROM Account WITH USER_MODE`
+      query: `SELECT Id, Name, CreatedBy.Id, CreatedBy.Name, Parent.Id, Parent.Name
+FROM Account
+WITH USER_MODE`
     },
     {
       name: "COUNT & SUM",
-      query: `SELECT CampaignId, COUNT(Id) totalRecords, SUM(Amount) totalAmount FROM Opportunity GROUP BY CampaignId WITH USER_MODE`
+      query: `SELECT CampaignId, COUNT(Id) totalRecords, SUM(Amount) totalAmount
+FROM Opportunity
+GROUP BY CampaignId
+WITH USER_MODE`
     },
     {
       name: "AVG & MIN",
-      query: `SELECT Industry, AVG(AnnualRevenue) avgRevenue, MIN(NumberOfEmployees) minEmployees FROM Account GROUP BY Industry WITH USER_MODE`
+      query: `SELECT Industry, AVG(AnnualRevenue) avgRevenue, MIN(NumberOfEmployees) minEmployees
+FROM Account
+GROUP BY Industry
+WITH USER_MODE`
     },
     {
       name: "SubQuery",
-      query: `SELECT Id, Name, (SELECT Id, Name FROM Contacts) FROM Account WITH USER_MODE`
+      query: `SELECT Id, Name, (SELECT Id, Name FROM Contacts)
+FROM Account
+WITH USER_MODE`
     },
     {
       name: "Complex WHERE",
-      query: `SELECT Id FROM Account WHERE Industry = 'IT' AND ((Name = 'My Account' AND NumberOfEmployees >= 10) OR (Name = 'My Account 2' AND NumberOfEmployees <= 20)) WITH USER_MODE`
+      query: `SELECT Id
+FROM Account
+WHERE Industry = 'IT'
+  AND ((Name = 'My Account' AND NumberOfEmployees >= 10)
+    OR (Name = 'My Account 2' AND NumberOfEmployees <= 20))
+WITH USER_MODE`
     },
     {
       name: "LIKE Patterns",
-      query: `SELECT Id, Name FROM Account WHERE Name LIKE 'Test%' AND BillingCity LIKE '%Francisco%' WITH USER_MODE`
+      query: `SELECT Id, Name
+FROM Account
+WHERE Name LIKE 'Test%'
+  AND BillingCity LIKE '%Francisco%'
+WITH USER_MODE`
     },
     {
       name: "IN Operator",
-      query: `SELECT Id, Name FROM Account WHERE Industry IN ('Technology', 'Healthcare', 'Finance') WITH USER_MODE`
+      query: `SELECT Id, Name
+FROM Account
+WHERE Industry IN ('Technology', 'Healthcare', 'Finance')
+WITH USER_MODE`
     },
     {
       name: "ORDER BY Multiple",
-      query: `SELECT Id, Name, Industry FROM Account ORDER BY Name DESC, Industry ASC LIMIT 50 WITH USER_MODE`
+      query: `SELECT Id, Name, Industry
+FROM Account
+ORDER BY Name DESC, Industry ASC
+LIMIT 50
+WITH USER_MODE`
     },
     {
       name: "Complex Query",
-      query: `SELECT Id, Name FROM Account WHERE (Industry = 'Technology' OR Industry = 'Healthcare') AND NumberOfEmployees > 100 ORDER BY Name LIMIT 20 WITH USER_MODE`
+      query: `SELECT Id, Name
+FROM Account
+WHERE (Industry = 'Technology' OR Industry = 'Healthcare')
+  AND NumberOfEmployees > 100
+ORDER BY Name
+LIMIT 20
+WITH USER_MODE`
     },
     {
       name: "Boolean Fields",
-      query: `SELECT Id, Name FROM Account WHERE IsDeleted = false AND IsPersonAccount = true WITH USER_MODE`
+      query: `SELECT Id, Name
+FROM Account
+WHERE IsDeleted = false
+  AND IsPersonAccount = true
+WITH USER_MODE`
     },
     {
       name: "NULL Checks",
-      query: `SELECT Id, Name FROM Account WHERE ParentId != null AND BillingCity = null WITH USER_MODE`
+      query: `SELECT Id, Name
+FROM Account
+WHERE ParentId != null
+  AND BillingCity = null
+WITH USER_MODE`
     },
     {
       name: "System Mode",
-      query: `SELECT Id, Name, CreatedBy.Id, CreatedBy.Name, Parent.Id, Parent.Name FROM Account WITH SYSTEM_MODE`
+      query: `SELECT Id, Name, CreatedBy.Id, CreatedBy.Name, Parent.Id, Parent.Name
+FROM Account
+WITH SYSTEM_MODE`
     }
   ];
 
