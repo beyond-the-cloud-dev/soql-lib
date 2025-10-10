@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '@theme/Layout';
 import Heading from '@theme/Heading';
 
@@ -21,6 +21,9 @@ class SOQLToSOQLLibTranslator {
     try {
       this.reset();
       const cleanQuery = soqlQuery.trim().replace(/\s+/g, ' ');
+      
+      // Check if query explicitly specifies SYSTEM_MODE
+      const hasSystemMode = /WITH\s+SYSTEM_MODE/i.test(cleanQuery);
       
       // Extract SObject from FROM clause
       this.parseSObjectType(cleanQuery);
@@ -49,7 +52,7 @@ class SOQLToSOQLLibTranslator {
       // Parse FOR clause
       this.parseForClause(cleanQuery);
       
-      return this.generateSOQLLibCode();
+      return this.generateSOQLLibCode(hasSystemMode);
     } catch (error) {
       return `// Error parsing SOQL: ${error.message}\n// Please check your SOQL syntax and try again.`;
     }
@@ -677,7 +680,7 @@ class SOQLToSOQLLibTranslator {
     }
   }
 
-  generateSOQLLibCode() {
+  generateSOQLLibCode(hasSystemMode = false) {
     let code = `SOQL.of(${this.sobjectType}.SObjectType)`;
     
     // Handle SELECT fields
@@ -821,6 +824,12 @@ class SOQLToSOQLLibTranslator {
           code += '\n    .allRows()';
           break;
       }
+    }
+    
+    // Add system mode when WITH SYSTEM_MODE is specified in the query
+    if (hasSystemMode) {
+      code += '\n    .systemMode()';
+      code += '\n    .withoutSharing()';
     }
     
     // Add result method
@@ -1103,10 +1112,20 @@ FROM Account
 WHERE Industry = 'Technology' 
   AND BillingCity = 'San Francisco'
 ORDER BY Name ASC
-LIMIT 10`);
+LIMIT 10
+WITH USER_MODE`);
   
   const [soqlLibOutput, setSoqlLibOutput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Trigger syntax highlighting when output changes
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.Prism && soqlLibOutput) {
+      setTimeout(() => {
+        window.Prism.highlightAll();
+      }, 100);
+    }
+  }, [soqlLibOutput]);
 
   const translator = new SOQLToSOQLLibTranslator();
 
@@ -1134,65 +1153,65 @@ LIMIT 10`);
   };
 
   const examples = [
-    {
-      name: "Simple Query",
-      query: `SELECT Id, Name FROM Account WHERE Name LIKE '%Test%'`
-    },
+      {
+        name: "Simple Query",
+        query: `SELECT Id, Name FROM Account WHERE Name LIKE '%Test%' WITH USER_MODE`
+      },
     {
       name: "Multiple Conditions", 
-      query: `SELECT Id, Name, Owner.Name FROM Account WHERE Industry = 'Technology' AND BillingCity = 'San Francisco'`
+      query: `SELECT Id, Name, Owner.Name FROM Account WHERE Industry = 'Technology' AND BillingCity = 'San Francisco' WITH USER_MODE`
     },
     {
       name: "OR Conditions",
-      query: `SELECT Id, Name FROM Account WHERE Industry = 'Technology' OR Industry = 'Healthcare'`
+      query: `SELECT Id, Name FROM Account WHERE Industry = 'Technology' OR Industry = 'Healthcare' WITH USER_MODE`
     },
     {
       name: "Parent Fields",
-      query: `SELECT Id, Name, CreatedBy.Id, CreatedBy.Name, Parent.Id, Parent.Name FROM Account`
-    },
-    {
-      name: "Aggregate Query",
-      query: `SELECT Industry, COUNT(Id) total FROM Account GROUP BY Industry HAVING COUNT(Id) > 5`
+      query: `SELECT Id, Name, CreatedBy.Id, CreatedBy.Name, Parent.Id, Parent.Name FROM Account WITH USER_MODE`
     },
     {
       name: "COUNT & SUM",
-      query: `SELECT CampaignId, COUNT(Id) totalRecords, SUM(Amount) totalAmount FROM Opportunity GROUP BY CampaignId`
+      query: `SELECT CampaignId, COUNT(Id) totalRecords, SUM(Amount) totalAmount FROM Opportunity GROUP BY CampaignId WITH USER_MODE`
     },
     {
       name: "AVG & MIN",
-      query: `SELECT Industry, AVG(AnnualRevenue) avgRevenue, MIN(NumberOfEmployees) minEmployees FROM Account GROUP BY Industry`
+      query: `SELECT Industry, AVG(AnnualRevenue) avgRevenue, MIN(NumberOfEmployees) minEmployees FROM Account GROUP BY Industry WITH USER_MODE`
     },
     {
       name: "SubQuery",
-      query: `SELECT Id, Name, (SELECT Id, Name FROM Contacts) FROM Account`
+      query: `SELECT Id, Name, (SELECT Id, Name FROM Contacts) FROM Account WITH USER_MODE`
     },
     {
       name: "Complex WHERE",
-      query: `SELECT Id FROM Account WHERE Industry = 'IT' AND ((Name = 'My Account' AND NumberOfEmployees >= 10) OR (Name = 'My Account 2' AND NumberOfEmployees <= 20))`
+      query: `SELECT Id FROM Account WHERE Industry = 'IT' AND ((Name = 'My Account' AND NumberOfEmployees >= 10) OR (Name = 'My Account 2' AND NumberOfEmployees <= 20)) WITH USER_MODE`
     },
     {
       name: "LIKE Patterns",
-      query: `SELECT Id, Name FROM Account WHERE Name LIKE 'Test%' AND BillingCity LIKE '%Francisco%'`
+      query: `SELECT Id, Name FROM Account WHERE Name LIKE 'Test%' AND BillingCity LIKE '%Francisco%' WITH USER_MODE`
     },
     {
       name: "IN Operator",
-      query: `SELECT Id, Name FROM Account WHERE Industry IN ('Technology', 'Healthcare', 'Finance')`
+      query: `SELECT Id, Name FROM Account WHERE Industry IN ('Technology', 'Healthcare', 'Finance') WITH USER_MODE`
     },
     {
       name: "ORDER BY Multiple",
-      query: `SELECT Id, Name, Industry FROM Account ORDER BY Name DESC, Industry ASC LIMIT 50`
+      query: `SELECT Id, Name, Industry FROM Account ORDER BY Name DESC, Industry ASC LIMIT 50 WITH USER_MODE`
     },
     {
       name: "Complex Query",
-      query: `SELECT Id, Name FROM Account WHERE (Industry = 'Technology' OR Industry = 'Healthcare') AND NumberOfEmployees > 100 ORDER BY Name LIMIT 20`
+      query: `SELECT Id, Name FROM Account WHERE (Industry = 'Technology' OR Industry = 'Healthcare') AND NumberOfEmployees > 100 ORDER BY Name LIMIT 20 WITH USER_MODE`
     },
     {
       name: "Boolean Fields",
-      query: `SELECT Id, Name FROM Account WHERE IsDeleted = false AND IsPersonAccount = true`
+      query: `SELECT Id, Name FROM Account WHERE IsDeleted = false AND IsPersonAccount = true WITH USER_MODE`
     },
     {
       name: "NULL Checks",
-      query: `SELECT Id, Name FROM Account WHERE ParentId != null AND BillingCity = null`
+      query: `SELECT Id, Name FROM Account WHERE ParentId != null AND BillingCity = null WITH USER_MODE`
+    },
+    {
+      name: "System Mode",
+      query: `SELECT Id, Name, CreatedBy.Id, CreatedBy.Name, Parent.Id, Parent.Name FROM Account WITH SYSTEM_MODE`
     }
   ];
 
@@ -1208,7 +1227,7 @@ LIMIT 10`);
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="text-center mb-8">
           <Heading as="h1" className="text-4xl font-bold mb-4">
-            SOQL to SOQL Lib Playground
+            SOQL Lib Playground
           </Heading>
           <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Paste your traditional SOQL query and see how it translates to SOQL Lib syntax. 
@@ -1232,14 +1251,14 @@ LIMIT 10`);
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
           {/* Input Panel */}
-          <div className="space-y-4">
+          <div className="space-b-4 h-full">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold">Traditional SOQL</h2>
               <button
                 onClick={handleClear}
-                className="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded transition-colors"
+                className="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded transition-colors border-none"
               >
                 Clear
               </button>
@@ -1247,16 +1266,16 @@ LIMIT 10`);
             <textarea
               value={soqlInput}
               onChange={(e) => setSoqlInput(e.target.value)}
-              className="w-full h-64 p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 font-mono text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full h-80 p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 font-mono text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Enter your SOQL query here..."
             />
           </div>
 
           {/* Output Panel */}
-          <div className="space-y-4">
+          <div className="space-y-4 h-full">
             <h2 className="text-xl font-semibold">SOQL Lib Syntax</h2>
             <div className="relative">
-              <pre className="w-full h-64 p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 font-mono text-sm overflow-auto">
+              <pre className="w-full h-80 p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 font-mono text-sm overflow-auto">
                 <code className="language-java">{soqlLibOutput || '// Your translated SOQL Lib code will appear here...'}</code>
               </pre>
               {soqlLibOutput && (
@@ -1296,21 +1315,21 @@ LIMIT 10`);
         {/* Info Section */}
         <div className="mt-12 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
           <h3 className="text-lg font-semibold mb-3">💡 How it works</h3>
-          <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-            <li>• <strong>Field Selection:</strong> Converts SELECT fields to <code>.with()</code> methods</li>
-            <li>• <strong>Relationships:</strong> Transforms parent.field syntax to <code>.with('Parent', fields)</code></li>
-            <li>• <strong>WHERE Conditions:</strong> Parses conditions into <code>SOQL.Filter</code> and <code>SOQL.FilterGroup</code></li>
-            <li>• <strong>Filter Operations:</strong> Maps SOQL operators to methods like <code>.equal()</code>, <code>.contains()</code>, <code>.greaterThan()</code></li>
-            <li>• <strong>Logic Operators:</strong> AND conditions are grouped, OR uses <code>.anyConditionMatching()</code></li>
-            <li>• <strong>Aggregate Functions:</strong> Maps to specific methods like <code>.count()</code>, <code>.sum()</code></li>
-            <li>• <strong>ORDER BY:</strong> Translates to <code>.orderBy()</code> with direction methods</li>
-            <li>• <strong>LIMIT/OFFSET:</strong> Converts to <code>.setLimit()</code> and <code>.offset()</code></li>
-          </ul>
+            <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+              <li><strong>Field Selection:</strong> Converts SELECT fields to <code>.with()</code> methods - <a href="/soql/api/soql#with" className="text-blue-600 hover:text-blue-800 underline">API docs</a></li>
+              <li><strong>Relationships:</strong> Transforms parent.field syntax to <code>.with('Parent', fields)</code> - <a href="/soql/api/soql#with-related-field" className="text-blue-600 hover:text-blue-800 underline">API docs</a></li>
+              <li><strong>WHERE Conditions:</strong> Parses conditions into <code>SOQL.Filter</code> and <code>SOQL.FilterGroup</code> - <a href="/soql/api/soql-filter" className="text-blue-600 hover:text-blue-800 underline">Filter API</a> | <a href="/soql/api/soql-filters-group" className="text-blue-600 hover:text-blue-800 underline">FilterGroup API</a></li>
+              <li><strong>Filter Operations:</strong> Maps SOQL operators to methods like <code>.equal()</code>, <code>.contains()</code>, <code>.greaterThan()</code> - <a href="/soql/api/soql-filter#comparators" className="text-blue-600 hover:text-blue-800 underline">API docs</a></li>
+              <li><strong>Logic Operators:</strong> AND conditions are grouped, OR uses <code>.anyConditionMatching()</code> - <a href="/soql/api/soql-filters-group#anyconditionmatching" className="text-blue-600 hover:text-blue-800 underline">API docs</a></li>
+              <li><strong>Aggregate Functions:</strong> Maps to specific methods like <code>.count()</code>, <code>.sum()</code> - <a href="/soql/api/soql#aggregate-functions" className="text-blue-600 hover:text-blue-800 underline">API docs</a></li>
+              <li><strong>ORDER BY:</strong> Translates to <code>.orderBy()</code> with direction methods - <a href="/soql/api/soql#order-by" className="text-blue-600 hover:text-blue-800 underline">API docs</a></li>
+              <li><strong>LIMIT/OFFSET:</strong> Converts to <code>.setLimit()</code> and <code>.offset()</code> - <a href="/soql/api/soql#limit" className="text-blue-600 hover:text-blue-800 underline">LIMIT</a> | <a href="/soql/api/soql#offset" className="text-blue-600 hover:text-blue-800 underline">OFFSET</a></li>
+            </ul>
 
           <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
             <strong>Note:</strong> This is a learning tool that covers most common SOQL patterns. 
             Complex nested conditions may need manual refinement. Check the 
-            <a href="/soql/getting-started" className="text-blue-600 hover:text-blue-800 underline"> full documentation</a> for advanced features.
+            <a href="/soql/examples/select" className="text-blue-600 hover:text-blue-800 underline"> full documentation</a> for advanced features.
           </p>
         </div>
       </div>
