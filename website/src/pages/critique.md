@@ -16,7 +16,7 @@ List<String> accountNames = SOQLEvaluator.of([SELECT Id, Name FROM Account]).toV
 
 #### Documentation
 
-SOQL Lib provides comprehensive online documentation with the [playground](./playground) and numerous [examples](/soql/examples/select). You can also use the search feature in the top-right corner to find what you're looking for. The Fluent API was designed to stay as close to traditional SOQL syntax as possible. However, due to Apex's `Identifier name is reserved` restriction, some keywords like `select`, `where`, and `limit` couldn't be used.
+SOQL Lib provides comprehensive online documentation with the [playground](/playground) and numerous [examples](/soql/examples/select). You can also use the search feature in the top-right corner to find what you're looking for. The Fluent API was designed to stay as close to traditional SOQL syntax as possible. However, due to Apex's `Identifier name is reserved` restriction, some keywords like `select`, `where`, and `limit` couldn't be used.
 
 #### Interfaces
 
@@ -95,10 +95,10 @@ SOQL Lib builds a query string and passes it to the `Database.queryWithBinds` me
 
 Not much. While dynamic code can be CPU-intensive, we've run extensive performance tests (full results coming soon). Here's a preview:
 
-### Result Functions
-
 Building a complex query dynamically with SOQL Lib consumes less than **2ms**, and around **1ms** for simple queries.
 Even if you execute 100 complex queries in one transaction (101 SOQL queries per synchronous transaction), in the worst-case scenario, SOQL Lib uses only ~200ms out of the 10,000ms CPU limit available.
+
+### Result Functions
 
 Additionally, SOQL Lib can be faster than your own implementation. We perform internal optimizations for certain result functions. 
 For instance:
@@ -119,13 +119,12 @@ Set<String> accountNames = SOQL.of(Account.SObjectType).toValuesOf(Account.Name)
 
 ### Mocking
 
-How long does it take to run Apex unit tests with all test data inserted? Typically seconds, or even minutes.
+How long it takes to run Apex Unit Tests with all test data inserted? I think seconds, or even minutes.
+How long it takes to run Apex Unit Tests when query results are mocked and there is no need to create a test data? miliseconds to seconds, but for sure not minutes. 
 
-How long does it take to run Apex unit tests when query results are mocked and there's no need to create test data? Milliseconds to seconds—definitely not minutes.
+I wouldn't mentioned the benefits of writing fast, reliable unit tests. Instead of spending time on trying to figure out how to set fields so validation rules will pass, what to set up to pass the trigger without error etc. Mocking allows you to get result from the query without all operations on the database. 
 
-I don't need to emphasize the benefits of writing fast, reliable unit tests. Instead of spending time figuring out how to set fields so validation rules pass, or determining what setup is needed to avoid trigger errors, mocking allows you to return query results without any database operations.
-
-With mocking, you not only save hours on test data creation but also reduce test execution time by minutes. If someone argues that SOQL Lib consumes CPU time, they should consider that they cannot afford NOT to mock query results.
+Here we can not only save hours of figuring out test data creation, but also minutes during tests execution. So if someone says that SOQL Lib take CPU time and that bothers those people. I believe they cannot allow themselfs to 
 
 ## It's Just a Query Builder
 
