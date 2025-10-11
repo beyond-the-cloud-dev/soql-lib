@@ -95,6 +95,8 @@ SOQL Lib builds a query string and passes it to the `Database.queryWithBinds` me
 
 Not much. While dynamic code can be CPU-intensive, we've run extensive performance tests (full results coming soon). Here's a preview:
 
+### Result Functions
+
 Building a complex query dynamically with SOQL Lib consumes less than **2ms**, and around **1ms** for simple queries.
 Even if you execute 100 complex queries in one transaction (101 SOQL queries per synchronous transaction), in the worst-case scenario, SOQL Lib uses only ~200ms out of the 10,000ms CPU limit available.
 
@@ -114,6 +116,16 @@ The SOQL Lib version is approximately 2x faster because we use internal aggregat
 ```apex
 Set<String> accountNames = SOQL.of(Account.SObjectType).toValuesOf(Account.Name);
 ```
+
+### Mocking
+
+How long does it take to run Apex unit tests with all test data inserted? Typically seconds, or even minutes.
+
+How long does it take to run Apex unit tests when query results are mocked and there's no need to create test data? Milliseconds to seconds—definitely not minutes.
+
+I don't need to emphasize the benefits of writing fast, reliable unit tests. Instead of spending time figuring out how to set fields so validation rules pass, or determining what setup is needed to avoid trigger errors, mocking allows you to return query results without any database operations.
+
+With mocking, you not only save hours on test data creation but also reduce test execution time by minutes. If someone argues that SOQL Lib consumes CPU time, they should consider that they cannot afford NOT to mock query results.
 
 ## It's Just a Query Builder
 
