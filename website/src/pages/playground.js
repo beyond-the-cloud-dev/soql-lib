@@ -1118,15 +1118,6 @@ WITH USER_MODE`);
   const [soqlLibOutput, setSoqlLibOutput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Trigger syntax highlighting when output changes
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.Prism && soqlLibOutput) {
-      setTimeout(() => {
-        window.Prism.highlightAll();
-      }, 100);
-    }
-  }, [soqlLibOutput]);
-
   const translator = new SOQLToSOQLLibTranslator();
 
   const handleTranslate = () => {
@@ -1269,8 +1260,9 @@ WITH SYSTEM_MODE`
   ];
 
   // Initial translation
-  React.useEffect(() => {
+  useEffect(() => {
     handleTranslate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
