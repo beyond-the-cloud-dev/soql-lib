@@ -68,7 +68,7 @@ const config = {
         { name: 'canonical', content: 'https://soql.beyondthecloud.dev' }
       ],
       colorMode: {
-        defaultMode: 'dark',
+        defaultMode: 'light',
         disableSwitch: false,
       },
       docs: {
@@ -111,6 +111,11 @@ const config = {
             to: '/playground',
             position: 'left',
             label: '🚀 Playground',
+          },
+          {
+            to: '/critique',
+            position: 'left',
+            label: 'Critique',
           },
           {
             href: 'https://github.com/beyond-the-cloud-dev/soql-lib',

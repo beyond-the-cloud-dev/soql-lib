@@ -75,3 +75,20 @@ body {
   text-align: right;
   color: #999;
 }
+
+/* Add separators between navbar items on the left */
+.navbar__item {
+  padding: 0 0.5rem;
+}
+.navbar__item:not(:last-child)::after {
+  content: '|';
+  margin-left: 0.75rem;
+  color: var(--ifm-navbar-link-color);
+  opacity: 0.5;
+}
+
+/* Don't add separator after GitHub/Blog on the right side */
+.navbar__items--right .navbar__item::after {
+  content: none;
+}
+

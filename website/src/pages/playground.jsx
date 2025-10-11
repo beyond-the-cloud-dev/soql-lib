@@ -1107,25 +1107,10 @@ class SOQLToSOQLLibTranslator {
 }
 
 export default function Playground() {
-  const [soqlInput, setSoqlInput] = useState(`SELECT Id, Name, Industry, BillingCity
-FROM Account
-WHERE Industry = 'Technology' 
-  AND BillingCity = 'San Francisco'
-ORDER BY Name ASC
-LIMIT 10
-WITH USER_MODE`);
+  const [soqlInput, setSoqlInput] = useState('SELECT Id, Name, Industry, BillingCity\nFROM Account\nWHERE Industry = \'Technology\' \n  AND BillingCity = \'San Francisco\'\nORDER BY Name ASC\nLIMIT 10\nWITH USER_MODE');
   
   const [soqlLibOutput, setSoqlLibOutput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  // Trigger syntax highlighting when output changes
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.Prism && soqlLibOutput) {
-      setTimeout(() => {
-        window.Prism.highlightAll();
-      }, 100);
-    }
-  }, [soqlLibOutput]);
 
   const translator = new SOQLToSOQLLibTranslator();
 
@@ -1153,124 +1138,72 @@ WITH USER_MODE`);
   };
 
   const examples = [
-      {
-        name: "Simple Query",
-        query: `SELECT Id, Name
-FROM Account
-WHERE Name LIKE '%Test%'
-WITH USER_MODE`
-      },
+    {
+      name: "Simple Query",
+      query: "SELECT Id, Name\nFROM Account\nWHERE Name LIKE '%Test%'\nWITH USER_MODE"
+    },
     {
       name: "Multiple Conditions", 
-      query: `SELECT Id, Name, Owner.Name
-FROM Account
-WHERE Industry = 'Technology'
-  AND BillingCity = 'San Francisco'
-WITH USER_MODE`
+      query: "SELECT Id, Name, Owner.Name\nFROM Account\nWHERE Industry = 'Technology'\n  AND BillingCity = 'San Francisco'\nWITH USER_MODE"
     },
     {
       name: "OR Conditions",
-      query: `SELECT Id, Name
-FROM Account
-WHERE Industry = 'Technology'
-   OR Industry = 'Healthcare'
-WITH USER_MODE`
+      query: "SELECT Id, Name\nFROM Account\nWHERE Industry = 'Technology'\n   OR Industry = 'Healthcare'\nWITH USER_MODE"
     },
     {
       name: "Parent Fields",
-      query: `SELECT Id, Name, CreatedBy.Id, CreatedBy.Name, Parent.Id, Parent.Name
-FROM Account
-WITH USER_MODE`
+      query: "SELECT Id, Name, CreatedBy.Id, CreatedBy.Name, Parent.Id, Parent.Name\nFROM Account\nWITH USER_MODE"
     },
     {
       name: "COUNT & SUM",
-      query: `SELECT CampaignId, COUNT(Id) totalRecords, SUM(Amount) totalAmount
-FROM Opportunity
-GROUP BY CampaignId
-WITH USER_MODE`
+      query: "SELECT CampaignId, COUNT(Id) totalRecords, SUM(Amount) totalAmount\nFROM Opportunity\nGROUP BY CampaignId\nWITH USER_MODE"
     },
     {
       name: "AVG & MIN",
-      query: `SELECT Industry, AVG(AnnualRevenue) avgRevenue, MIN(NumberOfEmployees) minEmployees
-FROM Account
-GROUP BY Industry
-WITH USER_MODE`
+      query: "SELECT Industry, AVG(AnnualRevenue) avgRevenue, MIN(NumberOfEmployees) minEmployees\nFROM Account\nGROUP BY Industry\nWITH USER_MODE"
     },
     {
       name: "SubQuery",
-      query: `SELECT Id, Name, (SELECT Id, Name FROM Contacts)
-FROM Account
-WITH USER_MODE`
+      query: "SELECT Id, Name, (SELECT Id, Name FROM Contacts)\nFROM Account\nWITH USER_MODE"
     },
     {
       name: "Complex WHERE",
-      query: `SELECT Id
-FROM Account
-WHERE Industry = 'IT'
-  AND ((Name = 'My Account' AND NumberOfEmployees >= 10)
-    OR (Name = 'My Account 2' AND NumberOfEmployees <= 20))
-WITH USER_MODE`
+      query: "SELECT Id\nFROM Account\nWHERE Industry = 'IT'\n  AND ((Name = 'My Account' AND NumberOfEmployees >= 10)\n    OR (Name = 'My Account 2' AND NumberOfEmployees <= 20))\nWITH USER_MODE"
     },
     {
       name: "LIKE Patterns",
-      query: `SELECT Id, Name
-FROM Account
-WHERE Name LIKE 'Test%'
-  AND BillingCity LIKE '%Francisco%'
-WITH USER_MODE`
+      query: "SELECT Id, Name\nFROM Account\nWHERE Name LIKE 'Test%'\n  AND BillingCity LIKE '%Francisco%'\nWITH USER_MODE"
     },
     {
       name: "IN Operator",
-      query: `SELECT Id, Name
-FROM Account
-WHERE Industry IN ('Technology', 'Healthcare', 'Finance')
-WITH USER_MODE`
+      query: "SELECT Id, Name\nFROM Account\nWHERE Industry IN ('Technology', 'Healthcare', 'Finance')\nWITH USER_MODE"
     },
     {
       name: "ORDER BY Multiple",
-      query: `SELECT Id, Name, Industry
-FROM Account
-ORDER BY Name DESC, Industry ASC
-LIMIT 50
-WITH USER_MODE`
+      query: "SELECT Id, Name, Industry\nFROM Account\nORDER BY Name DESC, Industry ASC\nLIMIT 50\nWITH USER_MODE"
     },
     {
       name: "Complex Query",
-      query: `SELECT Id, Name
-FROM Account
-WHERE (Industry = 'Technology' OR Industry = 'Healthcare')
-  AND NumberOfEmployees > 100
-ORDER BY Name
-LIMIT 20
-WITH USER_MODE`
+      query: "SELECT Id, Name\nFROM Account\nWHERE (Industry = 'Technology' OR Industry = 'Healthcare')\n  AND NumberOfEmployees > 100\nORDER BY Name\nLIMIT 20\nWITH USER_MODE"
     },
     {
       name: "Boolean Fields",
-      query: `SELECT Id, Name
-FROM Account
-WHERE IsDeleted = false
-  AND IsPersonAccount = true
-WITH USER_MODE`
+      query: "SELECT Id, Name\nFROM Account\nWHERE IsDeleted = false\n  AND IsPersonAccount = true\nWITH USER_MODE"
     },
     {
       name: "NULL Checks",
-      query: `SELECT Id, Name
-FROM Account
-WHERE ParentId != null
-  AND BillingCity = null
-WITH USER_MODE`
+      query: "SELECT Id, Name\nFROM Account\nWHERE ParentId != null\n  AND BillingCity = null\nWITH USER_MODE"
     },
     {
       name: "System Mode",
-      query: `SELECT Id, Name, CreatedBy.Id, CreatedBy.Name, Parent.Id, Parent.Name
-FROM Account
-WITH SYSTEM_MODE`
+      query: "SELECT Id, Name, CreatedBy.Id, CreatedBy.Name, Parent.Id, Parent.Name\nFROM Account\nWITH SYSTEM_MODE"
     }
   ];
 
   // Initial translation
-  React.useEffect(() => {
+  useEffect(() => {
     handleTranslate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
