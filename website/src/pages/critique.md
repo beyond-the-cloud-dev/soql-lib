@@ -5,7 +5,7 @@ _aka "I have to learn a new syntax"_
 
 ### Use SOQL Evaluator
 
-SOQL Lib has 3 different modules: [SOQL](../../docs/soql/getting-started.md/), [SOQL Cache](../../docs/cache/getting-started.md), and [SOQL Evaluator](../../docs/evaluator/getting-started.md). SOQL Evaluator was created for developers who don't want to learn a new syntax but still want to benefit from features like mocking and result functions. You can use [this module](https://github.com/beyond-the-cloud-dev/soql-lib/tree/main/force-app/main/default/classes/main/soql-evaluator) without switching to an entirely new syntax.
+SOQL Lib has 3 different modules: [SOQL](/soql/getting-started), [SOQL Cache](/cache/getting-started), and [SOQL Evaluator](/evaluator/getting-started). SOQL Evaluator was created for developers who don't want to learn a new syntax but still want to benefit from features like mocking and result functions. You can use [this module](https://github.com/beyond-the-cloud-dev/soql-lib/tree/main/force-app/main/default/classes/main/soql-evaluator) without switching to an entirely new syntax.
 
 ```apex
 Set<Id> accountIds = SOQLEvaluator.of([SELECT Id FROM Account]).toIds();
@@ -16,7 +16,7 @@ List<String> accountNames = SOQLEvaluator.of([SELECT Id, Name FROM Account]).toV
 
 #### Documentation
 
-SOQL Lib provides comprehensive online documentation with the [playground](./playground.js) and numerous [examples](../../docs/soql/examples/select.md). You can also use the search feature in the top-right corner to find what you're looking for. The Fluent API was designed to stay as close to traditional SOQL syntax as possible. However, due to Apex's `Identifier name is reserved` restriction, some keywords like `select`, `where`, and `limit` couldn't be used.
+SOQL Lib provides comprehensive online documentation with the [playground](/playground) and numerous [examples](/soql/examples/select). You can also use the search feature in the top-right corner to find what you're looking for. The Fluent API was designed to stay as close to traditional SOQL syntax as possible. However, due to Apex's `Identifier name is reserved` restriction, some keywords like `select`, `where`, and `limit` couldn't be used.
 
 #### Interfaces
 
@@ -32,7 +32,7 @@ A simple prompt in your IDE integrated with AI can be very helpful: "Based on SO
 
 #### Result Functions
 
-SOQL Lib provides numerous [result functions](../../docs/soql/examples/result.md) that make your code easier to read and understand. Most operations you typically perform on SOQL results are available as methods in SOQL Lib. Instead of repeating the same transformations throughout your codebase, simply use result methods.
+SOQL Lib provides numerous [result functions](/soql/examples/result) that make your code easier to read and understand. Most operations you typically perform on SOQL results are available as methods in SOQL Lib. Instead of repeating the same transformations throughout your codebase, simply use result methods.
 
 **Apex**
 
@@ -142,6 +142,6 @@ The query builder is just one component of SOQL Lib. SOQL Lib itself is a lightw
 - Use the query builder to avoid string concatenation
 
 **For a comprehensive list of benefits, check:**
-- [SOQL Basic Features](../../docs/soql/basic-features.md)
-- [SOQL Cache Basic Features](../../docs/cache/basic-features.md)
+- [SOQL Basic Features](/soql/basic-features)
+- [SOQL Cache Basic Features](/cache/basic-features)
 
