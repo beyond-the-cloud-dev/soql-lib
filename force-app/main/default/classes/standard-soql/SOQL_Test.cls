@@ -3523,6 +3523,43 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void mockingQueryException() {
+		// Test
+		SOQL.mock('mockingQuery').throwException();
+
+		Exception queryException = null;
+
+		try {
+			Account result = (Account) SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toObject();
+		} catch (QueryException e) {
+			queryException = e;
+		}
+
+		// Verify
+		Assert.isNotNull(queryException, 'The query exception should be thrown, because it\'s mocked.');
+		Assert.areEqual('List has no rows for assignment to SObject', queryException.getMessage(), 'The query exception should be thrown.');
+	}
+
+	@IsTest
+	static void mockingQueryExceptionWithMessage() {
+		// Test
+		String message = 'No such column \'Name\' on entity \'Account\'.';
+		SOQL.mock('mockingQuery').throwException(message);
+
+		Exception queryException = null;
+
+		try {
+			Account result = (Account) SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toObject();
+		} catch (QueryException e) {
+			queryException = e;
+		}
+
+		// Verify
+		Assert.isNotNull(queryException, 'The query exception should be thrown, because it\'s mocked.');
+		Assert.areEqual(message, queryException.getMessage(), 'The query exception should be thrown.');
+	}
+
+	@IsTest
 	static void mockingCount() {
 		// Test
 		SOQL.setCountMock('mockingQuery', 2);

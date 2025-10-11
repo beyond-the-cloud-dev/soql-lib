@@ -173,6 +173,8 @@ The following are methods for using `SOQL`:
 - [`SOQL.mock(String mockId).thenReturn(SObject record)`](#record-mock)
 - [`SOQL.mock(String mockId).thenReturn(List<SObject> records)`](#record-mock)
 - [`SOQL.mock(String mockId).thenReturn(Integer amount)`](#count-mock)
+- [`SOQL.mock(String mockId).throwException()`](#exception-mock)
+- [`SOQL.mock(String mockId).throwException(String message)`](#exception-mock-with-message)
 
 [**DEBUGGING**](#debugging)
 
@@ -2201,6 +2203,68 @@ List<SOQL.AggregateResultProxy> result = SOQL.of(Lead.SObjectType)
     .groupBy(Lead.LeadSource)
     .mockId('mockingQuery')
     .toAggregatedProxy();
+```
+
+### exception mock
+
+Mock a query exception with default message.
+
+**Signature**
+
+```apex
+SOQL.Mockable mock(String mockId).throwException()
+```
+
+**Example**
+
+```apex
+// In Unit Test
+SOQL.mock('MyQuery').throwException();
+
+Test.startTest();
+Exception error;
+try {
+    Account result = SOQL.of(Account.SObjectType)
+        .mockId('MyQuery')
+        .toObject();
+} catch (Exception e) {
+    error = e;
+}
+Test.stopTest();
+
+Assert.isNotNull(error, 'The query exception should be thrown.');
+```
+
+### exception mock with message
+
+Mock a query exception with custom error message.
+
+**Signature**
+
+```apex
+SOQL.Mockable mock(String mockId).throwException(String message)
+```
+
+**Example**
+
+```apex
+// In Unit Test
+String errorMessage = 'No such column \'InvalidField__c\' on entity \'Account\'.';
+SOQL.mock('MyQuery').throwException(errorMessage);
+
+Test.startTest();
+Exception error;
+try {
+    Account result = SOQL.of(Account.SObjectType)
+        .mockId('MyQuery')
+        .toObject();
+} catch (Exception e) {
+    error = e;
+}
+Test.stopTest();
+
+Assert.isNotNull(error, 'The query exception should be thrown.');
+Assert.isTrue(error.getMessage().contains('InvalidField__c'));
 ```
 
 ## DEBUGGING

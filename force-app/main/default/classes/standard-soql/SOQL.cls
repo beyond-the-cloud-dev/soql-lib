@@ -417,6 +417,9 @@ public virtual inherited sharing class SOQL implements Queryable {
 		Mockable thenReturn(Map<String, Object> aggregatedResult);
 		// Count
 		Mockable thenReturn(Integer count);
+		// Exception
+		void throwException();
+		void throwException(String message);
 	}
 
 	// Backward support - it's going to be removed in the future
@@ -2402,6 +2405,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		public SObjectMock sObjectMock = new SObjectMock();
 		public CountMock countMock = new CountMock();
 		public AggregateResultProxies aggregateResultMock = new AggregateResultProxies();
+		public ExceptionMock exceptionMock = null;
 
 		public Mockable thenReturn(List<Map<String, Object>> aggregatedResults) {
 			this.aggregateResultMock.add(aggregatedResults);
@@ -2426,6 +2430,19 @@ public virtual inherited sharing class SOQL implements Queryable {
 		public Mockable thenReturn(Integer count) {
 			this.countMock.set(count);
 			return this;
+		}
+
+		public void throwException() {
+			throwException('List has no rows for assignment to SObject');
+		}
+
+		public void throwException(String message) {
+			this.exceptionMock = new ExceptionMock();
+			this.exceptionMock.set(new QueryException(message));
+		}
+
+		public Boolean hasExceptionMock() {
+			return this.exceptionMock != null;
 		}
 
 		public SoqlMock useLegacyMockingBehavior() {
@@ -2568,6 +2585,18 @@ public virtual inherited sharing class SOQL implements Queryable {
 		}
 	}
 
+	private class ExceptionMock {
+		private QueryException queryException;
+
+		public void set(QueryException queryException) {
+			this.queryException = queryException;
+		}
+
+		public QueryException get() {
+			return this.queryException;
+		}
+	}
+
 	private inherited sharing class Executor {
 		private DatabaseQuery sharingExecutor;
 		private AccessLevel accessMode;
@@ -2619,6 +2648,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 			this.incrementQueryIssued();
 
 			if (!this.mocks.isEmpty()) {
+				this.throwExceptionMockIfExists();
 				return this.getMockedListProxy();
 			}
 
@@ -2632,6 +2662,12 @@ public virtual inherited sharing class SOQL implements Queryable {
 			).getRecords();
 		}
 
+		private void throwExceptionMockIfExists() {
+			if (this.mocks[0].hasExceptionMock()) {
+				throw this.mocks[0].exceptionMock.get();
+			}
+		}
+
 		private List<SObject> getMockedListProxy() {
 			if (this.mocks.size() == 1) {
 				return this.mocks[0].sObjectMock.get(this.builder.fields, this.builder.subQueries);
@@ -2643,6 +2679,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 			this.incrementQueryIssued();
 
 			if (!this.mocks.isEmpty()) {
+				this.throwExceptionMockIfExists();
 				return this.getMockedAggregateProxy();
 			}
 
@@ -2660,6 +2697,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 			this.incrementQueryIssued();
 
 			if (!this.mocks.isEmpty()) {
+				this.throwExceptionMockIfExists();
 				return this.getMockedCount();
 			}
 

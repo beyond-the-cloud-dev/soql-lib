@@ -365,3 +365,89 @@ private class ExampleControllerTest {
     }
 }
 ```
+
+## Mocking Exceptions
+
+SOQL Lib provides the ability to mock query exceptions, which is essential for testing error handling logic in your code.
+
+### Default Exception
+
+Use `.throwException()` to simulate a standard query exception with the default message: "List has no rows for assignment to SObject".
+
+```apex title="Controller with Error Handling"
+public with sharing class ExampleController {
+    public static Account getAccountById(Id accountId) {
+        try {
+            return (Account) SOQL.of(Account.SObjectType)
+                .with(Account.Name, Account.BillingCity)
+                .byId(accountId)
+                .mockId('ExampleController.getAccountById')
+                .toObject();
+        } catch (Exception e) {
+            // Logger here
+            throw e;;
+        }
+    }
+}
+```
+
+```apex title="Unit Test with Default Exception Mock"
+@IsTest
+static void getAccountByIdException() {
+    SOQL.mock('ExampleController.getAccountById').throwException();
+
+    Test.startTest();
+    Exception error;
+    try {
+        Account result = ExampleController.getAccountById('001000000000000AAA');
+    } catch (Exception e) {
+        error = e;
+    }
+    Test.stopTest();
+
+    Assert.isNotNull(error, 'The query exception should be thrown.');
+}
+```
+
+### Custom Exception Message
+
+Use `.throwException(message)` to simulate a query exception with a custom error message, such as field-level security errors or invalid field references.
+
+```apex title="Controller with Error Handling"
+public with sharing class ExampleController {
+    public static Account getAccountById(Id accountId) {
+        try {
+            return (Account) SOQL.of(Account.SObjectType)
+                .with(Account.Name, Account.BillingCity)
+                .byId(accountId)
+                .mockId('ExampleController.getAccountById')
+                .toObject();
+        } catch (Exception e) {
+            // Logger here
+            throw e;
+        }
+    }
+}
+```
+
+```apex title="Unit Test with Default Exception Mock"
+@IsTest
+public class ExampleControllerTest {
+    @IsTest
+    static void getAccountByIdException() {
+        String errorMessage = 'No such column \'InvalidField__c\' on entity \'Account\'.';
+        SOQL.mock('ExampleController.getAccountById').throwException(errorMessage);
+
+        Test.startTest();
+        Exception error;
+        try {
+           Account result = ExampleController.getAccountById('001000000000000AAA');
+        } catch (Exception e) {
+           error = e;
+        }
+        Test.stopTest();
+
+        Assert.isNotNull(error, 'The query exception should be thrown.');
+    }
+}
+```
