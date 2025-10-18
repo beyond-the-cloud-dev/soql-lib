@@ -2,7 +2,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.1.0
+ * v6.2.0
  *
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
@@ -1048,7 +1048,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		this.whereAre(Filter.with(relationshipName, targetKeyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toAggregatedIdMapBy(relationshipName, targetKeyField);
 	}
-	
+
 	public Map<String, SObject> toMap(SObjectField keyField) {
 		this.with(keyField);
 		this.whereAre(Filter.with(keyField).isNotNull());
@@ -2968,7 +2968,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		public Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField) {
 			Map<String, List<String>> customValuesPerCustomKey = new Map<String, List<String>>();
 			List<String> relationshipPathFields = relationshipName.split('\\.');
-			
+
 			for (SObject record : this.recordsToTransform) {
 				String key = String.valueOf(record.get(keyField));
 				String value = extractNestedFieldValue(record, relationshipPathFields, targetKeyField);

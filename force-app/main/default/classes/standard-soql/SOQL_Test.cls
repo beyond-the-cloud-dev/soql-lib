@@ -3,7 +3,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.1.0
+ * v6.2.0
  *
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
@@ -4512,7 +4512,7 @@ private class SOQL_Test {
 	static void mockedtoAggregatedIdMapByRelationshipField() {
 		// Setup
 		Id parentId = SOQL.IdGenerator.get(Account.SObjectType);
-			
+
 		SOQL.mock('mockingQuery').thenReturn(new List<Account>{
 			new Account(Name = 'Account 1', Parent = new Account(Name = 'Parent 1', Id = parentId)),
 			new Account(Name = 'Account 2', Parent = new Account(Name = 'Parent 2', Id = parentId))
