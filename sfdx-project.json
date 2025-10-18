@@ -1,8 +1,8 @@
 {
   "packageDirectories": [
     {
-      "versionName": "SOQL Lib 6.2.0",
-      "versionNumber": "6.2.0.NEXT",
+      "versionName": "SOQL Lib 6.3.0",
+      "versionNumber": "6.3.0.NEXT",
       "path": "force-app",
       "default": true,
       "package": "SOQL Lib",
@@ -19,6 +19,7 @@
   "sourceApiVersion": "64.0",
   "packageAliases": {
     "SOQL Lib": "0HoP6000000010vKAA",
-    "SOQL Lib@6.1.0-1": "04tP60000023Vm5IAE"
+    "SOQL Lib@6.1.0-1": "04tP60000023Vm5IAE",
+    "SOQL Lib@6.2.0-1": "04tP60000023VnhIAE"
   }
 }
