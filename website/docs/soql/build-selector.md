@@ -40,7 +40,7 @@ Most SOQL queries in a project are **one-time** queries executed for specific bu
 3. **Eliminate Method Naming Overhead** - Since queries are created inline, there's no need to spend time finding appropriate method names
 4. **Preserve Selector Strengths** - Maintain default selector configurations (default fields, sharing settings) and keep generic methods
 
-Check examples in our [repository](https://github.com/beyond-the-cloud-dev/soql-lib/tree/main/force-app/main/default/classes/examples/standard-selectors).
+Check examples in our [repository](https://github.com/beyond-the-cloud-dev/soql-lib/tree/main/examples/main/default/classes/standard-selectors).
 
 SOQL Lib is flexible, allowing you to adjust the solution according to your specific needs.
 

@@ -4,7 +4,7 @@ sidebar_position: 18
 
 # Building Cached Selector
 
-Check examples in the [repository](https://github.com/beyond-the-cloud-dev/soql-lib/tree/main/force-app/main/default/classes/examples/cached-selectors).
+Check examples in the [repository](https://github.com/beyond-the-cloud-dev/soql-lib/tree/main/examples/main/default/classes/cached-selectors).
 
 
 SOQL-Lib is agile, so you can adjust the solution according to your needs.

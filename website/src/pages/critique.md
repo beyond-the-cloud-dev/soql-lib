@@ -5,7 +5,7 @@ _aka "I have to learn a new syntax"_
 
 ### Use SOQL Evaluator
 
-SOQL Lib has 3 different modules: [SOQL](/soql/getting-started), [SOQL Cache](/cache/getting-started), and [SOQL Evaluator](/evaluator/getting-started). SOQL Evaluator was created for developers who don't want to learn a new syntax but still want to benefit from features like mocking and result functions. You can use [this module](https://github.com/beyond-the-cloud-dev/soql-lib/tree/main/force-app/main/default/classes/main/soql-evaluator) without switching to an entirely new syntax.
+SOQL Lib has 3 different modules: [SOQL](/soql/getting-started), [SOQL Cache](/cache/getting-started), and [SOQL Evaluator](/evaluator/getting-started). SOQL Evaluator was created for developers who don't want to learn a new syntax but still want to benefit from features like mocking and result functions. You can use [this module](https://github.com/beyond-the-cloud-dev/soql-lib/tree/main/force-app/main/default/classes/soql-evaluator) without switching to an entirely new syntax.
 
 ```apex
 Set<Id> accountIds = SOQLEvaluator.of([SELECT Id FROM Account]).toIds();
@@ -22,7 +22,7 @@ SOQL Lib provides comprehensive online documentation with the [playground](/play
 
 "Do I need to go to the documentation and spend a lot of time searching for what I need?"
 
-No. At the top of [SOQL.cls](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/standard-soql/SOQL.cls), we've placed all the interfaces you can interact with. Even as the author, I don't remember all the methods. However, I can quickly navigate to [SOQL.cls](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/standard-soql/SOQL.cls) and identify what I need in seconds. Everything important is at the top—you don't have to scroll through the entire class searching for methods. Just focus on the interfaces.
+No. At the top of [SOQL.cls](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/standard-soql/SOQL.cls), we've placed all the interfaces you can interact with. Even as the author, I don't remember all the methods. However, I can quickly navigate to [SOQL.cls](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/standard-soql/SOQL.cls) and identify what I need in seconds. Everything important is at the top—you don't have to scroll through the entire class searching for methods. Just focus on the interfaces.
 
 #### Use AI
 

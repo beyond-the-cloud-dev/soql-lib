@@ -1,12 +1,24 @@
 {
   "packageDirectories": [
     {
+      "versionName": "SOQL Lib 6.2.0",
+      "versionNumber": "6.2.0.NEXT",
       "path": "force-app",
-      "default": true
+      "default": true,
+      "package": "SOQL Lib",
+      "versionDescription": ""
+    },
+    {
+      "path": "examples",
+      "default": false
     }
   ],
   "name": "soql-lib",
-  "namespace": "",
+  "namespace": "btcdev",
   "sfdcLoginUrl": "https://login.salesforce.com",
-  "sourceApiVersion": "64.0"
+  "sourceApiVersion": "64.0",
+  "packageAliases": {
+    "SOQL Lib": "0HoP6000000010vKAA",
+    "SOQL Lib@6.1.0-1": "04tP60000023Vm5IAE"
+  }
 }

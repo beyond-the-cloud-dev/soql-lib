@@ -3,11 +3,30 @@ slug: '/installation'
 sidebar_position: 20
 ---
 
+<!--
+ sf package version create --package "SOQL Lib" --target-dev-hub beyondthecloud-prod --installation-key-bypass --wait 30 --code-coverage
+ sf package version promote --package "SOQL Lib@6.1.0-1"  --target-dev-hub beyondthecloud-prod
+-->
+
 # Installation
 
-## Install via Package
+## Install via Unlocked Package
 
 Install the SOQL Lib unmanaged package to your Salesforce environment:
+
+### With `btcdev` namespace
+
+`/packaging/installPackage.apexp?p0=04tP60000023Vm5IAE`
+
+<a href="https://test.salesforce.com/packaging/installPackage.apexp?p0=04tP60000023Vm5IAE" target="_blank" style={{display: 'inline-block', backgroundColor: '#1976d2', color: 'white', padding: '10px 20px', textDecoration: 'none', borderRadius: '4px', marginRight: '10px'}}>
+    <p style={{margin: '0px'}}>Install on Sandbox</p>
+</a>
+
+<a href="https://login.salesforce.com/packaging/installPackage.apexp?p0=04tP60000023Vm5IAE" target="_blank" style={{display: 'inline-block', backgroundColor: '#d32f2f', color: 'white', padding: '10px 20px', textDecoration: 'none', borderRadius: '4px'}}>
+    <p style={{margin: '0px'}}>Install on Production</p>
+</a>
+
+### Without the namespace
 
 `/packaging/installPackage.apexp?p0=04tP6000001w7q9`
 
@@ -34,19 +53,19 @@ Click the button below to deploy SOQL Lib to your environment.
 
 **Apex**
 
-- [`SOQL.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/standard-soql/SOQL.cls)
-- [`SOQL_Test.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/standard-soql/SOQL_Test.cls)
+- [`SOQL.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/standard-soql/SOQL.cls)
+- [`SOQL_Test.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/standard-soql/SOQL_Test.cls)
 
 ### Cache _(optional)_
 
 **Apex**
 
-- [`SOQL.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/standard-soql/SOQL.cls)
-- [`SOQL_Test.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/standard-soql/SOQL_Test.cls)
-- [`CacheManager.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/cached-soql/CacheManager.cls)
-- [`CacheManagerTest.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/cached-soql/CacheManagerTest.cls)
-- [`SOQLCache.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/cached-soql/SOQLCache.cls)
-- [`SOQLCache_Test.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/cached-soql/SOQLCache_Test.cls)
+- [`SOQL.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/standard-soql/SOQL.cls)
+- [`SOQL_Test.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/standard-soql/SOQL_Test.cls)
+- [`CacheManager.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/cached-soql/CacheManager.cls)
+- [`CacheManagerTest.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/cached-soql/CacheManagerTest.cls)
+- [`SOQLCache.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/cached-soql/SOQLCache.cls)
+- [`SOQLCache_Test.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/cached-soql/SOQLCache_Test.cls)
 
 **Cache Partitions**
 
@@ -56,7 +75,7 @@ Click the button below to deploy SOQL Lib to your environment.
 
 **Apex**
 
-- [`SOQL.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/standard-soql/SOQL.cls)
-- [`SOQL_Test.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/standard-soql/SOQL_Test.cls)
-- [`SOQLEvaluator.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/soql-evaluator/SOQLEvaluator.cls)
-- [`SOQLEvaluatorTest.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/soql-evaluator/SOQLEvaluator_Test.cls)
+- [`SOQL.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/standard-soql/SOQL.cls)
+- [`SOQL_Test.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/standard-soql/SOQL_Test.cls)
+- [`SOQLEvaluator.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/soql-evaluator/SOQLEvaluator.cls)
+- [`SOQLEvaluatorTest.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/soql-evaluator/SOQLEvaluator_Test.cls)

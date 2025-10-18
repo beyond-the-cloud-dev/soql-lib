@@ -9,7 +9,7 @@ sidebar_position: 40
 
 SOQL Lib is a single-class solution.
 
-You don't need to think about dependencies; everything you need is stored in [SOQL.cls](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/main/standard-soql/SOQL.cls). The `SOQL.cls` contains only around 3000 lines of code.
+You don't need to think about dependencies; everything you need is stored in [SOQL.cls](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/standard-soql/SOQL.cls). The `SOQL.cls` contains only around 3000 lines of code.
 
 Different clauses are encapsulated in small, inner classes.
 All crucial information is kept at the top of the class, so developers can use it even without reading the documentation.
