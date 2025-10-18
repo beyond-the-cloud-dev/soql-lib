@@ -3,7 +3,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.1.0
+ * v6.2.0
  *
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
@@ -3523,6 +3523,43 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void mockingQueryException() {
+		// Test
+		SOQL.mock('mockingQuery').throwException();
+
+		Exception queryException = null;
+
+		try {
+			Account result = (Account) SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toObject();
+		} catch (QueryException e) {
+			queryException = e;
+		}
+
+		// Verify
+		Assert.isNotNull(queryException, 'The query exception should be thrown, because it\'s mocked.');
+		Assert.areEqual('List has no rows for assignment to SObject', queryException.getMessage(), 'The query exception should be thrown.');
+	}
+
+	@IsTest
+	static void mockingQueryExceptionWithMessage() {
+		// Test
+		String message = 'No such column \'Name\' on entity \'Account\'.';
+		SOQL.mock('mockingQuery').throwException(message);
+
+		Exception queryException = null;
+
+		try {
+			Account result = (Account) SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toObject();
+		} catch (QueryException e) {
+			queryException = e;
+		}
+
+		// Verify
+		Assert.isNotNull(queryException, 'The query exception should be thrown, because it\'s mocked.');
+		Assert.areEqual(message, queryException.getMessage(), 'The query exception should be thrown.');
+	}
+
+	@IsTest
 	static void mockingCount() {
 		// Test
 		SOQL.setCountMock('mockingQuery', 2);
@@ -4475,7 +4512,7 @@ private class SOQL_Test {
 	static void mockedtoAggregatedIdMapByRelationshipField() {
 		// Setup
 		Id parentId = SOQL.IdGenerator.get(Account.SObjectType);
-			
+
 		SOQL.mock('mockingQuery').thenReturn(new List<Account>{
 			new Account(Name = 'Account 1', Parent = new Account(Name = 'Parent 1', Id = parentId)),
 			new Account(Name = 'Account 2', Parent = new Account(Name = 'Parent 2', Id = parentId))

@@ -2,7 +2,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.1.0
+ * v6.2.0
  *
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
@@ -417,6 +417,9 @@ public virtual inherited sharing class SOQL implements Queryable {
 		Mockable thenReturn(Map<String, Object> aggregatedResult);
 		// Count
 		Mockable thenReturn(Integer count);
+		// Exception
+		void throwException();
+		void throwException(String message);
 	}
 
 	// Backward support - it's going to be removed in the future
@@ -1045,7 +1048,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		this.whereAre(Filter.with(relationshipName, targetKeyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toAggregatedIdMapBy(relationshipName, targetKeyField);
 	}
-	
+
 	public Map<String, SObject> toMap(SObjectField keyField) {
 		this.with(keyField);
 		this.whereAre(Filter.with(keyField).isNotNull());
@@ -2402,6 +2405,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		public SObjectMock sObjectMock = new SObjectMock();
 		public CountMock countMock = new CountMock();
 		public AggregateResultProxies aggregateResultMock = new AggregateResultProxies();
+		public ExceptionMock exceptionMock = null;
 
 		public Mockable thenReturn(List<Map<String, Object>> aggregatedResults) {
 			this.aggregateResultMock.add(aggregatedResults);
@@ -2426,6 +2430,19 @@ public virtual inherited sharing class SOQL implements Queryable {
 		public Mockable thenReturn(Integer count) {
 			this.countMock.set(count);
 			return this;
+		}
+
+		public void throwException() {
+			throwException('List has no rows for assignment to SObject');
+		}
+
+		public void throwException(String message) {
+			this.exceptionMock = new ExceptionMock();
+			this.exceptionMock.set(new QueryException(message));
+		}
+
+		public Boolean hasExceptionMock() {
+			return this.exceptionMock != null;
 		}
 
 		public SoqlMock useLegacyMockingBehavior() {
@@ -2568,6 +2585,18 @@ public virtual inherited sharing class SOQL implements Queryable {
 		}
 	}
 
+	private class ExceptionMock {
+		private QueryException queryException;
+
+		public void set(QueryException queryException) {
+			this.queryException = queryException;
+		}
+
+		public QueryException get() {
+			return this.queryException;
+		}
+	}
+
 	private inherited sharing class Executor {
 		private DatabaseQuery sharingExecutor;
 		private AccessLevel accessMode;
@@ -2619,6 +2648,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 			this.incrementQueryIssued();
 
 			if (!this.mocks.isEmpty()) {
+				this.throwExceptionMockIfExists();
 				return this.getMockedListProxy();
 			}
 
@@ -2632,6 +2662,12 @@ public virtual inherited sharing class SOQL implements Queryable {
 			).getRecords();
 		}
 
+		private void throwExceptionMockIfExists() {
+			if (this.mocks[0].hasExceptionMock()) {
+				throw this.mocks[0].exceptionMock.get();
+			}
+		}
+
 		private List<SObject> getMockedListProxy() {
 			if (this.mocks.size() == 1) {
 				return this.mocks[0].sObjectMock.get(this.builder.fields, this.builder.subQueries);
@@ -2643,6 +2679,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 			this.incrementQueryIssued();
 
 			if (!this.mocks.isEmpty()) {
+				this.throwExceptionMockIfExists();
 				return this.getMockedAggregateProxy();
 			}
 
@@ -2660,6 +2697,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 			this.incrementQueryIssued();
 
 			if (!this.mocks.isEmpty()) {
+				this.throwExceptionMockIfExists();
 				return this.getMockedCount();
 			}
 
@@ -2930,7 +2968,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		public Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField) {
 			Map<String, List<String>> customValuesPerCustomKey = new Map<String, List<String>>();
 			List<String> relationshipPathFields = relationshipName.split('\\.');
-			
+
 			for (SObject record : this.recordsToTransform) {
 				String key = String.valueOf(record.get(keyField));
 				String value = extractNestedFieldValue(record, relationshipPathFields, targetKeyField);

@@ -381,7 +381,7 @@ public class ExampleControllerTest {
 
 We are using field aliasing: https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
 
-It’s approximately 2x more efficient than a standard for loop. Because of this, mocking works differently for the following methods:
+It's approximately 2x more efficient than a standard for loop. Because of this, mocking works differently for the following methods:
 
 - `toIdsOf(SObjectField field)`
 - `toIdsOf(String relationshipName, SObjectField field)`
@@ -425,3 +425,92 @@ public class ExampleControllerTest {
     }
 }
 ```
+
+## Mocking Exceptions
+
+SOQL Lib supports mocking query exceptions to test error handling scenarios in your code. This is crucial for validating that your application gracefully handles database errors, security violations, and other query-related exceptions.
+
+### Default Exception
+
+The `.throwException()` method simulates a standard query exception with the default message: **"List has no rows for assignment to SObject"**.
+
+This is useful for testing code paths that handle empty query results or unavailable data.
+
+```apex title="ExampleController.cls"
+public with sharing class ExampleController {
+    public static Account getAccountById(Id accountId) {
+        try {
+            return (Account) SOQL.of(Account.SObjectType)
+                .with(Account.Name, Account.BillingCity)
+                .byId(accountId)
+                .mockId('ExampleController.getAccountById')
+                .toObject();
+        } catch (Exception e) {
+            // Logger here
+            throw e;
+        }
+    }
+}
+```
+
+```apex title="ExampleControllerTest.cls"
+@IsTest
+static void getAccountByIdException() {
+    SOQL.mock('ExampleController.getAccountById').throwException();
+
+    Test.startTest();
+    Exception error;
+    try {
+        Account result = ExampleController.getAccountById('001000000000000AAA');
+    } catch (Exception e) {
+        error = e;
+    }
+    Test.stopTest();
+
+    Assert.isNotNull(error, 'The query exception should be thrown.');
+}
+```
+
+### Custom Exception Message
+
+Use `.throwException(message)` to simulate a query exception with a custom error message, such as field-level security errors or invalid field references.
+
+```apex title="Controller with Error Handling"
+public with sharing class ExampleController {
+    public static Account getAccountById(Id accountId) {
+        try {
+            return (Account) SOQL.of(Account.SObjectType)
+                .with(Account.Name, Account.BillingCity)
+                .byId(accountId)
+                .mockId('ExampleController.getAccountById')
+                .toObject();
+        } catch (Exception e) {
+            // Logger here
+            throw e;
+        }
+    }
+}
+```
+
+```apex title="Unit Test with Default Exception Mock"
+@IsTest
+public class ExampleControllerTest {
+    @IsTest
+    static void getAccountByIdException() {
+        String errorMessage = 'No such column \'InvalidField__c\' on entity \'Account\'.';
+        SOQL.mock('ExampleController.getAccountById').throwException(errorMessage);
+
+        Test.startTest();
+        Exception error;
+        try {
+           Account result = ExampleController.getAccountById('001000000000000AAA');
+        } catch (Exception e) {
+           error = e;
+        }
+        Test.stopTest();
+
+        Assert.isNotNull(error, 'The query exception should be thrown.');
+    }
+}
+```
+
