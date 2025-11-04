@@ -46,8 +46,7 @@ global inherited sharing class SOQLEvaluator {
 		Mockable thenReturn(List<SObject> records);
 	}
 
-	@TestVisible
-	private static Mockable mock(String mockId) {
+	global static Mockable mock(String mockId) {
 		if (!SOQLEvaluator.queryIdToMock.containsKey(mockId)) {
 			SOQLEvaluator.queryIdToMock.put(mockId, new List<SoqlMock>());
 		}
