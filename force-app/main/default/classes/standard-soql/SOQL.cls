@@ -2,7 +2,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.2.0
+ * v6.3.0
  *
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
@@ -17,20 +17,20 @@
  * - NcssTypeCount: It is a library and we tried to put everything into ONE class
 **/
 @SuppressWarnings('PMD.ExcessivePublicCount,PMD.ExcessiveClassLength,PMD.FieldNamingConventions,PMD.CyclomaticComplexity,PMD.CognitiveComplexity,PMD.PropertyNamingConventions,PMD.FieldDeclarationsShouldBeAtStart,PMD.ApexDoc,PMD.ExcessiveParameterList,PMD.NcssTypeCount')
-public virtual inherited sharing class SOQL implements Queryable {
-	public interface Selector {
+global virtual inherited sharing class SOQL implements Queryable {
+	global interface Selector {
 		Queryable query();
 	}
 
-	public static Queryable of(SObjectType ofObject) {
+	global static Queryable of(SObjectType ofObject) {
 		return new SOQL(ofObject);
 	}
 
-	public static Queryable of(String ofObject) {
+	global static Queryable of(String ofObject) {
 		return new SOQL(ofObject);
 	}
 
-	public interface Queryable {
+	global interface Queryable {
 		// SELECT
 		Queryable with(SObjectField field);
 		Queryable with(SObjectField field1, SObjectField field2);
@@ -194,7 +194,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		Map<String, Object> binding();
 	}
 
-	public interface SubQuery {
+	global interface SubQuery {
 		SubQuery of(String ofObject);
 		// SELECT
 		SubQuery with(SObjectField field);
@@ -227,7 +227,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		String getChildRelationshipName();
 	}
 
-	public interface FilterGroup {
+	global interface FilterGroup {
 		// ADD CONDITION
 		FilterGroup add(FilterGroup filterGroup);
 		FilterGroup add(Filter filter);
@@ -243,7 +243,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		Boolean hasValues();
 	}
 
-	public interface Filter {
+	global interface Filter {
 		// FIELDS
 		Filter id();
 		Filter recordType();
@@ -286,7 +286,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		Boolean hasValue();
 	}
 
-	public interface InnerJoin {
+	global interface InnerJoin {
 		InnerJoin of(SObjectType ofObject);
 		// SELECT
 		InnerJoin with(SObjectField field);
@@ -295,7 +295,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		InnerJoin whereAre(Filter filter);
 	}
 
-	public interface HavingFilterGroup {
+	global interface HavingFilterGroup {
 		// ADD CONDITION
 		HavingFilterGroup add(HavingFilterGroup havingFilterGroup);
 		HavingFilterGroup add(HavingFilter havingFilter);
@@ -307,7 +307,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		Boolean hasValues();
 	}
 
-	public interface HavingFilter {
+	global interface HavingFilter {
 		// FIELDS
 		HavingFilter with(SObjectField field);
 		HavingFilter with(String field);
@@ -342,11 +342,11 @@ public virtual inherited sharing class SOQL implements Queryable {
 		Boolean hasValue();
 	}
 
-	public interface DataCategoryFilterGroup {
+	global interface DataCategoryFilterGroup {
 		DataCategoryFilterGroup add(DataCategoryFilter dataCategoryFilter);
 	}
 
-	public interface DataCategoryFilter {
+	global interface DataCategoryFilter {
 		// FIELDS
 		DataCategoryFilter with(String field);
 		// COMPARATORS
@@ -362,36 +362,36 @@ public virtual inherited sharing class SOQL implements Queryable {
 		Boolean hasValue();
 	}
 
-	public interface AggregateResultProxy {
+	global interface AggregateResultProxy {
 		Object get(String field);
 		Map<String, Object> getPopulatedFieldsAsMap();
 	}
 
-	public static SubQuery SubQuery {
+	global static SubQuery SubQuery {
 		get { return new SoqlSubQuery(); }
 	}
 
-	public static FilterGroup FilterGroup {
+	global static FilterGroup FilterGroup {
 		get { return new SoqlFilterGroup(); }
 	}
 
-	public static Filter Filter {
+	global static Filter Filter {
 		get { return new SoqlFilter(); }
 	}
 
-	public static InnerJoin InnerJoin {
+	global static InnerJoin InnerJoin {
 		get { return new SoqlJoinQuery(); }
 	}
 
-	public static HavingFilterGroup HavingFilterGroup {
+	global static HavingFilterGroup HavingFilterGroup {
 		get { return new SoqlHavingFilterGroup(); }
 	}
 
-	public static HavingFilter HavingFilter {
+	global static HavingFilter HavingFilter {
 		get { return new SoqlHavingFilter(); }
 	}
 
-	public static DataCategoryFilter DataCategoryFilter {
+	global static DataCategoryFilter DataCategoryFilter {
 		get { return new SoqlDataCategoryFilter(); }
 	}
 
@@ -408,7 +408,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
 	public static RandomIdGenerator IdGenerator = new RandomIdGenerator();
 
-	public interface Mockable {
+	global interface Mockable {
 		// SObject
 		Mockable thenReturn(SObject record);
 		Mockable thenReturn(List<SObject> records);

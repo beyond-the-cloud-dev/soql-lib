@@ -2,7 +2,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.2.0
+ * v6.3.0
  *
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
@@ -15,20 +15,20 @@
  * - ExcessiveParameterList: Make methods similar to native SOQL
 **/
 @SuppressWarnings('PMD.ExcessivePublicCount,PMD.ExcessiveClassLength,PMD.CyclomaticComplexity,PMD.CognitiveComplexity,PMD.PropertyNamingConventions,PMD.FieldDeclarationsShouldBeAtStart,PMD.ApexDoc,PMD.ExcessiveParameterList')
-public virtual inherited sharing class SOQLCache implements Cacheable {
-	public interface Selector {
+global virtual inherited sharing class SOQLCache implements Cacheable {
+	global interface Selector {
 		Cacheable query();
 	}
 
-	public static Cacheable of(SObjectType ofObject) {
+	global static Cacheable of(SObjectType ofObject) {
 		return new SOQLCache(ofObject);
 	}
 
-	public static Cacheable of(String ofObject) {
+	global static Cacheable of(String ofObject) {
 		return new SOQLCache(ofObject);
 	}
 
-	public interface Cacheable {
+	global interface Cacheable {
 		// CONFIG
 		Cacheable cacheInApexTransaction();
 		Cacheable cacheInOrgCache();
@@ -75,13 +75,13 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 		return null;
 	}
 
-	public virtual List<SObjectField> additionalAllowedConditionFields() {
+	protected virtual List<SObjectField> additionalAllowedConditionFields() {
 		return new List<SObjectField>();
 	}
 
 	// Mocking
 
-	public interface Mockable {
+	global interface Mockable {
 		// SObject
 		void thenReturn(SObject record);
 	}
@@ -95,7 +95,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 		return SOQLCache.queryIdToMock.get(mockId).get(SOQLCache.queryIdToMock.get(mockId).size() - 1);
 	}
 
-	public static void removeFromCache(List<SObject> records) {
+	global static void removeFromCache(List<SObject> records) {
 		if (records.isEmpty()) {
 			return;
 		}
@@ -124,8 +124,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 	private Executor executor;
 	private Cache cache;
 
-	public SOQL.Queryable initialQuery = null;
-	public SOQL.Queryable currentQuery = null;
+	private SOQL.Queryable initialQuery = null;
+	private SOQL.Queryable currentQuery = null;
 
 	protected SOQLCache(SObjectType ofObject) {
 		this(ofObject.toString());
