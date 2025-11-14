@@ -2,7 +2,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.3.0
+ * v6.5.0
  *
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
@@ -957,9 +957,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 	private Set<Id> toIdsOf(String fieldToExtract) {
 		// https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
 		this.builder.fields.clearAllFields(); // other fields not needed
+		this.builder.conditions.addMasterCondition(Filter.with(fieldToExtract).isNotNull());
+		// Assert.areEqual('aa', this.toString());
 		return new Map<Id, SObject>(
 			this.with(fieldToExtract, 'Id')
-			.whereAre(Filter.with(fieldToExtract).isNotNull())
 			.groupBy(fieldToExtract)
 			.toAggregated()
 		).keySet();
@@ -991,9 +992,9 @@ global virtual inherited sharing class SOQL implements Queryable {
 	private Set<String> toValuesOf(String fieldToExtract) {
 		// https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
 		this.builder.fields.clearAllFields(); // other fields not needed
+		this.builder.conditions.addMasterCondition(Filter.with(fieldToExtract).isNotNull());
 		return new Map<String, SObject>(
 			this.with(fieldToExtract, 'Id')
-			.whereAre(Filter.with(fieldToExtract).isNotNull())
 			.groupBy(fieldToExtract)
 			.toAggregated()
 		).keySet();
@@ -1587,7 +1588,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		private String getOrderWithSpecialCharacters() {
-			String orderWithSpecialCharacters = this.getConditionsLogic();
+			String orderWithSpecialCharacters = this.customOrder ?? this.getDefaultOrder();
 
 			for (Integer i = 0; i < this.conditions.size(); i++) {
 				orderWithSpecialCharacters = orderWithSpecialCharacters.replaceAll('\\b' + (i + 1).toString() + '\\b', '{' + i + '}');
@@ -1596,11 +1597,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 			return orderWithSpecialCharacters; // e.g ({0} AND ({1} AND {2}))
 		}
 
-		private String getConditionsLogic() {
-			if (String.isNotEmpty(this.customOrder)) {
-				return this.customOrder;
-			}
-
+		private String getDefaultOrder() {
 			List<String> defaultOrder = new List<String>();
 
 			for (Integer i = 0; i < this.conditions.size(); i++) {
@@ -1668,9 +1665,23 @@ global virtual inherited sharing class SOQL implements Queryable {
 	}
 
 	private class MainFilterGroup extends SoqlFilterGroup implements QueryClause {
+		private Filter masterCondition;
+
+		public void addMasterCondition(Filter filter) {
+			this.masterCondition = filter;
+		}
+
 		public override String toString() {
-			if (!this.hasValues()) {
+			if (!this.hasValues() && this.masterCondition == null) {
 				return '';
+			}
+
+			if (this.masterCondition != null) {
+				if (this.hasValues()) {
+					return 'WHERE ' + this.masterCondition.toString() + ' AND (' + this.buildNested() + ')';
+				}
+
+				return 'WHERE ' + this.masterCondition.toString();
 			}
 
 			return 'WHERE ' + this.buildNested();

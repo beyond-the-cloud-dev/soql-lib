@@ -3,7 +3,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.3.0
+ * v6.5.0
  *
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
@@ -4061,6 +4061,39 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void toIdsOfWhenCustomConditions() {
+		// Setup
+		List<Account> accounts = insertAccountsWithParents();
+
+		// Test
+		Set<Id> parentIds = SOQL.of(Account.SObjectType)
+			.byIds(accounts)
+			.whereAre(SOQL.Filter.with(Account.Name).contains('Test 1'))
+			.whereAre(SOQL.Filter.with(Account.Name).equal('Test 1'))
+			.conditionLogic('1 AND (2 OR 3)')
+			.toIdsOf(Account.ParentId);
+
+		// Verify
+		Assert.areEqual(1, parentIds.size(), 'Only one account should be returned, because the Name condition is matched.');
+	}
+
+	@IsTest
+	static void toIdsOfWhenAnyConditionMatching() {
+		// Setup
+		List<Account> accounts = insertAccountsWithParents();
+
+		// Test
+		Set<Id> parentIds = SOQL.of(Account.SObjectType)
+			.byIds(accounts)
+			.whereAre(SOQL.Filter.with(Account.Name).equal('Test 1'))
+			.anyConditionMatching()
+			.toIdsOf(Account.ParentId);
+
+		// Verify
+		Assert.areEqual(2, parentIds.size(), 'Only one account should be returned, because the Name condition is matched.');
+	}
+
+	@IsTest
 	static void toIdsOfWithMocking() {
 		// Setup
 		SOQL.mock('mockingQuery').thenReturn(
@@ -4197,6 +4230,23 @@ private class SOQL_Test {
 
 		// Verify
 		Assert.areEqual(2, accountNames.size(), 'The size of the account names set should be equal to the size of the accounts.');
+	}
+
+	@IsTest
+	static void toValuesOfWhenCustomConditions() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		// Test
+		Set<String> accountNames = SOQL.of(Account.SObjectType)
+			.byIds(accounts)
+			.whereAre(SOQL.Filter.with(Account.Name).contains('Test 1'))
+			.whereAre(SOQL.Filter.with(Account.Name).equal('Test 1'))
+			.conditionLogic('1 AND (2 OR 3)')
+			.toValuesOf(Account.Name);
+
+		// Verify
+		Assert.areEqual(1, accountNames.size(), 'Only one account should be returned, because the Name condition is matched.');
 	}
 
 	@IsTest
