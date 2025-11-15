@@ -3425,6 +3425,35 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void stripInaccessibleToAggregated() {
+		// Setup
+		insertTasks();
+
+		System.runAs(minimumAccessUser()) {
+			// Test
+			Exception queryException = null;
+
+			try {
+				Set<String> taskTypes = SOQL.of(Task.SObjectType)
+					.with(Task.Type)
+					.systemMode()
+					.stripInaccessible()
+					.withoutSharing()
+					.toValuesOf(Task.Type);
+			} catch(Exception e) {
+				queryException = e;
+			}
+
+			// Verify
+			Assert.areEqual(
+				'AggregateResult SObject types are not supported',
+				queryException.getMessage(),
+				'The user should not have access to the \'Type\' field.'
+			);
+		}
+	}
+
+	@IsTest
 	static void mockId() {
 		// Setup
 		List<Account> accounts = new List<Account>{
@@ -4111,6 +4140,34 @@ private class SOQL_Test {
 		Assert.areEqual(2, parentIds.size(), 'The size of the returned set should be equal to the size of the mocked accounts.');
 		Assert.isTrue(parentIds.contains(parentId1), 'The returned set should contain the parent Id 1.');
 		Assert.isTrue(parentIds.contains(parentId2), 'The returned set should contain the parent Id 2.');
+	}
+
+	@IsTest
+	static void toIdsOfWithMockingStack() {
+		// Setup
+		Id parentId1 = SOQL.IdGenerator.get(Account.SObjectType);
+		Id parentId2 = SOQL.IdGenerator.get(Account.SObjectType);
+
+		SOQL.mock('mockingQuery').thenReturn(new List<Account>{
+			new Account(ParentId = parentId1),
+			new Account(ParentId = parentId2)
+		});
+
+		SOQL.mock('mockingQuery').thenReturn(new List<Account>{
+			new Account(ParentId = parentId1)
+		});
+
+		// Test
+		Set<Id> parentIds1 = SOQL.of(Account.SObjectType).mockId('mockingQuery').toIdsOf(Account.ParentId);
+		Set<Id> parentIds2 = SOQL.of(Account.SObjectType).mockId('mockingQuery').toIdsOf(Account.ParentId);
+
+		// Verify
+		Assert.areEqual(2, parentIds1.size(), 'The size of the returned set should be equal to the size of the mocked accounts.');
+		Assert.isTrue(parentIds1.contains(parentId1), 'The returned set should contain the parent Id 1.');
+		Assert.isTrue(parentIds1.contains(parentId2), 'The returned set should contain the parent Id 2.');
+
+		Assert.areEqual(1, parentIds2.size(), 'The size of the returned set should be equal to the size of the mocked accounts.');
+		Assert.isTrue(parentIds2.contains(parentId1), 'The returned set should contain the parent Id 1.');
 	}
 	
 	@IsTest

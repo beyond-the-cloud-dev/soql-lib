@@ -2721,6 +2721,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 			if (this.mocks.size() == 1) {
 				return (List<AggregateResult>) this.mocks[0].sObjectMock.getAggregated(fieldToExtract);
 			}
+			
 			return (List<AggregateResult>) this.mocks.remove(0).sObjectMock.getAggregated(fieldToExtract);
 		}
 
@@ -3011,10 +3012,6 @@ global virtual inherited sharing class SOQL implements Queryable {
 			}
 
 			return customValuesPerCustomKey;
-		}
-
-		private String extractNestedFieldValue(SObject parentRecord, List<String> relationshipPath, SObjectField targetField) {
-			return this.extractNestedFieldValue(parentRecord, relationshipPath, targetField.toString());
 		}
 
 		private String extractNestedFieldValue(SObject parentRecord, List<String> relationshipPath, String targetField) {
