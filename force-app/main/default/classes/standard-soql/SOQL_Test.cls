@@ -4128,18 +4128,18 @@ private class SOQL_Test {
 	@IsTest
 	static void toIdsOfRelationshipFieldWithMocking() {
 		// Setup
-		Id createdById = SOQL.IdGenerator.get(User.SObjectType);
+		Id parentAccountId = SOQL.IdGenerator.get(Account.SObjectType);
 
 		SOQL.mock('mockingQuery').thenReturn(
-			new Account(Parent = new Account(CreatedById = createdById))
+			new Account(Parent = new Account(Id = parentAccountId))
 		);
 
 		// Test
-		Set<Id> createdByIds = SOQL.of(Account.SObjectType).mockId('mockingQuery').toIdsOf('Parent', Account.CreatedById);
+		Set<Id> parentIds = SOQL.of(Account.SObjectType).mockId('mockingQuery').toIdsOf('Parent', Account.Id);
 
 		// Verify
-		Assert.areEqual(1, createdByIds.size(), 'The size of the returned set should be 1, because the same user inserted the accounts.');
-		Assert.isTrue(createdByIds.contains(createdById), 'The returned set should contain the created by user Id.');
+		Assert.areEqual(1, parentIds.size(), 'The size of the returned set should be 1, because the same user inserted the accounts.');
+		Assert.isTrue(parentIds.contains(parentAccountId), 'The returned set should contain the parent account Id.');
 	}
 
 	@IsTest
