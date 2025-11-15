@@ -4096,27 +4096,23 @@ private class SOQL_Test {
 	@IsTest
 	static void toIdsOfWithMocking() {
 		// Setup
-		SOQL.mock('mockingQuery').thenReturn(
-			(List<AggregateResult>) JSON.deserialize(
-				JSON.serialize(new List<Map<String, Object>>{
-					new Map<String, Object>{
-						'Id' => SOQL.IdGenerator.get(Account.SObjectType)
-					},
-					new Map<String, Object>{
-						'Id' => SOQL.IdGenerator.get(Account.SObjectType)
-					}
-				}),
-				List<AggregateResult>.class
-			)
-		);
+		Id parentId1 = SOQL.IdGenerator.get(Account.SObjectType);
+		Id parentId2 = SOQL.IdGenerator.get(Account.SObjectType);
+
+		SOQL.mock('mockingQuery').thenReturn(new List<Account>{
+			new Account(ParentId = parentId1),
+			new Account(ParentId = parentId2)
+		});
 
 		// Test
 		Set<Id> parentIds = SOQL.of(Account.SObjectType).mockId('mockingQuery').toIdsOf(Account.ParentId);
 
 		// Verify
 		Assert.areEqual(2, parentIds.size(), 'The size of the returned set should be equal to the size of the mocked accounts.');
+		Assert.isTrue(parentIds.contains(parentId1), 'The returned set should contain the parent Id 1.');
+		Assert.isTrue(parentIds.contains(parentId2), 'The returned set should contain the parent Id 2.');
 	}
-
+	
 	@IsTest
 	static void toIdsOfRelationshipField() {
 		// Setup
@@ -4132,13 +4128,10 @@ private class SOQL_Test {
 	@IsTest
 	static void toIdsOfRelationshipFieldWithMocking() {
 		// Setup
+		Id createdById = SOQL.IdGenerator.get(User.SObjectType);
+
 		SOQL.mock('mockingQuery').thenReturn(
-			(AggregateResult) JSON.deserialize(
-				JSON.serialize(new Map<String, Object>{
-					'Id' => SOQL.IdGenerator.get(User.SObjectType)
-				}),
-				AggregateResult.class
-			)
+			new Account(Parent = new Account(CreatedById = createdById))
 		);
 
 		// Test
@@ -4146,6 +4139,7 @@ private class SOQL_Test {
 
 		// Verify
 		Assert.areEqual(1, createdByIds.size(), 'The size of the returned set should be 1, because the same user inserted the accounts.');
+		Assert.isTrue(createdByIds.contains(createdById), 'The returned set should contain the created by user Id.');
 	}
 
 	@IsTest

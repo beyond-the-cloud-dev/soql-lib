@@ -957,13 +957,11 @@ global virtual inherited sharing class SOQL implements Queryable {
 	private Set<Id> toIdsOf(String fieldToExtract) {
 		// https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
 		this.builder.fields.clearAllFields(); // other fields not needed
+		this.with(fieldToExtract, 'Id');
+		this.groupBy(fieldToExtract);
 		this.builder.conditions.addMasterCondition(Filter.with(fieldToExtract).isNotNull());
-		// Assert.areEqual('aa', this.toString());
-		return new Map<Id, SObject>(
-			this.with(fieldToExtract, 'Id')
-			.groupBy(fieldToExtract)
-			.toAggregated()
-		).keySet();
+
+		return new Map<Id, SObject>(this.toAggregated(fieldToExtract)).keySet();
 	}
 
 	global Boolean doExist() {
@@ -992,12 +990,11 @@ global virtual inherited sharing class SOQL implements Queryable {
 	private Set<String> toValuesOf(String fieldToExtract) {
 		// https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
 		this.builder.fields.clearAllFields(); // other fields not needed
+		this.with(fieldToExtract, 'Id');
+		this.groupBy(fieldToExtract);
 		this.builder.conditions.addMasterCondition(Filter.with(fieldToExtract).isNotNull());
-		return new Map<String, SObject>(
-			this.with(fieldToExtract, 'Id')
-			.groupBy(fieldToExtract)
-			.toAggregated()
-		).keySet();
+
+		return new Map<String, SObject>(this.toAggregated(fieldToExtract)).keySet();
 	}
 
 	global Integer toInteger() {
@@ -1015,6 +1012,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 	global List<AggregateResult> toAggregated() {
 		return this.toList();
+	}
+
+	private List<AggregateResult> toAggregated(String fieldToExtract) {
+		return this.executor.toAggregated(fieldToExtract);
 	}
 
 	global List<AggregateResultProxy> toAggregatedProxy() {
@@ -2490,6 +2491,21 @@ global virtual inherited sharing class SOQL implements Queryable {
 			return this.stripAdditionalFields(fields.plainFields.get(), subQueries.get());
 		}
 
+		private List<AggregateResult> getAggregated(String fieldToExtract) {
+			// used only for toIdsOf and toValueOf, because only Id can be set in the AggregateResult
+			List<Map<String, Object>> aggregatedResults = new List<Map<String, Object>>();
+
+			Set<String> values = new Converter(this.mockedRecords[0].getSObjectType().toString())
+				.transform(this.mockedRecords)
+				.toValuesOf(fieldToExtract);
+
+			for (String value : values) {
+				aggregatedResults.add(new Map<String, Object>{ 'Id' => value });
+			}
+
+			return (List<AggregateResult>) JSON.deserialize(JSON.serialize(aggregatedResults), List<AggregateResult>.class);
+		}
+
 		private void addIdToMockedRecords() { // Id is always added to mirror standard SOQL behavior
 			SObjectType sObjectType = this.mockedRecords[0].getSObjectType();
 			String sObjectPrefix = sObjectType.getDescribe(SObjectDescribeOptions.DEFERRED).getKeyPrefix();
@@ -2683,9 +2699,32 @@ global virtual inherited sharing class SOQL implements Queryable {
 			return this.mocks.remove(0).sObjectMock.get(this.builder.fields, this.builder.subQueries);
 		}
 
-		public List<AggregateResultProxy> toAggregatedProxy() {
-			this.incrementQueryIssued();
+		public List<AggregateResult> toAggregated(String fieldToExtract) {
+			// Used only for toIdsOf and toValuesOf, because only Id can be set in the AggregateResult
+			if (!this.mocks.isEmpty()) {
+				this.throwExceptionMockIfExists();
+				return this.getMockedAggregatedResult(fieldToExtract);
+			}
 
+			if (this.accessType == null) {
+				return this.sharingExecutor.toSObjects(this.builder.toString(), binder.getBindingMap(), this.accessMode);
+			}
+
+			return System.Security.stripInaccessible(
+				this.accessType,
+				this.sharingExecutor.toSObjects(this.builder.toString(), binder.getBindingMap(), this.accessMode)
+			).getRecords();
+		}
+
+		private List<AggregateResult> getMockedAggregatedResult(String fieldToExtract) {
+			// Used only for toIdsOf and toValueOf, because only Id can be set in the AggregateResult
+			if (this.mocks.size() == 1) {
+				return (List<AggregateResult>) this.mocks[0].sObjectMock.getAggregated(fieldToExtract);
+			}
+			return (List<AggregateResult>) this.mocks.remove(0).sObjectMock.getAggregated(fieldToExtract);
+		}
+
+		public List<AggregateResultProxy> toAggregatedProxy() {
 			if (!this.mocks.isEmpty()) {
 				this.throwExceptionMockIfExists();
 				return this.getMockedAggregateProxy();
@@ -2808,48 +2847,40 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		public Map<Id, SObject> toIdMapBy(SObjectField field) {
-			Map<Id, SObject> recordPerCustomKey = (Map<Id, SObject>) Type.forName('Map<Id, ' + this.ofObject  + ' >').newInstance();
-
-			for (SObject record : this.recordsToTransform) {
-				recordPerCustomKey.put((Id) record.get(field), record);
-			}
-
-			return recordPerCustomKey;
+			return this.toIdMapBy(field.toString());
 		}
 
 		public Map<Id, SObject> toIdMapBy(String relationshipName, SObjectField targetKeyField) {
+			return this.toIdMapBy(relationshipName + '.' + targetKeyField.toString());
+		}
+
+		public Map<Id, SObject> toIdMapBy(String fieldPath) {
 			Map<Id, SObject> recordPerCustomKey = (Map<Id, SObject>) Type.forName('Map<Id, ' + this.ofObject  + ' >').newInstance();
-			List<String> relationshipPathFields = relationshipName.split('\\.');
+			List<String> relationshipPathFields = fieldPath.split('\\.');
+			String targetField = relationshipPathFields.remove(relationshipPathFields.size() - 1);
 
 			for (SObject record : this.recordsToTransform) {
-				recordPerCustomKey.put((Id) extractNestedFieldValue(record, relationshipPathFields, targetKeyField), record);
+				recordPerCustomKey.put(extractNestedFieldValue(record, relationshipPathFields, targetField), record);
 			}
 
 			return recordPerCustomKey;
 		}
 
 		public Map<Id, List<SObject>> toAggregatedIdMapBy(SObjectField keyField) {
-			Map<Id, List<SObject>> recordsPerCustomKey = (Map<Id, List<SObject>>) Type.forName('Map<Id, List<' + this.ofObject  + ' >>').newInstance();
-
-			for (SObject record : this.recordsToTransform) {
-				Id key = (Id) record.get(keyField);
-
-				if (!recordsPerCustomKey.containsKey(key)) {
-					recordsPerCustomKey.put(key, new List<SObject>());
-				}
-
-				recordsPerCustomKey.get(key).add(record);
-			}
-
-			return recordsPerCustomKey;
+			return this.toAggregatedIdMapBy(keyField.toString());
 		}
 
 		public Map<Id, List<SObject>> toAggregatedIdMapBy(String relationshipName, SObjectField targetKeyField) {
+			return this.toAggregatedIdMapBy(relationshipName + '.' + targetKeyField.toString());
+		}
+
+		private Map<Id, List<SObject>> toAggregatedIdMapBy(String keyFieldPath) {
 			Map<Id, List<SObject>> recordsPerCustomKey = (Map<Id, List<SObject>>) Type.forName('Map<Id, List<' + this.ofObject  + ' >>').newInstance();
-			List<String> relationshipPathFields = relationshipName.split('\\.');
+			List<String> relationshipPathFields = keyFieldPath.split('\\.');
+			String targetField = relationshipPathFields.remove(relationshipPathFields.size() - 1);
 
 			for (SObject record : this.recordsToTransform) {
-				Id key = extractNestedFieldValue(record, relationshipPathFields, targetKeyField);
+				Id key = extractNestedFieldValue(record, relationshipPathFields, targetField);
 
 				if (!recordsPerCustomKey.containsKey(key)) {
 					recordsPerCustomKey.put(key, new List<SObject>());
@@ -2862,21 +2893,20 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		public Map<String, SObject> toMap(SObjectField keyField) {
-			Map<String, SObject> recordPerCustomKey = (Map<String, SObject>) Type.forName('Map<String, ' + this.ofObject  + ' >').newInstance();
-
-			for (SObject record : this.recordsToTransform) {
-				recordPerCustomKey.put(record.get(keyField).toString(), record);
-			}
-
-			return recordPerCustomKey;
+			return this.toMap(keyField.toString());
 		}
 
 		public Map<String, SObject> toMap(String relationshipName, SObjectField keyField) {
+			return this.toMap(relationshipName + '.' + keyField.toString());
+		}
+
+		public Map<String, SObject> toMap(String fieldPath) {
 			Map<String, SObject> recordPerCustomKey = (Map<String, SObject>) Type.forName('Map<String, ' + this.ofObject  + ' >').newInstance();
-			List<String> relationshipPathFields = relationshipName.split('\\.');
+			List<String> relationshipPathFields = fieldPath.split('\\.');
+			String targetField = relationshipPathFields.remove(relationshipPathFields.size() - 1);
 
 			for (SObject record : this.recordsToTransform) {
-				String key = extractNestedFieldValue(record, relationshipPathFields, keyField);
+				String key = extractNestedFieldValue(record, relationshipPathFields, targetField);
 				recordPerCustomKey.put(key, record);
 			}
 
@@ -2894,58 +2924,57 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		public Set<Id> toIdsOf(SObjectField field) {
-			Set<Id> ids = new Set<Id>();
-
-			for (SObject record : this.recordsToTransform) {
-				ids.add(record.get(field).toString());
-			}
-
-			return ids;
+			return this.toIdsOf(field.toString());
 		}
 
 		public Set<Id> toIdsOf(String relationshipName, SObjectField field) {
+			return this.toIdsOf(relationshipName + '.' + field.toString());
+		}
+
+		public Set<Id> toIdsOf(String fieldPath) {
 			Set<Id> ids = new Set<Id>();
-			List<String> relationshipPathFields = relationshipName.split('\\.');
+
+			List<String> relationshipPathFields = fieldPath.split('\\.');
+			String targetField = relationshipPathFields.remove(relationshipPathFields.size() - 1);
 
 			for (SObject record : this.recordsToTransform) {
-				ids.add(extractNestedFieldValue(record, relationshipPathFields, field));
+				ids.add(extractNestedFieldValue(record, relationshipPathFields, targetField));
 			}
 
 			return ids;
 		}
 
 		public Set<String> toValuesOf(SObjectField fieldToExtract) {
+			return this.toValuesOf(fieldToExtract.toString());
+		}
+
+		public Set<String> toValuesOf(String fieldToExtract) {
 			Set<String> values = new Set<String>();
+			List<String> relationshipPathFields = fieldToExtract.split('\\.');
+			String targetField = relationshipPathFields.remove(relationshipPathFields.size() - 1);
 
 			for (SObject record : this.recordsToTransform) {
-				values.add(record.get(fieldToExtract).toString());
+				values.add(extractNestedFieldValue(record, relationshipPathFields, targetField));
 			}
 
 			return values;
 		}
 
 		public Map<String, List<SObject>> toAggregatedMap(SObjectField keyField) {
-			Map<String, List<SObject>> recordsPerCustomKey = (Map<String, List<SObject>>) Type.forName('Map<String, List<' + this.ofObject  + ' >>').newInstance();
-
-			for (SObject record : this.recordsToTransform) {
-				String key = String.valueOf(record.get(keyField));
-
-				if (!recordsPerCustomKey.containsKey(key)) {
-					recordsPerCustomKey.put(key, new List<SObject>());
-				}
-
-				recordsPerCustomKey.get(key).add(record);
-			}
-
-			return recordsPerCustomKey;
+			return this.toSObjectAggregatedMap(keyField, keyField.toString());
 		}
 
 		public Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField keyField) {
+			return this.toSObjectAggregatedMap(keyField, relationshipName + '.' + keyField.toString());
+		}
+
+		private Map<String, List<SObject>> toSObjectAggregatedMap(SObjectField keyField, String keyFieldPath) {
 			Map<String, List<SObject>> recordsPerCustomKey = (Map<String, List<SObject>>) Type.forName('Map<String, List<' + this.ofObject  + ' >>').newInstance();
-			List<String> relationshipPathFields = relationshipName.split('\\.');
+			List<String> relationshipPathFields = keyFieldPath.split('\\.');
+			String targetField = relationshipPathFields.remove(relationshipPathFields.size() - 1);
 
 			for (SObject record : this.recordsToTransform) {
-				String key = extractNestedFieldValue(record, relationshipPathFields, keyField);
+				String key = extractNestedFieldValue(record, relationshipPathFields, targetField);
 
 				if (!recordsPerCustomKey.containsKey(key)) {
 					recordsPerCustomKey.put(key, new List<SObject>());
@@ -2958,28 +2987,21 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		public Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField) {
-			Map<String, List<String>> customValuesPerCustomKey = new Map<String, List<String>>();
-
-			for (SObject record : this.recordsToTransform) {
-				String key = String.valueOf(record.get(keyField));
-
-				if (!customValuesPerCustomKey.containsKey(key)) {
-					customValuesPerCustomKey.put(key, new List<String>());
-				}
-
-				customValuesPerCustomKey.get(key).add(record.get(valueField)?.toString());
-			}
-
-			return customValuesPerCustomKey;
+			return this.toAggregatedMap(keyField, valueField.toString());
 		}
 
 		public Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField) {
+			return this.toAggregatedMap(keyField, relationshipName + '.' + targetKeyField.toString());
+		}
+
+		private Map<String, List<String>> toAggregatedMap(SObjectField keyField, String targetFieldPath) {
 			Map<String, List<String>> customValuesPerCustomKey = new Map<String, List<String>>();
-			List<String> relationshipPathFields = relationshipName.split('\\.');
+			List<String> relationshipPathFields = targetFieldPath.split('\\.');
+			String targetField = relationshipPathFields.remove(relationshipPathFields.size() - 1);
 
 			for (SObject record : this.recordsToTransform) {
 				String key = String.valueOf(record.get(keyField));
-				String value = extractNestedFieldValue(record, relationshipPathFields, targetKeyField);
+				String value = extractNestedFieldValue(record, relationshipPathFields, targetField);
 
 				if (!customValuesPerCustomKey.containsKey(key)) {
 					customValuesPerCustomKey.put(key, new List<String>());
@@ -2992,6 +3014,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		private String extractNestedFieldValue(SObject parentRecord, List<String> relationshipPath, SObjectField targetField) {
+			return this.extractNestedFieldValue(parentRecord, relationshipPath, targetField.toString());
+		}
+
+		private String extractNestedFieldValue(SObject parentRecord, List<String> relationshipPath, String targetField) {
 			SObject currentRecord = parentRecord;
 
 			for (String relationshipField : relationshipPath) {
