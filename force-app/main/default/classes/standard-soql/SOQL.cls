@@ -1919,7 +1919,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 		public override String toString() {
 			return String.format(this.wrapper, new List<String>{ 
-				this.field + ' ' + this.comparator + ' :' + (this.skipBinding ? this.value : binder.bind(value)) 
+				this.field + ' ' + this.comparator + (this.skipBinding ? ' ' + this.value : ' :' + binder.bind(this.value)) 
 			});
 		}
 	}
