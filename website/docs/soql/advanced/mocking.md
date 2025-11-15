@@ -381,7 +381,7 @@ public class ExampleControllerTest {
 
 We are using field aliasing: https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
 
-It's approximately 2x more efficient than a standard for loop. Because of this, mocking works differently for the following methods:
+It's approximately 2x more efficient than a standard for loop.
 
 - `toIdsOf(SObjectField field)`
 - `toIdsOf(String relationshipName, SObjectField field)`
@@ -403,19 +403,10 @@ public with sharing class ExampleController {
 public class ExampleControllerTest {
     @IsTest
     static void getAccountByName() {
-         SOQL.mock('mockingQuery').thenReturn(
-            (List<AggregateResult>) JSON.deserialize(
-                JSON.serialize(new List<Map<String, Object>>{
-                    new Map<String, Object>{
-                        'Id' => 'Account Name 1'
-                    },
-                    new Map<String, Object>{
-                        'Id' => 'Account Name 2'
-                    }
-                }),
-                List<AggregateResult>.class
-            )
-        );
+        SOQL.mock('mockingQuery').thenReturn(new List<Account>{
+            new Account(Name = 'Test 1'),
+            new Account(Name = 'Test 2')
+        });
 
         Test.startTest();
         Set<String> result = ExampleController.getAccountNames();

@@ -3,7 +3,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.3.0
+ * v6.5.0
  *
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
@@ -3425,6 +3425,35 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void stripInaccessibleToAggregated() {
+		// Setup
+		insertTasks();
+
+		System.runAs(minimumAccessUser()) {
+			// Test
+			Exception queryException = null;
+
+			try {
+				Set<String> taskTypes = SOQL.of(Task.SObjectType)
+					.with(Task.Type)
+					.systemMode()
+					.stripInaccessible()
+					.withoutSharing()
+					.toValuesOf(Task.Type);
+			} catch(Exception e) {
+				queryException = e;
+			}
+
+			// Verify
+			Assert.areEqual(
+				'AggregateResult SObject types are not supported',
+				queryException.getMessage(),
+				'The user should not have access to the \'Type\' field.'
+			);
+		}
+	}
+
+	@IsTest
 	static void mockId() {
 		// Setup
 		List<Account> accounts = new List<Account>{
@@ -4061,29 +4090,86 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void toIdsOfWhenCustomConditions() {
+		// Setup
+		List<Account> accounts = insertAccountsWithParents();
+
+		// Test
+		Set<Id> parentIds = SOQL.of(Account.SObjectType)
+			.byIds(accounts)
+			.whereAre(SOQL.Filter.with(Account.Name).contains('Test 1'))
+			.whereAre(SOQL.Filter.with(Account.Name).equal('Test 1'))
+			.conditionLogic('1 AND (2 OR 3)')
+			.toIdsOf(Account.ParentId);
+
+		// Verify
+		Assert.areEqual(1, parentIds.size(), 'Only one account should be returned, because the Name condition is matched.');
+	}
+
+	@IsTest
+	static void toIdsOfWhenAnyConditionMatching() {
+		// Setup
+		List<Account> accounts = insertAccountsWithParents();
+
+		// Test
+		Set<Id> parentIds = SOQL.of(Account.SObjectType)
+			.byIds(accounts)
+			.whereAre(SOQL.Filter.with(Account.Name).equal('Test 1'))
+			.anyConditionMatching()
+			.toIdsOf(Account.ParentId);
+
+		// Verify
+		Assert.areEqual(2, parentIds.size(), 'Only one account should be returned, because the Name condition is matched.');
+	}
+
+	@IsTest
 	static void toIdsOfWithMocking() {
 		// Setup
-		SOQL.mock('mockingQuery').thenReturn(
-			(List<AggregateResult>) JSON.deserialize(
-				JSON.serialize(new List<Map<String, Object>>{
-					new Map<String, Object>{
-						'Id' => SOQL.IdGenerator.get(Account.SObjectType)
-					},
-					new Map<String, Object>{
-						'Id' => SOQL.IdGenerator.get(Account.SObjectType)
-					}
-				}),
-				List<AggregateResult>.class
-			)
-		);
+		Id parentId1 = SOQL.IdGenerator.get(Account.SObjectType);
+		Id parentId2 = SOQL.IdGenerator.get(Account.SObjectType);
+
+		SOQL.mock('mockingQuery').thenReturn(new List<Account>{
+			new Account(ParentId = parentId1),
+			new Account(ParentId = parentId2)
+		});
 
 		// Test
 		Set<Id> parentIds = SOQL.of(Account.SObjectType).mockId('mockingQuery').toIdsOf(Account.ParentId);
 
 		// Verify
 		Assert.areEqual(2, parentIds.size(), 'The size of the returned set should be equal to the size of the mocked accounts.');
+		Assert.isTrue(parentIds.contains(parentId1), 'The returned set should contain the parent Id 1.');
+		Assert.isTrue(parentIds.contains(parentId2), 'The returned set should contain the parent Id 2.');
 	}
 
+	@IsTest
+	static void toIdsOfWithMockingStack() {
+		// Setup
+		Id parentId1 = SOQL.IdGenerator.get(Account.SObjectType);
+		Id parentId2 = SOQL.IdGenerator.get(Account.SObjectType);
+
+		SOQL.mock('mockingQuery').thenReturn(new List<Account>{
+			new Account(ParentId = parentId1),
+			new Account(ParentId = parentId2)
+		});
+
+		SOQL.mock('mockingQuery').thenReturn(new List<Account>{
+			new Account(ParentId = parentId1)
+		});
+
+		// Test
+		Set<Id> parentIds1 = SOQL.of(Account.SObjectType).mockId('mockingQuery').toIdsOf(Account.ParentId);
+		Set<Id> parentIds2 = SOQL.of(Account.SObjectType).mockId('mockingQuery').toIdsOf(Account.ParentId);
+
+		// Verify
+		Assert.areEqual(2, parentIds1.size(), 'The size of the returned set should be equal to the size of the mocked accounts.');
+		Assert.isTrue(parentIds1.contains(parentId1), 'The returned set should contain the parent Id 1.');
+		Assert.isTrue(parentIds1.contains(parentId2), 'The returned set should contain the parent Id 2.');
+
+		Assert.areEqual(1, parentIds2.size(), 'The size of the returned set should be equal to the size of the mocked accounts.');
+		Assert.isTrue(parentIds2.contains(parentId1), 'The returned set should contain the parent Id 1.');
+	}
+	
 	@IsTest
 	static void toIdsOfRelationshipField() {
 		// Setup
@@ -4099,20 +4185,18 @@ private class SOQL_Test {
 	@IsTest
 	static void toIdsOfRelationshipFieldWithMocking() {
 		// Setup
+		Id parentAccountId = SOQL.IdGenerator.get(Account.SObjectType);
+
 		SOQL.mock('mockingQuery').thenReturn(
-			(AggregateResult) JSON.deserialize(
-				JSON.serialize(new Map<String, Object>{
-					'Id' => SOQL.IdGenerator.get(User.SObjectType)
-				}),
-				AggregateResult.class
-			)
+			new Account(Parent = new Account(Id = parentAccountId))
 		);
 
 		// Test
-		Set<Id> createdByIds = SOQL.of(Account.SObjectType).mockId('mockingQuery').toIdsOf('Parent', Account.CreatedById);
+		Set<Id> parentIds = SOQL.of(Account.SObjectType).mockId('mockingQuery').toIdsOf('Parent', Account.Id);
 
 		// Verify
-		Assert.areEqual(1, createdByIds.size(), 'The size of the returned set should be 1, because the same user inserted the accounts.');
+		Assert.areEqual(1, parentIds.size(), 'The size of the returned set should be 1, because the same user inserted the accounts.');
+		Assert.isTrue(parentIds.contains(parentAccountId), 'The returned set should contain the parent account Id.');
 	}
 
 	@IsTest
@@ -4197,6 +4281,23 @@ private class SOQL_Test {
 
 		// Verify
 		Assert.areEqual(2, accountNames.size(), 'The size of the account names set should be equal to the size of the accounts.');
+	}
+
+	@IsTest
+	static void toValuesOfWhenCustomConditions() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		// Test
+		Set<String> accountNames = SOQL.of(Account.SObjectType)
+			.byIds(accounts)
+			.whereAre(SOQL.Filter.with(Account.Name).contains('Test 1'))
+			.whereAre(SOQL.Filter.with(Account.Name).equal('Test 1'))
+			.conditionLogic('1 AND (2 OR 3)')
+			.toValuesOf(Account.Name);
+
+		// Verify
+		Assert.areEqual(1, accountNames.size(), 'Only one account should be returned, because the Name condition is matched.');
 	}
 
 	@IsTest
