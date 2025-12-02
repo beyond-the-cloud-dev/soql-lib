@@ -19,6 +19,8 @@
 
 The SOQL Lib provides functional constructs for SOQL queries in Apex.
 
+SOQL Lib is part of [Apex Fluently](https://apexfluently.beyondthecloud.dev/), a suite of production-ready Salesforce libraries by Beyond the Cloud.
+
 **Standard SOQL**
 
 ```apex
