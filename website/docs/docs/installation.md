@@ -1,5 +1,5 @@
 ---
-slug: '/installation'
+slug: '/Installation'
 sidebar_position: 20
 ---
 
