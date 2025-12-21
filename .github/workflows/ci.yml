@@ -5,45 +5,18 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-
   workflow_dispatch:
 
 jobs:
-  deploy-to-scratch-and-run-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18.x
-
-      - name: Install Salesforce CLI with NPM
-        run: |
-          npm install @salesforce/cli --global
-
-      - name: Write the dev hub token into a file
-        run: 'echo ${{secrets.SFDX_AUTH_URL_DEVHUB}} > devHubAuthToken'
-
-      - name: Authorize with the dev hub
-        run: sf org login sfdx-url --sfdx-url-file devHubAuthToken --alias DevHub --set-default-dev-hub
-
-      - name: Create scratch org
-        run: sf org create scratch --definition-file config/project-scratch-def.json --alias ScratchOrg --wait 30 --duration-days 1 --set-default --json
-
-      - name: Push source
-        run: sf project deploy start --target-org ScratchOrg --wait 30
-
-      - name: Run tests
-        run: sf apex run test --target-org ScratchOrg --code-coverage --result-format human --output-dir ./tests/apex --test-level RunLocalTests --wait 30
-
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          flags: Apex
-
-      - name: Delete scratch org
-        if: always()
-        run: sf org delete scratch --target-org ScratchOrg --no-prompt
+  salesforce-ci:
+    uses: beyond-the-cloud-dev/cicd-template/.github/workflows/salesforce-ci.yml@main
+    with:
+      node-version: '20'
+      sf-cli-version: 'latest'
+      scratch-org-duration: 1
+      test-level: 'RunLocalTests'
+      upload-to-codecov: true
+      codecov-slug: ${{ github.repository }}  # Automatically uses current repository
+    secrets:
+      SFDX_AUTH_URL_DEVHUB: ${{ secrets.SFDX_AUTH_URL_DEVHUB }}
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
