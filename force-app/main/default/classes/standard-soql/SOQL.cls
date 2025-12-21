@@ -2473,7 +2473,6 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		private List<SObject> get(SoqlFields fields, SoqlSubQueries subQueries) {
-			// AggregateResult can be mocked only with Id field for toIdsOf, toValueOf
 			if (this.useLegacyMockingBehavior || this.mockedRecords.isEmpty() || this.mockedRecords[0]?.getSObjectType() == AggregateResult.SObjectType) {
 				return this.mockedRecords;
 			}
@@ -2492,12 +2491,12 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		private List<AggregateResult> getAggregated(String fieldToExtract) {
-			// used only for toIdsOf and toValueOf, because only Id can be set in the AggregateResult
-			List<Map<String, Object>> aggregatedResults = new List<Map<String, Object>>();
-
 			if (this.mockedRecords.isEmpty()) {
 				return new List<AggregateResult>();
 			}
+
+			// used only for toIdsOf and toValueOf, because only Id can be set in the AggregateResult
+			List<Map<String, Object>> aggregatedResults = new List<Map<String, Object>>();
 
 			Set<String> values = new Converter(this.mockedRecords[0].getSObjectType().toString())
 				.transform(this.mockedRecords)
@@ -2530,8 +2529,13 @@ global virtual inherited sharing class SOQL implements Queryable {
 				this.stripAdditionalPlainFields(recordFilteredFields, record, requestedFields);
 				this.stripAdditionalSubQueries(recordFilteredFields, record, subQueriesRelationshipNames);
 
-				// JSON.serialize and JSON.deserialize are used to copy not writable fields
-				cleanedRecords.add((SObject) JSON.deserialize(JSON.serialize(recordFilteredFields), objectTypeName));
+				try {
+					// JSON.serialize and JSON.deserialize are used to copy not writable fields
+					cleanedRecords.add((SObject) JSON.deserialize(JSON.serialize(recordFilteredFields), objectTypeName));
+				} catch (System.JSONException e) {
+					// fallback when object has Base64 field which is not supported by JSON.deserialize
+					cleanedRecords.add(record);
+				}
 			}
 
 			return cleanedRecords;
