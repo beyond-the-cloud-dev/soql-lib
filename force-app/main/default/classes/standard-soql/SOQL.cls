@@ -2499,7 +2499,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 				return new List<AggregateResult>();
 			}
 
-			Set<String> values = new Converter(this.mockedRecords.getSObjectType().toString())
+			Set<String> values = new Converter(this.mockedRecords[0].getSObjectType().toString())
 				.transform(this.mockedRecords)
 				.toValuesOf(fieldToExtract);
 
