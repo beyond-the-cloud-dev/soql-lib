@@ -3,7 +3,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.5.0
+ * v6.6.0
  *
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
@@ -3489,6 +3489,19 @@ private class SOQL_Test {
 
 		// Verify
 		Assert.areEqual(testAccount, result, 'The mocked account should be returned.');
+	}
+
+	@IsTest
+	static void mockingSingleRecordWithBlob() {
+		// Setup
+		StaticResource testResource = new StaticResource(Name = 'Test 1', Body = Blob.valueOf('Test 1 Body'));
+
+		// Test
+		SOQL.mock('mockingQuery').thenReturn(testResource);
+		StaticResource result = (StaticResource) SOQL.of(StaticResource.SObjectType).with(StaticResource.Name, StaticResource.Body).mockId('mockingQuery').toObject();
+
+		// Verify
+		Assert.areEqual(testResource, result, 'The mocked static resource should be returned.');
 	}
 
 	@IsTest
