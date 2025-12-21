@@ -2495,7 +2495,11 @@ global virtual inherited sharing class SOQL implements Queryable {
 			// used only for toIdsOf and toValueOf, because only Id can be set in the AggregateResult
 			List<Map<String, Object>> aggregatedResults = new List<Map<String, Object>>();
 
-			Set<String> values = new Converter(this.mockedRecords[0].getSObjectType().toString())
+			if (this.mockedRecords.isEmpty()) {
+				return new List<AggregateResult>();
+			}
+
+			Set<String> values = new Converter(this.mockedRecords.getSObjectType().toString())
 				.transform(this.mockedRecords)
 				.toValuesOf(fieldToExtract);
 
