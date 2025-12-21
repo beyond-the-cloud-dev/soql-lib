@@ -3,7 +3,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.5.0
+ * v6.6.0
  *
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
@@ -3492,6 +3492,19 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void mockingSingleRecordWithBlob() {
+		// Setup
+		StaticResource testResource = new StaticResource(Name = 'Test 1', Body = Blob.valueOf('Test 1 Body'));
+
+		// Test
+		SOQL.mock('mockingQuery').thenReturn(testResource);
+		StaticResource result = (StaticResource) SOQL.of(StaticResource.SObjectType).with(StaticResource.Name, StaticResource.Body).mockId('mockingQuery').toObject();
+
+		// Verify
+		Assert.areEqual(testResource, result, 'The mocked static resource should be returned.');
+	}
+
+	@IsTest
 	static void mockNoResult() {
 		// Test
 		SOQL.setMock('mockingQuery', new List<Account>());
@@ -4140,6 +4153,18 @@ private class SOQL_Test {
 		Assert.areEqual(2, parentIds.size(), 'The size of the returned set should be equal to the size of the mocked accounts.');
 		Assert.isTrue(parentIds.contains(parentId1), 'The returned set should contain the parent Id 1.');
 		Assert.isTrue(parentIds.contains(parentId2), 'The returned set should contain the parent Id 2.');
+	}
+
+	@IsTest
+	static void toIdsOfWithMockingEmptyList() {
+		// Setup
+		SOQL.mock('mockingQuery').thenReturn(new List<Account>());
+
+		// Test
+		Set<Id> parentIds = SOQL.of(Account.SObjectType).mockId('mockingQuery').toIdsOf(Account.ParentId);
+
+		// Verify
+		Assert.areEqual(0, parentIds.size(), 'The size of the returned set should be equal to the size of the mocked accounts.');
 	}
 
 	@IsTest

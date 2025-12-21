@@ -2,7 +2,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.5.0
+ * v6.6.0
  *
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
@@ -2473,7 +2473,6 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		private List<SObject> get(SoqlFields fields, SoqlSubQueries subQueries) {
-			// AggregateResult can be mocked only with Id field for toIdsOf, toValueOf
 			if (this.useLegacyMockingBehavior || this.mockedRecords.isEmpty() || this.mockedRecords[0]?.getSObjectType() == AggregateResult.SObjectType) {
 				return this.mockedRecords;
 			}
@@ -2492,6 +2491,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		private List<AggregateResult> getAggregated(String fieldToExtract) {
+			if (this.mockedRecords.isEmpty()) {
+				return new List<AggregateResult>();
+			}
+
 			// used only for toIdsOf and toValueOf, because only Id can be set in the AggregateResult
 			List<Map<String, Object>> aggregatedResults = new List<Map<String, Object>>();
 
@@ -2526,8 +2529,13 @@ global virtual inherited sharing class SOQL implements Queryable {
 				this.stripAdditionalPlainFields(recordFilteredFields, record, requestedFields);
 				this.stripAdditionalSubQueries(recordFilteredFields, record, subQueriesRelationshipNames);
 
-				// JSON.serialize and JSON.deserialize are used to copy not writable fields
-				cleanedRecords.add((SObject) JSON.deserialize(JSON.serialize(recordFilteredFields), objectTypeName));
+				try {
+					// JSON.serialize and JSON.deserialize are used to copy not writable fields
+					cleanedRecords.add((SObject) JSON.deserialize(JSON.serialize(recordFilteredFields), objectTypeName));
+				} catch (System.JSONException e) {
+					// fallback when object has Base64 field which is not supported by JSON.deserialize
+					cleanedRecords.add(record);
+				}
 			}
 
 			return cleanedRecords;
