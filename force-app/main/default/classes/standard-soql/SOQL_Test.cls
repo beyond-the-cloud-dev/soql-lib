@@ -4156,6 +4156,18 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void toIdsOfWithMockingEmptyList() {
+		// Setup
+		SOQL.mock('mockingQuery').thenReturn(new List<Account>());
+
+		// Test
+		Set<Id> parentIds = SOQL.of(Account.SObjectType).mockId('mockingQuery').toIdsOf(Account.ParentId);
+
+		// Verify
+		Assert.areEqual(0, parentIds.size(), 'The size of the returned set should be equal to the size of the mocked accounts.');
+	}
+
+	@IsTest
 	static void toIdsOfWithMockingStack() {
 		// Setup
 		Id parentId1 = SOQL.IdGenerator.get(Account.SObjectType);
