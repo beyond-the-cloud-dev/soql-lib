@@ -1397,6 +1397,40 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void filterIsInListOfSObjects() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		// Test
+		List<Account> queriedAccounts = SOQL.of(Account.SObjectType)
+			.whereAre(SOQL.Filter.with(Account.Name).isIn(accounts, Account.Name))
+			.toList();
+
+		// Verify
+		Assert.areEqual(accounts.size(), queriedAccounts.size(), 'The size of the queried accounts should be equal to the size of the inserted accounts.');
+		Assert.areEqual(accounts[0].Id, queriedAccounts[0].Id, 'The first queried account should match the first inserted account.');
+		Assert.areEqual(accounts[1].Id, queriedAccounts[1].Id, 'The second queried account should match the second inserted account.');
+	}
+
+	@IsTest
+	static void filterIsInListOfSObjectsWhenSomeValuesAreNull() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		accounts.add(new Account(Name = null));
+
+		// Test
+		List<Account> queriedAccounts = SOQL.of(Account.SObjectType)
+			.whereAre(SOQL.Filter.with(Account.Name).isIn(accounts, Account.Name))
+			.toList();
+
+		// Verify
+		Assert.areEqual(2, queriedAccounts.size(), 'The size of the queried accounts should be equal to the size of the inserted accounts.');
+		Assert.areEqual(accounts[0].Id, queriedAccounts[0].Id, 'The first queried account should match the first inserted account.');
+		Assert.areEqual(accounts[1].Id, queriedAccounts[1].Id, 'The second queried account should match the second inserted account.');
+	}
+
+	@IsTest
 	static void filterNotInSet() {
 		// Setup
 		Set<String> names = new Set<String>{ 'Test 1', 'Test 2' };
@@ -1429,6 +1463,20 @@ private class SOQL_Test {
 
 		Map<String, Object> binding = builder.binding();
 		Assert.areEqual(names, binding.get('v1'), 'The binding variable should match the expected value.');
+	}
+
+	@IsTest
+	static void filterNotInListOfSObjects() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		// Test
+		List<Account> queriedAccounts = SOQL.of(Account.SObjectType)
+			.whereAre(SOQL.Filter.with(Account.Name).notIn(accounts, Account.Name))
+			.toList();
+
+		// Verify
+		Assert.areEqual(0, queriedAccounts.size(), 'The size of the queried accounts should be equal to the size of the inserted accounts.');
 	}
 
 	@IsTest
