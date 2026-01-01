@@ -48,9 +48,11 @@ The following are methods for `Filter`.
 - [`notStartsWith(String value)`](#notstartswith)
 - [`isIn(Iterable<Object> iterable)`](#isin)
 - [`isIn(List<Object> inList)`](#isin)
+- [`isIn(Iterable<SObject> sourceRecords, SObjectField sourceKeyField)`](#isin-with-sobject-field-extraction)
 - [`isIn(InnerJoin joinQuery)`](#isin-join-query)
 - [`notIn(Iterable<Object> iterable)`](#notin)
 - [`notIn(List<Object> inList)`](#notin)
+- [`notIn(Iterable<SObject> sourceRecords, SObjectField sourceKeyField)`](#notin-with-sobject-field-extraction)
 - [`notIn(InnerJoin joinQuery)`](#notin-join-query)
 - [`includesAll(Iterable<String> values)`](#includesall)
 - [`includesSome(Iterable<String> values)`](#includessome)
@@ -655,6 +657,32 @@ SOQL.of(Contact.SObjectType)
     .toList();
 ```
 
+### isIn with SObject field extraction
+
+Extract field values from source records to use in IN condition.
+
+**Signature**
+
+```apex
+Filter isIn(Iterable<SObject> sourceRecords, SObjectField sourceKeyField)
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+WHERE Name IN ('Test1', 'Test2', 'Test3')
+```
+
+```apex
+List<Account> accounts = ...;
+
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.Filter.with(Account.Name).isIn(accounts, Account.Name))
+    .toList();
+```
+
 ### notIn
 
 - `WHERE Id NOT IN :accountIds`
@@ -675,6 +703,32 @@ WHERE Id NOT IN :accountIds
 ```apex
 SOQL.of(Contact.SObjectType)
     .whereAre(SOQL.Filter.with(Account.Id).notIn(accountIds))
+    .toList();
+```
+
+### notIn with SObject field extraction
+
+Extract field values from source records to use in NOT IN condition.
+
+**Signature**
+
+```apex
+Filter notIn(Iterable<SObject> sourceRecords, SObjectField sourceKeyField)
+```
+
+**Example**
+
+```sql
+SELECT Id
+FROM Account
+WHERE Name NOT IN ('Test1', 'Test2', 'Test3')
+```
+
+```apex
+List<Account> excludedAccounts = ...;
+
+SOQL.of(Account.SObjectType)
+    .whereAre(SOQL.Filter.with(Account.Name).notIn(excludedAccounts, Account.Name))
     .toList();
 ```
 
