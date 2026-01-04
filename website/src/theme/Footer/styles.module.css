@@ -123,10 +123,9 @@
 
 .badgeAndSocialMobile {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 16px;
-  flex-wrap: wrap;
-  justify-content: center;
 }
 
 .partnerBadge {
