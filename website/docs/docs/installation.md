@@ -1,30 +1,82 @@
 ---
 slug: '/installation'
-sidebar_position: 15
+sidebar_position: 20
 ---
+
+<!--
+ sf package version create --package "SOQL Lib" --target-dev-hub beyondthecloud-prod --installation-key-bypass --wait 30 --code-coverage
+ 
+ sf package version promote --package "SOQL Lib@6.6.0-1"  --target-dev-hub beyondthecloud-prod
+--> 
 
 # Installation
 
-**System Requirements**
+## Install via Unlocked Package
 
-- API: 61.0
+Install the SOQL Lib unlocked package with `btcdev` namespace to your Salesforce environment:
 
-## Deploy
+`/packaging/installPackage.apexp?p0=04tP6000002CakvIAC`
 
-### Deploy via Button
+<a href="https://test.salesforce.com/packaging/installPackage.apexp?p0=04tP6000002CakvIAC" target="_blank" style={{display: 'inline-block', backgroundColor: '#1976d2', color: 'white', padding: '10px 20px', textDecoration: 'none', borderRadius: '4px', marginRight: '10px'}}>
+    <p style={{margin: '0px'}}>Install on Sandbox</p>
+</a>
+
+<a href="https://login.salesforce.com/packaging/installPackage.apexp?p0=04tP6000002CakvIAC" target="_blank" style={{display: 'inline-block', backgroundColor: '#d32f2f', color: 'white', padding: '10px 20px', textDecoration: 'none', borderRadius: '4px'}}>
+    <p style={{margin: '0px'}}>Install on Production</p>
+</a>
+
+## Install via Unmanaged Package
+
+Install the SOQL Lib unmanaged package without namespace to your Salesforce environment:
+
+`/packaging/installPackage.apexp?p0=04tP60000023VsX`
+
+<a href="https://test.salesforce.com/packaging/installPackage.apexp?p0=04tP60000023VsX" target="_blank" style={{display: 'inline-block', backgroundColor: '#1976d2', color: 'white', padding: '10px 20px', textDecoration: 'none', borderRadius: '4px', marginRight: '10px'}}>
+    <p style={{margin: '0px'}}>Install on Sandbox</p>
+</a>
+
+<a href="https://login.salesforce.com/packaging/installPackage.apexp?p0=04tP60000023VsX" target="_blank" style={{display: 'inline-block', backgroundColor: '#d32f2f', color: 'white', padding: '10px 20px', textDecoration: 'none', borderRadius: '4px'}}>
+    <p style={{margin: '0px'}}>Install on Production</p>
+</a>
+
+## Deploy via Button
 
 Click the button below to deploy SOQL Lib to your environment.
 
-<button href="https://githubsfdeploy.herokuapp.com?owner=beyond-the-cloud-dev&repo=soql-lib&ref=main">
-    Deploy to Salesforce
-</button>
+<a href="https://githubsfdeploy.herokuapp.com?owner=beyond-the-cloud-dev&repo=soql-lib&ref=main" target="_blank" style={{display: 'inline-block', backgroundColor: '#1976d2', color: 'white', padding: '10px 20px', textDecoration: 'none', borderRadius: '4px', marginRight: '10px'}}>
+    <p style={{margin: '0px'}}>Deploy to Salesforce</p>
+</a>
 
-### Copy and Deploy
 
-Or just copy [`SOQL.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/SOQL.cls) and [`SOQL_Test.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/SOQL_Test.cls) and deploy them to your environment.
+## Copy and Deploy
 
-## Build Your Selector
+### SOQL
 
-You are ready to build your selector classes.
+**Apex**
 
-Go to the [Build Your Selector](./build-your-selector.md) section to see more details.
+- [`SOQL.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/standard-soql/SOQL.cls)
+- [`SOQL_Test.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/standard-soql/SOQL_Test.cls)
+
+### Cache _(optional)_
+
+**Apex**
+
+- [`SOQL.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/standard-soql/SOQL.cls)
+- [`SOQL_Test.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/standard-soql/SOQL_Test.cls)
+- [`CacheManager.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/cached-soql/CacheManager.cls)
+- [`CacheManagerTest.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/cached-soql/CacheManagerTest.cls)
+- [`SOQLCache.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/cached-soql/SOQLCache.cls)
+- [`SOQLCache_Test.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/cached-soql/SOQLCache_Test.cls)
+
+**Cache Partitions**
+
+- [`SOQL.cachePartition-meta.xml`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/cachePartitions/SOQL.cachePartition-meta.xml)
+
+### Evaluator _(optional)_
+
+**Apex**
+
+- [`SOQL.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/standard-soql/SOQL.cls)
+- [`SOQL_Test.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/standard-soql/SOQL_Test.cls)
+- [`SOQLEvaluator.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/soql-evaluator/SOQLEvaluator.cls)
+- [`SOQLEvaluatorTest.cls`](https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/force-app/main/default/classes/soql-evaluator/SOQLEvaluator_Test.cls)

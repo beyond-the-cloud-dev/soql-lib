@@ -1,0 +1,391 @@
+/* CSS Custom Properties */
+.btcFooter {
+  --btc-blue: #0092c8;
+  --btc-blue-alt: #1c93c8;
+  --btc-light-blue: #80d8fd;
+  --btc-gray: #424242;
+  --btc-dark-gray: #2c2c2c;
+  --btc-text: #aaa;
+  --btc-text-muted: #888;
+  --btc-border: #424242;
+
+  background: var(--btc-dark-gray);
+  color: #d1d5db;
+  position: relative;
+  overflow: hidden;
+  margin-top: 4rem;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+}
+
+/* Background Effects */
+.footerBgEffects {
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+.bgBlob {
+  position: absolute;
+  width: 384px;
+  height: 384px;
+  border-radius: 50%;
+  filter: blur(64px);
+}
+
+.bgBlob1 {
+  top: 0;
+  left: 25%;
+  background: var(--btc-blue);
+}
+
+.bgBlob2 {
+  bottom: 0;
+  right: 25%;
+  background: var(--btc-light-blue);
+}
+
+/* Layout */
+.footerMain {
+  position: relative;
+}
+
+.footerContainer {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 64px 24px 32px;
+}
+
+.bottomContainer {
+  padding: 20px 24px;
+}
+
+/* Desktop Grid */
+.footerGrid {
+  display: flex;
+  gap: 48px;
+}
+
+.companyColumn {
+  flex: 0 0 280px;
+  max-width: 320px;
+}
+
+.linksGrid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+}
+
+/* Company Header */
+.companyHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.companyLogo {
+  width: auto;
+  height: 40px;
+  border-radius: 12px;
+  object-fit: contain;
+}
+
+.companyTitle {
+  display: flex;
+  flex-direction: column;
+}
+
+.companyTagline {
+  color: var(--btc-light-blue);
+  font-size: 15px;
+  max-width: 120px;
+}
+
+.companyDescription {
+  color: var(--btc-text);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+/* Partner Badge + Social Icons together */
+.badgeAndSocial {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.badgeAndSocialMobile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.partnerBadge {
+  display: inline-flex;
+  align-items: center;
+}
+
+.sfBadgeImg {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Social Icons */
+.socialIcons {
+  display: flex;
+  gap: 4px;
+}
+
+.socialIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--btc-gray);
+  color: var(--btc-text);
+  transition: all 0.2s;
+}
+
+.socialIcon:hover {
+  background: var(--btc-blue);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.socialImg {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+/* Section Titles */
+.sectionTitle {
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 16px;
+}
+
+/* Link Lists */
+.linkList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.linkList a {
+  color: var(--btc-text);
+  font-size: 14px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.linkList a:hover {
+  color: var(--btc-light-blue);
+}
+
+.mtSection {
+  margin-top: 24px;
+}
+
+/* Open Source Section */
+.opensourceContent {
+  text-align: left;
+}
+
+.parentLink {
+  color: var(--btc-text);
+  font-weight: 500;
+  font-size: 14px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.parentLink:hover {
+  color: var(--btc-light-blue);
+}
+
+.starIcon {
+  font-size: 12px;
+}
+
+.childLinks {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 8px;
+}
+
+.childLinks li {
+  display: flex;
+  align-items: center;
+}
+
+.arrowIcon {
+  color: var(--btc-blue);
+  margin-right: 8px;
+  font-size: 12px;
+}
+
+.childLinks a {
+  color: var(--btc-text);
+  font-size: 14px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.childLinks a:hover {
+  color: var(--btc-light-blue);
+}
+
+.moreLink {
+  color: var(--btc-text-muted);
+  font-size: 12px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.moreLink:hover {
+  color: var(--btc-text);
+}
+
+/* Bottom Bar - text only */
+.footerBottom {
+  border-top: 1px solid var(--btc-border);
+}
+
+.bottomContent {
+  display: block;
+}
+
+.bottomLeft {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  color: var(--btc-text-muted);
+  font-size: 12px;
+}
+
+.separator {
+  color: var(--btc-text-muted);
+}
+
+.bottomLink {
+  color: var(--btc-text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.bottomLink:hover {
+  color: var(--btc-text);
+}
+
+/* Mobile Styles */
+.desktopOnly {
+  display: flex;
+}
+
+.mobileOnly {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .desktopOnly {
+    display: none !important;
+  }
+
+  .mobileOnly {
+    display: block !important;
+  }
+
+  .footerContainer {
+    padding: 48px 24px 32px;
+  }
+
+  /* Mobile Company */
+  .mobileCompany {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .mobileCompany .companyHeader {
+    justify-content: center;
+  }
+
+  .mobileCompany .companyTitle {
+    text-align: left;
+  }
+
+  .mobileCompany .companyDescription {
+    max-width: 320px;
+    margin: 0 auto 24px;
+  }
+
+  /* Mobile Links */
+  .mobileLinks {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .mobileSection {
+    text-align: center;
+  }
+
+  .mobileSection .linkList {
+    align-items: center;
+  }
+
+  .mobileOpensource {
+    display: inline-block;
+    text-align: left;
+  }
+
+  /* Mobile Bottom */
+  .bottomContentMobile {
+    text-align: center;
+  }
+
+  .mobileLegal {
+    color: var(--btc-text-muted);
+    font-size: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .footerContainer {
+    padding: 40px 16px 24px;
+  }
+
+  .bottomContainer {
+    padding: 16px;
+  }
+}

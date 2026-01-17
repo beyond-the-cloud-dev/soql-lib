@@ -1,15 +1,28 @@
-# SOQL Lib
+<div align="center">
+  <a href="https://soql.beyondthecloud.dev">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://soql.beyondthecloud.dev/img/logo.png">
+      <img alt="SOQL Lib logo" src="https://soql.beyondthecloud.dev/img/logo.png" height="98">
+    </picture>
+  </a>
+  <h1>SOQL Lib</h1>
 
-![Deploy to Scratch Org and run tests](https://github.com/beyond-the-cloud-dev/soql-lib/actions/workflows/ci.yml/badge.svg)
-[![codecov](https://codecov.io/gh/beyond-the-cloud-dev/soql-lib/branch/main/graph/badge.svg)](https://codecov.io/gh/beyond-the-cloud-dev/soql-lib)
+<a href="https://beyondthecloud.dev"><img alt="Beyond The Cloud logo" src="https://img.shields.io/badge/MADE_BY_BEYOND_THE_CLOUD-555?style=for-the-badge"></a>
+
+<img alt="API version" src="https://img.shields.io/badge/api-v65.0-blue?style=for-the-badge">
+<a href="https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/license-mit-green?style=for-the-badge"></a>
+<img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/beyond-the-cloud-dev/soql-lib?style=for-the-badge&logo=github&color=blue">
+<img alt="GitHub Release" src="https://img.shields.io/github/v/release/beyond-the-cloud-dev/soql-lib?display_name=tag&style=for-the-badge&color=blue">
+<img alt="Codecov" src="https://img.shields.io/codecov/c/github/beyond-the-cloud-dev/soql-lib?style=for-the-badge">
+</div>
+
+# Getting Started
 
 The SOQL Lib provides functional constructs for SOQL queries in Apex.
 
-For more details, please refer to the [documentation](https://soql-lib.vercel.app/).
+SOQL Lib is part of [Apex Fluently](https://apexfluently.beyondthecloud.dev/), a suite of production-ready Salesforce libraries by [Beyond the Cloud](https://blog.beyondthecloud.dev/blog).
 
-You may also find [this blog post](https://beyondthecloud.dev/blog/soql-lib) about SOQL Lib interesting.
-
-## Examples
+**Standard SOQL**
 
 ```apex
 // SELECT Id FROM Account
@@ -23,14 +36,20 @@ List<Account> accounts = SOQL.of(Account.SObjectType)
    .toList();
 ```
 
-## Selector
+**Cached SOQL**
 
-Read [how to build your selector class](https://soql-lib.vercel.app/building-your-selector).
+```apex
+// SELECT Id, Name, UserType FROM Profile WHERE Name = 'System Administrator'
+Profile systemAdminProfile = (Profile) SOQLCache.of(Profile.SObjectType)
+   .with(Profile.Id, Profile.Name, Profile.UserType)
+   .whereEqual(Profile.Name, 'System Administrator')
+   .toObject();
+```
+
+## Selector
 
 ```apex
 public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selector {
-    public static final String MOCK_ID = 'SOQL_Contact';
-
     public static SOQL_Contact query() {
         return new SOQL_Contact();
     }
@@ -40,8 +59,7 @@ public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selecto
         // default settings
         with(Contact.Id, Contact.Name, Contact.AccountId)
             .systemMode()
-            .withoutSharing()
-            .mockId(MOCK_ID);
+            .withoutSharing();
     }
 
     public SOQL_Contact byAccountId(Id accountId) {
@@ -64,6 +82,31 @@ public with sharing class ExampleController {
 }
 ```
 
+## Cached Selector
+
+```apex
+public with sharing class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {
+    public static SOQL_ProfileCache query() {
+        return new SOQL_ProfileCache();
+    }
+
+    private SOQL_ProfileCache() {
+        super(Profile.SObjectType);
+        cacheInOrgCache();
+        with(Profile.Id, Profile.Name, Profile.UserType);
+    }
+
+    public override SOQL.Queryable initialQuery() {
+        return SOQL.of(Profile.SObjectType);
+    }
+
+    public SOQL_ProfileCache byName(String name) {
+        whereEqual(Profile.Name, name);
+        return this;
+    }
+}
+```
+
 ## Deploy to Salesforce
 
 <a href="https://githubsfdeploy.herokuapp.com?owner=beyond-the-cloud-dev&repo=soql-lib&ref=main">
@@ -73,38 +116,19 @@ public with sharing class ExampleController {
 
 ## Documentation
 
-[SOQL Lib documentation](https://soql-lib.vercel.app/)
+Visit the [documentation](https://soql.beyondthecloud.dev) to view the full documentation.
 
 ## Features
 
-Read about the features in the [documentation](https://soql-lib.vercel.app/docs/basic-features).
+Read about the features in the [basic features](https://soql.beyondthecloud.dev/soql/basic-features).
 
-1. **Dynamic SOQL**
-2. **Automatic binding**
-3. **Control FLS**
-- 3.1 **User Mode**
-- 3.2 **System Mode**
-- 3.3 **stripInaccessible**
-4. **Control Sharings Mode**
-- 4.1 **with sharing**
-- 4.2 **without sharing**
-- 4.3 **inherited sharing**
-5. **Mocking**
-- 5.1 **Mock list of records**
-- 5.2 **Mock single record**
-- 5.3 **Mock with static resources**
-- 5.4 **Mock count result**
-6. **Avoid query duplicates**
-7. **The default configuration for all queries**
-8. **Dynamic conditions**
+## Contributors
 
-----
-
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buycoffee.to/beyondthecloud)
-
-----
+<a href="https://github.com/beyond-the-cloud-dev/soql-lib/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=beyond-the-cloud-dev/soql-lib" />
+</a>
 
 ## License notes
 
 - For proper license management each repository should contain LICENSE file similar to this one.
-- Each original class should contain copyright mark: Copyright (c) 2023 BeyondTheCloud.Dev
+- Each original class should contain copyright mark: Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
