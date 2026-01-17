@@ -2824,14 +2824,4 @@ Database.Cursor cursor = SOQL.of(Account.SObjectType)
     .with(Account.Id, Account.Name)
     .whereAre(SOQL.Filter.with(Account.Industry).equal('Technology'))
     .toCursor();
-
-// Process cursor results
-while (cursor.hasNext()) {
-    List<Account> accounts = cursor.next();
-    // Process batch of accounts
-    for (Account acc : accounts) {
-        System.debug(acc.Name);
-    }
-}
-cursor.close();
 ```
