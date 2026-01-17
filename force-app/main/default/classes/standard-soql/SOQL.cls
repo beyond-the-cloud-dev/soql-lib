@@ -159,6 +159,8 @@ global virtual inherited sharing class SOQL implements Queryable {
 		Integer toInteger();
 		// QUERY LOCATOR
 		Database.QueryLocator toQueryLocator();
+		// CURSOR
+		Database.Cursor toCursor();
 		// DO EXIST
 		Boolean doExist();
 		// AGGREGATE RESULTS
@@ -1100,6 +1102,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 	global Database.QueryLocator toQueryLocator() {
 		return this.executor.toQueryLocator();
+	}
+
+	global Database.Cursor toCursor() {
+		return this.executor.toCursor();
 	}
 
 	global Queryable byId(SObject record) {
@@ -2796,6 +2802,11 @@ global virtual inherited sharing class SOQL implements Queryable {
 			return this.sharingExecutor.toQueryLocator(this.builder.toString(), binder.getBindingMap(), this.accessMode);
 		}
 
+		public Database.Cursor toCursor() {
+			this.incrementQueryIssued();
+			return sharingExecutor.toCursor(builder.toString(), binder.getBindingMap(), accessMode);
+		}
+
 		private void incrementQueryIssued() {
 			// This counter is used only in unit tests to also track mocked queries.
 			if (!System.Test.isRunningTest() || System.isBatch() || System.isFuture() || System.isQueueable() || System.isScheduled()) {
@@ -2816,6 +2827,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		List<SObject> toSObjects(String query, Map<String, Object> binding, AccessLevel accessLevel);
 		Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel);
 		Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel);
+		Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel);
 	}
 
 	private inherited sharing class InheritedSharing implements DatabaseQuery {
@@ -2829,6 +2841,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 		public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel) {
 			return Database.getQueryLocatorWithBinds(query, binding, accessLevel);
+		}
+
+		public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+			return Database.getCursorWithBinds(query, binding, accessLevel);
 		}
 	}
 
@@ -2844,6 +2860,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 		public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel) {
 			return Database.getQueryLocatorWithBinds(query, binding, accessLevel);
 		}
+
+		public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+			return Database.getCursorWithBinds(query, binding, accessLevel);
+		}
 	}
 
 	private with sharing class WithSharing implements DatabaseQuery {
@@ -2857,6 +2877,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 		public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel) {
 			return Database.getQueryLocatorWithBinds(query, binding, accessLevel);
+		}
+
+		public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+			return Database.getCursorWithBinds(query, binding, accessLevel);
 		}
 	}
 
