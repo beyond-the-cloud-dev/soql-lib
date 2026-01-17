@@ -213,6 +213,7 @@ The following are methods for using `SOQL`:
 - [`toAggregatedIdMapBy(SObjectField keyField)`](#toaggregateidmapby)
 - [`toAggregatedIdMapBy(String relationshipName, SObjectField targetKeyField)`](#toaggregateidmapby-with-relationship)
 - [`toQueryLocator()`](#toquerylocator)
+- [`toCursor()`](#tocursor)
 
 ## INIT
 ### of
@@ -2804,4 +2805,33 @@ Database.QueryLocator toQueryLocator()
 
 ```apex
 SOQL.of(Account.SObjectType).toQueryLocator();
+```
+
+### toCursor
+
+Returns a `Database.Cursor` for the query, which can be used for more efficient processing of large result sets with streaming capabilities.
+
+**Signature**
+
+```apex
+Database.Cursor toCursor()
+```
+
+**Example**
+
+```apex
+Database.Cursor cursor = SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .whereAre(SOQL.Filter.with(Account.Industry).equal('Technology'))
+    .toCursor();
+
+// Process cursor results
+while (cursor.hasNext()) {
+    List<Account> accounts = cursor.next();
+    // Process batch of accounts
+    for (Account acc : accounts) {
+        System.debug(acc.Name);
+    }
+}
+cursor.close();
 ```
