@@ -53,6 +53,46 @@ public class ExampleControllerTest {
 
 During execution Selector will return record that was set by `.thenReturn` method.
 
+## Mock by SObjectType
+
+You can also mock queries by SObjectType, which is useful when you want to mock all queries for a specific object type.
+
+```apex title="Controller without Mock ID"
+public with sharing class ExampleController {
+    public static List<Account> getAllAccounts() {
+        return SOQL.of(Account.SObjectType)
+            .with(Account.Name, Account.BillingCity)
+            .toList();
+    }
+}
+```
+
+Use `SOQL.mock(SObjectType)` to mock all queries for that SObjectType.
+
+```apex title="Unit Test with SObjectType Mock"
+@IsTest
+public class ExampleControllerTest {
+    @IsTest
+    static void getAllAccounts() {
+        List<Account> mockAccounts = new List<Account>{
+            new Account(Name = 'Account 1'),
+            new Account(Name = 'Account 2')
+        };
+
+        SOQL.mock(Account.SObjectType)
+            .thenReturn(mockAccounts);
+
+        Test.startTest();
+        List<Account> result = ExampleController.getAllAccounts();
+        Test.stopTest();
+
+        Assert.areEqual(2, result.size());
+        Assert.areEqual('Account 1', result[0].Name);
+        Assert.areEqual('Account 2', result[1].Name);
+    }
+}
+```
+
 
 ## AggregateResult
 

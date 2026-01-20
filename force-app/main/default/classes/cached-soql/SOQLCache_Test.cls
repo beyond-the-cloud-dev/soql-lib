@@ -779,6 +779,37 @@ private class SOQLCache_Test {
 	}
 
 	@IsTest
+	static void mockWithoutMockId() {
+		// Setup
+		SOQLCache.mock(Profile.SObjectType).thenReturn(new Profile(Name = SYSTEM_ADMINISTRATOR));
+
+		// Test
+		Profile profile = (Profile) SOQLCache.of(Profile.SObjectType).whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR).toObject();
+
+		// Verify
+		Assert.areEqual(SYSTEM_ADMINISTRATOR, profile.Name, 'The profile name should be the same as the name assigned to the profile cache.');
+	}
+
+	@IsTest
+	static void mockWithMockIdAndSObjectMock() {
+		// Setup
+		Id profileId1 = SOQL.IdGenerator.get(Profile.SObjectType);
+		SOQLCache.mock('ProfileQuery').thenReturn(new Profile(Id = profileId1, Name = SYSTEM_ADMINISTRATOR));
+
+		Id profileId2 = SOQL.IdGenerator.get(Profile.SObjectType);
+		SOQLCache.mock(Profile.SObjectType).thenReturn(new Profile(Id = profileId2, Name = SYSTEM_ADMINISTRATOR));
+
+		SOQLCache.Cacheable query = SOQLCache.of(Profile.SObjectType);
+		
+		Profile profile1 = (Profile) query.mockId('ProfileQuery').whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR).toObject();
+		Profile profile2 = (Profile) query.mockId('ProfileQuery').whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR).toObject();
+
+		// Verify
+		Assert.areEqual(profileId1, profile1.Id, 'The mockId should override the SObject mock.');
+		Assert.areEqual(profileId1, profile2.Id, 'The mockId should override the SObject mock.');
+	}
+
+	@IsTest
 	static void mockStack() {
 		// Setup
 		SOQLCache.mock('mockingQuery').thenReturn(new Profile(Name = 'Test 1'));

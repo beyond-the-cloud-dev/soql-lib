@@ -46,6 +46,50 @@ public class ExampleControllerTest {
 
 During execution SOQLEvaluator will return record that was set by `.thenReturn` method.
 
+## Mock by SObjectType
+
+You can also mock evaluations by SObjectType, which is useful when you want to mock all evaluations for a specific object type.
+
+```apex title="Controller without Mock ID"
+public with sharing class ExampleController {
+    public static List<Account> processAccountData() {
+        return SOQLEvaluator.of([
+            SELECT Id, Name, Industry
+            FROM Account
+            WHERE Industry = 'Technology'
+            WITH USER_MODE
+        ])
+        .toList();
+    }
+}
+```
+
+Use `SOQLEvaluator.mock(SObjectType)` to mock all evaluations for that SObjectType.
+
+```apex title="Unit Test with SObjectType Mock"
+@IsTest
+public class ExampleControllerTest {
+    @IsTest
+    static void processAccountData() {
+        List<Account> mockAccounts = new List<Account>{
+            new Account(Name = 'Tech Account 1', Industry = 'Technology'),
+            new Account(Name = 'Tech Account 2', Industry = 'Technology')
+        };
+
+        SOQLEvaluator.mock(Account.SObjectType)
+            .thenReturn(mockAccounts);
+
+        Test.startTest();
+        List<Account> result = ExampleController.processAccountData();
+        Test.stopTest();
+
+        Assert.areEqual(2, result.size());
+        Assert.areEqual('Tech Account 1', result[0].Name);
+        Assert.areEqual('Tech Account 2', result[1].Name);
+    }
+}
+```
+
 ## Multiple Records
 
 Set mocking ID in Query declaration.
