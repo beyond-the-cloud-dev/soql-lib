@@ -144,6 +144,63 @@ private class ExampleControllerTest {
 }
 ```
 
+## Mock by SObjectType
+
+You can also mock cached queries by SObjectType, which applies to all cache queries for that object type without needing specific mock IDs.
+
+```apex title="Controller without Mock ID"
+public with sharing class ExampleController {
+    public static Account getAnyAccount(String accountName) {
+        return (Account) SOQLCache.of(Account.SObjectType)
+            .with(Account.Id, Account.Name, Account.BillingCity)
+            .whereEqual(Account.Name, accountName)
+            .toObject();
+    }
+    
+    public static Account getAccountById(Id accountId) {
+        return (Account) SOQLCache.of(Account.SObjectType)
+            .with(Account.Id, Account.Name)
+            .whereEqual(Account.Id, accountId)
+            .toObject();
+    }
+}
+```
+
+Use `SOQLCache.mock(SObjectType)` to mock all cache queries for that SObjectType. This is particularly useful when you have multiple cache methods but want consistent mock data across all of them.
+
+```apex title="ExampleControllerTest.cls"
+@IsTest
+private class ExampleControllerTest {
+
+    @IsTest
+    static void testAccountCachingMethods() {
+        Account mockAccount = new Account(
+            Id = '001000000000001',
+            Name = 'Universal Mock Account',
+            BillingCity = 'San Francisco'
+        );
+        
+        // This will mock ALL Account cache queries
+        SOQLCache.mock(Account.SObjectType).thenReturn(mockAccount);
+
+        // Test first method
+        Account result1 = ExampleController.getAnyAccount('Test Account');
+        Assert.areEqual('Universal Mock Account', result1.Name);
+        
+        // Test second method - uses the same mock
+        Account result2 = ExampleController.getAccountById('001000000000001');
+        Assert.areEqual('Universal Mock Account', result2.Name);
+        Assert.areEqual('San Francisco', result2.BillingCity);
+    }
+}
+```
+
+**Important Notes:**
+- SObjectType mocking applies to **all** cache queries for that object type within the test context
+- It works without requiring `.mockId()` in your cache queries
+- Useful for comprehensive testing scenarios where you want consistent mock behavior
+- Can be combined with mock ID-specific mocks - ID-specific mocks take precedence
+
 ## Parent relationship
 
 ```apex title="ExampleControllerTest.cls"
@@ -189,6 +246,29 @@ public class ExampleControllerTest {
         Test.stopTest();
 
         Assert.isNull(result);
+    }
+}
+```
+
+### No Results with SObjectType Mock
+
+You can also return `null` when mocking by SObjectType to simulate no results for all cache queries of that object type.
+
+```apex title="ExampleControllerTest.cls"
+@IsTest
+public class ExampleControllerTest {
+    @IsTest
+    static void testNoResultsForAllAccountQueries() {
+        // Mock all Account cache queries to return null
+        SOQLCache.mock(Account.SObjectType).thenReturn(null);
+
+        Test.startTest();
+        Account result1 = ExampleController.getAnyAccount('Test');
+        Account result2 = ExampleController.getAccountById('001000000000001');
+        Test.stopTest();
+
+        Assert.isNull(result1);
+        Assert.isNull(result2);
     }
 }
 ```
