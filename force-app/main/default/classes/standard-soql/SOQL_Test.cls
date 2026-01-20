@@ -3518,6 +3518,41 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void mockWithoutMockId() {
+		// Setup
+		SOQL.mock(Account.SObjectType).thenReturn(new List<Account>{
+			new Account(Name = 'Test 1'),
+			new Account(Name = 'Test 2')
+		});
+
+		// Test
+		List<Account> result = SOQL.of(Account.SObjectType).with(Account.Name).toList();
+
+		// Verify
+		Assert.areEqual(2, result.size(), 'The mocked accounts should be returned.');
+	}
+
+	@IsTest
+	static void mockWithMockIdAndSObjectMock() {
+		// Setup
+		SOQL.mock('mockingQuery').thenReturn(new Account(Name = 'Test 1'));
+
+		SOQL.mock(Account.SObjectType).thenReturn(new List<Account>{
+			new Account(Name = 'Test 1'),
+			new Account(Name = 'Test 2')
+		});
+
+		// Test
+		SOQL.Queryable queryable = SOQL.of(Account.SObjectType).with(Account.Name);
+		List<Account> result1 = queryable.mockId('mockingQuery').toList();
+		List<Account> result2 = queryable.mockId('mockingQuery').toList();
+
+		// Verify
+		Assert.areEqual(1, result1.size(), 'The mockId should override the SObject mock.');
+		Assert.areEqual(1, result2.size(), 'The mockId should override the SObject mock.');
+	}
+
+	@IsTest
 	static void mockIdSpecifiedButQueryNotMocked() {
 		// Test
 		List<Account> accounts = SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toList();

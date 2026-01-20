@@ -401,6 +401,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 	// Mocking
 
+	global static Mockable mock(SObjectType ofObject) {
+		return mock(ofObject.toString().hashCode().toString());
+	}
+
 	global static Mockable mock(String mockId) {
 		if (!SOQL.queryIdToMock.containsKey(mockId)) {
 			SOQL.queryIdToMock.put(mockId, new List<SoqlMock>());
@@ -467,6 +471,8 @@ global virtual inherited sharing class SOQL implements Queryable {
 		this.builder = new SoqlBuilder(ofObject);
 		this.executor = new Executor(builder);
 		this.converter = new Converter(ofObject);
+
+		this.mockId(ofObject.hashCode().toString());
 	}
 
 	global Queryable with(SObjectField field) {
