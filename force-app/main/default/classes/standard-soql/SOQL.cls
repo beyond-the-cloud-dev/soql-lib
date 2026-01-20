@@ -2,7 +2,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.6.0
+ * v6.7.0
  *
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
@@ -159,6 +159,8 @@ global virtual inherited sharing class SOQL implements Queryable {
 		Integer toInteger();
 		// QUERY LOCATOR
 		Database.QueryLocator toQueryLocator();
+		// CURSOR
+		Database.Cursor toCursor();
 		// DO EXIST
 		Boolean doExist();
 		// AGGREGATE RESULTS
@@ -273,8 +275,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 		Filter notStartsWith(String value);
 		Filter isIn(Iterable<Object> iterable);
 		Filter isIn(InnerJoin joinQuery);
+		Filter isIn(Iterable<SObject> sourceRecords, SObjectField sourceKeyField);
 		Filter notIn(Iterable<Object> iterable);
 		Filter notIn(InnerJoin joinQuery);
+		Filter notIn(Iterable<SObject> sourceRecords, SObjectField sourceKeyField);
 		Filter includesAll(Iterable<String> values);
 		Filter includesSome(Iterable<String> values);
 		Filter excludesAll(Iterable<String> values);
@@ -397,6 +401,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 	// Mocking
 
+	global static Mockable mock(SObjectType ofObject) {
+		return mock(ofObject.toString().hashCode().toString());
+	}
+
 	global static Mockable mock(String mockId) {
 		if (!SOQL.queryIdToMock.containsKey(mockId)) {
 			SOQL.queryIdToMock.put(mockId, new List<SoqlMock>());
@@ -463,6 +471,8 @@ global virtual inherited sharing class SOQL implements Queryable {
 		this.builder = new SoqlBuilder(ofObject);
 		this.executor = new Executor(builder);
 		this.converter = new Converter(ofObject);
+
+		this.mockId(ofObject.hashCode().toString());
 	}
 
 	global Queryable with(SObjectField field) {
@@ -1098,6 +1108,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 	global Database.QueryLocator toQueryLocator() {
 		return this.executor.toQueryLocator();
+	}
+
+	global Database.Cursor toCursor() {
+		return this.executor.toCursor();
 	}
 
 	global Queryable byId(SObject record) {
@@ -1858,6 +1872,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 			return this.set('IN', joinQuery);
 		}
 
+		public Filter isIn(Iterable<SObject> sourceRecords, SObjectField sourceKeyField) {
+			return this.isIn(this.extractValues(sourceRecords, sourceKeyField));
+		}
+
 		private Filter notLike() {
 			this.wrapper = '(NOT {0})';
 			return this;
@@ -1870,6 +1888,24 @@ global virtual inherited sharing class SOQL implements Queryable {
 		public Filter notIn(InnerJoin joinQuery) {
 			this.skipBinding = true;
 			return this.set('NOT IN', joinQuery);
+		}
+
+		public Filter notIn(Iterable<SObject> sourceRecords, SObjectField sourceKeyField) {
+			return this.notIn(this.extractValues(sourceRecords, sourceKeyField));
+		}
+
+		private List<String> extractValues(Iterable<SObject> sourceRecords, SObjectField sourceKeyField) {
+			List<String> values = new List<String>();
+
+			for (SObject sourceRecord: sourceRecords) {
+				if (sourceRecord?.get(sourceKeyField) == null) {
+					continue;
+				}
+
+				values.add(sourceRecord.get(sourceKeyField).toString());
+			}
+
+			return values;
 		}
 
 		public Filter includesAll(Iterable<String> iterable) {
@@ -2772,6 +2808,11 @@ global virtual inherited sharing class SOQL implements Queryable {
 			return this.sharingExecutor.toQueryLocator(this.builder.toString(), binder.getBindingMap(), this.accessMode);
 		}
 
+		public Database.Cursor toCursor() {
+			this.incrementQueryIssued();
+			return sharingExecutor.toCursor(builder.toString(), binder.getBindingMap(), accessMode);
+		}
+
 		private void incrementQueryIssued() {
 			// This counter is used only in unit tests to also track mocked queries.
 			if (!System.Test.isRunningTest() || System.isBatch() || System.isFuture() || System.isQueueable() || System.isScheduled()) {
@@ -2792,6 +2833,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		List<SObject> toSObjects(String query, Map<String, Object> binding, AccessLevel accessLevel);
 		Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel);
 		Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel);
+		Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel);
 	}
 
 	private inherited sharing class InheritedSharing implements DatabaseQuery {
@@ -2805,6 +2847,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 		public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel) {
 			return Database.getQueryLocatorWithBinds(query, binding, accessLevel);
+		}
+
+		public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+			return Database.getCursorWithBinds(query, binding, accessLevel);
 		}
 	}
 
@@ -2820,6 +2866,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 		public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel) {
 			return Database.getQueryLocatorWithBinds(query, binding, accessLevel);
 		}
+
+		public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+			return Database.getCursorWithBinds(query, binding, accessLevel);
+		}
 	}
 
 	private with sharing class WithSharing implements DatabaseQuery {
@@ -2833,6 +2883,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 		public Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel) {
 			return Database.getQueryLocatorWithBinds(query, binding, accessLevel);
+		}
+
+		public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+			return Database.getCursorWithBinds(query, binding, accessLevel);
 		}
 	}
 

@@ -2,7 +2,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.6.0
+ * v6.7.0
  *
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
@@ -86,6 +86,10 @@ global virtual inherited sharing class SOQLCache implements Cacheable {
 		void thenReturn(SObject record);
 	}
 
+	global static Mockable mock(SObjectType ofObject) {
+		return mock(ofObject.toString().hashCode().toString());
+	}
+
 	global static Mockable mock(String mockId) {
 		if (!SOQLCache.queryIdToMock.containsKey(mockId)) {
 			SOQLCache.queryIdToMock.put(mockId, new List<SoqlMock>());
@@ -137,6 +141,8 @@ global virtual inherited sharing class SOQLCache implements Cacheable {
 		this.cache = new Cache(ofObject);
 		this.cache.filterGroup.setAdditionalAllowedConditionFields(this.additionalAllowedConditionFields());
 		this.executor = new Executor(this.currentQuery, this.cache);
+
+		this.mockId(ofObject.hashCode().toString());
 
 		this.with('Id');
 	}

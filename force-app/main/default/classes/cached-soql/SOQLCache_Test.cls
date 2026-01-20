@@ -3,7 +3,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.6.0
+ * v6.7.0
  *
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
@@ -776,6 +776,37 @@ private class SOQLCache_Test {
 		// Verify
 		Assert.areEqual(profileId, profile.Id, 'The profile id should be the same as the id assigned to the profile cache.');
 		Assert.areEqual(SYSTEM_ADMINISTRATOR, profile.Name, 'The profile name should be the same as the name assigned to the profile cache.');
+	}
+
+	@IsTest
+	static void mockWithoutMockId() {
+		// Setup
+		SOQLCache.mock(Profile.SObjectType).thenReturn(new Profile(Name = SYSTEM_ADMINISTRATOR));
+
+		// Test
+		Profile profile = (Profile) SOQLCache.of(Profile.SObjectType).whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR).toObject();
+
+		// Verify
+		Assert.areEqual(SYSTEM_ADMINISTRATOR, profile.Name, 'The profile name should be the same as the name assigned to the profile cache.');
+	}
+
+	@IsTest
+	static void mockWithMockIdAndSObjectMock() {
+		// Setup
+		Id profileId1 = SOQL.IdGenerator.get(Profile.SObjectType);
+		SOQLCache.mock('ProfileQuery').thenReturn(new Profile(Id = profileId1, Name = SYSTEM_ADMINISTRATOR));
+
+		Id profileId2 = SOQL.IdGenerator.get(Profile.SObjectType);
+		SOQLCache.mock(Profile.SObjectType).thenReturn(new Profile(Id = profileId2, Name = SYSTEM_ADMINISTRATOR));
+
+		SOQLCache.Cacheable query = SOQLCache.of(Profile.SObjectType);
+		
+		Profile profile1 = (Profile) query.mockId('ProfileQuery').whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR).toObject();
+		Profile profile2 = (Profile) query.mockId('ProfileQuery').whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR).toObject();
+
+		// Verify
+		Assert.areEqual(profileId1, profile1.Id, 'The mockId should override the SObject mock.');
+		Assert.areEqual(profileId1, profile2.Id, 'The mockId should override the SObject mock.');
 	}
 
 	@IsTest

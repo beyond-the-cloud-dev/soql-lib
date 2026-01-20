@@ -49,6 +49,47 @@ public class ExampleControllerTest {
 
 During execution, SOQLCache will return the record that was set by the `.thenReturn` method.
 
+## Mock by SObjectType
+
+You can also mock cached queries by SObjectType, which is useful when you want to mock all cache queries for a specific object type.
+
+```apex title="Controller without Mock ID"
+public with sharing class ExampleController {
+    public static Account getAccountData(Id accountId) {
+        return (Account) SOQLCache.of(Account.SObjectType)
+            .with(Account.Name, Account.BillingCity)
+            .whereEqual(Account.Id, accountId)
+            .toObject();
+    }
+}
+```
+
+Use `SOQLCache.mock(SObjectType)` to mock all cached queries for that SObjectType.
+
+```apex title="Unit Test with SObjectType Mock"
+@IsTest
+public class ExampleControllerTest {
+    @IsTest
+    static void getAccountData() {
+        Account mockAccount = new Account(
+            Id = '001000000000001',
+            Name = 'Mock Account',
+            BillingCity = 'San Francisco'
+        );
+
+        SOQLCache.mock(Account.SObjectType)
+            .thenReturn(mockAccount);
+
+        Test.startTest();
+        Account result = ExampleController.getAccountData('001000000000001');
+        Test.stopTest();
+
+        Assert.areEqual('Mock Account', result.Name);
+        Assert.areEqual('San Francisco', result.BillingCity);
+    }
+}
+```
+
 ## No Results
 
 ```apex title="Controller for No Results Example"
@@ -144,8 +185,8 @@ Set the mocking ID in the query declaration.
 
 ```apex title="Controller with Static Resource Query"
 public with sharing class ExampleController {
-    public static List<Account> getAccountsByIndustry(String industry) {
-        return SOQLCache.of(Account.SObjectType)
+    public static Account getAccountsByIndustry(String industry) {
+        return (Account) SOQLCache.of(Account.SObjectType)
             .with(Account.Id, Account.Name, Account.Industry)
             .whereEqual(Account.Industry, industry)
             .allowFilteringByNonUniqueFields()
@@ -177,3 +218,38 @@ public class ExampleControllerTest {
 ```
 
 During execution, SOQLCache will return records from the Static Resource that were set by the `.thenReturn` method.
+
+## SObjectType Mock with Static Resource
+
+You can also combine SObjectType mocking with Static Resources for broader test coverage.
+
+```apex title="Controller without Mock ID using Static Resource"
+public with sharing class ExampleController {
+    public static Account getCachedAccountData(String name) {
+        return (Account) SOQLCache.of(Account.SObjectType)
+            .with(Account.Name, Account.Industry, Account.Type)
+            .whereEqual(Account.Name, name)
+            .toObject();
+    }
+}
+```
+
+```apex title="Unit Test with SObjectType and Static Resource Mock"
+@IsTest
+public class ExampleControllerTest {
+    @IsTest
+    static void getCachedAccountData() {
+        List<Account> testAccounts = Test.loadData(Account.SObjectType, 'TestAccounts');
+        
+        SOQLCache.mock(Account.SObjectType)
+            .thenReturn(testAccounts[0]);
+
+        Test.startTest();
+        Account result = ExampleController.getCachedAccountData('Test Account');
+        Test.stopTest();
+
+        Assert.isNotNull(result);
+        Assert.areEqual(testAccounts[0].Name, result.Name);
+    }
+}
+```

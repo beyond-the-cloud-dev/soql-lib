@@ -173,6 +173,9 @@ The following are methods for using `SOQL`:
 - [`SOQL.mock(String mockId).thenReturn(SObject record)`](#record-mock)
 - [`SOQL.mock(String mockId).thenReturn(List<SObject> records)`](#record-mock)
 - [`SOQL.mock(String mockId).thenReturn(Integer amount)`](#count-mock)
+- [`SOQL.mock(SObjectType ofObject).thenReturn(SObject record)`](#sobject-type-mock)
+- [`SOQL.mock(SObjectType ofObject).thenReturn(List<SObject> records)`](#sobject-type-mock)
+- [`SOQL.mock(SObjectType ofObject).thenReturn(Integer amount)`](#sobject-type-mock)
 - [`SOQL.mock(String mockId).throwException()`](#exception-mock)
 - [`SOQL.mock(String mockId).throwException(String message)`](#exception-mock-with-message)
 
@@ -213,6 +216,7 @@ The following are methods for using `SOQL`:
 - [`toAggregatedIdMapBy(SObjectField keyField)`](#toaggregateidmapby)
 - [`toAggregatedIdMapBy(String relationshipName, SObjectField targetKeyField)`](#toaggregateidmapby-with-relationship)
 - [`toQueryLocator()`](#toquerylocator)
+- [`toCursor()`](#tocursor)
 
 ## INIT
 ### of
@@ -2205,6 +2209,40 @@ List<SOQL.AggregateResultProxy> result = SOQL.of(Lead.SObjectType)
     .toAggregatedProxy();
 ```
 
+### SObjectType mock
+
+Create a mock using SObjectType instead of a string identifier. This method automatically generates a hash-based mock ID from the SObjectType.
+
+**Signature**
+
+```apex
+SOQL.Mockable mock(SObjectType ofObject)
+```
+
+**Example**
+
+```apex
+SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .toList();
+
+// In Unit Test - Mock records using SObjectType
+SOQL.mock(Account.SObjectType).thenReturn(new List<Account>{
+    new Account(Name = 'Test Account 1'),
+    new Account(Name = 'Test Account 2')
+});
+
+// Mock single record using SObjectType  
+SOQL.mock(Contact.SObjectType).thenReturn(
+    new Contact(FirstName = 'John', LastName = 'Doe')
+);
+
+// Mock count using SObjectType
+SOQL.mock(Lead.SObjectType).thenReturn(10);
+```
+
+**Note!** When using `mock(SObjectType)`, the library automatically generates a mock identifier based on the SObjectType's hash code. This is convenient when you don't need to specify custom mock IDs and want to mock all queries for a specific SObject type.
+
 ### exception mock
 
 Mock a query exception with default message.
@@ -2804,4 +2842,23 @@ Database.QueryLocator toQueryLocator()
 
 ```apex
 SOQL.of(Account.SObjectType).toQueryLocator();
+```
+
+### toCursor
+
+Returns a `Database.Cursor` for the query, which can be used for more efficient processing of large result sets with streaming capabilities.
+
+**Signature**
+
+```apex
+Database.Cursor toCursor()
+```
+
+**Example**
+
+```apex
+Database.Cursor cursor = SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name)
+    .whereAre(SOQL.Filter.with(Account.Industry).equal('Technology'))
+    .toCursor();
 ```

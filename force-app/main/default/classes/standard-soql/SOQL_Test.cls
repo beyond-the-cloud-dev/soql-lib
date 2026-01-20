@@ -3,7 +3,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.6.0
+ * v6.7.0
  *
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
@@ -1397,6 +1397,40 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void filterIsInListOfSObjects() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		// Test
+		List<Account> queriedAccounts = SOQL.of(Account.SObjectType)
+			.whereAre(SOQL.Filter.with(Account.Name).isIn(accounts, Account.Name))
+			.toList();
+
+		// Verify
+		Assert.areEqual(accounts.size(), queriedAccounts.size(), 'The size of the queried accounts should be equal to the size of the inserted accounts.');
+		Assert.areEqual(accounts[0].Id, queriedAccounts[0].Id, 'The first queried account should match the first inserted account.');
+		Assert.areEqual(accounts[1].Id, queriedAccounts[1].Id, 'The second queried account should match the second inserted account.');
+	}
+
+	@IsTest
+	static void filterIsInListOfSObjectsWhenSomeValuesAreNull() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		accounts.add(new Account(Name = null));
+
+		// Test
+		List<Account> queriedAccounts = SOQL.of(Account.SObjectType)
+			.whereAre(SOQL.Filter.with(Account.Name).isIn(accounts, Account.Name))
+			.toList();
+
+		// Verify
+		Assert.areEqual(2, queriedAccounts.size(), 'The size of the queried accounts should be equal to the size of the inserted accounts.');
+		Assert.areEqual(accounts[0].Id, queriedAccounts[0].Id, 'The first queried account should match the first inserted account.');
+		Assert.areEqual(accounts[1].Id, queriedAccounts[1].Id, 'The second queried account should match the second inserted account.');
+	}
+
+	@IsTest
 	static void filterNotInSet() {
 		// Setup
 		Set<String> names = new Set<String>{ 'Test 1', 'Test 2' };
@@ -1429,6 +1463,20 @@ private class SOQL_Test {
 
 		Map<String, Object> binding = builder.binding();
 		Assert.areEqual(names, binding.get('v1'), 'The binding variable should match the expected value.');
+	}
+
+	@IsTest
+	static void filterNotInListOfSObjects() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		// Test
+		List<Account> queriedAccounts = SOQL.of(Account.SObjectType)
+			.whereAre(SOQL.Filter.with(Account.Name).notIn(accounts, Account.Name))
+			.toList();
+
+		// Verify
+		Assert.areEqual(0, queriedAccounts.size(), 'The size of the queried accounts should be equal to the size of the inserted accounts.');
 	}
 
 	@IsTest
@@ -3470,6 +3518,41 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void mockWithoutMockId() {
+		// Setup
+		SOQL.mock(Account.SObjectType).thenReturn(new List<Account>{
+			new Account(Name = 'Test 1'),
+			new Account(Name = 'Test 2')
+		});
+
+		// Test
+		List<Account> result = SOQL.of(Account.SObjectType).with(Account.Name).toList();
+
+		// Verify
+		Assert.areEqual(2, result.size(), 'The mocked accounts should be returned.');
+	}
+
+	@IsTest
+	static void mockWithMockIdAndSObjectMock() {
+		// Setup
+		SOQL.mock('mockingQuery').thenReturn(new Account(Name = 'Test 1'));
+
+		SOQL.mock(Account.SObjectType).thenReturn(new List<Account>{
+			new Account(Name = 'Test 1'),
+			new Account(Name = 'Test 2')
+		});
+
+		// Test
+		SOQL.Queryable queryable = SOQL.of(Account.SObjectType).with(Account.Name);
+		List<Account> result1 = queryable.mockId('mockingQuery').toList();
+		List<Account> result2 = queryable.mockId('mockingQuery').toList();
+
+		// Verify
+		Assert.areEqual(1, result1.size(), 'The mockId should override the SObject mock.');
+		Assert.areEqual(1, result2.size(), 'The mockId should override the SObject mock.');
+	}
+
+	@IsTest
 	static void mockIdSpecifiedButQueryNotMocked() {
 		// Test
 		List<Account> accounts = SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toList();
@@ -4832,6 +4915,51 @@ private class SOQL_Test {
 
 			// Verify
 			Assert.isTrue(queryLocator.iterator().hasNext(), 'The user should have access to the tasks, so hasNext should return true.');
+		}
+	}
+
+	@IsTest
+	static void toCursor() {
+		// Setup
+		insertAccounts();
+
+		// Test
+		Database.Cursor queryCursor = SOQL.of(Account.SObjectType)
+			.with(Account.Id)
+			.with(Account.Name)
+			.toCursor();
+
+		// Verify
+		Assert.areEqual(2, queryCursor.getNumRecords());
+	}
+
+	@IsTest
+	static void toCursorWithSharing() {
+		// Setup
+		insertTasks();
+
+		System.runAs(minimumAccessUser()) {
+			insert new Task(Subject = 'Test', Type = 'Other');
+
+			// Test
+			Database.Cursor queryCursor = SOQL.of(Task.SObjectType).systemMode().withSharing().toCursor();
+
+			// Verify
+			Assert.areEqual(1, queryCursor.getNumRecords());
+		}
+	}
+
+	@IsTest
+	static void toCursorWithoutSharing() {
+		// Setup
+		insertTasks();
+
+		System.runAs(minimumAccessUser()) {
+			// Test
+			Database.Cursor queryCursor = SOQL.of(Task.SObjectType).systemMode().withoutSharing().toCursor();
+
+			// Verify
+			Assert.areEqual(2, queryCursor.getNumRecords());
 		}
 	}
 
