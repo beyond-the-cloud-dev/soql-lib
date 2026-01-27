@@ -4399,8 +4399,8 @@ private class SOQL_Test {
 		// Test
 		Set<String> accountNames = SOQL.of(Account.SObjectType)
 			.byIds(accounts)
-			.whereAre(SOQL.Filter.with(Account.Id).equal('Test 1'))
-			.whereAre(SOQL.Filter.with(Account.Id).equal('Test 1.1'))
+			.whereAre(SOQL.Filter.with(Account.Name).equal('Test 1'))
+			.whereAre(SOQL.Filter.with(Account.Name).equal('Test 1.1'))
 			.conditionLogic('1 AND (2 OR 3)')
 			.toValuesOf(Account.Id);
 
