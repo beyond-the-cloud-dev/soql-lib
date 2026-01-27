@@ -4529,7 +4529,7 @@ private class SOQL_Test {
 		List<Account> accounts = insertAccounts();
 
 		// Test
-		List<AggregateResult> result = SOQL.of(Account.SObjectType).count(Account.Name, 'names').toAggregated();
+		List<AggregateResult> result = SOQL.of(Account.SObjectType).count(Account.Id, 'names').toAggregated();
 
 		// Verify
 		Assert.areEqual(accounts.size(), result[0].get('names'), 'The count of the names should be equal to the size of the inserted accounts.');
