@@ -4402,7 +4402,7 @@ private class SOQL_Test {
 			.whereAre(SOQL.Filter.with(Account.Id).equal('Test 1'))
 			.whereAre(SOQL.Filter.with(Account.Id).equal('Test 1.1'))
 			.conditionLogic('1 AND (2 OR 3)')
-			.toValuesOf(Account.Name);
+			.toValuesOf(Account.Id);
 
 		// Verify
 		Assert.areEqual(1, accountNames.size(), 'Only one account should be returned, because the Name condition is matched.');
