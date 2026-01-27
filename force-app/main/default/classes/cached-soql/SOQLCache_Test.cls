@@ -64,7 +64,9 @@ private class SOQLCache_Test {
 
 	@IsTest
 	static void multipleSelectorInvocation() {
+
 		// Test
+    Test.startTest();
 		SOQLCache.of(Profile.SObjectType).with(Profile.Id, Profile.Name).whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR).toObject();
 		SOQLCache.of(Profile.SObjectType).with(Profile.Id, Profile.Name).whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR).toObject();
 		SOQLCache.of(Profile.SObjectType).with(Profile.Id, Profile.Name).whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR).toObject();
@@ -72,11 +74,13 @@ private class SOQLCache_Test {
 
 		// Verify
 		Assert.areEqual(1, Limits.getQueries(), 'Only the first query should be executed to populate data in the cache.');
+    Test.stopTest();
 	}
 
 	@IsTest
 	static void multipleSelectorInvocationWithDifferentConditions() {
 		// Test
+    Test.startTest();
 		SOQLCache.of(Profile.SObjectType).with(Profile.Id, Profile.Name).whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR).toObject();
 		SOQLCache.of(Profile.SObjectType).with(Profile.Id, Profile.Name).whereEqual(Profile.Name, STANDARD_USER).toObject();
 		SOQLCache.of(Profile.SObjectType).with(Profile.Id, Profile.Name).whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR).toObject();
@@ -84,11 +88,13 @@ private class SOQLCache_Test {
 
 		// Verify
 		Assert.areEqual(2, Limits.getQueries(), 'Only the one query for each condition should be executed.');
+    Test.stopTest();
 	}
 
 	@IsTest
 	static void multipleSelectorInvocationWhenPlainFieldsWereAlreadySet() {
 		// Test
+    Test.startTest();
 		SOQLCache.of(Profile.SObjectType)
 			.with(Profile.Id, Profile.Name)
 			.whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR)
@@ -101,11 +107,13 @@ private class SOQLCache_Test {
 
 		// Verify
 		Assert.areEqual(1, Limits.getQueries(), 'Only the one query should be executed, because the first query set all necessary fields.');
+    Test.stopTest();
 	}
 
 	@IsTest
 	static void multipleSelectorInvocationWhenPlainFieldsAreMissing() {
 		// Test
+    Test.startTest();
 		SOQLCache.of(Profile.SObjectType)
 			.with(Profile.Id)
 			.whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR)
@@ -118,11 +126,14 @@ private class SOQLCache_Test {
 
 		// Verify
 		Assert.areEqual(2, Limits.getQueries(), 'Two queries should be executed, because the first query haven\'t set all necessary fields.');
+    Test.stopTest();
 	}
 
 	@IsTest
 	static void multipleSelectorInvocationWhenRelationshipFieldsWereAlreadySet() {
+
 		// Test
+    Test.startTest();
 		SOQLCache.of(Profile.SObjectType)
 			.with('UserLicense', UserLicense.Name, UserLicense.Status)
 			.whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR)
@@ -135,11 +146,15 @@ private class SOQLCache_Test {
 
 		// Verify
 		Assert.areEqual(1, Limits.getQueries(), 'Only the one query should be executed, because the first query set all necessary fields.');
+    Test.stopTest();
+
 	}
 
 	@IsTest
 	static void multipleSelectorInvocationWhenRelationshipFieldsAreMissing() {
+
 		// Test
+    Test.startTest();
 		SOQLCache.of(Profile.SObjectType)
 			.with('UserLicense', UserLicense.Name)
 			.whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR)
@@ -152,6 +167,7 @@ private class SOQLCache_Test {
 
 		// Verify
 		Assert.areEqual(2, Limits.getQueries(), 'Two queries should be executed, because the first query haven\'t set all necessary fields.');
+    Test.stopTest();
 	}
 
 	@IsTest
@@ -222,6 +238,8 @@ private class SOQLCache_Test {
 
 	@IsTest
 	static void maxHoursWithoutRefreshRecentRecord() {
+
+    Test.startTest();
 		// Setup
 		SOQLCache.CacheItem cachedItem = new SOQLCache.CacheItem([
 			SELECT Id, Name FROM Profile WHERE Name = :SYSTEM_ADMINISTRATOR LIMIT 1
@@ -240,10 +258,13 @@ private class SOQLCache_Test {
 		Assert.areEqual(1, Limits.getQueries(), 'One queries should be issued. The second query should retrieve record from cache.');
 		Assert.isNotNull(profile, 'Profile should be not null.');
 		Assert.areEqual(SYSTEM_ADMINISTRATOR, profile.Name, 'The cached profile record should be "System Administrator".');
+
+    Test.stopTest();
 	}
 
 	@IsTest
 	static void maxHoursWithoutRefreshOldRecord() {
+    Test.startTest();
 		// Setup
 		SOQLCache.CacheItem cachedItem = new SOQLCache.CacheItem([
 			SELECT Id, Name FROM Profile WHERE Name = :SYSTEM_ADMINISTRATOR LIMIT 1
@@ -267,6 +288,7 @@ private class SOQLCache_Test {
 		Assert.isTrue(Math.abs((System.now().getTime() - updatedCacheItems[0].cachedDate.getTime()) / 1000) < 10, 'The cached record should be updated. The time difference should be less than 10 seconds.');
 		Assert.isNotNull(profile, 'Profile should be not null.');
 		Assert.areEqual(SYSTEM_ADMINISTRATOR, profile.Name, 'The cached profile record should be "System Administrator".');
+    Test.stopTest();
 	}
 
 	@IsTest
@@ -279,6 +301,7 @@ private class SOQLCache_Test {
 		CacheManager.ApexTransaction.put('Profile', new List<SOQLCache.CacheItem>{ cachedItem1, cachedItem2 });
 
 		// Test
+    Test.startTest();
 		SOQLCache.of(Profile.SObjectType)
 			.with(Profile.Id, Profile.Name)
 			.whereEqual(Profile.Name, 'ProfileNotExistName')
@@ -292,6 +315,7 @@ private class SOQLCache_Test {
 		Assert.areEqual(1, Limits.getQueries(), 'One queries should be issued.');
 		Assert.areEqual(1, updatedCacheItems.size(), 'The Apex transaction cache should contain exactly one record.');
 		Assert.areEqual(SYSTEM_ADMINISTRATOR, cachedProfile.Name, 'The cached profile record should be "System Administrator".');
+    Test.stopTest();
 	}
 
 	@IsTest
@@ -602,6 +626,7 @@ private class SOQLCache_Test {
 	@IsTest
 	static void whereEqualStringField() {
 		// Test
+    Test.startTest();
 		// First query to cache the record
 		Profile profile1 = (Profile) SOQLCache.of(Profile.SObjectType)
 			.with(Profile.Id, Profile.Name)
@@ -618,6 +643,7 @@ private class SOQLCache_Test {
 		Assert.areEqual(SYSTEM_ADMINISTRATOR, profile1.Name, 'The cached profile record should be "System Administrator".');
 		Assert.areEqual(SYSTEM_ADMINISTRATOR, profile2.Name, 'The cached profile record should be "System Administrator".');
 		Assert.areEqual(1, Limits.getQueries(), 'The number of queries should be 1.');
+    Test.stopTest();
 	}
 
 	@IsTest
@@ -625,6 +651,7 @@ private class SOQLCache_Test {
 		insertAccount();
 
 		// Test
+    Test.startTest();
 		// First query to cache the record
 		Account account1 = (Account) SOQLCache.of(Account.SObjectType)
 			.with(Account.Id, Account.Name)
@@ -638,11 +665,13 @@ private class SOQLCache_Test {
 			.allowFilteringByNonUniqueFields()
 			.whereEqual(Account.NumberOfEmployees, 1000)
 			.toObject();
+    
 
 		// Verify
 		Assert.areEqual(1000, account1.NumberOfEmployees, 'The cached account record should be 1000.');
 		Assert.areEqual(1000, account2.NumberOfEmployees, 'The cached account record should be 1000.');
 		Assert.areEqual(1, Limits.getQueries(), 'The number of queries should be 1.');
+    Test.stopTest();
 	}
 
 	@IsTest
@@ -650,6 +679,7 @@ private class SOQLCache_Test {
 		insertAccount();
 
 		// Test
+    Test.startTest();
 		// First query to cache the record
 		Account account1 = (Account) SOQLCache.of(Account.SObjectType)
 			.with(Account.Id, Account.IsDeleted)
@@ -663,11 +693,13 @@ private class SOQLCache_Test {
 			.allowFilteringByNonUniqueFields()
 			.whereEqual(Account.IsDeleted, false)
 			.toObject();
+    
 
 		// Verify
 		Assert.isFalse(account1.IsDeleted, 'The cached account record should be false.');
 		Assert.isFalse(account2.IsDeleted, 'The cached account record should be false.');
 		Assert.areEqual(1, Limits.getQueries(), 'The number of queries should be 1.');
+    Test.stopTest();
 	}
 
 	@IsTest
@@ -997,20 +1029,25 @@ private class SOQLCache_Test {
 		SOQLCache.mock('ProfileQuery').thenReturn(null);
 
 		// Test
+    Test.startTest();
 		Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
 			.with(Profile.Id, Profile.Name)
 			.mockId('ProfileQuery')
 			.whereEqual(Profile.Name, 'Profile That Not Exist')
 			.toObject();
+    
 
 		// Verify
 		Assert.isNull(profile, 'The profile should be null.');
 		Assert.areEqual(0, Limits.getQueries(), 'No query should be issued.');
+    Test.stopTest();
 	}
 
 	@IsTest
 	static void cachedRecordDoesNotHaveNecessaryFields() {
+
 		// Test
+    Test.startTest();
 		Profile profile1 = (Profile) SOQLCache.of(Profile.SObjectType)
 			.with(Profile.Id, Profile.Name)
 			.whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR)
@@ -1023,8 +1060,11 @@ private class SOQLCache_Test {
 
 		List<SOQLCache.CacheItem> cachedProfiles = (List<SOQLCache.CacheItem>) CacheManager.ApexTransaction.get('Profile');
 
+    
+
 		// Verify
 		Assert.areEqual(2, Limits.getQueries(), 'Two queries should be issued. The second query should retrieve the missing fields.');
+    Test.stopTest();
 
 		Assert.isFalse(cachedProfiles.isEmpty(), 'The Apex transaction cache should not be empty.');
 		Assert.areEqual(1, cachedProfiles.size(), 'The Apex transaction cache should contain exactly one record.');
@@ -1036,11 +1076,14 @@ private class SOQLCache_Test {
 		Assert.isTrue(profile2.isSet('Name'), 'The profile Name should not be set.');
 		Assert.isTrue(profile2.isSet('UserType'), 'The profile UserType should not be set.');
 		Assert.isTrue(profile2.isSet('UserLicenseId'), 'The profile UserLicenseId should not be set.');
+    
 	}
 
 	@IsTest
 	static void cachedRecordMissingRelationshipField() {
+ 
 		// Test
+    Test.startTest();
 		Profile profile1 = (Profile) SOQLCache.of(Profile.SObjectType)
 			.with('UserLicense', UserLicense.Name)
 			.whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR)
@@ -1053,8 +1096,11 @@ private class SOQLCache_Test {
 
 		List<SOQLCache.CacheItem> cachedProfiles = (List<SOQLCache.CacheItem>) CacheManager.ApexTransaction.get('Profile');
 
+    
+
 		// Verify
 		Assert.areEqual(2, Limits.getQueries(), 'Two queries should be issued. The second query should retrieve the missing fields.');
+    Test.stopTest();
 
 		Assert.isFalse(cachedProfiles.isEmpty(), 'The Apex transaction cache should not be empty.');
 		Assert.areEqual(1, cachedProfiles.size(), 'The Apex transaction cache should contain exactly one record.');
@@ -1067,7 +1113,9 @@ private class SOQLCache_Test {
 
 	@IsTest
 	static void cachedRecordDoesNotHaveRelationshipField() {
+    
 		// Test
+    Test.startTest();
 		Profile profile1 = (Profile) SOQLCache.of(Profile.SObjectType)
 			.with(Profile.Id, Profile.Name)
 			.whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR)
@@ -1079,8 +1127,11 @@ private class SOQLCache_Test {
 			.whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR)
 			.toObject();
 
+    
+
 		// Verify
 		Assert.areEqual(2, Limits.getQueries(), 'Two queries should be issued. The second query should retrieve the missing relationship fields.');
+    Test.stopTest();
 
 		Assert.isNotNull(profile1.Id, 'The profile1 Id should not be null.');
 		Assert.isNotNull(profile1.Name, 'The profile1 Name should not be null.');
@@ -1092,7 +1143,9 @@ private class SOQLCache_Test {
 
 	@IsTest
 	static void withCommaSeparatedFieldsWereAlreadySet() {
+
 		// Test
+    Test.startTest();
 		SOQLCache.of(Profile.SObjectType)
 			.with('Id, Name, UserType, UserLicense.Name, UserLicense.Status')
 			.whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR)
@@ -1105,6 +1158,7 @@ private class SOQLCache_Test {
 
 		// Verify
 		Assert.areEqual(1, Limits.getQueries(), 'Only one query should be issued. The second query should not be executed, because the first query set all necessary fields.');
+    Test.stopTest();
 	}
 
 	@IsTest

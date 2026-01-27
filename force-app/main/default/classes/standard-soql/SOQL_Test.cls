@@ -2119,7 +2119,7 @@ private class SOQL_Test {
 
 		// Test
 		List<AggregateResult> results = SOQL.of(Account.SObjectType)
-			.count(Account.Name, 'names')
+			.count(Account.Id, 'names')
 			.groupBy('Account.CreatedBy', User.Id)
 			.toAggregated();
 
@@ -2134,7 +2134,7 @@ private class SOQL_Test {
 
 		// Test
 		List<SOQL.AggregateResultProxy> results = SOQL.of(Account.SObjectType)
-			.count(Account.Name, 'names')
+			.count(Account.Id, 'names')
 			.groupBy('Account.CreatedBy', User.Id)
 			.toAggregatedProxy();
 
@@ -4193,8 +4193,8 @@ private class SOQL_Test {
 		// Test
 		Set<Id> parentIds = SOQL.of(Account.SObjectType)
 			.byIds(accounts)
-			.whereAre(SOQL.Filter.with(Account.Name).contains('Test 1'))
 			.whereAre(SOQL.Filter.with(Account.Name).equal('Test 1'))
+			.whereAre(SOQL.Filter.with(Account.Name).equal('Test 1.1'))
 			.conditionLogic('1 AND (2 OR 3)')
 			.toIdsOf(Account.ParentId);
 
@@ -4385,7 +4385,7 @@ private class SOQL_Test {
 		List<Account> accounts = insertAccounts();
 
 		// Test
-		Set<String> accountNames = SOQL.of(Account.SObjectType).byIds(accounts).toValuesOf(Account.Name);
+		Set<String> accountNames = SOQL.of(Account.SObjectType).byIds(accounts).toValuesOf(Account.Id);
 
 		// Verify
 		Assert.areEqual(2, accountNames.size(), 'The size of the account names set should be equal to the size of the accounts.');
@@ -4399,10 +4399,10 @@ private class SOQL_Test {
 		// Test
 		Set<String> accountNames = SOQL.of(Account.SObjectType)
 			.byIds(accounts)
-			.whereAre(SOQL.Filter.with(Account.Name).contains('Test 1'))
 			.whereAre(SOQL.Filter.with(Account.Name).equal('Test 1'))
+			.whereAre(SOQL.Filter.with(Account.Name).equal('Test 1.1'))
 			.conditionLogic('1 AND (2 OR 3)')
-			.toValuesOf(Account.Name);
+			.toValuesOf(Account.Id);
 
 		// Verify
 		Assert.areEqual(1, accountNames.size(), 'Only one account should be returned, because the Name condition is matched.');
@@ -4429,7 +4429,7 @@ private class SOQL_Test {
 		Set<String> accountNames = SOQL.of(Account.SObjectType)
 			.with(Account.Industry)
 			.byIds(accounts)
-			.toValuesOf(Account.Name);
+			.toValuesOf(Account.Id);
 
 		// Verify
 		Assert.areEqual(2, accountNames.size(), 'The size of the account names set should be equal to the size of the accounts.');
@@ -4454,7 +4454,7 @@ private class SOQL_Test {
 		// Test
 		Set<String> accountNames = SOQL.of(Account.SObjectType)
 			.byIds(accounts)
-			.toValuesOf('Parent', Account.Name);
+			.toValuesOf('Parent', Account.Id);
 
 		// Verify
 		Assert.areEqual(2, accountNames.size(), 'Each account should have a parent, so the size of the account names set should be equal to the size of the accounts.');
@@ -4465,7 +4465,7 @@ private class SOQL_Test {
 		// Test
 		Set<String> accountNames = SOQL.of(Account.SObjectType)
 			.whereAre(SOQL.Filter.name().equal('Test'))
-			.toValuesOf('Parent', Account.Name);
+			.toValuesOf('Parent', Account.Id);
 
 		// Verify
 		Assert.isTrue(accountNames.isEmpty(), 'The account names set should be empty, because the related record does not exist.');
@@ -4529,7 +4529,7 @@ private class SOQL_Test {
 		List<Account> accounts = insertAccounts();
 
 		// Test
-		List<AggregateResult> result = SOQL.of(Account.SObjectType).count(Account.Name, 'names').toAggregated();
+		List<AggregateResult> result = SOQL.of(Account.SObjectType).count(Account.Id, 'names').toAggregated();
 
 		// Verify
 		Assert.areEqual(accounts.size(), result[0].get('names'), 'The count of the names should be equal to the size of the inserted accounts.');
