@@ -27,7 +27,7 @@ SOQL.of(Opportunity.SObjectType)
     .with(Opportunity.CampaignId)
     .avg(Opportunity.Amount, 'amount')
     .groupBy(Opportunity.CampaignId)
-    .toAggregate();
+    .toAggregated();
 ```
 
 ## AVG Related Field
@@ -44,7 +44,7 @@ FROM OpportunityLineItem
 ```apex title="SOQL Lib Approach"
 SOQL.of(OpportunityLineItem.SObjectType)
     .avg('Opportunity', Opportunity.Amount)
-    .toAggregate();
+    .toAggregated();
 ```
 
 ## AVG Related Field with Alias
@@ -61,7 +61,7 @@ FROM OpportunityLineItem
 ```apex
 SOQL.of(OpportunityLineItem.SObjectType)
     .avg('Opportunity', Opportunity.Amount, 'amount')
-    .toAggregate();
+    .toAggregated();
 ```
 
 ## SUM
@@ -81,7 +81,7 @@ SOQL.of(Opportunity.SObjectType)
     .with(Opportunity.CampaignId)
     .sum(Opportunity.Amount, 'totalAmount')
     .groupBy(Opportunity.CampaignId)
-    .toAggregate();
+    .toAggregated();
 ```
 
 ## SUM Related Field
@@ -98,7 +98,7 @@ FROM OpportunityLineItem
 ```apex
 SOQL.of(OpportunityLineItem.SObjectType)
     .sum('Opportunity', Opportunity.Amount)
-    .toAggregate();
+    .toAggregated();
 ```
 
 ## SUM Related Field with Alias
@@ -115,7 +115,7 @@ FROM OpportunityLineItem
 ```apex
 SOQL.of(OpportunityLineItem.SObjectType)
     .sum('Opportunity', Opportunity.Amount, 'totalAmount')
-    .toAggregate();
+    .toAggregated();
 ```
 
 ## MIN
@@ -135,7 +135,7 @@ SOQL.of(Opportunity.SObjectType)
     .with(Opportunity.CampaignId)
     .min(Opportunity.Amount, 'minAmount')
     .groupBy(Opportunity.CampaignId)
-    .toAggregate();
+    .toAggregated();
 ```
 
 ## MIN Related Field
@@ -152,7 +152,7 @@ FROM OpportunityLineItem
 ```apex
 SOQL.of(OpportunityLineItem.SObjectType)
     .min('Opportunity', Opportunity.Amount)
-    .toAggregate();
+    .toAggregated();
 ```
 
 ## MIN Related Field with Alias
@@ -169,7 +169,7 @@ FROM OpportunityLineItem
 ```apex
 SOQL.of(OpportunityLineItem.SObjectType)
     .min('Opportunity', Opportunity.Amount, 'minAmount')
-    .toAggregate();
+    .toAggregated();
 ```
 
 ## MAX
@@ -189,7 +189,7 @@ SOQL.of(Opportunity.SObjectType)
     .with(Opportunity.CampaignId)
     .max(Opportunity.Amount, 'maxAmount')
     .groupBy(Opportunity.CampaignId)
-    .toAggregate();
+    .toAggregated();
 ```
 
 ## MAX Related Field
@@ -206,7 +206,7 @@ FROM OpportunityLineItem
 ```apex
 SOQL.of(OpportunityLineItem.SObjectType)
     .max('Opportunity', Opportunity.Amount)
-    .toAggregate();
+    .toAggregated();
 ```
 
 ## MAX Related Field with Alias
@@ -223,7 +223,7 @@ FROM OpportunityLineItem
 ```apex
 SOQL.of(OpportunityLineItem.SObjectType)
     .max('Opportunity', Opportunity.Amount, 'maxAmount')
-    .toAggregate();
+    .toAggregated();
 ```
 
 ## COUNT
@@ -243,7 +243,7 @@ SOQL.of(Opportunity.SObjectType)
     .with(Opportunity.CampaignId)
     .count(Opportunity.Id, 'totalRecords')
     .groupBy(Opportunity.CampaignId)
-    .toAggregate();
+    .toAggregated();
 ```
 
 ## COUNT Related Field
@@ -260,7 +260,7 @@ FROM OpportunityLineItem
 ```apex
 SOQL.of(OpportunityLineItem.SObjectType)
     .count('Opportunity', Opportunity.Id)
-    .toAggregate();
+    .toAggregated();
 ```
 
 ## COUNT Related Field with Alias
@@ -277,7 +277,7 @@ FROM OpportunityLineItem
 ```apex
 SOQL.of(OpportunityLineItem.SObjectType)
     .count('Opportunity', Opportunity.Id, 'totalRecords')
-    .toAggregate();
+    .toAggregated();
 ```
 
 ## COUNT_DISTINCT
@@ -294,7 +294,7 @@ FROM Opportunity
 ```apex
 SOQL.of(Opportunity.SObjectType)
     .countDistinct(Opportunity.AccountId, 'uniqueAccounts')
-    .toAggregate();
+    .toAggregated();
 ```
 
 ## COUNT_DISTINCT Related Field
@@ -311,7 +311,7 @@ FROM OpportunityLineItem
 ```apex
 SOQL.of(OpportunityLineItem.SObjectType)
     .countDistinct('Opportunity', Opportunity.AccountId)
-    .toAggregate();
+    .toAggregated();
 ```
 
 ## COUNT_DISTINCT Related Field with Alias
@@ -328,5 +328,5 @@ FROM OpportunityLineItem
 ```apex
 SOQL.of(OpportunityLineItem.SObjectType)
     .countDistinct('Opportunity', Opportunity.AccountId, 'uniqueAccounts')
-    .toAggregate();
+    .toAggregated();
 ```
