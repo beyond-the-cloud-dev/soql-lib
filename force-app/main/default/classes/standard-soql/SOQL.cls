@@ -229,6 +229,40 @@ global virtual inherited sharing class SOQL implements Queryable {
 		String getChildRelationshipName();
 	}
 
+	global interface TypeOf{
+		// TYPEOF
+		TypeOf of(SObjectType ofObject);
+
+		// WHEN
+		Typeof when(SObjectType whenObject);
+
+		// THEN
+		Typeof then(SObjectField field);
+		Typeof then(SObjectField field1, SObjectField field2);
+		Typeof then(SObjectField field1, SObjectField field2, SObjectField field3);
+		Typeof then(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+		Typeof then(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
+		Typeof then(List<SObjectField> fields);
+		Typeof then(Iterable<String> fields);
+		Typeof then(String fields);
+		Typeof then(String relationshipName, SObjectField field);
+		Typeof then(String relationshipName, SObjectField field1, SObjectField field2);
+		Typeof then(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
+		Typeof then(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+		Typeof then(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
+		Typeof then(String relationshipName, Iterable<SObjectField> fields);
+
+		// ELSE
+		Typeof whenElse(Iterable<String> fields);
+		Typeof whenElse(String fields);
+		Typeof whenElse(String relationshipName, SObjectField field);
+		Typeof whenElse(String relationshipName, SObjectField field1, SObjectField field2);
+		Typeof whenElse(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
+		Typeof whenElse(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+		Typeof whenElse(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
+		Typeof whenElse(String relationshipName, Iterable<SObjectField> fields);
+	}
+
 	global interface FilterGroup {
 		// ADD CONDITION
 		FilterGroup add(FilterGroup filterGroup);
@@ -373,6 +407,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 	global static SubQuery SubQuery {
 		get { return new SoqlSubQuery(); }
+	}
+
+	global static Typeof Type{
+		get{ return new SoqlTypeof();}
 	}
 
 	global static FilterGroup FilterGroup {
@@ -1530,6 +1568,132 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 	}
 
+	private class SoqlTypeOf implements Typeof {
+		private SObjectField ofField;
+		private Map<SObjectType, SoqlFields> fieldsByType;
+		private SObjectType[] whenTypes;
+
+		private SoqlFields elseFields;
+
+		private SObjectType latestWhen() {
+			return this.whenTypes.get(this.whenTypes.size()-1);
+		}
+
+		public SoqlTypeOf of(SObjectField ofField) {
+			this.ofField = ofField;
+
+			this.fieldsByType = new Map<SObjectType, SoqlFields>();
+			this.whenTypes = new SObjectType[0];
+			this.elseFields = new SoqlFields(null);
+			this.latestWhen = null;
+			
+			return this;
+		}
+
+		public SoqlTypeOf when(SObjectType ofObject) {
+			if (!fieldsByType.containsKey(ofObject)){
+				fieldsByType.put(ofObject,new SoqlFields(ofObject.toString()));
+				this.whenTypes.add(ofObject);
+			}
+
+			return this;
+		}
+
+		public Typeof then(SObjectField field) {
+			this.fieldsByType.get(this.latestWhen()).plainFields.add(field);
+			return this;
+		}
+
+		public Typeof then(SObjectField field1, SObjectField field2) {
+			return this.then(field1).then(field2);
+		}
+
+		public Typeof then(SObjectField field1, SObjectField field2, SObjectField field3) {
+			return this.then(field1, field2).then(field3);
+		}
+
+		public Typeof then(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
+			return this.then(field1, field2, field3).then(field4);
+		}
+
+		public Typeof then(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
+			return this.then(field1, field2, field3, field4).then(field5);
+		}
+
+		public Typeof then(List<SObjectField> fields) {
+			this.fieldsByType.get(this.latestWhen()).plainFields.add(fields);
+			return this;
+		}
+
+		public Typeof then(Iterable<String> fields) {
+			return this.then(String.join(fields, ','));
+		}
+
+		public Typeof then(String fields) {
+			this.fieldsByType.get(this.latestWhen()).with(fields);
+			return this;
+		}
+		
+		public Typeof then(String relationshipName, SObjectField field) {
+			return then(relationshipName, new List<SObjectField>{field});
+		}
+
+		public Typeof then(String relationshipName, SObjectField field1, SObjectField field2) {
+			return then(relationshipName, new List<SObjectField>{field1, field2});
+		}
+
+		public Typeof then(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3) {
+			return then(relationshipName, new List<SObjectField>{field1, field2, field3});
+		}
+
+		public Typeof then(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
+			return then(relationshipName, new List<SObjectField>{field1, field2, field3, field4});
+		}
+
+		public Typeof then(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
+			return then(relationshipName, new List<SObjectField>{field1, field2, field3, field4, field5});
+		}
+		
+		public Typeof then(String relationshipName, Iterable<SObjectField> fields) {
+			this.fieldsByType.get(this.latestWhen()).relationshipFields.add(relationshipName, fields);
+			return this;
+		}
+
+		public Typeof whenElse(Iterable<String> fields) {
+			return this.whenElse(String.join(fields, ','));
+		}
+
+		public Typeof whenElse(String fields) {
+			this.elseFields.with(fields);
+			return this;
+		}
+
+		public Typeof whenElse(String relationshipName, SObjectField field) {
+			return this.whenElse(relationshipName, new List<SObjectField>{field});
+		}
+
+		public Typeof whenElse(String relationshipName, SObjectField field1, SObjectField field2){
+			return this.whenElse(relationshipName, new List<SObjectField>{field1, field2});
+		}
+
+		public Typeof whenElse(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3){
+			return this.whenElse(relationshipName, new List<SObjectField>{field1, field2, field3});
+		}
+
+		public Typeof whenElse(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4){
+			return this.whenElse(relationshipName, new List<SObjectField>{field1, field2, field3, field4});
+		}
+
+		public Typeof whenElse(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
+			return this.whenElse(relationshipName, new List<SObjectField>{field1, field2, field3, field4, field5});
+		}
+
+		public Typeof whenElse(String relationshipName, Iterable<SObjectField> fields) {
+			this.elseFields.relationshipFields.add(relationshipName, fields);
+			return this;
+		}
+	}
+
 	private class SoqlSubQueries implements QueryClause {
 		private List<SubQuery> subQueries = new List<SubQuery>();
 
@@ -2557,7 +2721,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		private List<SObject> stripAdditionalFields(Set<String> requestedFields, Set<String> subQueriesRelationshipNames) {
 			List<SObject> cleanedRecords = new List<SObject>();
 
-			Type objectTypeName = Type.forName(this.mockedRecords[0].getSObjectType().toString());
+			Type objectTypeName = System.Type.forName(this.mockedRecords[0].getSObjectType().toString());
 
 			for (SObject record : this.mockedRecords) {
 				Map<String, Object> recordFilteredFields = new Map<String, Object>{ 'Id' => record.Id };
@@ -2904,7 +3068,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		public Map<Id, SObject> toMap() {
-			Map<Id, SObject> recordPerId = (Map<Id, SObject>) Type.forName('Map<Id, ' + this.ofObject  + ' >').newInstance();
+			Map<Id, SObject> recordPerId = (Map<Id, SObject>) System.Type.forName('Map<Id, ' + this.ofObject  + ' >').newInstance();
 			recordPerId.putAll(this.recordsToTransform);
 			return recordPerId;
 		}
@@ -2918,7 +3082,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		public Map<Id, SObject> toIdMapBy(String fieldPath) {
-			Map<Id, SObject> recordPerCustomKey = (Map<Id, SObject>) Type.forName('Map<Id, ' + this.ofObject  + ' >').newInstance();
+			Map<Id, SObject> recordPerCustomKey = (Map<Id, SObject>) System.Type.forName('Map<Id, ' + this.ofObject  + ' >').newInstance();
 			List<String> relationshipPathFields = fieldPath.split('\\.');
 			String targetField = relationshipPathFields.remove(relationshipPathFields.size() - 1);
 
@@ -2938,7 +3102,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		private Map<Id, List<SObject>> toAggregatedIdMapBy(String keyFieldPath) {
-			Map<Id, List<SObject>> recordsPerCustomKey = (Map<Id, List<SObject>>) Type.forName('Map<Id, List<' + this.ofObject  + ' >>').newInstance();
+			Map<Id, List<SObject>> recordsPerCustomKey = (Map<Id, List<SObject>>) System.Type.forName('Map<Id, List<' + this.ofObject  + ' >>').newInstance();
 			List<String> relationshipPathFields = keyFieldPath.split('\\.');
 			String targetField = relationshipPathFields.remove(relationshipPathFields.size() - 1);
 
@@ -2964,7 +3128,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		public Map<String, SObject> toMap(String fieldPath) {
-			Map<String, SObject> recordPerCustomKey = (Map<String, SObject>) Type.forName('Map<String, ' + this.ofObject  + ' >').newInstance();
+			Map<String, SObject> recordPerCustomKey = (Map<String, SObject>) System.Type.forName('Map<String, ' + this.ofObject  + ' >').newInstance();
 			List<String> relationshipPathFields = fieldPath.split('\\.');
 			String targetField = relationshipPathFields.remove(relationshipPathFields.size() - 1);
 
@@ -3032,7 +3196,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		private Map<String, List<SObject>> toSObjectAggregatedMap(SObjectField keyField, String keyFieldPath) {
-			Map<String, List<SObject>> recordsPerCustomKey = (Map<String, List<SObject>>) Type.forName('Map<String, List<' + this.ofObject  + ' >>').newInstance();
+			Map<String, List<SObject>> recordsPerCustomKey = (Map<String, List<SObject>>) System.Type.forName('Map<String, List<' + this.ofObject  + ' >>').newInstance();
 			List<String> relationshipPathFields = keyFieldPath.split('\\.');
 			String targetField = relationshipPathFields.remove(relationshipPathFields.size() - 1);
 
