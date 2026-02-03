@@ -229,7 +229,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		String getChildRelationshipName();
 	}
 
-	global interface TypeOf{
+	global interface TypeOf {
 		// TYPEOF
 		TypeOf of(SObjectType ofObject);
 
