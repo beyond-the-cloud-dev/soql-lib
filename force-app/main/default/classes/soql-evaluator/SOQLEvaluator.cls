@@ -2,7 +2,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.7.0
+ * v6.8.0
  *
  * PMD False Positives:
  * - CognitiveComplexity: It is a library and we tried to put everything into ONE class
