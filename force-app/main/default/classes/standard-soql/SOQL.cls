@@ -542,7 +542,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 	}
 
 	global Queryable with(Iterable<String> fields) {
-		if (fields.isEmpty()) {
+		if (!fields.iterator().hasNext()) {
 			return this;
 		}
 
