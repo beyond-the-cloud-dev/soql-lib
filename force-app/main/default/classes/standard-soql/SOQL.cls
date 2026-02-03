@@ -2,7 +2,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.7.0
+ * v6.8.0
  *
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
@@ -161,6 +161,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		Database.QueryLocator toQueryLocator();
 		// CURSOR
 		Database.Cursor toCursor();
+		Database.PaginationCursor toPaginationCursor();
 		// DO EXIST
 		Boolean doExist();
 		// AGGREGATE RESULTS
@@ -1116,6 +1117,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 	global Database.Cursor toCursor() {
 		return this.executor.toCursor();
+	}
+
+	global Database.PaginationCursor toPaginationCursor() {
+		return this.executor.toPaginationCursor();
 	}
 
 	global Queryable byId(SObject record) {
@@ -2817,6 +2822,11 @@ global virtual inherited sharing class SOQL implements Queryable {
 			return sharingExecutor.toCursor(builder.toString(), binder.getBindingMap(), accessMode);
 		}
 
+		public Database.PaginationCursor toPaginationCursor() {
+			this.incrementQueryIssued();
+			return this.sharingExecutor.toPaginationCursor(this.builder.toString(), binder.getBindingMap(), this.accessMode);
+		}
+
 		private void incrementQueryIssued() {
 			// This counter is used only in unit tests to also track mocked queries.
 			if (!System.Test.isRunningTest() || System.isBatch() || System.isFuture() || System.isQueueable() || System.isScheduled()) {
@@ -2838,6 +2848,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel);
 		Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel);
 		Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel);
+		Database.PaginationCursor toPaginationCursor(String query, Map<String, Object> binding, AccessLevel accessLevel);
 	}
 
 	private inherited sharing class InheritedSharing implements DatabaseQuery {
@@ -2855,6 +2866,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 		public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
 			return Database.getCursorWithBinds(query, binding, accessLevel);
+		}
+
+		public Database.PaginationCursor toPaginationCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+			return Database.getPaginationCursorWithBinds(query, binding, accessLevel);
 		}
 	}
 
@@ -2874,6 +2889,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 		public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
 			return Database.getCursorWithBinds(query, binding, accessLevel);
 		}
+
+		public Database.PaginationCursor toPaginationCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+			return Database.getPaginationCursorWithBinds(query, binding, accessLevel);
+		}
 	}
 
 	private with sharing class WithSharing implements DatabaseQuery {
@@ -2891,6 +2910,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 		public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
 			return Database.getCursorWithBinds(query, binding, accessLevel);
+		}
+
+		public Database.PaginationCursor toPaginationCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+			return Database.getPaginationCursorWithBinds(query, binding, accessLevel);
 		}
 	}
 

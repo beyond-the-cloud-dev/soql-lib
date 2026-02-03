@@ -217,6 +217,7 @@ The following are methods for using `SOQL`:
 - [`toAggregatedIdMapBy(String relationshipName, SObjectField targetKeyField)`](#toaggregateidmapby-with-relationship)
 - [`toQueryLocator()`](#toquerylocator)
 - [`toCursor()`](#tocursor)
+- [`toPaginationCursor()`](#topaginationcursor)
 
 ## INIT
 ### of
@@ -2861,4 +2862,25 @@ Database.Cursor cursor = SOQL.of(Account.SObjectType)
     .with(Account.Id, Account.Name)
     .whereAre(SOQL.Filter.with(Account.Industry).equal('Technology'))
     .toCursor();
+```
+
+### toPaginationCursor
+
+Returns a `Database.PaginationCursor` for the query, which enables efficient pagination through large result sets with built-in offset management.
+
+**Signature**
+
+```apex
+Database.PaginationCursor toPaginationCursor()
+```
+
+**Example**
+
+```apex
+Database.PaginationCursor paginationCursor = SOQL.of(Account.SObjectType)
+    .with(Account.Id, Account.Name, Account.Industry)
+    .whereAre(SOQL.Filter.with(Account.Industry).equal('Technology'))
+    .orderBy(Account.Name)
+    .setLimit(100)
+    .toPaginationCursor();
 ```

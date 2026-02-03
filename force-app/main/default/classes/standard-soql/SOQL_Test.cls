@@ -3,7 +3,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.7.0
+ * v6.8.0
  *
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
@@ -4940,7 +4940,22 @@ private class SOQL_Test {
 			.toCursor();
 
 		// Verify
-		Assert.areEqual(2, queryCursor.getNumRecords());
+		Assert.areEqual(2, queryCursor.getNumRecords(), 'The number of records should be equal to 2.');
+	}
+	
+	@IsTest
+	static void toPaginationCursor() {
+		// Setup
+		insertAccounts();
+
+		// Test
+		Database.PaginationCursor paginationCursor = SOQL.of(Account.SObjectType)
+			.with(Account.Id)
+			.with(Account.Name)
+			.toPaginationCursor();
+
+		// Verify
+		Assert.areEqual(2, paginationCursor.getNumRecords(), 'The number of records should be equal to 2.');
 	}
 
 	@IsTest
@@ -4955,7 +4970,23 @@ private class SOQL_Test {
 			Database.Cursor queryCursor = SOQL.of(Task.SObjectType).systemMode().withSharing().toCursor();
 
 			// Verify
-			Assert.areEqual(1, queryCursor.getNumRecords());
+			Assert.areEqual(1, queryCursor.getNumRecords(), 'The number of records should be equal to 1.');
+		}
+	}
+
+	@IsTest
+	static void toPaginationCursorWithSharing() {
+		// Setup
+		insertTasks();
+
+		System.runAs(minimumAccessUser()) {
+			insert new Task(Subject = 'Test', Type = 'Other');
+
+			// Test
+			Database.PaginationCursor paginationCursor = SOQL.of(Task.SObjectType).systemMode().withSharing().toPaginationCursor();
+
+			// Verify
+			Assert.areEqual(1, paginationCursor.getNumRecords(), 'The number of records should be equal to 1.');
 		}
 	}
 
@@ -4970,6 +5001,20 @@ private class SOQL_Test {
 
 			// Verify
 			Assert.areEqual(2, queryCursor.getNumRecords());
+		}
+	}
+
+	@IsTest
+	static void toPaginationCursorWithoutSharing() {
+		// Setup
+		insertTasks();
+
+		System.runAs(minimumAccessUser()) {
+			// Test
+			Database.PaginationCursor paginationCursor = SOQL.of(Task.SObjectType).systemMode().withoutSharing().toPaginationCursor();
+
+			// Verify
+			Assert.areEqual(2, paginationCursor.getNumRecords(), 'The number of records should be equal to 2.');
 		}
 	}
 
