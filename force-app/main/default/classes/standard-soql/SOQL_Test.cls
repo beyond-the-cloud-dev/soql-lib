@@ -547,6 +547,16 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void withEmptyListOfStringFields() {
+		// Test
+		String soql = SOQL.of(Account.SObjectType)
+			.with(new List<String>()).toString();
+
+		// Verify
+		Assert.areEqual('SELECT Id FROM Account', soql, 'The generated SOQL should match the expected one.');
+	}
+
+	@IsTest
 	static void withStringFields() {
 		// Test
 		String soql = SOQL.of(Account.SObjectType)
