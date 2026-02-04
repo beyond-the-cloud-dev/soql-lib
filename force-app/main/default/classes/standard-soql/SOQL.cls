@@ -1465,6 +1465,60 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 	}
 
+	private class TypeOfWhenThen {
+		// WHEN
+		private SObjectType whenObject;
+		// THEN
+		public PlainFields plainFields = new PlainFields();
+		public RelationshipFields relationshipFields = new RelationshipFields();
+
+		public TypeOfWhenThen(SObjectType whenObject){
+			this.whenObject = whenObject;
+		}
+		
+		public TypeOfWhenThen(){
+			this(null);
+		}
+
+		public Boolean isEmpty() {
+			return this.plainFields.isEmpty() &&
+				this.relationshipFields.isEmpty();
+		}
+
+		public void with(String commaSeparatedFields) {
+			// Add to Set to avoid "duplicate field selected" error
+			for (String splitField : commaSeparatedFields.split(',')) {
+				this.classifyField(splitField);
+			}
+		}
+
+		private void classifyField(String field) {
+			String trimmedField = field.trim();
+
+			if (this.relationshipFields.isQualified(trimmedField)) {
+				this.relationshipFields.add(trimmedField);
+			} else {
+				this.plainFields.add(trimmedField);
+			}
+		}
+
+		public override String toString() {
+			if (this.isEmpty()){
+				return '';
+			}
+
+			String prefix = this.whenObject != null
+				? 'WHEN ' + this.whenObject.toString() + ' THEN '
+				: 'ELSE ';
+
+			Set<String> fields = new Set<String>();
+			fields.addAll(plainFields.get());
+			fields.addAll(relationshipFields.get());
+
+			return prefix + String.join(fields, ',');
+		}
+	}
+
 	private class SoqlSubQuery implements SubQuery {
 		private SoqlBuilder builder;
 		private String childRelationshipName;
@@ -1587,20 +1641,15 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 	private class SoqlTypeOf implements Typeof {
 		private String ofField;
-		private Map<SObjectType, SoqlFields> fieldsByType;
-		private List<SObjectType> whenTypes;
-
-		private SoqlFields elseFields;
-
-		private SObjectType latestWhen() {
-			return this.whenTypes.get(this.whenTypes.size()-1);
-		}
+		private Map<SObjectType, TypeOfWhenThen> fieldsByType = new Map<SObjectType, TypeOfWhenThen>();
+		private List<SObjectType> whenTypes = new List<SObjectType>();
+		private TypeOfWhenThen elseFields = new TypeOfWhenThen();
 
 		public SoqlTypeOf of(String ofField) {
+			if (this.ofField != null) {
+				throw new QueryException('TYPEOF has already been initialized for: ' + this.ofField);
+			}
 			this.ofField = ofField;
-
-			this.fieldsByType = new Map<SObjectType, SoqlFields>();
-			this.whenTypes = new List<SObjectType>();
 			
 			return this;
 		}
@@ -1609,16 +1658,18 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		public SoqlTypeOf when(SObjectType whenObject) {
-			if (!fieldsByType.containsKey(whenObject)){
-				this.fieldsByType.put(whenObject,null);
-				this.whenTypes.add(whenObject);
+			if (fieldsByType.containsKey(whenObject)){
+				throw new QueryException('TYPEOF already contains configuration for: ' + whenObject.toString());
 			}
+
+			this.fieldsByType.put(whenObject, new TypeOfWhenThen(whenObject));
+			this.whenTypes.add(whenObject);
 
 			return this;
 		}
 
 		public Typeof then(SObjectField field) {
-			this.getSoqlFields(this.latestWhen()).plainFields.add(field.toString());
+			this.fieldsByType.get(this.latestWhen()).plainFields.add(field.toString());
 			return this;
 		}
 
@@ -1639,7 +1690,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		public Typeof then(List<SObjectField> fields) {
-			this.getSoqlFields(this.latestWhen()).plainFields.add(fields);
+			this.fieldsByType.get(this.latestWhen()).plainFields.add(fields);
 			return this;
 		}
 
@@ -1648,7 +1699,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		public Typeof then(String fields) {
-			this.getSoqlFields(this.latestWhen()).with(fields);
+			this.fieldsByType.get(this.latestWhen()).with(fields);
 			return this;
 		}
 		
@@ -1673,7 +1724,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 		
 		public Typeof then(String relationshipName, Iterable<SObjectField> fields) {
-			this.getSoqlFields(this.latestWhen()).relationshipFields.add(relationshipName, fields);
+			this.fieldsByType.get(this.latestWhen()).relationshipFields.add(relationshipName, fields);
 			return this;
 		}
 
@@ -1682,7 +1733,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		public Typeof whenElse(String fields) {
-			this.getElseFields().with(fields);
+			this.elseFields.with(fields);
 			return this;
 		}
 
@@ -1707,7 +1758,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		public Typeof whenElse(String relationshipName, Iterable<SObjectField> fields) {
-			this.getElseFields().relationshipFields.add(relationshipName, fields);
+			this.elseFields.relationshipFields.add(relationshipName, fields);
 			return this;
 		}
 
@@ -1717,24 +1768,15 @@ global virtual inherited sharing class SOQL implements Queryable {
 			String suffix = ' END';
 
 			for (SObjectType t : this.whenTypes){
-				SoqlFields fields = this.fieldsByType.get(t);
-				if (fields == null) continue;
+				TypeOfWhenThen fields = this.fieldsByType.get(t);
 
-				String fieldStr = fields.toString();
-				if (String.isNotBlank(fieldStr)){
-					fieldStr = fieldStr.substring(7);	// remove the SELECT
-
-					clauses.add('WHEN ' + t.toString() + ' THEN ' + fieldStr);
+				if (!fields.isEmpty()){
+					clauses.add(fields.toString());
 				}
 			}
 
-			if (!clauses.isEmpty() && this.elseFields != null){
-				String fieldStr = this.elseFields.toString();
-				if (String.isNotBlank(fieldStr)){
-					fieldStr = fieldStr.substring(7);	// remove the SELECT
-
-					clauses.add('ELSE ' + fieldStr);
-				}
+			if (!clauses.isEmpty() && !this.elseFields.isEmpty()){
+				clauses.add(this.elseFields.toString());
 			}
 
 			return !clauses.isEmpty()
@@ -1742,22 +1784,8 @@ global virtual inherited sharing class SOQL implements Queryable {
 				: '';
 		}
 
-		private SoqlFields getSoqlFields(SObjectType whenObject){
-			SoqlFields fields = this.fieldsByType.get(whenObject);
-			if (fields == null){
-				fields = new SoqlFields(whenObject.toString());
-				this.fieldsByType.put(whenObject, fields);
-			}
-			return fields;
-		}
-		
-		private SoqlFields getElseFields(){
-			SoqlFields field = this.elseFields;
-			if (field == null){
-				field = new SoqlFields(null);
-				this.elseFields = field;
-			}
-			return field;
+		private SObjectType latestWhen() {
+			return this.whenTypes.get(this.whenTypes.size()-1);
 		}
 	}
 
