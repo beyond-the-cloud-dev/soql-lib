@@ -234,10 +234,8 @@ global virtual inherited sharing class SOQL implements Queryable {
 		// TYPEOF
 		TypeOf of(String ofField);
 		TypeOf of(SObjectField ofField);
-
 		// WHEN
 		Typeof when(SObjectType whenObject);
-
 		// THEN
 		Typeof then(SObjectField field);
 		Typeof then(SObjectField field1, SObjectField field2);
@@ -253,7 +251,6 @@ global virtual inherited sharing class SOQL implements Queryable {
 		Typeof then(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
 		Typeof then(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
 		Typeof then(String relationshipName, Iterable<SObjectField> fields);
-
 		// ELSE
 		Typeof whenElse(Iterable<String> fields);
 		Typeof whenElse(String fields);
@@ -411,8 +408,8 @@ global virtual inherited sharing class SOQL implements Queryable {
 		get { return new SoqlSubQuery(); }
 	}
 
-	global static Typeof Type{
-		get{ return new SoqlTypeof();}
+	global static Typeof Type {
+		get { return new SoqlTypeof(); }
 	}
 
 	global static FilterGroup FilterGroup {
@@ -1464,7 +1461,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 	private class TypeOfFields extends SelectFields {
 		public void add(TypeOf typeof) {
-				this.add(typeof.toString());
+			this.add(typeof.toString());
 		}
 	}
 
@@ -1591,7 +1588,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 	private class SoqlTypeOf implements Typeof {
 		private String ofField;
 		private Map<SObjectType, SoqlFields> fieldsByType;
-		private SObjectType[] whenTypes;
+		private List<SObjectType> whenTypes;
 
 		private SoqlFields elseFields;
 
@@ -1603,29 +1600,12 @@ global virtual inherited sharing class SOQL implements Queryable {
 			this.ofField = ofField;
 
 			this.fieldsByType = new Map<SObjectType, SoqlFields>();
-			this.whenTypes = new SObjectType[0];
+			this.whenTypes = new List<SObjectType>();
 			
 			return this;
 		}
 		public SoqlTypeOf of(SObjectField ofField) {
 			return this.of(ofField.getDescribe().getRelationshipName());
-		}
-
-		private SoqlFields getSoqlFields(SObjectType whenObject){
-			SoqlFields ret = this.fieldsByType.get(whenObject);
-			if (ret == null){
-				ret = new SoqlFields(whenObject.toString());
-				this.fieldsByType.put(whenObject, ret);
-			}
-			return ret;
-		}
-		private SoqlFields getElseFields(){
-			SoqlFields ret = this.elseFields;
-			if (ret == null){
-				ret = new SoqlFields(null);
-				this.elseFields = ret;
-			}
-			return ret;
 		}
 
 		public SoqlTypeOf when(SObjectType whenObject) {
@@ -1760,6 +1740,24 @@ global virtual inherited sharing class SOQL implements Queryable {
 			return !clauses.isEmpty()
 				? prefix + String.join(clauses, ' ') + suffix
 				: '';
+		}
+
+		private SoqlFields getSoqlFields(SObjectType whenObject){
+			SoqlFields fields = this.fieldsByType.get(whenObject);
+			if (fields == null){
+				fields = new SoqlFields(whenObject.toString());
+				this.fieldsByType.put(whenObject, fields);
+			}
+			return fields;
+		}
+		
+		private SoqlFields getElseFields(){
+			SoqlFields field = this.elseFields;
+			if (field == null){
+				field = new SoqlFields(null);
+				this.elseFields = field;
+			}
+			return field;
 		}
 	}
 
