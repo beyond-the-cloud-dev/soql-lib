@@ -968,6 +968,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		// https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
 		this.builder.fields.clearAllFields(); // other fields not needed
 		this.with(fieldToExtract, 'Id');
+		this.with('COUNT(Id)');
 		this.groupBy(fieldToExtract);
 		this.builder.conditions.addMasterCondition(Filter.with(fieldToExtract).isNotNull());
 
@@ -1001,6 +1002,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		// https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
 		this.builder.fields.clearAllFields(); // other fields not needed
 		this.with(fieldToExtract, 'Id');
+		this.with('COUNT(Id)');
 		this.groupBy(fieldToExtract);
 		this.builder.conditions.addMasterCondition(Filter.with(fieldToExtract).isNotNull());
 
