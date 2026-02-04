@@ -48,6 +48,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
 		Queryable with(String relationshipName, Iterable<SObjectField> fields);
 		Queryable with(SubQuery subQuery);
+		Queryable with(TypeOf typeOf);
 		Queryable withFieldSet(String fieldSetName);
 		// SELECT - AGGREGATE FUNCTIONS
 		Queryable count();
@@ -231,7 +232,8 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 	global interface TypeOf {
 		// TYPEOF
-		TypeOf of(SObjectType ofObject);
+		TypeOf of(String ofField);
+		TypeOf of(SObjectField ofField);
 
 		// WHEN
 		Typeof when(SObjectType whenObject);
@@ -589,6 +591,11 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 	global Queryable with(SubQuery subQuery) {
 		this.builder.subQueries.add(subQuery);
+		return this;
+	}
+
+	global Queryable with(TypeOf typeof) {
+		this.builder.fields.typeofFields.add(typeof);
 		return this;
 	}
 
@@ -1257,6 +1264,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		public RelationshipFields relationshipFields = new RelationshipFields();
 		public FunctionsFields functionsFields = new FunctionsFields(); // toLabel, FORMAT
 		public AggregateFunctionsFields aggregateFields = new AggregateFunctionsFields();
+		public TypeOfFields typeofFields = new TypeOfFields();
 
 		private String ofObject;
 		private Set<String> groupedFields = new Set<String>();
@@ -1331,7 +1339,8 @@ global virtual inherited sharing class SOQL implements Queryable {
 				this.plainFields.isEmpty() &&
 				this.relationshipFields.isEmpty() &&
 				this.aggregateFields.isEmpty() &&
-				this.functionsFields.isEmpty()
+				this.functionsFields.isEmpty() &&
+				this.typeofFields.isEmpty()
 			) {
 				this.plainFields.add('Id');
 			}
@@ -1349,6 +1358,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 			selectFields.addAll(this.relationshipFields.get());
 			selectFields.addAll(this.functionsFields.get());
 			selectFields.addAll(this.aggregateFields.get());
+			selectFields.addAll(this.typeofFields.get());
 
 			return 'SELECT ' + String.join(selectFields, ', ');
 		}
@@ -1445,6 +1455,12 @@ global virtual inherited sharing class SOQL implements Queryable {
 		public Boolean isQualified(String field) {
 			String functionName = field.split('\\(')[0].toUpperCase();
 			return FUNCTIONS.contains(functionName);
+		}
+	}
+
+	private class TypeOfFields extends SelectFields {
+		public void add(TypeOf typeof) {
+				this.add(typeof.toString());
 		}
 	}
 
@@ -1569,7 +1585,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 	}
 
 	private class SoqlTypeOf implements Typeof {
-		private SObjectField ofField;
+		private String ofField;
 		private Map<SObjectType, SoqlFields> fieldsByType;
 		private SObjectType[] whenTypes;
 
@@ -1579,28 +1595,46 @@ global virtual inherited sharing class SOQL implements Queryable {
 			return this.whenTypes.get(this.whenTypes.size()-1);
 		}
 
-		public SoqlTypeOf of(SObjectField ofField) {
+		public SoqlTypeOf of(String ofField) {
 			this.ofField = ofField;
 
 			this.fieldsByType = new Map<SObjectType, SoqlFields>();
 			this.whenTypes = new SObjectType[0];
-			this.elseFields = new SoqlFields(null);
-			this.latestWhen = null;
 			
 			return this;
 		}
+		public SoqlTypeOf of(SObjectField ofField) {
+			return this.of(ofField.getDescribe().getRelationshipName());
+		}
 
-		public SoqlTypeOf when(SObjectType ofObject) {
-			if (!fieldsByType.containsKey(ofObject)){
-				fieldsByType.put(ofObject,new SoqlFields(ofObject.toString()));
-				this.whenTypes.add(ofObject);
+		private SoqlFields getSoqlFields(SObjectType whenObject){
+			SoqlFields ret = this.fieldsByType.get(whenObject);
+			if (ret == null){
+				ret = new SoqlFields(whenObject.toString());
+				this.fieldsByType.put(whenObject, ret);
+			}
+			return ret;
+		}
+		private SoqlFields getElseFields(){
+			SoqlFields ret = this.elseFields;
+			if (ret == null){
+				ret = new SoqlFields(null);
+				this.elseFields = ret;
+			}
+			return ret;
+		}
+
+		public SoqlTypeOf when(SObjectType whenObject) {
+			if (!fieldsByType.containsKey(whenObject)){
+				this.fieldsByType.put(whenObject,null);
+				this.whenTypes.add(whenObject);
 			}
 
 			return this;
 		}
 
 		public Typeof then(SObjectField field) {
-			this.fieldsByType.get(this.latestWhen()).plainFields.add(field);
+			this.getSoqlFields(this.latestWhen()).plainFields.add(field.toString());
 			return this;
 		}
 
@@ -1621,7 +1655,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		public Typeof then(List<SObjectField> fields) {
-			this.fieldsByType.get(this.latestWhen()).plainFields.add(fields);
+			this.getSoqlFields(this.latestWhen()).plainFields.add(fields);
 			return this;
 		}
 
@@ -1630,7 +1664,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		public Typeof then(String fields) {
-			this.fieldsByType.get(this.latestWhen()).with(fields);
+			this.getSoqlFields(this.latestWhen()).with(fields);
 			return this;
 		}
 		
@@ -1655,7 +1689,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 		
 		public Typeof then(String relationshipName, Iterable<SObjectField> fields) {
-			this.fieldsByType.get(this.latestWhen()).relationshipFields.add(relationshipName, fields);
+			this.getSoqlFields(this.latestWhen()).relationshipFields.add(relationshipName, fields);
 			return this;
 		}
 
@@ -1664,7 +1698,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		public Typeof whenElse(String fields) {
-			this.elseFields.with(fields);
+			this.getElseFields().with(fields);
 			return this;
 		}
 
@@ -1689,8 +1723,39 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		public Typeof whenElse(String relationshipName, Iterable<SObjectField> fields) {
-			this.elseFields.relationshipFields.add(relationshipName, fields);
+			this.getElseFields().relationshipFields.add(relationshipName, fields);
 			return this;
+		}
+
+		public override String toString() {
+			String prefix = 'TYPEOF ' + this.ofField + ' ';
+			List<String> clauses = new List<String>();
+			String suffix = ' END';
+
+			for (SObjectType t : this.whenTypes){
+				SoqlFields fields = this.fieldsByType.get(t);
+				if (fields == null) continue;
+
+				String fieldStr = fields.toString();
+				if (String.isNotBlank(fieldStr)){
+					fieldStr = fieldStr.substring(7);	// remove the SELECT
+
+					clauses.add('WHEN ' + t.toString() + ' THEN ' + fieldStr);
+				}
+			}
+
+			if (!clauses.isEmpty() && this.elseFields != null){
+				String fieldStr = this.elseFields.toString();
+				if (String.isNotBlank(fieldStr)){
+					fieldStr = fieldStr.substring(7);	// remove the SELECT
+
+					clauses.add('ELSE ' + fieldStr);
+				}
+			}
+
+			return !clauses.isEmpty()
+				? prefix + String.join(clauses, ' ') + suffix
+				: '';
 		}
 	}
 
@@ -1721,6 +1786,25 @@ global virtual inherited sharing class SOQL implements Queryable {
 			return subQueriesRelationshipNames;
 		}
 	}
+
+	private class SoqlTypeOfs implements QueryClause {
+		private List<TypeOf> typeofs = new List<TypeOf>();
+
+		public void add(TypeOf typeof) {
+			this.typeofs.add(typeof);
+		}
+
+		public override String toString() {
+			List<String> typeofStrings = new List<String>();
+
+			for (TypeOf to : this.typeofs) {
+				typeofStrings.add('(' + to + ')');
+			}
+
+			return ', ' + String.join(typeofStrings, ', ');
+		}
+	}
+	
 
 	private class SoqlFrom implements QueryClause {
 		private String objectApiName;
