@@ -31,7 +31,9 @@ global virtual inherited sharing class SOQLCache implements Cacheable {
 	global interface Cacheable {
 		// CONFIG
 		Cacheable cacheInApexTransaction();
+		Cacheable cacheInApexTransactionWhenAsynchronousContext();
 		Cacheable cacheInOrgCache();
+		Cacheable cacheInOrgCacheWhenAsynchronousContext();
 		Cacheable cacheInSessionCache();
 		Cacheable maxHoursWithoutRefresh(Integer hours);
 		Cacheable allowFilteringByNonUniqueFields();
@@ -152,6 +154,11 @@ global virtual inherited sharing class SOQLCache implements Cacheable {
 		return this;
 	}
 
+	global Cacheable cacheInApexTransactionWhenAsynchronousContext() {
+		this.cache.asyncStorage.apexTransaction();
+		return this;
+	}
+
 	global Cacheable cacheInOrgCache() {
 		this.cache.storage.orgCache();
 		return this;
@@ -159,6 +166,11 @@ global virtual inherited sharing class SOQLCache implements Cacheable {
 
 	global Cacheable cacheInSessionCache() {
 		this.cache.storage.sessionCache();
+		return this;
+	}
+
+	global Cacheable cacheInOrgCacheWhenAsynchronousContext() {
+		this.cache.asyncStorage.orgCache();
 		return this;
 	}
 
@@ -409,10 +421,12 @@ global virtual inherited sharing class SOQLCache implements Cacheable {
 		public CacheExpiration expiration;
 		public CacheFilterGroup filterGroup;
 		public CacheStorageProxy storage;
+		public CacheStorageProxy asyncStorage;
 
 		public Cache(String ofObject) {
 			this.filterGroup = new CacheFilterGroup(ofObject);
 			this.storage = new CacheStorageProxy(ofObject);
+			this.asyncStorage = new CacheStorageProxy(ofObject);
 			this.fields = new CacheFields();
 			this.expiration = new CacheExpiration();
 		}
