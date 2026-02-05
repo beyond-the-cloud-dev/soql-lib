@@ -277,10 +277,12 @@ global virtual inherited sharing class SOQLCache implements Cacheable {
 	}
 
 	global Id toId() {
+		this.with('Id');
 		return this.toObject()?.Id;
 	}
 
 	global Id toIdOf(SObjectField field) {
+		this.with(field);
 		return (Id) this.toObject()?.get(field);
 	}
 

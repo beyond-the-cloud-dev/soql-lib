@@ -900,6 +900,17 @@ private class SOQLCache_Test {
 	}
 
 	@IsTest
+	static void toIdOfWhenFieldIsNotSet() {
+		// Test
+		Id createdById = SOQLCache.of(Profile.SObjectType)
+			.whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR)
+			.toIdOf(Profile.CreatedById);
+
+		// Verify
+		Assert.isNotNull(createdById, 'The createdById should be null, even when not specified in the query.');
+	}
+
+	@IsTest
 	static void doExist() {
 		// Test
 		Boolean isProfileExist = SOQLCache.of(Profile.SObjectType)
