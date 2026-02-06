@@ -1024,6 +1024,17 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void typeOfclass(){
+		SOQL.Typeof typeof = SOQL.type.of('What');
+		typeof.when(Account.sObjectType).then(Account.Id, Account.Name, Account.BillingCity, Account.BillingState, Account.BillingPostalCode);
+		typeof.when(Opportunity.sObjectType).then('Account',Account.Id, Account.Name, Account.BillingCity, Account.BillingState, Account.BillingPostalCode);
+		
+		typeof.whenElse(new List<String>{'Name'});
+
+		System.debug(typeof.toString());
+	}
+	
+	@IsTest
 	static void delegatedScope() {
 		// Test
 		String soql = SOQL.of(Task.SObjectType)

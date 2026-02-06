@@ -254,12 +254,6 @@ global virtual inherited sharing class SOQL implements Queryable {
 		// ELSE
 		Typeof whenElse(Iterable<String> fields);
 		Typeof whenElse(String fields);
-		Typeof whenElse(String relationshipName, SObjectField field);
-		Typeof whenElse(String relationshipName, SObjectField field1, SObjectField field2);
-		Typeof whenElse(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
-		Typeof whenElse(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
-		Typeof whenElse(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
-		Typeof whenElse(String relationshipName, Iterable<SObjectField> fields);
 	}
 
 	global interface FilterGroup {
@@ -1734,31 +1728,6 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 		public Typeof whenElse(String fields) {
 			this.elseFields.with(fields);
-			return this;
-		}
-
-		public Typeof whenElse(String relationshipName, SObjectField field) {
-			return this.whenElse(relationshipName, new List<SObjectField>{field});
-		}
-
-		public Typeof whenElse(String relationshipName, SObjectField field1, SObjectField field2){
-			return this.whenElse(relationshipName, new List<SObjectField>{field1, field2});
-		}
-
-		public Typeof whenElse(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3){
-			return this.whenElse(relationshipName, new List<SObjectField>{field1, field2, field3});
-		}
-
-		public Typeof whenElse(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4){
-			return this.whenElse(relationshipName, new List<SObjectField>{field1, field2, field3, field4});
-		}
-
-		public Typeof whenElse(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
-			return this.whenElse(relationshipName, new List<SObjectField>{field1, field2, field3, field4, field5});
-		}
-
-		public Typeof whenElse(String relationshipName, Iterable<SObjectField> fields) {
-			this.elseFields.relationshipFields.add(relationshipName, fields);
 			return this;
 		}
 
