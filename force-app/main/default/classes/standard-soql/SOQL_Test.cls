@@ -1024,6 +1024,128 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void typeOfClassFields(){
+		SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
+		typeof.when(Account.sObjectType).then(Account.Id, Account.Name, Account.BillingCity, Account.BillingState, Account.BillingPostalCode);
+		typeof.when(Opportunity.sObjectType).then('Account',Account.Id, Account.Name, Account.BillingCity, Account.BillingState, Account.BillingPostalCode);
+		
+		typeof.whenElse(new List<String>{'Name'});
+
+		Assert.areEqual(
+			'TYPEOF What WHEN Account THEN Id,Name,BillingCity,BillingState,BillingPostalCode WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity,Account.BillingState,Account.BillingPostalCode ELSE Name END',
+			typeof.toString(),
+			'The generated soql should match the expected one.'
+		);
+	}
+
+	@IsTest
+	static void typeOfClassRelationshipFields(){
+		{
+			SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
+			typeof.when(Opportunity.sObjectType)
+			.then('Account',Account.Id, Account.Name, Account.BillingCity, Account.BillingState);
+			
+			typeof.whenElse(new List<String>{'Name'});
+
+			Assert.areEqual(
+				'TYPEOF What WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity,Account.BillingState ELSE Name END',
+				typeof.toString(),
+				'The generated soql should match the expected one.'
+			);
+		}
+		{
+			SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
+			typeof.when(Opportunity.sObjectType)
+			.then('Account',Account.Id, Account.Name, Account.BillingCity);
+			
+			typeof.whenElse(new List<String>{'Name'});
+
+			Assert.areEqual(
+				'TYPEOF What WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity ELSE Name END',
+				typeof.toString(),
+				'The generated soql should match the expected one.'
+			);
+		}
+		{
+			SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
+			typeof.when(Opportunity.sObjectType)
+			.then('Account',Account.Id, Account.Name);
+			
+			typeof.whenElse(new List<String>{'Name'});
+
+			Assert.areEqual(
+				'TYPEOF What WHEN Opportunity THEN Account.Id,Account.Name ELSE Name END',
+				typeof.toString(),
+				'The generated soql should match the expected one.'
+			);
+		}
+		{
+			SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
+			typeof.when(Opportunity.sObjectType)
+			.then('Account',Account.Id);
+			
+			typeof.whenElse(new List<String>{'Name'});
+
+			Assert.areEqual(
+				'TYPEOF What WHEN Opportunity THEN Account.Id ELSE Name END',
+				typeof.toString(),
+				'The generated soql should match the expected one.'
+			);
+		}
+	}
+	
+	@IsTest
+	static void typeOfClassIterators(){
+		SOQL.Typeof typeof = SOQL.type.of('What');
+		typeof.when(Account.sObjectType)
+			.then(new List<SObjectField>{Account.Id, Account.Name, Account.BillingCity})
+			.then(new List<String>{'BillingState', 'BillingPostalCode'});
+		typeof.when(Opportunity.sObjectType)
+			.then('Account',new List<SObjectField>{Account.Id, Account.Name, Account.BillingCity, Account.BillingState, Account.BillingPostalCode});
+
+		Assert.areEqual(
+			'TYPEOF What WHEN Account THEN Id,Name,BillingCity,BillingState,BillingPostalCode WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity,Account.BillingState,Account.BillingPostalCode END',
+			typeof.toString(),
+			'The generated soql should match the expected one.'
+		);
+	}
+
+	@IsTest
+	static void typeOfClassExceptions(){
+		try{
+			SOQL.Typeof typeof = SOQL.type.of('What').of('Who');
+			Assert.fail('this code should not be reachable');
+		} catch(Exception e){
+			Assert.isInstanceOfType(e, QueryException.class, 'exception should be a QueryException');
+		}
+
+		try{
+			SOQL.Typeof typeof = SOQL.type.of('What')
+				.when(Account.sObjectType)
+				.when(Account.sObjectType);
+
+			Assert.fail('this code should not be reachable');
+		} catch(Exception e){
+			Assert.isInstanceOfType(e, QueryException.class, 'exception should be a QueryException');
+		}
+	}
+
+	@IsTest
+	static void typeOfField(){
+		Assert.areEqual(
+			'SELECT TYPEOF What WHEN Account THEN Id,Name ELSE Name END FROM Event',
+			SOQL.of(Event.sObjectType)
+				.with(
+					SOQL.type.of('What')
+						.when(Account.sObjectType).then(Account.Id, Account.Name)
+						.whenElse(new List<String>{'Name'})
+				)
+				.toString(),
+			'The generated soql should match the expected one.'
+		);
+	}
+	
+	@IsTest
 	static void delegatedScope() {
 		// Test
 		String soql = SOQL.of(Task.SObjectType)
