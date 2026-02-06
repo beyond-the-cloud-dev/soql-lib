@@ -1025,7 +1025,7 @@ private class SOQL_Test {
 
 	@IsTest
 	static void typeOfClassFields(){
-		SOQL.Typeof typeof = SOQL.type.of('What');
+		SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
 		typeof.when(Account.sObjectType).then(Account.Id, Account.Name, Account.BillingCity, Account.BillingState, Account.BillingPostalCode);
 		typeof.when(Opportunity.sObjectType).then('Account',Account.Id, Account.Name, Account.BillingCity, Account.BillingState, Account.BillingPostalCode);
 		
@@ -1035,6 +1035,58 @@ private class SOQL_Test {
 			'TYPEOF What WHEN Account THEN Id,Name,BillingCity,BillingState,BillingPostalCode WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity,Account.BillingState,Account.BillingPostalCode ELSE Name END',
 			typeof.toString()
 		);
+	}
+
+	@IsTest
+	static void typeOfClassRelationshipFields(){
+		{
+			SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
+			typeof.when(Opportunity.sObjectType)
+			.then('Account',Account.Id, Account.Name, Account.BillingCity, Account.BillingState);
+			
+			typeof.whenElse(new List<String>{'Name'});
+
+			Assert.areEqual(
+				'TYPEOF What WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity,Account.BillingState ELSE Name END',
+				typeof.toString()
+			);
+		}
+		{
+			SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
+			typeof.when(Opportunity.sObjectType)
+			.then('Account',Account.Id, Account.Name, Account.BillingCity);
+			
+			typeof.whenElse(new List<String>{'Name'});
+
+			Assert.areEqual(
+				'TYPEOF What WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity ELSE Name END',
+				typeof.toString()
+			);
+		}
+		{
+			SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
+			typeof.when(Opportunity.sObjectType)
+			.then('Account',Account.Id, Account.Name);
+			
+			typeof.whenElse(new List<String>{'Name'});
+
+			Assert.areEqual(
+				'TYPEOF What WHEN Opportunity THEN Account.Id,Account.Name ELSE Name END',
+				typeof.toString()
+			);
+		}
+		{
+			SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
+			typeof.when(Opportunity.sObjectType)
+			.then('Account',Account.Id);
+			
+			typeof.whenElse(new List<String>{'Name'});
+
+			Assert.areEqual(
+				'TYPEOF What WHEN Opportunity THEN Account.Id ELSE Name END',
+				typeof.toString()
+			);
+		}
 	}
 	
 	@IsTest

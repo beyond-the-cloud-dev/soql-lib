@@ -1786,25 +1786,6 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 	}
 
-	private class SoqlTypeOfs implements QueryClause {
-		private List<TypeOf> typeofs = new List<TypeOf>();
-
-		public void add(TypeOf typeof) {
-			this.typeofs.add(typeof);
-		}
-
-		public override String toString() {
-			List<String> typeofStrings = new List<String>();
-
-			for (TypeOf to : this.typeofs) {
-				typeofStrings.add('(' + to + ')');
-			}
-
-			return ', ' + String.join(typeofStrings, ', ');
-		}
-	}
-	
-
 	private class SoqlFrom implements QueryClause {
 		private String objectApiName;
 
