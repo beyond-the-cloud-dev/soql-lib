@@ -1024,14 +1024,46 @@ private class SOQL_Test {
 	}
 
 	@IsTest
-	static void typeOfclass(){
+	static void typeOfClassFields(){
 		SOQL.Typeof typeof = SOQL.type.of('What');
 		typeof.when(Account.sObjectType).then(Account.Id, Account.Name, Account.BillingCity, Account.BillingState, Account.BillingPostalCode);
 		typeof.when(Opportunity.sObjectType).then('Account',Account.Id, Account.Name, Account.BillingCity, Account.BillingState, Account.BillingPostalCode);
 		
 		typeof.whenElse(new List<String>{'Name'});
 
-		System.debug(typeof.toString());
+		Assert.areEqual(
+			'TYPEOF What WHEN Account THEN Id,Name,BillingCity,BillingState,BillingPostalCode WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity,Account.BillingState,Account.BillingPostalCode ELSE Name END',
+			typeof.toString()
+		);
+	}
+	
+	@IsTest
+	static void typeOfClassIterators(){
+		SOQL.Typeof typeof = SOQL.type.of('What');
+		typeof.when(Account.sObjectType)
+			.then(new List<SObjectField>{Account.Id, Account.Name, Account.BillingCity})
+			.then(new List<String>{'BillingState', 'BillingPostalCode'});
+		typeof.when(Opportunity.sObjectType)
+			.then('Account',new List<SObjectField>{Account.Id, Account.Name, Account.BillingCity, Account.BillingState, Account.BillingPostalCode});
+
+		Assert.areEqual(
+			'TYPEOF What WHEN Account THEN Id,Name,BillingCity,BillingState,BillingPostalCode WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity,Account.BillingState,Account.BillingPostalCode END',
+			typeof.toString()
+		);
+	}
+
+	@IsTest
+	static void typeOfField(){
+		Assert.areEqual(
+			'SELECT TYPEOF What WHEN Account THEN Id,Name ELSE Name END FROM Event',
+			SOQL.of(Event.sObjectType)
+				.with(
+					SOQL.type.of('What')
+						.when(Account.sObjectType).then(Account.Id, Account.Name)
+						.whenElse(new List<String>{'Name'})
+				)
+				.toString()
+		);
 	}
 	
 	@IsTest
