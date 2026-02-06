@@ -1033,7 +1033,8 @@ private class SOQL_Test {
 
 		Assert.areEqual(
 			'TYPEOF What WHEN Account THEN Id,Name,BillingCity,BillingState,BillingPostalCode WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity,Account.BillingState,Account.BillingPostalCode ELSE Name END',
-			typeof.toString()
+			typeof.toString(),
+			'The generated soql should match the expected one.'
 		);
 	}
 
@@ -1048,7 +1049,8 @@ private class SOQL_Test {
 
 			Assert.areEqual(
 				'TYPEOF What WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity,Account.BillingState ELSE Name END',
-				typeof.toString()
+				typeof.toString(),
+				'The generated soql should match the expected one.'
 			);
 		}
 		{
@@ -1060,7 +1062,8 @@ private class SOQL_Test {
 
 			Assert.areEqual(
 				'TYPEOF What WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity ELSE Name END',
-				typeof.toString()
+				typeof.toString(),
+				'The generated soql should match the expected one.'
 			);
 		}
 		{
@@ -1072,7 +1075,8 @@ private class SOQL_Test {
 
 			Assert.areEqual(
 				'TYPEOF What WHEN Opportunity THEN Account.Id,Account.Name ELSE Name END',
-				typeof.toString()
+				typeof.toString(),
+				'The generated soql should match the expected one.'
 			);
 		}
 		{
@@ -1084,7 +1088,8 @@ private class SOQL_Test {
 
 			Assert.areEqual(
 				'TYPEOF What WHEN Opportunity THEN Account.Id ELSE Name END',
-				typeof.toString()
+				typeof.toString(),
+				'The generated soql should match the expected one.'
 			);
 		}
 	}
@@ -1100,8 +1105,29 @@ private class SOQL_Test {
 
 		Assert.areEqual(
 			'TYPEOF What WHEN Account THEN Id,Name,BillingCity,BillingState,BillingPostalCode WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity,Account.BillingState,Account.BillingPostalCode END',
-			typeof.toString()
+			typeof.toString(),
+			'The generated soql should match the expected one.'
 		);
+	}
+
+	@IsTest
+	static void typeOfClassExceptions(){
+		try{
+			SOQL.Typeof typeof = SOQL.type.of('What').of('Who');
+			Assert.fail('this code should not be reachable');
+		} catch(Exception e){
+			Assert.isInstanceOfType(e, QueryException.class, 'exception should be a QueryException');
+		}
+
+		try{
+			SOQL.Typeof typeof = SOQL.type.of('What')
+				.when(Account.sObjectType)
+				.when(Account.sObjectType);
+
+			Assert.fail('this code should not be reachable');
+		} catch(Exception e){
+			Assert.isInstanceOfType(e, QueryException.class, 'exception should be a QueryException');
+		}
 	}
 
 	@IsTest
@@ -1114,7 +1140,8 @@ private class SOQL_Test {
 						.when(Account.sObjectType).then(Account.Id, Account.Name)
 						.whenElse(new List<String>{'Name'})
 				)
-				.toString()
+				.toString(),
+			'The generated soql should match the expected one.'
 		);
 	}
 	
