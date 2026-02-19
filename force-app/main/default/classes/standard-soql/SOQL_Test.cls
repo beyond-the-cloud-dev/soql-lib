@@ -1039,59 +1039,63 @@ private class SOQL_Test {
 	}
 
 	@IsTest
-	static void typeOfClassRelationshipFields(){
-		{
-			SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
-			typeof.when(Opportunity.sObjectType)
-			.then('Account',Account.Id, Account.Name, Account.BillingCity, Account.BillingState);
-			
-			typeof.whenElse(new List<String>{'Name'});
+	static void typeOfClassRelationshipFields_4(){
+		SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
+		typeof.when(Opportunity.sObjectType)
+		.then('Account',Account.Id, Account.Name, Account.BillingCity, Account.BillingState);
+		
+		typeof.whenElse(new List<String>{'Name'});
 
-			Assert.areEqual(
-				'TYPEOF What WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity,Account.BillingState ELSE Name END',
-				typeof.toString(),
-				'The generated soql should match the expected one.'
-			);
-		}
-		{
-			SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
-			typeof.when(Opportunity.sObjectType)
-			.then('Account',Account.Id, Account.Name, Account.BillingCity);
-			
-			typeof.whenElse(new List<String>{'Name'});
+		Assert.areEqual(
+			'TYPEOF What WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity,Account.BillingState ELSE Name END',
+			typeof.toString(),
+			'The generated soql should match the expected one.'
+		);
+	}
 
-			Assert.areEqual(
-				'TYPEOF What WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity ELSE Name END',
-				typeof.toString(),
-				'The generated soql should match the expected one.'
-			);
-		}
-		{
-			SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
-			typeof.when(Opportunity.sObjectType)
-			.then('Account',Account.Id, Account.Name);
-			
-			typeof.whenElse(new List<String>{'Name'});
+	@IsTest
+	static void typeOfClassRelationshipFields_3(){
+		SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
+		typeof.when(Opportunity.sObjectType)
+		.then('Account',Account.Id, Account.Name, Account.BillingCity);
+		
+		typeof.whenElse(new List<String>{'Name'});
 
-			Assert.areEqual(
-				'TYPEOF What WHEN Opportunity THEN Account.Id,Account.Name ELSE Name END',
-				typeof.toString(),
-				'The generated soql should match the expected one.'
-			);
-		}
-		{
-			SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
-			typeof.when(Opportunity.sObjectType)
-			.then('Account',Account.Id);
-			
-			typeof.whenElse(new List<String>{'Name'});
+		Assert.areEqual(
+			'TYPEOF What WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity ELSE Name END',
+			typeof.toString(),
+			'The generated soql should match the expected one.'
+		);
+	}
 
-			Assert.areEqual(
-				'TYPEOF What WHEN Opportunity THEN Account.Id ELSE Name END',
-				typeof.toString(),
-				'The generated soql should match the expected one.'
-			);
-		}
+	@IsTest
+	static void typeOfClassRelationshipFields_2(){
+		SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
+		typeof.when(Opportunity.sObjectType)
+		.then('Account',Account.Id, Account.Name);
+		
+		typeof.whenElse(new List<String>{'Name'});
+
+		Assert.areEqual(
+			'TYPEOF What WHEN Opportunity THEN Account.Id,Account.Name ELSE Name END',
+			typeof.toString(),
+			'The generated soql should match the expected one.'
+		);
+	}
+
+	@IsTest
+	static void typeOfClassRelationshipFields_1(){
+		SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
+		typeof.when(Opportunity.sObjectType)
+		.then('Account',Account.Id);
+		
+		typeof.whenElse(new List<String>{'Name'});
+
+		Assert.areEqual(
+			'TYPEOF What WHEN Opportunity THEN Account.Id ELSE Name END',
+			typeof.toString(),
+			'The generated soql should match the expected one.'
+		);
 	}
 	
 	@IsTest
