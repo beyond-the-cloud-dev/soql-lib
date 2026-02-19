@@ -5117,6 +5117,73 @@ private class SOQL_Test {
 		SOQL.of(Account.SObjectType).count().preview().toInteger();
 	}
 
+	@IsTest
+	static void distanceFilter(){
+		String query = SOQL.of(Account.sObjectType)
+			.whereAre(
+				SOQL.Filter.with(
+					SOQL.distance.of(Account.BillingAddress).between(Location.newInstance(0,0)).mi()
+				).lessThan(5)
+			)
+			.toString();
+
+		Assert.areEqual(
+			'SELECT Id FROM Account WHERE DISTANCE(BillingAddress,:v1,\'mi\') < :v2',
+			query,
+			'The generate soql does not match the expected value'
+		);
+	}
+
+	@IsTest
+	static void distanceOrder(){
+		String query = SOQL.of(Account.sObjectType)
+			.orderBy(
+				SOQL.distance.of(Account.BillingAddress).between(0,0).km()
+			)
+			.toString();
+
+		Assert.areEqual(
+			'SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress,:v1,\'km\') ASC NULLS FIRST',
+			query,
+			'The generate soql does not match the expected value'
+		);
+	}
+
+	@IsTest
+	static void distanceOrderDesc(){
+		String query = SOQL.of(Account.sObjectType)
+			.orderBy(
+				SOQL.distance.of(Account.BillingAddress).between(0,0).km(),
+				'DESC'
+			)
+			.toString();
+
+		Assert.areEqual(
+			'SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress,:v1,\'km\') DESC NULLS FIRST',
+			query,
+			'The generate soql does not match the expected value'
+		);
+	}
+
+	@IsTest
+	static void distanceSubqueryOrder(){
+		String query = SOQL.of(Account.sObjectType)
+			.with(
+				SOQL.subquery.of('Contacts')
+				.orderBy(SOQL.distance.of(Contact.MailingAddress)
+						.between(0,0)
+						.km()
+				)
+			)
+			.toString();
+
+		Assert.areEqual(
+			'SELECT Id , (SELECT Id FROM Contacts ORDER BY DISTANCE(MailingAddress,:v1,\'km\') ASC NULLS FIRST) FROM Account',
+			query,
+			'The generate soql does not match the expected value'
+		);
+	}
+
 	static List<Account> insertAccounts() {
 		List<Account> accounts = new List<Account>{
 			new Account(Name = 'Test 1'),
