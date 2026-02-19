@@ -3615,6 +3615,21 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void mockToListSObjectTypeWhenRelatedFields() {
+		// Setup
+		SOQL.mock('mockingQuery').thenReturn(new List<Account>{
+			new Account(Name = 'Test 1', Parent = new Account(Name = 'Parent 1')),
+			new Account(Name = 'Test 2', Parent = new Account(Name = 'Parent 2'))
+		});
+
+		// Test
+		List<Account> result = SOQL.of(Account.SObjectType).with(Account.Name).with('Parent', Account.Name).mockId('mockingQuery').toList();
+	
+		// Verify
+		Assert.areEqual(Account.SObjectType, result.getSObjectType(), 'The result should be a list of Account objects.');
+	}
+
+	@IsTest
 	static void mockNoResult() {
 		// Test
 		SOQL.setMock('mockingQuery', new List<Account>());
