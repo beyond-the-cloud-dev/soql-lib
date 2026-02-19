@@ -5133,6 +5133,22 @@ private class SOQL_Test {
 			'The generate soql does not match the expected value'
 		);
 	}
+	@IsTest
+	static void distanceFilterRelationship(){
+		String query = SOQL.of(Contact.sObjectType)
+			.whereAre(
+				SOQL.Filter.with(
+					SOQL.distance.of('Account', Account.BillingAddress).between(Location.newInstance(0,0)).mi()
+				).lessThan(5)
+			)
+			.toString();
+
+		Assert.areEqual(
+			'SELECT Id FROM Contact WHERE DISTANCE(Account.BillingAddress,:v1,\'mi\') < :v2',
+			query,
+			'The generate soql does not match the expected value'
+		);
+	}
 
 	@IsTest
 	static void distanceOrder(){
