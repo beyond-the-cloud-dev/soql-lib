@@ -2522,11 +2522,6 @@ global virtual inherited sharing class SOQL implements Queryable {
 				return;
 			}
 
-			if (this.useLegacyMockingBehavior) {
-				this.mockedRecords = new List<SObject>();
-				return;
-			}
-
 			this.mockedRecords = (List<SObject>) Type.forName('List<' + (this.sObjectType?.toString() ?? 'SObject') + ' >').newInstance();
 		}
 
