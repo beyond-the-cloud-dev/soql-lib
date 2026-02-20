@@ -2508,19 +2508,32 @@ global virtual inherited sharing class SOQL implements Queryable {
 	}
 
 	private class SObjectMock {
-		private List<SObject> mockedRecords = new List<SObject>();
+		private List<SObject> mockedRecords;
 		private Boolean useLegacyMockingBehavior = false;
+		private SObjectType sObjectType;
 
 		private void add(SObject record) {
+			this.sObjectType = record?.getSObjectType();
+			this.initializeRecords();
 			this.mockedRecords.add(record);
 		}
 
 		private void add(List<SObject> records) {
+			this.sObjectType = records?.getSObjectType();
+			this.initializeRecords();
 			this.mockedRecords.addAll(records);
 		}
 
+		private void initializeRecords() {
+			if (this.mockedRecords != null) {
+				return;
+			}
+
+			this.mockedRecords = (List<SObject>) Type.forName('List<' + (this.sObjectType?.toString() ?? 'SObject') + ' >').newInstance();
+		}
+
 		private List<SObject> get(SoqlFields fields, SoqlSubQueries subQueries) {
-			if (this.useLegacyMockingBehavior || this.mockedRecords.isEmpty() || this.mockedRecords[0]?.getSObjectType() == AggregateResult.SObjectType) {
+			if (this.useLegacyMockingBehavior || this.mockedRecords.isEmpty() || this.sObjectType == AggregateResult.SObjectType) {
 				return this.mockedRecords;
 			}
 
@@ -2566,9 +2579,9 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		private List<SObject> stripAdditionalFields(Set<String> requestedFields, Set<String> subQueriesRelationshipNames) {
-			List<SObject> cleanedRecords = new List<SObject>();
+			Type objectTypeName = Type.forName(this.sObjectType?.toString() ?? 'SObject');
 
-			Type objectTypeName = Type.forName(this.mockedRecords[0].getSObjectType().toString());
+			List<SObject> cleanedRecords = (List<SObject>) Type.forName('List<' + objectTypeName  + ' >').newInstance();
 
 			for (SObject record : this.mockedRecords) {
 				Map<String, Object> recordFilteredFields = new Map<String, Object>{ 'Id' => record.Id };
