@@ -126,6 +126,8 @@ global virtual inherited sharing class SOQL implements Queryable {
 		Queryable orderBy(String field, String direction);
 		Queryable orderBy(String relationshipName, SObjectField field);
 		Queryable orderByCount(SObjectField field);
+		Queryable orderBy(Distance distance);
+		Queryable orderBy(Distance distance, String direction);
 		Queryable sortDesc();
 		Queryable sort(String direction);
 		Queryable nullsLast();
@@ -215,6 +217,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		SubQuery orderBy(SObjectField field);
 		SubQuery orderBy(String field);
 		SubQuery orderBy(String relationshipName, SObjectField field);
+		SubQuery orderBy(Distance distance);
 		SubQuery sortDesc();
 		SubQuery sort(String direction);
 		SubQuery nullsLast();
@@ -253,6 +256,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		Filter with(SObjectField field);
 		Filter with(String field);
 		Filter with(String relationshipName, SObjectField field);
+		Filter with(Distance distance);
 		// COMPARATORS
 		Filter isNull();
 		Filter isNotNull();
@@ -371,6 +375,18 @@ global virtual inherited sharing class SOQL implements Queryable {
 		Map<String, Object> getPopulatedFieldsAsMap();
 	}
 
+	global interface Distance {
+		// field
+		Distance of(SObjectField ofField);
+		Distance of(String relationshipn, SObjectField ofField);
+		// comparison
+		Distance between(Location location);
+		Distance between(Decimal latitude, Decimal longitude);
+		// unit
+		Distance mi();
+		Distance km();
+	}
+
 	global static SubQuery SubQuery {
 		get { return new SoqlSubQuery(); }
 	}
@@ -397,6 +413,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 	global static DataCategoryFilter DataCategoryFilter {
 		get { return new SoqlDataCategoryFilter(); }
+	}
+
+	global static Distance distance {
+		get {return new SoqlDistance(); }
 	}
 
 	// Mocking
@@ -855,6 +875,17 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 	global Queryable orderByCount(SObjectField field) {
 		return this.orderBy('COUNT(' + field.toString() + ')');
+	}
+
+	global Queryable orderBy(Distance distance) {
+		this.builder.orderBys.newOrderBy().with(distance);
+		return this;
+	}
+
+	global Queryable orderBy(Distance distance, String direction) {
+		this.builder.orderBys.newOrderBy().with(distance);
+		this.builder.orderBys.latestOrderBy().sortingOrder(direction);
+		return this;
 	}
 
 	global Queryable sortDesc() {
@@ -1490,6 +1521,11 @@ global virtual inherited sharing class SOQL implements Queryable {
 			return this;
 		}
 
+		public SubQuery orderBy(Distance distance) {
+			this.builder.orderBys.newOrderBy().with(distance);
+			return this;
+		}
+
 		public SubQuery sortDesc() {
 			this.builder.latestOrderBy.sortingOrder('DESC');
 			return this;
@@ -1757,6 +1793,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 	private class SoqlFilter implements Filter {
 		private String field;
+		private Distance distance;
 		private String comparator;
 		private Object value;
 		private String wrapper = '{0}';
@@ -1784,6 +1821,11 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 		public Filter with(String field) {
 			this.field = field;
+			return this;
+		}
+
+		public Filter with(Distance distance) {
+			this.distance = distance;
 			return this;
 		}
 
@@ -1941,7 +1983,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		public Boolean hasValue() {
-			return String.isNotEmpty(this.field);
+			return String.isNotEmpty(this.field) || this.distance != null;
 		}
 
 		public Filter ignoreWhen(Boolean logicExpression) {
@@ -1959,8 +2001,9 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		public override String toString() {
+			String fieldStr = this.distance != null ? this.distance.toString() : this.field;
 			return String.format(this.wrapper, new List<String>{ 
-				this.field + ' ' + this.comparator + (this.skipBinding ? ' ' + this.value : ' :' + binder.bind(this.value)) 
+				fieldStr + ' ' + this.comparator + (this.skipBinding ? ' ' + this.value : ' :' + binder.bind(this.value)) 
 			});
 		}
 	}
@@ -2374,11 +2417,16 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 	private class SoqlOrderBy implements QueryClause {
 		private String orderField;
+		private Distance orderDistance;
 		private String sortingOrder = 'ASC';
 		private String nullsOrder = 'FIRST';
 
 		public void with(String field) {
 			this.orderField = field;
+			
+		}
+		public void with(Distance distance) {
+			this.orderDistance = distance;
 		}
 
 		public void sortingOrder(String direction) {
@@ -2390,7 +2438,8 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		public override String toString() {
-			return this.orderField + ' ' + this.sortingOrder + ' NULLS ' + this.nullsOrder;
+			String fieldStr = this.orderDistance != null ? this.orderDistance.toString() : this.orderField;
+			return fieldStr + ' ' + this.sortingOrder + ' NULLS ' + this.nullsOrder;
 		}
 	}
 
@@ -2654,6 +2703,65 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 		public Map<String, Object> getPopulatedFieldsAsMap() {
 			return this.aggregateResult;
+		}
+	}
+
+	private class SoqlDistance implements Distance {
+		private String relationship;
+		private SObjectField ofField;
+		private Location comparisonLocation;
+		private String unit = 'km';
+
+		public Distance of(SObjectField ofField){
+			this.relationship = null;
+			this.ofField = ofField;
+
+			return this;
+		}
+		public Distance of(String relationship, SObjectField ofField){
+			this.relationship = relationship;
+			this.ofField = ofField;
+
+			return this;
+		}
+
+		public Distance between(Location location){
+			this.comparisonLocation = location;
+
+			return this;
+		}
+		public Distance between(Decimal latitude, Decimal longitude){
+			return this.between(Location.newInstance(latitude, longitude));
+		}
+
+		public Distance mi(){
+			this.unit = 'mi';
+
+			return this;
+		}
+		public Distance km(){
+			this.unit = 'km';
+
+			return this;
+		}
+
+		public override String toString() {
+			return String.format('DISTANCE({0},:{1},\'\'{2}\'\')', new List<Object>{ 
+				this.buildFieldString(),
+				binder.bind(this.comparisonLocation),
+				this.unit
+			});
+		}
+
+		private String buildFieldString(){
+			List<String> strs = new List<String>();
+
+			if (String.isNotBlank(this.relationship)){
+				strs.add(this.relationship);
+			} 
+			strs.add(this.ofField.toString());
+
+			return String.join(strs,'.');
 		}
 	}
 
