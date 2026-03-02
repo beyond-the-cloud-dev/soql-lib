@@ -10,8 +10,8 @@
  * - CognitiveComplexity: It is a library and we tried to put everything into ONE class
 **/
 @SuppressWarnings('PMD.CyclomaticComplexity,PMD.CognitiveComplexity')
-@IsTest(IsParallel=true)
-private class SOQLCache_Test {
+@IsTest
+private class SOQLCache_Full_Test {
 	private static final String INITIAL_QUERY_MOCK_ID = 'cachedProfile';
 	private static final String SYSTEM_ADMINISTRATOR = 'System Administrator';
 	private static final String STANDARD_USER = 'Standard User';
@@ -292,6 +292,39 @@ private class SOQLCache_Test {
 		Assert.areEqual(1, Limits.getQueries(), 'One queries should be issued.');
 		Assert.areEqual(1, updatedCacheItems.size(), 'The Apex transaction cache should contain exactly one record.');
 		Assert.areEqual(SYSTEM_ADMINISTRATOR, cachedProfile.Name, 'The cached profile record should be "System Administrator".');
+	}
+
+	@IsTest
+	static void allowQueryWithoutConditions() {
+		// Setup
+		insert new Account(Name = 'Test Account');
+
+		// Test
+		Account account = (Account) SOQLCache.of(Account.SObjectType)
+			.with(Account.Id, Account.Name)
+			.allowQueryWithoutConditions()
+			.toObject();
+
+		// Verify
+		Assert.isNotNull(account, 'The account should be not null');
+		Assert.areEqual('Test Account', account.Name, 'The account name should be "Test Account"');
+	}
+
+	@IsTest
+	static void allowFilteringByNonUniqueFields() {
+		// Setup
+		insert new Account(Name = 'Test Account');
+
+		// Setup
+		Account account = (Account) SOQLCache.of(Account.SObjectType)
+			.with(Account.Id, Account.Name)
+			.whereEqual(Account.Name, 'Test Account')
+			.allowFilteringByNonUniqueFields()
+			.toObject();
+
+		// Verify
+		Assert.isNotNull(account, 'The account should be not null');
+		Assert.areEqual('Test Account', account.Name, 'The account name should be "Test Account"');
 	}
 
 	@IsTest
@@ -588,6 +621,56 @@ private class SOQLCache_Test {
 	}
 
 	@IsTest
+	static void whereEqualIntegerField() {
+		insertAccount();
+
+		// Test
+		// First query to cache the record
+		Account account1 = (Account) SOQLCache.of(Account.SObjectType)
+			.with(Account.Id, Account.Name)
+			.allowFilteringByNonUniqueFields()
+			.whereEqual(Account.NumberOfEmployees, 1000)
+			.toObject();
+
+		// Second query to retrieve the cached record
+		Account account2 = (Account) SOQLCache.of(Account.SObjectType)
+			.with(Account.Id, Account.Name)
+			.allowFilteringByNonUniqueFields()
+			.whereEqual(Account.NumberOfEmployees, 1000)
+			.toObject();
+
+		// Verify
+		Assert.areEqual(1000, account1.NumberOfEmployees, 'The cached account record should be 1000.');
+		Assert.areEqual(1000, account2.NumberOfEmployees, 'The cached account record should be 1000.');
+		Assert.areEqual(1, Limits.getQueries(), 'The number of queries should be 1.');
+	}
+
+	@IsTest
+	static void whereEqualBooleanField() {
+		insertAccount();
+
+		// Test
+		// First query to cache the record
+		Account account1 = (Account) SOQLCache.of(Account.SObjectType)
+			.with(Account.Id, Account.IsDeleted)
+			.allowFilteringByNonUniqueFields()
+			.whereEqual(Account.IsDeleted, false)
+			.toObject();
+
+		// Second query to retrieve the cached record
+		Account account2 = (Account) SOQLCache.of(Account.SObjectType)
+			.with(Account.Id, Account.IsDeleted)
+			.allowFilteringByNonUniqueFields()
+			.whereEqual(Account.IsDeleted, false)
+			.toObject();
+
+		// Verify
+		Assert.isFalse(account1.IsDeleted, 'The cached account record should be false.');
+		Assert.isFalse(account2.IsDeleted, 'The cached account record should be false.');
+		Assert.areEqual(1, Limits.getQueries(), 'The number of queries should be 1.');
+	}
+
+	@IsTest
 	static void whereEqualNotUniqueField() {
 		// Setup
 		SOQLCache.SoqlCacheException soqlException;
@@ -644,6 +727,38 @@ private class SOQLCache_Test {
 
 		// Verify
 		Assert.isNull(soqlException, 'An exception should not be thrown when more than one condition is introduced.');
+	}
+
+	@IsTest
+	static void stripInaccessible() {
+		// Setup
+		Task testTask = new Task(Subject = 'Test Task', Type = 'Other');
+		insert testTask;
+
+		System.runAs(minimumAccessUser()) {
+			// Test
+			Task cachedTask = (Task) SOQLCache.of(Task.SObjectType)
+				.with(Task.Id, Task.Type, Task.Subject)
+				.whereEqual(Task.Id, testTask.Id)
+				.stripInaccessible()
+				.toObject();
+
+			Exception queryException = null;
+			String inaccessibleFieldValue;
+
+			try {
+				inaccessibleFieldValue = cachedTask.Type;
+			} catch(Exception e) {
+				queryException = e;
+			}
+
+			// Verify
+			Assert.areEqual(
+				'SObject row was retrieved via SOQL without querying the requested field: Task.Type',
+				queryException.getMessage(),
+				'The stripInaccessible method should hide the inaccessible field value.'
+			);
+		}
 	}
 
 	@IsTest
@@ -1059,6 +1174,26 @@ private class SOQLCache_Test {
 
 		// Verify
 		Assert.areEqual('Random Profile Name', profile.Name, 'The profile name should be the same as the name assigned to the profile cache.');
+	}
+
+	static User minimumAccessUser() {
+		return new User(
+			Alias = 'newUser',
+			Email = 'newuser@testorg.com',
+			EmailEncodingKey = 'UTF-8',
+			LastName = 'Testing',
+			LanguageLocaleKey = 'en_US',
+			LocaleSidKey = 'en_US',
+			Profile = new Profile(Name = 'Minimum Access - Salesforce'),
+			TimeZoneSidKey = 'America/Los_Angeles',
+			Username = 'queryselector@testorg.com'
+		);
+	}
+
+	static Account insertAccount() {
+		Account account = new Account(Name = 'Test 1', NumberOfEmployees = 1000);
+		insert account;
+		return account;
 	}
 
 	public class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {

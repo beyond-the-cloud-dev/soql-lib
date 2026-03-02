@@ -11,6 +11,10 @@
     {
       "path": "examples",
       "default": false
+    },
+    {
+      "path": "internal",
+      "default": false
     }
   ],
   "name": "soql-lib",
