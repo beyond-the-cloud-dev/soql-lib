@@ -7,7 +7,6 @@
 .project/
 .nx-cache
 .vscode/
-.prettierrc
 
 # Salesforce cache
 .sf/

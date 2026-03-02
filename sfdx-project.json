@@ -11,12 +11,16 @@
     {
       "path": "examples",
       "default": false
+    },
+    {
+      "path": "internal",
+      "default": false
     }
   ],
   "name": "soql-lib",
   "namespace": "btcdev",
   "sfdcLoginUrl": "https://login.salesforce.com",
-  "sourceApiVersion": "65.0",
+  "sourceApiVersion": "66.0",
   "packageAliases": {
     "SOQL Lib": "0HoP6000000010vKAA",
     "SOQL Lib@6.1.0-1": "04tP60000023Vm5IAE",

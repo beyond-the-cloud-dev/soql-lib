@@ -11,8 +11,8 @@
  * - NcssTypeCount: It is a library and we tried to put everything into ONE test class
 **/
 @SuppressWarnings('PMD.CyclomaticComplexity,PMD.CognitiveComplexity,PMD.NcssTypeCount')
-@IsTest(IsParallel=true)
-private class SOQL_Test {
+@IsTest
+private class SOQL_Full_Test {
 	@IsTest
 	static void ofSObjectType() {
 		// Test
@@ -1407,6 +1407,40 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void filterIsInListOfSObjects() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		// Test
+		List<Account> queriedAccounts = SOQL.of(Account.SObjectType)
+			.whereAre(SOQL.Filter.with(Account.Name).isIn(accounts, Account.Name))
+			.toList();
+
+		// Verify
+		Assert.areEqual(accounts.size(), queriedAccounts.size(), 'The size of the queried accounts should be equal to the size of the inserted accounts.');
+		Assert.areEqual(accounts[0].Id, queriedAccounts[0].Id, 'The first queried account should match the first inserted account.');
+		Assert.areEqual(accounts[1].Id, queriedAccounts[1].Id, 'The second queried account should match the second inserted account.');
+	}
+
+	@IsTest
+	static void filterIsInListOfSObjectsWhenSomeValuesAreNull() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		accounts.add(new Account(Name = null));
+
+		// Test
+		List<Account> queriedAccounts = SOQL.of(Account.SObjectType)
+			.whereAre(SOQL.Filter.with(Account.Name).isIn(accounts, Account.Name))
+			.toList();
+
+		// Verify
+		Assert.areEqual(2, queriedAccounts.size(), 'The size of the queried accounts should be equal to the size of the inserted accounts.');
+		Assert.areEqual(accounts[0].Id, queriedAccounts[0].Id, 'The first queried account should match the first inserted account.');
+		Assert.areEqual(accounts[1].Id, queriedAccounts[1].Id, 'The second queried account should match the second inserted account.');
+	}
+
+	@IsTest
 	static void filterNotInSet() {
 		// Setup
 		Set<String> names = new Set<String>{ 'Test 1', 'Test 2' };
@@ -1439,6 +1473,20 @@ private class SOQL_Test {
 
 		Map<String, Object> binding = builder.binding();
 		Assert.areEqual(names, binding.get('v1'), 'The binding variable should match the expected value.');
+	}
+
+	@IsTest
+	static void filterNotInListOfSObjects() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		// Test
+		List<Account> queriedAccounts = SOQL.of(Account.SObjectType)
+			.whereAre(SOQL.Filter.with(Account.Name).notIn(accounts, Account.Name))
+			.toList();
+
+		// Verify
+		Assert.areEqual(0, queriedAccounts.size(), 'The size of the queried accounts should be equal to the size of the inserted accounts.');
 	}
 
 	@IsTest
@@ -2072,6 +2120,36 @@ private class SOQL_Test {
 
 		// Verify
 		Assert.areEqual('SELECT COUNT(Name) count FROM OpportunityLineItem GROUP BY OpportunityLineItem.Opportunity.Account.Id', soql, 'The generated SOQL should match the expected one.');
+	}
+
+	@IsTest
+	static void groupByRelatedToAggregated() {
+		// Setup
+		insertAccounts();
+
+		// Test
+		List<AggregateResult> results = SOQL.of(Account.SObjectType)
+			.count(Account.Name, 'names')
+			.groupBy('Account.CreatedBy', User.Id)
+			.toAggregated();
+
+		// Verify
+		Assert.areEqual(1, results.size(), 'Only one aggregated result should be returned, as the accounts were created by the same user.');
+	}
+
+	@IsTest
+	static void groupByRelatedToAggregatedProxy() {
+		// Setup
+		insertAccounts();
+
+		// Test
+		List<SOQL.AggregateResultProxy> results = SOQL.of(Account.SObjectType)
+			.count(Account.Name, 'names')
+			.groupBy('Account.CreatedBy', User.Id)
+			.toAggregatedProxy();
+
+		// Verify
+		Assert.areEqual(1, results.size(), 'Only one aggregated result should be returned, as the accounts were created by the same user.');
 	}
 
 	@IsTest
@@ -3152,6 +3230,22 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void byIdSObject() {
+		// Setup
+		List<Case> cases = insertCases();
+
+		// Test
+		SOQL.Queryable builder = SOQL.of(Case.SObjectType).byId(cases[0]);
+
+		// Verify
+		String soql = builder.toString();
+		Assert.areEqual('SELECT Id FROM Case WHERE Id = :v1', soql, 'The generated SOQL should match the expected one.');
+
+		Map<String, Object> binding = builder.binding();
+		Assert.areEqual(cases[0].Id, binding.get('v1'), 'The binding variable should match the expected value.');
+	}
+
+	@IsTest
 	static void byIdsSet() {
 		// Verify
 		Set<Id> accountIds = new Set<Id>{ SOQL.IdGenerator.get(Account.SObjectType) };
@@ -3184,6 +3278,22 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void byIdsSObjects() {
+		// Setup
+		List<Case> cases = insertCases();
+
+		// Test
+		SOQL.Queryable builder = SOQL.of(Case.SObjectType).byIds(cases);
+
+		// Verify
+		String soql = builder.toString();
+		Assert.areEqual('SELECT Id FROM Case WHERE Id IN :v1', soql, 'The generated SOQL should match the expected one.');
+
+		Map<String, Object> binding = builder.binding();
+		Assert.areEqual(cases, binding.get('v1'), 'The binding variable should match the expected value.');
+	}
+
+	@IsTest
 	static void byRecordType() {
 		// Setup
 		String recordTypeDeveloperName = 'Partner';
@@ -3197,6 +3307,207 @@ private class SOQL_Test {
 
 		Map<String, Object> binding = builder.binding();
 		Assert.areEqual(recordTypeDeveloperName, binding.get('v1'), 'The binding variable should match the expected value.');
+	}
+
+	@IsTest
+	static void toObjectWithoutSharing() {
+		// Setup
+		Case testCase = insertCase();
+
+		System.runAs(minimumAccessUser()) {
+			// Test
+			Case resultCase = (Case) SOQL.of(Case.SObjectType).systemMode().withoutSharing().toObject();
+
+			// Verify
+			Assert.areEqual(testCase.Id, resultCase.Id, 'The case should be returned even if the user does not have access to it.');
+		}
+	}
+
+	@IsTest
+	static void toListWithoutSharing() {
+		// Setup
+		insertCases();
+
+		System.runAs(minimumAccessUser()) {
+			// Test
+			List<Case> cases = SOQL.of(Case.SObjectType).systemMode().withoutSharing().toList();
+
+			// Verify
+			Assert.areEqual(2, cases.size(), 'Cases should be returned even if the user does not have access to them.');
+		}
+	}
+
+	@IsTest
+	static void toIntegerWithoutSharing() {
+		// Setup
+		insertCases();
+
+		System.runAs(minimumAccessUser()) {
+			// Test
+			Integer casesAmount = SOQL.of(Case.SObjectType).count().systemMode().withoutSharing().toInteger();
+
+			// Verify
+			Assert.areEqual(2, casesAmount, 'The amount of two cases should be returned even if the user does not have access to them.');
+		}
+	}
+
+	@IsTest
+	static void toObjectWithSharing() {
+		// Setup
+		insertTask();
+
+		System.runAs(minimumAccessUser()) {
+			// Test
+			Task resultTask = (Task) SOQL.of(Task.SObjectType).systemMode().withSharing().toObject();
+
+			// Verify
+			Assert.isNull(resultTask, 'The user should not have access to the task.');
+		}
+	}
+
+	@IsTest
+	static void toListWithSharing() {
+		// Setup
+		insertTasks();
+
+		System.runAs(minimumAccessUser()) {
+			// Test
+			List<Task> tasks = SOQL.of(Task.SObjectType).systemMode().withSharing().toList();
+
+			// Verify
+			Assert.areEqual(0, tasks.size(), 'The user should not have access to the tasks.');
+		}
+	}
+
+	@IsTest
+	static void toIntegerWithSharing() {
+		insertTasks();
+
+		System.runAs(minimumAccessUser()) {
+			// Test
+			Integer tasksAmount = SOQL.of(Task.SObjectType).count().systemMode().withSharing().toInteger();
+
+			// Verify
+			Assert.areEqual(0, tasksAmount, 'The user should not have access to the tasks.');
+		}
+	}
+
+	@IsTest
+	static void userMode() {
+		// Setup
+		insertTask();
+
+		System.runAs(minimumAccessUser()) {
+			// Test
+			Exception queryException = null;
+
+			try {
+				SOQL.of(Task.SObjectType)
+					.with(Task.Type)
+					.userMode()
+					.toObject();
+			} catch(Exception e) {
+				queryException = e;
+			}
+
+			// Verify
+			Assert.isTrue(queryException.getMessage().contains('No such column \'Type\' on entity \'Task\'.'), 'The user should not have access to the \'Type\' field.');
+		}
+	}
+
+	@IsTest
+	static void stripInaccessibleToObject() {
+		// Setup
+		insertTask();
+
+		System.runAs(minimumAccessUser()) {
+			// Test
+			Task task = (Task) SOQL.of(Task.SObjectType)
+				.with(Task.Type)
+				.systemMode()
+				.stripInaccessible()
+				.withoutSharing()
+				.toObject();
+
+			Exception queryException = null;
+
+			String inaccessibleFieldValue;
+
+			try {
+				inaccessibleFieldValue = task.Type;
+			} catch(Exception e) {
+				queryException = e;
+			}
+
+			// Verify
+			Assert.areEqual(
+				'SObject row was retrieved via SOQL without querying the requested field: Task.Type',
+				queryException.getMessage(),
+				'The user should not have access to the \'Type\' field.'
+			);
+		}
+	}
+
+	@IsTest
+	static void stripInaccessibleToList() {
+		// Setup
+		insertTasks();
+
+		System.runAs(minimumAccessUser()) {
+			// Test
+			List<Task> tasks = SOQL.of(Task.SObjectType)
+				.with(Task.Type)
+				.systemMode()
+				.stripInaccessible()
+				.withoutSharing()
+				.toList();
+
+			Exception queryException = null;
+
+			String inaccessibleFieldValue;
+
+			try {
+				inaccessibleFieldValue = tasks[0].Type;
+			} catch(Exception e) {
+				queryException = e;
+			}
+
+			// Verify
+			Assert.areEqual(
+				'SObject row was retrieved via SOQL without querying the requested field: Task.Type',
+				queryException.getMessage(),
+				'The user should not have access to the \'Type\' field.'
+			);
+		}
+	}
+
+	@IsTest
+	static void stripInaccessibleToAggregated() {
+		// Setup
+		insertTasks();
+
+		System.runAs(minimumAccessUser()) {
+			// Test
+			Exception queryException = null;
+
+			try {
+				Set<String> taskTypes = SOQL.of(Task.SObjectType)
+					.with(Task.Type)
+					.systemMode()
+					.stripInaccessible()
+					.withoutSharing()
+					.toValuesOf(Task.Type);
+			} catch(Exception e) {
+				queryException = e;
+			}
+
+			// Verify
+			Assert.areEqual(
+				'AggregateResult SObject types are not supported',
+				queryException.getMessage(),
+				'The user should not have access to the \'Type\' field.'
+			);
+		}
 	}
 
 	@IsTest
@@ -3852,6 +4163,18 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void toId() {
+		// Setup
+		Account acc = insertAccount();
+
+		// Test
+		Id accountId = SOQL.of(Account.SObjectType).byId(acc).toId();
+
+		// Verify
+		Assert.areEqual(acc.Id, accountId, 'The returned Id should match the expected one.');
+	}
+
+	@IsTest
 	static void toIdWithMocking() {
 		// Setup
 		SOQL.mock('mockingQuery').thenReturn(new Account(Name = 'Test 1'));
@@ -3861,6 +4184,18 @@ private class SOQL_Test {
 
 		// Verify
 		Assert.isNotNull(accountId, 'The returned Id should match the expected one.');
+	}
+
+	@IsTest
+	static void toIds() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		// Test
+		Set<Id> accountIds = SOQL.of(Account.SObjectType).byIds(accounts).toIds();
+
+		// Verify
+		Assert.areEqual(accounts.size(), accountIds.size(), 'The size of the returned set should be equal to the size of the inserted accounts.');
 	}
 
 	@IsTest
@@ -3876,6 +4211,51 @@ private class SOQL_Test {
 
 		// Verify
 		Assert.areEqual(2, accountIds.size(), 'The size of the returned set should be equal to the size of the mocked accounts.');
+	}
+
+	@IsTest
+	static void toIdsOf() {
+		// Setup
+		List<Account> accounts = insertAccountsWithParents();
+
+		// Test
+		Set<Id> parentIds = SOQL.of(Account.SObjectType).byIds(accounts).toIdsOf(Account.ParentId);
+
+		// Verify
+		Assert.areEqual(accounts.size(), parentIds.size(), 'The size of the returned set should be equal to the size of the inserted accounts.');
+	}
+
+	@IsTest
+	static void toIdsOfWhenCustomConditions() {
+		// Setup
+		List<Account> accounts = insertAccountsWithParents();
+
+		// Test
+		Set<Id> parentIds = SOQL.of(Account.SObjectType)
+			.byIds(accounts)
+			.whereAre(SOQL.Filter.with(Account.Name).contains('Test 1'))
+			.whereAre(SOQL.Filter.with(Account.Name).equal('Test 1'))
+			.conditionLogic('1 AND (2 OR 3)')
+			.toIdsOf(Account.ParentId);
+
+		// Verify
+		Assert.areEqual(1, parentIds.size(), 'Only one account should be returned, because the Name condition is matched.');
+	}
+
+	@IsTest
+	static void toIdsOfWhenAnyConditionMatching() {
+		// Setup
+		List<Account> accounts = insertAccountsWithParents();
+
+		// Test
+		Set<Id> parentIds = SOQL.of(Account.SObjectType)
+			.byIds(accounts)
+			.whereAre(SOQL.Filter.with(Account.Name).equal('Test 1'))
+			.anyConditionMatching()
+			.toIdsOf(Account.ParentId);
+
+		// Verify
+		Assert.areEqual(2, parentIds.size(), 'Only one account should be returned, because the Name condition is matched.');
 	}
 
 	@IsTest
@@ -3939,6 +4319,18 @@ private class SOQL_Test {
 	}
 	
 	@IsTest
+	static void toIdsOfRelationshipField() {
+		// Setup
+		List<Account> accounts = insertAccountsWithParents();
+
+		// Test
+		Set<Id> createdByIds = SOQL.of(Account.SObjectType).byIds(accounts).toIdsOf('Parent', Account.CreatedById);
+
+		// Verify
+		Assert.areEqual(1, createdByIds.size(), 'The size of the returned set should be 1, because the same user inserted the accounts.');
+	}
+
+	@IsTest
 	static void toIdsOfRelationshipFieldWithMocking() {
 		// Setup
 		Id parentAccountId = SOQL.IdGenerator.get(Account.SObjectType);
@@ -3953,6 +4345,18 @@ private class SOQL_Test {
 		// Verify
 		Assert.areEqual(1, parentIds.size(), 'The size of the returned set should be 1, because the same user inserted the accounts.');
 		Assert.isTrue(parentIds.contains(parentAccountId), 'The returned set should contain the parent account Id.');
+	}
+
+	@IsTest
+	static void doExist() {
+		// Setup
+		Account acc = insertAccount();
+
+		// Test
+		Boolean isRecordExist = SOQL.of(Account.SObjectType).byId(acc).doExist();
+
+		// Verify
+		Assert.isTrue(isRecordExist, 'The record with given Id should exist.');
 	}
 
 	@IsTest
@@ -3987,6 +4391,18 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void toValueOf() {
+		// Setup
+		Account acc = insertAccount();
+
+		// Test
+		String resultAccName = (String) SOQL.of(Account.SObjectType).byId(acc).toValueOf(Account.Name);
+
+		// Verify
+		Assert.areEqual('Test 1', resultAccName, 'The returned account name should match the expected one.');
+	}
+
+	@IsTest
 	static void mockedToValueOf() {
 		// Setup
 		String accountName = 'Test 1';
@@ -3997,6 +4413,62 @@ private class SOQL_Test {
 
 		// Verify
 		Assert.areEqual(accountName, resultAccName, 'The returned account name should match the expected one.');
+	}
+
+	@IsTest
+	static void toValuesOf() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		// Test
+		Set<String> accountNames = SOQL.of(Account.SObjectType).byIds(accounts).toValuesOf(Account.Name);
+
+		// Verify
+		Assert.areEqual(2, accountNames.size(), 'The size of the account names set should be equal to the size of the accounts.');
+	}
+
+	@IsTest
+	static void toValuesOfWhenCustomConditions() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		// Test
+		Set<String> accountNames = SOQL.of(Account.SObjectType)
+			.byIds(accounts)
+			.whereAre(SOQL.Filter.with(Account.Name).contains('Test 1'))
+			.whereAre(SOQL.Filter.with(Account.Name).equal('Test 1'))
+			.conditionLogic('1 AND (2 OR 3)')
+			.toValuesOf(Account.Name);
+
+		// Verify
+		Assert.areEqual(1, accountNames.size(), 'Only one account should be returned, because the Name condition is matched.');
+	}
+
+	@IsTest
+	static void toValuesOfWhenNoValues() {
+		// Setup
+		insertAccounts(); // Industry is empty
+
+		// Test
+		Set<String> accountsIndustries = SOQL.of(Account.SObjectType).toValuesOf(Account.Industry);
+
+		// Verify
+		Assert.areEqual(0, accountsIndustries.size(), 'The size of the account industries set should be 0, because field is empty.');
+	}
+
+	@IsTest
+	static void toValuesOfWithDefaultFields() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		// Test
+		Set<String> accountNames = SOQL.of(Account.SObjectType)
+			.with(Account.Industry)
+			.byIds(accounts)
+			.toValuesOf(Account.Name);
+
+		// Verify
+		Assert.areEqual(2, accountNames.size(), 'The size of the account names set should be equal to the size of the accounts.');
 	}
 
 	@IsTest
@@ -4011,6 +4483,20 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void toValuesOfRelationshipField() {
+		// Setup
+		List<Account> accounts = insertAccountsWithParents();
+
+		// Test
+		Set<String> accountNames = SOQL.of(Account.SObjectType)
+			.byIds(accounts)
+			.toValuesOf('Parent', Account.Name);
+
+		// Verify
+		Assert.areEqual(2, accountNames.size(), 'Each account should have a parent, so the size of the account names set should be equal to the size of the accounts.');
+	}
+
+	@IsTest
 	static void toValuesOfRelationshipFieldWhenRelatedRecordNotExist() {
 		// Test
 		Set<String> accountNames = SOQL.of(Account.SObjectType)
@@ -4022,6 +4508,35 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void toObject() {
+		// Setup
+		Account acc = insertAccount();
+
+		// Test
+		Account result = (Account) SOQL.of(Account.SObjectType).toObject();
+
+		// Verify
+		Assert.areEqual(acc.Id, result.Id, 'The returned account should match the expected one.');
+	}
+
+	@IsTest
+	static void toObjectWithMultipleRows() {
+		// Setup
+		insertAccounts();
+		Exception queryException = null;
+
+		// Test
+		try {
+			SOQL.of(Account.SObjectType).toObject();
+		} catch (Exception e) {
+			queryException = e; // List has more than 1 row for assignment to SObject
+		}
+
+		// Verify
+		Assert.isNotNull(queryException, 'The exception should be thrown, because there are more than 1 row for assignment to SObject.');
+	}
+
+	@IsTest
 	static void toObjectWithoutRows() {
 		// Test
 		// When List has no rows for assignment to SObject null will be returned
@@ -4029,6 +4544,70 @@ private class SOQL_Test {
 
 		// Verify
 		Assert.isNull(account, 'The account should be null, because there are no rows for assignment to SObject.');
+	}
+
+	@IsTest
+	static void toList() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		// Test
+		List<Account> result = SOQL.of(Account.SObjectType).toList();
+
+		// Verify
+		Assert.areEqual(accounts.size(), result.size(), 'The size of the result list should be equal to the size of the inserted accounts.');
+	}
+
+	@IsTest
+	static void toAggregated() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		// Test
+		List<AggregateResult> result = SOQL.of(Account.SObjectType).count(Account.Name, 'names').toAggregated();
+
+		// Verify
+		Assert.areEqual(accounts.size(), result[0].get('names'), 'The count of the names should be equal to the size of the inserted accounts.');
+	}
+
+	@IsTest
+	static void toIntegerWithoutSpecifiedCount() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		// Test
+		Integer accountsCount = SOQL.of(Account.SObjectType).toInteger();
+
+		// Verify
+		Assert.areEqual(accounts.size(), accountsCount, 'The COUNT() clause should be automatically added when the count() method is not specified. The count of the accounts should match the number of inserted accounts.');
+	}
+
+	@IsTest
+	static void toInteger() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		// Test
+		Integer result = SOQL.of(Account.SObjectType).count().toInteger();
+
+		// Verify
+		Assert.areEqual(accounts.size(), result, 'The count of the accounts should match the number of inserted accounts.');
+	}
+
+	@IsTest
+	static void toMap() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		// Test
+		Map<Id, Account> result = (Map<Id, Account>) SOQL.of(Account.SObjectType).toMap();
+
+		// Verify
+		Assert.areEqual(accounts.size(), result.size(), 'Size of the result map should be equal to the size of the inserted accounts.');
+
+		for (Account acc : accounts) {
+			Assert.isNotNull(result.get(acc.Id), 'The result map should have a value for each inserted account Id.');
+		}
 	}
 
 	@IsTest
@@ -4075,6 +4654,17 @@ private class SOQL_Test {
 		}
 	}
 
+	@IsTest
+	static void toIdMapBy() {
+		// Setup
+		insertAccountsWithParents();
+
+		// Test
+		Map<Id, Account> result = (Map<Id, Account>) SOQL.of(Account.SObjectType).with(Account.Id, Account.Name).toIdMapBy(Account.ParentId);
+
+		// Verify
+		Assert.areEqual(2, result.size(), 'Size of the result map should be equal to the size of the inserted accounts with parents.');
+	}
 
 	@IsTest
 	static void mockedToIdMapBy() {
@@ -4093,6 +4683,18 @@ private class SOQL_Test {
 		Assert.areEqual(2, result.size(), 'Size of the result map should be equal to the size of the inserted accounts with parents.');
 	}
 
+	@IsTest
+	static void toIdMapByRelationshipField() {
+		// Setup
+		insertAccountsWithParents();
+
+		// Test
+		Map<Id, Account> result = (Map<Id, Account>) SOQL.of(Account.SObjectType).toIdMapBy('Parent', Account.CreatedById);
+
+		// Verify
+		Assert.areEqual(1, result.size(), 'Size of the result map should be equal to 1, because the accounts have the same created by user.');
+		Assert.isTrue(result.containsKey(UserInfo.getUserId()), 'The result map should have a key: UserInfo.getUserId().');
+	}
 
 	@IsTest
 	static void mockedToIdMapByRelationshipField() {
@@ -4107,6 +4709,18 @@ private class SOQL_Test {
 
 		// Verify
 		Assert.areEqual(2, result.size(), 'Size of the result map should be equal to 2, because the accounts have 2 different parents.');
+	}
+
+	@IsTest
+	static void toAggregatedIdMapBy() {
+		// Setup
+		insertAccountsWithParents();
+
+		// Test
+		Map<Id, List<Account>> result = (Map<Id, List<Account>>) SOQL.of(Account.SObjectType).toAggregatedIdMapBy(Account.ParentId);
+
+		// Verify
+		Assert.areEqual(2, result.size(), 'Size of the result map should be equal to 2, because the accounts have 2 parents.');
 	}
 
 	@IsTest
@@ -4127,6 +4741,18 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void toAggregatedIdMapByRelationshipField() {
+		// Setup
+		insertAccountsWithParents();
+
+		// Test
+		Map<Id, List<Account>> result = (Map<Id, List<Account>>) SOQL.of(Account.SObjectType).mockId('mockingQuery').toAggregatedIdMapBy('Parent', Account.CreatedById);
+
+		// Verify
+		Assert.areEqual(1, result.size(), 'Size of the result map should be equal to 1, because the same user created all accounts.');
+	}
+
+	@IsTest
 	static void mockedtoAggregatedIdMapByRelationshipField() {
 		// Setup
 		Id parentId = SOQL.IdGenerator.get(Account.SObjectType);
@@ -4144,6 +4770,150 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void toMapWithCustomKey() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		// Test
+		Map<String, Account> result = (Map<String, Account>) SOQL.of(Account.SObjectType).toMap(Account.Name);
+
+		// Verify
+		Assert.areEqual(accounts.size(), result.size(), 'Size of the result map should be equal to the size of the inserted accounts.');
+
+		for (Account acc : accounts) {
+			Assert.isNotNull(result.get(acc.Name), 'The result map should have a value for each inserted account Name.');
+		}
+	}
+
+	@IsTest
+	static void toMapWithCustomRelationshipKey() {
+		// Setup
+		List<Account> accounts = insertAccountsWithParents();
+
+		// Test
+		Map<String, Account> result = (Map<String, Account>) SOQL.of(Account.SObjectType)
+			.whereAre(SOQL.Filter.with(Account.ParentId).isNotNull())
+			.toMap('Parent', Account.Name);
+
+		// Verify
+		Assert.areEqual(accounts.size(), result.size(), 'Size of the result map should be equal to the size of the accounts with parents.');
+		Assert.isNotNull(result.get('Test 1 Parent'), 'The result map should have a value for the key: "Test 1 Parent".');
+		Assert.isNotNull(result.get('Test 2 Parent'), 'The result map should have a value for the key: "Test 2 Parent".');
+	}
+
+	@IsTest
+	static void toMapWithEmptyCustomRelationshipKey() {
+		// Setup
+		insertAccountsWithParents();
+
+		// Test
+		Map<String, Account> result = (Map<String, Account>) SOQL.of(Account.SObjectType).toMap('Parent', Account.Name);
+
+		// Verify
+		Assert.areEqual(2, result.size(), 'Size of the result map should be equal to 2, because there are two accounts with different parents.');
+	}
+
+	@IsTest
+	static void toMapWithCustomKeyAndCustomValue() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		// Test
+		Map<String, String> result = SOQL.of(Account.SObjectType).toMap(Account.Name, Account.Id);
+
+		// Verify
+		Assert.areEqual(accounts.size(), result.size(), 'Size of the result map should be equal to the size of the inserted accounts.');
+
+		for (Account acc : accounts) {
+			Assert.isNotNull(result.get(acc.Name), 'The result map should have a value for each inserted account Name.');
+			Assert.areEqual(acc.Id, result.get(acc.Name), 'The result map should have an account Id for each account Name.');
+		}
+	}
+
+	@IsTest
+	static void toAggregatedMapWithCustomKey() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		// Test
+		Map<String, List<Account>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Name);
+
+		// Verify
+		Assert.areEqual(accounts.size(), result.size(), 'Size of the result map should be equal to the size of the inserted accounts.');
+
+		for (Account acc : accounts) {
+			Assert.isFalse(result.get(acc.Name).isEmpty(), 'The result map should contain a non-empty account list for each account name.');
+		}
+	}
+
+	@IsTest
+	static void toAggregatedMapWithCustomRelationshipKey() {
+		// Setup
+		List<Account> accounts = insertAccountsWithParents();
+
+		// Test
+		Map<String, List<Account>> result = SOQL.of(Account.SObjectType)
+			.whereAre(SOQL.Filter.with(Account.ParentId).isNotNull())
+			.toAggregatedMap('Parent.CreatedBy', User.Id);
+
+		// Verify
+		Assert.areEqual(1, result.size(), 'Size of the result map should be 1, because the same user created all accounts.');
+		Assert.areEqual(accounts.size(), result.get(UserInfo.getUserId()).size(), 'The result map should contain all accounts created by the current User.');
+	}
+
+	@IsTest
+	static void toAggregatedMapWithEmptyCustomKey() {
+		// Setup
+		insertAccounts();
+
+		// Test
+		Map<String, List<Account>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Name);
+
+		// Verify
+		Assert.areEqual(2, result.size(), 'The result map should have only two keys, because there are two accounts with different names.');
+	}
+
+	@IsTest
+	static void toAggregatedMapWithCustomKeyAndCustomValue() {
+		// Setup
+		List<Account> accounts = insertAccounts();
+
+		// Test
+		Map<String, List<String>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Name, Account.Id);
+
+		// Verify
+		Assert.areEqual(accounts.size(), result.size(), 'Size of the result map should be equal to the size of the inserted accounts.');
+
+		for (Account acc : accounts) {
+			Assert.isFalse(result.get(acc.Name).isEmpty(), 'The result map should contain a non-empty list of account Ids for each account name.');
+		}
+	}
+
+	@IsTest
+	static void toAggregatedMapWithEmptyCustomKeyAndCustomValue() {
+		// Setup
+		insertAccounts();
+
+		// Test
+		Map<String, List<String>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Name, Account.Id);
+
+		// Verify
+		Assert.areEqual(2, result.size(), 'The result map should have only two keys, because there are two accounts with different names.');
+	}
+
+	@IsTest
+	static void toAggregatedMapWithCustomKeyAndCustomRelationshipValue() {
+		// Setup
+		insertAccountsWithParents();
+
+		// Test
+		Map<String, List<String>> result = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Name, 'Parent', Account.Id);
+
+		// Verify
+		Assert.areEqual(4, result.size(), 'The result map should have 4 keys for each account name.');
+	}
+
+	@IsTest
 	static void toQueryLocator() {
 		// Test
 		Database.QueryLocator queryLocator = SOQL.of(Account.SObjectType)
@@ -4153,6 +4923,124 @@ private class SOQL_Test {
 
 		// Verify
 		Assert.areEqual('SELECT Id, Name FROM Account', queryLocator.getQuery(), 'The generated SOQL should match the expected one.');
+	}
+
+	@IsTest
+	static void toQueryLocatorWithSharing() {
+		// Setup
+		insertTasks();
+
+		System.runAs(minimumAccessUser()) {
+			// Test
+			Database.QueryLocator queryLocator = SOQL.of(Task.SObjectType).systemMode().withSharing().toQueryLocator();
+
+			// Verify
+			Assert.isFalse(queryLocator.iterator().hasNext(), 'The user should not have access to the tasks, so hasNext should return false.');
+		}
+	}
+
+	@IsTest
+	static void toQueryLocatorWithoutSharing() {
+		// Setup
+		insertTasks();
+
+		System.runAs(minimumAccessUser()) {
+			// Test
+			Database.QueryLocator queryLocator = SOQL.of(Task.SObjectType).systemMode().withoutSharing().toQueryLocator();
+
+			// Verify
+			Assert.isTrue(queryLocator.iterator().hasNext(), 'The user should have access to the tasks, so hasNext should return true.');
+		}
+	}
+
+	@IsTest
+	static void toCursor() {
+		// Setup
+		insertAccounts();
+
+		// Test
+		Database.Cursor queryCursor = SOQL.of(Account.SObjectType)
+			.with(Account.Id)
+			.with(Account.Name)
+			.toCursor();
+
+		// Verify
+		Assert.areEqual(2, queryCursor.getNumRecords(), 'The number of records should be equal to 2.');
+	}
+	
+	@IsTest
+	static void toPaginationCursor() {
+		// Setup
+		insertAccounts();
+
+		// Test
+		Database.PaginationCursor paginationCursor = SOQL.of(Account.SObjectType)
+			.with(Account.Id)
+			.with(Account.Name)
+			.toPaginationCursor();
+
+		// Verify
+		Assert.areEqual(2, paginationCursor.getNumRecords(), 'The number of records should be equal to 2.');
+	}
+
+	@IsTest
+	static void toCursorWithSharing() {
+		// Setup
+		insertTasks();
+
+		System.runAs(minimumAccessUser()) {
+			insertTask();
+
+			// Test
+			Database.Cursor queryCursor = SOQL.of(Task.SObjectType).systemMode().withSharing().toCursor();
+
+			// Verify
+			Assert.areEqual(1, queryCursor.getNumRecords(), 'The number of records should be equal to 1.');
+		}
+	}
+
+	@IsTest
+	static void toPaginationCursorWithSharing() {
+		// Setup
+		insertTasks();
+
+		System.runAs(minimumAccessUser()) {
+			insertTask();
+
+			// Test
+			Database.PaginationCursor paginationCursor = SOQL.of(Task.SObjectType).systemMode().withSharing().toPaginationCursor();
+
+			// Verify
+			Assert.areEqual(1, paginationCursor.getNumRecords(), 'The number of records should be equal to 1.');
+		}
+	}
+
+	@IsTest
+	static void toCursorWithoutSharing() {
+		// Setup
+		insertTasks();
+
+		System.runAs(minimumAccessUser()) {
+			// Test
+			Database.Cursor queryCursor = SOQL.of(Task.SObjectType).systemMode().withoutSharing().toCursor();
+
+			// Verify
+			Assert.areEqual(2, queryCursor.getNumRecords());
+		}
+	}
+
+	@IsTest
+	static void toPaginationCursorWithoutSharing() {
+		// Setup
+		insertTasks();
+
+		System.runAs(minimumAccessUser()) {
+			// Test
+			Database.PaginationCursor paginationCursor = SOQL.of(Task.SObjectType).systemMode().withoutSharing().toPaginationCursor();
+
+			// Verify
+			Assert.areEqual(2, paginationCursor.getNumRecords(), 'The number of records should be equal to 2.');
+		}
 	}
 
 	@IsTest
@@ -4297,5 +5185,76 @@ private class SOQL_Test {
 	static void previewCount() {
 		// Test
 		SOQL.of(Account.SObjectType).count().preview().toInteger();
+	}
+
+	static List<Account> insertAccounts() {
+		List<Account> accounts = new List<Account>{
+			new Account(Name = 'Test 1'),
+			new Account(Name = 'Test 2')
+		};
+		insert accounts;
+		return accounts;
+	}
+
+	static Account insertAccount() {
+		Account account = new Account(Name = 'Test 1');
+		insert account;
+		return account;
+	}
+
+	static List<Account> insertAccountsWithParents() {
+		List<Account> parentAccounts = new List<Account>{
+			new Account(Name = 'Test 1 Parent'),
+			new Account(Name = 'Test 2 Parent')
+		};
+		insert parentAccounts;
+
+		List<Account> accounts = new List<Account>{
+			new Account(Name = 'Test 1', ParentId = parentAccounts[0].Id),
+			new Account(Name = 'Test 2', ParentId = parentAccounts[1].Id)
+		};
+		insert accounts;
+
+		return accounts;
+	}
+
+	static List<Case> insertCases() {
+		List<Case> cases = new List<Case>{
+			new Case(Status = 'New', Origin = 'Web'),
+			new Case(Status = 'New', Origin = 'Web')
+		};
+		insert cases;
+		return cases;
+	}
+
+	static Case insertCase() {
+		Case testCase = new Case(Status = 'New', Origin = 'Web');
+		insert testCase;
+		return testCase;
+	}
+
+	static void insertTasks() {
+		insert new List<Task>{
+			new Task(Subject = 'Test', Type = 'Other'),
+			new Task(Subject = 'Test', Type = 'Other')
+		};
+	}
+
+	static void insertTask() {
+		insert new Task(Subject = 'Test', Type = 'Other');
+	}
+
+	static User minimumAccessUser() {
+		return new User(
+			Alias = 'newUser',
+			Email = 'newuser@testorg.com',
+			EmailEncodingKey = 'UTF-8',
+			LastName = 'Testing',
+			LanguageLocaleKey = 'en_US',
+			LocaleSidKey = 'en_US',
+			Profile = new Profile(Name = 'Minimum Access - Salesforce'),
+			TimeZoneSidKey = 'America/Los_Angeles',
+			Username = 'queryselector@testorg.com'
+		);
 	}
 }

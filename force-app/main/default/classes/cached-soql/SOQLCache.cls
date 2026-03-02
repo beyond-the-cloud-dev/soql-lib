@@ -2,7 +2,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.7.0
+ * v6.8.0
  *
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
@@ -277,10 +277,12 @@ global virtual inherited sharing class SOQLCache implements Cacheable {
 	}
 
 	global Id toId() {
+		this.with('Id');
 		return this.toObject()?.Id;
 	}
 
 	global Id toIdOf(SObjectField field) {
+		this.with(field);
 		return (Id) this.toObject()?.get(field);
 	}
 
