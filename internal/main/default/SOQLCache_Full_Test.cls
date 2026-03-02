@@ -297,7 +297,7 @@ private class SOQLCache_Full_Test {
 	@IsTest
 	static void allowQueryWithoutConditions() {
 		// Setup
-		insert new Account(Name = 'Test Account');
+		insertAccount();
 
 		// Test
 		Account account = (Account) SOQLCache.of(Account.SObjectType)
@@ -313,7 +313,7 @@ private class SOQLCache_Full_Test {
 	@IsTest
 	static void allowFilteringByNonUniqueFields() {
 		// Setup
-		insert new Account(Name = 'Test Account');
+		insertAccount();
 
 		// Setup
 		Account account = (Account) SOQLCache.of(Account.SObjectType)
@@ -732,8 +732,7 @@ private class SOQLCache_Full_Test {
 	@IsTest
 	static void stripInaccessible() {
 		// Setup
-		Task testTask = new Task(Subject = 'Test Task', Type = 'Other');
-		insert testTask;
+		Task testTask = insertTask();
 
 		System.runAs(minimumAccessUser()) {
 			// Test
@@ -1191,9 +1190,15 @@ private class SOQLCache_Full_Test {
 	}
 
 	static Account insertAccount() {
-		Account account = new Account(Name = 'Test 1', NumberOfEmployees = 1000);
+		Account account = new Account(Name = 'Test Account', NumberOfEmployees = 1000);
 		insert account;
 		return account;
+	}
+
+	static Task insertTask() {
+		Task task = new Task(Subject = 'Test Task', Type = 'Other');
+		insert task;
+		return task;
 	}
 
 	public class SOQL_ProfileCache extends SOQLCache implements SOQLCache.Selector {

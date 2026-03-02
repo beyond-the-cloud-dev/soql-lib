@@ -3312,8 +3312,7 @@ private class SOQL_Full_Test {
 	@IsTest
 	static void toObjectWithoutSharing() {
 		// Setup
-		Case testCase = new Case(Status = 'New', Origin = 'Web');
-		insert testCase;
+		Case testCase = insertCase();
 
 		System.runAs(minimumAccessUser()) {
 			// Test
@@ -3355,7 +3354,7 @@ private class SOQL_Full_Test {
 	@IsTest
 	static void toObjectWithSharing() {
 		// Setup
-		insert new Task(Subject = 'Test', Type = 'Other');
+		insertTask();
 
 		System.runAs(minimumAccessUser()) {
 			// Test
@@ -3396,7 +3395,7 @@ private class SOQL_Full_Test {
 	@IsTest
 	static void userMode() {
 		// Setup
-		insert new Task(Subject = 'Test', Type = 'Other');
+		insertTask();
 
 		System.runAs(minimumAccessUser()) {
 			// Test
@@ -3419,7 +3418,7 @@ private class SOQL_Full_Test {
 	@IsTest
 	static void stripInaccessibleToObject() {
 		// Setup
-		insert new Task(Subject = 'Test', Type = 'Other');
+		insertTask();
 
 		System.runAs(minimumAccessUser()) {
 			// Test
@@ -4166,8 +4165,7 @@ private class SOQL_Full_Test {
 	@IsTest
 	static void toId() {
 		// Setup
-		Account acc = new Account(Name = 'Test 1');
-		insert acc;
+		Account acc = insertAccount();
 
 		// Test
 		Id accountId = SOQL.of(Account.SObjectType).byId(acc).toId();
@@ -4352,8 +4350,7 @@ private class SOQL_Full_Test {
 	@IsTest
 	static void doExist() {
 		// Setup
-		Account acc = new Account(Name = 'Test 1');
-		insert acc;
+		Account acc = insertAccount();
 
 		// Test
 		Boolean isRecordExist = SOQL.of(Account.SObjectType).byId(acc).doExist();
@@ -4396,16 +4393,13 @@ private class SOQL_Full_Test {
 	@IsTest
 	static void toValueOf() {
 		// Setup
-		String accountName = 'Test 1';
-
-		Account acc = new Account(Name = accountName);
-		insert acc;
+		Account acc = insertAccount();
 
 		// Test
 		String resultAccName = (String) SOQL.of(Account.SObjectType).byId(acc).toValueOf(Account.Name);
 
 		// Verify
-		Assert.areEqual(accountName, resultAccName, 'The returned account name should match the expected one.');
+		Assert.areEqual('Test 1', resultAccName, 'The returned account name should match the expected one.');
 	}
 
 	@IsTest
@@ -4516,8 +4510,7 @@ private class SOQL_Full_Test {
 	@IsTest
 	static void toObject() {
 		// Setup
-		Account acc = new Account(Name = 'Test 1');
-		insert acc;
+		Account acc = insertAccount();
 
 		// Test
 		Account result = (Account) SOQL.of(Account.SObjectType).toObject();
@@ -4996,7 +4989,7 @@ private class SOQL_Full_Test {
 		insertTasks();
 
 		System.runAs(minimumAccessUser()) {
-			insert new Task(Subject = 'Test', Type = 'Other');
+			insertTask();
 
 			// Test
 			Database.Cursor queryCursor = SOQL.of(Task.SObjectType).systemMode().withSharing().toCursor();
@@ -5012,7 +5005,7 @@ private class SOQL_Full_Test {
 		insertTasks();
 
 		System.runAs(minimumAccessUser()) {
-			insert new Task(Subject = 'Test', Type = 'Other');
+			insertTask();
 
 			// Test
 			Database.PaginationCursor paginationCursor = SOQL.of(Task.SObjectType).systemMode().withSharing().toPaginationCursor();
@@ -5203,6 +5196,12 @@ private class SOQL_Full_Test {
 		return accounts;
 	}
 
+	static Account insertAccount() {
+		Account account = new Account(Name = 'Test 1');
+		insert account;
+		return account;
+	}
+
 	static List<Account> insertAccountsWithParents() {
 		List<Account> parentAccounts = new List<Account>{
 			new Account(Name = 'Test 1 Parent'),
@@ -5228,11 +5227,21 @@ private class SOQL_Full_Test {
 		return cases;
 	}
 
+	static Case insertCase() {
+		Case testCase = new Case(Status = 'New', Origin = 'Web');
+		insert testCase;
+		return testCase;
+	}
+
 	static void insertTasks() {
 		insert new List<Task>{
 			new Task(Subject = 'Test', Type = 'Other'),
 			new Task(Subject = 'Test', Type = 'Other')
 		};
+	}
+
+	static void insertTask() {
+		insert new Task(Subject = 'Test', Type = 'Other');
 	}
 
 	static User minimumAccessUser() {

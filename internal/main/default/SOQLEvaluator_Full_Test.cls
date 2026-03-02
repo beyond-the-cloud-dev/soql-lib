@@ -15,7 +15,7 @@ private class SOQLEvaluator_Full_Test {
 	@IsTest
 	static void sObjectStripInaccessible() {
 		// Setup
-		insert new Task(Subject = 'Test', Type = 'Other');
+		insertTask();
 
 		System.runAs(minimumAccessUser()) {
 			// Test
@@ -619,6 +619,12 @@ private class SOQLEvaluator_Full_Test {
 		Account account = new Account(Name = 'Test Account');
 		insert account;
 		return account;
+	}
+
+	static Task insertTask() {
+		Task task = new Task(Subject = 'Test Task', Type = 'Other');
+		insert task;
+		return task;
 	}
 
 	static List<Account> insertAccounts() {
