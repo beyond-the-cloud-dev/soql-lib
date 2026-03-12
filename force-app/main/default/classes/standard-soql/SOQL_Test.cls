@@ -411,6 +411,18 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void toLabelWithtListOfStrings() {
+		// Test
+		String soql = SOQL.of(Lead.SObjectType)
+			.with(Lead.Company, Lead.Status)
+			.toLabel(new List<String>{ 'Status', 'MyCustomObject__r.Name' })
+			.toString();
+
+		// Verify
+		Assert.areEqual('SELECT Company, Status, TOLABEL(Status), TOLABEL(MyCustomObject__r.Name) FROM Lead', soql, SOQL_SHOULD_MATCH);
+	}
+
+	@IsTest
 	static void withStringDateFunction() {
 		// Test
 		String soql = SOQL.of(Lead.SObjectType)
@@ -977,6 +989,21 @@ private class SOQL_Test {
 
 		// Verify
 		Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contacts FOR VIEW) FROM Account', soql, 'The generated SOQL should match the expected one.');
+	}
+
+	@IsTest
+	static void subQueryToLabelWithListOfSStringFields() {
+		// Test
+		String soql = SOQL.of(Account.SObjectType)
+			.with(SOQL.SubQuery.of('Contacts').toLabel(new List<String>{ 'Salutation', 'MyCustomObject__r.Name' }))
+			.toString();
+
+		// Verify
+		Assert.areEqual(
+			'SELECT Id , (SELECT TOLABEL(Salutation), TOLABEL(MyCustomObject__r.Name) FROM Contacts) FROM Account',
+			soql,
+			'The generated SOQL should match the expected one with TOLABEL.'
+		);
 	}
 
 	@IsTest
