@@ -82,7 +82,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		Queryable toLabel(SObjectField field, String alias);
 		Queryable toLabel(String field);
 		Queryable toLabel(String field, String alias);
-		Queryable toLabel(List<String> field);
+		Queryable toLabel(List<String> fields);
 		// SELECT - FORMAT
 		Queryable format(SObjectField field);
 		Queryable format(SObjectField field, String alias);
@@ -210,7 +210,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		SubQuery with(String fields);
 		SubQuery with(String relationshipName, Iterable<SObjectField> fields);
 		SubQuery with(SubQuery subQuery);
-		SubQuery toLabel(List<String> field);
+		SubQuery toLabel(List<String> fields);
 		// WHERE
 		SubQuery whereAre(FilterGroup filterGroup);
 		SubQuery whereAre(Filter filter);
