@@ -3,14 +3,10 @@
 ## Always use the SOQL_<ObjectName> naming convention
 
 ```apex
-// CORRECT
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector { ... }
-public inherited sharing class SOQL_Opportunity extends SOQL implements SOQL.Selector { ... }
 ```
 
 ## Always follow this exact class structure
-
-Every selector must have these five elements in order:
 
 ```apex
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector {
@@ -34,14 +30,10 @@ public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selecto
 
 Never make the constructor `public`. Never skip `mockId(MOCK_ID)`.
 
-## Always declare the MOCK_ID constant as @TestVisible
+## Always declare MOCK_ID as @TestVisible
 
 ```apex
-// CORRECT
 @TestVisible
-private static final String MOCK_ID = 'SOQL_Account';
-
-// WRONG — not accessible from tests
 private static final String MOCK_ID = 'SOQL_Account';
 ```
 
@@ -50,65 +42,40 @@ The constant value must exactly match the class name string.
 ## Always return the selector type from filter methods, not Queryable
 
 ```apex
-// WRONG — caller loses access to selector-specific methods
-public Queryable byType(String type) {
-    whereAre(Filter.with(Account.Type).equal(type));
-    return this;
-}
+// WRONG
+public Queryable byType(String type) { ... }
 
 // CORRECT
-public SOQL_Account byType(String type) {
-    whereAre(Filter.with(Account.Type).equal(type));
-    return this;
-}
+public SOQL_Account byType(String type) { ... }
 ```
 
-## Always call selector filter methods before SOQL Lib methods
+## Never add WHERE conditions in the constructor
+
+Filtering logic belongs in named filter methods, not the constructor.
+
+## Use .ignoreWhen() for optional filter parameters
 
 ```apex
-// WRONG
-SOQL_Account.query().with(Account.Phone).byType('Customer').toList();
-
-// CORRECT — selector methods first, then SOQL Lib overrides
-SOQL_Account.query().byType('Customer').with(Account.Phone).toList();
-```
-
-## Never add WHERE conditions directly in the constructor
-
-Default fields and security settings belong in the constructor. Filtering logic belongs in named filter methods.
-
-```apex
-// WRONG
-private SOQL_Account() {
-    super(Account.SObjectType);
-    with(Account.Id, Account.Name);
-    whereAre(Filter.with(Account.IsDeleted).isFalse()); // not in constructor
-    systemMode();
-    withoutSharing();
-    mockId(MOCK_ID);
-}
-
-// CORRECT — expose as a named method
-public SOQL_Account activeOnly() {
-    whereAre(Filter.with(Account.IsActive__c).isTrue());
-    return this;
-}
-```
-
-## Use .ignoreWhen() for optional parameters in filter methods
-
-```apex
-// WRONG
-public SOQL_Account byIndustry(String industry) {
-    if (industry != null) {
-        whereAre(Filter.with(Account.Industry).equal(industry));
-    }
-    return this;
-}
-
 // CORRECT
 public SOQL_Account byIndustry(String industry) {
     whereAre(Filter.with(Account.Industry).equal(industry).ignoreWhen(industry == null));
     return this;
 }
+```
+
+## Always call selector filter methods before SOQL Lib methods at call-site
+
+```apex
+// CORRECT — selector methods first, then SOQL Lib overrides
+SOQL_Account.query().byType('Customer').with(Account.Phone).userMode().toList();
+```
+
+## Use .anyConditionMatching() at call-site for top-level OR logic
+
+```apex
+SOQL_Account.query()
+    .byIndustry('IT')
+    .byRecordType('Partner')
+    .anyConditionMatching()  // WHERE Industry = 'IT' OR RecordType.DeveloperName = 'Partner'
+    .toList();
 ```

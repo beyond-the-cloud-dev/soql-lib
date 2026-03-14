@@ -9,7 +9,6 @@ paths:
 
 ```apex
 public inherited sharing class SOQL_Account extends SOQL implements SOQL.Selector { ... }
-public inherited sharing class SOQL_Opportunity extends SOQL implements SOQL.Selector { ... }
 ```
 
 ## Always follow this exact class structure
@@ -39,7 +38,6 @@ Never make the constructor `public`. Never skip `mockId(MOCK_ID)`.
 ## Always declare MOCK_ID as @TestVisible
 
 ```apex
-// CORRECT
 @TestVisible
 private static final String MOCK_ID = 'SOQL_Account';
 ```
@@ -63,14 +61,6 @@ Filtering logic belongs in named filter methods, not the constructor.
 ## Use .ignoreWhen() for optional filter parameters
 
 ```apex
-// WRONG
-public SOQL_Account byIndustry(String industry) {
-    if (industry != null) {
-        whereAre(Filter.with(Account.Industry).equal(industry));
-    }
-    return this;
-}
-
 // CORRECT
 public SOQL_Account byIndustry(String industry) {
     whereAre(Filter.with(Account.Industry).equal(industry).ignoreWhen(industry == null));
@@ -81,9 +71,16 @@ public SOQL_Account byIndustry(String industry) {
 ## Always call selector filter methods before SOQL Lib methods at call-site
 
 ```apex
-// WRONG
-SOQL_Account.query().with(Account.Phone).byType('Customer').toList();
+// CORRECT — selector methods first, then SOQL Lib overrides
+SOQL_Account.query().byType('Customer').with(Account.Phone).userMode().toList();
+```
 
-// CORRECT
-SOQL_Account.query().byType('Customer').with(Account.Phone).toList();
+## Use .anyConditionMatching() at call-site for top-level OR logic
+
+```apex
+SOQL_Account.query()
+    .byIndustry('IT')
+    .byRecordType('Partner')
+    .anyConditionMatching()  // WHERE Industry = 'IT' OR RecordType.DeveloperName = 'Partner'
+    .toList();
 ```

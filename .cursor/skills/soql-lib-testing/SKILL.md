@@ -15,7 +15,7 @@ SOQL Lib has a built-in mock mechanism — no stub frameworks needed. Mocks are 
 
 ## When to Use
 
-- Use this skill when writing `@IsTest` classes that test code using SOQL Lib query
+- Use this skill when writing `@IsTest` classes that test code using SOQL Lib queries
 - Use this skill when mocking `SOQL.of(...)` inline queries in unit tests
 - Use this skill when testing aggregate queries, exception paths, or COUNT results
 
@@ -32,13 +32,15 @@ SOQL.mock(SOQL_Account.MOCK_ID).thenReturn(records);
 // Inline SOQL.of(Account.SObjectType) — no mockId set
 SOQL.mock(Account.SObjectType).thenReturn(records);
 
-// Inline SOQL.of(Account.SObjectType).mockId('Account') - custom mock id
-SOQL.mock('Account').thenReturn(records);
+// Inline SOQL.of(Account.SObjectType).mockId('MyAccounts') — custom mock id
+SOQL.mock('MyAccounts').thenReturn(records);
 ```
 
 Always reference the `MOCK_ID` constant — never repeat the string literal (fragile when class is renamed).
 
 ### Register mocks before calling production code
+
+Always register mocks **before** `Test.startTest()`:
 
 ```apex
 SOQL.mock(SOQL_Account.MOCK_ID).thenReturn(new Account(Name = 'Acme'));
@@ -51,14 +53,14 @@ Test.stopTest();
 ### thenReturn overloads
 
 ```apex
-// List of records — use typed list, not List<SObject>
+// Single record — pass SObject directly (not a one-element list)
+SOQL.mock(SOQL_Account.MOCK_ID).thenReturn(new Account(Name = 'Acme'));
+
+// Multiple records — typed list, never List<SObject>
 SOQL.mock(SOQL_Account.MOCK_ID).thenReturn(new List<Account>{
     new Account(Name = 'Acme'),
     new Account(Name = 'Globex')
 });
-
-// Single record
-SOQL.mock(SOQL_Account.MOCK_ID).thenReturn(new Account(Name = 'Acme'));
 
 // Empty list — test zero-result paths
 SOQL.mock(SOQL_Account.MOCK_ID).thenReturn(new List<Account>());
@@ -66,7 +68,7 @@ SOQL.mock(SOQL_Account.MOCK_ID).thenReturn(new List<Account>());
 // COUNT query
 SOQL.mock(SOQL_Account.MOCK_ID).thenReturn(42);
 
-// Aggregate results — use List<Map<String, Object>> (AggregateResult can't be instantiated)
+// Aggregate results — use List<Map<String, Object>> (AggregateResult cannot be instantiated)
 SOQL.mock('leadsQuery').thenReturn(new List<Map<String, Object>>{
     new Map<String, Object>{ 'LeadSource' => 'Web',   'total' => 10 },
     new Map<String, Object>{ 'LeadSource' => 'Phone', 'total' => 5 }
@@ -101,9 +103,12 @@ SOQL.mock(SOQL_Account.MOCK_ID).thenReturn(new Account(Name = 'Second call'));
 |---|---|
 | Set mock before production call | Always before `Test.startTest()` |
 | Use typed lists | `new List<Account>{...}` — framework strips extra fields to mirror real SOQL |
+| Use MOCK_ID constant | Never repeat the string literal |
 | Aggregate mocking | Use `toAggregatedProxy()` in production code; mock with `List<Map<String, Object>>` |
 | Ids are auto-generated | Records get auto-assigned Ids — no fake prefix strings needed |
 | `toObject()` returns null | No exception for 0 rows — test this path explicitly |
+| `toObject()` throws for >1 row | When result has multiple records — test this error path too |
+| SObjectType mock | `SOQL.mock(Account.SObjectType)` mocks all inline queries for that type without a custom mockId |
 
 ## Examples
 
@@ -152,6 +157,24 @@ private class SOQL_Account_Test {
         Test.stopTest();
 
         Assert.isNotNull(caughtEx, 'Exception should be thrown.');
+    }
+
+    @IsTest
+    static void throwException_withCustomMessage() {
+        String errorMessage = 'No such column \'InvalidField__c\' on entity \'Account\'.';
+        SOQL.mock(SOQL_Account.MOCK_ID).throwException(errorMessage);
+
+        Test.startTest();
+        Exception caughtEx;
+        try {
+            SOQL_Account.query().toObject();
+        } catch (Exception e) {
+            caughtEx = e;
+        }
+        Test.stopTest();
+
+        Assert.isNotNull(caughtEx);
+        Assert.isTrue(caughtEx.getMessage().contains('InvalidField__c'));
     }
 }
 ```
@@ -202,7 +225,7 @@ static void getLeadsBySource_returnsGroupedResults() {
 }
 ```
 
-### Inline query (no selector)
+### Inline query — mock by SObjectType
 
 ```apex
 // Production code — no selector, no mockId
@@ -214,14 +237,16 @@ List<Account> accounts = SOQL.of(Account.SObjectType)
 SOQL.mock(Account.SObjectType).thenReturn(new Account(Name = 'Test'));
 ```
 
+### Inline query — mock by custom mockId
+
 ```apex
-// Production code — no selector, mockId
+// Production code
 List<Account> accounts = SOQL.of(Account.SObjectType)
     .mockId('MyAccounts')
     .with(Account.Id, Account.Name)
     .toList();
 
-// Test — mock by 'MyAccounts' mockId
+// Test
 SOQL.mock('MyAccounts').thenReturn(new Account(Name = 'Test'));
 ```
 
@@ -237,5 +262,23 @@ static void toMap_returnsAccountsKeyedById() {
     Test.stopTest();
 
     Assert.areEqual(1, result.size());
+}
+```
+
+### Sequential mocks
+
+```apex
+@IsTest
+static void sequential_consumedInOrder() {
+    SOQL.mock(SOQL_Account.MOCK_ID).thenReturn(new Account(Name = 'First'));
+    SOQL.mock(SOQL_Account.MOCK_ID).thenReturn(new Account(Name = 'Second'));
+
+    Test.startTest();
+    List<Account> first  = SOQL_Account.query().toList();
+    List<Account> second = SOQL_Account.query().toList();
+    Test.stopTest();
+
+    Assert.areEqual('First',  first[0].Name);
+    Assert.areEqual('Second', second[0].Name);
 }
 ```

@@ -12,17 +12,14 @@ paths:
 // WRONG
 Account acc = new Account(Name = 'Acme');
 insert acc;
-List<Account> result = SOQL_Account.query().toList();
 
 // CORRECT
 SOQL.mock(SOQL_Account.MOCK_ID).thenReturn(new Account(Name = 'Acme'));
-List<Account> result = SOQL_Account.query().toList();
 ```
 
 ## Always register mocks before Test.startTest()
 
 ```apex
-// CORRECT
 SOQL.mock(SOQL_Account.MOCK_ID).thenReturn(new Account(Name = 'Acme'));
 
 Test.startTest();
@@ -43,7 +40,7 @@ SOQL.mock(SOQL_Account.MOCK_ID).thenReturn(record);
 ## Use the correct thenReturn() overload
 
 ```apex
-// Single record — pass the SObject directly
+// Single record — pass SObject directly
 SOQL.mock(SOQL_Account.MOCK_ID).thenReturn(new Account(Name = 'Acme'));
 
 // Multiple records — typed list, not List<SObject>
@@ -62,6 +59,9 @@ SOQL.mock(SOQL_Account.MOCK_ID).thenReturn(42);
 SOQL.mock('leadsQuery').thenReturn(new List<Map<String, Object>>{
     new Map<String, Object>{ 'LeadSource' => 'Web', 'total' => 10 }
 });
+
+// Single aggregate result
+SOQL.mock('leadsQuery').thenReturn(new Map<String, Object>{ 'total' => 100 });
 ```
 
 ## Always use toAggregatedProxy() in production code when aggregate results need mocking
@@ -75,11 +75,6 @@ public List<SOQL.AggregateResultProxy> getLeadsBySource() {
         .mockId('leadsBySource')
         .toAggregatedProxy();
 }
-
-// Test
-SOQL.mock('leadsBySource').thenReturn(new List<Map<String, Object>>{
-    new Map<String, Object>{ 'LeadSource' => 'Web', 'total' => 10 }
-});
 ```
 
 ## Mock inline queries by SObjectType or custom mockId
@@ -94,8 +89,6 @@ SOQL.mock('MyAccounts').thenReturn(new Account(Name = 'Test'));
 
 ## Sequential mocks for multiple calls to the same query
 
-Each `SOQL.mock(...)` call appends to the queue and is consumed in order.
-
 ```apex
 SOQL.mock(SOQL_Account.MOCK_ID).thenReturn(new Account(Name = 'First'));
 SOQL.mock(SOQL_Account.MOCK_ID).thenReturn(new Account(Name = 'Second'));
@@ -103,14 +96,22 @@ SOQL.mock(SOQL_Account.MOCK_ID).thenReturn(new Account(Name = 'Second'));
 
 ## Always test the null/empty path for toObject()
 
-`toObject()` returns `null` for 0 rows — it never throws. Always add a test for this path.
+`toObject()` returns `null` for 0 rows — never throws. Always add an explicit test for this path.
 
 ```apex
 SOQL.mock(SOQL_Account.MOCK_ID).thenReturn(new List<Account>());
-
 Account result = (Account) SOQL_Account.query().toObject();
-
 Assert.isNull(result, 'Should return null when no records found.');
+```
+
+## Exception mocking — both variants
+
+```apex
+// Default message
+SOQL.mock(SOQL_Account.MOCK_ID).throwException();
+
+// Custom message
+SOQL.mock(SOQL_Account.MOCK_ID).throwException('No such column \'InvalidField__c\'');
 ```
 
 ## Never generate fake Id strings — SOQL Lib auto-assigns Ids

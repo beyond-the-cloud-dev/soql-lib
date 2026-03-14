@@ -3,8 +3,8 @@ name: soql-lib-selector
 description: >-
   Creates Salesforce Apex selector classes using the SOQL Lib selector pattern.
   Covers class declaration (extends SOQL, implements SOQL.Selector), constructor
-  defaults, static query() factory, domain-specific filter methods, and naming
-  conventions (SOQL_<ObjectName>).
+  defaults, static query() factory, domain-specific filter methods, naming
+  conventions (SOQL_<ObjectName>), and call-site patterns.
   Use when creating a new selector class, adding filter methods to an existing selector,
   or when asked how to encapsulate SOQL queries in a reusable class.
 ---
@@ -84,11 +84,17 @@ public SOQL_Opportunity aboveAmount(Decimal minAmount) {
     whereAre(Filter.with(Opportunity.Amount).greaterOrEqual(minAmount));
     return this;
 }
+
+// Record type shortcut
+public SOQL_Account byRecordType(String devName) {
+    byRecordType(devName);
+    return this;
+}
 ```
 
 ### Calling the selector
 
-Selectors methods always should be called first, then other methods.
+Selector filter methods always should be called first, then SOQL Lib overrides.
 
 ```apex
 // Basic
@@ -106,9 +112,16 @@ List<Account> accounts = SOQL_Account.query()
     .with(Account.BillingCity, Account.Phone)
     .toList();
 
-// Override security ad-hoc
+// Override security ad-hoc (e.g. from a controller)
 List<Account> accounts = SOQL_Account.query()
     .userMode()
+    .toList();
+
+// Top-level OR logic between selector filters
+List<Account> accounts = SOQL_Account.query()
+    .byIndustry('IT')
+    .byRecordType('Partner')
+    .anyConditionMatching()
     .toList();
 
 // Map result
@@ -120,6 +133,14 @@ Map<Id, Account> accountMap = (Map<Id, Account>) SOQL_Account.query()
 Account acc = (Account) SOQL_Account.query()
     .byId(accountId)
     .toObject();
+
+// Extract single field value
+String industry = (String) SOQL_Account.query()
+    .byId(accountId)
+    .toValueOf(Account.Industry);
+
+// Extract IDs of a related field
+Set<Id> ownerIds = SOQL_Account.query().toIdsOf(Account.OwnerId);
 ```
 
 ## Examples
@@ -229,6 +250,42 @@ public inherited sharing class SOQL_Contact extends SOQL implements SOQL.Selecto
     public SOQL_Contact byAccountId(Id accountId) {
         whereAre(Filter.with(Contact.AccountId).equal(accountId));
         return this;
+    }
+
+    public SOQL_Contact byRecordTypeName(String devName) {
+        byRecordType(devName);
+        return this;
+    }
+}
+```
+
+### Usage in a controller (with sharing, userMode)
+
+```apex
+public with sharing class ExampleController {
+    @AuraEnabled
+    public static List<Contact> getContactsByRecordType(String recordType) {
+        return SOQL_Contact.query()
+            .byRecordType(recordType)
+            .with(Contact.Email, Contact.Title)
+            .toList();
+    }
+
+    @AuraEnabled
+    public static List<Account> getAccountsByRecordTypeOrIndustry(String recordType) {
+        return SOQL_Account.query()
+            .byIndustry('IT')
+            .byRecordType(recordType)
+            .anyConditionMatching()
+            .with(Account.Industry, Account.AccountSource)
+            .toList();
+    }
+
+    @AuraEnabled
+    public static String getAccountIndustry(Id accountId) {
+        return (String) SOQL_Account.query()
+            .byId(accountId)
+            .toValueOf(Account.Industry);
     }
 }
 ```
