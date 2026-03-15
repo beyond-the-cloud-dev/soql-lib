@@ -82,7 +82,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		Queryable toLabel(SObjectField field, String alias);
 		Queryable toLabel(String field);
 		Queryable toLabel(String field, String alias);
-		Queryable toLabel(List<String> fields);
+		Queryable toLabel(Iterable<String> fields);
 		// SELECT - FORMAT
 		Queryable format(SObjectField field);
 		Queryable format(SObjectField field, String alias);
@@ -210,7 +210,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		SubQuery with(String fields);
 		SubQuery with(String relationshipName, Iterable<SObjectField> fields);
 		SubQuery with(SubQuery subQuery);
-		SubQuery toLabel(List<String> fields);
+		SubQuery toLabel(Iterable<String> fields);
 		// WHERE
 		SubQuery whereAre(FilterGroup filterGroup);
 		SubQuery whereAre(Filter filter);
@@ -692,12 +692,11 @@ global virtual inherited sharing class SOQL implements Queryable {
 		return this.withFunction('toLabel', field, alias);
 	}
 
-	global Queryable toLabel(List<String> fields) {
-		Queryable q = this;
+	global Queryable toLabel(Iterable<String> fields) {
 		for (String field : fields) {
-			q = q.toLabel(field, '');
+			this.toLabel(field, '');
 		}
-		return q;
+		return this;
 	}
 
 	global Queryable format(SObjectField field) {
@@ -1482,12 +1481,11 @@ global virtual inherited sharing class SOQL implements Queryable {
 			return this;
 		}
 
-		public SubQuery toLabel(List<String> fields) {
-			SubQuery subQuery = this;
+		public SubQuery toLabel(Iterable<String> fields) {
 			for (String field : fields) {
-				subQuery = subQuery.toLabel(field);
+				this.toLabel(field);
 			}
-			return subQuery;
+			return this;
 		}
 
 		public SubQuery whereAre(FilterGroup filterGroup) {

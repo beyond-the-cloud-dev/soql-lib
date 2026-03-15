@@ -419,7 +419,7 @@ private class SOQL_Test {
 			.toString();
 
 		// Verify
-		Assert.areEqual('SELECT Company, Status, TOLABEL(Status), TOLABEL(MyCustomObject__r.Name) FROM Lead', soql, SOQL_SHOULD_MATCH);
+		Assert.areEqual('SELECT Company, Status, TOLABEL(Status), TOLABEL(MyCustomObject__r.Name) FROM Lead', soql, 'The generated SOQL should match the expected one with TOLABEL.');
 	}
 
 	@IsTest
