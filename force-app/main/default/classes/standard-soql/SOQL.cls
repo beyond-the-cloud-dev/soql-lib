@@ -2570,7 +2570,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 				return;
 			}
 
-			this.mockedRecords = (List<SObject>) Type.forName('List<' + (this.sObjectType?.toString() ?? 'SObject') + ' >').newInstance();
+			this.mockedRecords = (List<SObject>) Type.forName('List<' + (this.sObjectType != null ? 'Schema.' + this.sObjectType?.toString() : 'SObject') + ' >').newInstance();
 		}
 
 		private List<SObject> get(SoqlFields fields, SoqlSubQueries subQueries) {
