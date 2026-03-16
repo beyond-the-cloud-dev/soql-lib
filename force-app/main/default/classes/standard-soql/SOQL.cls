@@ -210,6 +210,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 		SubQuery with(String fields);
 		SubQuery with(String relationshipName, Iterable<SObjectField> fields);
 		SubQuery with(SubQuery subQuery);
+		SubQuery toLabel(SObjectField field);
+		SubQuery toLabel(SObjectField field, String alias);
+		SubQuery toLabel(String field);
+		SubQuery toLabel(String field, String alias);
 		SubQuery toLabel(Iterable<String> fields);
 		// WHERE
 		SubQuery whereAre(FilterGroup filterGroup);
@@ -694,7 +698,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 	global Queryable toLabel(Iterable<String> fields) {
 		for (String field : fields) {
-			this.toLabel(field, '');
+			this.toLabel(field);
 		}
 		return this;
 	}
@@ -1481,10 +1485,31 @@ global virtual inherited sharing class SOQL implements Queryable {
 			return this;
 		}
 
+		public SubQuery toLabel(SObjectField field) {
+			return this.toLabel(field.toString());
+		}
+
+		public SubQuery toLabel(SObjectField field, String alias) {
+			return this.toLabel(field.toString(), alias);
+		}
+
+		public SubQuery toLabel(String field) {
+			return this.toLabel(field, '');
+		}
+
+		public SubQuery toLabel(String field, String alias) {
+			return this.withFunction('toLabel', field, alias);
+		}
+
 		public SubQuery toLabel(Iterable<String> fields) {
 			for (String field : fields) {
 				this.toLabel(field);
 			}
+			return this;
+		}
+
+		private SubQuery withFunction(String function, String field, String alias) {
+			this.builder.fields.functionsFields.add(function, field, alias);
 			return this;
 		}
 
