@@ -53,6 +53,46 @@ public SOQL_Account byType(String type) { ... }
 
 Filtering logic belongs in named filter methods, not the constructor.
 
+## Filter method patterns
+
+```apex
+// Equality
+public SOQL_Account byType(String type) {
+    whereAre(Filter.with(Account.Type).equal(type));
+    return this;
+}
+
+// Null-safe — filter skipped when value is null
+public SOQL_Account byIndustry(String industry) {
+    whereAre(Filter.with(Account.Industry).equal(industry).ignoreWhen(industry == null));
+    return this;
+}
+
+// IN
+public SOQL_Account byOwnerIds(Set<Id> ownerIds) {
+    whereAre(Filter.with(Account.OwnerId).isIn(ownerIds));
+    return this;
+}
+
+// Boolean
+public SOQL_Account activeOnly() {
+    whereAre(Filter.with(Account.IsActive__c).isTrue());
+    return this;
+}
+
+// Date literal
+public SOQL_Opportunity closingThisMonth() {
+    whereAre(Filter.with(Opportunity.CloseDate).equal('THIS_MONTH').asDateLiteral());
+    return this;
+}
+
+// Range
+public SOQL_Opportunity aboveAmount(Decimal minAmount) {
+    whereAre(Filter.with(Opportunity.Amount).greaterOrEqual(minAmount));
+    return this;
+}
+```
+
 ## Use .ignoreWhen() for optional filter parameters
 
 ```apex
@@ -68,6 +108,25 @@ public SOQL_Account byIndustry(String industry) {
 ```apex
 // CORRECT — selector methods first, then SOQL Lib overrides
 SOQL_Account.query().byType('Customer').with(Account.Phone).userMode().toList();
+```
+
+## Calling patterns
+
+```apex
+// Add extra fields beyond constructor defaults
+SOQL_Account.query().with(Account.BillingCity, Account.Phone).toList();
+
+// Override security at call-site (e.g. from a controller)
+SOQL_Account.query().userMode().toList();
+
+// Map result keyed by Id
+Map<Id, Account> byId = (Map<Id, Account>) SOQL_Account.query().byIds(ids).toMap();
+
+// Single record (null-safe — returns null for 0 rows)
+Account acc = (Account) SOQL_Account.query().byId(accountId).toObject();
+
+// Extract Ids of a related field
+Set<Id> ownerIds = SOQL_Account.query().toIdsOf(Account.OwnerId);
 ```
 
 ## Use .anyConditionMatching() at call-site for top-level OR logic

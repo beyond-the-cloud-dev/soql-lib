@@ -45,7 +45,21 @@ Only use `String` fields for truly dynamic field lists. Use `.toLabel()` for tra
 ## Always use SOQL.Filter for WHERE conditions
 
 ```apex
+.whereAre(SOQL.Filter.id().equal(recordId))
+.whereAre(SOQL.Filter.recordType().equal('Partner'))
+.whereAre(SOQL.Filter.name().contains('Acme'))
 .whereAre(SOQL.Filter.with(Account.Industry).equal('Technology'))
+.whereAre(SOQL.Filter.with('CreatedBy', User.Email).equal('admin@example.com'))
+```
+
+## Predefined WHERE shortcuts
+
+```apex
+.byId(recordId)                       // WHERE Id = :id
+.byId(record)                         // WHERE Id = :record.Id
+.byIds(new Set<Id>{ id1, id2 })       // WHERE Id IN (...)
+.byIds(records)                       // WHERE Id IN (ids from list)
+.byRecordType('Partner')              // WHERE RecordType.DeveloperName = 'Partner'
 ```
 
 ## Always use .ignoreWhen() for optional filters
@@ -60,6 +74,53 @@ Only use `String` fields for truly dynamic field lists. Use `.toLabel()` for tra
 ```apex
 .whereAre(SOQL.Filter.with(Opportunity.CloseDate).equal('THIS_MONTH').asDateLiteral())
 .whereAre(SOQL.Filter.with(Account.CreatedDate).greaterThan('LAST_N_DAYS:30').asDateLiteral())
+```
+
+## Semi-join (InnerJoin)
+
+```apex
+.whereAre(SOQL.Filter.with(Contact.AccountId).isIn(
+    SOQL.InnerJoin.of(Account.SObjectType)
+        .with(Account.Id)
+        .whereAre(SOQL.Filter.with(Account.Industry).equal('Technology'))
+))
+```
+
+## Aggregate functions
+
+```apex
+.count()                               // SELECT COUNT() — use with .toInteger()
+.count(Opportunity.Id, 'cnt')         // COUNT(Id) cnt
+.avg(Opportunity.Amount, 'avgAmt')    // AVG(Amount) avgAmt
+.sum(Opportunity.Amount, 'total')     // SUM(Amount) total
+.min(Contact.CreatedDate)             // MIN(CreatedDate)
+.max(Campaign.BudgetedCost)           // MAX(BudgetedCost)
+.countDistinct(Lead.Company)          // COUNT_DISTINCT(Company)
+.grouping(Lead.LeadSource, 'grpLS')   // GROUPING — for ROLLUP/CUBE
+```
+
+> `COUNT()` must be the only SELECT element. Other aggregate functions auto-remove non-grouped default fields to avoid `Field must be grouped or aggregated`.
+
+## GROUP BY / HAVING
+
+```apex
+.groupBy(Lead.LeadSource)
+.groupByRollup(Lead.LeadSource)              // GROUP BY ROLLUP(...)
+.groupByCube(Account.Type)                   // GROUP BY CUBE(...)
+
+.have(SOQL.HavingFilter.count(Lead.Name).greaterThan(100))
+.have(SOQL.HavingFilter.sum(Opportunity.Amount).greaterThan(10000))
+.anyHavingConditionMatching()               // AND → OR between HAVING conditions
+.havingConditionLogic('1 OR 2')             // custom HAVING logic
+```
+
+## WITH DATA CATEGORY
+
+```apex
+SOQL.of(Knowledge__kav.SObjectType)
+    .with(Knowledge__kav.Id, Knowledge__kav.Title)
+    .withDataCategory(SOQL.DataCategoryFilter.with('Geography__c').at(new List<String>{ 'Europe__c' }))
+    .toList();
 ```
 
 ## USING SCOPE — use when filtering by user context
@@ -94,30 +155,36 @@ Only use `String` fields for truly dynamic field lists. Use `.toLabel()` for tra
 
 ## Choose the correct result method
 
-| Goal | Method | Notes |
-|---|---|---|
-| Multiple records | `.toList()` | |
-| Single record | `.toObject()` | Returns `null` for 0 rows; throws for >1 row |
-| Existence check | `.doExist()` | |
-| COUNT | `.toInteger()` | |
-| First record Id | `.toId()` | |
-| All record Ids | `.toIds()` | |
-| Ids from a field | `.toIdsOf(SObjectField)` | Field auto-added |
-| Ids from parent field | `.toIdsOf(relationshipName, SObjectField)` | |
-| Single field value | `.toValueOf(SObjectField)` | Returns `Object`, cast required |
-| All values of one field | `.toValuesOf(SObjectField)` | Returns `Set<String>`; not for Custom Metadata |
-| Map by record Id | `.toMap()` | `(Map<Id, T>)` cast required |
-| Map by String field | `.toMap(SObjectField)` | Auto-adds `WHERE field != null` |
-| Map by relationship field | `.toMap(relationshipName, SObjectField)` | Auto-adds null check |
-| Map key → value | `.toMap(SObjectField, SObjectField)` | `Map<String, String>` |
-| Map by Id field | `.toIdMapBy(SObjectField)` | Auto-adds null check |
-| Map by related Id field | `.toIdMapBy(relationshipName, SObjectField)` | |
-| Grouped by String key | `.toAggregatedMap(SObjectField)` | Auto-adds null check |
-| Grouped by Id key | `.toAggregatedIdMapBy(SObjectField)` | Auto-adds null check |
-| Aggregate (mockable) | `.toAggregatedProxy()` | Use instead of `.toAggregated()` when mocking |
-| Aggregate | `.toAggregated()` | Cannot be mocked |
-| Batch | `.toQueryLocator()` | |
-| Large sets | `.toCursor()` / `.toPaginationCursor()` | |
+| Goal | Method | Return type | Notes |
+|---|---|---|---|
+| Multiple records | `.toList()` | `List<SObject>` | |
+| Single record | `.toObject()` | `SObject` | Returns `null` for 0 rows; throws for >1 row |
+| Existence check | `.doExist()` | `Boolean` | |
+| COUNT | `.toInteger()` | `Integer` | |
+| First record Id | `.toId()` | `Id` | |
+| All record Ids | `.toIds()` | `Set<Id>` | |
+| Ids from a field | `.toIdsOf(SObjectField)` | `Set<Id>` | Field auto-added |
+| Ids from parent field | `.toIdsOf(relationshipName, SObjectField)` | `Set<Id>` | |
+| Single field value | `.toValueOf(SObjectField)` | `Object` | Cast required |
+| All values of one field | `.toValuesOf(SObjectField)` | `Set<String>` | Not for Custom Metadata |
+| Map by record Id | `.toMap()` | `Map<Id, SObject>` | Cast required |
+| Map by String field | `.toMap(SObjectField)` | `Map<String, SObject>` | Auto-adds `WHERE field != null` |
+| Map by relationship field | `.toMap(relationshipName, SObjectField)` | `Map<String, SObject>` | Auto-adds null check |
+| Map key → value | `.toMap(SObjectField, SObjectField)` | `Map<String, String>` | |
+| Map by Id field | `.toIdMapBy(SObjectField)` | `Map<Id, SObject>` | Auto-adds null check |
+| Map by related Id field | `.toIdMapBy(relationshipName, SObjectField)` | `Map<Id, SObject>` | |
+| Grouped by String key | `.toAggregatedMap(SObjectField)` | `Map<String, List<SObject>>` | Auto-adds null check |
+| Grouped by Id key | `.toAggregatedIdMapBy(SObjectField)` | `Map<Id, List<SObject>>` | Auto-adds null check |
+| Aggregate (mockable) | `.toAggregatedProxy()` | `List<SOQL.AggregateResultProxy>` | Use instead of `.toAggregated()` when mocking |
+| Aggregate | `.toAggregated()` | `List<AggregateResult>` | Cannot be mocked |
+| Batch | `.toQueryLocator()` | `Database.QueryLocator` | |
+| Large sets | `.toCursor()` / `.toPaginationCursor()` | `Database.Cursor` | |
+
+## Debug
+
+```apex
+SOQL.of(Account.SObjectType).preview().toList(); // logs SOQL + bind vars at ERROR level
+```
 
 ## Security modes
 

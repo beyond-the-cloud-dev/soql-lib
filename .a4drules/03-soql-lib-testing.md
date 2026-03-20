@@ -90,7 +90,7 @@ SOQL.mock(SOQL_Account.MOCK_ID).thenReturn(new Account(Name = 'Second'));
 
 ## Always test the null/empty path for toObject()
 
-`toObject()` returns `null` for 0 rows. Always add an explicit test for this path.
+`toObject()` returns `null` for 0 rows — never throws. Always add an explicit test for this path.
 
 ```apex
 SOQL.mock(SOQL_Account.MOCK_ID).thenReturn(new List<Account>());

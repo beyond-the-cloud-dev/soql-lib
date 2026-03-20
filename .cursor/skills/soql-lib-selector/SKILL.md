@@ -85,13 +85,6 @@ public SOQL_Opportunity aboveAmount(Decimal minAmount) {
     return this;
 }
 
-// Record type shortcut
-public SOQL_Account byRecordType(String devName) {
-    byRecordType(devName);
-    return this;
-}
-```
-
 ### Calling the selector
 
 Selector filter methods always should be called first, then SOQL Lib overrides.
