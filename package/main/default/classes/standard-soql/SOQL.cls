@@ -2,7 +2,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.8.0
+ * v6.9.0
  *
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
@@ -2007,8 +2007,8 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		public override String toString() {
-			return String.format(this.wrapper, new List<String>{ 
-				this.field + ' ' + this.comparator + (this.skipBinding ? ' ' + this.value : ' :' + binder.bind(this.value)) 
+			return String.format(this.wrapper, new List<String>{
+				this.field + ' ' + this.comparator + (this.skipBinding ? ' ' + this.value : ' :' + binder.bind(this.value))
 			});
 		}
 	}
@@ -2830,7 +2830,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 			if (this.mocks.size() == 1) {
 				return (List<AggregateResult>) this.mocks[0].sObjectMock.getAggregated(fieldToExtract);
 			}
-			
+
 			return (List<AggregateResult>) this.mocks.remove(0).sObjectMock.getAggregated(fieldToExtract);
 		}
 

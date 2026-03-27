@@ -3,7 +3,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.8.0
+ * v6.9.0
  *
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
@@ -825,7 +825,7 @@ private class SOQL_Test {
 		// Verify
 		Assert.areEqual('SELECT Name , (SELECT Id, Name, CreatedBy.Id, CreatedBy.Name FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
 	}
-	
+
 	@IsTest
 	static void subQueryToLabelWithSObjectField() {
 		// Test
@@ -3391,7 +3391,7 @@ private class SOQL_Test {
 
 		// Test
 		List<Account> result = SOQL.of(Account.SObjectType).with(Account.Name).with('Parent', Account.Name).mockId('mockingQuery').toList();
-	
+
 		// Verify
 		Assert.areEqual(Account.SObjectType, result.getSObjectType(), 'The result should be a list of Account objects.');
 	}
@@ -4016,7 +4016,7 @@ private class SOQL_Test {
 		Assert.areEqual(1, parentIds2.size(), 'The size of the returned set should be equal to the size of the mocked accounts.');
 		Assert.isTrue(parentIds2.contains(parentId1), 'The returned set should contain the parent Id 1.');
 	}
-	
+
 	@IsTest
 	static void toIdsOfRelationshipFieldWithMocking() {
 		// Setup

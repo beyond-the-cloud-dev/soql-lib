@@ -3,7 +3,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.8.0
+ * v6.9.0
  *
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
@@ -799,7 +799,7 @@ private class SOQLCache_Full_Test {
 		SOQLCache.mock(Profile.SObjectType).thenReturn(new Profile(Id = profileId2, Name = SYSTEM_ADMINISTRATOR));
 
 		SOQLCache.Cacheable query = SOQLCache.of(Profile.SObjectType);
-		
+
 		Profile profile1 = (Profile) query.mockId('ProfileQuery').whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR).toObject();
 		Profile profile2 = (Profile) query.mockId('ProfileQuery').whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR).toObject();
 
