@@ -3,7 +3,7 @@
     {
       "versionName": "SOQL Lib 6.9.0",
       "versionNumber": "6.9.0.NEXT",
-      "path": "force-app",
+      "path": "package",
       "default": true,
       "package": "SOQL Lib",
       "versionDescription": ""
@@ -13,7 +13,7 @@
       "default": false
     },
     {
-      "path": "internal",
+      "path": "force-app",
       "default": false
     }
   ],
