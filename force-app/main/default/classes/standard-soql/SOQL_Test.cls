@@ -411,6 +411,18 @@ private class SOQL_Test {
 	}
 
 	@IsTest
+	static void toLabelWithtListOfStrings() {
+		// Test
+		String soql = SOQL.of(Lead.SObjectType)
+			.with(Lead.Company, Lead.Status)
+			.toLabel(new List<String>{ 'Status', 'MyCustomObject__r.Name' })
+			.toString();
+
+		// Verify
+		Assert.areEqual('SELECT Company, Status, toLabel(Status), toLabel(MyCustomObject__r.Name) FROM Lead', soql, 'The generated SOQL should match the expected one with toLabel.');
+	}
+
+	@IsTest
 	static void withStringDateFunction() {
 		// Test
 		String soql = SOQL.of(Lead.SObjectType)
@@ -812,6 +824,73 @@ private class SOQL_Test {
 
 		// Verify
 		Assert.areEqual('SELECT Name , (SELECT Id, Name, CreatedBy.Id, CreatedBy.Name FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
+	}
+	
+	@IsTest
+	static void subQueryToLabelWithSObjectField() {
+		// Test
+		String soql = SOQL.of(Account.SObjectType)
+			.with(SOQL.SubQuery.of('Contacts')
+				.with(Contact.LastName)
+				.toLabel(Contact.Salutation)
+			).toString();
+
+		// Verify
+		Assert.areEqual('SELECT Id , (SELECT LastName, toLabel(Salutation) FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
+	}
+
+	@IsTest
+	static void subQueryToLabelWithSObjectFieldAndAlias() {
+		// Test
+		String soql = SOQL.of(Account.SObjectType)
+			.with(SOQL.SubQuery.of('Contacts')
+				.with(Contact.LastName)
+				.toLabel(Contact.Salutation, 'contactSalutation')
+			).toString();
+
+		// Verify
+		Assert.areEqual('SELECT Id , (SELECT LastName, toLabel(Salutation) contactSalutation FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
+	}
+
+	@IsTest
+	static void subQueryToLabelWithStringField() {
+		// Test
+		String soql = SOQL.of(Account.SObjectType)
+			.with(SOQL.SubQuery.of('Contacts')
+				.with(Contact.LastName)
+				.toLabel('MyCustomObject__r.Name')
+			).toString();
+
+		// Verify
+		Assert.areEqual('SELECT Id , (SELECT LastName, toLabel(MyCustomObject__r.Name) FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
+	}
+
+	@IsTest
+	static void subQueryToLabelWithStringFieldAndAlias() {
+		// Test
+		String soql = SOQL.of(Account.SObjectType)
+			.with(SOQL.SubQuery.of('Contacts')
+				.with(Contact.LastName)
+				.toLabel('MyCustomObject__r.Name', 'customName')
+			).toString();
+
+		// Verify
+		Assert.areEqual('SELECT Id , (SELECT LastName, toLabel(MyCustomObject__r.Name) customName FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
+	}
+
+	@IsTest
+	static void subQueryToLabelWithListOfStringFields() {
+		// Test
+		String soql = SOQL.of(Account.SObjectType)
+			.with(SOQL.SubQuery.of('Contacts').toLabel(new List<String>{ 'Salutation', 'MyCustomObject__r.Name' }))
+			.toString();
+
+		// Verify
+		Assert.areEqual(
+			'SELECT Id , (SELECT toLabel(Salutation), toLabel(MyCustomObject__r.Name) FROM Contacts) FROM Account',
+			soql,
+			'The generated SOQL should match the expected one with toLabel.'
+		);
 	}
 
 	@IsTest

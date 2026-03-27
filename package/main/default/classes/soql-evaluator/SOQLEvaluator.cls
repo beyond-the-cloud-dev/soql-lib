@@ -9,12 +9,12 @@
  * - ApexDoc: Variable names are self-documented.
 **/
 @SuppressWarnings('PMD.CognitiveComplexity,PMD.ApexDoc')
-public inherited sharing class SOQLEvaluator {
-	public static SObjectEvaluable of(List<SObject> staticQueryRecords) {
+global inherited sharing class SOQLEvaluator {
+	global static SObjectEvaluable of(List<SObject> staticQueryRecords) {
 		return new SObjectEvaluator(staticQueryRecords);
 	}
 
-	public interface SObjectEvaluable {
+	global interface SObjectEvaluable {
 		// FIELD-LEVEL SECURITY
 		SObjectEvaluable stripInaccessible();
 		SObjectEvaluable stripInaccessible(AccessType accessType);
@@ -40,13 +40,13 @@ public inherited sharing class SOQLEvaluator {
 		Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField);
 	}
 
-	public interface Mockable {
+	global interface Mockable {
 		// SObject
 		Mockable thenReturn(SObject record);
 		Mockable thenReturn(List<SObject> records);
 	}
 
-	public static Mockable mock(String mockId) {
+	global static Mockable mock(String mockId) {
 		if (!SOQLEvaluator.queryIdToMock.containsKey(mockId)) {
 			SOQLEvaluator.queryIdToMock.put(mockId, new List<SoqlMock>());
 		}
