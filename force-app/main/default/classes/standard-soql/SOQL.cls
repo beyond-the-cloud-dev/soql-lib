@@ -15,8 +15,9 @@
  * - FieldNamingConventions: It was intentional to make the lib more fluent and readable
  * - ExcessiveParameterList: Make methods similar to native SOQL
  * - NcssTypeCount: It is a library and we tried to put everything into ONE class
+ * - NcssCount: It is a library and we tried to put everything into ONE class
 **/
-@SuppressWarnings('PMD.ExcessivePublicCount,PMD.ExcessiveClassLength,PMD.FieldNamingConventions,PMD.CyclomaticComplexity,PMD.CognitiveComplexity,PMD.PropertyNamingConventions,PMD.FieldDeclarationsShouldBeAtStart,PMD.ApexDoc,PMD.ExcessiveParameterList,PMD.NcssTypeCount')
+@SuppressWarnings('PMD.ExcessivePublicCount,PMD.ExcessiveClassLength,PMD.FieldNamingConventions,PMD.CyclomaticComplexity,PMD.CognitiveComplexity,PMD.PropertyNamingConventions,PMD.FieldDeclarationsShouldBeAtStart,PMD.ApexDoc,PMD.ExcessiveParameterList,PMD.NcssTypeCount,PMD.NcssCount')
 public virtual inherited sharing class SOQL implements Queryable {
 	public interface Selector {
 		Queryable query();
@@ -2622,7 +2623,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		private List<SObject> stripAdditionalFields(Set<String> requestedFields, Set<String> subQueriesRelationshipNames) {
 			Type objectTypeName = Type.forName(this.sObjectType?.toString() ?? 'SObject');
 
-			List<SObject> cleanedRecords = (List<SObject>) Type.forName('List<' + objectTypeName  + ' >').newInstance();
+			List<SObject> cleanedRecords = (List<SObject>) Type.forName('List<' + (this.sObjectType != null ? 'Schema.' + this.sObjectType.toString() : 'SObject') + ' >').newInstance();
 
 			for (SObject record : this.mockedRecords) {
 				Map<String, Object> recordFilteredFields = new Map<String, Object>{ 'Id' => record.Id };
