@@ -2623,7 +2623,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		private List<SObject> stripAdditionalFields(Set<String> requestedFields, Set<String> subQueriesRelationshipNames) {
 			Type objectTypeName = Type.forName(this.sObjectType?.toString() ?? 'SObject');
 
-			List<SObject> cleanedRecords = (List<SObject>) Type.forName('List<' + objectTypeName  + ' >').newInstance();
+			List<SObject> cleanedRecords = (List<SObject>) Type.forName('List<' + (this.sObjectType != null ? 'Schema.' + this.sObjectType.toString() : 'SObject') + ' >').newInstance();
 
 			for (SObject record : this.mockedRecords) {
 				Map<String, Object> recordFilteredFields = new Map<String, Object>{ 'Id' => record.Id };
