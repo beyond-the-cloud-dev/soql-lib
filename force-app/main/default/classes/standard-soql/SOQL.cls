@@ -17,19 +17,24 @@
  * - NcssTypeCount: It is a library and we tried to put everything into ONE class
 **/
 @SuppressWarnings('PMD.ExcessivePublicCount,PMD.ExcessiveClassLength,PMD.FieldNamingConventions,PMD.CyclomaticComplexity,PMD.CognitiveComplexity,PMD.PropertyNamingConventions,PMD.FieldDeclarationsShouldBeAtStart,PMD.ApexDoc,PMD.ExcessiveParameterList,PMD.NcssTypeCount')
+@NamespaceAccessible
 public virtual inherited sharing class SOQL implements Queryable {
+	@NamespaceAccessible
 	public interface Selector {
 		Queryable query();
 	}
 
+	@NamespaceAccessible
 	public static Queryable of(SObjectType ofObject) {
 		return new SOQL(ofObject);
 	}
 
+	@NamespaceAccessible
 	public static Queryable of(String ofObject) {
 		return new SOQL(ofObject);
 	}
 
+	@NamespaceAccessible
 	public interface Queryable {
 		// SELECT
 		Queryable with(SObjectField field);
@@ -198,6 +203,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		Map<String, Object> binding();
 	}
 
+	@NamespaceAccessible
 	public interface SubQuery {
 		SubQuery of(String ofObject);
 		// SELECT
@@ -236,6 +242,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		String getChildRelationshipName();
 	}
 
+	@NamespaceAccessible
 	public interface FilterGroup {
 		// ADD CONDITION
 		FilterGroup add(FilterGroup filterGroup);
@@ -252,6 +259,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		Boolean hasValues();
 	}
 
+	@NamespaceAccessible
 	public interface Filter {
 		// FIELDS
 		Filter id();
@@ -297,6 +305,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		Boolean hasValue();
 	}
 
+	@NamespaceAccessible
 	public interface InnerJoin {
 		InnerJoin of(SObjectType ofObject);
 		// SELECT
@@ -306,6 +315,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		InnerJoin whereAre(Filter filter);
 	}
 
+	@NamespaceAccessible
 	public interface HavingFilterGroup {
 		// ADD CONDITION
 		HavingFilterGroup add(HavingFilterGroup havingFilterGroup);
@@ -318,6 +328,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		Boolean hasValues();
 	}
 
+	@NamespaceAccessible
 	public interface HavingFilter {
 		// FIELDS
 		HavingFilter with(SObjectField field);
@@ -353,10 +364,12 @@ public virtual inherited sharing class SOQL implements Queryable {
 		Boolean hasValue();
 	}
 
+	@NamespaceAccessible
 	public interface DataCategoryFilterGroup {
 		DataCategoryFilterGroup add(DataCategoryFilter dataCategoryFilter);
 	}
 
+	@NamespaceAccessible
 	public interface DataCategoryFilter {
 		// FIELDS
 		DataCategoryFilter with(String field);
@@ -373,45 +386,55 @@ public virtual inherited sharing class SOQL implements Queryable {
 		Boolean hasValue();
 	}
 
+	@NamespaceAccessible
 	public interface AggregateResultProxy {
 		Object get(String field);
 		Map<String, Object> getPopulatedFieldsAsMap();
 	}
 
+	@NamespaceAccessible
 	public static SubQuery SubQuery {
 		get { return new SoqlSubQuery(); }
 	}
 
+	@NamespaceAccessible
 	public static FilterGroup FilterGroup {
 		get { return new SoqlFilterGroup(); }
 	}
 
+	@NamespaceAccessible
 	public static Filter Filter {
 		get { return new SoqlFilter(); }
 	}
 
+	@NamespaceAccessible
 	public static InnerJoin InnerJoin {
 		get { return new SoqlJoinQuery(); }
 	}
 
+	@NamespaceAccessible
 	public static HavingFilterGroup HavingFilterGroup {
 		get { return new SoqlHavingFilterGroup(); }
 	}
 
+	@NamespaceAccessible
 	public static HavingFilter HavingFilter {
 		get { return new SoqlHavingFilter(); }
 	}
 
+	@NamespaceAccessible
 	public static DataCategoryFilter DataCategoryFilter {
 		get { return new SoqlDataCategoryFilter(); }
 	}
 
 	// Mocking
 
+	@NamespaceAccessible
 	public static Mockable mock(SObjectType ofObject) {
 		return mock(ofObject.toString().hashCode().toString());
 	}
 
+	@NamespaceAccessible
 	public static Mockable mock(String mockId) {
 		if (!SOQL.queryIdToMock.containsKey(mockId)) {
 			SOQL.queryIdToMock.put(mockId, new List<SoqlMock>());
@@ -422,6 +445,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
 	public static RandomIdGenerator IdGenerator = new RandomIdGenerator();
 
+	@NamespaceAccessible
 	public interface Mockable {
 		// SObject
 		Mockable thenReturn(SObject record);
@@ -470,10 +494,12 @@ public virtual inherited sharing class SOQL implements Queryable {
 	private Executor executor;
 	private Converter converter;
 
+	@NamespaceAccessible
 	public SOQL(SObjectType ofObject) {
 		this(ofObject.toString());
 	}
 
+	@NamespaceAccessible
 	public SOQL(String ofObject) {
 		this.builder = new SoqlBuilder(ofObject);
 		this.executor = new Executor(builder);
@@ -482,32 +508,39 @@ public virtual inherited sharing class SOQL implements Queryable {
 		this.mockId(ofObject.hashCode().toString());
 	}
 
+	@NamespaceAccessible
 	public Queryable with(SObjectField field) {
 		this.builder.fields.plainFields.add(field.toString());
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable with(SObjectField field1, SObjectField field2) {
 		return this.with(field1).with(field2);
 	}
 
+	@NamespaceAccessible
 	public Queryable with(SObjectField field1, SObjectField field2, SObjectField field3) {
 		return this.with(field1, field2).with(field3);
 	}
 
+	@NamespaceAccessible
 	public Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
 		return this.with(field1, field2, field3).with(field4);
 	}
 
+	@NamespaceAccessible
 	public Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
 		return this.with(field1, field2, field3, field4).with(field5);
 	}
 
+	@NamespaceAccessible
 	public Queryable with(List<SObjectField> fields) {
 		this.builder.fields.plainFields.add(fields);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable with(Iterable<String> fields) {
 		if (!fields.iterator().hasNext()) {
 			return this;
@@ -516,16 +549,19 @@ public virtual inherited sharing class SOQL implements Queryable {
 		return this.with(String.join(fields, ','));
 	}
 
+	@NamespaceAccessible
 	public Queryable withFieldSet(String fieldSetName) {
 		this.builder.fields.withFieldSet(fieldSetName);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable with(String fields) {
 		this.builder.fields.with(fields);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable with(SObjectField field, String alias) {
 		return this.with(field.toString(), alias);
 	}
@@ -535,137 +571,170 @@ public virtual inherited sharing class SOQL implements Queryable {
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable with(String relationshipName, SObjectField field) {
 		return this.with(relationshipName, new List<SObjectField>{ field });
 	}
 
+	@NamespaceAccessible
 	public Queryable with(String relationshipName, SObjectField field1, SObjectField field2) {
 		return this.with(relationshipName, new List<SObjectField>{ field1, field2 });
 	}
 
+	@NamespaceAccessible
 	public Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3) {
 		return this.with(relationshipName, new List<SObjectField>{ field1, field2, field3 });
 	}
 
+	@NamespaceAccessible
 	public Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
 		return this.with(relationshipName, new List<SObjectField>{ field1, field2, field3, field4 });
 	}
 
+	@NamespaceAccessible
 	public Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
 		return this.with(relationshipName, new List<SObjectField>{ field1, field2, field3, field4, field5 });
 	}
 
+	@NamespaceAccessible
 	public Queryable with(String relationshipName, Iterable<SObjectField> fields) {
 		this.builder.fields.relationshipFields.add(relationshipName, fields);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable with(SubQuery subQuery) {
 		this.builder.subQueries.add(subQuery);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable count() {
 		this.builder.fields.count();
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable count(SObjectField field) {
 		return this.count(field, '');
 	}
 
+	@NamespaceAccessible
 	public Queryable count(SObjectField field, String alias) {
 		return this.withAggregateFunction('COUNT', field, alias);
 	}
 
+	@NamespaceAccessible
 	public Queryable count(String relationshipName, SObjectField field) {
 		return this.count(relationshipName, field, '');
 	}
 
+	@NamespaceAccessible
 	public Queryable count(String relationshipName, SObjectField field, String alias) {
 		return this.withAggregateFunction('COUNT', relationshipName, field, alias);
 	}
 
+	@NamespaceAccessible
 	public Queryable avg(SObjectField field) {
 		return this.avg(field, '');
 	}
 
+	@NamespaceAccessible
 	public Queryable avg(SObjectField field, String alias) {
 		return this.withAggregateFunction('AVG', field, alias);
 	}
 
+	@NamespaceAccessible
 	public Queryable avg(String relationshipName, SObjectField field) {
 		return this.avg(relationshipName, field, '');
 	}
 
+	@NamespaceAccessible
 	public Queryable avg(String relationshipName, SObjectField field, String alias) {
 		return this.withAggregateFunction('AVG', relationshipName, field, alias);
 	}
 
+	@NamespaceAccessible
 	public Queryable countDistinct(SObjectField field) {
 		return this.countDistinct(field, '');
 	}
 
+	@NamespaceAccessible
 	public Queryable countDistinct(SObjectField field, String alias) {
 		return this.withAggregateFunction('COUNT_DISTINCT', field, alias);
 	}
 
+	@NamespaceAccessible
 	public Queryable countDistinct(String relationshipName, SObjectField field) {
 		return this.countDistinct(relationshipName, field, '');
 	}
 
+	@NamespaceAccessible
 	public Queryable countDistinct(String relationshipName, SObjectField field, String alias) {
 		return this.withAggregateFunction('COUNT_DISTINCT', relationshipName, field, alias);
 	}
 
+	@NamespaceAccessible
 	public Queryable min(SObjectField field) {
 		return this.min(field, '');
 	}
 
+	@NamespaceAccessible
 	public Queryable min(SObjectField field, String alias) {
 		return this.withAggregateFunction('MIN', field, alias);
 	}
 
+	@NamespaceAccessible
 	public Queryable min(String relationshipName, SObjectField field) {
 		return this.min(relationshipName, field, '');
 	}
 
+	@NamespaceAccessible
 	public Queryable min(String relationshipName, SObjectField field, String alias) {
 		return this.withAggregateFunction('MIN', relationshipName, field, alias);
 	}
 
+	@NamespaceAccessible
 	public Queryable max(SObjectField field) {
 		return this.max(field, '');
 	}
 
+	@NamespaceAccessible
 	public Queryable max(SObjectField field, String alias) {
 		return this.withAggregateFunction('MAX', field, alias);
 	}
 
+	@NamespaceAccessible
 	public Queryable max(String relationshipName, SObjectField field) {
 		return this.max(relationshipName, field, '');
 	}
 
+	@NamespaceAccessible
 	public Queryable max(String relationshipName, SObjectField field, String alias) {
 		return this.withAggregateFunction('MAX', relationshipName, field, alias);
 	}
 
+	@NamespaceAccessible
 	public Queryable sum(SObjectField field) {
 		return this.sum(field, '');
 	}
 
+	@NamespaceAccessible
 	public Queryable sum(SObjectField field, String alias) {
 		return this.withAggregateFunction('SUM', field, alias);
 	}
 
+	@NamespaceAccessible
 	public Queryable sum(String relationshipName, SObjectField field) {
 		return this.sum(relationshipName, field, '');
 	}
 
+	@NamespaceAccessible
 	public Queryable sum(String relationshipName, SObjectField field, String alias) {
 		return this.withAggregateFunction('SUM', relationshipName, field, alias);
 	}
 
+	@NamespaceAccessible
 	public Queryable grouping(SObjectField field, String alias) {
 		return this.withAggregateFunction('GROUPING', field, alias);
 	}
@@ -680,22 +749,27 @@ public virtual inherited sharing class SOQL implements Queryable {
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable toLabel(SObjectField field) {
 		return this.toLabel(field.toString());
 	}
 
+	@NamespaceAccessible
 	public Queryable toLabel(SObjectField field, String alias) {
 		return this.toLabel(field.toString(), alias);
 	}
 
+	@NamespaceAccessible
 	public Queryable toLabel(String field) {
 		return this.toLabel(field, '');
 	}
 
+	@NamespaceAccessible
 	public Queryable toLabel(String field, String alias) {
 		return this.withFunction('toLabel', field, alias);
 	}
 
+	@NamespaceAccessible
 	public Queryable toLabel(Iterable<String> fields) {
 		for (String field : fields) {
 			this.toLabel(field);
@@ -703,10 +777,12 @@ public virtual inherited sharing class SOQL implements Queryable {
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable format(SObjectField field) {
 		return this.format(field, '');
 	}
 
+	@NamespaceAccessible
 	public Queryable format(SObjectField field, String alias) {
 		return this.withFunction('FORMAT', field.toString(), alias);
 	}
@@ -716,26 +792,32 @@ public virtual inherited sharing class SOQL implements Queryable {
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable delegatedScope() {
 		return this.scope('DELEGATED');
 	}
 
+	@NamespaceAccessible
 	public Queryable mineScope() {
 		return this.scope('MINE');
 	}
 
+	@NamespaceAccessible
 	public Queryable mineAndMyGroupsScope() {
 		return this.scope('MINE_AND_MY_GROUPS');
 	}
 
+	@NamespaceAccessible
 	public Queryable myTerritoryScope() {
 		return this.scope('MY_TERRITORY');
 	}
 
+	@NamespaceAccessible
 	public Queryable myTeamTerritoryScope() {
 		return this.scope('MY_TEAM_TERRITORY');
 	}
 
+	@NamespaceAccessible
 	public Queryable teamScope() {
 		return this.scope('TEAM');
 	}
@@ -745,62 +827,74 @@ public virtual inherited sharing class SOQL implements Queryable {
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable whereAre(FilterGroup filterGroup) {
 		this.builder.conditions.add(filterGroup);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable whereAre(Filter filter) {
 		this.builder.conditions.add(filter);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable whereAre(String conditions) {
 		this.builder.conditions.add(conditions);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable conditionLogic(String conditionLogic) {
 		this.builder.conditions.conditionLogic(conditionLogic);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable anyConditionMatching() {
 		this.builder.conditions.anyConditionMatching();
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable groupBy(SObjectField field) {
 		return this.groupBy(field.toString());
 	}
 
+	@NamespaceAccessible
 	public Queryable groupBy(String field) {
 		this.builder.fields.withGroupedField(field);
 		this.builder.groupBy.with(field);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable groupBy(String relationshipName, SObjectField field) {
 		this.builder.fields.withGroupedField(relationshipName + '.' + field.toString());
 		this.builder.groupBy.with(relationshipName, field);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable groupByRollup(SObjectField field) {
 		this.builder.fields.withGroupedField(field.toString());
 		return this.groupBy(field, 'ROLLUP');
 	}
 
+	@NamespaceAccessible
 	public Queryable groupByRollup(String relationshipName, SObjectField field) {
 		this.builder.fields.withGroupedField(relationshipName + '.' + field.toString());
 		return this.groupBy(relationshipName, field, 'ROLLUP');
 	}
 
+	@NamespaceAccessible
 	public Queryable groupByCube(SObjectField field) {
 		this.builder.fields.withGroupedField(field.toString());
 		return this.groupBy(field, 'CUBE');
 	}
 
+	@NamespaceAccessible
 	public Queryable groupByCube(String relationshipName, SObjectField field) {
 		this.builder.fields.withGroupedField(relationshipName + '.' + field.toString());
 		return this.groupBy(relationshipName, field, 'CUBE');
@@ -818,99 +912,120 @@ public virtual inherited sharing class SOQL implements Queryable {
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable have(HavingFilterGroup havingFilterGroup) {
 		this.builder.havingClause.add(havingFilterGroup);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable have(HavingFilter havingFilter) {
 		this.builder.havingClause.add(havingFilter);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable have(String havingConditions) {
 		this.builder.havingClause.add(havingConditions);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable havingConditionLogic(String havingConditionsOrder) {
 		this.builder.havingClause.conditionLogic(havingConditionsOrder);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable anyHavingConditionMatching() {
 		this.builder.havingClause.anyConditionMatching();
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable withDataCategory(DataCategoryFilter dataCategoryFilter) {
 		this.builder.dataCategory.add(dataCategoryFilter);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable orderBy(SObjectField field) {
 		return this.orderBy(field.toString());
 	}
 
+	@NamespaceAccessible
 	public Queryable orderBy(String field) {
 		this.builder.orderBys.newOrderBy().with(field);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable orderBy(String field, String direction) {
 		this.builder.orderBys.newOrderBy().with(field);
 		this.builder.orderBys.latestOrderBy().sortingOrder(direction);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable orderBy(String relationshipName, SObjectField field) {
 		return this.orderBy(relationshipName + '.' + field.toString());
 	}
 
+	@NamespaceAccessible
 	public Queryable orderByCount(SObjectField field) {
 		return this.orderBy('COUNT(' + field.toString() + ')');
 	}
 
+	@NamespaceAccessible
 	public Queryable sortDesc() {
 		return this.sort('DESC');
 	}
 
+	@NamespaceAccessible
 	public Queryable sort(String direction) {
 		this.builder.latestOrderBy.sortingOrder(direction);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable nullsLast() {
 		return this.nullsOrder('LAST');
 	}
 
+	@NamespaceAccessible
 	public Queryable nullsOrder(String nullsOrder) {
 		this.builder.latestOrderBy.nullsOrder(nullsOrder);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable setLimit(Integer amount) {
 		this.builder.soqlLimit.set(amount);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable offset(Integer startingRow) {
 		this.builder.soqlOffset.set(startingRow);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable forReference() {
 		return this.setFor('FOR REFERENCE');
 	}
 
+	@NamespaceAccessible
 	public Queryable forView() {
 		return this.setFor('FOR VIEW');
 	}
 
+	@NamespaceAccessible
 	public Queryable forUpdate() {
 		return this.setFor('FOR UPDATE');
 	}
 
+	@NamespaceAccessible
 	public Queryable allRows() {
 		return this.setFor('ALL ROWS');
 	}
@@ -920,64 +1035,77 @@ public virtual inherited sharing class SOQL implements Queryable {
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable userMode() {
 		this.executor.accessMode(AccessLevel.USER_MODE);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable systemMode() {
 		this.executor.accessMode(AccessLevel.SYSTEM_MODE);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable stripInaccessible() {
 		return this.stripInaccessible(AccessType.READABLE);
 	}
 
+	@NamespaceAccessible
 	public Queryable stripInaccessible(AccessType accessType) {
 		this.executor.stripInaccessible(accessType);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable withSharing() {
 		this.executor.withSharing();
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable withoutSharing() {
 		this.executor.withoutSharing();
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable mockId(String queryIdentifier) {
 		this.executor.mock(SOQL.queryIdToMock.get(queryIdentifier));
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Queryable preview() {
 		System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Preview ============\n' + this.toString() + '\n=======================================\n');
 		System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Binding ============\n' + JSON.serializePretty(this.binding()) + '\n=======================================\n');
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Map<String, Object> binding() {
 		return binder.getBindingMap();
 	}
 
+	@NamespaceAccessible
 	public Id toId() {
 		this.builder.fields.clearAllFields(); // other fields not needed
 		return this.toObject()?.Id;
 	}
 
+	@NamespaceAccessible
 	public Set<Id> toIds() {
 		this.builder.fields.clearAllFields(); // other fields not needed
 		return this.toMap().keySet();
 	}
 
+	@NamespaceAccessible
 	public Set<Id> toIdsOf(SObjectField field) {
 		return this.toIdsOf(field.toString());
 	}
 
+	@NamespaceAccessible
 	public Set<Id> toIdsOf(String relationshipName, SObjectField field) {
 		return this.toIdsOf(relationshipName + '.' + field.toString());
 	}
@@ -993,25 +1121,30 @@ public virtual inherited sharing class SOQL implements Queryable {
 		return new Map<Id, SObject>(this.toAggregated(fieldToExtract)).keySet();
 	}
 
+	@NamespaceAccessible
 	public Boolean doExist() {
 		this.builder.fields.clearAllFields(); // other fields not needed
 		return this.setLimit(1).toList().size() > 0;
 	}
 
+	@NamespaceAccessible
 	public override String toString() {
 		binder.reset(); // clear binding before query build
 		return this.builder.toString();
 	}
 
+	@NamespaceAccessible
 	public Object toValueOf(SObjectField fieldToExtract) {
 		this.builder.fields.clearAllFields(); // other fields not needed
 		return this.with(fieldToExtract).toObject()?.get(fieldToExtract);
 	}
 
+	@NamespaceAccessible
 	public Set<String> toValuesOf(SObjectField fieldToExtract) {
 		return this.toValuesOf(fieldToExtract.toString());
 	}
 
+	@NamespaceAccessible
 	public Set<String> toValuesOf(String relationshipName, SObjectField targetKeyField) {
 		return this.toValuesOf(relationshipName + '.' + targetKeyField.toString());
 	}
@@ -1027,19 +1160,23 @@ public virtual inherited sharing class SOQL implements Queryable {
 		return new Map<String, SObject>(this.toAggregated(fieldToExtract)).keySet();
 	}
 
+	@NamespaceAccessible
 	public Integer toInteger() {
 		this.builder.fields.addCountWhenNotPresented();
 		return this.executor.toInteger();
 	}
 
+	@NamespaceAccessible
 	public SObject toObject() {
 		return this.executor.toObject();
 	}
 
+	@NamespaceAccessible
 	public List<SObject> toList() {
 		return this.executor.toList();
 	}
 
+	@NamespaceAccessible
 	public List<AggregateResult> toAggregated() {
 		return this.toList();
 	}
@@ -1048,50 +1185,59 @@ public virtual inherited sharing class SOQL implements Queryable {
 		return this.executor.toAggregated(fieldToExtract);
 	}
 
+	@NamespaceAccessible
 	public List<AggregateResultProxy> toAggregatedProxy() {
 		return this.executor.toAggregatedProxy();
 	}
 
+	@NamespaceAccessible
 	public Map<Id, SObject> toMap() {
 		return this.converter.transform(this.executor.toList()).toMap();
 	}
 
+	@NamespaceAccessible
 	public Map<Id, SObject> toIdMapBy(SObjectField field) {
 		this.with(field);
 		this.whereAre(Filter.with(field).isNotNull());
 		return this.converter.transform(this.executor.toList()).toIdMapBy(field);
 	}
 
+	@NamespaceAccessible
 	public Map<Id, SObject> toIdMapBy(String relationshipName, SObjectField targetKeyField) {
 		this.with(relationshipName + '.' + targetKeyField.toString());
 		this.whereAre(Filter.with(relationshipName, targetKeyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toIdMapBy(relationshipName, targetKeyField);
 	}
 
+	@NamespaceAccessible
 	public Map<Id, List<SObject>> toAggregatedIdMapBy(SObjectField keyField) {
 		this.with(keyField);
 		this.whereAre(Filter.with(keyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toAggregatedIdMapBy(keyField);
 	}
 
+	@NamespaceAccessible
 	public Map<Id, List<SObject>> toAggregatedIdMapBy(String relationshipName, SObjectField targetKeyField) {
 		this.with(relationshipName + '.' + targetKeyField.toString());
 		this.whereAre(Filter.with(relationshipName, targetKeyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toAggregatedIdMapBy(relationshipName, targetKeyField);
 	}
 
+	@NamespaceAccessible
 	public Map<String, SObject> toMap(SObjectField keyField) {
 		this.with(keyField);
 		this.whereAre(Filter.with(keyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toMap(keyField);
 	}
 
+	@NamespaceAccessible
 	public Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField) {
 		this.with(relationshipName + '.' + targetKeyField.toString());
 		this.whereAre(Filter.with(relationshipName, targetKeyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toMap(relationshipName, targetKeyField);
 	}
 
+	@NamespaceAccessible
 	public Map<String, String> toMap(SObjectField keyField, SObjectField valueField) {
 		this.builder.fields.clearAllFields(); // other fields not needed
 		this.with(keyField, valueField);
@@ -1099,18 +1245,21 @@ public virtual inherited sharing class SOQL implements Queryable {
 		return this.converter.transform(this.executor.toList()).toMap(keyField, valueField);
 	}
 
+	@NamespaceAccessible
 	public Map<String, List<SObject>> toAggregatedMap(SObjectField keyField) {
 		this.with(keyField);
 		this.whereAre(Filter.with(keyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toAggregatedMap(keyField);
 	}
 
+	@NamespaceAccessible
 	public Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField) {
 		this.with(relationshipName + '.' + targetKeyField.toString());
 		this.whereAre(Filter.with(relationshipName, targetKeyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toAggregatedMap(relationshipName, targetKeyField);
 	}
 
+	@NamespaceAccessible
 	public Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField) {
 		this.builder.fields.clearAllFields(); // other fields not needed
 		this.with(keyField, valueField);
@@ -1118,6 +1267,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 		return this.converter.transform(this.executor.toList()).toAggregatedMap(keyField, valueField);
 	}
 
+	@NamespaceAccessible
 	public Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField) {
 		this.builder.fields.clearAllFields(); // other fields not needed
 		this.with(keyField);
@@ -1126,34 +1276,42 @@ public virtual inherited sharing class SOQL implements Queryable {
 		return this.converter.transform(this.executor.toList()).toAggregatedMap(keyField, relationshipName, targetKeyField);
 	}
 
+	@NamespaceAccessible
 	public Database.QueryLocator toQueryLocator() {
 		return this.executor.toQueryLocator();
 	}
 
+	@NamespaceAccessible
 	public Database.Cursor toCursor() {
 		return this.executor.toCursor();
 	}
 
+	@NamespaceAccessible
 	public Database.PaginationCursor toPaginationCursor() {
 		return this.executor.toPaginationCursor();
 	}
 
+	@NamespaceAccessible
 	public Queryable byId(SObject record) {
 		return this.byId(record.Id);
 	}
 
+	@NamespaceAccessible
 	public Queryable byId(Id recordId) {
 		return this.whereAre(Filter.id().equal(recordId));
 	}
 
+	@NamespaceAccessible
 	public Queryable byIds(Iterable<Id> recordIds) {
 		return this.whereAre(Filter.id().isIn(recordIds));
 	}
 
+	@NamespaceAccessible
 	public Queryable byIds(List<SObject> records) {
 		return this.whereAre(Filter.id().isIn(records));
 	}
 
+	@NamespaceAccessible
 	public Queryable byRecordType(String recordTypeDeveloperName) {
 		return this.whereAre(Filter.recordType().equal(recordTypeDeveloperName));
 	}
