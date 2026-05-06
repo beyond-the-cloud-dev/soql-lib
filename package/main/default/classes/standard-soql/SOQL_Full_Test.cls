@@ -3775,7 +3775,7 @@ private class SOQL_Full_Test {
 		Exception queryException = null;
 
 		try {
-			Account result = (Account) SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toObject();
+			SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toObject();
 		} catch (QueryException e) {
 			queryException = e;
 		}
@@ -3794,7 +3794,7 @@ private class SOQL_Full_Test {
 		Exception queryException = null;
 
 		try {
-			Account result = (Account) SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toObject();
+			SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toObject();
 		} catch (QueryException e) {
 			queryException = e;
 		}
