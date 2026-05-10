@@ -1,9 +1,6 @@
 /**
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/cache-manager/blob/main/LICENSE)
- *
- * v1.1.0
- *
  **/
 @IsTest
 private class CacheManagerTest {
@@ -37,7 +34,7 @@ private class CacheManagerTest {
         CacheManager.ApexTransaction.put('TestKey', 'Test Value');
 
         // Verify
-        Assert.areEqual('Test Value', (String) CacheManager.ApexTransaction.get('TestKey'), 'Cached value should be the same');
+        Assert.areEqual('Test Value', CacheManager.ApexTransaction.get('TestKey'), 'Cached value should be the same');
     }
 
     @IsTest
@@ -84,10 +81,10 @@ private class CacheManagerTest {
     @IsTest
     static void orgCacheContains() {
         // Setup
-        CacheManager.DefaultOrgCache.put('TestKey', 'Test Value');
+        CacheManager.SOQLOrgCache.put('TestKey', 'Test Value');
 
         // Test
-        Boolean hasKey = CacheManager.DefaultOrgCache.contains('TestKey');
+        Boolean hasKey = CacheManager.SOQLOrgCache.contains('TestKey');
 
         // Verify
         Assert.isTrue(hasKey, 'Key should exist');
@@ -96,10 +93,10 @@ private class CacheManagerTest {
     @IsTest
     static void orgCacheGet() {
         // Setup
-        CacheManager.DefaultOrgCache.put('TestKey', 'Test Value');
+        CacheManager.SOQLOrgCache.put('TestKey', 'Test Value');
 
         // Test
-        String cachedValue = (String) CacheManager.DefaultOrgCache.get('TestKey');
+        String cachedValue = (String) CacheManager.SOQLOrgCache.get('TestKey');
 
         // Verify
         Assert.areEqual('Test Value', cachedValue, 'Cached value should be the same');
@@ -108,32 +105,32 @@ private class CacheManagerTest {
     @IsTest
     static void orgCachePut() {
         // Test
-        CacheManager.DefaultOrgCache.put('TestKey', 'Test Value');
+        CacheManager.SOQLOrgCache.put('TestKey', 'Test Value');
 
         // Verify
-        Assert.areEqual('Test Value', (String) CacheManager.DefaultOrgCache.get('TestKey'), 'Cached value should be the same');
+        Assert.areEqual('Test Value', CacheManager.SOQLOrgCache.get('TestKey'), 'Cached value should be the same');
     }
 
     @IsTest
     static void orgCacheRemove() {
         // Setup
-        CacheManager.DefaultOrgCache.put('TestKey', 'Test Value');
+        CacheManager.SOQLOrgCache.put('TestKey', 'Test Value');
 
         // Test
-        CacheManager.DefaultOrgCache.remove('TestKey');
+        CacheManager.SOQLOrgCache.remove('TestKey');
 
         // Verify
-        Assert.areEqual(null, CacheManager.DefaultOrgCache.get('TestKey'), 'Cached value should not exist.');
+        Assert.areEqual(null, CacheManager.SOQLOrgCache.get('TestKey'), 'Cached value should not exist.');
     }
 
     @IsTest
     static void orgCacheGetKeys() {
         // Setup
-        CacheManager.DefaultOrgCache.put('TestKey', 'Test Value');
-        CacheManager.DefaultOrgCache.put('TestKey2', 'Test Value 2');
+        CacheManager.SOQLOrgCache.put('TestKey', 'Test Value');
+        CacheManager.SOQLOrgCache.put('TestKey2', 'Test Value 2');
 
         // Test
-        Set<String> keys = CacheManager.DefaultOrgCache.getKeys();
+        Set<String> keys = CacheManager.SOQLOrgCache.getKeys();
 
         // Verify
         Assert.isTrue(keys.contains('TestKey'), 'Key should exist.');
@@ -146,7 +143,7 @@ private class CacheManagerTest {
 
         // Test
         try {
-            CacheManager.DefaultOrgCache.put('Test Key', 'Test Value');
+            CacheManager.SOQLOrgCache.put('Test Key', 'Test Value');
         } catch (IllegalArgumentException e) {
             keyException = e;
         }
@@ -158,10 +155,10 @@ private class CacheManagerTest {
     @IsTest
     static void sessionCacheContains() {
         // Setup
-        CacheManager.DefaultSessionCache.put('TestKey', 'Test Value');
+        CacheManager.SOQLSessionCache.put('TestKey', 'Test Value');
 
         // Test
-        Boolean hasKey = CacheManager.DefaultSessionCache.contains('TestKey');
+        Boolean hasKey = CacheManager.SOQLSessionCache.contains('TestKey');
 
         // Verify
         Assert.isTrue(hasKey, 'Key should exist');
@@ -170,10 +167,10 @@ private class CacheManagerTest {
     @IsTest
     static void sessionCacheGet() {
         // Setup
-        CacheManager.DefaultSessionCache.put('TestKey', 'Test Value');
+        CacheManager.SOQLSessionCache.put('TestKey', 'Test Value');
 
         // Test
-        String cachedValue = (String) CacheManager.DefaultSessionCache.get('TestKey');
+        String cachedValue = (String) CacheManager.SOQLSessionCache.get('TestKey');
 
         // Verify
         Assert.areEqual('Test Value', cachedValue, 'Cached value should be the same');
@@ -182,32 +179,32 @@ private class CacheManagerTest {
     @IsTest
     static void sessionCachePut() {
         // Test
-        CacheManager.DefaultSessionCache.put('TestKey', 'Test Value');
+        CacheManager.SOQLSessionCache.put('TestKey', 'Test Value');
 
         // Verify
-        Assert.areEqual('Test Value', (String) CacheManager.DefaultSessionCache.get('TestKey'), 'Cached value should be the same');
+        Assert.areEqual('Test Value', CacheManager.SOQLSessionCache.get('TestKey'), 'Cached value should be the same');
     }
 
     @IsTest
     static void sessionCacheRemove() {
         // Setup
-        CacheManager.DefaultSessionCache.put('TestKey', 'Test Value');
+        CacheManager.SOQLSessionCache.put('TestKey', 'Test Value');
 
         // Test
-        CacheManager.DefaultSessionCache.remove('TestKey');
+        CacheManager.SOQLSessionCache.remove('TestKey');
 
         // Verify
-        Assert.areEqual(null, CacheManager.DefaultSessionCache.get('TestKey'), 'Cached value should not exist.');
+        Assert.areEqual(null, CacheManager.SOQLSessionCache.get('TestKey'), 'Cached value should not exist.');
     }
 
     @IsTest
     static void sessionCacheGetKeys() {
         // Setup
-        CacheManager.DefaultSessionCache.put('TestKey', 'Test Value');
-        CacheManager.DefaultSessionCache.put('TestKey2', 'Test Value 2');
+        CacheManager.SOQLSessionCache.put('TestKey', 'Test Value');
+        CacheManager.SOQLSessionCache.put('TestKey2', 'Test Value 2');
 
         // Test
-        Set<String> keys = CacheManager.DefaultSessionCache.getKeys();
+        Set<String> keys = CacheManager.SOQLSessionCache.getKeys();
 
         // Verify
         Assert.isTrue(keys.contains('TestKey'), 'Key should exist.');
@@ -220,7 +217,7 @@ private class CacheManagerTest {
 
         // Test
         try {
-            CacheManager.DefaultSessionCache.put('Test Key', 'Test Value');
+            CacheManager.SOQLSessionCache.put('Test Key', 'Test Value');
         } catch (IllegalArgumentException e) {
             keyException = e;
         }
