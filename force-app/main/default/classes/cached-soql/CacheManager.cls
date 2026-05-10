@@ -8,7 +8,7 @@
  * - CognitiveComplexity: It is a library and we tried to put everything into ONE class
  * - PropertyNamingConventions: It was intentional to make the lib more fluent and readable
  * - FieldNamingConventions: It was intentional to make the lib more fluent and readable
-**/
+ **/
 @SuppressWarnings('PMD.CognitiveComplexity, PMD.PropertyNamingConventions, PMD.FieldNamingConventions')
 public with sharing class CacheManager {
     public interface Cacheable {
@@ -21,17 +21,24 @@ public with sharing class CacheManager {
 
     public final static Cacheable ApexTransaction = new ApexTransactionCache();
 
-	public final static Cacheable SOQLOrgCache {
-		get { return getOrgCache('SOQL'); }
-	}
+    public final static Cacheable SOQLOrgCache {
+        get {
+            return getOrgCache('SOQL');
+        }
+    }
 
-	public final static Cacheable SOQLSessionCache {
-		get { return getSessionCache('SOQL'); }
-	}
+    public final static Cacheable SOQLSessionCache {
+        get {
+            return getSessionCache('SOQL');
+        }
+    }
 
     // Implementation
 
-    private enum CacheType { ORG, SESSION }
+    private enum CacheType {
+        ORG,
+        SESSION
+    }
 
     private final static Map<CacheType, Map<String, Cacheable>> CACHE_MAP = new Map<CacheType, Map<String, Cacheable>>{
         CacheType.ORG => new Map<String, Cacheable>(),
