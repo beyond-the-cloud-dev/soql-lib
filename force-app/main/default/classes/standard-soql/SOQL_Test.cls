@@ -3619,19 +3619,19 @@ private class SOQL_Test {
     @IsTest
     static void toValueOfWhenRecordNotExist() {
         // Test
-        String accountIndustry = (String) SOQL.of(Account.SObjectType).whereAre(SOQL.Filter.name().equal('Test')).toValueOf(Account.Industry);
+        String accountDunsNumber = (String) SOQL.of(Account.SObjectType).whereAre(SOQL.Filter.with(Account.Industry).equal('IT')).toValueOf(Account.DunsNumber);
 
         // Verify
-        Assert.isNull(accountIndustry, 'The account industry should be null, because the record does not exist.');
+        Assert.isNull(accountDunsNumber, 'The account DUNS number should be null, because the record does not exist.');
     }
 
     @IsTest
     static void toValuesOfRelationshipFieldWhenRelatedRecordNotExist() {
         // Test
-        Set<String> accountNames = SOQL.of(Account.SObjectType).whereAre(SOQL.Filter.name().equal('Test')).toValuesOf('Parent', Account.Name);
+        Set<String> accountNames = SOQL.of(Account.SObjectType).whereAre(SOQL.Filter.with(Account.Industry).equal('IT')).toValuesOf('Parent', Account.Industry);
 
         // Verify
-        Assert.isTrue(accountNames.isEmpty(), 'The account names set should be empty, because the related record does not exist.');
+        Assert.isTrue(accountNames.isEmpty(), 'The parent account industry set should be empty, because the related record does not exist.');
     }
 
     @IsTest
@@ -3884,7 +3884,7 @@ private class SOQL_Test {
     static void previewWithConditions() {
         // Test
         SOQL.of(Account.SObjectType)
-            .whereAre(SOQL.FilterGroup.add(SOQL.Filter.with(Account.Name).equal('Test')).add(SOQL.Filter.with(Account.Industry).equal('IT')))
+            .whereAre(SOQL.FilterGroup.add(SOQL.Filter.with(Account.DunsNumber).equal('ABCD12345')).add(SOQL.Filter.with(Account.Industry).equal('IT')))
             .preview()
             .toList();
     }
