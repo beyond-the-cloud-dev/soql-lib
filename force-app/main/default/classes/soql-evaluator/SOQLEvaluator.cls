@@ -9,11 +9,14 @@
  * - ApexDoc: Variable names are self-documented.
 **/
 @SuppressWarnings('PMD.CognitiveComplexity,PMD.ApexDoc')
+@NamespaceAccessible
 public inherited sharing class SOQLEvaluator {
+	@NamespaceAccessible
 	public static SObjectEvaluable of(List<SObject> staticQueryRecords) {
 		return new SObjectEvaluator(staticQueryRecords);
 	}
 
+	@NamespaceAccessible
 	public interface SObjectEvaluable {
 		// FIELD-LEVEL SECURITY
 		SObjectEvaluable stripInaccessible();
@@ -40,12 +43,14 @@ public inherited sharing class SOQLEvaluator {
 		Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField);
 	}
 
+	@NamespaceAccessible
 	public interface Mockable {
 		// SObject
 		Mockable thenReturn(SObject record);
 		Mockable thenReturn(List<SObject> records);
 	}
 
+	@NamespaceAccessible
 	public static Mockable mock(String mockId) {
 		if (!SOQLEvaluator.queryIdToMock.containsKey(mockId)) {
 			SOQLEvaluator.queryIdToMock.put(mockId, new List<SoqlMock>());

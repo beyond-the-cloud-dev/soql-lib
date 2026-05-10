@@ -15,19 +15,24 @@
  * - ExcessiveParameterList: Make methods similar to native SOQL
 **/
 @SuppressWarnings('PMD.ExcessivePublicCount,PMD.ExcessiveClassLength,PMD.CyclomaticComplexity,PMD.CognitiveComplexity,PMD.PropertyNamingConventions,PMD.FieldDeclarationsShouldBeAtStart,PMD.ApexDoc,PMD.ExcessiveParameterList')
+@NamespaceAccessible
 public virtual inherited sharing class SOQLCache implements Cacheable {
+	@NamespaceAccessible
 	public interface Selector {
 		Cacheable query();
 	}
 
+	@NamespaceAccessible
 	public static Cacheable of(SObjectType ofObject) {
 		return new SOQLCache(ofObject);
 	}
 
+	@NamespaceAccessible
 	public static Cacheable of(String ofObject) {
 		return new SOQLCache(ofObject);
 	}
 
+	@NamespaceAccessible
 	public interface Cacheable {
 		// CONFIG
 		Cacheable cacheInApexTransaction();
@@ -71,25 +76,30 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 		Object toValueOf(SObjectField fieldToExtract);
 	}
 
+	@NamespaceAccessible
 	public virtual SOQL.Queryable initialQuery() {
 		return null;
 	}
 
+	@NamespaceAccessible
 	public virtual List<SObjectField> additionalAllowedConditionFields() {
 		return new List<SObjectField>();
 	}
 
 	// Mocking
 
+	@NamespaceAccessible
 	public interface Mockable {
 		// SObject
 		void thenReturn(SObject record);
 	}
 
+	@NamespaceAccessible
 	public static Mockable mock(SObjectType ofObject) {
 		return mock(ofObject.toString().hashCode().toString());
 	}
 
+	@NamespaceAccessible
 	public static Mockable mock(String mockId) {
 		if (!SOQLCache.queryIdToMock.containsKey(mockId)) {
 			SOQLCache.queryIdToMock.put(mockId, new List<SoqlMock>());
@@ -98,6 +108,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 		return SOQLCache.queryIdToMock.get(mockId).get(SOQLCache.queryIdToMock.get(mockId).size() - 1);
 	}
 
+	@NamespaceAccessible
 	public static void removeFromCache(List<SObject> records) {
 		if (records.isEmpty()) {
 			return;
@@ -130,10 +141,12 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 	private SOQL.Queryable initialQuery = null;
 	private SOQL.Queryable currentQuery = null;
 
+	@NamespaceAccessible
 	public SOQLCache(SObjectType ofObject) {
 		this(ofObject.toString());
 	}
 
+	@NamespaceAccessible
 	public SOQLCache(String ofObject) {
 		this.initialQuery = this.initialQuery()?.systemMode()?.withoutSharing();
 		this.currentQuery = SOQL.of(ofObject).systemMode().withoutSharing();
@@ -147,36 +160,43 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 		this.with('Id');
 	}
 
+	@NamespaceAccessible
 	public Cacheable cacheInApexTransaction() {
 		this.cache.storage.apexTransaction();
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Cacheable cacheInOrgCache() {
 		this.cache.storage.orgCache();
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Cacheable cacheInSessionCache() {
 		this.cache.storage.sessionCache();
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Cacheable maxHoursWithoutRefresh(Integer hours) {
 		this.cache.expiration.maxRecordAgeInHours(hours);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Cacheable allowFilteringByNonUniqueFields() {
 		this.cache.filterGroup.allowFilteringByNonUniqueFields();
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Cacheable allowQueryWithoutConditions() {
 		this.cache.filterGroup.allowQueryWithoutConditions();
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Cacheable with(SObjectField field) {
 		this.initialQuery?.with(field);
 		this.currentQuery.with(field);
@@ -184,22 +204,27 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Cacheable with(SObjectField field1, SObjectField field2) {
 		return this.with(field1).with(field2);
 	}
 
+	@NamespaceAccessible
 	public Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3) {
 		return this.with(field1, field2).with(field3);
 	}
 
+	@NamespaceAccessible
 	public Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
 		return this.with(field1, field2, field3).with(field4);
 	}
 
+	@NamespaceAccessible
 	public Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
 		return this.with(field1, field2, field3, field4).with(field5);
 	}
 
+	@NamespaceAccessible
 	public Cacheable with(List<SObjectField> fields) {
 		this.initialQuery?.with(fields);
 		this.currentQuery.with(fields);
@@ -207,6 +232,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Cacheable with(String fields) {
 		this.initialQuery?.with(fields);
 		this.currentQuery.with(fields);
@@ -214,6 +240,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Cacheable with(String relationshipName, SObjectField field) {
 		this.initialQuery?.with(relationshipName, field);
 		this.currentQuery.with(relationshipName, field);
@@ -221,22 +248,27 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Cacheable with(String relationshipName, SObjectField field1, SObjectField field2) {
 		return this.with(relationshipName, new List<SObjectField>{ field1, field2 });
 	}
 
+	@NamespaceAccessible
 	public Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3) {
 		return this.with(relationshipName, new List<SObjectField>{ field1, field2, field3 });
 	}
 
+	@NamespaceAccessible
 	public Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
 		return this.with(relationshipName, new List<SObjectField>{ field1, field2, field3, field4 });
 	}
 
+	@NamespaceAccessible
 	public Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
 		return this.with(relationshipName, new List<SObjectField>{ field1, field2, field3, field4, field5 });
 	}
 
+	@NamespaceAccessible
 	public Cacheable with(String relationshipName, Iterable<SObjectField> fields) {
 		this.initialQuery?.with(relationshipName, fields);
 		this.currentQuery.with(relationshipName, fields);
@@ -244,10 +276,12 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Cacheable whereEqual(SObjectField field, Object value) {
 		return this.whereEqual(field.toString(), value);
 	}
 
+	@NamespaceAccessible
 	public Cacheable whereEqual(String field, Object value) {
 		this.with(field);
 		this.cache.filterGroup.add(new CacheFilter().with(field).equal(value));
@@ -255,46 +289,55 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Cacheable stripInaccessible() {
 		return this.stripInaccessible(AccessType.READABLE);
 	}
 
+	@NamespaceAccessible
 	public Cacheable stripInaccessible(AccessType accessType) {
 		this.currentQuery.stripInaccessible(accessType);
 		this.executor.stripInaccessible(accessType);
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Cacheable mockId(String queryIdentifier) {
 		this.currentQuery.mockId(queryIdentifier);
 		this.executor.mock(queryIdToMock.get(queryIdentifier));
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Cacheable preview() {
 		this.currentQuery.preview();
 		return this;
 	}
 
+	@NamespaceAccessible
 	public Id toId() {
 		this.with('Id');
 		return this.toObject()?.Id;
 	}
 
+	@NamespaceAccessible
 	public Id toIdOf(SObjectField field) {
 		this.with(field);
 		return (Id) this.toObject()?.get(field);
 	}
 
+	@NamespaceAccessible
 	public Boolean doExist() {
 		return this.toObject() != null;
 	}
 
+	@NamespaceAccessible
 	public Object toValueOf(SObjectField fieldToExtract) {
 		this.with(fieldToExtract);
 		return this.toObject()?.get(fieldToExtract);
 	}
 
+	@NamespaceAccessible
 	public SObject toObject() {
 		this.cache.filterGroup.validateIfQueryHasAtLeastOneCondition();
 		this.executeInitialQuery();
@@ -308,10 +351,12 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 		this.cache.storage.putInitialRecordsToCache(this.initialQuery.toList());
 	}
 
+	@NamespaceAccessible
 	public Cacheable byId(SObject record) {
 		return byId(record.Id);
 	}
 
+	@NamespaceAccessible
 	public Cacheable byId(Id recordId) {
 		whereEqual('Id', recordId);
 		return this;
