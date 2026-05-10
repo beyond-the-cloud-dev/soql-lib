@@ -5266,6 +5266,122 @@ private class SOQL_Full_Test {
 		SOQL.of(Account.SObjectType).count().preview().toInteger();
 	}
 
+	// PostProcessor — infrastructure tests
+
+	private class TestableSOQL extends SOQL {
+		public TestableSOQL() {
+			super(Account.SObjectType);
+			with(Account.Name);
+		}
+		protected override List<SOQL.PostProcessor> getPostProcessors() {
+			return new List<SOQL.PostProcessor>{ new NamePrefixFilter('Keep') };
+		}
+	}
+	
+	private class NamePrefixFilter implements SOQL.PostProcessor {
+		private final String prefix;
+		public NamePrefixFilter(String p) { this.prefix = p; }
+		public List<SObject> process(List<SObject> records) {
+			List<SObject> kept = new List<SObject>();
+			for (SObject r : records) {
+				if (((Account) r).Name.startsWith(this.prefix)) {
+					kept.add(r);
+				}
+			}
+			return kept;
+		}
+	}
+
+	@IsTest
+	static void postProcessorFiltersToList() {
+		// Setup
+		SOQL.mock(Account.SObjectType).thenReturn(new List<Account>{
+			new Account(Name = 'Keep Me'),
+			new Account(Name = 'Drop Me')
+		});
+
+		// Test
+		List<SObject> result = new TestableSOQL().toList();
+
+		// Verify
+		Assert.areEqual(1, result.size(), 'Post-processor should filter non-matching records.');
+		Assert.areEqual('Keep Me', ((Account) result[0]).Name, 'Remaining record should be the kept one.');
+	}
+
+	@IsTest
+	static void postProcessorFiltersToObject() {
+		// Setup
+		SOQL.mock(Account.SObjectType).thenReturn(new List<Account>{
+			new Account(Name = 'Keep Me')
+		});
+
+		// Test
+		Account result = (Account) new TestableSOQL().toObject();
+
+		// Verify
+		Assert.areEqual('Keep Me', result.Name, 'Post-processor should pass a matching record through.');
+	}
+
+	@IsTest
+	static void postProcessorFiltersToMap() {
+		// Setup
+		Id keepId = SOQL.IdGenerator.get(Account.SObjectType);
+		Id dropId = SOQL.IdGenerator.get(Account.SObjectType);
+		SOQL.mock(Account.SObjectType).thenReturn(new List<Account>{
+			new Account(Id = keepId, Name = 'Keep Me'),
+			new Account(Id = dropId, Name = 'Drop Me')
+		});
+
+		// Test
+		Map<Id, SObject> result = new TestableSOQL().toMap();
+
+		// Verify
+		Assert.areEqual(1, result.size(), 'Post-processor should filter before map conversion.');
+		Assert.isTrue(result.containsKey(keepId), 'Map should only contain the kept record.');
+	}
+
+	@IsTest
+	static void skipPostProcessorsReturnsFull() {
+		// Setup
+		SOQL.mock(Account.SObjectType).thenReturn(new List<Account>{
+			new Account(Name = 'Keep Me'),
+			new Account(Name = 'Drop Me')
+		});
+
+		// Test
+		List<SObject> result = new TestableSOQL().skipPostProcessors().toList();
+
+		// Verify
+		Assert.areEqual(2, result.size(), 'skipPostProcessors() should bypass all processors.');
+	}
+
+	@IsTest
+	static void noPostProcessorHasZeroCost() {
+		// Setup
+		SOQL.mock(Account.SObjectType).thenReturn(new List<Account>{
+			new Account(Name = 'Account A'),
+			new Account(Name = 'Account B')
+		});
+
+		// Test — plain SOQL.of() with no override should be unaffected
+		List<SObject> result = SOQL.of(Account.SObjectType).toList();
+
+		// Verify
+		Assert.areEqual(2, result.size(), 'Non-overriding path should return all records unchanged.');
+	}
+
+	@IsTest
+	static void postProcessorDoesNotAffectToInteger() {
+		// Setup
+		SOQL.mock(Account.SObjectType).thenReturn(5);
+
+		// Test
+		Integer result = new TestableSOQL().toInteger();
+
+		// Verify
+		Assert.areEqual(5, result, 'toInteger() must not be affected by post-processors.');
+	}
+
 	static List<Account> insertAccounts() {
 		List<Account> accounts = new List<Account>{
 			new Account(Name = 'Test 1'),

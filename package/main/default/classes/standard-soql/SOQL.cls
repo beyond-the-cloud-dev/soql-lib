@@ -22,6 +22,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 		Queryable query();
 	}
 
+	global interface PostProcessor {
+		List<SObject> process(List<SObject> records);
+	}
+
 	global static Queryable of(SObjectType ofObject) {
 		return new SOQL(ofObject);
 	}
@@ -469,6 +473,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 	private SoqlBuilder builder;
 	private Executor executor;
 	private Converter converter;
+	private Boolean skipPostProcessing = false;
 
 	global SOQL(SObjectType ofObject) {
 		this(ofObject.toString());
@@ -960,6 +965,31 @@ global virtual inherited sharing class SOQL implements Queryable {
 		return this;
 	}
 
+	global SOQL skipPostProcessors() {
+		this.skipPostProcessing = true;
+		return this;
+	}
+
+	@TestVisible
+	protected virtual List<PostProcessor> getPostProcessors() {
+		return null;
+	}
+
+	private List<SObject> toListProcessed() {
+		List<SObject> records = this.executor.toList();
+		if (this.skipPostProcessing) {
+			return records;
+		}
+		List<PostProcessor> processors = this.getPostProcessors();
+		if (processors == null || processors.isEmpty()) {
+			return records;
+		}
+		for (PostProcessor p : processors) {
+			records = p.process(records);
+		}
+		return records;
+	}
+
 	global Map<String, Object> binding() {
 		return binder.getBindingMap();
 	}
@@ -1033,11 +1063,18 @@ global virtual inherited sharing class SOQL implements Queryable {
 	}
 
 	global SObject toObject() {
-		return this.executor.toObject();
+		List<SObject> records = this.toListProcessed();
+		if (records.isEmpty()) {
+			return null;
+		}
+		if (records.size() > 1) {
+			throw new QueryException('List has more than 1 row for assignment to SObject');
+		}
+		return records[0];
 	}
 
 	global List<SObject> toList() {
-		return this.executor.toList();
+		return this.toListProcessed();
 	}
 
 	global List<AggregateResult> toAggregated() {
@@ -1053,69 +1090,69 @@ global virtual inherited sharing class SOQL implements Queryable {
 	}
 
 	global Map<Id, SObject> toMap() {
-		return this.converter.transform(this.executor.toList()).toMap();
+		return this.converter.transform(this.toListProcessed()).toMap();
 	}
 
 	global Map<Id, SObject> toIdMapBy(SObjectField field) {
 		this.with(field);
 		this.whereAre(Filter.with(field).isNotNull());
-		return this.converter.transform(this.executor.toList()).toIdMapBy(field);
+		return this.converter.transform(this.toListProcessed()).toIdMapBy(field);
 	}
 
 	global Map<Id, SObject> toIdMapBy(String relationshipName, SObjectField targetKeyField) {
 		this.with(relationshipName + '.' + targetKeyField.toString());
 		this.whereAre(Filter.with(relationshipName, targetKeyField).isNotNull());
-		return this.converter.transform(this.executor.toList()).toIdMapBy(relationshipName, targetKeyField);
+		return this.converter.transform(this.toListProcessed()).toIdMapBy(relationshipName, targetKeyField);
 	}
 
 	global Map<Id, List<SObject>> toAggregatedIdMapBy(SObjectField keyField) {
 		this.with(keyField);
 		this.whereAre(Filter.with(keyField).isNotNull());
-		return this.converter.transform(this.executor.toList()).toAggregatedIdMapBy(keyField);
+		return this.converter.transform(this.toListProcessed()).toAggregatedIdMapBy(keyField);
 	}
 
 	global Map<Id, List<SObject>> toAggregatedIdMapBy(String relationshipName, SObjectField targetKeyField) {
 		this.with(relationshipName + '.' + targetKeyField.toString());
 		this.whereAre(Filter.with(relationshipName, targetKeyField).isNotNull());
-		return this.converter.transform(this.executor.toList()).toAggregatedIdMapBy(relationshipName, targetKeyField);
+		return this.converter.transform(this.toListProcessed()).toAggregatedIdMapBy(relationshipName, targetKeyField);
 	}
 
 	global Map<String, SObject> toMap(SObjectField keyField) {
 		this.with(keyField);
 		this.whereAre(Filter.with(keyField).isNotNull());
-		return this.converter.transform(this.executor.toList()).toMap(keyField);
+		return this.converter.transform(this.toListProcessed()).toMap(keyField);
 	}
 
 	global Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField) {
 		this.with(relationshipName + '.' + targetKeyField.toString());
 		this.whereAre(Filter.with(relationshipName, targetKeyField).isNotNull());
-		return this.converter.transform(this.executor.toList()).toMap(relationshipName, targetKeyField);
+		return this.converter.transform(this.toListProcessed()).toMap(relationshipName, targetKeyField);
 	}
 
 	global Map<String, String> toMap(SObjectField keyField, SObjectField valueField) {
 		this.builder.fields.clearAllFields(); // other fields not needed
 		this.with(keyField, valueField);
 		this.whereAre(Filter.with(keyField).isNotNull());
-		return this.converter.transform(this.executor.toList()).toMap(keyField, valueField);
+		return this.converter.transform(this.toListProcessed()).toMap(keyField, valueField);
 	}
 
 	global Map<String, List<SObject>> toAggregatedMap(SObjectField keyField) {
 		this.with(keyField);
 		this.whereAre(Filter.with(keyField).isNotNull());
-		return this.converter.transform(this.executor.toList()).toAggregatedMap(keyField);
+		return this.converter.transform(this.toListProcessed()).toAggregatedMap(keyField);
 	}
 
 	global Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField) {
 		this.with(relationshipName + '.' + targetKeyField.toString());
 		this.whereAre(Filter.with(relationshipName, targetKeyField).isNotNull());
-		return this.converter.transform(this.executor.toList()).toAggregatedMap(relationshipName, targetKeyField);
+		return this.converter.transform(this.toListProcessed()).toAggregatedMap(relationshipName, targetKeyField);
 	}
 
 	global Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField) {
 		this.builder.fields.clearAllFields(); // other fields not needed
 		this.with(keyField, valueField);
 		this.whereAre(Filter.with(keyField).isNotNull());
-		return this.converter.transform(this.executor.toList()).toAggregatedMap(keyField, valueField);
+		return this.converter.transform(this.toListProcessed()).toAggregatedMap(keyField, valueField);
 	}
 
 	global Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField) {
@@ -1123,7 +1160,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		this.with(keyField);
 		this.with(relationshipName + '.' + targetKeyField.toString());
 		this.whereAre(Filter.with(keyField).isNotNull());
-		return this.converter.transform(this.executor.toList()).toAggregatedMap(keyField, relationshipName, targetKeyField);
+		return this.converter.transform(this.toListProcessed()).toAggregatedMap(keyField, relationshipName, targetKeyField);
 	}
 
 	global Database.QueryLocator toQueryLocator() {
