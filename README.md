@@ -131,4 +131,4 @@ Read about the features in the [basic features](https://soql.beyondthecloud.dev/
 ## License notes
 
 - For proper license management each repository should contain LICENSE file similar to this one.
-- Each original class should contain copyright mark: Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
+- Each original class should contain copyright mark: Copyright (c) 2026 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
