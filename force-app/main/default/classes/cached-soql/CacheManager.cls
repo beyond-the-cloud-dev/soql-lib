@@ -157,10 +157,10 @@ public with sharing class CacheManager {
         }
 
         public override Cache.Partition getPartition(String partitionName) {
-            if (!Cache.Session.isAvailable()) {
-                return null;
-            }
             try {
+                if (!Cache.Session.isAvailable()) {
+                    return null;
+                }
                 return Cache.Session.getPartition(partitionName);
             } catch (Cache.Session.SessionCacheException e) {
                 return null;
