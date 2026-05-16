@@ -3294,6 +3294,21 @@ private class SOQL_Full_Test {
     }
 
     @IsTest
+    static void mockingSingleRecordWhereSobjectPrefixIsNull() {
+        // Setup
+        Id recordId = SOQL.IdGenerator.get(Account.SObjectType);
+        UserRecordAccess testRecord = (UserRecordAccess) JSON.deserialize(JSON.serialize(new Map<String, Object>{ 'RecordId' => recordId }), UserRecordAccess.class);
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(testRecord);
+        UserRecordAccess result = (UserRecordAccess) SOQL.of(UserRecordAccess.SObjectType).with(UserRecordAccess.RecordId).mockId('mockingQuery').toObject();
+
+        // Verify
+        Assert.areEqual(recordId, result.RecordId, 'The result record ID should be the same as the mocked record ID.');
+        Assert.isNull(result.Id, 'The result record Id should be null because it\'s not a real record and the SObject prefix is null.');
+    }
+
+    @IsTest
     static void mockingQueryException() {
         // Test
         SOQL.mock('mockingQuery').throwException();
