@@ -444,6 +444,15 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
+    @NamespaceAccessible
+    public static Integer getQueries() {
+        if (System.Test.isRunningTest() && !System.isBatch() && !System.isFuture() && !System.isQueueable() && !System.isScheduled()) {
+            return SOQL.syncQueriesIssued;
+        }
+
+        return Limits.getQueries();
+    }
+
     // Mocking
 
     @NamespaceAccessible

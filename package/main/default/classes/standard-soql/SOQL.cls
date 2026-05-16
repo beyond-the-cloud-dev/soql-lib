@@ -423,6 +423,14 @@ global virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
+    global static Integer getQueries() {
+        if (System.Test.isRunningTest() && !System.isBatch() && !System.isFuture() && !System.isQueueable() && !System.isScheduled()) {
+            return SOQL.syncQueriesIssued;
+        }
+
+        return Limits.getQueries();
+    }
+
     // Mocking
 
     global static Mockable mock(SObjectType ofObject) {

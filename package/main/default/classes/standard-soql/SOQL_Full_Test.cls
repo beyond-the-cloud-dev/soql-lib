@@ -4667,6 +4667,38 @@ private class SOQL_Full_Test {
     }
 
     @IsTest
+    static void getQueriesInitiallyZero() {
+        // Verify
+        Assert.areEqual(0, SOQL.getQueries(), 'The number of issued queries should be 0 before any query is executed.');
+    }
+
+    @IsTest
+    static void getQueriesIncrementsAfterMockedQuery() {
+        // Setup
+        SOQL.mock('mockingQuery').thenReturn(new List<Account>());
+
+        // Test
+        SOQL.of(Account.SObjectType).mockId('mockingQuery').toList();
+
+        // Verify
+        Assert.areEqual(1, SOQL.getQueries(), 'The number of issued queries should be 1 after one mocked query is executed.');
+    }
+
+    @IsTest
+    static void getQueriesTracksMultipleMockedQueries() {
+        // Setup
+        SOQL.mock('mockingQuery').thenReturn(new List<Account>());
+
+        // Test
+        for (Integer i = 0; i < 5; i++) {
+            SOQL.of(Account.SObjectType).mockId('mockingQuery').toList();
+        }
+
+        // Verify
+        Assert.areEqual(5, SOQL.getQueries(), 'The number of issued queries should match the number of mocked queries executed.');
+    }
+
+    @IsTest
     static void queryConverterToIdsOf() {
         // Setup
         List<Account> accounts = new List<Account>{
