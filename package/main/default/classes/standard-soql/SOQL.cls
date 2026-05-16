@@ -2665,9 +2665,13 @@ global virtual inherited sharing class SOQL implements Queryable {
         }
 
         private void addIdToMockedRecords() {
-            // Id is always added to mirror standard SOQL behavior
+            // Id is added to mirror standard SOQL behavior
             SObjectType sObjectType = this.mockedRecords[0].getSObjectType();
             String sObjectPrefix = sObjectType.getDescribe(SObjectDescribeOptions.DEFERRED).getKeyPrefix();
+
+            if (String.isBlank(sObjectPrefix)) {
+                return;
+            }
 
             for (SObject record : this.mockedRecords) {
                 record.put('Id', record?.Id ?? IdGenerator.get(sObjectPrefix));
