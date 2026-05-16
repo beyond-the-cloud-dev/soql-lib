@@ -3,7 +3,7 @@
  * Copyright (c) 2026 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.10.0
+ * v6.10.2
  *
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
@@ -3619,10 +3619,10 @@ private class SOQL_Test {
     @IsTest
     static void toValueOfWhenRecordNotExist() {
         // Test
-        String accountDunsNumber = (String) SOQL.of(Account.SObjectType).whereAre(SOQL.Filter.with(Account.Industry).equal('IT')).toValueOf(Account.DunsNumber);
+        String billingCities = (String) SOQL.of(Account.SObjectType).whereAre(SOQL.Filter.with(Account.Industry).equal('IT')).toValueOf(Account.BillingCity);
 
         // Verify
-        Assert.isNull(accountDunsNumber, 'The account DUNS number should be null, because the record does not exist.');
+        Assert.isNull(billingCities, 'The account billing city should be null, because the record does not exist.');
     }
 
     @IsTest
@@ -3884,7 +3884,7 @@ private class SOQL_Test {
     static void previewWithConditions() {
         // Test
         SOQL.of(Account.SObjectType)
-            .whereAre(SOQL.FilterGroup.add(SOQL.Filter.with(Account.DunsNumber).equal('ABCD12345')).add(SOQL.Filter.with(Account.Industry).equal('IT')))
+            .whereAre(SOQL.FilterGroup.add(SOQL.Filter.with(Account.BillingCity).equal('Krakow')).add(SOQL.Filter.with(Account.Industry).equal('IT')))
             .preview()
             .toList();
     }
