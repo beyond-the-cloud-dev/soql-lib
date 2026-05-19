@@ -2,7 +2,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.7.0
+ * v6.8.0
  *
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
@@ -15,20 +15,20 @@
  * - ExcessiveParameterList: Make methods similar to native SOQL
 **/
 @SuppressWarnings('PMD.ExcessivePublicCount,PMD.ExcessiveClassLength,PMD.CyclomaticComplexity,PMD.CognitiveComplexity,PMD.PropertyNamingConventions,PMD.FieldDeclarationsShouldBeAtStart,PMD.ApexDoc,PMD.ExcessiveParameterList')
-global virtual inherited sharing class SOQLCache implements Cacheable {
-	global interface Selector {
+public virtual inherited sharing class SOQLCache implements Cacheable {
+	public interface Selector {
 		Cacheable query();
 	}
 
-	global static Cacheable of(SObjectType ofObject) {
+	public static Cacheable of(SObjectType ofObject) {
 		return new SOQLCache(ofObject);
 	}
 
-	global static Cacheable of(String ofObject) {
+	public static Cacheable of(String ofObject) {
 		return new SOQLCache(ofObject);
 	}
 
-	global interface Cacheable {
+	public interface Cacheable {
 		// CONFIG
 		Cacheable cacheInApexTransaction();
 		Cacheable cacheInOrgCache();
@@ -71,26 +71,26 @@ global virtual inherited sharing class SOQLCache implements Cacheable {
 		Object toValueOf(SObjectField fieldToExtract);
 	}
 
-	global virtual SOQL.Queryable initialQuery() {
+	public virtual SOQL.Queryable initialQuery() {
 		return null;
 	}
 
-	global virtual List<SObjectField> additionalAllowedConditionFields() {
+	public virtual List<SObjectField> additionalAllowedConditionFields() {
 		return new List<SObjectField>();
 	}
 
 	// Mocking
 
-	global interface Mockable {
+	public interface Mockable {
 		// SObject
 		void thenReturn(SObject record);
 	}
 
-	global static Mockable mock(SObjectType ofObject) {
+	public static Mockable mock(SObjectType ofObject) {
 		return mock(ofObject.toString().hashCode().toString());
 	}
 
-	global static Mockable mock(String mockId) {
+	public static Mockable mock(String mockId) {
 		if (!SOQLCache.queryIdToMock.containsKey(mockId)) {
 			SOQLCache.queryIdToMock.put(mockId, new List<SoqlMock>());
 		}
@@ -98,7 +98,7 @@ global virtual inherited sharing class SOQLCache implements Cacheable {
 		return SOQLCache.queryIdToMock.get(mockId).get(SOQLCache.queryIdToMock.get(mockId).size() - 1);
 	}
 
-	global static void removeFromCache(List<SObject> records) {
+	public static void removeFromCache(List<SObject> records) {
 		if (records.isEmpty()) {
 			return;
 		}
@@ -130,11 +130,11 @@ global virtual inherited sharing class SOQLCache implements Cacheable {
 	private SOQL.Queryable initialQuery = null;
 	private SOQL.Queryable currentQuery = null;
 
-	global SOQLCache(SObjectType ofObject) {
+	public SOQLCache(SObjectType ofObject) {
 		this(ofObject.toString());
 	}
 
-	global SOQLCache(String ofObject) {
+	public SOQLCache(String ofObject) {
 		this.initialQuery = this.initialQuery()?.systemMode()?.withoutSharing();
 		this.currentQuery = SOQL.of(ofObject).systemMode().withoutSharing();
 
@@ -147,153 +147,155 @@ global virtual inherited sharing class SOQLCache implements Cacheable {
 		this.with('Id');
 	}
 
-	global Cacheable cacheInApexTransaction() {
+	public Cacheable cacheInApexTransaction() {
 		this.cache.storage.apexTransaction();
 		return this;
 	}
 
-	global Cacheable cacheInOrgCache() {
+	public Cacheable cacheInOrgCache() {
 		this.cache.storage.orgCache();
 		return this;
 	}
 
-	global Cacheable cacheInSessionCache() {
+	public Cacheable cacheInSessionCache() {
 		this.cache.storage.sessionCache();
 		return this;
 	}
 
-	global Cacheable maxHoursWithoutRefresh(Integer hours) {
+	public Cacheable maxHoursWithoutRefresh(Integer hours) {
 		this.cache.expiration.maxRecordAgeInHours(hours);
 		return this;
 	}
 
-	global Cacheable allowFilteringByNonUniqueFields() {
+	public Cacheable allowFilteringByNonUniqueFields() {
 		this.cache.filterGroup.allowFilteringByNonUniqueFields();
 		return this;
 	}
 
-	global Cacheable allowQueryWithoutConditions() {
+	public Cacheable allowQueryWithoutConditions() {
 		this.cache.filterGroup.allowQueryWithoutConditions();
 		return this;
 	}
 
-	global Cacheable with(SObjectField field) {
+	public Cacheable with(SObjectField field) {
 		this.initialQuery?.with(field);
 		this.currentQuery.with(field);
 		this.cache.fields.with(field);
 		return this;
 	}
 
-	global Cacheable with(SObjectField field1, SObjectField field2) {
+	public Cacheable with(SObjectField field1, SObjectField field2) {
 		return this.with(field1).with(field2);
 	}
 
-	global Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3) {
+	public Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3) {
 		return this.with(field1, field2).with(field3);
 	}
 
-	global Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
+	public Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
 		return this.with(field1, field2, field3).with(field4);
 	}
 
-	global Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
+	public Cacheable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
 		return this.with(field1, field2, field3, field4).with(field5);
 	}
 
-	global Cacheable with(List<SObjectField> fields) {
+	public Cacheable with(List<SObjectField> fields) {
 		this.initialQuery?.with(fields);
 		this.currentQuery.with(fields);
 		this.cache.fields.with(fields);
 		return this;
 	}
 
-	global Cacheable with(String fields) {
+	public Cacheable with(String fields) {
 		this.initialQuery?.with(fields);
 		this.currentQuery.with(fields);
 		this.cache.fields.with(fields);
 		return this;
 	}
 
-	global Cacheable with(String relationshipName, SObjectField field) {
+	public Cacheable with(String relationshipName, SObjectField field) {
 		this.initialQuery?.with(relationshipName, field);
 		this.currentQuery.with(relationshipName, field);
 		this.cache.fields.with(relationshipName, field);
 		return this;
 	}
 
-	global Cacheable with(String relationshipName, SObjectField field1, SObjectField field2) {
+	public Cacheable with(String relationshipName, SObjectField field1, SObjectField field2) {
 		return this.with(relationshipName, new List<SObjectField>{ field1, field2 });
 	}
 
-	global Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3) {
+	public Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3) {
 		return this.with(relationshipName, new List<SObjectField>{ field1, field2, field3 });
 	}
 
-	global Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
+	public Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
 		return this.with(relationshipName, new List<SObjectField>{ field1, field2, field3, field4 });
 	}
 
-	global Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
+	public Cacheable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
 		return this.with(relationshipName, new List<SObjectField>{ field1, field2, field3, field4, field5 });
 	}
 
-	global Cacheable with(String relationshipName, Iterable<SObjectField> fields) {
+	public Cacheable with(String relationshipName, Iterable<SObjectField> fields) {
 		this.initialQuery?.with(relationshipName, fields);
 		this.currentQuery.with(relationshipName, fields);
 		this.cache.fields.with(relationshipName, fields);
 		return this;
 	}
 
-	global Cacheable whereEqual(SObjectField field, Object value) {
+	public Cacheable whereEqual(SObjectField field, Object value) {
 		return this.whereEqual(field.toString(), value);
 	}
 
-	global Cacheable whereEqual(String field, Object value) {
+	public Cacheable whereEqual(String field, Object value) {
 		this.with(field);
 		this.cache.filterGroup.add(new CacheFilter().with(field).equal(value));
 		this.currentQuery.whereAre(SOQL.Filter.with(field).equal(value));
 		return this;
 	}
 
-	global Cacheable stripInaccessible() {
+	public Cacheable stripInaccessible() {
 		return this.stripInaccessible(AccessType.READABLE);
 	}
 
-	global Cacheable stripInaccessible(AccessType accessType) {
+	public Cacheable stripInaccessible(AccessType accessType) {
 		this.currentQuery.stripInaccessible(accessType);
 		this.executor.stripInaccessible(accessType);
 		return this;
 	}
 
-	global Cacheable mockId(String queryIdentifier) {
+	public Cacheable mockId(String queryIdentifier) {
 		this.currentQuery.mockId(queryIdentifier);
 		this.executor.mock(queryIdToMock.get(queryIdentifier));
 		return this;
 	}
 
-	global Cacheable preview() {
+	public Cacheable preview() {
 		this.currentQuery.preview();
 		return this;
 	}
 
-	global Id toId() {
+	public Id toId() {
+		this.with('Id');
 		return this.toObject()?.Id;
 	}
 
-	global Id toIdOf(SObjectField field) {
+	public Id toIdOf(SObjectField field) {
+		this.with(field);
 		return (Id) this.toObject()?.get(field);
 	}
 
-	global Boolean doExist() {
+	public Boolean doExist() {
 		return this.toObject() != null;
 	}
 
-	global Object toValueOf(SObjectField fieldToExtract) {
+	public Object toValueOf(SObjectField fieldToExtract) {
 		this.with(fieldToExtract);
 		return this.toObject()?.get(fieldToExtract);
 	}
 
-	global SObject toObject() {
+	public SObject toObject() {
 		this.cache.filterGroup.validateIfQueryHasAtLeastOneCondition();
 		this.executeInitialQuery();
 		return this.executor.toObject();
@@ -306,11 +308,11 @@ global virtual inherited sharing class SOQLCache implements Cacheable {
 		this.cache.storage.putInitialRecordsToCache(this.initialQuery.toList());
 	}
 
-	global Cacheable byId(SObject record) {
+	public Cacheable byId(SObject record) {
 		return byId(record.Id);
 	}
 
-	global Cacheable byId(Id recordId) {
+	public Cacheable byId(Id recordId) {
 		whereEqual('Id', recordId);
 		return this;
 	}
