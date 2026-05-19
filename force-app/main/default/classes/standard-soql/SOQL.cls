@@ -2,7 +2,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.7.0
+ * v6.8.0
  *
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
@@ -17,20 +17,20 @@
  * - NcssTypeCount: It is a library and we tried to put everything into ONE class
 **/
 @SuppressWarnings('PMD.ExcessivePublicCount,PMD.ExcessiveClassLength,PMD.FieldNamingConventions,PMD.CyclomaticComplexity,PMD.CognitiveComplexity,PMD.PropertyNamingConventions,PMD.FieldDeclarationsShouldBeAtStart,PMD.ApexDoc,PMD.ExcessiveParameterList,PMD.NcssTypeCount')
-global virtual inherited sharing class SOQL implements Queryable {
-	global interface Selector {
+public virtual inherited sharing class SOQL implements Queryable {
+	public interface Selector {
 		Queryable query();
 	}
 
-	global static Queryable of(SObjectType ofObject) {
+	public static Queryable of(SObjectType ofObject) {
 		return new SOQL(ofObject);
 	}
 
-	global static Queryable of(String ofObject) {
+	public static Queryable of(String ofObject) {
 		return new SOQL(ofObject);
 	}
 
-	global interface Queryable {
+	public interface Queryable {
 		// SELECT
 		Queryable with(SObjectField field);
 		Queryable with(SObjectField field1, SObjectField field2);
@@ -83,6 +83,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		Queryable toLabel(SObjectField field, String alias);
 		Queryable toLabel(String field);
 		Queryable toLabel(String field, String alias);
+		Queryable toLabel(Iterable<String> fields);
 		// SELECT - FORMAT
 		Queryable format(SObjectField field);
 		Queryable format(SObjectField field, String alias);
@@ -162,6 +163,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		Database.QueryLocator toQueryLocator();
 		// CURSOR
 		Database.Cursor toCursor();
+		Database.PaginationCursor toPaginationCursor();
 		// DO EXIST
 		Boolean doExist();
 		// AGGREGATE RESULTS
@@ -197,7 +199,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		Map<String, Object> binding();
 	}
 
-	global interface SubQuery {
+	public interface SubQuery {
 		SubQuery of(String ofObject);
 		// SELECT
 		SubQuery with(SObjectField field);
@@ -209,6 +211,11 @@ global virtual inherited sharing class SOQL implements Queryable {
 		SubQuery with(String fields);
 		SubQuery with(String relationshipName, Iterable<SObjectField> fields);
 		SubQuery with(SubQuery subQuery);
+		SubQuery toLabel(SObjectField field);
+		SubQuery toLabel(SObjectField field, String alias);
+		SubQuery toLabel(String field);
+		SubQuery toLabel(String field, String alias);
+		SubQuery toLabel(Iterable<String> fields);
 		// WHERE
 		SubQuery whereAre(FilterGroup filterGroup);
 		SubQuery whereAre(Filter filter);
@@ -230,7 +237,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		String getChildRelationshipName();
 	}
 
-	global interface TypeOf {
+	public interface TypeOf {
 		// TYPEOF
 		TypeOf of(String ofField);
 		TypeOf of(SObjectField ofField);
@@ -256,7 +263,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		Typeof whenElse(String fields);
 	}
 
-	global interface FilterGroup {
+	public interface FilterGroup {
 		// ADD CONDITION
 		FilterGroup add(FilterGroup filterGroup);
 		FilterGroup add(Filter filter);
@@ -272,7 +279,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		Boolean hasValues();
 	}
 
-	global interface Filter {
+	public interface Filter {
 		// FIELDS
 		Filter id();
 		Filter recordType();
@@ -317,7 +324,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		Boolean hasValue();
 	}
 
-	global interface InnerJoin {
+	public interface InnerJoin {
 		InnerJoin of(SObjectType ofObject);
 		// SELECT
 		InnerJoin with(SObjectField field);
@@ -326,7 +333,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		InnerJoin whereAre(Filter filter);
 	}
 
-	global interface HavingFilterGroup {
+	public interface HavingFilterGroup {
 		// ADD CONDITION
 		HavingFilterGroup add(HavingFilterGroup havingFilterGroup);
 		HavingFilterGroup add(HavingFilter havingFilter);
@@ -338,7 +345,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		Boolean hasValues();
 	}
 
-	global interface HavingFilter {
+	public interface HavingFilter {
 		// FIELDS
 		HavingFilter with(SObjectField field);
 		HavingFilter with(String field);
@@ -373,11 +380,11 @@ global virtual inherited sharing class SOQL implements Queryable {
 		Boolean hasValue();
 	}
 
-	global interface DataCategoryFilterGroup {
+	public interface DataCategoryFilterGroup {
 		DataCategoryFilterGroup add(DataCategoryFilter dataCategoryFilter);
 	}
 
-	global interface DataCategoryFilter {
+	public interface DataCategoryFilter {
 		// FIELDS
 		DataCategoryFilter with(String field);
 		// COMPARATORS
@@ -393,50 +400,50 @@ global virtual inherited sharing class SOQL implements Queryable {
 		Boolean hasValue();
 	}
 
-	global interface AggregateResultProxy {
+	public interface AggregateResultProxy {
 		Object get(String field);
 		Map<String, Object> getPopulatedFieldsAsMap();
 	}
 
-	global static SubQuery SubQuery {
+	public static SubQuery SubQuery {
 		get { return new SoqlSubQuery(); }
 	}
 
-	global static Typeof Type {
+	public static Typeof Type {
 		get { return new SoqlTypeof(); }
 	}
 
-	global static FilterGroup FilterGroup {
+	public static FilterGroup FilterGroup {
 		get { return new SoqlFilterGroup(); }
 	}
 
-	global static Filter Filter {
+	public static Filter Filter {
 		get { return new SoqlFilter(); }
 	}
 
-	global static InnerJoin InnerJoin {
+	public static InnerJoin InnerJoin {
 		get { return new SoqlJoinQuery(); }
 	}
 
-	global static HavingFilterGroup HavingFilterGroup {
+	public static HavingFilterGroup HavingFilterGroup {
 		get { return new SoqlHavingFilterGroup(); }
 	}
 
-	global static HavingFilter HavingFilter {
+	public static HavingFilter HavingFilter {
 		get { return new SoqlHavingFilter(); }
 	}
 
-	global static DataCategoryFilter DataCategoryFilter {
+	public static DataCategoryFilter DataCategoryFilter {
 		get { return new SoqlDataCategoryFilter(); }
 	}
 
 	// Mocking
 
-	global static Mockable mock(SObjectType ofObject) {
+	public static Mockable mock(SObjectType ofObject) {
 		return mock(ofObject.toString().hashCode().toString());
 	}
 
-	global static Mockable mock(String mockId) {
+	public static Mockable mock(String mockId) {
 		if (!SOQL.queryIdToMock.containsKey(mockId)) {
 			SOQL.queryIdToMock.put(mockId, new List<SoqlMock>());
 		}
@@ -446,7 +453,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 	public static RandomIdGenerator IdGenerator = new RandomIdGenerator();
 
-	global interface Mockable {
+	public interface Mockable {
 		// SObject
 		Mockable thenReturn(SObject record);
 		Mockable thenReturn(List<SObject> records);
@@ -494,11 +501,11 @@ global virtual inherited sharing class SOQL implements Queryable {
 	private Executor executor;
 	private Converter converter;
 
-	global SOQL(SObjectType ofObject) {
+	public SOQL(SObjectType ofObject) {
 		this(ofObject.toString());
 	}
 
-	global SOQL(String ofObject) {
+	public SOQL(String ofObject) {
 		this.builder = new SoqlBuilder(ofObject);
 		this.executor = new Executor(builder);
 		this.converter = new Converter(ofObject);
@@ -506,33 +513,33 @@ global virtual inherited sharing class SOQL implements Queryable {
 		this.mockId(ofObject.hashCode().toString());
 	}
 
-	global Queryable with(SObjectField field) {
+	public Queryable with(SObjectField field) {
 		this.builder.fields.plainFields.add(field.toString());
 		return this;
 	}
 
-	global Queryable with(SObjectField field1, SObjectField field2) {
+	public Queryable with(SObjectField field1, SObjectField field2) {
 		return this.with(field1).with(field2);
 	}
 
-	global Queryable with(SObjectField field1, SObjectField field2, SObjectField field3) {
+	public Queryable with(SObjectField field1, SObjectField field2, SObjectField field3) {
 		return this.with(field1, field2).with(field3);
 	}
 
-	global Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
+	public Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
 		return this.with(field1, field2, field3).with(field4);
 	}
 
-	global Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
+	public Queryable with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
 		return this.with(field1, field2, field3, field4).with(field5);
 	}
 
-	global Queryable with(List<SObjectField> fields) {
+	public Queryable with(List<SObjectField> fields) {
 		this.builder.fields.plainFields.add(fields);
 		return this;
 	}
 
-	global Queryable with(Iterable<String> fields) {
+	public Queryable with(Iterable<String> fields) {
 		if (!fields.iterator().hasNext()) {
 			return this;
 		}
@@ -540,17 +547,17 @@ global virtual inherited sharing class SOQL implements Queryable {
 		return this.with(String.join(fields, ','));
 	}
 
-	global Queryable withFieldSet(String fieldSetName) {
+	public Queryable withFieldSet(String fieldSetName) {
 		this.builder.fields.withFieldSet(fieldSetName);
 		return this;
 	}
 
-	global Queryable with(String fields) {
+	public Queryable with(String fields) {
 		this.builder.fields.with(fields);
 		return this;
 	}
 
-	global Queryable with(SObjectField field, String alias) {
+	public Queryable with(SObjectField field, String alias) {
 		return this.with(field.toString(), alias);
 	}
 
@@ -559,143 +566,143 @@ global virtual inherited sharing class SOQL implements Queryable {
 		return this;
 	}
 
-	global Queryable with(String relationshipName, SObjectField field) {
+	public Queryable with(String relationshipName, SObjectField field) {
 		return this.with(relationshipName, new List<SObjectField>{ field });
 	}
 
-	global Queryable with(String relationshipName, SObjectField field1, SObjectField field2) {
+	public Queryable with(String relationshipName, SObjectField field1, SObjectField field2) {
 		return this.with(relationshipName, new List<SObjectField>{ field1, field2 });
 	}
 
-	global Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3) {
+	public Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3) {
 		return this.with(relationshipName, new List<SObjectField>{ field1, field2, field3 });
 	}
 
-	global Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
+	public Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
 		return this.with(relationshipName, new List<SObjectField>{ field1, field2, field3, field4 });
 	}
 
-	global Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
+	public Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
 		return this.with(relationshipName, new List<SObjectField>{ field1, field2, field3, field4, field5 });
 	}
 
-	global Queryable with(String relationshipName, Iterable<SObjectField> fields) {
+	public Queryable with(String relationshipName, Iterable<SObjectField> fields) {
 		this.builder.fields.relationshipFields.add(relationshipName, fields);
 		return this;
 	}
 
-	global Queryable with(SubQuery subQuery) {
+	public Queryable with(SubQuery subQuery) {
 		this.builder.subQueries.add(subQuery);
 		return this;
 	}
 
-	global Queryable with(TypeOf typeof) {
+	public Queryable with(TypeOf typeof) {
 		this.builder.fields.typeofFields.add(typeof);
 		return this;
 	}
 
-	global Queryable count() {
+	public Queryable count() {
 		this.builder.fields.count();
 		return this;
 	}
 
-	global Queryable count(SObjectField field) {
+	public Queryable count(SObjectField field) {
 		return this.count(field, '');
 	}
 
-	global Queryable count(SObjectField field, String alias) {
+	public Queryable count(SObjectField field, String alias) {
 		return this.withAggregateFunction('COUNT', field, alias);
 	}
 
-	global Queryable count(String relationshipName, SObjectField field) {
+	public Queryable count(String relationshipName, SObjectField field) {
 		return this.count(relationshipName, field, '');
 	}
 
-	global Queryable count(String relationshipName, SObjectField field, String alias) {
+	public Queryable count(String relationshipName, SObjectField field, String alias) {
 		return this.withAggregateFunction('COUNT', relationshipName, field, alias);
 	}
 
-	global Queryable avg(SObjectField field) {
+	public Queryable avg(SObjectField field) {
 		return this.avg(field, '');
 	}
 
-	global Queryable avg(SObjectField field, String alias) {
+	public Queryable avg(SObjectField field, String alias) {
 		return this.withAggregateFunction('AVG', field, alias);
 	}
 
-	global Queryable avg(String relationshipName, SObjectField field) {
+	public Queryable avg(String relationshipName, SObjectField field) {
 		return this.avg(relationshipName, field, '');
 	}
 
-	global Queryable avg(String relationshipName, SObjectField field, String alias) {
+	public Queryable avg(String relationshipName, SObjectField field, String alias) {
 		return this.withAggregateFunction('AVG', relationshipName, field, alias);
 	}
 
-	global Queryable countDistinct(SObjectField field) {
+	public Queryable countDistinct(SObjectField field) {
 		return this.countDistinct(field, '');
 	}
 
-	global Queryable countDistinct(SObjectField field, String alias) {
+	public Queryable countDistinct(SObjectField field, String alias) {
 		return this.withAggregateFunction('COUNT_DISTINCT', field, alias);
 	}
 
-	global Queryable countDistinct(String relationshipName, SObjectField field) {
+	public Queryable countDistinct(String relationshipName, SObjectField field) {
 		return this.countDistinct(relationshipName, field, '');
 	}
 
-	global Queryable countDistinct(String relationshipName, SObjectField field, String alias) {
+	public Queryable countDistinct(String relationshipName, SObjectField field, String alias) {
 		return this.withAggregateFunction('COUNT_DISTINCT', relationshipName, field, alias);
 	}
 
-	global Queryable min(SObjectField field) {
+	public Queryable min(SObjectField field) {
 		return this.min(field, '');
 	}
 
-	global Queryable min(SObjectField field, String alias) {
+	public Queryable min(SObjectField field, String alias) {
 		return this.withAggregateFunction('MIN', field, alias);
 	}
 
-	global Queryable min(String relationshipName, SObjectField field) {
+	public Queryable min(String relationshipName, SObjectField field) {
 		return this.min(relationshipName, field, '');
 	}
 
-	global Queryable min(String relationshipName, SObjectField field, String alias) {
+	public Queryable min(String relationshipName, SObjectField field, String alias) {
 		return this.withAggregateFunction('MIN', relationshipName, field, alias);
 	}
 
-	global Queryable max(SObjectField field) {
+	public Queryable max(SObjectField field) {
 		return this.max(field, '');
 	}
 
-	global Queryable max(SObjectField field, String alias) {
+	public Queryable max(SObjectField field, String alias) {
 		return this.withAggregateFunction('MAX', field, alias);
 	}
 
-	global Queryable max(String relationshipName, SObjectField field) {
+	public Queryable max(String relationshipName, SObjectField field) {
 		return this.max(relationshipName, field, '');
 	}
 
-	global Queryable max(String relationshipName, SObjectField field, String alias) {
+	public Queryable max(String relationshipName, SObjectField field, String alias) {
 		return this.withAggregateFunction('MAX', relationshipName, field, alias);
 	}
 
-	global Queryable sum(SObjectField field) {
+	public Queryable sum(SObjectField field) {
 		return this.sum(field, '');
 	}
 
-	global Queryable sum(SObjectField field, String alias) {
+	public Queryable sum(SObjectField field, String alias) {
 		return this.withAggregateFunction('SUM', field, alias);
 	}
 
-	global Queryable sum(String relationshipName, SObjectField field) {
+	public Queryable sum(String relationshipName, SObjectField field) {
 		return this.sum(relationshipName, field, '');
 	}
 
-	global Queryable sum(String relationshipName, SObjectField field, String alias) {
+	public Queryable sum(String relationshipName, SObjectField field, String alias) {
 		return this.withAggregateFunction('SUM', relationshipName, field, alias);
 	}
 
-	global Queryable grouping(SObjectField field, String alias) {
+	public Queryable grouping(SObjectField field, String alias) {
 		return this.withAggregateFunction('GROUPING', field, alias);
 	}
 
@@ -709,27 +716,34 @@ global virtual inherited sharing class SOQL implements Queryable {
 		return this;
 	}
 
-	global Queryable toLabel(SObjectField field) {
+	public Queryable toLabel(SObjectField field) {
 		return this.toLabel(field.toString());
 	}
 
-	global Queryable toLabel(SObjectField field, String alias) {
+	public Queryable toLabel(SObjectField field, String alias) {
 		return this.toLabel(field.toString(), alias);
 	}
 
-	global Queryable toLabel(String field) {
+	public Queryable toLabel(String field) {
 		return this.toLabel(field, '');
 	}
 
-	global Queryable toLabel(String field, String alias) {
+	public Queryable toLabel(String field, String alias) {
 		return this.withFunction('toLabel', field, alias);
 	}
 
-	global Queryable format(SObjectField field) {
+	public Queryable toLabel(Iterable<String> fields) {
+		for (String field : fields) {
+			this.toLabel(field);
+		}
+		return this;
+	}
+
+	public Queryable format(SObjectField field) {
 		return this.format(field, '');
 	}
 
-	global Queryable format(SObjectField field, String alias) {
+	public Queryable format(SObjectField field, String alias) {
 		return this.withFunction('FORMAT', field.toString(), alias);
 	}
 
@@ -738,27 +752,27 @@ global virtual inherited sharing class SOQL implements Queryable {
 		return this;
 	}
 
-	global Queryable delegatedScope() {
+	public Queryable delegatedScope() {
 		return this.scope('DELEGATED');
 	}
 
-	global Queryable mineScope() {
+	public Queryable mineScope() {
 		return this.scope('MINE');
 	}
 
-	global Queryable mineAndMyGroupsScope() {
+	public Queryable mineAndMyGroupsScope() {
 		return this.scope('MINE_AND_MY_GROUPS');
 	}
 
-	global Queryable myTerritoryScope() {
+	public Queryable myTerritoryScope() {
 		return this.scope('MY_TERRITORY');
 	}
 
-	global Queryable myTeamTerritoryScope() {
+	public Queryable myTeamTerritoryScope() {
 		return this.scope('MY_TEAM_TERRITORY');
 	}
 
-	global Queryable teamScope() {
+	public Queryable teamScope() {
 		return this.scope('TEAM');
 	}
 
@@ -767,63 +781,63 @@ global virtual inherited sharing class SOQL implements Queryable {
 		return this;
 	}
 
-	global Queryable whereAre(FilterGroup filterGroup) {
+	public Queryable whereAre(FilterGroup filterGroup) {
 		this.builder.conditions.add(filterGroup);
 		return this;
 	}
 
-	global Queryable whereAre(Filter filter) {
+	public Queryable whereAre(Filter filter) {
 		this.builder.conditions.add(filter);
 		return this;
 	}
 
-	global Queryable whereAre(String conditions) {
+	public Queryable whereAre(String conditions) {
 		this.builder.conditions.add(conditions);
 		return this;
 	}
 
-	global Queryable conditionLogic(String conditionLogic) {
+	public Queryable conditionLogic(String conditionLogic) {
 		this.builder.conditions.conditionLogic(conditionLogic);
 		return this;
 	}
 
-	global Queryable anyConditionMatching() {
+	public Queryable anyConditionMatching() {
 		this.builder.conditions.anyConditionMatching();
 		return this;
 	}
 
-	global Queryable groupBy(SObjectField field) {
+	public Queryable groupBy(SObjectField field) {
 		return this.groupBy(field.toString());
 	}
 
-	global Queryable groupBy(String field) {
+	public Queryable groupBy(String field) {
 		this.builder.fields.withGroupedField(field);
 		this.builder.groupBy.with(field);
 		return this;
 	}
 
-	global Queryable groupBy(String relationshipName, SObjectField field) {
+	public Queryable groupBy(String relationshipName, SObjectField field) {
 		this.builder.fields.withGroupedField(relationshipName + '.' + field.toString());
 		this.builder.groupBy.with(relationshipName, field);
 		return this;
 	}
 
-	global Queryable groupByRollup(SObjectField field) {
+	public Queryable groupByRollup(SObjectField field) {
 		this.builder.fields.withGroupedField(field.toString());
 		return this.groupBy(field, 'ROLLUP');
 	}
 
-	global Queryable groupByRollup(String relationshipName, SObjectField field) {
+	public Queryable groupByRollup(String relationshipName, SObjectField field) {
 		this.builder.fields.withGroupedField(relationshipName + '.' + field.toString());
 		return this.groupBy(relationshipName, field, 'ROLLUP');
 	}
 
-	global Queryable groupByCube(SObjectField field) {
+	public Queryable groupByCube(SObjectField field) {
 		this.builder.fields.withGroupedField(field.toString());
 		return this.groupBy(field, 'CUBE');
 	}
 
-	global Queryable groupByCube(String relationshipName, SObjectField field) {
+	public Queryable groupByCube(String relationshipName, SObjectField field) {
 		this.builder.fields.withGroupedField(relationshipName + '.' + field.toString());
 		return this.groupBy(relationshipName, field, 'CUBE');
 	}
@@ -840,100 +854,100 @@ global virtual inherited sharing class SOQL implements Queryable {
 		return this;
 	}
 
-	global Queryable have(HavingFilterGroup havingFilterGroup) {
+	public Queryable have(HavingFilterGroup havingFilterGroup) {
 		this.builder.havingClause.add(havingFilterGroup);
 		return this;
 	}
 
-	global Queryable have(HavingFilter havingFilter) {
+	public Queryable have(HavingFilter havingFilter) {
 		this.builder.havingClause.add(havingFilter);
 		return this;
 	}
 
-	global Queryable have(String havingConditions) {
+	public Queryable have(String havingConditions) {
 		this.builder.havingClause.add(havingConditions);
 		return this;
 	}
 
-	global Queryable havingConditionLogic(String havingConditionsOrder) {
+	public Queryable havingConditionLogic(String havingConditionsOrder) {
 		this.builder.havingClause.conditionLogic(havingConditionsOrder);
 		return this;
 	}
 
-	global Queryable anyHavingConditionMatching() {
+	public Queryable anyHavingConditionMatching() {
 		this.builder.havingClause.anyConditionMatching();
 		return this;
 	}
 
-	global Queryable withDataCategory(DataCategoryFilter dataCategoryFilter) {
+	public Queryable withDataCategory(DataCategoryFilter dataCategoryFilter) {
 		this.builder.dataCategory.add(dataCategoryFilter);
 		return this;
 	}
 
-	global Queryable orderBy(SObjectField field) {
+	public Queryable orderBy(SObjectField field) {
 		return this.orderBy(field.toString());
 	}
 
-	global Queryable orderBy(String field) {
+	public Queryable orderBy(String field) {
 		this.builder.orderBys.newOrderBy().with(field);
 		return this;
 	}
 
-	global Queryable orderBy(String field, String direction) {
+	public Queryable orderBy(String field, String direction) {
 		this.builder.orderBys.newOrderBy().with(field);
 		this.builder.orderBys.latestOrderBy().sortingOrder(direction);
 		return this;
 	}
 
-	global Queryable orderBy(String relationshipName, SObjectField field) {
+	public Queryable orderBy(String relationshipName, SObjectField field) {
 		return this.orderBy(relationshipName + '.' + field.toString());
 	}
 
-	global Queryable orderByCount(SObjectField field) {
+	public Queryable orderByCount(SObjectField field) {
 		return this.orderBy('COUNT(' + field.toString() + ')');
 	}
 
-	global Queryable sortDesc() {
+	public Queryable sortDesc() {
 		return this.sort('DESC');
 	}
 
-	global Queryable sort(String direction) {
+	public Queryable sort(String direction) {
 		this.builder.latestOrderBy.sortingOrder(direction);
 		return this;
 	}
 
-	global Queryable nullsLast() {
+	public Queryable nullsLast() {
 		return this.nullsOrder('LAST');
 	}
 
-	global Queryable nullsOrder(String nullsOrder) {
+	public Queryable nullsOrder(String nullsOrder) {
 		this.builder.latestOrderBy.nullsOrder(nullsOrder);
 		return this;
 	}
 
-	global Queryable setLimit(Integer amount) {
+	public Queryable setLimit(Integer amount) {
 		this.builder.soqlLimit.set(amount);
 		return this;
 	}
 
-	global Queryable offset(Integer startingRow) {
+	public Queryable offset(Integer startingRow) {
 		this.builder.soqlOffset.set(startingRow);
 		return this;
 	}
 
-	global Queryable forReference() {
+	public Queryable forReference() {
 		return this.setFor('FOR REFERENCE');
 	}
 
-	global Queryable forView() {
+	public Queryable forView() {
 		return this.setFor('FOR VIEW');
 	}
 
-	global Queryable forUpdate() {
+	public Queryable forUpdate() {
 		return this.setFor('FOR UPDATE');
 	}
 
-	global Queryable allRows() {
+	public Queryable allRows() {
 		return this.setFor('ALL ROWS');
 	}
 
@@ -942,65 +956,65 @@ global virtual inherited sharing class SOQL implements Queryable {
 		return this;
 	}
 
-	global Queryable userMode() {
+	public Queryable userMode() {
 		this.executor.accessMode(AccessLevel.USER_MODE);
 		return this;
 	}
 
-	global Queryable systemMode() {
+	public Queryable systemMode() {
 		this.executor.accessMode(AccessLevel.SYSTEM_MODE);
 		return this;
 	}
 
-	global Queryable stripInaccessible() {
+	public Queryable stripInaccessible() {
 		return this.stripInaccessible(AccessType.READABLE);
 	}
 
-	global Queryable stripInaccessible(AccessType accessType) {
+	public Queryable stripInaccessible(AccessType accessType) {
 		this.executor.stripInaccessible(accessType);
 		return this;
 	}
 
-	global Queryable withSharing() {
+	public Queryable withSharing() {
 		this.executor.withSharing();
 		return this;
 	}
 
-	global Queryable withoutSharing() {
+	public Queryable withoutSharing() {
 		this.executor.withoutSharing();
 		return this;
 	}
 
-	global Queryable mockId(String queryIdentifier) {
+	public Queryable mockId(String queryIdentifier) {
 		this.executor.mock(SOQL.queryIdToMock.get(queryIdentifier));
 		return this;
 	}
 
-	global Queryable preview() {
+	public Queryable preview() {
 		System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Preview ============\n' + this.toString() + '\n=======================================\n');
 		System.debug(LoggingLevel.ERROR, '\n\n============ SOQL Binding ============\n' + JSON.serializePretty(this.binding()) + '\n=======================================\n');
 		return this;
 	}
 
-	global Map<String, Object> binding() {
+	public Map<String, Object> binding() {
 		return binder.getBindingMap();
 	}
 
-	global Id toId() {
+	public Id toId() {
 		this.builder.fields.clearAllFields(); // other fields not needed
 		return this.toObject()?.Id;
 	}
 
-	global Set<Id> toIds() {
+	public Set<Id> toIds() {
 		this.builder.fields.clearAllFields(); // other fields not needed
 		return this.toMap().keySet();
 	}
 
-	global Set<Id> toIdsOf(SObjectField field) {
+	public Set<Id> toIdsOf(SObjectField field) {
 		return this.toIdsOf(field.toString());
 	}
 
-	global Set<Id> toIdsOf(String relationshipName, SObjectField field) {
+	public Set<Id> toIdsOf(String relationshipName, SObjectField field) {
 		return this.toIdsOf(relationshipName + '.' + field.toString());
 	}
 
@@ -1008,32 +1022,33 @@ global virtual inherited sharing class SOQL implements Queryable {
 		// https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
 		this.builder.fields.clearAllFields(); // other fields not needed
 		this.with(fieldToExtract, 'Id');
+		this.with('COUNT(Id)');
 		this.groupBy(fieldToExtract);
 		this.builder.conditions.addMasterCondition(Filter.with(fieldToExtract).isNotNull());
 
 		return new Map<Id, SObject>(this.toAggregated(fieldToExtract)).keySet();
 	}
 
-	global Boolean doExist() {
+	public Boolean doExist() {
 		this.builder.fields.clearAllFields(); // other fields not needed
 		return this.setLimit(1).toList().size() > 0;
 	}
 
-	global override String toString() {
+	public override String toString() {
 		binder.reset(); // clear binding before query build
 		return this.builder.toString();
 	}
 
-	global Object toValueOf(SObjectField fieldToExtract) {
+	public Object toValueOf(SObjectField fieldToExtract) {
 		this.builder.fields.clearAllFields(); // other fields not needed
 		return this.with(fieldToExtract).toObject()?.get(fieldToExtract);
 	}
 
-	global Set<String> toValuesOf(SObjectField fieldToExtract) {
+	public Set<String> toValuesOf(SObjectField fieldToExtract) {
 		return this.toValuesOf(fieldToExtract.toString());
 	}
 
-	global Set<String> toValuesOf(String relationshipName, SObjectField targetKeyField) {
+	public Set<String> toValuesOf(String relationshipName, SObjectField targetKeyField) {
 		return this.toValuesOf(relationshipName + '.' + targetKeyField.toString());
 	}
 
@@ -1041,26 +1056,27 @@ global virtual inherited sharing class SOQL implements Queryable {
 		// https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
 		this.builder.fields.clearAllFields(); // other fields not needed
 		this.with(fieldToExtract, 'Id');
+		this.with('COUNT(Id)');
 		this.groupBy(fieldToExtract);
 		this.builder.conditions.addMasterCondition(Filter.with(fieldToExtract).isNotNull());
 
 		return new Map<String, SObject>(this.toAggregated(fieldToExtract)).keySet();
 	}
 
-	global Integer toInteger() {
+	public Integer toInteger() {
 		this.builder.fields.addCountWhenNotPresented();
 		return this.executor.toInteger();
 	}
 
-	global SObject toObject() {
+	public SObject toObject() {
 		return this.executor.toObject();
 	}
 
-	global List<SObject> toList() {
+	public List<SObject> toList() {
 		return this.executor.toList();
 	}
 
-	global List<AggregateResult> toAggregated() {
+	public List<AggregateResult> toAggregated() {
 		return this.toList();
 	}
 
@@ -1068,77 +1084,77 @@ global virtual inherited sharing class SOQL implements Queryable {
 		return this.executor.toAggregated(fieldToExtract);
 	}
 
-	global List<AggregateResultProxy> toAggregatedProxy() {
+	public List<AggregateResultProxy> toAggregatedProxy() {
 		return this.executor.toAggregatedProxy();
 	}
 
-	global Map<Id, SObject> toMap() {
+	public Map<Id, SObject> toMap() {
 		return this.converter.transform(this.executor.toList()).toMap();
 	}
 
-	global Map<Id, SObject> toIdMapBy(SObjectField field) {
+	public Map<Id, SObject> toIdMapBy(SObjectField field) {
 		this.with(field);
 		this.whereAre(Filter.with(field).isNotNull());
 		return this.converter.transform(this.executor.toList()).toIdMapBy(field);
 	}
 
-	global Map<Id, SObject> toIdMapBy(String relationshipName, SObjectField targetKeyField) {
+	public Map<Id, SObject> toIdMapBy(String relationshipName, SObjectField targetKeyField) {
 		this.with(relationshipName + '.' + targetKeyField.toString());
 		this.whereAre(Filter.with(relationshipName, targetKeyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toIdMapBy(relationshipName, targetKeyField);
 	}
 
-	global Map<Id, List<SObject>> toAggregatedIdMapBy(SObjectField keyField) {
+	public Map<Id, List<SObject>> toAggregatedIdMapBy(SObjectField keyField) {
 		this.with(keyField);
 		this.whereAre(Filter.with(keyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toAggregatedIdMapBy(keyField);
 	}
 
-	global Map<Id, List<SObject>> toAggregatedIdMapBy(String relationshipName, SObjectField targetKeyField) {
+	public Map<Id, List<SObject>> toAggregatedIdMapBy(String relationshipName, SObjectField targetKeyField) {
 		this.with(relationshipName + '.' + targetKeyField.toString());
 		this.whereAre(Filter.with(relationshipName, targetKeyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toAggregatedIdMapBy(relationshipName, targetKeyField);
 	}
 
-	global Map<String, SObject> toMap(SObjectField keyField) {
+	public Map<String, SObject> toMap(SObjectField keyField) {
 		this.with(keyField);
 		this.whereAre(Filter.with(keyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toMap(keyField);
 	}
 
-	global Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField) {
+	public Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField) {
 		this.with(relationshipName + '.' + targetKeyField.toString());
 		this.whereAre(Filter.with(relationshipName, targetKeyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toMap(relationshipName, targetKeyField);
 	}
 
-	global Map<String, String> toMap(SObjectField keyField, SObjectField valueField) {
+	public Map<String, String> toMap(SObjectField keyField, SObjectField valueField) {
 		this.builder.fields.clearAllFields(); // other fields not needed
 		this.with(keyField, valueField);
 		this.whereAre(Filter.with(keyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toMap(keyField, valueField);
 	}
 
-	global Map<String, List<SObject>> toAggregatedMap(SObjectField keyField) {
+	public Map<String, List<SObject>> toAggregatedMap(SObjectField keyField) {
 		this.with(keyField);
 		this.whereAre(Filter.with(keyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toAggregatedMap(keyField);
 	}
 
-	global Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField) {
+	public Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField) {
 		this.with(relationshipName + '.' + targetKeyField.toString());
 		this.whereAre(Filter.with(relationshipName, targetKeyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toAggregatedMap(relationshipName, targetKeyField);
 	}
 
-	global Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField) {
+	public Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField) {
 		this.builder.fields.clearAllFields(); // other fields not needed
 		this.with(keyField, valueField);
 		this.whereAre(Filter.with(keyField).isNotNull());
 		return this.converter.transform(this.executor.toList()).toAggregatedMap(keyField, valueField);
 	}
 
-	global Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField) {
+	public Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField) {
 		this.builder.fields.clearAllFields(); // other fields not needed
 		this.with(keyField);
 		this.with(relationshipName + '.' + targetKeyField.toString());
@@ -1146,31 +1162,35 @@ global virtual inherited sharing class SOQL implements Queryable {
 		return this.converter.transform(this.executor.toList()).toAggregatedMap(keyField, relationshipName, targetKeyField);
 	}
 
-	global Database.QueryLocator toQueryLocator() {
+	public Database.QueryLocator toQueryLocator() {
 		return this.executor.toQueryLocator();
 	}
 
-	global Database.Cursor toCursor() {
+	public Database.Cursor toCursor() {
 		return this.executor.toCursor();
 	}
 
-	global Queryable byId(SObject record) {
+	public Database.PaginationCursor toPaginationCursor() {
+		return this.executor.toPaginationCursor();
+	}
+
+	public Queryable byId(SObject record) {
 		return this.byId(record.Id);
 	}
 
-	global Queryable byId(Id recordId) {
+	public Queryable byId(Id recordId) {
 		return this.whereAre(Filter.id().equal(recordId));
 	}
 
-	global Queryable byIds(Iterable<Id> recordIds) {
+	public Queryable byIds(Iterable<Id> recordIds) {
 		return this.whereAre(Filter.id().isIn(recordIds));
 	}
 
-	global Queryable byIds(List<SObject> records) {
+	public Queryable byIds(List<SObject> records) {
 		return this.whereAre(Filter.id().isIn(records));
 	}
 
-	global Queryable byRecordType(String recordTypeDeveloperName) {
+	public Queryable byRecordType(String recordTypeDeveloperName) {
 		return this.whereAre(Filter.recordType().equal(recordTypeDeveloperName));
 	}
 
@@ -1561,6 +1581,34 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 		public SubQuery with(SubQuery subQuery) {
 			this.builder.subQueries.add(subQuery);
+			return this;
+		}
+
+		public SubQuery toLabel(SObjectField field) {
+			return this.toLabel(field.toString());
+		}
+
+		public SubQuery toLabel(SObjectField field, String alias) {
+			return this.toLabel(field.toString(), alias);
+		}
+
+		public SubQuery toLabel(String field) {
+			return this.toLabel(field, '');
+		}
+
+		public SubQuery toLabel(String field, String alias) {
+			return this.withFunction('toLabel', field, alias);
+		}
+
+		public SubQuery toLabel(Iterable<String> fields) {
+			for (String field : fields) {
+				this.toLabel(field);
+			}
+			return this;
+		}
+
+		private SubQuery withFunction(String function, String field, String alias) {
+			this.builder.fields.functionsFields.add(function, field, alias);
 			return this;
 		}
 
@@ -2183,8 +2231,8 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		public override String toString() {
-			return String.format(this.wrapper, new List<String>{ 
-				this.field + ' ' + this.comparator + (this.skipBinding ? ' ' + this.value : ' :' + binder.bind(this.value)) 
+			return String.format(this.wrapper, new List<String>{
+				this.field + ' ' + this.comparator + (this.skipBinding ? ' ' + this.value : ' :' + binder.bind(this.value))
 			});
 		}
 	}
@@ -2725,19 +2773,32 @@ global virtual inherited sharing class SOQL implements Queryable {
 	}
 
 	private class SObjectMock {
-		private List<SObject> mockedRecords = new List<SObject>();
+		private List<SObject> mockedRecords;
 		private Boolean useLegacyMockingBehavior = false;
+		private SObjectType sObjectType;
 
 		private void add(SObject record) {
+			this.sObjectType = record?.getSObjectType();
+			this.initializeRecords();
 			this.mockedRecords.add(record);
 		}
 
 		private void add(List<SObject> records) {
+			this.sObjectType = records?.getSObjectType();
+			this.initializeRecords();
 			this.mockedRecords.addAll(records);
 		}
 
+		private void initializeRecords() {
+			if (this.mockedRecords != null) {
+				return;
+			}
+
+			this.mockedRecords = (List<SObject>) Type.forName('List<' + (this.sObjectType != null ? 'Schema.' + this.sObjectType?.toString() : 'SObject') + ' >').newInstance();
+		}
+
 		private List<SObject> get(SoqlFields fields, SoqlSubQueries subQueries) {
-			if (this.useLegacyMockingBehavior || this.mockedRecords.isEmpty() || this.mockedRecords[0]?.getSObjectType() == AggregateResult.SObjectType) {
+			if (this.useLegacyMockingBehavior || this.mockedRecords.isEmpty() || this.sObjectType == AggregateResult.SObjectType) {
 				return this.mockedRecords;
 			}
 
@@ -2783,9 +2844,9 @@ global virtual inherited sharing class SOQL implements Queryable {
 		}
 
 		private List<SObject> stripAdditionalFields(Set<String> requestedFields, Set<String> subQueriesRelationshipNames) {
-			List<SObject> cleanedRecords = new List<SObject>();
+			System.Type objectTypeName = System.Type.forName(this.sObjectType?.toString() ?? 'SObject');
 
-			Type objectTypeName = System.Type.forName(this.mockedRecords[0].getSObjectType().toString());
+			List<SObject> cleanedRecords = (List<SObject>) System.Type.forName('List<' + objectTypeName  + ' >').newInstance();
 
 			for (SObject record : this.mockedRecords) {
 				Map<String, Object> recordFilteredFields = new Map<String, Object>{ 'Id' => record.Id };
@@ -2993,7 +3054,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 			if (this.mocks.size() == 1) {
 				return (List<AggregateResult>) this.mocks[0].sObjectMock.getAggregated(fieldToExtract);
 			}
-			
+
 			return (List<AggregateResult>) this.mocks.remove(0).sObjectMock.getAggregated(fieldToExtract);
 		}
 
@@ -3041,6 +3102,11 @@ global virtual inherited sharing class SOQL implements Queryable {
 			return sharingExecutor.toCursor(builder.toString(), binder.getBindingMap(), accessMode);
 		}
 
+		public Database.PaginationCursor toPaginationCursor() {
+			this.incrementQueryIssued();
+			return this.sharingExecutor.toPaginationCursor(this.builder.toString(), binder.getBindingMap(), this.accessMode);
+		}
+
 		private void incrementQueryIssued() {
 			// This counter is used only in unit tests to also track mocked queries.
 			if (!System.Test.isRunningTest() || System.isBatch() || System.isFuture() || System.isQueueable() || System.isScheduled()) {
@@ -3062,6 +3128,7 @@ global virtual inherited sharing class SOQL implements Queryable {
 		Integer toInteger(String query, Map<String, Object> binding, AccessLevel accessLevel);
 		Database.QueryLocator toQueryLocator(String query, Map<String, Object> binding, AccessLevel accessLevel);
 		Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel);
+		Database.PaginationCursor toPaginationCursor(String query, Map<String, Object> binding, AccessLevel accessLevel);
 	}
 
 	private inherited sharing class InheritedSharing implements DatabaseQuery {
@@ -3079,6 +3146,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 		public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
 			return Database.getCursorWithBinds(query, binding, accessLevel);
+		}
+
+		public Database.PaginationCursor toPaginationCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+			return Database.getPaginationCursorWithBinds(query, binding, accessLevel);
 		}
 	}
 
@@ -3098,6 +3169,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 		public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
 			return Database.getCursorWithBinds(query, binding, accessLevel);
 		}
+
+		public Database.PaginationCursor toPaginationCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+			return Database.getPaginationCursorWithBinds(query, binding, accessLevel);
+		}
 	}
 
 	private with sharing class WithSharing implements DatabaseQuery {
@@ -3115,6 +3190,10 @@ global virtual inherited sharing class SOQL implements Queryable {
 
 		public Database.Cursor toCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
 			return Database.getCursorWithBinds(query, binding, accessLevel);
+		}
+
+		public Database.PaginationCursor toPaginationCursor(String query, Map<String, Object> binding, AccessLevel accessLevel) {
+			return Database.getPaginationCursorWithBinds(query, binding, accessLevel);
 		}
 	}
 

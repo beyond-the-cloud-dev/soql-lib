@@ -1,9 +1,9 @@
 {
   "packageDirectories": [
     {
-      "versionName": "SOQL Lib 6.8.0",
-      "versionNumber": "6.8.0.NEXT",
-      "path": "force-app",
+      "versionName": "SOQL Lib 6.9.0",
+      "versionNumber": "6.9.0.NEXT",
+      "path": "package",
       "default": true,
       "package": "SOQL Lib",
       "versionDescription": ""
@@ -11,12 +11,16 @@
     {
       "path": "examples",
       "default": false
+    },
+    {
+      "path": "force-app",
+      "default": false
     }
   ],
   "name": "soql-lib",
   "namespace": "btcdev",
   "sfdcLoginUrl": "https://login.salesforce.com",
-  "sourceApiVersion": "65.0",
+  "sourceApiVersion": "66.0",
   "packageAliases": {
     "SOQL Lib": "0HoP6000000010vKAA",
     "SOQL Lib@6.1.0-1": "04tP60000023Vm5IAE",
@@ -25,6 +29,7 @@
     "SOQL Lib@6.4.0-1": "04tP60000025mXVIAY",
     "SOQL Lib@6.5.0-1": "04tP60000027H9RIAU",
     "SOQL Lib@6.6.0-1": "04tP6000002CakvIAC",
-    "SOQL Lib@6.7.0-1": "04tP6000002N1LdIAK"
+    "SOQL Lib@6.7.0-1": "04tP6000002N1LdIAK",
+    "SOQL Lib@6.8.0-1": "04tP6000002dHRFIA2"
   }
 }

@@ -2,19 +2,19 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.7.0
+ * v6.8.0
  *
  * PMD False Positives:
  * - CognitiveComplexity: It is a library and we tried to put everything into ONE class
  * - ApexDoc: Variable names are self-documented.
 **/
 @SuppressWarnings('PMD.CognitiveComplexity,PMD.ApexDoc')
-global inherited sharing class SOQLEvaluator {
-	global static SObjectEvaluable of(List<SObject> staticQueryRecords) {
+public inherited sharing class SOQLEvaluator {
+	public static SObjectEvaluable of(List<SObject> staticQueryRecords) {
 		return new SObjectEvaluator(staticQueryRecords);
 	}
 
-	global interface SObjectEvaluable {
+	public interface SObjectEvaluable {
 		// FIELD-LEVEL SECURITY
 		SObjectEvaluable stripInaccessible();
 		SObjectEvaluable stripInaccessible(AccessType accessType);
@@ -40,13 +40,13 @@ global inherited sharing class SOQLEvaluator {
 		Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField);
 	}
 
-	global interface Mockable {
+	public interface Mockable {
 		// SObject
 		Mockable thenReturn(SObject record);
 		Mockable thenReturn(List<SObject> records);
 	}
 
-	global static Mockable mock(String mockId) {
+	public static Mockable mock(String mockId) {
 		if (!SOQLEvaluator.queryIdToMock.containsKey(mockId)) {
 			SOQLEvaluator.queryIdToMock.put(mockId, new List<SoqlMock>());
 		}
