@@ -405,7 +405,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Distance of(SObjectField ofField);
         Distance of(String relationship, SObjectField ofField);
         // comparison
-        Distance between(Location location);
+        Distance between(System.Location location);
         Distance between(Decimal latitude, Decimal longitude);
         // unit
         Distance mi();
@@ -3011,7 +3011,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public Distance between(Location location) {
+        public Distance between(System.Location location) {
             this.comparisonLocation = location;
 
             return this;
