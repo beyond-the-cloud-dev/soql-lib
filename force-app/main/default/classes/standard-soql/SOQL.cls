@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.10.2
+ * v6.11.0
  *
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
@@ -467,6 +467,15 @@ public virtual inherited sharing class SOQL implements Queryable {
 				return new SoqlDistance();
 			}
 		}
+
+    @NamespaceAccessible
+    public static Integer getQueries() {
+        if (System.Test.isRunningTest() && !System.isBatch() && !System.isFuture() && !System.isQueueable() && !System.isScheduled()) {
+            return SOQL.syncQueriesIssued;
+        }
+
+        return Limits.getQueries();
+    }
 
     // Mocking
 
@@ -2870,9 +2879,13 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         private void addIdToMockedRecords() {
-            // Id is always added to mirror standard SOQL behavior
+            // Id is added to mirror standard SOQL behavior
             SObjectType sObjectType = this.mockedRecords[0].getSObjectType();
             String sObjectPrefix = sObjectType.getDescribe(SObjectDescribeOptions.DEFERRED).getKeyPrefix();
+
+            if (String.isBlank(sObjectPrefix)) {
+                return;
+            }
 
             for (SObject record : this.mockedRecords) {
                 record.put('Id', record?.Id ?? IdGenerator.get(sObjectPrefix));
