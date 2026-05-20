@@ -401,16 +401,16 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     @NamespaceAccessible
     public interface Distance {
-			// field
-			Distance of(SObjectField ofField);
-			Distance of(String relationship, SObjectField ofField);
-			// comparison
-			Distance between(Location location);
-			Distance between(Decimal latitude, Decimal longitude);
-			// unit
-			Distance mi();
-			Distance km();
-		}
+        // field
+        Distance of(SObjectField ofField);
+        Distance of(String relationship, SObjectField ofField);
+        // comparison
+        Distance between(Location location);
+        Distance between(Decimal latitude, Decimal longitude);
+        // unit
+        Distance mi();
+        Distance km();
+    }
 
     @NamespaceAccessible
     public static SubQuery SubQuery {
@@ -463,10 +463,10 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     @NamespaceAccessible
     public static Distance Distance {
-			get {
-				return new SoqlDistance();
-			}
-		}
+        get {
+            return new SoqlDistance();
+        }
+    }
 
     // Mocking
 
@@ -1019,16 +1019,16 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     @NamespaceAccessible
     public Queryable orderBy(Distance distance) {
-			this.builder.orderBys.newOrderBy().with(distance);
-			return this;
-		}
+        this.builder.orderBys.newOrderBy().with(distance);
+        return this;
+    }
 
-		@NamespaceAccessible
-		public Queryable orderBy(Distance distance, String direction) {
-			this.builder.orderBys.newOrderBy().with(distance);
-			this.builder.orderBys.latestOrderBy().sortingOrder(direction);
-			return this;
-		}
+    @NamespaceAccessible
+    public Queryable orderBy(Distance distance, String direction) {
+        this.builder.orderBys.newOrderBy().with(distance);
+        this.builder.orderBys.latestOrderBy().sortingOrder(direction);
+        return this;
+    }
 
     @NamespaceAccessible
     public Queryable sortDesc() {
@@ -1784,9 +1784,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public SubQuery orderBy(Distance distance) {
-					this.builder.orderBys.newOrderBy().with(distance);
-					return this;
-				}
+            this.builder.orderBys.newOrderBy().with(distance);
+            return this;
+        }
 
         public SubQuery sortDesc() {
             this.builder.latestOrderBy.sortingOrder('DESC');
@@ -2087,9 +2087,9 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Filter with(Distance distance) {
-					this.distance = distance;
-					return this;
-				}
+            this.distance = distance;
+            return this;
+        }
 
         public Filter isNull() {
             return this.equal(null);
@@ -2263,7 +2263,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-        		String fieldStr = this.distance != null ? this.distance.toString() : this.field;
+            String fieldStr = this.distance != null ? this.distance.toString() : this.field;
             return String.format(this.wrapper, new List<String>{ fieldStr + ' ' + this.comparator + (this.skipBinding ? ' ' + this.value : ' :' + binder.bind(this.value)) });
         }
     }
@@ -2686,8 +2686,8 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public void with(Distance distance) {
-					this.orderDistance = distance;
-				}
+            this.orderDistance = distance;
+        }
 
         public void sortingOrder(String direction) {
             this.sortingOrder = direction;
@@ -2698,7 +2698,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-        		String fieldStr = this.orderDistance != null ? this.orderDistance.toString() : this.orderField;
+            String fieldStr = this.orderDistance != null ? this.orderDistance.toString() : this.orderField;
             return fieldStr + ' ' + this.sortingOrder + ' NULLS ' + this.nullsOrder;
         }
     }
@@ -2983,63 +2983,59 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class SoqlDistance implements Distance {
-			private String relationship;
-			private SObjectField ofField;
-			private Location comparisonLocation;
-			private String unit = 'km';
+        private String relationship;
+        private SObjectField ofField;
+        private Location comparisonLocation;
+        private String unit = 'km';
 
-			public Distance of(SObjectField ofField){
-				this.relationship = null;
-				this.ofField = ofField;
+        public Distance of(SObjectField ofField) {
+            this.relationship = null;
+            this.ofField = ofField;
 
-				return this;
-			}
-			public Distance of(String relationship, SObjectField ofField){
-				this.relationship = relationship;
-				this.ofField = ofField;
+            return this;
+        }
+        public Distance of(String relationship, SObjectField ofField) {
+            this.relationship = relationship;
+            this.ofField = ofField;
 
-				return this;
-			}
+            return this;
+        }
 
-			public Distance between(Location location){
-				this.comparisonLocation = location;
+        public Distance between(Location location) {
+            this.comparisonLocation = location;
 
-				return this;
-			}
-			public Distance between(Decimal latitude, Decimal longitude){
-				return this.between(Location.newInstance(latitude, longitude));
-			}
+            return this;
+        }
+        public Distance between(Decimal latitude, Decimal longitude) {
+            return this.between(Location.newInstance(latitude, longitude));
+        }
 
-			public Distance mi(){
-				this.unit = 'mi';
+        public Distance mi() {
+            this.unit = 'mi';
 
-				return this;
-			}
-			public Distance km(){
-				this.unit = 'km';
+            return this;
+        }
+        public Distance km() {
+            this.unit = 'km';
 
-				return this;
-			}
+            return this;
+        }
 
-			public override String toString() {
-				return String.format('DISTANCE({0},:{1},\'\'{2}\'\')', new List<Object>{
-					this.buildFieldString(),
-					binder.bind(this.comparisonLocation),
-					this.unit
-				});
-			}
+        public override String toString() {
+            return String.format('DISTANCE({0},:{1},\'\'{2}\'\')', new List<Object>{ this.buildFieldString(), binder.bind(this.comparisonLocation), this.unit });
+        }
 
-			private String buildFieldString(){
-				List<String> strs = new List<String>();
+        private String buildFieldString() {
+            List<String> strs = new List<String>();
 
-				if (String.isNotBlank(this.relationship)){
-					strs.add(this.relationship);
-				}
-				strs.add(this.ofField.toString());
+            if (String.isNotBlank(this.relationship)) {
+                strs.add(this.relationship);
+            }
+            strs.add(this.ofField.toString());
 
-				return String.join(strs,'.');
-			}
-		}
+            return String.join(strs, '.');
+        }
+    }
 
     private class ExceptionMock {
         private QueryException queryException;
