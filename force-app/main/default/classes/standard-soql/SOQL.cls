@@ -136,7 +136,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable orderBy(String relationshipName, SObjectField field);
         Queryable orderByCount(SObjectField field);
         Queryable orderBy(Distance distance);
-        Queryable orderBy(Distance distance, String direction);
         Queryable sortDesc();
         Queryable sort(String direction);
         Queryable nullsLast();
@@ -1029,13 +1028,6 @@ public virtual inherited sharing class SOQL implements Queryable {
     @NamespaceAccessible
     public Queryable orderBy(Distance distance) {
         this.builder.orderBys.newOrderBy().with(distance);
-        return this;
-    }
-
-    @NamespaceAccessible
-    public Queryable orderBy(Distance distance, String direction) {
-        this.builder.orderBys.newOrderBy().with(distance);
-        this.builder.orderBys.latestOrderBy().sortingOrder(direction);
         return this;
     }
 
@@ -2686,7 +2678,6 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private class SoqlOrderBy implements QueryClause {
         private String orderField;
-        private Distance orderDistance;
         private String sortingOrder = 'ASC';
         private String nullsOrder = 'FIRST';
 
@@ -2695,7 +2686,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public void with(Distance distance) {
-            this.orderDistance = distance;
+            this.orderField = distance.toString();
         }
 
         public void sortingOrder(String direction) {
@@ -2707,8 +2698,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            String fieldStr = this.orderDistance != null ? this.orderDistance.toString() : this.orderField;
-            return fieldStr + ' ' + this.sortingOrder + ' NULLS ' + this.nullsOrder;
+            return this.orderField + ' ' + this.sortingOrder + ' NULLS ' + this.nullsOrder;
         }
     }
 
@@ -2997,42 +2987,40 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private class SoqlDistance implements Distance {
         private String field;
-        private Location comparisonLocation;
         private String unit = 'km';
+        private String comparisonLocation;
 
         public Distance of(SObjectField ofField) {
             this.field = ofField.toString();
-
             return this;
         }
+
         public Distance of(String relationship, SObjectField ofField) {
             this.field = relationship + '.' + ofField.toString();
-
             return this;
         }
 
         public Distance between(System.Location location) {
-            this.comparisonLocation = location;
-
+            this.comparisonLocation = 'GEOLOCATION(' + location.getLatitude() + ',' + location.getLongitude() + ')';
             return this;
         }
+
         public Distance between(Decimal latitude, Decimal longitude) {
             return this.between(Location.newInstance(latitude, longitude));
         }
 
         public Distance mi() {
             this.unit = 'mi';
-
             return this;
         }
+
         public Distance km() {
             this.unit = 'km';
-
             return this;
         }
 
         public override String toString() {
-            return String.format('DISTANCE({0},:{1},\'\'{2}\'\')', new List<Object>{ this.field, binder.bind(this.comparisonLocation), this.unit });
+            return String.format('DISTANCE({0},{1},\'\'{2}\'\')', new List<Object>{ this.field, this.comparisonLocation, this.unit });
         }
     }
 

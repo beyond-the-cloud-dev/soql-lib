@@ -17,21 +17,19 @@ For more details check [SOQL API - DISTANCE](../api/soql-distance.md).
 ```sql title="Traditional SOQL"
 SELECT Id
 FROM Contact
-WHERE DISTANCE(MailingAddress, GEOLOCATION(72.0,-136.0), 'mi') < 5
+WHERE DISTANCE(MailingAddress, GEOLOCATION(72.0, -136.0), 'mi') < 5
 ```
 
 **SOQL Lib**
 
 ```apex title="SOQL Lib Approach"
 SOQL.of(Contact.SObjectType)
-	.whereAre(
-		SOQL.filter.with(
-			SOQL.distance.of(Contact.MailingAddress)
-				.between(72.0, -136.0)
-				.mi()
-		).lessThan(5)
-	)
-  .toList();
+    .whereAre(SOQL.Filter.with(
+        SOQL.Distance.of(Contact.MailingAddress)
+            .between(72.0, -136.0)
+            .mi()
+    ).lessThan(5))
+    .toList();
 ```
 
 ## ORDERING
@@ -41,17 +39,17 @@ SOQL.of(Contact.SObjectType)
 ```sql title="Traditional SOQL"
 SELECT Id
 FROM Contact
-ORDER BY DISTANCE(MailingAddress, GEOLOCATION(72.0,-136.0), 'mi')
+ORDER BY DISTANCE(MailingAddress, GEOLOCATION(72.0, -136.0), 'mi')
 ```
 
 **SOQL Lib**
 
 ```apex title="SOQL Lib Approach"
 SOQL.of(Contact.SObjectType)
-	.orderBy(
-		SOQL.distance.of(Contact.MailingAddress)
-			.between(72.0, -136.0)
-			.mi()
-	)
-  .toList();
+    .orderBy(
+        SOQL.Distance.of(Contact.MailingAddress)
+            .between(72.0, -136.0)
+            .mi()
+    )
+    .toList();
 ```
