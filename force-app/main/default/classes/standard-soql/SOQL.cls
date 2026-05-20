@@ -462,7 +462,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     @NamespaceAccessible
-    global static Distance Distance {
+    public static Distance Distance {
 			get {
 				return new SoqlDistance();
 			}
