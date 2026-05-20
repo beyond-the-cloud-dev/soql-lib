@@ -3006,7 +3006,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             return this;
         }
         public Distance of(String relationship, SObjectField ofField) {
-            this.field = (String.isNotBlank(relationship) ? relationship + '.' : '') + ofField.toString();
+            this.field = relationship + '.' + ofField.toString();
 
             return this;
         }
