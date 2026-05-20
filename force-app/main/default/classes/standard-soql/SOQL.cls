@@ -2996,20 +2996,17 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class SoqlDistance implements Distance {
-        private String relationship;
-        private SObjectField ofField;
+        private String field;
         private Location comparisonLocation;
         private String unit = 'km';
 
         public Distance of(SObjectField ofField) {
-            this.relationship = null;
-            this.ofField = ofField;
+            this.field = ofField.toString();
 
             return this;
         }
         public Distance of(String relationship, SObjectField ofField) {
-            this.relationship = relationship;
-            this.ofField = ofField;
+            this.field = (String.isNotBlank(relationship) ? relationship + '.' : '') + ofField.toString();
 
             return this;
         }
@@ -3035,18 +3032,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            return String.format('DISTANCE({0},:{1},\'\'{2}\'\')', new List<Object>{ this.buildFieldString(), binder.bind(this.comparisonLocation), this.unit });
-        }
-
-        private String buildFieldString() {
-            List<String> strs = new List<String>();
-
-            if (String.isNotBlank(this.relationship)) {
-                strs.add(this.relationship);
-            }
-            strs.add(this.ofField.toString());
-
-            return String.join(strs, '.');
+            return String.format('DISTANCE({0},:{1},\'\'{2}\'\')', new List<Object>{ this.field, binder.bind(this.comparisonLocation), this.unit });
         }
     }
 
