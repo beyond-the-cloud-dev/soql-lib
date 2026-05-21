@@ -826,7 +826,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(
-            'SELECT Id , (SELECT Id FROM Contacts ORDER BY DISTANCE(MailingAddress,GEOLOCATION(0.0,0.0),\'km\') ASC NULLS FIRST) FROM Account',
+            'SELECT Id , (SELECT Id FROM Contacts ORDER BY DISTANCE(MailingAddress, GEOLOCATION(0.0,0.0),\' km\') ASC NULLS FIRST) FROM Account',
             soql,
             'The generated SOQL should match the expected one.'
         );
@@ -1408,7 +1408,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account WHERE DISTANCE(BillingAddress,GEOLOCATION(0.0,0.0),\'mi\') < :v1', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),\' mi\') < :v1', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1419,7 +1419,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account WHERE DISTANCE(BillingAddress,GEOLOCATION(0.0,0.0),\'km\') < :v1', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),\' km\') < :v1', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1431,7 +1431,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(
-            'SELECT Id FROM Contact WHERE DISTANCE(Account.BillingAddress,GEOLOCATION(0.0,0.0),\'mi\') < :v1',
+            'SELECT Id FROM Contact WHERE DISTANCE(Account.BillingAddress, GEOLOCATION(0.0,0.0),\' mi\') < :v1',
             soql,
             'The generated SOQL should match the expected one.'
         );
@@ -1444,7 +1444,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(
-            'SELECT Id FROM Account WHERE DISTANCE(BillingAddress,GEOLOCATION(37.775,-122.418),\'mi\') < :v1',
+            'SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(37.775,-122.418),\' mi\') < :v1',
             soql,
             'The generated SOQL should match the expected one.'
         );
@@ -1458,7 +1458,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account WHERE DISTANCE(BillingAddress,GEOLOCATION(10.5,20.5),\'mi\') < :v1', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(10.5,20.5),\' mi\') < :v1', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1469,7 +1469,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(
-            'SELECT Id FROM Account WHERE DISTANCE(BillingAddress,GEOLOCATION(0.0,0.0),\'mi\') < :v1',
+            'SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),\' mi\') < :v1',
             builder.toString(),
             'The generated SOQL should match the expected one.'
         );
@@ -1487,7 +1487,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account WHERE DISTANCE(BillingAddress,GEOLOCATION(0.0,0.0),\'mi\') > :v1', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),\' mi\') > :v1', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2845,7 +2845,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(
-            'SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress,GEOLOCATION(0.0,0.0),\'km\') ASC NULLS FIRST',
+            'SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),\' km\') ASC NULLS FIRST',
             soql,
             'The generated SOQL should match the expected one.'
         );
@@ -2858,7 +2858,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(
-            'SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress,GEOLOCATION(37.775,-122.418),\'mi\') ASC NULLS FIRST',
+            'SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress, GEOLOCATION(37.775,-122.418),\' mi\') ASC NULLS FIRST',
             soql,
             'The generated SOQL should match the expected one.'
         );
@@ -2871,7 +2871,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(
-            'SELECT Id FROM Contact ORDER BY DISTANCE(Account.BillingAddress,GEOLOCATION(0.0,0.0),\'km\') ASC NULLS FIRST',
+            'SELECT Id FROM Contact ORDER BY DISTANCE(Account.BillingAddress, GEOLOCATION(0.0,0.0),\' km\') ASC NULLS FIRST',
             soql,
             'The generated SOQL should match the expected one.'
         );
@@ -2884,7 +2884,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(
-            'SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress,GEOLOCATION(0.0,0.0),\'km\') DESC NULLS LAST',
+            'SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),\' km\') DESC NULLS LAST',
             soql,
             'The generated SOQL should match the expected one.'
         );

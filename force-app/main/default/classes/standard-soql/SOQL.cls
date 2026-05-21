@@ -3021,7 +3021,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            return String.format('DISTANCE({0},{1},\'\'{2}\'\')', new List<Object>{ this.field, this.comparisonLocation, this.unit });
+            return 'DISTANCE(' + this.field + ', ' + this.comparisonLocation + ',\' ' + this.unit + '\')';
         }
     }
 
