@@ -2056,7 +2056,6 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     private class SoqlFilter implements Filter {
         private String field;
-        private Distance distance;
         private String comparator;
         private Object value;
         private String wrapper = '{0}';
@@ -2088,7 +2087,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Filter with(Distance distance) {
-            this.distance = distance;
+            this.field = distance.toString();
             return this;
         }
 
@@ -2246,7 +2245,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Boolean hasValue() {
-            return String.isNotEmpty(this.field) || this.distance != null;
+            return String.isNotEmpty(this.field);
         }
 
         public Filter ignoreWhen(Boolean logicExpression) {
@@ -2264,8 +2263,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            String fieldStr = this.distance != null ? this.distance.toString() : this.field;
-            return String.format(this.wrapper, new List<String>{ fieldStr + ' ' + this.comparator + (this.skipBinding ? ' ' + this.value : ' :' + binder.bind(this.value)) });
+            return String.format(this.wrapper, new List<String>{ this.field + ' ' + this.comparator + (this.skipBinding ? ' ' + this.value : ' :' + binder.bind(this.value)) });
         }
     }
 
@@ -3010,12 +3008,15 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Distance mi() {
-            this.unit = 'mi';
-            return this;
+            return this.unit('mi');
         }
 
         public Distance km() {
-            this.unit = 'km';
+            return this.unit('km');
+        }
+
+        private Distance unit(String unit) {
+            this.unit = unit;
             return this;
         }
 
