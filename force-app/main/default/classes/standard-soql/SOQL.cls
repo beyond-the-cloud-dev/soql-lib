@@ -204,12 +204,15 @@ public virtual inherited sharing class SOQL implements Queryable {
         Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField);
 
         // for internal use
+        Builder builder();
         Map<String, Object> binding();
     }
 
     @NamespaceAccessible
     public interface SubQuery {
         SubQuery of(String ofObject);
+        // ADAPT EXISTING QUERY
+        void adapt(Queryable query);
         // SELECT
         SubQuery with(SObjectField field);
         SubQuery with(SObjectField field1, SObjectField field2);
@@ -539,7 +542,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     private static Binder binder = new Binder();
     private static Integer syncQueriesIssued = 0;
 
-    private SoqlBuilder builder;
+    private Builder builder;
     private Executor executor;
     private Converter converter;
 
@@ -550,7 +553,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     @NamespaceAccessible
     public SOQL(String ofObject) {
-        this.builder = new SoqlBuilder(ofObject);
+        this.builder = new Builder(ofObject);
         this.executor = new Executor(builder);
         this.converter = new Converter(ofObject);
 
@@ -1143,6 +1146,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         return binder.getBindingMap();
     }
 
+    public Builder builder() {
+        return this.builder;
+    }
+
     @NamespaceAccessible
     public Id toId() {
         this.builder.fields.clearAllFields(); // other fields not needed
@@ -1375,10 +1382,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         String toString();
     }
 
-    private class SoqlBuilder implements QueryClause {
+    private class Builder implements QueryClause {
         private List<QueryClause> clauses = new QueryClause[12];
 
-        public SoqlBuilder(String ofObject) {
+        public Builder(String ofObject) {
             this.clauses.set(0, new SoqlFields(ofObject));
             this.clauses.set(2, new SoqlFrom(ofObject));
         }
@@ -1681,13 +1688,17 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class SoqlSubQuery implements SubQuery {
-        private SoqlBuilder builder;
+        private Builder builder;
         private String childRelationshipName;
 
         public SubQuery of(String ofObject) {
-            this.builder = new SoqlBuilder(ofObject);
+            this.builder = new Builder(ofObject);
             this.childRelationshipName = ofObject;
             return this;
+        }
+
+        public void adapt(Queryable query) {
+            this.builder = query.builder();
         }
 
         public SubQuery with(SObjectField field) {
@@ -2358,10 +2369,10 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class SoqlJoinQuery implements InnerJoin {
-        private SoqlBuilder builder;
+        private Builder builder;
 
         public InnerJoin of(SObjectType ofObject) {
-            this.builder = new SoqlBuilder(ofObject.toString());
+            this.builder = new Builder(ofObject.toString());
             return this;
         }
 
@@ -3041,10 +3052,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         private DatabaseQuery sharingExecutor;
         private AccessLevel accessMode;
         private AccessType accessType;
-        private SoqlBuilder builder;
+        private Builder builder;
         private List<SoqlMock> mocks = new List<SoqlMock>();
 
-        public Executor(SoqlBuilder builder) {
+        public Executor(Builder builder) {
             this.builder = builder;
             this.accessMode = AccessLevel.USER_MODE;
             this.sharingExecutor = new InheritedSharing();
