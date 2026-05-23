@@ -211,8 +211,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     @NamespaceAccessible
     public interface SubQuery {
         SubQuery of(String ofObject);
-        // ADAPT EXISTING QUERY
-        void adapt(Queryable query);
+        SubQuery of(String ofObject, Queryable query);
         // SELECT
         SubQuery with(SObjectField field);
         SubQuery with(SObjectField field1, SObjectField field2);
@@ -1697,8 +1696,10 @@ public virtual inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public void adapt(Queryable query) {
+        public SubQuery of(String ofObject, Queryable query) {
             this.builder = query.builder();
+            this.childRelationshipName = ofObject;
+            return this;
         }
 
         public SubQuery with(SObjectField field) {
