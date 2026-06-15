@@ -1688,31 +1688,26 @@ public virtual inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        @NamespaceAccessible
         public SubQuery with(String relationshipName, SObjectField field) {
             this.builder.fields.relationshipFields.add(relationshipName, new List<SObjectField>{ field });
             return this;
         }
 
-        @NamespaceAccessible
         public SubQuery with(String relationshipName, SObjectField field1, SObjectField field2) {
             this.builder.fields.relationshipFields.add(relationshipName, new List<SObjectField>{ field1, field2 });
             return this;
         }
 
-        @NamespaceAccessible
         public SubQuery with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3) {
             this.builder.fields.relationshipFields.add(relationshipName, new List<SObjectField>{ field1, field2, field3 });
             return this;
         }
 
-        @NamespaceAccessible
         public SubQuery with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
             this.builder.fields.relationshipFields.add(relationshipName, new List<SObjectField>{ field1, field2, field3, field4 });
             return this;
         }
 
-        @NamespaceAccessible
         public SubQuery with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
             this.builder.fields.relationshipFields.add(relationshipName, new List<SObjectField>{ field1, field2, field3, field4, field5 });
             return this;
