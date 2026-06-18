@@ -204,14 +204,12 @@ public virtual inherited sharing class SOQL implements Queryable {
         Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField);
 
         // for internal use
-        Builder builder();
         Map<String, Object> binding();
     }
 
     @NamespaceAccessible
     public interface SubQuery {
         SubQuery of(String ofObject);
-        SubQuery of(String ofObject, Queryable query);
         // SELECT
         SubQuery with(SObjectField field);
         SubQuery with(SObjectField field1, SObjectField field2);
@@ -1145,10 +1143,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         return binder.getBindingMap();
     }
 
-    public Builder builder() {
-        return this.builder;
-    }
-
     @NamespaceAccessible
     public Id toId() {
         this.builder.fields.clearAllFields(); // other fields not needed
@@ -1692,12 +1686,6 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public SubQuery of(String ofObject) {
             this.builder = new Builder(ofObject);
-            this.childRelationshipName = ofObject;
-            return this;
-        }
-
-        public SubQuery of(String ofObject, Queryable query) {
-            this.builder = query.builder();
             this.childRelationshipName = ofObject;
             return this;
         }

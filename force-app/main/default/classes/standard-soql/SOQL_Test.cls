@@ -869,72 +869,6 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void subQueryFromSelector() {
-        // Test
-        String soql = SOQL.of(Account.SObjectType).with(Account.Name).with(SOQL.SubQuery.of('Contacts', new SOQL_Contact())).toString();
-
-        // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contact) FROM Account', soql, 'The generated SOQL should match the expected one.');
-    }
-
-    @IsTest
-    static void subQueryFromSelectorWithFilter() {
-        // Test
-        SOQL.Queryable soql = SOQL.of(Account.SObjectType).with(Account.Name).with(SOQL.SubQuery.of('Contacts', new SOQL_Contact().byLastName('Doe')));
-
-        // Verify
-        Assert.areEqual('SELECT Name , (SELECT Id, Name FROM Contact WHERE LastName = :v1) FROM Account', soql.toString(), 'The generated SOQL should match the expected one.');
-        Assert.areEqual('Doe', soql.binding().get('v1'), 'The binding variable should match the expected value.');
-    }
-
-    @IsTest
-    static void subQueryFromSelectorWithOrderBy() {
-        // Test
-        SOQL.Queryable soql = SOQL.of(Account.SObjectType)
-            .with(Account.Name)
-            .with(SOQL.SubQuery.of('Contacts', new SOQL_Contact().byFirstName('John').orderBy(Contact.Name).sortDesc().nullsLast()));
-
-        // Verify
-        Assert.areEqual(
-            'SELECT Name , (SELECT Id, Name FROM Contact WHERE FirstName = :v1 ORDER BY Name DESC NULLS LAST) FROM Account',
-            soql.toString(),
-            'The generated SOQL should match the expected one.'
-        );
-        Assert.areEqual('John', soql.binding().get('v1'), 'The binding variable should match the expected value.');
-    }
-
-    @IsTest
-    static void subQueryFromSelectorWithLimit() {
-        // Test
-        SOQL.Queryable soql = SOQL.of(Account.SObjectType).with(Account.Name).with(SOQL.SubQuery.of('Contacts', new SOQL_Contact().byEmailDomain('example.com').setLimit(10)));
-
-        // Verify
-        Assert.areEqual(
-            'SELECT Name , (SELECT Id, Name FROM Contact WHERE Email LIKE :v1 LIMIT 10) FROM Account',
-            soql.toString(),
-            'The generated SOQL should match the expected one.'
-        );
-        Assert.areEqual('%@example.com', soql.binding().get('v1'), 'The binding variable should match the expected value.');
-    }
-
-    @IsTest
-    static void subQueryFromSelectorWithOffset() {
-        // Setup
-        Id accountId = SOQL.IdGenerator.get(Account.SObjectType);
-
-        // Test
-        SOQL.Queryable soql = SOQL.of(Account.SObjectType).with(Account.Name).with(SOQL.SubQuery.of('Contacts', new SOQL_Contact().byAccountId(accountId).offset(100)));
-
-        // Verify
-        Assert.areEqual(
-            'SELECT Name , (SELECT Id, Name FROM Contact WHERE AccountId = :v1 OFFSET 100) FROM Account',
-            soql.toString(),
-            'The generated SOQL should match the expected one.'
-        );
-        Assert.areEqual(accountId, soql.binding().get('v1'), 'The binding variable should match the expected value.');
-    }
-
-    @IsTest
     static void multipleSubQueriesWithConditions() {
         // Setup
         String leadSource = 'Web';
@@ -4162,35 +4096,5 @@ private class SOQL_Test {
     static void previewCount() {
         // Test
         SOQL.of(Account.SObjectType).count().preview().toInteger();
-    }
-
-    public inherited sharing class SOQL_Contact extends SOQL {
-        public SOQL_Contact() {
-            super(Contact.SObjectType);
-            with(Contact.Id, Contact.Name);
-            systemMode();
-            withoutSharing();
-            mockId('SOQL_Contact');
-        }
-
-        public SOQL_Contact byLastName(String lastName) {
-            whereAre(Filter.with(Contact.LastName).equal(lastName));
-            return this;
-        }
-
-        public SOQL_Contact byFirstName(String firstName) {
-            whereAre(Filter.with(Contact.FirstName).equal(firstName).ignoreWhen(firstName == null));
-            return this;
-        }
-
-        public SOQL_Contact byAccountId(Id accountId) {
-            whereAre(Filter.with(Contact.AccountId).equal(accountId));
-            return this;
-        }
-
-        public SOQL_Contact byEmailDomain(String domain) {
-            whereAre(Filter.with(Contact.Email).endsWith('@' + domain));
-            return this;
-        }
     }
 }
