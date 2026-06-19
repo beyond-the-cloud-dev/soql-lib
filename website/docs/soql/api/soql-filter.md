@@ -32,6 +32,7 @@ The following are methods for `Filter`.
 - [`isTrue()`](#istrue)
 - [`isFalse()`](#isfalse)
 - [`equal(Object value)`](#equal)
+- [`equalNullSafe(Object value)`](#equalnullsafe)
 - [`notEqual(Object value)`](#notequal)
 - [`lessThan(Object value)`](#lessthan)
 - [`greaterThan(Object value)`](#greaterthan)
@@ -331,6 +332,30 @@ SOQL.of(Account.SObjectType)
 
 SOQL.of(Account.SObjectType)
     .whereAre(SOQL.Filter.with(Account.IsDeleted).equal(true))
+    .toList();
+```
+
+### equalNullSafe
+
+Safely call equals with a variable that can be null. Ensuring WHERE Field = null does not occur returning unrelated records.
+
+- `WHERE (Name = 'My Account' AND Name != NULL)`
+
+**Signature**
+
+```apex
+Filter equalNullSafe(Object value)
+```
+
+**Example**
+
+```sql
+SELECT Id FROM Account WHERE (Name = 'My Account' AND Name != NULL)
+```
+
+```apex
+SOQL.of(Contact.SObjectType)
+    .whereAre(SOQL.Filter.name().equalNullSafe(variable))
     .toList();
 ```
 

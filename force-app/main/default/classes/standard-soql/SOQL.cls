@@ -277,6 +277,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Filter isTrue();
         Filter isFalse();
         Filter equal(Object value);
+        Filter equalNullSafe(Object value);
         Filter notEqual(Object value);
         Filter lessThan(Object value);
         Filter lessOrEqual(Object value);
@@ -348,6 +349,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         HavingFilter isTrue();
         HavingFilter isFalse();
         HavingFilter equal(Object value);
+        HavingFilter equalNullSafe(Object value);
         HavingFilter notEqual(Object value);
         HavingFilter lessThan(Object value);
         HavingFilter lessOrEqual(Object value);
@@ -2063,6 +2065,13 @@ public virtual inherited sharing class SOQL implements Queryable {
             return this.set('=', value);
         }
 
+        public Filter equalNullSafe(Object value) {
+            if(value == null) {
+                return this.isNull();
+            }
+            return this.equal(value);
+        }
+
         public Filter notEqual(Object value) {
             return this.set('!=', value);
         }
@@ -2534,6 +2543,13 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public HavingFilter equal(Object value) {
             return this.set('=', value);
+        }
+
+        public HavingFilter equalNullSafe(Object value) {
+            if(value == null) {
+                return this.isNull();
+            }
+            return this.equal(value);
         }
 
         public HavingFilter notEqual(Object value) {
