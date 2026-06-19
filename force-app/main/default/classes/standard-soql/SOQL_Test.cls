@@ -3,7 +3,7 @@
  * Copyright (c) 2026 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.10.2
+ * v6.11.0
  *
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
@@ -820,6 +820,19 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void subQueryOrderByDistance() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType).with(SOQL.SubQuery.of('Contacts').orderBy(SOQL.Distance.of(Contact.MailingAddress).between(0, 0).km())).toString();
+
+        // Verify
+        Assert.areEqual(
+            'SELECT Id , (SELECT Id FROM Contacts ORDER BY DISTANCE(MailingAddress, GEOLOCATION(0.0,0.0),\' km\') ASC NULLS FIRST) FROM Account',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
+    }
+
+    @IsTest
     static void subQuerySetLimit() {
         // Test
         String soql = SOQL.of(Account.SObjectType).with(Account.Name).with(SOQL.SubQuery.of('Contacts').with(Contact.Id, Contact.Name).setLimit(10)).toString();
@@ -863,7 +876,7 @@ private class SOQL_Test {
         Date toDate = Date.newInstance(2024, 1, 30);
 
         // Test
-        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
+        SOQL.Queryable soql = SOQL.of(Account.SObjectType)
             .with(
                 SOQL.SubQuery.of('Contacts')
                     .with(Contact.Id)
@@ -885,11 +898,11 @@ private class SOQL_Test {
         // Verify
         Assert.areEqual(
             'SELECT Id , (SELECT Id FROM Contacts WHERE (CreatedDate <= :v1 AND (CreatedDate = :v2 OR CreatedDate >= :v3))), (SELECT Id FROM Opportunities WHERE (LeadSource = :v4 AND CreatedDate = :v5)) FROM Account LIMIT 1',
-            builder.toString(),
+            soql.toString(),
             'The generated SOQL should match the expected one.'
         );
 
-        Map<String, Object> binding = builder.binding();
+        Map<String, Object> binding = soql.binding();
         Assert.areEqual(fromDate, binding.get('v1'), 'The binding variable should match the expected value.');
         Assert.areEqual(null, binding.get('v2'), 'The binding variable should match the expected value.');
         Assert.areEqual(toDate, binding.get('v3'), 'The binding variable should match the expected value.');
@@ -1385,6 +1398,96 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual('SELECT Id FROM Account WHERE CreatedDate > LAST_N_QUARTERS:2', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void filterDistanceInMiles() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(SOQL.Distance.of(Account.BillingAddress).between(Location.newInstance(0, 0)).mi()).lessThan(5))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),\' mi\') < :v1', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void filterDistanceInKilometers() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(SOQL.Distance.of(Account.BillingAddress).between(Location.newInstance(0, 0)).km()).lessThan(5))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),\' km\') < :v1', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void filterDistanceWithRelationship() {
+        // Test
+        String soql = SOQL.of(Contact.SObjectType)
+            .whereAre(SOQL.Filter.with(SOQL.Distance.of('Account', Account.BillingAddress).between(Location.newInstance(0, 0)).mi()).lessThan(5))
+            .toString();
+
+        // Verify
+        Assert.areEqual(
+            'SELECT Id FROM Contact WHERE DISTANCE(Account.BillingAddress, GEOLOCATION(0.0,0.0),\' mi\') < :v1',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
+    }
+
+    @IsTest
+    static void filterDistanceWithLatLngOverload() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType).whereAre(SOQL.Filter.with(SOQL.Distance.of(Account.BillingAddress).between(37.775, -122.418).mi()).lessThan(5)).toString();
+
+        // Verify
+        Assert.areEqual(
+            'SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(37.775,-122.418),\' mi\') < :v1',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
+    }
+
+    @IsTest
+    static void filterDistancePreservesLatLngOrder() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(SOQL.Distance.of(Account.BillingAddress).between(Location.newInstance(10.5, 20.5)).mi()).lessThan(5))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(10.5,20.5),\' mi\') < :v1', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void filterDistanceBindsOnlyThreshold() {
+        // Test
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(SOQL.Distance.of(Account.BillingAddress).between(Location.newInstance(0, 0)).mi()).lessThan(5));
+
+        // Verify
+        Assert.areEqual(
+            'SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),\' mi\') < :v1',
+            builder.toString(),
+            'The generated SOQL should match the expected one.'
+        );
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(1, binding.size(), 'Only the distance threshold should be bound — GEOLOCATION is inlined as a literal.');
+        Assert.areEqual(5, binding.get('v1'), 'The binding variable should match the expected value.');
+    }
+
+    @IsTest
+    static void filterDistanceGreaterThan() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .whereAre(SOQL.Filter.with(SOQL.Distance.of(Account.BillingAddress).between(Location.newInstance(0, 0)).mi()).greaterThan(100))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),\' mi\') > :v1', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -2736,6 +2839,58 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void orderByDistanceInKilometers() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType).orderBy(SOQL.Distance.of(Account.BillingAddress).between(0, 0).km()).toString();
+
+        // Verify
+        Assert.areEqual(
+            'SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),\' km\') ASC NULLS FIRST',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
+    }
+
+    @IsTest
+    static void orderByDistanceInMiles() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType).orderBy(SOQL.Distance.of(Account.BillingAddress).between(Location.newInstance(37.775, -122.418)).mi()).toString();
+
+        // Verify
+        Assert.areEqual(
+            'SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress, GEOLOCATION(37.775,-122.418),\' mi\') ASC NULLS FIRST',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
+    }
+
+    @IsTest
+    static void orderByDistanceWithRelationship() {
+        // Test
+        String soql = SOQL.of(Contact.SObjectType).orderBy(SOQL.Distance.of('Account', Account.BillingAddress).between(0, 0).km()).toString();
+
+        // Verify
+        Assert.areEqual(
+            'SELECT Id FROM Contact ORDER BY DISTANCE(Account.BillingAddress, GEOLOCATION(0.0,0.0),\' km\') ASC NULLS FIRST',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
+    }
+
+    @IsTest
+    static void orderByDistanceDescNullsLast() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType).orderBy(SOQL.Distance.of(Account.BillingAddress).between(0, 0).km()).sortDesc().nullsLast().toString();
+
+        // Verify
+        Assert.areEqual(
+            'SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),\' km\') DESC NULLS LAST',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
+    }
+
+    @IsTest
     static void setLimit() {
         // Test
         String soql = SOQL.of(Account.SObjectType).setLimit(100).toString();
@@ -3014,6 +3169,21 @@ private class SOQL_Test {
         // Verify
         Assert.areEqual(testAccount.Name, result.Name, 'The result account Name should be the same as the mocked account Name.');
         Assert.isNotNull(result.Id, 'The result account Id should be always set even if the mocked account Id is not set.');
+    }
+
+    @IsTest
+    static void mockingSingleRecordWhereSobjectPrefixIsNull() {
+        // Setup
+        Id recordId = SOQL.IdGenerator.get(Account.SObjectType);
+        UserRecordAccess testRecord = (UserRecordAccess) JSON.deserialize(JSON.serialize(new Map<String, Object>{ 'RecordId' => recordId }), UserRecordAccess.class);
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(testRecord);
+        UserRecordAccess result = (UserRecordAccess) SOQL.of(UserRecordAccess.SObjectType).with(UserRecordAccess.RecordId).mockId('mockingQuery').toObject();
+
+        // Verify
+        Assert.areEqual(recordId, result.RecordId, 'The result record ID should be the same as the mocked record ID.');
+        Assert.isNull(result.Id, 'The result record Id should be null because it\'s not a real record and the SObject prefix is null.');
     }
 
     @IsTest
@@ -3823,6 +3993,38 @@ private class SOQL_Test {
         // Verify
         Assert.isNotNull(queryException, 'The synchronous query should have exceeded the limit.');
         Assert.areEqual('Too many SOQL queries.', queryException.getMessage(), 'The synchronous query should have been exceeded.');
+    }
+
+    @IsTest
+    static void getQueriesInitiallyZero() {
+        // Verify
+        Assert.areEqual(0, SOQL.getQueries(), 'The number of issued queries should be 0 before any query is executed.');
+    }
+
+    @IsTest
+    static void getQueriesIncrementsAfterMockedQuery() {
+        // Setup
+        SOQL.mock('mockingQuery').thenReturn(new List<Account>());
+
+        // Test
+        SOQL.of(Account.SObjectType).mockId('mockingQuery').toList();
+
+        // Verify
+        Assert.areEqual(1, SOQL.getQueries(), 'The number of issued queries should be 1 after one mocked query is executed.');
+    }
+
+    @IsTest
+    static void getQueriesTracksMultipleMockedQueries() {
+        // Setup
+        SOQL.mock('mockingQuery').thenReturn(new List<Account>());
+
+        // Test
+        for (Integer i = 0; i < 5; i++) {
+            SOQL.of(Account.SObjectType).mockId('mockingQuery').toList();
+        }
+
+        // Verify
+        Assert.areEqual(5, SOQL.getQueries(), 'The number of issued queries should match the number of mocked queries executed.');
     }
 
     @IsTest
