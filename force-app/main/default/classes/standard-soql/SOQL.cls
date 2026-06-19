@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.10.2
+ * v6.11.0
  *
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
@@ -135,6 +135,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable orderBy(String field, String direction);
         Queryable orderBy(String relationshipName, SObjectField field);
         Queryable orderByCount(SObjectField field);
+        Queryable orderBy(Distance distance);
         Queryable sortDesc();
         Queryable sort(String direction);
         Queryable nullsLast();
@@ -231,6 +232,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         SubQuery orderBy(SObjectField field);
         SubQuery orderBy(String field);
         SubQuery orderBy(String relationshipName, SObjectField field);
+        SubQuery orderBy(Distance distance);
         SubQuery sortDesc();
         SubQuery sort(String direction);
         SubQuery nullsLast();
@@ -271,6 +273,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Filter with(SObjectField field);
         Filter with(String field);
         Filter with(String relationshipName, SObjectField field);
+        Filter with(Distance distance);
         // COMPARATORS
         Filter isNull();
         Filter isNotNull();
@@ -396,6 +399,19 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     @NamespaceAccessible
+    public interface Distance {
+        // field
+        Distance of(SObjectField ofField);
+        Distance of(String relationship, SObjectField ofField);
+        // comparison
+        Distance between(System.Location location);
+        Distance between(Decimal latitude, Decimal longitude);
+        // unit
+        Distance mi();
+        Distance km();
+    }
+
+    @NamespaceAccessible
     public static SubQuery SubQuery {
         get {
             return new SoqlSubQuery();
@@ -442,6 +458,22 @@ public virtual inherited sharing class SOQL implements Queryable {
         get {
             return new SoqlDataCategoryFilter();
         }
+    }
+
+    @NamespaceAccessible
+    public static Distance Distance {
+        get {
+            return new SoqlDistance();
+        }
+    }
+
+    @NamespaceAccessible
+    public static Integer getQueries() {
+        if (System.Test.isRunningTest() && !System.isBatch() && !System.isFuture() && !System.isQueueable() && !System.isScheduled()) {
+            return SOQL.syncQueriesIssued;
+        }
+
+        return Limits.getQueries();
     }
 
     // Mocking
@@ -507,7 +539,7 @@ public virtual inherited sharing class SOQL implements Queryable {
     private static Binder binder = new Binder();
     private static Integer syncQueriesIssued = 0;
 
-    private SoqlBuilder builder;
+    private Builder builder;
     private Executor executor;
     private Converter converter;
 
@@ -518,7 +550,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
     @NamespaceAccessible
     public SOQL(String ofObject) {
-        this.builder = new SoqlBuilder(ofObject);
+        this.builder = new Builder(ofObject);
         this.executor = new Executor(builder);
         this.converter = new Converter(ofObject);
 
@@ -994,6 +1026,12 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     @NamespaceAccessible
+    public Queryable orderBy(Distance distance) {
+        this.builder.orderBys.newOrderBy().with(distance);
+        return this;
+    }
+
+    @NamespaceAccessible
     public Queryable sortDesc() {
         return this.sort('DESC');
     }
@@ -1337,10 +1375,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         String toString();
     }
 
-    private class SoqlBuilder implements QueryClause {
+    private class Builder implements QueryClause {
         private List<QueryClause> clauses = new QueryClause[12];
 
-        public SoqlBuilder(String ofObject) {
+        public Builder(String ofObject) {
             this.clauses.set(0, new SoqlFields(ofObject));
             this.clauses.set(2, new SoqlFrom(ofObject));
         }
@@ -1643,11 +1681,11 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class SoqlSubQuery implements SubQuery {
-        private SoqlBuilder builder;
+        private Builder builder;
         private String childRelationshipName;
 
         public SubQuery of(String ofObject) {
-            this.builder = new SoqlBuilder(ofObject);
+            this.builder = new Builder(ofObject);
             this.childRelationshipName = ofObject;
             return this;
         }
@@ -1743,6 +1781,11 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public SubQuery orderBy(String relationshipName, SObjectField field) {
             this.builder.orderBys.newOrderBy().with(relationshipName + '.' + field.toString());
+            return this;
+        }
+
+        public SubQuery orderBy(Distance distance) {
+            this.builder.orderBys.newOrderBy().with(distance);
             return this;
         }
 
@@ -2043,6 +2086,11 @@ public virtual inherited sharing class SOQL implements Queryable {
             return this;
         }
 
+        public Filter with(Distance distance) {
+            this.field = distance.toString();
+            return this;
+        }
+
         public Filter isNull() {
             return this.equal(null);
         }
@@ -2310,10 +2358,10 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private class SoqlJoinQuery implements InnerJoin {
-        private SoqlBuilder builder;
+        private Builder builder;
 
         public InnerJoin of(SObjectType ofObject) {
-            this.builder = new SoqlBuilder(ofObject.toString());
+            this.builder = new Builder(ofObject.toString());
             return this;
         }
 
@@ -2635,6 +2683,10 @@ public virtual inherited sharing class SOQL implements Queryable {
             this.orderField = field;
         }
 
+        public void with(Distance distance) {
+            this.orderField = distance.toString();
+        }
+
         public void sortingOrder(String direction) {
             this.sortingOrder = direction;
         }
@@ -2815,9 +2867,13 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         private void addIdToMockedRecords() {
-            // Id is always added to mirror standard SOQL behavior
+            // Id is added to mirror standard SOQL behavior
             SObjectType sObjectType = this.mockedRecords[0].getSObjectType();
             String sObjectPrefix = sObjectType.getDescribe(SObjectDescribeOptions.DEFERRED).getKeyPrefix();
+
+            if (String.isBlank(sObjectPrefix)) {
+                return;
+            }
 
             for (SObject record : this.mockedRecords) {
                 record.put('Id', record?.Id ?? IdGenerator.get(sObjectPrefix));
@@ -2927,6 +2983,48 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
+    private class SoqlDistance implements Distance {
+        private String field;
+        private String unit = 'km';
+        private String comparisonLocation;
+
+        public Distance of(SObjectField ofField) {
+            this.field = ofField.toString();
+            return this;
+        }
+
+        public Distance of(String relationship, SObjectField ofField) {
+            this.field = relationship + '.' + ofField.toString();
+            return this;
+        }
+
+        public Distance between(System.Location location) {
+            this.comparisonLocation = 'GEOLOCATION(' + location.getLatitude() + ',' + location.getLongitude() + ')';
+            return this;
+        }
+
+        public Distance between(Decimal latitude, Decimal longitude) {
+            return this.between(Location.newInstance(latitude, longitude));
+        }
+
+        public Distance mi() {
+            return this.unit('mi');
+        }
+
+        public Distance km() {
+            return this.unit('km');
+        }
+
+        private Distance unit(String unit) {
+            this.unit = unit;
+            return this;
+        }
+
+        public override String toString() {
+            return 'DISTANCE(' + this.field + ', ' + this.comparisonLocation + ',\' ' + this.unit + '\')';
+        }
+    }
+
     private class ExceptionMock {
         private QueryException queryException;
 
@@ -2943,10 +3041,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         private DatabaseQuery sharingExecutor;
         private AccessLevel accessMode;
         private AccessType accessType;
-        private SoqlBuilder builder;
+        private Builder builder;
         private List<SoqlMock> mocks = new List<SoqlMock>();
 
-        public Executor(SoqlBuilder builder) {
+        public Executor(Builder builder) {
             this.builder = builder;
             this.accessMode = AccessLevel.USER_MODE;
             this.sharingExecutor = new InheritedSharing();
