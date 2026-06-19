@@ -2067,7 +2067,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public Filter equalNullSafe(Object value) {
             if(value == null) {
-                return this.isNull();
+                return this.isNotNull();
             }
             return this.equal(value);
         }
@@ -2547,7 +2547,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public HavingFilter equalNullSafe(Object value) {
             if(value == null) {
-                return this.isNull();
+                return this.isNotNull();
             }
             return this.equal(value);
         }
