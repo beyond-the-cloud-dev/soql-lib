@@ -30,6 +30,11 @@ The following are methods for `SubQuery`.
 - [`with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4)`](#with-field1---field5)
 - [`with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5)`](#with-field1---field5)
 - [`with(List<SObjectField> fields)`](#with-fields)
+- [`with(String relationshipName, SObjectField field)`](#with-related-field1---field5)
+- [`with(String relationshipName, SObjectField field1, SObjectField field2)`](#with-related-field1---field5)
+- [`with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3)`](#with-related-field1---field5)
+- [`with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4)`](#with-related-field1---field5)
+- [`with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5)`](#with-related-field1---field5)
 - [`with(String relationshipName, Iterable<SObjectField> fields)`](#with-related-fields)
 - [`with(String fields)`](#with-string-fields)
 
@@ -156,6 +161,42 @@ SOQL.of(Account.SObjectType)
             Contact.Title,
             Contact.Salutation
         })
+    )
+    .toList();
+```
+
+### with related field1 - field5
+
+Allows to add parent field to a query.
+
+**Signature**
+
+```apex title="Single Related Field Method"
+SubQuery with(String relationshipName, SObjectField field)
+```
+```apex title="Two Related Fields Method"
+SubQuery with(String relationshipName, SObjectField field1, SObjectField field2);
+```
+```apex title="Three Related Fields Method"
+SubQuery with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
+```
+```apex title="Four Related Fields Method"
+SubQuery with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+```
+```apex title="Five Related Fields Method"
+SubQuery with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
+```
+
+**Example**
+
+```sql title="SOQL Query"
+SELECT (SELECT CreatedBy.Id, CreatedBy.Name FROM Contacts)
+FROM Account
+```
+```apex title="SOQL Lib Related Fields"
+SOQL.of(Account.SObjectType)
+    .with(SOQL.SubQuery.of('Contacts')
+        .with('CreatedBy', User.Id, User.Name)
     )
     .toList();
 ```
