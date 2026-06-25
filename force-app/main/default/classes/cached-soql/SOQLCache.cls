@@ -368,12 +368,26 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         private CacheManager.Cacheable storage = CacheManager.ApexTransaction;
         private String cacheKey;
 
+        public List<CacheItem> cachedItems {
+            get {
+                if (cachedItems == null) {
+                    cachedItems = this.getCachedRecords();
+                }
+                return cachedItems;
+            }
+            private set;
+        }
+
         public CacheStorageProxy(String ofObject) {
             this.cacheKey = this.getAlphanumericKeyFromObjectApiName(ofObject);
         }
 
         private String getAlphanumericKeyFromObjectApiName(String ofObject) {
             return Pattern.compile('[^a-zA-Z0-9]').matcher(ofObject).replaceAll('');
+        }
+
+        private List<CacheItem> getCachedRecords() {
+            return (List<CacheItem>) (this.storage.get(this.cacheKey) ?? new List<CacheItem>());
         }
 
         public CacheStorageProxy apexTransaction() {
@@ -409,12 +423,8 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
             return this.storage.contains(this.cacheKey);
         }
 
-        public List<CacheItem> getCachedRecords() {
-            return (List<CacheItem>) (this.storage.get(this.cacheKey) ?? new List<CacheItem>());
-        }
-
         public void addRecordsToCache(List<SObject> recordsToAdd) {
-            List<CacheItem> allCachedRecords = getCachedRecords();
+            List<CacheItem> allCachedRecords = cachedItems;
 
             for (SObject databaseRecord : recordsToAdd) {
                 allCachedRecords.add(new CacheItem(databaseRecord));
@@ -424,7 +434,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         public void updateRecordsInCache(List<SObject> recordsToUpdate) {
-            List<CacheItem> allCachedRecords = getCachedRecords();
+            List<CacheItem> allCachedRecords = cachedItems;
 
             Map<Id, SObject> updatedRecordsById = new Map<Id, SObject>(recordsToUpdate);
 
@@ -443,7 +453,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
 
             List<CacheItem> filteredCachedItems = new List<CacheItem>();
 
-            for (CacheItem cachedRecord : getCachedRecords()) {
+            for (CacheItem cachedRecord : cachedItems) {
                 if (!recordsToRemoveIds.contains(cachedRecord.id)) {
                     filteredCachedItems.add(cachedRecord);
                 }
@@ -469,7 +479,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         private List<CacheItem> cachedItemsThatMeetCriteria {
             get {
                 if (this.cachedItemsThatMeetCriteria == null) {
-                    this.cachedItemsThatMeetCriteria = this.filterGroup.filter(this.storage.getCachedRecords());
+                    this.cachedItemsThatMeetCriteria = this.filterGroup.filter(this.storage.cachedItems);
                 }
                 return this.cachedItemsThatMeetCriteria;
             }
