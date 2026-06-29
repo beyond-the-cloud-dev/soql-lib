@@ -35,6 +35,7 @@ The following are methods for `HavingFilter`.
 - [`isTrue()`](#istrue)
 - [`isFalse()`](#isfalse)
 - [`equal(Object value)`](#equal)
+- [`equalNullSafe(Object value)`](#equalnullsafe)
 - [`notEqual(Object value)`](#notequal)
 - [`lessThan(Object value)`](#lessthan)
 - [`greaterThan(Object value)`](#greaterthan)
@@ -377,6 +378,34 @@ SOQL.of(Lead.SObjectType)
     .count(Lead.Name)
     .groupBy(Lead.LeadSource)
     .have(SOQL.HavingFilter.with(Lead.LeadSource).equal('Web'))
+    .toAggregated();
+```
+
+### equalNullSafe
+
+- `HAVING (City = 'Los Angeles' AND City != NULL)`
+- `HAVING SUM(AnnualRevenue) = 100000`
+
+**Signature**
+
+```apex
+HavingFilter equalNullSafe(Object value)
+```
+
+**Example**
+
+```sql
+SELECT COUNT(Name)
+FROM Lead
+GROUP BY LeadSource
+HAVING (LeadSource = 'Web' AND LeadSource != NULL)
+```
+
+```apex
+SOQL.of(Lead.SObjectType)
+    .count(Lead.Name)
+    .groupBy(Lead.LeadSource)
+    .have(SOQL.HavingFilter.with(Lead.LeadSource).equalNullSafe('Web'))
     .toAggregated();
 ```
 
