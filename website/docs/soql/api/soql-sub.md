@@ -189,9 +189,11 @@ SubQuery with(String relationshipName, SObjectField field1, SObjectField field2,
 
 **Example**
 
-```sql title="SOQL Query"
-SELECT (SELECT CreatedBy.Id, CreatedBy.Name FROM Contacts)
-FROM Account
+```sql
+SELECT Id, (
+    SELECT CreatedBy.Id, CreatedBy.Name
+    FROM Contacts
+) FROM Account
 ```
 ```apex title="SOQL Lib Related Fields"
 SOQL.of(Account.SObjectType)

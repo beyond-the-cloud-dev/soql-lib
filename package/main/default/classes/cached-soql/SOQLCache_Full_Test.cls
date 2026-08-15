@@ -625,6 +625,11 @@ private class SOQLCache_Full_Test {
 
         // Verify
         Assert.isNotNull(soqlException, 'An exception should be thrown when none of the conditions is based on a unique field.');
+        Assert.areEqual(
+            'A cached query must have at least one condition based on Id, Name, DeveloperName, or a unique field. You can ignore this validation by calling allowFilteringByNonUniqueFields()',
+            soqlException.getMessage(),
+            'The exception message should be "A cached query must have at least one condition based on Id, Name, DeveloperName, or a unique field."'
+        );
     }
 
     @IsTest
@@ -662,6 +667,24 @@ private class SOQLCache_Full_Test {
 
         // Verify
         Assert.areEqual('Standard', profile.UserType, 'The record should be refreshed from the database with the missing UserType field.');
+        Assert.areEqual(2, Limits.getQueries(), 'The second query should be executed, because the cached record does not have the UserType field.');
+    }
+
+    @IsTest
+    static void whereEqualNotUniqueFieldWhenConditionValueDoesNotMatch() {
+        // Setup
+        // The first query caches the record without the UserType field.
+        SOQLCache.of(Profile.SObjectType).with(Profile.Id, Profile.Name).whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR).toObject();
+
+        // Test
+        Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+            .with(Profile.Id, Profile.Name, Profile.UserType)
+            .whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR)
+            .whereEqual(Profile.UserType, 'PowerPartner')
+            .toObject();
+
+        // Verify
+        Assert.isNull(profile, 'No record should be returned, because the database value does not match the condition.');
         Assert.areEqual(2, Limits.getQueries(), 'The second query should be executed, because the cached record does not have the UserType field.');
     }
 
