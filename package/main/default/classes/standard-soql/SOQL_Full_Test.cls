@@ -675,6 +675,78 @@ private class SOQL_Full_Test {
     }
 
     @IsTest
+    static void subQueryRelatedField() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Name)
+            .with(SOQL.SubQuery.of('Contacts').with(Contact.Id).with('CreatedBy', User.Name))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Name , (SELECT Id, CreatedBy.Name FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void subQueryTwoRelatedFields() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Name)
+            .with(SOQL.SubQuery.of('Contacts').with(Contact.Id).with('CreatedBy', User.Id, User.Name))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Name , (SELECT Id, CreatedBy.Id, CreatedBy.Name FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void subQueryThreeRelatedFields() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Name)
+            .with(SOQL.SubQuery.of('Contacts').with(Contact.Id).with('CreatedBy', User.Id, User.Name, User.Alias))
+            .toString();
+
+        // Verify
+        Assert.areEqual(
+            'SELECT Name , (SELECT Id, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias FROM Contacts) FROM Account',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
+    }
+
+    @IsTest
+    static void subQueryFourRelatedFields() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Name)
+            .with(SOQL.SubQuery.of('Contacts').with(Contact.Id).with('CreatedBy', User.Id, User.Name, User.Alias, User.City))
+            .toString();
+
+        // Verify
+        Assert.areEqual(
+            'SELECT Name , (SELECT Id, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias, CreatedBy.City FROM Contacts) FROM Account',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
+    }
+
+    @IsTest
+    static void subQueryFiveRelatedFields() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Name)
+            .with(SOQL.SubQuery.of('Contacts').with(Contact.Id).with('CreatedBy', User.Id, User.Name, User.Alias, User.City, User.CompanyName))
+            .toString();
+
+        // Verify
+        Assert.areEqual(
+            'SELECT Name , (SELECT Id, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias, CreatedBy.City, CreatedBy.CompanyName FROM Contacts) FROM Account',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
+    }
+
+    @IsTest
     static void subQueryToLabelWithSObjectField() {
         // Test
         String soql = SOQL.of(Account.SObjectType).with(SOQL.SubQuery.of('Contacts').with(Contact.LastName).toLabel(Contact.Salutation)).toString();
@@ -4975,6 +5047,92 @@ private class SOQL_Full_Test {
 
     static void insertTasks() {
         insert new List<Task>{ new Task(Subject = 'Test', Type = 'Other'), new Task(Subject = 'Test', Type = 'Other') };
+    }
+
+    @IsTest
+    static void loggerWithQueryError() {
+        // Setup
+        LoggerMock queryLogger = new LoggerMock();
+        SOQL.queryLogger = queryLogger;
+
+        // Test
+        Exception queryException = null;
+
+        try {
+            SOQL.of(Account.SObjectType).with('NonExistingField__c').whereAre(SOQL.Filter.with(Account.Name).equal('Test')).toList();
+        } catch (QueryException e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(queryException, 'The query exception should be thrown for the non-existing field.');
+        Assert.isNotNull(queryLogger.capturedError, 'The logger should receive the query error.');
+        Assert.areEqual(queryException, queryLogger.capturedError.getException(), 'The logged exception should be the thrown one.');
+        Assert.areEqual('SELECT NonExistingField__c FROM Account WHERE Name = :v1', queryLogger.capturedError.getQuery(), 'The logged query should match the generated SOQL.');
+        Assert.areEqual('Test', queryLogger.capturedError.getBinding().get('v1'), 'The logged binding should contain the bound filter value.');
+        Assert.areEqual(AccessLevel.USER_MODE, queryLogger.capturedError.getAccessLevel(), 'The logged access level should be the default USER_MODE.');
+    }
+
+    @IsTest
+    static void loggerWithSuccessfulQuery() {
+        // Setup
+        LoggerMock queryLogger = new LoggerMock();
+        SOQL.queryLogger = queryLogger;
+
+        // Test
+        SOQL.of(Account.SObjectType).toList();
+
+        // Verify
+        Assert.isNull(queryLogger.capturedError, 'The logger should not be invoked when the query succeeds.');
+    }
+
+    @IsTest
+    static void loggerNotConfiguredWithQueryError() {
+        // Setup
+        SOQL.queryLogger = null;
+
+        // Test
+        Exception queryException = null;
+
+        try {
+            SOQL.of(Account.SObjectType).with('NonExistingField__c').toList();
+        } catch (QueryException e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(queryException, 'The query exception should be thrown even when no logger is configured.');
+        Assert.isTrue(queryException.getMessage().contains('NonExistingField__c'), 'The thrown exception should be the query error.');
+    }
+
+    @IsTest
+    static void loggerWithMockedException() {
+        // Setup
+        LoggerMock queryLogger = new LoggerMock();
+        SOQL.queryLogger = queryLogger;
+
+        SOQL.mock('mockingQuery').throwException();
+
+        // Test
+        Exception queryException = null;
+
+        try {
+            SOQL.of(Account.SObjectType).mockId('mockingQuery').toList();
+        } catch (QueryException e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(queryException, 'The query exception should be thrown, because it\'s mocked.');
+        Assert.isNull(queryLogger.capturedError, 'The logger should not be invoked for mocked exceptions.');
+    }
+
+    private class LoggerMock implements SOQL.Logger {
+        public SOQL.Error capturedError;
+
+        public void log(SOQL.Error error) {
+            this.capturedError = error;
+        }
     }
 
     static void insertTask() {

@@ -212,6 +212,11 @@ global virtual inherited sharing class SOQL implements Queryable {
         SubQuery with(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         SubQuery with(Iterable<SObjectField> fields);
         SubQuery with(String fields);
+        SubQuery with(String relationshipName, SObjectField field);
+        SubQuery with(String relationshipName, SObjectField field1, SObjectField field2);
+        SubQuery with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
+        SubQuery with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+        SubQuery with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         SubQuery with(String relationshipName, Iterable<SObjectField> fields);
         SubQuery with(SubQuery subQuery);
         SubQuery toLabel(SObjectField field);
@@ -396,6 +401,17 @@ global virtual inherited sharing class SOQL implements Queryable {
         Distance km();
     }
 
+    global interface Logger {
+        void log(Error error);
+    }
+
+    global interface Error {
+        Exception getException();
+        String getQuery();
+        Map<String, Object> getBinding();
+        AccessLevel getAccessLevel();
+    }
+
     global static SubQuery SubQuery {
         get {
             return new SoqlSubQuery();
@@ -511,6 +527,31 @@ global virtual inherited sharing class SOQL implements Queryable {
 
     private static Binder binder = new Binder();
     private static Integer syncQueriesIssued = 0;
+
+    @TestVisible
+    private static Logger queryLogger {
+        get {
+            if (queryLogger == null) {
+                String className = SOQL.class.getName(); // 'SOQL' or 'btcdev.SOQL' when namespaced
+                String namespacePrefix = className.contains('.') ? className.substringBefore('.') : null;
+
+                List<ApexTypeImplementor> implementors = [
+                    SELECT ClassName, ClassNamespacePrefix
+                    FROM ApexTypeImplementor
+                    WHERE InterfaceName = 'SOQL.Logger' AND InterfaceNamespacePrefix = :namespacePrefix AND IsConcrete = true
+                    LIMIT 1
+                ];
+
+                if (!implementors.isEmpty()) {
+                    Object loggerInstance = Type.forName(implementors[0].ClassNamespacePrefix, implementors[0].ClassName)?.newInstance();
+                    queryLogger = loggerInstance instanceof Logger ? (Logger) loggerInstance : null;
+                }
+            }
+
+            return queryLogger;
+        }
+        private set;
+    }
 
     private Builder builder;
     private Executor executor;
@@ -1556,6 +1597,31 @@ global virtual inherited sharing class SOQL implements Queryable {
 
         public SubQuery with(String fields) {
             this.builder.fields.with(fields);
+            return this;
+        }
+
+        public SubQuery with(String relationshipName, SObjectField field) {
+            this.builder.fields.relationshipFields.add(relationshipName, new List<SObjectField>{ field });
+            return this;
+        }
+
+        public SubQuery with(String relationshipName, SObjectField field1, SObjectField field2) {
+            this.builder.fields.relationshipFields.add(relationshipName, new List<SObjectField>{ field1, field2 });
+            return this;
+        }
+
+        public SubQuery with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3) {
+            this.builder.fields.relationshipFields.add(relationshipName, new List<SObjectField>{ field1, field2, field3 });
+            return this;
+        }
+
+        public SubQuery with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
+            this.builder.fields.relationshipFields.add(relationshipName, new List<SObjectField>{ field1, field2, field3, field4 });
+            return this;
+        }
+
+        public SubQuery with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
+            this.builder.fields.relationshipFields.add(relationshipName, new List<SObjectField>{ field1, field2, field3, field4, field5 });
             return this;
         }
 
@@ -2875,6 +2941,29 @@ global virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
+    private class SoqlError implements Error {
+        public Exception queryException;
+        public String query;
+        public Map<String, Object> binding;
+        public AccessLevel accessLevel;
+
+        public Exception getException() {
+            return this.queryException;
+        }
+
+        public String getQuery() {
+            return this.query;
+        }
+
+        public Map<String, Object> getBinding() {
+            return this.binding;
+        }
+
+        public AccessLevel getAccessLevel() {
+            return this.accessLevel;
+        }
+    }
+
     private inherited sharing class Executor {
         private DatabaseQuery sharingExecutor;
         private AccessLevel accessMode;
@@ -2930,12 +3019,19 @@ global virtual inherited sharing class SOQL implements Queryable {
                 return this.getMockedListProxy();
             }
 
-            if (this.accessType == null) {
-                return this.sharingExecutor.toSObjects(this.builder.toString(), binder.getBindingMap(), this.accessMode);
-            }
+            String query = this.builder.toString();
 
-            return System.Security.stripInaccessible(this.accessType, this.sharingExecutor.toSObjects(this.builder.toString(), binder.getBindingMap(), this.accessMode))
-                .getRecords();
+            try {
+                if (this.accessType == null) {
+                    return this.sharingExecutor.toSObjects(query, binder.getBindingMap(), this.accessMode);
+                }
+
+                return System.Security.stripInaccessible(this.accessType, this.sharingExecutor.toSObjects(query, binder.getBindingMap(), this.accessMode))
+                    .getRecords();
+            } catch (Exception e) {
+                this.logError(e, query);
+                throw e;
+            }
         }
 
         private void throwExceptionMockIfExists() {
@@ -2958,12 +3054,19 @@ global virtual inherited sharing class SOQL implements Queryable {
                 return this.getMockedAggregatedResult(fieldToExtract);
             }
 
-            if (this.accessType == null) {
-                return this.sharingExecutor.toSObjects(this.builder.toString(), binder.getBindingMap(), this.accessMode);
-            }
+            String query = this.builder.toString();
 
-            return System.Security.stripInaccessible(this.accessType, this.sharingExecutor.toSObjects(this.builder.toString(), binder.getBindingMap(), this.accessMode))
-                .getRecords();
+            try {
+                if (this.accessType == null) {
+                    return this.sharingExecutor.toSObjects(query, binder.getBindingMap(), this.accessMode);
+                }
+
+                return System.Security.stripInaccessible(this.accessType, this.sharingExecutor.toSObjects(query, binder.getBindingMap(), this.accessMode))
+                    .getRecords();
+            } catch (Exception e) {
+                this.logError(e, query);
+                throw e;
+            }
         }
 
         private List<AggregateResult> getMockedAggregatedResult(String fieldToExtract) {
@@ -2999,7 +3102,14 @@ global virtual inherited sharing class SOQL implements Queryable {
                 return this.getMockedCount();
             }
 
-            return this.sharingExecutor.toInteger(this.builder.toString(), binder.getBindingMap(), this.accessMode);
+            String query = this.builder.toString();
+
+            try {
+                return this.sharingExecutor.toInteger(query, binder.getBindingMap(), this.accessMode);
+            } catch (Exception e) {
+                this.logError(e, query);
+                throw e;
+            }
         }
 
         private Integer getMockedCount() {
@@ -3011,17 +3121,56 @@ global virtual inherited sharing class SOQL implements Queryable {
 
         public Database.QueryLocator toQueryLocator() {
             this.incrementQueryIssued();
-            return this.sharingExecutor.toQueryLocator(this.builder.toString(), binder.getBindingMap(), this.accessMode);
+
+            String query = this.builder.toString();
+
+            try {
+                return this.sharingExecutor.toQueryLocator(query, binder.getBindingMap(), this.accessMode);
+            } catch (Exception e) {
+                this.logError(e, query);
+                throw e;
+            }
         }
 
         public Database.Cursor toCursor() {
             this.incrementQueryIssued();
-            return sharingExecutor.toCursor(builder.toString(), binder.getBindingMap(), accessMode);
+
+            String query = this.builder.toString();
+
+            try {
+                return this.sharingExecutor.toCursor(query, binder.getBindingMap(), this.accessMode);
+            } catch (Exception e) {
+                this.logError(e, query);
+                throw e;
+            }
         }
 
         public Database.PaginationCursor toPaginationCursor() {
             this.incrementQueryIssued();
-            return this.sharingExecutor.toPaginationCursor(this.builder.toString(), binder.getBindingMap(), this.accessMode);
+
+            String query = this.builder.toString();
+
+            try {
+                return this.sharingExecutor.toPaginationCursor(query, binder.getBindingMap(), this.accessMode);
+            } catch (Exception e) {
+                this.logError(e, query);
+                throw e;
+            }
+        }
+
+        private void logError(Exception e, String query) {
+            if (SOQL.queryLogger == null) {
+                return;
+            }
+
+            SoqlError queryError = new SoqlError();
+
+            queryError.queryException = e;
+            queryError.query = query;
+            queryError.binding = binder.getBindingMap();
+            queryError.accessLevel = this.accessMode;
+
+            SOQL.queryLogger.log(queryError);
         }
 
         private void incrementQueryIssued() {
