@@ -226,7 +226,7 @@ trigger SomeObjectTrigger on SomeObject (after update, after delete) {
 
 ### allowFilteringByNonUniqueFields
 
-By default, cached queries can only filter by unique fields (Id, Name, DeveloperName, or fields marked as unique in the schema). This method allows filtering by non-unique fields.
+By default, a cached query must have at least one condition based on a unique field (Id, Name, DeveloperName, or a field marked as unique in the schema). Once such a condition is present, additional conditions on non-unique fields are allowed. This method allows queries where no condition is based on a unique field.
 
 **Signature**
 
@@ -476,16 +476,14 @@ SOQLCache.of(Account.SObjectType)
 
 ## WHERE
 
-A cached query must include at least one condition. The filter must use a cached field (defined in `cachedFields()`) and should be based on `Id`, `Name`, `DeveloperName`, or another unique field.
+A cached query must include at least one condition, and at least one condition should be based on `Id`, `Name`, `DeveloperName`, or another unique field. Once such a condition is present, additional conditions on non-unique fields are allowed. Condition fields are automatically added to the queried and cached fields.
 
-The query requires a single condition, and that condition must filter by a unique field.
-
-To ensure that cached records are aligned with the database, a single condition is required.
+To ensure that cached records are aligned with the database, a condition is required.
 A query without a condition cannot guarantee that the number of records in the cache matches the database.
 
 For example, let’s assume a developer makes the query: `SELECT Id, Name FROM Profile`. Cached records will be returned, but they may differ from the records in the database.
 
-The filter field should be unique. Consistency issues can arise when the field is not unique. For instance, consider this query:
+At least one filter field should be unique. Consistency issues can arise when no filter field is unique. For instance, consider this query:
 `SELECT Id, Name FROM Profile WHERE UserType = 'Standard'`
 
 This query may return some records, but the number of records in the cache may differ from those in the database.
@@ -516,7 +514,7 @@ Let's assume a developer executes this query:
 `SELECT Id, Name, UserType FROM Profile WHERE UserType = 'Standard'`.
 
 Since records exist in the cache, 2 records will be returned, which is incorrect. The database contains 4 records with `UserType = 'Standard'`.
-To avoid such scenarios, filtering by a unique field is required.
+To avoid such scenarios, at least one condition based on a unique field is required.
 
 Sometimes, certain limitations ensure that code functions in a deterministic and expected way. We believe it's better to have limitations that keep the code bug-free and prevent unintended misuse.
 

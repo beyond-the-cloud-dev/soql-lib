@@ -196,7 +196,7 @@ Cached queries have specific filtering requirements to ensure data consistency a
 
 ### Unique Field Requirement
 
-By default, cached queries can only filter by unique fields (`Id`, `Name`, `DeveloperName`, or schema-defined unique fields). This prevents inconsistencies between cached and database records.
+By default, a cached query must have at least one condition based on a unique field (`Id`, `Name`, `DeveloperName`, or a schema-defined unique field). Once such a condition is present, additional conditions on non-unique fields are allowed. This prevents inconsistencies between cached and database records.
 
 ```apex title="Allowed - Unique Field"
 // ✅ Allowed - filtering by unique field
@@ -206,8 +206,17 @@ Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
     .toObject();
 ```
 
+```apex title="Allowed - Unique Field with Non-unique Field"
+// ✅ Allowed - Name is unique, so UserType can be used as an additional condition
+Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
+    .with(Profile.Id, Profile.Name, Profile.UserType)
+    .whereEqual(Profile.Name, 'System Administrator')
+    .whereEqual(Profile.UserType, 'Standard')
+    .toObject();
+```
+
 ```apex title="Not Allowed - Non-unique Field"
-// ❌ Not allowed - UserType is not unique
+// ❌ Not allowed - none of the conditions is based on a unique field
 // Throws: SoqlCacheException
 Profile profile = (Profile) SOQLCache.of(Profile.SObjectType)
     .with(Profile.Id, Profile.Name, Profile.UserType)

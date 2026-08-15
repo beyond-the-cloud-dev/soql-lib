@@ -52,7 +52,7 @@ SOQLCache.of(Profile.SObjectType)
 
 ### allowFilteringByNonUniqueFields()
 
-By default, cached queries can only be filtered by unique fields (`Id`, `Name`, `DeveloperName`) or fields marked as unique in the schema. This is a safety measure to ensure cache consistency. If you need to filter by non-unique fields, you can disable this validation:
+By default, a cached query must have at least one condition based on a unique field (`Id`, `Name`, `DeveloperName`, or a field marked as unique in the schema). Once such a condition is present, additional conditions on non-unique fields are allowed. This is a safety measure to ensure cache consistency. If you need to filter only by non-unique fields, you can disable this validation:
 
 ```apex title="Allow Filtering by Non-Unique Fields"
 SOQLCache.of(Profile.SObjectType)
