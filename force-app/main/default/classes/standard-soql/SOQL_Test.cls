@@ -4195,6 +4195,90 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void loggerWithCountQueryError() {
+        // Setup
+        LoggerMock queryLogger = new LoggerMock();
+        SOQL.queryLogger = queryLogger;
+
+        // Test
+        Exception queryException = null;
+
+        try {
+            SOQL.of(Account.SObjectType).count().whereAre(SOQL.Filter.with('NonExistingField__c').equal('Test')).toInteger();
+        } catch (Exception e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(queryException, 'The query exception should be thrown for the non-existing field.');
+        Assert.isNotNull(queryLogger.capturedError, 'The logger should receive the query error.');
+        Assert.areEqual('SELECT COUNT() FROM Account WHERE NonExistingField__c = :v1', queryLogger.capturedError.getQuery(), 'The logged query should match the generated SOQL.');
+    }
+
+    @IsTest
+    static void loggerWithQueryLocatorError() {
+        // Setup
+        LoggerMock queryLogger = new LoggerMock();
+        SOQL.queryLogger = queryLogger;
+
+        // Test
+        Exception queryException = null;
+
+        try {
+            SOQL.of(Account.SObjectType).with('NonExistingField__c').toQueryLocator();
+        } catch (Exception e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(queryException, 'The query exception should be thrown for the non-existing field.');
+        Assert.isNotNull(queryLogger.capturedError, 'The logger should receive the query error.');
+        Assert.areEqual('SELECT NonExistingField__c FROM Account', queryLogger.capturedError.getQuery(), 'The logged query should match the generated SOQL.');
+    }
+
+    @IsTest
+    static void loggerWithCursorError() {
+        // Setup
+        LoggerMock queryLogger = new LoggerMock();
+        SOQL.queryLogger = queryLogger;
+
+        // Test
+        Exception queryException = null;
+
+        try {
+            SOQL.of(Account.SObjectType).with('NonExistingField__c').toCursor();
+        } catch (Exception e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(queryException, 'The query exception should be thrown for the non-existing field.');
+        Assert.isNotNull(queryLogger.capturedError, 'The logger should receive the query error.');
+        Assert.areEqual('SELECT NonExistingField__c FROM Account', queryLogger.capturedError.getQuery(), 'The logged query should match the generated SOQL.');
+    }
+
+    @IsTest
+    static void loggerWithPaginationCursorError() {
+        // Setup
+        LoggerMock queryLogger = new LoggerMock();
+        SOQL.queryLogger = queryLogger;
+
+        // Test
+        Exception queryException = null;
+
+        try {
+            SOQL.of(Account.SObjectType).with('NonExistingField__c').toPaginationCursor();
+        } catch (Exception e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.isNotNull(queryException, 'The query exception should be thrown for the non-existing field.');
+        Assert.isNotNull(queryLogger.capturedError, 'The logger should receive the query error.');
+        Assert.areEqual('SELECT NonExistingField__c FROM Account', queryLogger.capturedError.getQuery(), 'The logged query should match the generated SOQL.');
+    }
+
+    @IsTest
     static void loggerWithSuccessfulQuery() {
         // Setup
         LoggerMock queryLogger = new LoggerMock();
