@@ -29,6 +29,10 @@ const config = {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           routeBasePath: '/',
+          // Hide the unreleased "Next" docs (website/docs) from the deployed site;
+          // they remain visible locally via `npm run start` for authoring.
+          onlyIncludeVersions:
+            process.env.NODE_ENV === 'development' ? ['current', '6.12.0'] : ['6.12.0'],
         },
         gtag: {
           trackingID: 'G-FVQ8BT1C3H',
@@ -116,6 +120,10 @@ const config = {
             to: '/critique',
             position: 'left',
             label: 'Critique',
+          },
+          {
+            type: 'docsVersionDropdown',
+            position: 'right',
           },
           {
             href: 'https://github.com/beyond-the-cloud-dev/soql-lib',
