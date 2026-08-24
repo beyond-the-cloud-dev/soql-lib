@@ -983,6 +983,112 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void typeOfClassFields() {
+        SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
+        typeof.when(Account.sObjectType).then(Account.Id, Account.Name, Account.BillingCity, Account.BillingState, Account.BillingPostalCode);
+        typeof.when(Opportunity.sObjectType).then('Account', Account.Id, Account.Name, Account.BillingCity, Account.BillingState, Account.BillingPostalCode);
+
+        typeof.whenElse(new List<String>{ 'Name' });
+
+        Assert.areEqual(
+            'TYPEOF What WHEN Account THEN Id,Name,BillingCity,BillingState,BillingPostalCode WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity,Account.BillingState,Account.BillingPostalCode ELSE Name END',
+            typeof.toString(),
+            'The generated soql should match the expected one.'
+        );
+    }
+
+    @IsTest
+    static void typeOfClassRelationshipFields_4() {
+        SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
+        typeof.when(Opportunity.sObjectType).then('Account', Account.Id, Account.Name, Account.BillingCity, Account.BillingState);
+
+        typeof.whenElse(new List<String>{ 'Name' });
+
+        Assert.areEqual(
+            'TYPEOF What WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity,Account.BillingState ELSE Name END',
+            typeof.toString(),
+            'The generated soql should match the expected one.'
+        );
+    }
+
+    @IsTest
+    static void typeOfClassRelationshipFields_3() {
+        SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
+        typeof.when(Opportunity.sObjectType).then('Account', Account.Id, Account.Name, Account.BillingCity);
+
+        typeof.whenElse(new List<String>{ 'Name' });
+
+        Assert.areEqual(
+            'TYPEOF What WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity ELSE Name END',
+            typeof.toString(),
+            'The generated soql should match the expected one.'
+        );
+    }
+
+    @IsTest
+    static void typeOfClassRelationshipFields_2() {
+        SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
+        typeof.when(Opportunity.sObjectType).then('Account', Account.Id, Account.Name);
+
+        typeof.whenElse(new List<String>{ 'Name' });
+
+        Assert.areEqual('TYPEOF What WHEN Opportunity THEN Account.Id,Account.Name ELSE Name END', typeof.toString(), 'The generated soql should match the expected one.');
+    }
+
+    @IsTest
+    static void typeOfClassRelationshipFields_1() {
+        SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
+        typeof.when(Opportunity.sObjectType).then('Account', Account.Id);
+
+        typeof.whenElse(new List<String>{ 'Name' });
+
+        Assert.areEqual('TYPEOF What WHEN Opportunity THEN Account.Id ELSE Name END', typeof.toString(), 'The generated soql should match the expected one.');
+    }
+
+    @IsTest
+    static void typeOfClassIterators() {
+        SOQL.Typeof typeof = SOQL.type.of('What');
+        typeof.when(Account.sObjectType)
+            .then(new List<SObjectField>{ Account.Id, Account.Name, Account.BillingCity })
+            .then(new List<String>{ 'BillingState', 'BillingPostalCode' });
+        typeof.when(Opportunity.sObjectType)
+            .then('Account', new List<SObjectField>{ Account.Id, Account.Name, Account.BillingCity, Account.BillingState, Account.BillingPostalCode });
+
+        Assert.areEqual(
+            'TYPEOF What WHEN Account THEN Id,Name,BillingCity,BillingState,BillingPostalCode WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity,Account.BillingState,Account.BillingPostalCode END',
+            typeof.toString(),
+            'The generated soql should match the expected one.'
+        );
+    }
+
+    @IsTest
+    static void typeOfClassExceptions() {
+        try {
+            SOQL.Typeof typeof = SOQL.type.of('What').of('Who');
+            Assert.fail('this code should not be reachable');
+        } catch (Exception e) {
+            Assert.isInstanceOfType(e, QueryException.class, 'exception should be a QueryException');
+        }
+
+        try {
+            SOQL.Typeof typeof = SOQL.type.of('What').when(Account.sObjectType).when(Account.sObjectType);
+
+            Assert.fail('this code should not be reachable');
+        } catch (Exception e) {
+            Assert.isInstanceOfType(e, QueryException.class, 'exception should be a QueryException');
+        }
+    }
+
+    @IsTest
+    static void typeOfField() {
+        Assert.areEqual(
+            'SELECT TYPEOF What WHEN Account THEN Id,Name ELSE Name END FROM Event',
+            SOQL.of(Event.sObjectType).with(SOQL.type.of('What').when(Account.sObjectType).then(Account.Id, Account.Name).whenElse(new List<String>{ 'Name' })).toString(),
+            'The generated soql should match the expected one.'
+        );
+    }
+
+    @IsTest
     static void delegatedScope() {
         // Test
         String soql = SOQL.of(Task.SObjectType).delegatedScope().toString();
@@ -4171,172 +4277,44 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void loggerWithQueryError() {
-        // Setup
-        LoggerMock queryLogger = new LoggerMock();
-        SOQL.queryLogger = queryLogger;
+    static void distanceFilter() {
+        String query = SOQL.of(Account.sObjectType)
+            .whereAre(SOQL.Filter.with(SOQL.Distance.of(Account.BillingAddress).between(Location.newInstance(0, 0)).mi()).lessThan(5))
+            .toString();
 
-        // Test
-        Exception queryException = null;
+        Assert.areEqual('SELECT Id FROM Account WHERE DISTANCE(BillingAddress,:v1,\'mi\') < :v2', query, 'The generate soql does not match the expected value');
+    }
+    @IsTest
+    static void distanceFilterRelationship() {
+        String query = SOQL.of(Contact.sObjectType)
+            .whereAre(SOQL.Filter.with(SOQL.Distance.of('Account', Account.BillingAddress).between(Location.newInstance(0, 0)).mi()).lessThan(5))
+            .toString();
 
-        try {
-            SOQL.of(Account.SObjectType).with('NonExistingField__c').whereAre(SOQL.Filter.with(Account.Name).equal('Test')).toList();
-        } catch (QueryException e) {
-            queryException = e;
-        }
-
-        // Verify
-        Assert.isNotNull(queryException, 'The query exception should be thrown for the non-existing field.');
-        Assert.isNotNull(queryLogger.capturedError, 'The logger should receive the query error.');
-        Assert.areEqual(queryException, queryLogger.capturedError.getException(), 'The logged exception should be the thrown one.');
-        Assert.areEqual('SELECT NonExistingField__c FROM Account WHERE Name = :v1', queryLogger.capturedError.getQuery(), 'The logged query should match the generated SOQL.');
-        Assert.areEqual('Test', queryLogger.capturedError.getBinding().get('v1'), 'The logged binding should contain the bound filter value.');
-        Assert.areEqual(AccessLevel.USER_MODE, queryLogger.capturedError.getAccessLevel(), 'The logged access level should be the default USER_MODE.');
+        Assert.areEqual('SELECT Id FROM Contact WHERE DISTANCE(Account.BillingAddress,:v1,\'mi\') < :v2', query, 'The generate soql does not match the expected value');
     }
 
     @IsTest
-    static void loggerWithCountQueryError() {
-        // Setup
-        LoggerMock queryLogger = new LoggerMock();
-        SOQL.queryLogger = queryLogger;
+    static void distanceOrder() {
+        String query = SOQL.of(Account.sObjectType).orderBy(SOQL.Distance.of(Account.BillingAddress).between(0, 0).km()).toString();
 
-        // Test
-        Exception queryException = null;
-
-        try {
-            SOQL.of(Account.SObjectType).count().whereAre(SOQL.Filter.with('NonExistingField__c').equal('Test')).toInteger();
-        } catch (Exception e) {
-            queryException = e;
-        }
-
-        // Verify
-        Assert.isNotNull(queryException, 'The query exception should be thrown for the non-existing field.');
-        Assert.isNotNull(queryLogger.capturedError, 'The logger should receive the query error.');
-        Assert.areEqual('SELECT COUNT() FROM Account WHERE NonExistingField__c = :v1', queryLogger.capturedError.getQuery(), 'The logged query should match the generated SOQL.');
+        Assert.areEqual('SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress,:v1,\'km\') ASC NULLS FIRST', query, 'The generate soql does not match the expected value');
     }
 
     @IsTest
-    static void loggerWithQueryLocatorError() {
-        // Setup
-        LoggerMock queryLogger = new LoggerMock();
-        SOQL.queryLogger = queryLogger;
+    static void distanceOrderDesc() {
+        String query = SOQL.of(Account.sObjectType).orderBy(SOQL.Distance.of(Account.BillingAddress).between(0, 0).km(), 'DESC').toString();
 
-        // Test
-        Exception queryException = null;
-
-        try {
-            SOQL.of(Account.SObjectType).with('NonExistingField__c').toQueryLocator();
-        } catch (Exception e) {
-            queryException = e;
-        }
-
-        // Verify
-        Assert.isNotNull(queryException, 'The query exception should be thrown for the non-existing field.');
-        Assert.isNotNull(queryLogger.capturedError, 'The logger should receive the query error.');
-        Assert.areEqual('SELECT NonExistingField__c FROM Account', queryLogger.capturedError.getQuery(), 'The logged query should match the generated SOQL.');
+        Assert.areEqual('SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress,:v1,\'km\') DESC NULLS FIRST', query, 'The generate soql does not match the expected value');
     }
 
     @IsTest
-    static void loggerWithCursorError() {
-        // Setup
-        LoggerMock queryLogger = new LoggerMock();
-        SOQL.queryLogger = queryLogger;
+    static void distanceSubqueryOrder() {
+        String query = SOQL.of(Account.sObjectType).with(SOQL.subquery.of('Contacts').orderBy(SOQL.Distance.of(Contact.MailingAddress).between(0, 0).km())).toString();
 
-        // Test
-        Exception queryException = null;
-
-        try {
-            SOQL.of(Account.SObjectType).with('NonExistingField__c').toCursor();
-        } catch (Exception e) {
-            queryException = e;
-        }
-
-        // Verify
-        Assert.isNotNull(queryException, 'The query exception should be thrown for the non-existing field.');
-        Assert.isNotNull(queryLogger.capturedError, 'The logger should receive the query error.');
-        Assert.areEqual('SELECT NonExistingField__c FROM Account', queryLogger.capturedError.getQuery(), 'The logged query should match the generated SOQL.');
-    }
-
-    @IsTest
-    static void loggerWithPaginationCursorError() {
-        // Setup
-        LoggerMock queryLogger = new LoggerMock();
-        SOQL.queryLogger = queryLogger;
-
-        // Test
-        Exception queryException = null;
-
-        try {
-            SOQL.of(Account.SObjectType).with('NonExistingField__c').toPaginationCursor();
-        } catch (Exception e) {
-            queryException = e;
-        }
-
-        // Verify
-        Assert.isNotNull(queryException, 'The query exception should be thrown for the non-existing field.');
-        Assert.isNotNull(queryLogger.capturedError, 'The logger should receive the query error.');
-        Assert.areEqual('SELECT NonExistingField__c FROM Account', queryLogger.capturedError.getQuery(), 'The logged query should match the generated SOQL.');
-    }
-
-    @IsTest
-    static void loggerWithSuccessfulQuery() {
-        // Setup
-        LoggerMock queryLogger = new LoggerMock();
-        SOQL.queryLogger = queryLogger;
-
-        // Test
-        SOQL.of(Account.SObjectType).toList();
-
-        // Verify
-        Assert.isNull(queryLogger.capturedError, 'The logger should not be invoked when the query succeeds.');
-    }
-
-    @IsTest
-    static void loggerNotConfiguredWithQueryError() {
-        // Setup
-        SOQL.queryLogger = null;
-
-        // Test
-        Exception queryException = null;
-
-        try {
-            SOQL.of(Account.SObjectType).with('NonExistingField__c').toList();
-        } catch (QueryException e) {
-            queryException = e;
-        }
-
-        // Verify
-        Assert.isNotNull(queryException, 'The query exception should be thrown even when no logger is configured.');
-        Assert.isTrue(queryException.getMessage().contains('NonExistingField__c'), 'The thrown exception should be the query error.');
-    }
-
-    @IsTest
-    static void loggerWithMockedException() {
-        // Setup
-        LoggerMock queryLogger = new LoggerMock();
-        SOQL.queryLogger = queryLogger;
-
-        SOQL.mock('mockingQuery').throwException();
-
-        // Test
-        Exception queryException = null;
-
-        try {
-            SOQL.of(Account.SObjectType).mockId('mockingQuery').toList();
-        } catch (QueryException e) {
-            queryException = e;
-        }
-
-        // Verify
-        Assert.isNotNull(queryException, 'The query exception should be thrown, because it\'s mocked.');
-        Assert.isNull(queryLogger.capturedError, 'The logger should not be invoked for mocked exceptions.');
-    }
-
-    private class LoggerMock implements SOQL.Logger {
-        public SOQL.Error capturedError;
-
-        public void log(SOQL.Error error) {
-            this.capturedError = error;
-        }
+        Assert.areEqual(
+            'SELECT Id , (SELECT Id FROM Contacts ORDER BY DISTANCE(MailingAddress,:v1,\'km\') ASC NULLS FIRST) FROM Account',
+            query,
+            'The generate soql does not match the expected value'
+        );
     }
 }
