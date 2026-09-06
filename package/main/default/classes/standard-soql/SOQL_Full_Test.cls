@@ -1362,6 +1362,19 @@ private class SOQL_Full_Test {
     }
 
     @IsTest
+    static void filterIsInListOfSObjectsWithNonStringField() {
+        // Setup
+        List<Account> accounts = new List<Account>{ new Account(Name = 'Test 1', NumberOfEmployees = 5), new Account(Name = 'Test 2', NumberOfEmployees = 10) };
+        insert accounts;
+
+        // Test
+        List<Account> queriedAccounts = SOQL.of(Account.SObjectType).whereAre(SOQL.Filter.with(Account.NumberOfEmployees).isIn(accounts, Account.NumberOfEmployees)).toList();
+
+        // Verify
+        Assert.areEqual(accounts.size(), queriedAccounts.size(), 'The extracted values should keep the original field type, so filtering by a non-string field works.');
+    }
+
+    @IsTest
     static void filterNotInSet() {
         // Setup
         Set<String> names = new Set<String>{ 'Test 1', 'Test 2' };

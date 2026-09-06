@@ -2271,15 +2271,18 @@ public virtual inherited sharing class SOQL implements Queryable {
             return this.notIn(this.extractValues(sourceRecords, sourceKeyField));
         }
 
-        private List<String> extractValues(Iterable<SObject> sourceRecords, SObjectField sourceKeyField) {
-            List<String> values = new List<String>();
+        private List<Object> extractValues(Iterable<SObject> sourceRecords, SObjectField sourceKeyField) {
+            // the list is typed after the field, so binding works for non-string columns (e.g. Date, Number)
+            List<Object> values = (List<Object>) Type.forName('List<' + sourceKeyField.getDescribe().getSoapType() + '>').newInstance();
 
             for (SObject sourceRecord : sourceRecords) {
-                if (sourceRecord?.get(sourceKeyField) == null) {
+                Object value = sourceRecord?.get(sourceKeyField);
+
+                if (value == null) {
                     continue;
                 }
 
-                values.add(sourceRecord.get(sourceKeyField).toString());
+                values.add(value);
             }
 
             return values;
