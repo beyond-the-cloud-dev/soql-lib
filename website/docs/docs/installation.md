@@ -6,7 +6,7 @@ sidebar_position: 20
 <!--
  sf package version create --package "SOQL Lib" --target-dev-hub beyondthecloud-prod --installation-key-bypass --wait 30 --code-coverage
 
- sf package version promote --package "SOQL Lib@6.12.0-1"  --target-dev-hub beyondthecloud-prod
+ sf package version promote --package "SOQL Lib@6.13.0-1"  --target-dev-hub beyondthecloud-prod
 -->
 
 # Installation
