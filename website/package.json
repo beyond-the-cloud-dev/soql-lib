@@ -23,6 +23,7 @@
     "@mdx-js/react": "^3.0.0",
     "algoliasearch": "^5.21.0",
     "clsx": "^2.0.0",
+    "docusaurus-plugin-llms": "^0.5.1",
     "postcss": "8.5.26",
     "prism-react-renderer": "^2.3.0",
     "react": "^18.0.0",

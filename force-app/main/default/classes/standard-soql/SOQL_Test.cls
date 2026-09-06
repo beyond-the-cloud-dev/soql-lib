@@ -3,7 +3,7 @@
  * Copyright (c) 2026 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.12.0
+ * v6.13.0
  *
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
@@ -1361,6 +1361,70 @@ private class SOQL_Test {
 
         Map<String, Object> binding = builder.binding();
         Assert.areEqual(names, binding.get('v1'), 'The binding variable should match the expected value.');
+    }
+
+    @IsTest
+    static void filterIsInListOfSObjects() {
+        // Setup
+        List<Account> accounts = new List<Account>{ new Account(Name = 'Test 1'), new Account(Name = 'Test 2') };
+
+        // Test
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType).whereAre(SOQL.Filter.with(Account.Name).isIn(accounts, Account.Name));
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE Name IN :v1', soql, 'The generated SOQL should match the expected one.');
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(new List<String>{ 'Test 1', 'Test 2' }, binding.get('v1'), 'The binding variable should contain the extracted field values.');
+    }
+
+    @IsTest
+    static void filterIsInListOfSObjectsWhenSomeValuesAreNull() {
+        // Setup
+        List<Account> accounts = new List<Account>{ new Account(Name = 'Test 1'), new Account(Name = 'Test 2'), new Account(Name = null) };
+
+        // Test
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType).whereAre(SOQL.Filter.with(Account.Name).isIn(accounts, Account.Name));
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE Name IN :v1', soql, 'The generated SOQL should match the expected one.');
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(new List<String>{ 'Test 1', 'Test 2' }, binding.get('v1'), 'The binding variable should not contain null field values.');
+    }
+
+    @IsTest
+    static void filterIsInListOfSObjectsWithNonStringField() {
+        // Setup
+        List<Account> accounts = new List<Account>{ new Account(NumberOfEmployees = 5), new Account(NumberOfEmployees = 10) };
+
+        // Test
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType).whereAre(SOQL.Filter.with(Account.NumberOfEmployees).isIn(accounts, Account.NumberOfEmployees));
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE NumberOfEmployees IN :v1', soql, 'The generated SOQL should match the expected one.');
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(new List<Integer>{ 5, 10 }, binding.get('v1'), 'The binding variable should keep the original field type.');
+    }
+
+    @IsTest
+    static void filterNotInListOfSObjects() {
+        // Setup
+        List<Account> accounts = new List<Account>{ new Account(Name = 'Test 1'), new Account(Name = 'Test 2') };
+
+        // Test
+        SOQL.Queryable builder = SOQL.of(Account.SObjectType).whereAre(SOQL.Filter.with(Account.Name).notIn(accounts, Account.Name));
+
+        // Verify
+        String soql = builder.toString();
+        Assert.areEqual('SELECT Id FROM Account WHERE Name NOT IN :v1', soql, 'The generated SOQL should match the expected one.');
+
+        Map<String, Object> binding = builder.binding();
+        Assert.areEqual(new List<String>{ 'Test 1', 'Test 2' }, binding.get('v1'), 'The binding variable should contain the extracted field values.');
     }
 
     @IsTest

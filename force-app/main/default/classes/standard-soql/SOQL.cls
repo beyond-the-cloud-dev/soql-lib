@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.12.0
+ * v6.13.0
  *
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
@@ -568,6 +568,7 @@ public virtual inherited sharing class SOQL implements Queryable {
                     SELECT ClassName, ClassNamespacePrefix
                     FROM ApexTypeImplementor
                     WHERE InterfaceName = 'SOQL.Logger' AND InterfaceNamespacePrefix = :namespacePrefix AND IsConcrete = true
+                    WITH SYSTEM_MODE
                     LIMIT 1
                 ];
 
@@ -2270,15 +2271,18 @@ public virtual inherited sharing class SOQL implements Queryable {
             return this.notIn(this.extractValues(sourceRecords, sourceKeyField));
         }
 
-        private List<String> extractValues(Iterable<SObject> sourceRecords, SObjectField sourceKeyField) {
-            List<String> values = new List<String>();
+        private List<Object> extractValues(Iterable<SObject> sourceRecords, SObjectField sourceKeyField) {
+            // the list is typed after the field, so binding works for non-string columns (e.g. Date, Number)
+            List<Object> values = (List<Object>) Type.forName('List<' + sourceKeyField.getDescribe().getSoapType() + '>').newInstance();
 
             for (SObject sourceRecord : sourceRecords) {
-                if (sourceRecord?.get(sourceKeyField) == null) {
+                Object value = sourceRecord?.get(sourceKeyField);
+
+                if (value == null) {
                     continue;
                 }
 
-                values.add(sourceRecord.get(sourceKeyField).toString());
+                values.add(value);
             }
 
             return values;

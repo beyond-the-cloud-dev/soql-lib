@@ -3,7 +3,7 @@
  * Copyright (c) 2026 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.12.0
+ * v6.13.0
  *
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
@@ -1359,6 +1359,19 @@ private class SOQL_Full_Test {
         Assert.areEqual(2, queriedAccounts.size(), 'The size of the queried accounts should be equal to the size of the inserted accounts.');
         Assert.areEqual(accounts[0].Id, queriedAccounts[0].Id, 'The first queried account should match the first inserted account.');
         Assert.areEqual(accounts[1].Id, queriedAccounts[1].Id, 'The second queried account should match the second inserted account.');
+    }
+
+    @IsTest
+    static void filterIsInListOfSObjectsWithNonStringField() {
+        // Setup
+        List<Account> accounts = new List<Account>{ new Account(Name = 'Test 1', NumberOfEmployees = 5), new Account(Name = 'Test 2', NumberOfEmployees = 10) };
+        insert accounts;
+
+        // Test
+        List<Account> queriedAccounts = SOQL.of(Account.SObjectType).whereAre(SOQL.Filter.with(Account.NumberOfEmployees).isIn(accounts, Account.NumberOfEmployees)).toList();
+
+        // Verify
+        Assert.areEqual(accounts.size(), queriedAccounts.size(), 'The extracted values should keep the original field type, so filtering by a non-string field works.');
     }
 
     @IsTest
@@ -5046,7 +5059,7 @@ private class SOQL_Full_Test {
     }
 
     static void insertTasks() {
-        insert new List<Task>{ new Task(Subject = 'Test', Type = 'Other'), new Task(Subject = 'Test', Type = 'Other') };
+        insert as system new List<Task>{ new Task(Subject = 'Test', Type = 'Other'), new Task(Subject = 'Test', Type = 'Other') };
     }
 
     @IsTest
@@ -5220,7 +5233,7 @@ private class SOQL_Full_Test {
     }
 
     static void insertTask() {
-        insert new Task(Subject = 'Test', Type = 'Other');
+        insert as system new Task(Subject = 'Test', Type = 'Other');
     }
 
     static User minimumAccessUser() {

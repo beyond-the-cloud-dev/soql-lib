@@ -1,8 +1,8 @@
 {
   "packageDirectories": [
     {
-      "versionName": "SOQL Lib 6.12.0",
-      "versionNumber": "6.12.0.NEXT",
+      "versionName": "SOQL Lib 6.13.0",
+      "versionNumber": "6.13.0.NEXT",
       "path": "package",
       "default": true,
       "package": "SOQL Lib",
@@ -20,7 +20,7 @@
   "name": "soql-lib",
   "namespace": "btcdev",
   "sfdcLoginUrl": "https://login.salesforce.com",
-  "sourceApiVersion": "66.0",
+  "sourceApiVersion": "67.0",
   "packageAliases": {
     "SOQL Lib": "0HoP6000000010vKAA",
     "SOQL Lib@6.1.0-1": "04tP60000023Vm5IAE",
