@@ -4,7 +4,7 @@ import Heading from '@theme/Heading';
 export default function Home() {
     return (
         <Layout
-            title="Home | SOQL Lib"
+            title="Apex SOQL Query Builder"
             description="The SOQL Lib provides functional constructs for SOQL queries in Apex.">
             <div className="relative isolate px-6 pt-14 lg:px-8">
                 <div className="text-center">

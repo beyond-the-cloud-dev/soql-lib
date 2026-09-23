@@ -65,8 +65,9 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       // Replace with your project's social card
-      image: 'img/cloud-icon.png',
+      image: 'img/og-image.png',
       metadata: [
+        { name: 'twitter:card', content: 'summary_large_image' },
         { name: 'description', content: 'SOQL Lib provides functional constructs for SOQL queries in Apex.' },
         { name: 'keywords', content: 'SOQL Lib, Selector Layer Apex, Apex Selector Layer, Query Builder' },
         { name: 'canonical', content: 'https://soql.beyondthecloud.dev' }
