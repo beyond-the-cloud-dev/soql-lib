@@ -5,7 +5,7 @@
       <img alt="SOQL Lib logo" src="https://soql.beyondthecloud.dev/img/logo.png" height="98">
     </picture>
   </a>
-  <h1>SOQL Lib</h1>
+  <h1><a href="https://soql.beyondthecloud.dev">SOQL Lib</a></h1>
 
 <a href="https://beyondthecloud.dev"><img alt="Beyond The Cloud logo" src="https://img.shields.io/badge/MADE_BY_BEYOND_THE_CLOUD-555?style=for-the-badge"></a>
 
