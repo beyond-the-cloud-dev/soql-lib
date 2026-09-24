@@ -14,9 +14,7 @@
   position: relative;
   overflow: hidden;
   margin-top: 4rem;
-  width: 100vw;
-  margin-left: calc(-50vw + 50%);
-  margin-right: calc(-50vw + 50%);
+  width: 100%;
 }
 
 /* Background Effects */

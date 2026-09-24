@@ -13,7 +13,7 @@ export default function Home() {
                         Everything you need to build SOQL queries in Salesforce APEX.
                     </p>
                     
-                    <div className="space-x-4">
+                    <div className="flex flex-wrap items-center justify-center gap-4">
                         <a href="/docs/getting-started" className="rounded-md bg-sky-600 px-4 py-3 text-sm font-semibold text-white shadow-xs hover:scale-110 transition-transform focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600">Get Started</a>
                         <a href="/docs/overview" className="rounded-md bg-gray-200 dark:bg-gray-800 px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white shadow-xs ring-1 ring-gray-400 dark:ring-gray-600 hover:scale-110 transition-transform">Learn More</a>
                         <a href="https://calendar.app.google/VLyYFV8E93QDobPd8" className="rounded-md bg-red-800 px-4 py-3 text-sm font-semibold text-white shadow-xs ring-1 ring-red-600 hover:scale-110 transition-transform">Help needed?</a>
