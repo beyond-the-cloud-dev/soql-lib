@@ -174,7 +174,7 @@
   width: auto;
   display: block;
 }
-.logoLight {
+.btcFooter .logoLight {
   display: none;
 }
 :global(html[data-theme='light']) .btcFooter .logoDark {
@@ -242,7 +242,7 @@
 .link:hover {
   color: var(--f-link);
 }
-.mobileOnly {
+.btcFooter .mobileOnly {
   display: none;
 }
 .legal {
@@ -359,10 +359,10 @@
     font-size: 15px;
     max-width: none;
   }
-  .desktopOnly {
+  .btcFooter .desktopOnly {
     display: none;
   }
-  .mobileOnly {
+  .btcFooter .mobileOnly {
     display: flex;
     justify-content: space-between;
     margin-top: 24px;
