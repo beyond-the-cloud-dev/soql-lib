@@ -55,9 +55,6 @@ export default function Footer() {
               <img src={data.openSource.parent.logo} alt="" className={styles.parentLogo} />
               <span>{data.openSource.parent.label}</span>
             </a>
-            <a href={data.openSource.more.href} className={styles.more} target="_blank" rel="noopener noreferrer">
-              {data.openSource.more.label} ↗
-            </a>
           </div>
           <div className={styles.tiles}>
             {data.openSource.children.map((lib) => {

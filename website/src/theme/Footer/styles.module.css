@@ -93,18 +93,6 @@
   display: block;
   filter: var(--f-logo-fx);
 }
-.more {
-  display: inline-block;
-  margin-top: 10px;
-  font-size: 13px;
-  line-height: 20px;
-  font-weight: 600;
-  color: var(--f-link);
-}
-.more:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
 .tiles {
   min-width: 0;
   display: grid;
@@ -320,15 +308,6 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
     margin-top: 10px;
-  }
-  .more {
-    order: 4;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 44px;
-    margin-top: 8px;
-    font-size: 14px;
   }
   .parentLogo {
     width: 26px;
