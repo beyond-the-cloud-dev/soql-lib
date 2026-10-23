@@ -56,6 +56,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Queryable with(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
         Queryable with(String relationshipName, Iterable<SObjectField> fields);
         Queryable with(SubQuery subQuery);
+        Queryable with(TypeOf typeOf);
         Queryable withFieldSet(String fieldSetName);
         // SELECT - AGGREGATE FUNCTIONS
         Queryable count();
@@ -253,6 +254,32 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     @NamespaceAccessible
+    public interface TypeOf {
+        TypeOf of(String ofField);
+        TypeOf of(SObjectField ofField);
+        // WHEN
+        TypeOf when(SObjectType whenObject);
+        // THEN
+        TypeOf then(SObjectField field);
+        TypeOf then(SObjectField field1, SObjectField field2);
+        TypeOf then(SObjectField field1, SObjectField field2, SObjectField field3);
+        TypeOf then(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+        TypeOf then(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
+        TypeOf then(List<SObjectField> fields);
+        TypeOf then(Iterable<String> fields);
+        TypeOf then(String fields);
+        TypeOf then(String relationshipName, SObjectField field);
+        TypeOf then(String relationshipName, SObjectField field1, SObjectField field2);
+        TypeOf then(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
+        TypeOf then(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+        TypeOf then(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
+        TypeOf then(String relationshipName, Iterable<SObjectField> fields);
+        // ELSE
+        TypeOf whenElse(Iterable<String> fields);
+        TypeOf whenElse(String fields);
+    }
+
+    @NamespaceAccessible
     public interface FilterGroup {
         // ADD CONDITION
         FilterGroup add(FilterGroup filterGroup);
@@ -433,6 +460,13 @@ public virtual inherited sharing class SOQL implements Queryable {
     public static SubQuery SubQuery {
         get {
             return new SoqlSubQuery();
+        }
+    }
+
+    @NamespaceAccessible
+    public static TypeOf TypeOf {
+        get {
+            return new SoqlTypeOf();
         }
     }
 
@@ -698,6 +732,12 @@ public virtual inherited sharing class SOQL implements Queryable {
     @NamespaceAccessible
     public Queryable with(SubQuery subQuery) {
         this.builder.subQueries.add(subQuery);
+        return this;
+    }
+
+    @NamespaceAccessible
+    public Queryable with(TypeOf typeOf) {
+        this.builder.fields.typeOfFields.add(typeOf);
         return this;
     }
 
@@ -1524,6 +1564,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         public RelationshipFields relationshipFields = new RelationshipFields();
         public FunctionsFields functionsFields = new FunctionsFields(); // toLabel, FORMAT
         public AggregateFunctionsFields aggregateFields = new AggregateFunctionsFields();
+        public TypeOfFields typeOfFields = new TypeOfFields();
 
         private String ofObject;
         private Set<String> groupedFields = new Set<String>();
@@ -1585,6 +1626,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             this.relationshipFields.clear();
             this.aggregateFields.clear();
             this.functionsFields.clear();
+            this.typeOfFields.clear();
         }
 
         public void addCountWhenNotPresented() {
@@ -1594,7 +1636,13 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            if (this.plainFields.isEmpty() && this.relationshipFields.isEmpty() && this.aggregateFields.isEmpty() && this.functionsFields.isEmpty()) {
+            if (
+                this.plainFields.isEmpty() &&
+                this.relationshipFields.isEmpty() &&
+                this.aggregateFields.isEmpty() &&
+                this.functionsFields.isEmpty() &&
+                this.typeOfFields.isEmpty()
+            ) {
                 this.plainFields.add('Id');
             }
 
@@ -1603,6 +1651,7 @@ public virtual inherited sharing class SOQL implements Queryable {
                 this.plainFields.retainAll(groupedFields);
                 this.relationshipFields.retainAll(groupedFields);
                 this.functionsFields.retainAll(groupedFields);
+                this.typeOfFields.retainAll(groupedFields);
             }
 
             List<String> selectFields = new List<String>();
@@ -1611,6 +1660,7 @@ public virtual inherited sharing class SOQL implements Queryable {
             selectFields.addAll(this.relationshipFields.get());
             selectFields.addAll(this.functionsFields.get());
             selectFields.addAll(this.aggregateFields.get());
+            selectFields.addAll(this.typeOfFields.get());
 
             return 'SELECT ' + String.join(selectFields, ', ');
         }
@@ -1721,6 +1771,61 @@ public virtual inherited sharing class SOQL implements Queryable {
         public Boolean isQualified(String field) {
             String functionName = field.split('\\(')[0].toUpperCase();
             return FUNCTIONS.contains(functionName);
+        }
+    }
+
+    private class TypeOfFields extends SelectFields {
+        public void add(TypeOf typeOf) {
+            String typeOfExpression = typeOf.toString();
+
+            if (String.isNotEmpty(typeOfExpression)) {
+                this.add(typeOfExpression);
+            }
+        }
+    }
+
+    private class TypeOfWhenThen {
+        public PlainFields plainFields = new PlainFields();
+        public RelationshipFields relationshipFields = new RelationshipFields();
+
+        private String prefix;
+
+        public TypeOfWhenThen(SObjectType whenObject) {
+            this.prefix = 'WHEN ' + whenObject.toString() + ' THEN ';
+        }
+
+        public TypeOfWhenThen() {
+            this.prefix = 'ELSE ';
+        }
+
+        public Boolean isEmpty() {
+            return this.plainFields.isEmpty() && this.relationshipFields.isEmpty();
+        }
+
+        public void with(String commaSeparatedFields) {
+            // Add to Set to avoid "duplicate field selected" error
+            for (String splitField : commaSeparatedFields.split(',')) {
+                this.classifyField(splitField);
+            }
+        }
+
+        private void classifyField(String field) {
+            String trimmedField = field.trim();
+
+            if (this.relationshipFields.isQualified(trimmedField)) {
+                this.relationshipFields.add(trimmedField);
+            } else {
+                this.plainFields.add(trimmedField);
+            }
+        }
+
+        public override String toString() {
+            List<String> fields = new List<String>();
+
+            fields.addAll(this.plainFields.get());
+            fields.addAll(this.relationshipFields.get());
+
+            return this.prefix + String.join(fields, ', ');
         }
     }
 
@@ -1899,6 +2004,137 @@ public virtual inherited sharing class SOQL implements Queryable {
 
         public String getChildRelationshipName() {
             return this.childRelationshipName;
+        }
+    }
+
+    private class SoqlTypeOf implements TypeOf {
+        private String ofField;
+        private Set<SObjectType> whenObjects = new Set<SObjectType>();
+        private List<TypeOfWhenThen> whenThens = new List<TypeOfWhenThen>();
+        private TypeOfWhenThen elseFields = new TypeOfWhenThen();
+
+        public TypeOf of(String ofField) {
+            if (this.ofField != null) {
+                throw new QueryException('TYPEOF has already been initialized for: ' + this.ofField);
+            }
+
+            this.ofField = ofField;
+            return this;
+        }
+
+        public TypeOf of(SObjectField ofField) {
+            return this.of(ofField.getDescribe().getRelationshipName());
+        }
+
+        public TypeOf when(SObjectType whenObject) {
+            if (this.whenObjects.contains(whenObject)) {
+                throw new QueryException('TYPEOF already contains configuration for: ' + whenObject.toString());
+            }
+
+            this.whenObjects.add(whenObject);
+            this.whenThens.add(new TypeOfWhenThen(whenObject));
+            return this;
+        }
+
+        public TypeOf then(SObjectField field) {
+            this.latestWhenThen().plainFields.add(field.toString());
+            return this;
+        }
+
+        public TypeOf then(SObjectField field1, SObjectField field2) {
+            return this.then(field1).then(field2);
+        }
+
+        public TypeOf then(SObjectField field1, SObjectField field2, SObjectField field3) {
+            return this.then(field1, field2).then(field3);
+        }
+
+        public TypeOf then(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
+            return this.then(field1, field2, field3).then(field4);
+        }
+
+        public TypeOf then(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
+            return this.then(field1, field2, field3, field4).then(field5);
+        }
+
+        public TypeOf then(List<SObjectField> fields) {
+            this.latestWhenThen().plainFields.add(fields);
+            return this;
+        }
+
+        public TypeOf then(Iterable<String> fields) {
+            if (!fields.iterator().hasNext()) {
+                return this;
+            }
+
+            return this.then(String.join(fields, ','));
+        }
+
+        public TypeOf then(String fields) {
+            this.latestWhenThen().with(fields);
+            return this;
+        }
+
+        public TypeOf then(String relationshipName, SObjectField field) {
+            return this.then(relationshipName, new List<SObjectField>{ field });
+        }
+
+        public TypeOf then(String relationshipName, SObjectField field1, SObjectField field2) {
+            return this.then(relationshipName, new List<SObjectField>{ field1, field2 });
+        }
+
+        public TypeOf then(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3) {
+            return this.then(relationshipName, new List<SObjectField>{ field1, field2, field3 });
+        }
+
+        public TypeOf then(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4) {
+            return this.then(relationshipName, new List<SObjectField>{ field1, field2, field3, field4 });
+        }
+
+        public TypeOf then(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5) {
+            return this.then(relationshipName, new List<SObjectField>{ field1, field2, field3, field4, field5 });
+        }
+
+        public TypeOf then(String relationshipName, Iterable<SObjectField> fields) {
+            this.latestWhenThen().relationshipFields.add(relationshipName, fields);
+            return this;
+        }
+
+        public TypeOf whenElse(Iterable<String> fields) {
+            if (!fields.iterator().hasNext()) {
+                return this;
+            }
+
+            return this.whenElse(String.join(fields, ','));
+        }
+
+        public TypeOf whenElse(String fields) {
+            this.elseFields.with(fields);
+            return this;
+        }
+
+        public override String toString() {
+            List<String> clauses = new List<String>();
+
+            for (TypeOfWhenThen whenThen : this.whenThens) {
+                if (!whenThen.isEmpty()) {
+                    clauses.add(whenThen.toString());
+                }
+            }
+
+            if (clauses.isEmpty()) {
+                return '';
+            }
+
+            if (!this.elseFields.isEmpty()) {
+                clauses.add(this.elseFields.toString());
+            }
+
+            return 'TYPEOF ' + this.ofField + ' ' + String.join(clauses, ' ') + ' END';
+        }
+
+        private TypeOfWhenThen latestWhenThen() {
+            return this.whenThens.get(this.whenThens.size() - 1);
         }
     }
 
@@ -2914,7 +3150,7 @@ public virtual inherited sharing class SOQL implements Queryable {
 
             this.addIdToMockedRecords();
 
-            if (!fields.relationshipFields.isEmpty() || !fields.functionsFields.isEmpty()) {
+            if (!fields.relationshipFields.isEmpty() || !fields.functionsFields.isEmpty() || !fields.typeOfFields.isEmpty()) {
                 return this.mockedRecords;
             }
 
@@ -3093,7 +3329,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            return 'DISTANCE(' + this.field + ', ' + this.comparisonLocation + ',\' ' + this.unit + '\')';
+            return 'DISTANCE(' + this.field + ', ' + this.comparisonLocation + ', \'' + this.unit + '\')';
         }
     }
 
