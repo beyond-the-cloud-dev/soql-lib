@@ -4155,6 +4155,22 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void toIdsOfIdFieldException() {
+        // Setup
+        Exception queryException = null;
+
+        // Test
+        try {
+            SOQL.of(Account.SObjectType).toIdsOf(Account.Id);
+        } catch (Exception e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.areEqual('Id field cannot be used in toIdsOf(). Use toIds() instead.', queryException.getMessage(), 'The exception message should match the expected one.');
+    }
+
+    @IsTest
     static void toIdsOfWithMocking() {
         // Setup
         Id parentId1 = SOQL.IdGenerator.get(Account.SObjectType);
@@ -4269,6 +4285,22 @@ private class SOQL_Test {
 
         // Verify
         Assert.isNull(billingCities, 'The account billing city should be null, because the record does not exist.');
+    }
+
+    @IsTest
+    static void toValuesOfIdFieldException() {
+        // Setup
+        Exception queryException = null;
+
+        // Test
+        try {
+            SOQL.of(Account.SObjectType).toValuesOf(Account.Id);
+        } catch (Exception e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.areEqual('Id field cannot be used in toValuesOf(). Use toIds() instead.', queryException.getMessage(), 'The exception message should match the expected one.');
     }
 
     @IsTest

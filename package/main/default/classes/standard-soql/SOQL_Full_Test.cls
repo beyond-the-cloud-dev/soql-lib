@@ -4417,6 +4417,22 @@ private class SOQL_Full_Test {
     }
 
     @IsTest
+    static void toIdsOfIdFieldException() {
+        // Setup
+        Exception queryException = null;
+
+        // Test
+        try {
+            SOQL.of(Account.SObjectType).toIdsOf(Account.Id);
+        } catch (Exception e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.areEqual('Id field cannot be used in toIdsOf(). Use toIds() instead.', queryException.getMessage(), 'The exception message should match the expected one.');
+    }
+
+    @IsTest
     static void toIdsOfWithTypeOf() {
         // Setup
         Account testAccount = insertAccount();
@@ -4426,7 +4442,8 @@ private class SOQL_Full_Test {
         Set<Id> whatIds = SOQL.of(Event.SObjectType).with(SOQL.TypeOf.of(Event.WhatId).when(Account.SObjectType).then(Account.Name)).toIdsOf(Event.WhatId);
 
         // Verify
-        Assert.areEqual(new Set<Id>{ testAccount.Id }, whatIds, 'The returned set should contain the Id of the related Account.');
+        Assert.areEqual(1, whatIds.size(), 'The returned set should contain only the related Account Id.');
+        Assert.isTrue(whatIds.contains(testAccount.Id), 'The returned set should contain the Id of the related Account.');
     }
 
     @IsTest
@@ -4612,6 +4629,22 @@ private class SOQL_Full_Test {
 
         // Verify
         Assert.areEqual(2, accountNames.size(), 'The size of the account names set should be equal to the size of the accounts.');
+    }
+
+    @IsTest
+    static void toValuesOfIdFieldException() {
+        // Setup
+        Exception queryException = null;
+
+        // Test
+        try {
+            SOQL.of(Account.SObjectType).toValuesOf(Account.Id);
+        } catch (Exception e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.areEqual('Id field cannot be used in toValuesOf(). Use toIds() instead.', queryException.getMessage(), 'The exception message should match the expected one.');
     }
 
     @IsTest

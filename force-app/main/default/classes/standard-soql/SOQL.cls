@@ -1250,10 +1250,15 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private Set<Id> toIdsOf(String fieldToExtract) {
+        if (fieldToExtract == 'Id') {
+            // Id can't be grouped and aggregated (COUNT(Id)) in the same query
+            throw new QueryException('Id field cannot be used in toIdsOf(). Use toIds() instead.');
+        }
+
         // https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
         this.builder.fields.clearAllFields(); // other fields not needed
         this.with(fieldToExtract, 'Id');
-        this.with('COUNT(Id)');
+        this.with('COUNT(Id)'); // one query row per group instead of one per record
         this.groupBy(fieldToExtract);
         this.builder.conditions.addMasterCondition(Filter.with(fieldToExtract).isNotNull());
 
@@ -1289,10 +1294,15 @@ public virtual inherited sharing class SOQL implements Queryable {
     }
 
     private Set<String> toValuesOf(String fieldToExtract) {
+        if (fieldToExtract == 'Id') {
+            // Id can't be grouped and aggregated (COUNT(Id)) in the same query
+            throw new QueryException('Id field cannot be used in toValuesOf(). Use toIds() instead.');
+        }
+
         // https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result
         this.builder.fields.clearAllFields(); // other fields not needed
         this.with(fieldToExtract, 'Id');
-        this.with('COUNT(Id)');
+        this.with('COUNT(Id)'); // one query row per group instead of one per record
         this.groupBy(fieldToExtract);
         this.builder.conditions.addMasterCondition(Filter.with(fieldToExtract).isNotNull());
 
