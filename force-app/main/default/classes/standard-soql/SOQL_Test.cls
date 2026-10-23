@@ -898,7 +898,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(
-            'SELECT Id , (SELECT Id FROM Contacts ORDER BY DISTANCE(MailingAddress, GEOLOCATION(0.0,0.0),\' km\') ASC NULLS FIRST) FROM Account',
+            'SELECT Id , (SELECT Id FROM Contacts ORDER BY DISTANCE(MailingAddress, GEOLOCATION(0.0,0.0), \'km\') ASC NULLS FIRST) FROM Account',
             soql,
             'The generated SOQL should match the expected one.'
         );
@@ -983,109 +983,319 @@ private class SOQL_Test {
     }
 
     @IsTest
-    static void typeOfClassFields() {
-        SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
-        typeof.when(Account.sObjectType).then(Account.Id, Account.Name, Account.BillingCity, Account.BillingState, Account.BillingPostalCode);
-        typeof.when(Opportunity.sObjectType).then('Account', Account.Id, Account.Name, Account.BillingCity, Account.BillingState, Account.BillingPostalCode);
-
-        typeof.whenElse(new List<String>{ 'Name' });
-
-        Assert.areEqual(
-            'TYPEOF What WHEN Account THEN Id,Name,BillingCity,BillingState,BillingPostalCode WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity,Account.BillingState,Account.BillingPostalCode ELSE Name END',
-            typeof.toString(),
-            'The generated soql should match the expected one.'
-        );
-    }
-
-    @IsTest
-    static void typeOfClassRelationshipFields_4() {
-        SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
-        typeof.when(Opportunity.sObjectType).then('Account', Account.Id, Account.Name, Account.BillingCity, Account.BillingState);
-
-        typeof.whenElse(new List<String>{ 'Name' });
-
-        Assert.areEqual(
-            'TYPEOF What WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity,Account.BillingState ELSE Name END',
-            typeof.toString(),
-            'The generated soql should match the expected one.'
-        );
-    }
-
-    @IsTest
-    static void typeOfClassRelationshipFields_3() {
-        SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
-        typeof.when(Opportunity.sObjectType).then('Account', Account.Id, Account.Name, Account.BillingCity);
-
-        typeof.whenElse(new List<String>{ 'Name' });
-
-        Assert.areEqual(
-            'TYPEOF What WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity ELSE Name END',
-            typeof.toString(),
-            'The generated soql should match the expected one.'
-        );
-    }
-
-    @IsTest
-    static void typeOfClassRelationshipFields_2() {
-        SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
-        typeof.when(Opportunity.sObjectType).then('Account', Account.Id, Account.Name);
-
-        typeof.whenElse(new List<String>{ 'Name' });
-
-        Assert.areEqual('TYPEOF What WHEN Opportunity THEN Account.Id,Account.Name ELSE Name END', typeof.toString(), 'The generated soql should match the expected one.');
-    }
-
-    @IsTest
-    static void typeOfClassRelationshipFields_1() {
-        SOQL.Typeof typeof = SOQL.type.of(Event.WhatId);
-        typeof.when(Opportunity.sObjectType).then('Account', Account.Id);
-
-        typeof.whenElse(new List<String>{ 'Name' });
-
-        Assert.areEqual('TYPEOF What WHEN Opportunity THEN Account.Id ELSE Name END', typeof.toString(), 'The generated soql should match the expected one.');
-    }
-
-    @IsTest
-    static void typeOfClassIterators() {
-        SOQL.Typeof typeof = SOQL.type.of('What');
-        typeof.when(Account.sObjectType)
-            .then(new List<SObjectField>{ Account.Id, Account.Name, Account.BillingCity })
-            .then(new List<String>{ 'BillingState', 'BillingPostalCode' });
-        typeof.when(Opportunity.sObjectType)
-            .then('Account', new List<SObjectField>{ Account.Id, Account.Name, Account.BillingCity, Account.BillingState, Account.BillingPostalCode });
-
-        Assert.areEqual(
-            'TYPEOF What WHEN Account THEN Id,Name,BillingCity,BillingState,BillingPostalCode WHEN Opportunity THEN Account.Id,Account.Name,Account.BillingCity,Account.BillingState,Account.BillingPostalCode END',
-            typeof.toString(),
-            'The generated soql should match the expected one.'
-        );
-    }
-
-    @IsTest
-    static void typeOfClassExceptions() {
-        try {
-            SOQL.Typeof typeof = SOQL.type.of('What').of('Who');
-            Assert.fail('this code should not be reachable');
-        } catch (Exception e) {
-            Assert.isInstanceOfType(e, QueryException.class, 'exception should be a QueryException');
-        }
-
-        try {
-            SOQL.Typeof typeof = SOQL.type.of('What').when(Account.sObjectType).when(Account.sObjectType);
-
-            Assert.fail('this code should not be reachable');
-        } catch (Exception e) {
-            Assert.isInstanceOfType(e, QueryException.class, 'exception should be a QueryException');
-        }
-    }
-
-    @IsTest
     static void typeOfField() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType).with(SOQL.TypeOf.of(Event.WhatId).when(Account.SObjectType).then(Account.Name)).toString();
+
+        // Verify
+        Assert.areEqual('SELECT TYPEOF What WHEN Account THEN Name END FROM Event', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void typeOfTwoFields() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType).with(SOQL.TypeOf.of(Event.WhatId).when(Account.SObjectType).then(Account.Id, Account.Name)).toString();
+
+        // Verify
+        Assert.areEqual('SELECT TYPEOF What WHEN Account THEN Id, Name END FROM Event', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void typeOfThreeFields() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType).with(SOQL.TypeOf.of(Event.WhatId).when(Account.SObjectType).then(Account.Id, Account.Name, Account.Phone)).toString();
+
+        // Verify
+        Assert.areEqual('SELECT TYPEOF What WHEN Account THEN Id, Name, Phone END FROM Event', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void typeOfFourFields() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType)
+            .with(SOQL.TypeOf.of(Event.WhatId).when(Account.SObjectType).then(Account.Id, Account.Name, Account.Phone, Account.Industry))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT TYPEOF What WHEN Account THEN Id, Name, Phone, Industry END FROM Event', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void typeOfFiveFields() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType)
+            .with(SOQL.TypeOf.of(Event.WhatId).when(Account.SObjectType).then(Account.Id, Account.Name, Account.Phone, Account.Industry, Account.BillingCity))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT TYPEOF What WHEN Account THEN Id, Name, Phone, Industry, BillingCity END FROM Event', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void typeOfFields() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType)
+            .with(
+                SOQL.TypeOf.of(Event.WhatId)
+                    .when(Account.SObjectType)
+                    .then(new List<SObjectField>{ Account.Id, Account.Name, Account.Phone, Account.Industry, Account.BillingCity, Account.BillingCountry })
+            )
+            .toString();
+
+        // Verify
         Assert.areEqual(
-            'SELECT TYPEOF What WHEN Account THEN Id,Name ELSE Name END FROM Event',
-            SOQL.of(Event.sObjectType).with(SOQL.type.of('What').when(Account.sObjectType).then(Account.Id, Account.Name).whenElse(new List<String>{ 'Name' })).toString(),
-            'The generated soql should match the expected one.'
+            'SELECT TYPEOF What WHEN Account THEN Id, Name, Phone, Industry, BillingCity, BillingCountry END FROM Event',
+            soql,
+            'The generated SOQL should match the expected one.'
         );
+    }
+
+    @IsTest
+    static void typeOfStringFields() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType).with(SOQL.TypeOf.of('What').when(Account.SObjectType).then('Id, Name, Owner.Name')).toString();
+
+        // Verify
+        Assert.areEqual('SELECT TYPEOF What WHEN Account THEN Id, Name, Owner.Name END FROM Event', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void typeOfListOfStringFields() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType).with(SOQL.TypeOf.of(Event.WhatId).when(Account.SObjectType).then(new List<String>{ 'Id', 'Name' })).toString();
+
+        // Verify
+        Assert.areEqual('SELECT TYPEOF What WHEN Account THEN Id, Name END FROM Event', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void typeOfEmptyListOfStringFields() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType).with(SOQL.TypeOf.of(Event.WhatId).when(Account.SObjectType).then(Account.Name).then(new List<String>())).toString();
+
+        // Verify
+        Assert.areEqual('SELECT TYPEOF What WHEN Account THEN Name END FROM Event', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void typeOfRelatedField() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType).with(SOQL.TypeOf.of(Event.WhatId).when(Opportunity.SObjectType).then('Account', Account.Name)).toString();
+
+        // Verify
+        Assert.areEqual('SELECT TYPEOF What WHEN Opportunity THEN Account.Name END FROM Event', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void typeOfTwoRelatedFields() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType).with(SOQL.TypeOf.of(Event.WhatId).when(Opportunity.SObjectType).then('Account', Account.Id, Account.Name)).toString();
+
+        // Verify
+        Assert.areEqual('SELECT TYPEOF What WHEN Opportunity THEN Account.Id, Account.Name END FROM Event', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void typeOfThreeRelatedFields() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType)
+            .with(SOQL.TypeOf.of(Event.WhatId).when(Opportunity.SObjectType).then('Account', Account.Id, Account.Name, Account.Phone))
+            .toString();
+
+        // Verify
+        Assert.areEqual(
+            'SELECT TYPEOF What WHEN Opportunity THEN Account.Id, Account.Name, Account.Phone END FROM Event',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
+    }
+
+    @IsTest
+    static void typeOfFourRelatedFields() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType)
+            .with(SOQL.TypeOf.of(Event.WhatId).when(Opportunity.SObjectType).then('Account', Account.Id, Account.Name, Account.Phone, Account.Industry))
+            .toString();
+
+        // Verify
+        Assert.areEqual(
+            'SELECT TYPEOF What WHEN Opportunity THEN Account.Id, Account.Name, Account.Phone, Account.Industry END FROM Event',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
+    }
+
+    @IsTest
+    static void typeOfFiveRelatedFields() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType)
+            .with(SOQL.TypeOf.of(Event.WhatId).when(Opportunity.SObjectType).then('Account', Account.Id, Account.Name, Account.Phone, Account.Industry, Account.BillingCity))
+            .toString();
+
+        // Verify
+        Assert.areEqual(
+            'SELECT TYPEOF What WHEN Opportunity THEN Account.Id, Account.Name, Account.Phone, Account.Industry, Account.BillingCity END FROM Event',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
+    }
+
+    @IsTest
+    static void typeOfRelatedFields() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType)
+            .with(
+                SOQL.TypeOf.of(Event.WhatId)
+                    .when(Opportunity.SObjectType)
+                    .then('Account', new List<SObjectField>{ Account.Id, Account.Name, Account.Phone, Account.Industry, Account.BillingCity, Account.BillingCountry })
+            )
+            .toString();
+
+        // Verify
+        Assert.areEqual(
+            'SELECT TYPEOF What WHEN Opportunity THEN Account.Id, Account.Name, Account.Phone, Account.Industry, Account.BillingCity, Account.BillingCountry END FROM Event',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
+    }
+
+    @IsTest
+    static void typeOfMultipleWhens() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType)
+            .with(
+                SOQL.TypeOf.of(Event.WhatId)
+                    .when(Account.SObjectType)
+                    .then(Account.Phone, Account.NumberOfEmployees)
+                    .when(Opportunity.SObjectType)
+                    .then(Opportunity.Amount, Opportunity.CloseDate)
+            )
+            .toString();
+
+        // Verify
+        Assert.areEqual(
+            'SELECT TYPEOF What WHEN Account THEN Phone, NumberOfEmployees WHEN Opportunity THEN Amount, CloseDate END FROM Event',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
+    }
+
+    @IsTest
+    static void typeOfWhenElse() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType).with(SOQL.TypeOf.of(Event.WhatId).when(Account.SObjectType).then(Account.Phone).whenElse('Name, Email')).toString();
+
+        // Verify
+        Assert.areEqual('SELECT TYPEOF What WHEN Account THEN Phone ELSE Name, Email END FROM Event', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void typeOfWhenElseListOfStringFields() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType)
+            .with(SOQL.TypeOf.of(Event.WhatId).when(Account.SObjectType).then(Account.Phone).whenElse(new List<String>{ 'Name', 'Email' }))
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT TYPEOF What WHEN Account THEN Phone ELSE Name, Email END FROM Event', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void typeOfWhenElseEmptyListOfStringFields() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType).with(SOQL.TypeOf.of(Event.WhatId).when(Account.SObjectType).then(Account.Phone).whenElse(new List<String>())).toString();
+
+        // Verify
+        Assert.areEqual('SELECT TYPEOF What WHEN Account THEN Phone END FROM Event', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void typeOfWithFields() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType).with(Event.Subject).with(SOQL.TypeOf.of(Event.WhatId).when(Account.SObjectType).then(Account.Name)).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Subject, TYPEOF What WHEN Account THEN Name END FROM Event', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void multipleTypeOfs() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType)
+            .with(SOQL.TypeOf.of(Event.WhatId).when(Account.SObjectType).then(Account.Name))
+            .with(SOQL.TypeOf.of(Event.WhoId).when(Contact.SObjectType).then(Contact.Email))
+            .toString();
+
+        // Verify
+        Assert.areEqual(
+            'SELECT TYPEOF What WHEN Account THEN Name END, TYPEOF Who WHEN Contact THEN Email END FROM Event',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
+    }
+
+    @IsTest
+    static void typeOfWithoutFields() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType).with(Event.Subject).with(SOQL.TypeOf.of(Event.WhatId).when(Account.SObjectType)).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Subject FROM Event', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void typeOfWithCount() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType).with(SOQL.TypeOf.of(Event.WhatId).when(Account.SObjectType).then(Account.Name)).count().toString();
+
+        // Verify
+        Assert.areEqual('SELECT COUNT() FROM Event', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void typeOfWithAggregateFunction() {
+        // Test
+        String soql = SOQL.of(Event.SObjectType)
+            .with(Event.WhatId)
+            .with(SOQL.TypeOf.of(Event.WhatId).when(Account.SObjectType).then(Account.Name))
+            .count(Event.Id, 'events')
+            .groupBy(Event.WhatId)
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT WhatId, COUNT(Id) events FROM Event GROUP BY WhatId', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void typeOfAlreadyInitializedException() {
+        // Setup
+        Exception queryException = null;
+
+        // Test
+        try {
+            SOQL.TypeOf.of(Event.WhatId).of(Event.WhoId);
+        } catch (Exception e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.areEqual('TYPEOF has already been initialized for: What', queryException.getMessage(), 'The exception message should match the expected one.');
+    }
+
+    @IsTest
+    static void typeOfDuplicatedWhenException() {
+        // Setup
+        Exception queryException = null;
+
+        // Test
+        try {
+            SOQL.TypeOf.of(Event.WhatId).when(Account.SObjectType).when(Account.SObjectType);
+        } catch (Exception e) {
+            queryException = e;
+        }
+
+        // Verify
+        Assert.areEqual('TYPEOF already contains configuration for: Account', queryException.getMessage(), 'The exception message should match the expected one.');
     }
 
     @IsTest
@@ -1650,7 +1860,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),\' mi\') < :v1', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0), \'mi\') < :v1', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1661,7 +1871,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),\' km\') < :v1', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0), \'km\') < :v1', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1673,7 +1883,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(
-            'SELECT Id FROM Contact WHERE DISTANCE(Account.BillingAddress, GEOLOCATION(0.0,0.0),\' mi\') < :v1',
+            'SELECT Id FROM Contact WHERE DISTANCE(Account.BillingAddress, GEOLOCATION(0.0,0.0), \'mi\') < :v1',
             soql,
             'The generated SOQL should match the expected one.'
         );
@@ -1686,7 +1896,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(
-            'SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(37.775,-122.418),\' mi\') < :v1',
+            'SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(37.775,-122.418), \'mi\') < :v1',
             soql,
             'The generated SOQL should match the expected one.'
         );
@@ -1700,7 +1910,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(10.5,20.5),\' mi\') < :v1', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(10.5,20.5), \'mi\') < :v1', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -1711,7 +1921,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(
-            'SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),\' mi\') < :v1',
+            'SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0), \'mi\') < :v1',
             builder.toString(),
             'The generated SOQL should match the expected one.'
         );
@@ -1729,7 +1939,7 @@ private class SOQL_Test {
             .toString();
 
         // Verify
-        Assert.areEqual('SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),\' mi\') > :v1', soql, 'The generated SOQL should match the expected one.');
+        Assert.areEqual('SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0), \'mi\') > :v1', soql, 'The generated SOQL should match the expected one.');
     }
 
     @IsTest
@@ -3087,7 +3297,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(
-            'SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),\' km\') ASC NULLS FIRST',
+            'SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0), \'km\') ASC NULLS FIRST',
             soql,
             'The generated SOQL should match the expected one.'
         );
@@ -3100,7 +3310,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(
-            'SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress, GEOLOCATION(37.775,-122.418),\' mi\') ASC NULLS FIRST',
+            'SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress, GEOLOCATION(37.775,-122.418), \'mi\') ASC NULLS FIRST',
             soql,
             'The generated SOQL should match the expected one.'
         );
@@ -3113,7 +3323,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(
-            'SELECT Id FROM Contact ORDER BY DISTANCE(Account.BillingAddress, GEOLOCATION(0.0,0.0),\' km\') ASC NULLS FIRST',
+            'SELECT Id FROM Contact ORDER BY DISTANCE(Account.BillingAddress, GEOLOCATION(0.0,0.0), \'km\') ASC NULLS FIRST',
             soql,
             'The generated SOQL should match the expected one.'
         );
@@ -3126,7 +3336,7 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(
-            'SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),\' km\') DESC NULLS LAST',
+            'SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0), \'km\') DESC NULLS LAST',
             soql,
             'The generated SOQL should match the expected one.'
         );
@@ -3645,6 +3855,30 @@ private class SOQL_Test {
             Assert.isNotNull(mockedResult.Parent.Name, 'The Parent Account should be set.');
             Assert.isFalse(mockedResult.isSet(Account.Industry), 'Account Industry should be not set, because it\'s not mocked.');
         }
+    }
+
+    @IsTest
+    static void mockWithTypeOf() {
+        // Setup
+        Event accountEvent = new Event(Subject = 'Account Event');
+        accountEvent.putSObject('What', new Account(Name = 'Test Account'));
+
+        Event opportunityEvent = new Event(Subject = 'Opportunity Event');
+        opportunityEvent.putSObject('What', new Opportunity(Name = 'Test Opportunity', StageName = 'Prospecting'));
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(new List<Event>{ accountEvent, opportunityEvent });
+        List<Event> result = SOQL.of(Event.SObjectType)
+            .with(Event.Subject)
+            .with(SOQL.TypeOf.of(Event.WhatId).when(Account.SObjectType).then(Account.Name).when(Opportunity.SObjectType).then(Opportunity.StageName))
+            .mockId('mockingQuery')
+            .toList();
+
+        // Verify
+        Assert.isInstanceOfType(result[0].What, Account.class, 'The first event should be related to the mocked Account.');
+        Assert.areEqual('Test Account', result[0].What.get('Name'), 'The mocked Account Name should be returned.');
+        Assert.isInstanceOfType(result[1].What, Opportunity.class, 'The second event should be related to the mocked Opportunity.');
+        Assert.areEqual('Prospecting', result[1].What.get('StageName'), 'The mocked Opportunity StageName should be returned.');
     }
 
     @IsTest
@@ -4338,47 +4572,5 @@ private class SOQL_Test {
     static void previewCount() {
         // Test
         SOQL.of(Account.SObjectType).count().preview().toInteger();
-    }
-
-    @IsTest
-    static void distanceFilter() {
-        String query = SOQL.of(Account.sObjectType)
-            .whereAre(SOQL.Filter.with(SOQL.Distance.of(Account.BillingAddress).between(Location.newInstance(0, 0)).mi()).lessThan(5))
-            .toString();
-
-        Assert.areEqual('SELECT Id FROM Account WHERE DISTANCE(BillingAddress,:v1,\'mi\') < :v2', query, 'The generate soql does not match the expected value');
-    }
-    @IsTest
-    static void distanceFilterRelationship() {
-        String query = SOQL.of(Contact.sObjectType)
-            .whereAre(SOQL.Filter.with(SOQL.Distance.of('Account', Account.BillingAddress).between(Location.newInstance(0, 0)).mi()).lessThan(5))
-            .toString();
-
-        Assert.areEqual('SELECT Id FROM Contact WHERE DISTANCE(Account.BillingAddress,:v1,\'mi\') < :v2', query, 'The generate soql does not match the expected value');
-    }
-
-    @IsTest
-    static void distanceOrder() {
-        String query = SOQL.of(Account.sObjectType).orderBy(SOQL.Distance.of(Account.BillingAddress).between(0, 0).km()).toString();
-
-        Assert.areEqual('SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress,:v1,\'km\') ASC NULLS FIRST', query, 'The generate soql does not match the expected value');
-    }
-
-    @IsTest
-    static void distanceOrderDesc() {
-        String query = SOQL.of(Account.sObjectType).orderBy(SOQL.Distance.of(Account.BillingAddress).between(0, 0).km(), 'DESC').toString();
-
-        Assert.areEqual('SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress,:v1,\'km\') DESC NULLS FIRST', query, 'The generate soql does not match the expected value');
-    }
-
-    @IsTest
-    static void distanceSubqueryOrder() {
-        String query = SOQL.of(Account.sObjectType).with(SOQL.subquery.of('Contacts').orderBy(SOQL.Distance.of(Contact.MailingAddress).between(0, 0).km())).toString();
-
-        Assert.areEqual(
-            'SELECT Id , (SELECT Id FROM Contacts ORDER BY DISTANCE(MailingAddress,:v1,\'km\') ASC NULLS FIRST) FROM Account',
-            query,
-            'The generate soql does not match the expected value'
-        );
     }
 }

@@ -1,18 +1,19 @@
 ---
-sidebar_position: 20
+sidebar_position: 25
 ---
 
 # TypeOf
 
-Construct a typeof clause with provided API.
+Construct `TYPEOF` expression with provided API.
 
 ```apex
 SOQL.of(Event.SObjectType)
-		.with(SOQL.TypeOf.of('What')
-				.when(Account.sObjectType).then(Account.BillingState)
-				.whenElse('Name')
-		)
-		.toList();
+    .with(SOQL.TypeOf.of(Event.WhatId)
+        .when(Account.SObjectType)
+        .then(Account.Phone, Account.NumberOfEmployees)
+        .whenElse('Name')
+    )
+    .toList();
 ```
 
 ## Methods
@@ -26,7 +27,7 @@ The following are methods for `TypeOf`.
 
 [**WHEN**](#when)
 
-- [`when(SObjectType whenObject)`](#whenObject)
+- [`when(SObjectType whenObject)`](#when-object)
 
 [**THEN**](#then)
 
@@ -36,72 +37,81 @@ The following are methods for `TypeOf`.
 - [`then(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4)`](#then-field1---field5)
 - [`then(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5)`](#then-field1---field5)
 - [`then(List<SObjectField> fields)`](#then-fields)
+- [`then(Iterable<String> fields)`](#then-string-fields)
 - [`then(String fields)`](#then-string-fields)
 - [`then(String relationshipName, SObjectField field)`](#then-related-field1---field5)
-- [`then(String relationshipName, SObjectField field, SObjectField field2)`](#then-related-field1---field5)
-- [`then(String relationshipName, SObjectField field, SObjectField field2, SObjectField field3)`](#then-related-field1---field5)
-- [`then(String relationshipName, SObjectField field, SObjectField field2, SObjectField field3, SObjectField field4)`](#then-related-field1---field5)
-- [`then(String relationshipName, SObjectField field, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5)`](#then-related-field1---field5)
+- [`then(String relationshipName, SObjectField field1, SObjectField field2)`](#then-related-field1---field5)
+- [`then(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3)`](#then-related-field1---field5)
+- [`then(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4)`](#then-related-field1---field5)
+- [`then(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5)`](#then-related-field1---field5)
 - [`then(String relationshipName, Iterable<SObjectField> fields)`](#then-related-fields)
 
 [**ELSE**](#else)
-- [`whenElse(List<String> fields)`](#else-fields)
-- [`whenElse(String fields)`](#else-string-fields)
+
+- [`whenElse(Iterable<String> fields)`](#else-fields)
+- [`whenElse(String fields)`](#else-fields)
 
 ## INIT
 ### of
 
-Constructs a `TypeOf`.
+Constructs a `TypeOf` for a polymorphic relationship field. Pass the lookup field (`Event.WhatId`) or the relationship name (`'What'`).
 
 **Signature**
 
 ```apex
-TypeOf SOQL.Type.of(String ofField)
-// or
-TypeOf SOQL.Type.of(SObjectField ofField)
+TypeOf of(String ofField)
+```
+```apex
+TypeOf of(SObjectField ofField)
 ```
 
 **Example**
 
 ```sql
 SELECT TYPEOF What
-	WHEN Account THEN Name, BillingState
-	WHEN Opportunity THEN Id
-	ELSE Id, Name
-	END
+    WHEN Account THEN Phone
+END
 FROM Event
 ```
 ```apex
-SOQL.of(Event.sObjectType)
-		.with(
-			SOQL.Type.of('What')
-				.when(Account.sObjectType)
-				.then(
-					Account.Name,
-					Account.BillingState
-				)
-				.when(Opporunity.sObjectType)
-				.then(
-					Opportunity.Id
-				)
-				.whenElse(
-					new Set<String>{
-						'Id',
-						'Name'
-					}
-				)
-		)
-		.toList();
+SOQL.of(Event.SObjectType)
+    .with(SOQL.TypeOf.of(Event.WhatId)
+        .when(Account.SObjectType)
+        .then(Account.Phone)
+    )
+    .toList();
 ```
 
 ## WHEN
 
 ### when object
 
+Starts a `WHEN` branch for the object type. The following `then` methods add fields to that branch.
+
 **Signature**
 
 ```apex
-TypeOf when(SObjectType whenObject);
+TypeOf when(SObjectType whenObject)
+```
+
+**Example**
+
+```sql
+SELECT TYPEOF What
+    WHEN Account THEN Phone, NumberOfEmployees
+    WHEN Opportunity THEN Amount, CloseDate
+END
+FROM Event
+```
+```apex
+SOQL.of(Event.SObjectType)
+    .with(SOQL.TypeOf.of(Event.WhatId)
+        .when(Account.SObjectType)
+        .then(Account.Phone, Account.NumberOfEmployees)
+        .when(Opportunity.SObjectType)
+        .then(Opportunity.Amount, Opportunity.CloseDate)
+    )
+    .toList();
 ```
 
 ## THEN
@@ -111,19 +121,36 @@ TypeOf when(SObjectType whenObject);
 **Signature**
 
 ```apex
-Typeof then(SObjectField field);
+TypeOf then(SObjectField field)
 ```
 ```apex
-Typeof then(SObjectField field1, SObjectField field2);
+TypeOf then(SObjectField field1, SObjectField field2)
 ```
 ```apex
-Typeof then(SObjectField field1, SObjectField field2, SObjectField field3);
+TypeOf then(SObjectField field1, SObjectField field2, SObjectField field3)
 ```
 ```apex
-Typeof then(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+TypeOf then(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4)
 ```
 ```apex
-Typeof then(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
+TypeOf then(SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5)
+```
+
+**Example**
+
+```sql
+SELECT TYPEOF What
+    WHEN Account THEN Id, Name, Phone
+END
+FROM Event
+```
+```apex
+SOQL.of(Event.SObjectType)
+    .with(SOQL.TypeOf.of(Event.WhatId)
+        .when(Account.SObjectType)
+        .then(Account.Id, Account.Name, Account.Phone)
+    )
+    .toList();
 ```
 
 ### then fields
@@ -133,7 +160,31 @@ Use for more than 5 fields.
 **Signature**
 
 ```apex
-Typeof then(List<SObjectField> fields);
+TypeOf then(List<SObjectField> fields)
+```
+
+**Example**
+
+```sql
+SELECT TYPEOF What
+    WHEN Account THEN Id, Name, Phone, Industry, BillingCity, BillingCountry
+END
+FROM Event
+```
+```apex
+SOQL.of(Event.SObjectType)
+    .with(SOQL.TypeOf.of(Event.WhatId)
+        .when(Account.SObjectType)
+        .then(new List<SObjectField>{
+            Account.Id,
+            Account.Name,
+            Account.Phone,
+            Account.Industry,
+            Account.BillingCity,
+            Account.BillingCountry
+        })
+    )
+    .toList();
 ```
 
 ### then string fields
@@ -143,7 +194,27 @@ Typeof then(List<SObjectField> fields);
 **Signature**
 
 ```apex
-Typeof then(String fields);
+TypeOf then(Iterable<String> fields)
+```
+```apex
+TypeOf then(String fields)
+```
+
+**Example**
+
+```sql
+SELECT TYPEOF What
+    WHEN Account THEN Id, Name, Owner.Name
+END
+FROM Event
+```
+```apex
+SOQL.of(Event.SObjectType)
+    .with(SOQL.TypeOf.of(Event.WhatId)
+        .when(Account.SObjectType)
+        .then('Id, Name, Owner.Name')
+    )
+    .toList();
 ```
 
 ### then related field1 - field5
@@ -152,48 +223,105 @@ Allows to add parent field.
 
 **Signature**
 
-```apex title="Single Related Field Method"
-Typeof then(String relationshipName, SObjectField field)
+```apex
+TypeOf then(String relationshipName, SObjectField field)
 ```
-```apex title="Two Related Fields Method"
-Typeof then(String relationshipName, SObjectField field1, SObjectField field2);
+```apex
+TypeOf then(String relationshipName, SObjectField field1, SObjectField field2)
 ```
-```apex title="Three Related Fields Method"
-Typeof then(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3);
+```apex
+TypeOf then(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3)
 ```
-```apex title="Four Related Fields Method"
-Typeof then(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4);
+```apex
+TypeOf then(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4)
 ```
-```apex title="Five Related Fields Method"
-Typeof then(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5);
+```apex
+TypeOf then(String relationshipName, SObjectField field1, SObjectField field2, SObjectField field3, SObjectField field4, SObjectField field5)
+```
+
+**Example**
+
+```sql
+SELECT TYPEOF What
+    WHEN Opportunity THEN Account.Id, Account.Name
+END
+FROM Event
+```
+```apex
+SOQL.of(Event.SObjectType)
+    .with(SOQL.TypeOf.of(Event.WhatId)
+        .when(Opportunity.SObjectType)
+        .then('Account', Account.Id, Account.Name)
+    )
+    .toList();
 ```
 
 ### then related fields
 
-Allows to add parent fields to a query.
+Allows to add parent fields.
 
 Use for more than 5 parent fields.
 
 **Signature**
 
-```apex title="Method Signature"
-Typeof then(String relationshipName, Iterable<SObjectField> fields)
+```apex
+TypeOf then(String relationshipName, Iterable<SObjectField> fields)
+```
+
+**Example**
+
+```sql
+SELECT TYPEOF What
+    WHEN Opportunity THEN Account.Id, Account.Name, Account.Phone, Account.Industry, Account.BillingCity, Account.BillingCountry
+END
+FROM Event
+```
+```apex
+SOQL.of(Event.SObjectType)
+    .with(SOQL.TypeOf.of(Event.WhatId)
+        .when(Opportunity.SObjectType)
+        .then('Account', new List<SObjectField>{
+            Account.Id,
+            Account.Name,
+            Account.Phone,
+            Account.Industry,
+            Account.BillingCity,
+            Account.BillingCountry
+        })
+    )
+    .toList();
 ```
 
 ## ELSE
 
 ### else fields
 
+Fields returned when no `WHEN` branch matches. Salesforce allows only fields of the `Name` object here, e.g. `Name`, `Email`, `Phone`.
+
 **Signature**
 
-```apex title="Method Signature"
-Typeof whenElse(Iterable<String> fields)
+```apex
+TypeOf whenElse(Iterable<String> fields)
+```
+```apex
+TypeOf whenElse(String fields)
 ```
 
-### else string fields
+**Example**
 
-**Signature**
-
-```apex title="Method Signature"
-Typeof whenElse(String fields)
+```sql
+SELECT TYPEOF What
+    WHEN Account THEN Phone
+    ELSE Name, Email
+END
+FROM Event
+```
+```apex
+SOQL.of(Event.SObjectType)
+    .with(SOQL.TypeOf.of(Event.WhatId)
+        .when(Account.SObjectType)
+        .then(Account.Phone)
+        .whenElse('Name, Email')
+    )
+    .toList();
 ```

@@ -89,6 +89,10 @@ The following are methods for using `SOQL`:
 
 - [`with(SubQuery subQuery)`](#with-subquery)
 
+[**TYPEOF**](#typeof)
+
+- [`with(TypeOf typeOf)`](#with-typeof)
+
 [**USING SCOPE**](#using-scope)
 
 - [`delegatedScope()`](#delegatedscope)
@@ -474,6 +478,45 @@ SELECT Id, (
 SOQL.of(Account.SObjectType)
     .with(SOQL.SubQuery.of('Contacts')
         .with(Contact.Id, Contact.Name)
+    ).toList();
+```
+
+## TYPEOF
+
+### with typeof
+
+[TYPEOF](https://developer.salesforce.com/docs/platform/salesforce-soql-sosl/guide/sforce-api-calls-soql-select-typeof.html)
+
+> Use `TYPEOF` in a `SELECT` statement to query data that contains polymorphic relationships.
+
+**Note!** Salesforce doesn't allow `TYPEOF` in queries with `COUNT()`, aggregate functions, `GROUP BY` or `HAVING`, so SOQL Lib removes it from such queries (e.g. `toInteger()`, `toIdsOf()`).
+
+For more details check [`SOQL.TypeOf`](soql-typeof.md) class.
+
+**Signature**
+
+```apex
+Queryable with(SOQL.TypeOf typeOf)
+```
+
+**Example**
+
+```sql
+SELECT TYPEOF What
+    WHEN Account THEN Phone, NumberOfEmployees
+    WHEN Opportunity THEN Amount, CloseDate
+    ELSE Name, Email
+END
+FROM Event
+```
+```apex
+SOQL.of(Event.SObjectType)
+    .with(SOQL.TypeOf.of(Event.WhatId)
+        .when(Account.SObjectType)
+        .then(Account.Phone, Account.NumberOfEmployees)
+        .when(Opportunity.SObjectType)
+        .then(Opportunity.Amount, Opportunity.CloseDate)
+        .whenElse('Name, Email')
     ).toList();
 ```
 
