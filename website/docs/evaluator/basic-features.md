@@ -124,6 +124,7 @@ Map<String, String> toMap(SObjectField keyField, String relationshipName, SObjec
 Map<String, List<SObject>> toAggregatedMap(SObjectField keyField);
 Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField);
 Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
+Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField);
 ```
 
 Extract unique IDs from query:

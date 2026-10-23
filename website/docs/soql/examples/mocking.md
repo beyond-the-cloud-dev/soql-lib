@@ -406,6 +406,33 @@ private class ExampleControllerTest {
 }
 ```
 
+## TYPEOF
+
+Polymorphic relationship fields (e.g. `Event.What`) can't be set in the record constructor. Use `putSObject` to set the related record.
+
+```apex title="Unit Test with TYPEOF Mock"
+@IsTest
+private class ExampleControllerTest {
+    @IsTest
+    static void getEventsWithRelatedRecords() {
+        Event accountEvent = new Event(Subject = 'Account Event');
+        accountEvent.putSObject('What', new Account(Name = 'Acme'));
+
+        SOQL.mock('mockingQuery').thenReturn(accountEvent);
+
+        List<Event> result = SOQL.of(Event.SObjectType)
+            .with(Event.Subject)
+            .with(SOQL.TypeOf.of(Event.WhatId)
+                .when(Account.SObjectType).then(Account.Name)
+            )
+            .mockId('mockingQuery')
+            .toList();
+
+        Assert.areEqual('Acme', result[0].What.get('Name'));
+    }
+}
+```
+
 ## Mocking Exceptions
 
 SOQL Lib provides the ability to mock query exceptions, which is essential for testing error handling logic in your code.

@@ -130,7 +130,7 @@ Account `Description` and `Website` are null, even though they were specified. H
 **Note:**
 Currently, this field-stripping behavior applies only to simple fields (such as `Name`, `Description`, etc.) and subqueries. Additional subqueries are also removed — only the explicitly queried subqueries remain.
 
-Relationship fields and queries using functions are not yet covered by this logic. This means that SOQL queries involving relationship records or functions (like `COUNT`, `AVG`) will return the exact mock defined in the unit test. This may be addressed in future enhancements.
+Relationship fields, `TYPEOF` and queries using functions are not yet covered by this logic. This means that SOQL queries involving relationship records, `TYPEOF` or functions (like `COUNT`, `AVG`) will return the exact mock defined in the unit test. This may be addressed in future enhancements.
 
 ### Queries Issued Count
 
@@ -304,6 +304,33 @@ private class ExampleControllerTest {
         Account result = (Account) ExampleController.getPartnerAccounts('MyAccount');
 
         Assert.areEqual(2, result);
+    }
+}
+```
+
+## TYPEOF
+
+Polymorphic relationship fields (e.g. `Event.What`) can't be set in the record constructor. Use `putSObject` to set the related record.
+
+```apex
+@IsTest
+private class ExampleControllerTest {
+    @IsTest
+    static void getEventsWithRelatedRecords() {
+        Event accountEvent = new Event(Subject = 'Account Event');
+        accountEvent.putSObject('What', new Account(Name = 'Acme'));
+
+        SOQL.mock('mockingQuery').thenReturn(accountEvent);
+
+        List<Event> result = SOQL.of(Event.SObjectType)
+            .with(Event.Subject)
+            .with(SOQL.TypeOf.of(Event.WhatId)
+                .when(Account.SObjectType).then(Account.Name)
+            )
+            .mockId('mockingQuery')
+            .toList();
+
+        Assert.areEqual('Acme', result[0].What.get('Name'));
     }
 }
 ```

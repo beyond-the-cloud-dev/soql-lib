@@ -183,6 +183,7 @@ All crucial information is kept at the top of the class, so developers can use i
         Map<String, List<SObject>> toAggregatedMap(SObjectField keyField);
         Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField);
         Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
+        Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField);
         Database.QueryLocator toQueryLocator();
     }
 

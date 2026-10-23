@@ -54,6 +54,7 @@ The following are methods for using `SOQLEvaluator`:
 - [`toAggregatedMap(SObjectField keyField)`](#toaggregatedmap)
 - [`toAggregatedMap(String relationshipName, SObjectField targetKeyField)`](#toaggregatedmap-with-custom-relationship-key)
 - [`toAggregatedMap(SObjectField keyField, SObjectField valueField)`](#toaggregatedmap-with-custom-value)
+- [`toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField)`](#toaggregatedmap-with-custom-key-and-relationship-value)
 
 ## INIT
 ### of
@@ -501,4 +502,22 @@ Map<String, List<String>> industryToAccountNames = SOQLEvaluator.of([
     FROM Account
     WITH USER_MODE
 ]).toAggregatedMap(Account.Industry, Account.Name);
+```
+
+### toAggregatedMap with custom key and relationship value
+
+**Signature**
+
+```apex
+Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField)
+```
+
+**Example**
+
+```apex
+Map<String, List<String>> industryToParentNames = SOQLEvaluator.of([
+    SELECT Id, Industry, Parent.Name
+    FROM Account
+    WITH USER_MODE
+]).toAggregatedMap(Account.Industry, 'Parent', Account.Name);
 ```

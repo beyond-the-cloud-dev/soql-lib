@@ -177,9 +177,9 @@ The following are methods for using `SOQL`:
 - [`SOQL.mock(String mockId).thenReturn(SObject record)`](#record-mock)
 - [`SOQL.mock(String mockId).thenReturn(List<SObject> records)`](#record-mock)
 - [`SOQL.mock(String mockId).thenReturn(Integer amount)`](#count-mock)
-- [`SOQL.mock(SObjectType ofObject).thenReturn(SObject record)`](#sobject-type-mock)
-- [`SOQL.mock(SObjectType ofObject).thenReturn(List<SObject> records)`](#sobject-type-mock)
-- [`SOQL.mock(SObjectType ofObject).thenReturn(Integer amount)`](#sobject-type-mock)
+- [`SOQL.mock(SObjectType ofObject).thenReturn(SObject record)`](#sobjecttype-mock)
+- [`SOQL.mock(SObjectType ofObject).thenReturn(List<SObject> records)`](#sobjecttype-mock)
+- [`SOQL.mock(SObjectType ofObject).thenReturn(Integer amount)`](#sobjecttype-mock)
 - [`SOQL.mock(String mockId).throwException()`](#exception-mock)
 - [`SOQL.mock(String mockId).throwException(String message)`](#exception-mock-with-message)
 
@@ -216,10 +216,11 @@ The following are methods for using `SOQL`:
 - [`toAggregatedMap(SObjectField keyField)`](#toaggregatedmap)
 - [`toAggregatedMap(String relationshipName, SObjectField targetKeyField)`](#toaggregatedmap-with-custom-relationship-key)
 - [`toAggregatedMap(SObjectField keyField, SObjectField valueField)`](#toaggregatedmap-with-custom-value)
+- [`toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField)`](#toaggregatedmap-with-custom-key-and-relationship-value)
 - [`toIdMapBy(SObjectField field)`](#toidmapby)
 - [`toIdMapBy(String relationshipName, SObjectField targetKeyField)`](#toidmapby-with-relationship)
-- [`toAggregatedIdMapBy(SObjectField keyField)`](#toaggregateidmapby)
-- [`toAggregatedIdMapBy(String relationshipName, SObjectField targetKeyField)`](#toaggregateidmapby-with-relationship)
+- [`toAggregatedIdMapBy(SObjectField keyField)`](#toaggregatedidmapby)
+- [`toAggregatedIdMapBy(String relationshipName, SObjectField targetKeyField)`](#toaggregatedidmapby-with-relationship)
 - [`toQueryLocator()`](#toquerylocator)
 - [`toCursor()`](#tocursor)
 - [`toPaginationCursor()`](#topaginationcursor)
@@ -2522,6 +2523,8 @@ Set<Id> accountIds = SOQL.of(Account.SObjectType)
 Extract field values as Set of IDs from query result.
 Field will be automatically added to the query fields.
 
+**Note!** The `Id` field isn't supported and throws a `QueryException`. Use [`toIds()`](#toids) to get record Ids.
+
 **Signature**
 
 ```apex
@@ -2591,6 +2594,8 @@ Field will be automatically added to the query fields.
 SOQL Lib is using [Building a KeySet from any field](https://salesforce.stackexchange.com/questions/393308/get-a-list-of-one-column-from-a-soql-result) approach to get only one field.
 
 Note! It does not work with Custom Metadata.
+
+**Note!** The `Id` field isn't supported and throws a `QueryException`. Use [`toIds()`](#toids) to get record Ids.
 
 **Signature**
 
@@ -2817,6 +2822,22 @@ Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField
 
 ```apex
 Map<String, List<Account>> parentCreatedByEmailToAccounts = (Map<String, List<Account>>) SOQL.of(Account.SObjectType).toAggregatedMap('Parent.CreatedBy', User.Email);
+```
+
+### toAggregatedMap with custom key and relationship value
+
+**Note!** To improve query performance, a condition checking if the keyField is not null (`WHERE keyField != null`) is automatically added to the query.
+
+**Signature**
+
+```apex
+Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField)
+```
+
+**Example**
+
+```apex
+Map<String, List<String>> industryToParentNames = SOQL.of(Account.SObjectType).toAggregatedMap(Account.Industry, 'Parent', Account.Name);
 ```
 
 ### toIdMapBy
