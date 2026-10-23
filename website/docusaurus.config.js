@@ -29,6 +29,10 @@ const config = {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           routeBasePath: '/',
+          // Hide the unreleased "Next" docs (website/docs) from the deployed site;
+          // they remain visible locally via `npm run start` for authoring.
+          onlyIncludeVersions:
+            process.env.NODE_ENV === 'development' ? ['current', '6.12.0'] : ['6.12.0'],
         },
         gtag: {
           trackingID: 'G-FVQ8BT1C3H',
@@ -95,8 +99,9 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       // Replace with your project's social card
-      image: 'img/cloud-icon.png',
+      image: 'img/og-image.png',
       metadata: [
+        { name: 'twitter:card', content: 'summary_large_image' },
         { name: 'description', content: 'SOQL Lib provides functional constructs for SOQL queries in Apex.' },
         { name: 'keywords', content: 'SOQL Lib, Selector Layer Apex, Apex Selector Layer, Query Builder' },
         { name: 'canonical', content: 'https://soql.beyondthecloud.dev' }
@@ -150,6 +155,10 @@ const config = {
             to: '/critique',
             position: 'left',
             label: 'Critique',
+          },
+          {
+            type: 'docsVersionDropdown',
+            position: 'right',
           },
           {
             href: 'https://github.com/beyond-the-cloud-dev/soql-lib',

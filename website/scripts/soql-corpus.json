@@ -1,0 +1,2786 @@
+[
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name FROM Account WHERE Industry = 'Technology'"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name FROM Account WHERE Name != 'Acme Corporation'"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name, BillingCity FROM Account WHERE Name = 'Global   Media  Group'"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name FROM Account WHERE Name = 'O\\'Brien & Sons'"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, LastName FROM Contact WHERE LastName != 'D\\'Angelo-O\\'Neill'"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name FROM Opportunity WHERE Name = '50% Off Renewal'"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name FROM Campaign WHERE Name != '100%_Match'"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name FROM Account WHERE Name = 'SELECT Id FROM Account WHERE Name = 1'"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, NextStep FROM Opportunity WHERE NextStep != 'Approve >= 80% by Friday'"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, BillingStreet FROM Account WHERE BillingStreet = '1600 Amphitheatre Pkwy, Bldg 40'"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Subject FROM Task WHERE Subject = 'Call :accountId at 10:30'"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name, AccountNumber FROM Account WHERE AccountNumber = '2024-01-01'"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name, Rating FROM Account WHERE Rating = 'null'"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name FROM Account WHERE NumberOfEmployees > 100"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Company FROM Lead WHERE NumberOfEmployees <= 50"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name FROM Warehouse__c WHERE Stock_Level__c < -25"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name, Amount FROM Opportunity WHERE Amount >= 15000.50"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name, Balance__c FROM Invoice__c WHERE Balance__c <= -1250.75"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name FROM Subscription__c WHERE MRR__c > 99.99"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name, Username FROM User WHERE IsActive = true"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Company FROM Lead WHERE IsConverted = false"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, CaseNumber FROM Case WHERE IsEscalated != TRUE"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name FROM Project__c WHERE Is_Archived__c = FALSE"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name FROM Account WHERE Industry = null"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Email FROM Contact WHERE Email != null"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name FROM Project__c WHERE Health__c = NULL"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name, AccountId FROM Contact WHERE AccountId = '001XX000003DHPhYAO'"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name FROM Account WHERE Id != '0011t00000AbCdEAAV'"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name FROM Account WHERE Id > '001000000000000AAA'"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name, CloseDate FROM Opportunity WHERE CloseDate = 2024-01-01"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Subject, ActivityDate FROM Task WHERE ActivityDate > 2024-06-30"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, LastName, Birthdate FROM Contact WHERE Birthdate <= 1990-12-31"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name, EndDate FROM Campaign WHERE EndDate != 2024-12-31"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, CaseNumber FROM Case WHERE CreatedDate > 2024-01-01T00:00:00Z"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, CaseNumber FROM Case WHERE ClosedDate <= 2024-03-15T13:45:30+02:00"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Subject FROM Task WHERE CreatedDate >= 2023-11-05T08:00:00-05:00"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name FROM Account WHERE LastModifiedDate != 2024-02-29T23:59:59Z"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name FROM Contact WHERE AccountId = :accountId"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name FROM Contact WHERE AccountId = :account.Id"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name FROM Opportunity WHERE Account.OwnerId != :currentUserId"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name FROM Account WHERE Id = :accountId"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name, CloseDate FROM Opportunity WHERE CloseDate >= :startDate"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "select id, name from account where annualrevenue >= 1000000"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "Select Id, Subject From Case Where Priority = 'high'"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Company FROM Lead WHERE    Status     =      'Working - Contacted'"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id,Name FROM Account WHERE NumberOfEmployees>=250"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id FROM Contact WHERE Department!='Finance'"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id,\n       Name,\n       AnnualRevenue\nFROM Account\nWHERE AnnualRevenue > 5000000"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name\nFROM Contact\nWHERE\n    Account.Owner.Profile.Name = 'System Administrator'"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Name, Status__c\nFROM Invoice__c\nWHERE\n\tAccount__r.Industry != 'Retail'"
+  },
+  {
+    "category": "where-comparators",
+    "soql": "SELECT Id, Title, UrlName FROM Knowledge__kav WHERE\tPublishStatus\t=\t'Online'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name FROM Account WHERE Name LIKE '%Acme%'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, FirstName, LastName FROM Contact WHERE LastName LIKE 'Smi%'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name, StageName\nFROM Opportunity\nWHERE Name LIKE '%Renewal'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Company FROM Lead WHERE Company LIKE 'Acme Corporation'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, CaseNumber, Subject\nFROM Case\nWHERE Subject LIKE 'Urgent%Escalation'"
+  },
+  {
+    "category": "where-like",
+    "soql": "select id, name from account where name like '_cme%'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Alias, Name FROM User WHERE Alias LIKE 'jsm__'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name FROM Account WHERE (NOT Name LIKE '%Test%')"
+  },
+  {
+    "category": "where-like",
+    "soql": "select id, email from contact where not email like 'noreply%'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Email\nFROM Lead\nWHERE (NOT Email LIKE '%@example.com')"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, CaseNumber FROM Case WHERE (NOT CaseNumber LIKE '00__1%')"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name FROM Contact WHERE Account.Name LIKE 'Global%'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name\nFROM Opportunity\nWHERE Account.Owner.Profile.Name LIKE '%System Administrator%'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name FROM Contact WHERE Primary_Region__r.Region_Code__c LIKE 'EU-%'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name, Industry FROM Account WHERE Name LIKE 'A%' AND Industry = 'Technology'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Email\nFROM Contact\nWHERE Email LIKE '%@acme.com' OR Email LIKE '%@acme.co.uk'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name\nFROM Account\nWHERE Industry = 'Technology' AND (Name LIKE 'Acme%' OR Name LIKE '%Systems')"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name FROM Account WHERE Name LIKE :searchTerm"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name FROM Account WHERE Name LIKE :accountNames"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name FROM Account WHERE Name LIKE ('My%', 'Acc%')"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name FROM Account WHERE Name LIKE '%O\\'Brien%'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name FROM Opportunity WHERE Name LIKE '%50\\%%'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name FROM Invoice__c WHERE Name LIKE 'INV\\_2024%'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Description FROM Account WHERE Description LIKE '%C:\\\\Users%'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Subject\nFROM Case\nWHERE Subject LIKE '%FROM Account WHERE Name%'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Subject FROM Task WHERE Subject LIKE '%AND%' OR Subject LIKE '%OR NOT%'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name FROM Account WHERE Name LIKE '%(ACME, Inc.)%'"
+  },
+  {
+    "category": "where-like",
+    "soql": "select id, name, type\nfrom campaign\nwhere name like '%webinar%' and status = 'In Progress'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT   Id ,  Name   FROM    Account   WHERE     Name    LIKE      '%Cloud%'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT\n    Id,\n    Company\nFROM\n    Lead\nWHERE\n    Company\n        LIKE\n            'Acme%'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name, Type FROM Account WHERE (NOT Name LIKE '%Test%') AND Type = 'Customer - Direct'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name FROM Account WHERE Name LIKE 'A%' ORDER BY Name DESC LIMIT 10 OFFSET 5"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Title, UrlName\nFROM Knowledge__kav\nWHERE Title LIKE '%installation%' AND PublishStatus = 'Online' AND Language = 'en_US'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name, (SELECT Id, LastName FROM Contacts WHERE LastName LIKE 'Ko%')\nFROM Account\nWHERE Name LIKE '%Ltd'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name\nFROM Account\nWHERE Id IN (SELECT AccountId FROM Contact WHERE Email LIKE '%@acme.com')"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Industry, COUNT(Id) cnt\nFROM Account\nWHERE Name LIKE 'A%'\nGROUP BY Industry"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Subject, CreatedDate FROM Case\nWHERE Subject LIKE '%outage%' AND CreatedDate = LAST_N_DAYS:30"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name FROM Opportunity WHERE StageName IN ('Prospecting', 'Qualification') AND Name LIKE '%Q4%'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name FROM Account USING SCOPE mine WHERE Name LIKE '%Partner%'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Subject FROM Case WHERE Subject LIKE '%refund%' FOR VIEW"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Username FROM User WHERE Username LIKE :usernamePrefix AND IsActive = true"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name, Status FROM Lead\nWHERE (NOT Company LIKE '%Test%') OR (NOT Company LIKE '%Demo%') OR Status = 'Qualified'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name, Likelihood__c\nFROM Deal__c\nWHERE Likelihood__c LIKE '%High%' AND Name LIKE '%like%'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name, Type FROM Account WHERE Name LIKE '%' AND Type LIKE '%%'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name FROM Contact WHERE Name LIKE 'Müller%' OR Name LIKE 'Ångström%'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Description FROM Opportunity WHERE Description LIKE '%line1\\nline2%'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name FROM Campaign\nWHERE Parent.Name LIKE 'FY26%' AND Type = 'Email'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name, Invoice_Number__c\nFROM Invoice__c\nWHERE Invoice_Number__c LIKE 'INV-2026-%' AND Customer__r.Name LIKE '%Holdings%'"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name FROM Account\nWHERE (Name LIKE 'A%' OR Name LIKE 'B%') AND (BillingCountry LIKE 'United%' OR (NOT BillingCity LIKE '%ville'))"
+  },
+  {
+    "category": "where-like",
+    "soql": "SELECT Id, Name FROM Account WHERE Name LIKE :('%' + searchKey + '%')"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id FROM Account"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id, Name FROM Account"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id, Name, Industry, Rating, AnnualRevenue FROM Account"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT\n    Id,\n    Name,\n    Industry,\n    Rating,\n    AnnualRevenue,\n    BillingCity,\n    Phone\nFROM Account"
+  },
+  {
+    "category": "select-basics",
+    "soql": "select id, name, phone from contact"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SeLeCt Id, FirstName, LastName FrOm Contact"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT    Id ,Name   ,   BillingCity     FROM        Account"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT\n\tId,\n\t\tName,\n\tAmount,\n\t\t\tStageName,\n\tCloseDate\nFROM\n\tOpportunity"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id,Name,Amount,StageName FROM Opportunity"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id, CaseNumber, Subject, Status\n   FROM Case"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id, Name, Total_Amount__c, Status__c, Invoice_Date__c FROM Invoice__c"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id, Account__r.Name, Account__r.Owner.Email, Approver__r.Manager.Name FROM Invoice__c"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id, Name, CreatedBy.Name, Owner.Email FROM Account"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id, Name, Account.Owner.Manager.Name FROM Contact"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id, btcdev__Amount__c, btcdev__Payment_Date__c FROM btcdev__Payment__c"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT FIELDS(ALL) FROM Account LIMIT 200"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT FIELDS(STANDARD) FROM Contact"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id, FIELDS(CUSTOM) FROM Opportunity LIMIT 100"
+  },
+  {
+    "category": "select-basics",
+    "soql": "select fields(all) from lead limit 200"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT FIELDS(STANDARD), Custom_Rating__c, Segment__c FROM Account LIMIT 200"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id, Subject, TYPEOF Who WHEN Contact THEN Email, Title WHEN Lead THEN Company, Status ELSE Name END FROM Task"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT\n    Id,\n    Subject,\n    TYPEOF What\n        WHEN Account THEN Phone, NumberOfEmployees\n        WHEN Opportunity THEN Amount, CloseDate\n        ELSE Name\n    END\nFROM Event"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id, CaseNumber, TYPEOF Owner WHEN User THEN Email, Username ELSE Name END FROM Case"
+  },
+  {
+    "category": "select-basics",
+    "soql": "select id, typeof what when account then name, phone when opportunity then amount, closedate end from task"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id, Name, convertCurrency(Amount) FROM Opportunity"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id, convertCurrency(Amount) convAmt FROM Opportunity"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id, FORMAT(Amount) FROM Opportunity"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Name, FORMAT(Amount) amt FROM Opportunity"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Name, FORMAT(convertCurrency(Amount)) convertedCurrency FROM Opportunity"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Name, FORMAT(MIN(CloseDate)) firstClose FROM Opportunity GROUP BY Name"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT\n    Id,\n    FORMAT(\n        Amount\n    ) formattedAmount\nFROM Opportunity"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Company, toLabel(Status) FROM Lead"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Company, toLabel(Status) leadStatus FROM Lead"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Company, toLabel(RecordType.Name) recordTypeName FROM Lead"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id, TOLABEL(Priority), TOLABEL(Origin) caseOrigin FROM Case"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT LeadSource, Rating,\n    GROUPING(LeadSource) grpLS, GROUPING(Rating) grpRating,\n    COUNT(Name) cnt\nFROM Lead\nGROUP BY ROLLUP(LeadSource, Rating)"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Type, BillingCountry, GROUPING(Type) grpType, GROUPING(BillingCountry) grpCty, COUNT(Id) accts FROM Account GROUP BY CUBE(Type, BillingCountry)"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT LeadSource src, COUNT(Id) cnt FROM Lead GROUP BY LeadSource"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Name n, MAX(Amount) mx, MIN(Amount) mn FROM Opportunity GROUP BY Name"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT COUNT() FROM Account"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id, Name, Withdrawn__c, Within_SLA__c, Withholding_Tax__c FROM Claim__c"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id, Format__c, Count__c, Grouping__c, Sum__c FROM Report_Config__c"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id, From_Date__c, To_Date__c, Selected__c, Order__c FROM Booking__c"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id, OrderNumber, Status, TotalAmount, EffectiveDate FROM Order"
+  },
+  {
+    "category": "select-basics",
+    "soql": "select id, name, developername, type from Group"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id, Title, UrlName, ArticleNumber, PublishStatus FROM Knowledge__kav"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT\n      Id,   KnowledgeArticleId,\n        VersionNumber,\n  toLabel(ValidationStatus) valStatus\nFROM   Knowledge__kav"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id, Name, Status, Type, BudgetedCost, ActualCost, NumberOfLeads FROM Campaign"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id, Name, Email, IsActive, Profile.Name, UserRole.Name FROM User"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id,\n       Subject,Status,\n              Priority,ActivityDate\n  FROM Task"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Name, Owner.Name FROM Account"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, FirstName, LastName, CreatedBy.Email FROM Contact"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT\n    Id,\n    Name,\n    Owner.Id,\n    Owner.Name,\n    Owner.Email\nFROM Account"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, CaseNumber, CreatedBy.Id, CreatedBy.Name, CreatedBy.Email, CreatedBy.Phone, CreatedBy.Alias, CreatedBy.Username FROM Case"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Name, Account.Owner.Profile.Name FROM Contact"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Name, Parent.Name, Parent.Parent.Name, Parent.Parent.Parent.Name FROM Account"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Invoice_Number__c, Status__c, Account__r.Name, Account__r.Industry FROM Invoice__c"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "select id, order__r.account__r.owner.email from Order_Line__c"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id,\n       Name,\n       Region__r.Name__c,\n       Region__r.Country__r.Name__c,\n       Region__r.Country__r.Iso_Code__c\nFROM Property__c"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Subject, Who.Name, What.Name FROM Task"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "select id, subject, who.name, who.type, what.name, what.type, owner.name from task where status != 'Completed'"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Name, Owner.Name, CreatedBy.Name, LastModifiedBy.Name, Parent.Name FROM Account"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT   Id ,Owner.Name  ,   CreatedBy.Email   ,Parent.Owner.Alias FROM   Account"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "select id, name, account.name, account.owner.name, account.owner.profile.name from contact"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Name FROM Contact WHERE Account.Name = 'My Account'"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Name, Account.Name\nFROM Contact\nORDER BY Account.Name DESC NULLS LAST\nLIMIT 100"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Account.Industry, COUNT(Id) contactCount\nFROM Contact\nGROUP BY Account.Industry"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT MAX(Account.AnnualRevenue) maxRevenue, MIN(Account.AnnualRevenue) minRevenue FROM Contact"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT COUNT_DISTINCT(Account.Industry) industries, COUNT(Id) total FROM Contact WHERE Account.Type = 'Customer - Direct'"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Account.Name, COUNT(Id) total\nFROM Contact\nGROUP BY Account.Name\nHAVING COUNT(Id) > 5"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Company, toLabel(RecordType.Name) recordTypeName, Owner.Name FROM Lead"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, FORMAT(Account.AnnualRevenue) revenue FROM Contact WHERE Account.AnnualRevenue > 0"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Name,\n    (SELECT Id, Owner.Name, CreatedBy.Email FROM Contacts)\nFROM Account"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Account.Owner.Manager.Profile.Name FROM Contact"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Name, Manager.Manager.Name, Manager.Profile.Name, UserRole.ParentRole.Name FROM User"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT\n  CaseNumber, Status,\n  Account.Name, Account.Owner.Name,\n  Contact.Email, Contact.Account.Owner.Name,\n  Owner.Name\nFROM Case"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Name, Account.Owner.Name, Campaign.Parent.Name, Pricebook2.Name, Owner.Profile.Name FROM Opportunity"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "select id, company, status,\n       convertedaccount.name,\n       convertedcontact.email,\n       convertedopportunity.stagename,\n       owner.profile.name\nfrom lead\nwhere isconverted = true"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Title, UrlName, CreatedBy.Name, LastModifiedBy.Email, RecordType.DeveloperName FROM Knowledge__kav WHERE PublishStatus = 'Online'"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Name, Account.Name FROM Contact WHERE Account.Name = 'Owner.Name Holdings, Inc.'"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Account.Name, Owner.Profile.Name FROM Contact WHERE Account.Name LIKE 'O\\'Brien%' AND Owner.Profile.Name = 'System Administrator'"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Name, Account.Industry, Account.Owner.Name\nFROM Contact\nWHERE Account.Industry IN ('Banking', 'Finance', 'Insurance')"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, CaseNumber, Owner.Profile.Name, CreatedBy.Alias, Account.Type\nFROM Case\nWHERE (Owner.Profile.Name = 'Support' OR CreatedBy.Alias = 'jsmit') AND Account.Type = 'Customer - Direct'"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Name, CreatedBy.Name FROM Account WHERE CreatedBy.CreatedDate = LAST_N_DAYS:90"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id,Name,Owner.IsActive,Account.Owner.IsActive FROM Contact WHERE Owner.IsActive = true AND Account.Owner.IsActive = false"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Subject, Who.Name, What.Name, Account.Name, Account.Owner.Name, Owner.Name\nFROM Task\nWHERE Status != 'Completed'"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Subject, Who.Name, What.Name, Owner.UserRole.Name, CreatedBy.Manager.Email FROM Event"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, CommentBody,\n       Parent.CaseNumber,\n       Parent.Account.Name,\n       Parent.Contact.Email,\n       CreatedBy.Name\nFROM CaseComment"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Quantity, Opportunity.Account.Name, Product2.Family, PricebookEntry.Pricebook2.Name FROM OpportunityLineItem"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Roles, Account.Owner.Name, Contact.Owner.Name FROM AccountContactRelation WHERE IsActive = true"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT\n    Id,\n    Name,\n    Project_Manager__r.Id,\n    Project_Manager__r.Name,\n    Project_Manager__r.Email,\n    Project_Manager__r.Phone,\n    Project_Manager__r.Department,\n    Project_Manager__r.Title\nFROM Project__c"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Site, Owner.Name, Parent.Site, Name, Parent.Owner.Name, Type FROM Account ORDER BY Parent.Site NULLS FIRST LIMIT 50 OFFSET 10"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT COUNT(Name) itemCount FROM OpportunityLineItem GROUP BY Opportunity.Account.Id"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Name, Account.Owner.Name, CreatedBy.Name\nFROM Contact\nORDER BY Account.Owner.Name ASC NULLS FIRST, CreatedBy.Name DESC"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Name,\n    (SELECT Id, Subject, Who.Name FROM Tasks WHERE Owner.Profile.Name = 'System Administrator' ORDER BY Owner.Name)\nFROM Contact"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Name, Parent_Project__r.Name, Parent_Project__r.Parent_Project__r.Name, Parent_Project__r.Account__r.Owner.Email FROM Project__c"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Account.Name FROM Contact WHERE Account.Name LIKE '%COUNT(Id) FROM Account%'"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT ContractNumber,\n       Account.Owner.Manager.Email,\n       CompanySigned.Name,\n       CreatedBy.Profile.UserLicense.Name\nFROM Contract"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, CaseNumber, Owner.Name, Account.Owner.Name FROM Case USING SCOPE Mine ORDER BY Account.Owner.Name FOR VIEW"
+  },
+  {
+    "category": "parent-fields",
+    "soql": "SELECT Id, Title, CreatedBy.Name, LastModifiedBy.Profile.Name FROM Knowledge__kav WHERE PublishStatus = 'Online' WITH DATA CATEGORY Geography__c ABOVE usa__c"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Name, (SELECT Id FROM Contacts) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT\n    Id,\n    Name,\n    (\n        SELECT Id, FirstName, LastName, Email, Phone\n        FROM Contacts\n    )\nFROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, (SELECT Id, Name, Phone, RecordTypeId, Title, Salutation FROM Contacts) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Name, (SELECT Id, Name FROM Contacts), (SELECT Id, Name, Amount FROM Opportunities) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Name,\n    (SELECT Id, LastName FROM Contacts),\n    (SELECT Id, StageName FROM Opportunities),\n    (SELECT Id, Subject, Status FROM Cases)\nFROM Account\nWHERE Industry = 'Technology'"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT (SELECT Id, Name FROM Contacts), Id, Name FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, (SELECT Id, Name FROM Contacts WHERE Title = 'CEO') FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Name, (SELECT Id, Email FROM Contacts WHERE Email != null AND MailingCountry = :country) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, (\n    SELECT Id, LastName\n    FROM Contacts\n    WHERE LastName LIKE '%Smith%' OR Title = 'CEO'\n) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, (SELECT Id FROM Contacts WHERE (Title = 'CEO' OR Title = 'CFO') AND Email != null) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, (SELECT Id, Name FROM Contacts ORDER BY Name) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, (SELECT Id, CreatedDate FROM Contacts ORDER BY CreatedDate DESC) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, (SELECT Id, LastName, Title FROM Contacts ORDER BY Title ASC NULLS LAST, LastName DESC) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, (SELECT Id FROM Contacts ORDER BY CreatedBy.Name) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, (SELECT Id FROM Contacts LIMIT 5) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, (SELECT Id FROM Contacts OFFSET 10) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "select id, name, (\n    select id, lastname from contacts\n    order by lastname\n    limit 20\n    offset 5\n) from account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, (SELECT Id FROM Contacts FOR VIEW) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Name, (SELECT Id, Subject FROM Cases WHERE IsClosed = false FOR REFERENCE) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Name, (SELECT Id, Name FROM Contacts) FROM Account WHERE Id = :accountId FOR VIEW"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Name, (SELECT Id, LastName, (SELECT Id, AssetLevel FROM Assets) FROM Contacts) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Name, (\n    SELECT Id, LastName, (\n        SELECT Id, Subject, (\n            SELECT Id, CommentBody FROM CaseComments\n        ) FROM Cases\n    ) FROM Contacts\n) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, (\n    SELECT Id, Name, (\n        SELECT Id, Quantity, UnitPrice\n        FROM OpportunityLineItems\n        ORDER BY TotalPrice DESC\n        LIMIT 3\n    )\n    FROM Opportunities\n    WHERE StageName = 'Closed Won'\n    ORDER BY Amount DESC\n    LIMIT 10\n) FROM Account WHERE AnnualRevenue > 1000000 ORDER BY Name LIMIT 50"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Name, (SELECT Id, Name, Status__c FROM MyChildren__r) FROM MyParent__c"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Name, (\n    SELECT Id, Invoice_Number__c, Total_Amount__c, Due_Date__c\n    FROM Invoices__r\n    WHERE Status__c = 'Open' AND Due_Date__c < TODAY\n    ORDER BY Due_Date__c\n) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Name, (SELECT Id, btcdev__Hours__c FROM btcdev__Time_Entries__r) FROM btcdev__Project__c"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Name, (SELECT Id, CreatedBy.Id, CreatedBy.Name FROM Contacts) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Name, (SELECT Contact.Account.Name FROM Contacts) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, (SELECT Id, Owner.Profile.Name, Account.Owner.Manager.Email FROM Opportunities) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, (SELECT Id, toLabel(StageName) FROM Opportunities) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Name, (\n    SELECT Id, Subject, Status\n    FROM Cases\n    WHERE Priority = 'High'\n    ORDER BY CreatedDate DESC\n    LIMIT 5\n)\nFROM Account\nWHERE Type = 'Customer - Direct'\nORDER BY Name ASC\nLIMIT 100\nOFFSET 20"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, (SELECT Id FROM Contacts ORDER BY LastName LIMIT 10 OFFSET 2) FROM Account ORDER BY Name LIMIT 200 OFFSET 100"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Name, (SELECT Id, Subject FROM Tasks) FROM Account USING SCOPE MINE WHERE CreatedDate = LAST_N_DAYS:30"
+  },
+  {
+    "category": "subqueries",
+    "soql": "select id, name, (select id, lastname, email from contacts where email != null order by lastname limit 10) from account where industry = 'it'"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT    Id ,Name,(   SELECT  Id ,  LastName   FROM   Contacts   WHERE  LastName='Smith' )  FROM   Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id,\n\t(\n\t\tSELECT\n\t\t\tId,\n\t\t\tAmount\n\t\tFROM Opportunities\n\t\tWHERE Amount > 1000\n\t)\n\t,Name\nFROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Name, (SELECT Id, Subject FROM Cases WHERE Subject LIKE '%(SELECT Id FROM Contacts)%') FROM Account WHERE Name != 'FROM (SELECT)'"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, (SELECT Id, Status FROM Cases WHERE Status IN ('New, Pending', 'Escalated, Urgent')) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, (SELECT Id, LastName FROM Contacts WHERE LastName LIKE 'O\\'Brien%') FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Name, (SELECT Id, CloseDate, Amount FROM Opportunities WHERE CloseDate = THIS_FISCAL_QUARTER AND CreatedDate > LAST_N_DAYS:90) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Name, (SELECT Id, Name FROM Contacts) FROM Account WHERE Id IN (SELECT AccountId FROM Opportunity WHERE StageName = 'Closed Won')"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Name, (SELECT Id, CaseNumber FROM Cases LIMIT 10)\nFROM Account\nWHERE Id NOT IN (SELECT AccountId FROM Case WHERE IsClosed = false)"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, (SELECT Id, Name FROM Contacts WHERE Languages__c INCLUDES ('English;German', 'Polish')) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, (SELECT Id, Status FROM Cases WHERE NOT (Status = 'Closed' OR Status = 'Rejected')) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Name, (SELECT Id, Subject, ActivityDate, ActivityType FROM ActivityHistories ORDER BY ActivityDate DESC LIMIT 5) FROM Account"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Name,\n    (SELECT Id, Status, HasResponded FROM CampaignMembers WHERE HasResponded = true),\n    (SELECT Id, Name, Amount FROM Opportunities ORDER BY Amount DESC LIMIT 5),\n    (SELECT Id, Label, SortOrder FROM CampaignMemberStatuses)\nFROM Campaign\nWHERE IsActive = true\nORDER BY StartDate DESC"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Title, (SELECT Id, DataCategoryName, DataCategoryGroupName FROM DataCategorySelections)\nFROM Knowledge__kav\nWHERE PublishStatus = 'Online' AND Language = 'en_US'\nWITH DATA CATEGORY Geography__c ABOVE Europe__c"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, CaseNumber, Subject,\n       (SELECT Id, CommentBody, IsPublished FROM CaseComments ORDER BY CreatedDate DESC LIMIT 3),\n       (SELECT Id, Subject, FromAddress, Incoming FROM EmailMessages WHERE Incoming = true)\nFROM Case\nWHERE Status != 'Closed'"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Name, (SELECT Id, Quantity, UnitPrice, PricebookEntry.Product2.Name FROM OpportunityLineItems), (SELECT Id, Role, IsPrimary, Contact.Name FROM OpportunityContactRoles WHERE IsPrimary = true) FROM Opportunity WHERE StageName = 'Prospecting'"
+  },
+  {
+    "category": "subqueries",
+    "soql": "SELECT Id, Name, Parent.Name, (SELECT Id, Name, Type FROM ChildAccounts ORDER BY Name NULLS LAST) FROM Account WHERE ParentId = null"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name FROM Account WHERE Industry = 'IT' AND Rating = 'Hot'"
+  },
+  {
+    "category": "where-logic",
+    "soql": "select Id, Name, StageName\nfrom Opportunity\nwhere StageName = 'Prospecting'\n  and Amount > 10000\n  and IsClosed = false"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id,Company,Status FROM Lead WHERE Status='Open - Not Contacted'   AND Industry ='Technology'  AND Rating='Hot' AND Country = 'Poland'   AND NumberOfEmployees>=50   AND IsConverted=false"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Subject\nFROM Case\nWHERE Status != 'Closed'\nAND Priority = 'High'\nAND Account.Industry = 'Banking'\nAND CreatedDate = LAST_N_DAYS:30"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name FROM Account WHERE Active__c = true AND Segment__c = 'Enterprise' AND Region__r.Code__c = 'EMEA' AND AnnualRevenue > 1000000 AND BillingCountry IN ('Poland','Germany')"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name, Email FROM User WHERE IsActive = true AND Profile.Name != 'Chatter Free User' AND UserRole.Name LIKE 'Sales%' AND LastLoginDate = LAST_N_DAYS:30"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name FROM Account WHERE BillingCity = 'Krakow' OR BillingCity = 'Warsaw'"
+  },
+  {
+    "category": "where-logic",
+    "soql": "select Id, LastName from Contact\nwhere LeadSource = 'Web'\n   or LeadSource = 'Phone Inquiry'\n   or LeadSource = 'Partner Referral'"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, CaseNumber FROM Case WHERE Origin = 'Email' OR Origin = 'Phone' OR Origin = 'Web' OR Origin = 'Chat' OR Origin = 'Social'"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name FROM Opportunity WHERE Amount = NULL OR Amount > 500000 OR StageName LIKE 'Closed%' OR CloseDate < TODAY"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name FROM Account WHERE Industry = 'IT' AND Rating = 'Hot' OR AnnualRevenue > 5000000"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id FROM Lead WHERE Rating = 'Hot' OR Status = 'Working' AND Industry = 'Energy'"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, CaseNumber FROM Case WHERE Priority = 'High' AND IsEscalated = true OR Priority = 'Medium' AND Status = 'New'"
+  },
+  {
+    "category": "where-logic",
+    "soql": "select Id, Subject from Task where Status = 'Not Started' or Priority = 'High' and ActivityDate < TODAY or Subject like '%call%'"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name FROM Opportunity WHERE Type = 'New Business' and Amount >= 10000 OR Type = 'Existing Business' and Amount >= 50000 or ForecastCategoryName = 'Commit'"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name FROM Account WHERE Industry = 'IT' AND (BillingCity = 'Krakow' OR BillingCity = 'Warsaw')"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name, StageName\nFROM Opportunity\nWHERE IsClosed = false\n  AND (\n      StageName = 'Prospecting'\n      OR StageName = 'Qualification'\n      OR StageName = 'Needs Analysis'\n  )"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id FROM Contact WHERE (Department = 'Sales' OR Department = 'Marketing') AND (MailingCountry = 'USA' OR MailingCountry = 'Canada')"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name FROM Campaign WHERE (Type = 'Webinar' OR Type = 'Conference') AND (Status = 'In Progress' OR Status = 'Planned') AND IsActive = true"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id FROM Account WHERE (Industry = 'IT' AND NumberOfEmployees >= 100) OR (Industry = 'Banking' AND AnnualRevenue >= 10000000)"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Company FROM Lead WHERE (Status = :status OR Rating = 'Hot')   AND OwnerId = :ownerId   AND (Country = 'Poland' OR Country = 'Czechia')"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name\nFROM Account\nWHERE Type = 'Customer - Direct'\n  AND (BillingCountry = 'Poland'\n       OR (BillingCountry = 'Germany'\n           AND (BillingCity = 'Berlin' OR BillingCity = 'Munich')))"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id,Name FROM Opportunity WHERE ( StageName='Negotiation/Review'  AND ( Amount>100000  OR ( Probability>=80 AND ForecastCategoryName='Best Case' ) ) )  OR  IsWon=true"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name FROM Project__c WHERE Status__c = 'Active' AND (Budget__c > 50000 OR (Priority__c = 'High' AND Project_Manager__r.Name = 'Anna Nowak'))"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, CaseNumber\nFROM Case\nWHERE Status != 'Closed'\n  AND (Priority = 'High'\n       OR NOT (Origin = 'Web' AND IsEscalated = false))"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name FROM Account WHERE NOT (Industry = 'IT' AND Rating = 'Cold')"
+  },
+  {
+    "category": "where-logic",
+    "soql": "select Id, Email\nfrom Contact\nwhere not (\n    HasOptedOutOfEmail = true\n    or DoNotCall = true\n)"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Company FROM Lead WHERE NOT Company LIKE 'Test%'"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Subject FROM Case WHERE NOT (Status = 'Closed')"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name FROM Opportunity WHERE NOT (StageName = 'Closed Lost') AND Amount > 25000"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name FROM Account WHERE NOT ((BillingCountry = 'USA' OR BillingCountry = 'Canada') AND Industry = 'Retail')"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Subject FROM Task WHERE NOT Subject LIKE '%Do Not Call%' OR Priority = 'High'"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name FROM Account WHERE (Industry = 'IT')"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Email FROM Contact WHERE ((Email != NULL))"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Company FROM Lead WHERE (Status = 'Open - Not Contacted') AND (IsConverted = false)"
+  },
+  {
+    "category": "where-logic",
+    "soql": "select Id, Subject from Task where (Priority = 'High') or (Status = 'Completed') or (IsClosed = true)"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name FROM Campaign WHERE (IsActive = true) AND ((Type = 'Email') OR (Type = 'Webinar' AND BudgetedCost > 1000))"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name FROM Account WHERE Name = 'Smith AND Sons' AND Industry = 'Manufacturing'"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name FROM Account WHERE Name LIKE '%Black OR White%' OR Site = 'HQ OR Branch' OR Description LIKE '%R AND D%'"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Subject FROM Case WHERE Subject = 'Device does NOT power on' AND Priority = 'High'"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name FROM Opportunity WHERE Name = 'Renewal (AND Upsell) 2026' AND StageName != 'Closed Lost'"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, LastName, Title FROM Contact WHERE LastName = 'O\\'Brien OR Smith' OR Title = 'Director (Ops AND Fin)' OR Department = 'R\\'n\\'D NOT Sales'"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name FROM Account WHERE Name = 'AND' OR Name = 'OR' OR Name = 'NOT' OR Name = 'and or not'"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name FROM Account WHERE Brand__c = 'Nordic' AND Coordinator__c != NULL AND Notes__c LIKE '%andor%' AND Vendor__r.Name = 'Anderson'"
+  },
+  {
+    "category": "where-logic",
+    "soql": "select Id from Lead where Company in ('Marks AND Spencer','Barnes OR Noble','NOT A Company') and Status='Working'"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name FROM Account WHERE Interests__c INCLUDES ('AI;ML', 'Cloud') AND Certifications__c EXCLUDES ('Legacy;OnPrem') AND Industry = 'Technology'"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name FROM Account WHERE Id IN (SELECT AccountId FROM Opportunity WHERE StageName = 'Closed Won' AND Amount > 50000) AND (Rating = 'Hot' OR Rating = 'Warm')"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Name FROM Contact WHERE AccountId NOT IN (SELECT AccountId FROM Case WHERE IsEscalated = true) AND NOT (Department = 'Support' OR Department = 'IT')"
+  },
+  {
+    "category": "where-logic",
+    "soql": "SELECT Id, Title, UrlName\nFROM Knowledge__kav\nWHERE PublishStatus = 'Online'\n  AND Language = 'en_US'\n  AND (IsLatestVersion = true OR LastPublishedDate = LAST_N_DAYS:7)"
+  },
+  {
+    "category": "where-logic",
+    "soql": "select Id, Name from Invoice__c\nwhere (Status__c = 'Overdue' or (Status__c = 'Sent' and Due_Date__c < TODAY))\n  and Account__r.Name != 'Internal AND Test'\n  and Total_Amount__c > 0"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name FROM Account ORDER BY Name"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name FROM Account ORDER BY Name DESC"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name, AnnualRevenue FROM Account ORDER BY Industry ASC, AnnualRevenue DESC"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name FROM Account ORDER BY Name ASC NULLS LAST"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Industry FROM Account ORDER BY Industry NULLS FIRST"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, LastName FROM Contact ORDER BY Account.Name"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, LastName\nFROM Contact\nORDER BY Account.Owner.Profile.Name DESC NULLS LAST"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name FROM Opportunity ORDER BY Probability_Score__c DESC NULLS LAST"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "select id, name from account order by name desc nulls last limit 10"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Company FROM Lead ORDER    BY   Company   ASC   NULLS   LAST"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id FROM Account LIMIT 100"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name FROM Account WHERE Name = 'Acme Corporation' LIMIT 1"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id FROM Account OFFSET 10"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name\nFROM Account\nORDER BY Name\nLIMIT 20\nOFFSET 40"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name FROM Account WHERE BillingCountry = 'Poland' FOR UPDATE"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Title FROM Knowledge__kav WHERE PublishStatus = 'Online' AND Language = 'en_US' FOR VIEW"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name FROM Contact LIMIT 5 FOR REFERENCE"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT COUNT() FROM Contact ALL ROWS"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Subject FROM Task WHERE IsDeleted = true ORDER BY CreatedDate DESC ALL ROWS"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name\nFROM Account\nWHERE Type = 'Customer - Direct'\nORDER BY LastModifiedDate DESC NULLS LAST\nLIMIT 50\nOFFSET 100\nFOR UPDATE"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT LeadSource, COUNT(Id) cnt FROM Lead GROUP BY LeadSource ORDER BY COUNT(Id) DESC LIMIT 5"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Industry, COUNT(Industry) total FROM Account GROUP BY Industry ORDER BY COUNT(Industry) DESC NULLS LAST"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name, (SELECT Id, LastName FROM Contacts ORDER BY LastName DESC NULLS LAST LIMIT 5) FROM Account ORDER BY Name ASC LIMIT 10"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name FROM Account WHERE Name = 'Order By Limit 10 OFFSET 5' ORDER BY Name LIMIT 1"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Subject FROM Case WHERE Subject LIKE '%FOR UPDATE%' ORDER BY CreatedDate DESC LIMIT 25"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, OrderNumber FROM Order ORDER BY OrderNumber DESC LIMIT 50"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Quantity FROM OrderItem ORDER BY Order.OrderNumber, Quantity DESC NULLS LAST LIMIT 200"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Order__c FROM Shipment__c ORDER BY Order__c NULLS LAST LIMIT 10"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name, Credit_Limit__c FROM Account ORDER BY Credit_Limit__c DESC NULLS LAST LIMIT 10"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(37.775, -122.418), 'mi') < 20 ORDER BY DISTANCE(BillingAddress, GEOLOCATION(37.775, -122.418), 'mi') LIMIT 10"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, toLabel(Status) FROM Case WHERE IsClosed = false ORDER BY toLabel(Status) ASC NULLS FIRST LIMIT 100"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name, convertCurrency(Amount) FROM Opportunity ORDER BY convertCurrency(Amount) DESC LIMIT 10"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name FROM Account USING SCOPE mine ORDER BY LastModifiedDate DESC LIMIT 25 OFFSET 25"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Company, COUNT(Id) total FROM Lead GROUP BY Company HAVING COUNT(Id) > 1 ORDER BY Company ASC LIMIT 10"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id,\n\tName,\n\tStageName\nFROM\tOpportunity\nWHERE\tIsClosed = false\nORDER BY\tCloseDate\tASC\tNULLS\tLAST,\n\tAmount\tDESC\nLIMIT\t15"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "select id, casenumber from case where status = 'New' order by createddate desc limit 50 for update"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id FROM Contact ORDER BY Id LIMIT 200 OFFSET 2000"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id FROM Contact ORDER BY LastName LIMIT 50000"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name FROM Campaign ORDER BY StartDate DESC NULLS LAST LIMIT 10 OFFSET 0"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name FROM Opportunity ORDER BY StageName ASC NULLS FIRST, CloseDate DESC NULLS LAST, Amount DESC LIMIT 100"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name, Total_Amount__c\nFROM Invoice__c\nORDER BY Account__r.Name ASC NULLS FIRST, Total_Amount__c DESC\nLIMIT 50\nOFFSET 100"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name FROM User WHERE IsActive = true ORDER BY Profile.Name, LastName LIMIT 500"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name FROM Opportunity WHERE IsDeleted = true ORDER BY CreatedDate DESC LIMIT 10 ALL ROWS"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Title FROM Knowledge__kav WHERE PublishStatus = 'Online' ORDER BY LastPublishedDate DESC NULLS LAST LIMIT 10 FOR VIEW"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name\nFROM Contact\nORDER BY LastName ASC, FirstName ASC\nLIMIT 30\nOFFSET 60\nFOR REFERENCE"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name FROM Account WHERE Id IN (SELECT AccountId FROM Opportunity WHERE StageName = 'Closed Won') ORDER BY Name LIMIT 100 OFFSET 10"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT LeadSource, AVG(Amount) avgAmt FROM Opportunity GROUP BY LeadSource ORDER BY AVG(Amount) DESC NULLS LAST LIMIT 3"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT CALENDAR_YEAR(CreatedDate) yr, COUNT(Id) total FROM Opportunity GROUP BY CALENDAR_YEAR(CreatedDate) ORDER BY CALENDAR_YEAR(CreatedDate) DESC LIMIT 5"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT Id, Name FROM Account WHERE Name LIKE '%O\\'Brien%' ORDER BY Name DESC NULLS LAST LIMIT 5"
+  },
+  {
+    "category": "order-limit-for",
+    "soql": "SELECT   Id ,  Subject\n  FROM   Case\n WHERE Priority = 'High'\n  LIMIT   1\n   FOR    UPDATE"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name, Type FROM Account WHERE Type IN ('Customer - Direct', 'Customer - Channel', 'Prospect')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, LastName, LeadSource\nFROM Contact\nWHERE LeadSource NOT IN ('Web', 'Phone Inquiry', 'Partner Referral')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name, NumberOfEmployees FROM Account WHERE NumberOfEmployees IN (10, 50, 100, 250, 1000)"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name, Amount\nFROM Opportunity\nWHERE Amount NOT IN (0, -1500.75, 25000.50)"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id FROM Account WHERE Id IN ('001xx000003DGb1AAG', '001xx000003DGb2AAG', '001xx000003DGb3AAG')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name FROM Account WHERE Id IN :ids"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, AccountId FROM Contact WHERE AccountId NOT IN :excludedAccountIds"
+  },
+  {
+    "category": "where-sets",
+    "soql": "select id, name from account where id in :accountIds"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name FROM Contact WHERE AccountId IN (SELECT Id FROM Account WHERE BillingCountry = 'Poland')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, StageName\nFROM Opportunity\nWHERE AccountId NOT IN (\n    SELECT Id\n    FROM Account\n    WHERE Industry IN ('Banking', 'Finance')\n)"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id,Name FROM Account WHERE Id IN (SELECT AccountId FROM Opportunity WHERE StageName IN ('Closed Won','Negotiation/Review') AND Amount > 50000)"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Roles FROM AccountContactRelation WHERE Roles INCLUDES ('Decision Maker')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Roles FROM AccountContactRelation WHERE Roles INCLUDES ('Business User', 'Decision Maker', 'Economic Buyer')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Roles\nFROM AccountContactRelation\nWHERE Roles INCLUDES ('Business User;Decision Maker')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Roles FROM AccountContactRelation WHERE Roles EXCLUDES ('Evaluator', 'Influencer')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Roles FROM AccountContactRelation WHERE Roles EXCLUDES ('Evaluator;Influencer')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name FROM Account WHERE Product_Interests__c INCLUDES ('Cloud;Security', 'Hardware')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name FROM Contact WHERE Product_Lines__c INCLUDES ('Women\\'s Apparel', 'Men\\'s Shoes')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name FROM Account WHERE Name IN ('Acme, Inc.', 'Beta, LLC', 'Gamma & Sons, Co.')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name FROM Product2 WHERE Name IN ('Widget (Large)', 'Widget (Small)', 'Bolt (M8)')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Subject FROM Task WHERE Subject IN ('CHECK IN', 'NOT IN OFFICE', 'CALL')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Subject FROM Case WHERE Subject IN ('SELECT Id FROM Account', 'DROP TABLE Contact')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Company FROM Lead WHERE Company IN ('O\\'Brien Ltd', 'Smith & Sons')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Status\nFROM Case\nWHERE Status IN (\n    'New',\n    'Working',\n    'Escalated'\n)"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT   Id ,Priority   FROM    Case   WHERE   Priority    IN   (  'High' ,'Medium'  ,   'Low' )"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name FROM Account WHERE Type IN ('Customer - Direct', 'Prospect') AND BillingCountry = 'USA' AND NumberOfEmployees > 100"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name\nFROM Opportunity\nWHERE (StageName IN ('Prospecting', 'Qualification') OR Amount IN (10000, 20000))\n  AND CloseDate = THIS_YEAR"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id FROM Contact WHERE AccountId IN :accountIds AND Id NOT IN :excludedContactIds"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name FROM Contact WHERE Account.Industry IN ('Technology', 'Media')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name FROM Invoice_Line__c WHERE Invoice__r.Payment_Status__c IN ('Draft', 'Approved')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name FROM Invoice__c WHERE Included_In_Batch__c IN ('Yes', 'No') AND Account__c IN (SELECT Account__c FROM Contract_Line__c WHERE Status__c IN ('Active'))"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, CloseDate FROM Opportunity WHERE CloseDate IN (2024-01-31, 2024-06-30, 2024-12-31)"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, CreatedDate FROM Task WHERE CreatedDate IN (2024-01-01T00:00:00Z, 2024-02-01T00:00:00Z)"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name FROM Account WHERE RecordType.DeveloperName IN ('Partner', 'Customer')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Subject FROM Case WHERE CreatedById IN (SELECT Id FROM User WHERE IsActive = true AND Profile.Name IN ('System Administrator', 'Standard User'))"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name FROM Opportunity WHERE AccountId IN (SELECT Id FROM Account WHERE Type = 'Customer - Direct') AND CreatedById NOT IN (SELECT Id FROM User WHERE IsActive = false)"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name, (SELECT Id, Email FROM Contacts WHERE LeadSource IN ('Web', 'Referral')) FROM Account WHERE Industry IN ('Technology')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT LeadSource, COUNT(Id) cnt\nFROM Lead\nWHERE Status IN ('Open - Not Contacted', 'Working - Contacted')\nGROUP BY LeadSource\nHAVING LeadSource IN ('Web', 'Phone Inquiry')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name FROM Campaign WHERE Status IN ('In Progress', 'Planned') ORDER BY StartDate DESC LIMIT 50 OFFSET 10"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name FROM Account WHERE Type IN ('Prospect', 'Other') WITH USER_MODE"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name FROM Account USING SCOPE mine WHERE Industry IN ('Agriculture', 'Apparel')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Title, PublishStatus FROM Knowledge__kav WHERE PublishStatus IN ('Online', 'Draft') AND Language IN ('en_US', 'de') WITH DATA CATEGORY Geography__c ABOVE_OR_BELOW usa__c"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Status FROM Case WHERE Status IN ('New', 'Working') FOR UPDATE"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name FROM Account WHERE Id IN :accountsById.keySet()"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name FROM Contact WHERE AccountId IN :accounts AND Title NOT IN ('Intern', 'Contractor')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name FROM Account WHERE (Type IN ('Customer - Direct', 'Customer - Channel') OR Industry IN ('Technology')) AND NumberOfEmployees > 10"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name FROM Account WHERE NOT (Type IN ('Prospect', 'Other'))"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name FROM Opportunity WHERE StageName IN ('Closed Won')"
+  },
+  {
+    "category": "where-sets",
+    "soql": "SELECT Id, Name FROM Account WHERE Excluded_Regions__c EXCLUDES ('EMEA') AND Id IN (SELECT AccountId FROM Contact WHERE Title IN ('CEO', 'CFO'))"
+  },
+  {
+    "category": "where-sets",
+    "soql": "Select Id, Name From Lead Where Country in ('USA', 'Canada') And Industry Not In ('Retail', 'Education') Order By CreatedDate Desc"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "select count() from Contact where MailingCountry = 'Poland'"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT COUNT() FROM Lead WHERE Company LIKE '%GROUP BY%'"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT COUNT(Id) FROM Opportunity"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT COUNT(Id) opportunityCount FROM Opportunity WHERE IsClosed = false"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT COUNT( Id )\nFROM Case\nWHERE Status != 'Closed'"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT SUM(Amount) FROM Opportunity WHERE StageName = 'Closed Won'"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT SUM(Amount) totalAmount FROM Opportunity"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT AVG(AnnualRevenue) FROM Account WHERE Type = 'Customer - Direct'"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT MIN(CreatedDate), MAX(CreatedDate) FROM Case"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT MIN(CreatedDate) oldest, MAX(ClosedDate) newest FROM Case WHERE IsClosed = true"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT COUNT_DISTINCT(Company) FROM Lead"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT COUNT_DISTINCT(Company) cnt FROM Lead WHERE Status = 'Open - Not Contacted'"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT COUNT(Id) total, SUM(Amount) totalAmount, AVG(Amount) avgAmount, MIN(Amount) minAmount, MAX(Amount) maxAmount FROM Opportunity"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT COUNT(Account.Name) FROM Contact"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT AVG(Opportunity.Amount) amount FROM OpportunityLineItem"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT MAX(Account.LastActivityDate) lastActivity, COUNT_DISTINCT(Account.Industry) industries FROM Contact"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT SUM(Invoice__r.Amount__c) total, COUNT_DISTINCT(Invoice__r.Account__c) accounts\nFROM Invoice_Line__c\nWHERE Invoice__r.Status__c = 'Paid'"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT FORMAT(SUM(Amount)) total FROM Opportunity"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT toLabel(Status) statusLabel, COUNT(Id) cnt FROM Lead GROUP BY toLabel(Status)"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT LeadSource, COUNT(Id) FROM Lead GROUP BY LeadSource"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "select status, count(id) cnt from case group by status"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT StageName, Type, COUNT(Id) cnt\nFROM Opportunity\nGROUP BY StageName, Type"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT Status__c, Payment_Method__c, COUNT(Id) groupCount, SUM(Amount__c) totalAmount\nFROM Invoice__c\nGROUP BY Status__c, Payment_Method__c"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT    Stage__c ,  Region__c ,   Owner__r.Name ,  COUNT(\n   Id\n ) projectCount\nFROM   Project__c\nGROUP BY  Stage__c ,  Region__c , Owner__r.Name"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT Account.Industry, COUNT(Id) cnt FROM Opportunity WHERE AccountId IN (SELECT AccountId FROM Case WHERE Status = 'New') GROUP BY Account.Industry"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT Owner.Profile.Name, COUNT(Id) cnt\nFROM Account\nGROUP BY Owner.Profile.Name\nORDER BY COUNT(Id) DESC NULLS LAST\nLIMIT 10"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT COUNT(Id) cnt\nFROM OpportunityLineItem\nGROUP BY Opportunity.Account.Id"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT\tUserRoleId,\tCOUNT(Id) cnt\tFROM User\tWHERE IsActive = true\tGROUP BY UserRoleId"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT Type, Status, COUNT(Id) campaigns, SUM(ActualCost) cost\nFROM Campaign\nWHERE Name IN ('Acme, Inc. Roadshow', 'EMEA (Q3) Webinar')\nGROUP BY Type, Status"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT Status, COUNT(Id) cnt\nFROM Task\nWHERE ActivityDate = LAST_N_DAYS:30\nGROUP BY Status\nORDER BY COUNT(Id) DESC"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT PublishStatus, COUNT(Id) articles\nFROM Knowledge__kav\nWHERE Language = 'en_US'\nGROUP BY PublishStatus"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT LeadSource, COUNT(Name) cnt\nFROM Lead\nGROUP BY ROLLUP(LeadSource)"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT Status, LeadSource, COUNT(Name) cnt\nFROM Lead\nGROUP BY ROLLUP(LeadSource, Status)"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(ConvertedOpportunity.StageName)"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT Type, COUNT(Id) cnt FROM Account GROUP BY CUBE(Type)"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "select stagename, type, count(id) cnt from opportunity group by cube(stagename, type)"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT COUNT(Name) cnt FROM Lead GROUP BY CUBE(ConvertedOpportunity.StageName)"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT LeadSource, COUNT(Name)\nFROM Lead\nGROUP BY LeadSource\nHAVING COUNT(Name) > 100"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT AccountId, SUM(Amount) total\nFROM Opportunity\nGROUP BY AccountId\nHAVING SUM(Amount) > 250000"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT LeadSource, City, COUNT(Name)\nFROM Lead\nGROUP BY LeadSource, City\nHAVING COUNT(Name) > 100 AND City LIKE 'San%'"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT StageName, COUNT(Id) cnt, SUM(Amount) total\nFROM Opportunity\nGROUP BY StageName\nHAVING COUNT(Id) > 10 OR SUM(Amount) > 1000000"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT Plan__c, COUNT(Id) subs, SUM(MRR__c) mrr, AVG(MRR__c) avgMrr\nFROM Subscription__c\nWHERE Status__c = 'Active'\nGROUP BY Plan__c\nHAVING COUNT(Id) > 5 AND (SUM(MRR__c) > 100000 OR AVG(MRR__c) < 49.99)"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT LeadSource, COUNT_DISTINCT(Company) companies, MIN(CreatedDate) firstLead\nFROM Lead\nGROUP BY LeadSource\nHAVING COUNT_DISTINCT(Company) > 25"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT Name, COUNT(Id) cnt\nFROM Account\nGROUP BY Name\nHAVING Name LIKE 'O\\'Brien%' AND COUNT(Id) > 1"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT CALENDAR_YEAR(CreatedDate) yr, COUNT(Id) cnt\nFROM Opportunity\nGROUP BY CALENDAR_YEAR(CreatedDate)"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "select calendar_month(CloseDate) mth, sum(Amount) total from opportunity where CloseDate = THIS_YEAR group by calendar_month(CloseDate) order by calendar_month(CloseDate)"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT FISCAL_QUARTER(CloseDate) fq, SUM(Amount) total, COUNT(Id) deals\nFROM Opportunity\nGROUP BY FISCAL_QUARTER(CloseDate)"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT CALENDAR_YEAR(CreatedDate) yr, CALENDAR_MONTH(CreatedDate) mth, COUNT(Id) cnt\nFROM Case\nGROUP BY CALENDAR_YEAR(CreatedDate), CALENDAR_MONTH(CreatedDate)\nORDER BY CALENDAR_YEAR(CreatedDate) DESC, CALENDAR_MONTH(CreatedDate) DESC"
+  },
+  {
+    "category": "aggregate-group",
+    "soql": "SELECT FISCAL_YEAR(CloseDate) fy, FISCAL_QUARTER(CloseDate) fq, SUM(Amount) total\nFROM Opportunity\nGROUP BY FISCAL_YEAR(CloseDate), FISCAL_QUARTER(CloseDate)\nHAVING SUM(Amount) > 500000"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Name FROM Account WITH USER_MODE"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Name, Industry, AnnualRevenue\nFROM Account\nWHERE Industry = 'Technology'\nWITH SYSTEM_MODE\nORDER BY AnnualRevenue DESC NULLS LAST\nLIMIT 100"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, CaseNumber, Subject, (SELECT Id, CommentBody FROM CaseComments WHERE IsPublished = true)\nFROM Case\nWHERE IsClosed = false\nWITH SECURITY_ENFORCED\nLIMIT 50"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "select id, name, phone from account where billingcountry = 'Poland' with user_mode limit 10"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT    Id ,   Name ,   IsDeleted    FROM   Account    WHERE   IsDeleted = true   WITH   SYSTEM_MODE   ALL ROWS"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Name, Owner.Name, Account__r.Name\nFROM Support_Ticket__c\nWHERE Priority__c IN ('High', 'Critical')\nWITH SECURITY_ENFORCED\nORDER BY CreatedDate DESC"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Subject, Status, OwnerId FROM Task USING SCOPE DELEGATED WHERE Status != 'Completed'"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Name, Industry FROM Account USING SCOPE MINE WITH USER_MODE ORDER BY Name LIMIT 100"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Name, StageName, Amount\nFROM Opportunity\nUSING SCOPE TEAM\nWHERE StageName != 'Closed Lost'"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Name, CloseDate FROM Opportunity USING SCOPE MY_TERRITORY WHERE CloseDate = THIS_MONTH"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Name, CloseDate, Owner.Name\nFROM Opportunity\nUSING SCOPE MY_TEAM_TERRITORY\nWITH SYSTEM_MODE\nORDER BY CloseDate DESC NULLS LAST\nLIMIT 200"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, ProcessInstanceId, ActorId, CreatedDate FROM ProcessInstanceWorkItem USING SCOPE MINE_AND_MY_GROUPS"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Name, CreatedDate FROM Account USING SCOPE EVERYTHING WHERE CreatedDate = LAST_N_DAYS:30"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "select Id, Name, Scope__c from Account using scope TEAM where Scope__c = 'USING SCOPE MINE'"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Title, UrlName\nFROM Knowledge__kav\nWHERE PublishStatus = 'Online'\nWITH DATA CATEGORY Geography__c AT Europe__c"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Title, ArticleNumber FROM Knowledge__kav WITH DATA CATEGORY Geography__c AT (Europe__c, North_America__c)"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Title, Summary FROM Knowledge__kav WHERE Language = 'en_US' WITH DATA CATEGORY Geography__c ABOVE Europe__c"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Title, LastPublishedDate\nFROM Knowledge__kav\nWHERE PublishStatus = 'Online' AND IsLatestVersion = true\nWITH DATA CATEGORY Geography__c ABOVE (Europe__c, Asia__c, North_America__c)\nORDER BY LastPublishedDate DESC"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT COUNT() FROM Knowledge__kav WHERE PublishStatus = 'Online' WITH DATA CATEGORY Product__c BELOW All_Products__c"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT   Id ,  Title   FROM  Knowledge__kav   WITH   DATA   CATEGORY   Product__c   BELOW  ( Laptops__c , Tablets__c )  ORDER BY Title  LIMIT 25"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Title, UrlName FROM Knowledge__kav WITH DATA CATEGORY Geography__c ABOVE_OR_BELOW Europe__c"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "select Id, Title from Knowledge__kav where PublishStatus = 'Online' with data category Geography__c ABOVE_OR_BELOW (Europe__c, Asia__c) limit 10"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Title, ArticleNumber\nFROM Knowledge__kav\nWHERE PublishStatus = 'Online' AND IsLatestVersion = true\nWITH DATA CATEGORY Geography__c ABOVE_OR_BELOW Europe__c AND Product__c AT (Laptops__c, Tablets__c)"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Title, VersionNumber\nFROM Knowledge__kav\nWHERE PublishStatus = 'Online'\nWITH DATA CATEGORY Geography__c AT Europe__c AND Product__c BELOW All_Products__c AND Audience__c ABOVE Partner__c\nORDER BY Title\nFOR VIEW"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Subject, ActivityDate FROM Task WHERE ActivityDate = TODAY AND Status != 'Completed' WITH USER_MODE"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Name, Today__c, Report_Date__c\nFROM Daily_Report__c\nWHERE Report_Date__c = YESTERDAY AND Today__c = TODAY"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT StageName, SUM(Amount) total, COUNT(Id) cnt\nFROM Opportunity\nWHERE CloseDate = THIS_MONTH\nWITH USER_MODE\nGROUP BY StageName\nHAVING SUM(Amount) > 100000\nORDER BY SUM(Amount) DESC"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id,Name,CreatedDate FROM Lead WHERE CreatedDate>=LAST_N_DAYS:30 AND CreatedDate<=TODAY ORDER BY CreatedDate DESC"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Name, CloseDate FROM Opportunity USING SCOPE MINE WHERE CloseDate = NEXT_N_QUARTERS:2 ORDER BY CloseDate"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Name, Amount, CloseDate FROM Opportunity WHERE CloseDate = LAST_FISCAL_YEAR AND IsWon = true WITH SYSTEM_MODE"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Subject, Description\nFROM Case\nWHERE (CreatedDate = LAST_N_DAYS:30 OR ClosedDate = THIS_MONTH)\n  AND Description LIKE '%LAST_N_DAYS:30%'\nWITH USER_MODE"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Name FROM Account WHERE DISTANCE(Location__c, GEOLOCATION(37,-122), 'km') < 20"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Name, DISTANCE(Location__c, GEOLOCATION(37,-122), 'km')\nFROM Account\nORDER BY DISTANCE(Location__c, GEOLOCATION(37,-122), 'km')\nLIMIT 10"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Name, DISTANCE(Location__c, GEOLOCATION(37, -122), 'km') proximity FROM Account WHERE DISTANCE(Location__c, GEOLOCATION(37, -122), 'km') < 5 ORDER BY Name"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Name, Account.Name FROM Contact WHERE DISTANCE(Account.Location__c, GEOLOCATION(37,-122), 'km') < 50 WITH USER_MODE"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "select Id, Name\nfrom Contact\nwhere DISTANCE(MailingAddress, GEOLOCATION(37, -122), 'mi') < 25\norder by DISTANCE(MailingAddress, GEOLOCATION(37, -122), 'mi')\nlimit 50"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id,\n       Name,\n       DISTANCE(\n           Location__c,\n           GEOLOCATION(37, -122),\n           'km'\n       ) proximity\nFROM Warehouse__c\nWHERE DISTANCE(Location__c, GEOLOCATION(37,-122), 'km') < 100\nORDER BY DISTANCE(Location__c, GEOLOCATION(37,-122), 'km') ASC\nLIMIT 5"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Name FROM Account USING SCOPE MINE WHERE DISTANCE(Location__c, GEOLOCATION(37,-122), 'km') > 10 WITH USER_MODE ORDER BY Name"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, DeveloperName, MasterLabel, Threshold__c, Is_Active__c FROM Discount_Rule__mdt WHERE Is_Active__c = true ORDER BY Threshold__c DESC LIMIT 50"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, QualifiedApiName, Label, NamespacePrefix, Tax_Rate__c\nFROM Country_Config__mdt\nWHERE DeveloperName IN ('US', 'PL', 'DE')\nORDER BY Label"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, MasterLabel, Region__r.DeveloperName, Region__r.MasterLabel FROM Shipping_Rule__mdt WHERE Region__r.DeveloperName = 'EMEA'"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, SetupOwnerId, Max_Retries__c, Is_Enabled__c FROM Integration_Setting__c WHERE SetupOwnerId != null WITH SYSTEM_MODE"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "select id, name, iso_code__c, currency_symbol__c from country_code__c order by name limit 500"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Name, RecordType.DeveloperName FROM Account WHERE RecordType.DeveloperName = 'Partner' WITH USER_MODE"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Name, RecordTypeId FROM Opportunity USING SCOPE MINE WHERE RecordType.DeveloperName IN ('New_Business', 'Renewal') ORDER BY CloseDate DESC"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, CaseNumber, RecordType.Name\nFROM Case\nWHERE RecordType.DeveloperName != 'Internal_Support'\n  AND (Priority = 'High' OR CreatedDate = LAST_N_DAYS:30)\nWITH SECURITY_ENFORCED"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Name, RecordType.DeveloperName, Renewal_Date__c, Contract_Value__c\nFROM Service_Agreement__c\nWHERE RecordType.DeveloperName = 'Managed_Services'\n  AND Renewal_Date__c = NEXT_N_QUARTERS:2\nWITH USER_MODE\nORDER BY Renewal_Date__c NULLS FIRST"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Id, Name, Status__c, Owner.Name,\n    (SELECT Id, Name, Due_Date__c FROM Milestones__r WHERE Due_Date__c = NEXT_N_QUARTERS:2 ORDER BY Due_Date__c LIMIT 10)\nFROM Project__c\nUSING SCOPE MINE\nWITH USER_MODE"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT Region__c, COUNT_DISTINCT(Owner.Name) owners, SUM(Budget__c) totalBudget\nFROM Project__c\nWHERE Start_Date__c = LAST_FISCAL_YEAR\nWITH SYSTEM_MODE\nGROUP BY Region__c\nHAVING SUM(Budget__c) > 50000\nORDER BY SUM(Budget__c) DESC"
+  },
+  {
+    "category": "modes-scope-special",
+    "soql": "SELECT p.Id, p.Name, p.Status__c FROM Project__c p WHERE p.Status__c = 'Active' AND p.Start_Date__c = THIS_MONTH WITH SYSTEM_MODE FOR UPDATE"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT(Id), COUNT(CampaignId) FROM Opportunity"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT(Name) names FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT(Account.Name) names FROM Contact"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT CampaignId, AVG(Amount) FROM Opportunity GROUP BY CampaignId"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT CampaignId, AVG(Amount) amount FROM Opportunity GROUP BY CampaignId"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT AVG(Opportunity.Amount) FROM OpportunityLineItem"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT_DISTINCT(Lead.Company) FROM CampaignMember"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT_DISTINCT(Lead.Company) company FROM CampaignMember"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT_DISTINCT(Company) company FROM Lead"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT FirstName, LastName, MIN(CreatedDate) FROM Contact GROUP BY FirstName, LastName"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT FirstName, LastName, MIN(CreatedDate) createdDate FROM Contact GROUP BY FirstName, LastName"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT MIN(Account.CreatedDate) FROM Contact"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT MIN(Account.CreatedDate) createdDate FROM Contact"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name, MAX(BudgetedCost) FROM Campaign GROUP BY Name"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name, MAX(BudgetedCost) budgetedCost FROM Campaign GROUP BY Name"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT MAX(Campaign.BudgetedCost) FROM CampaignMember"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT MAX(Campaign.BudgetedCost) budgetedCost FROM CampaignMember"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT SUM(Amount) FROM Opportunity"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT SUM(Amount) amount FROM Opportunity"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT SUM(Opportunity.Amount) FROM OpportunityLineItem"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT SUM(Opportunity.Amount) amount FROM OpportunityLineItem"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT LeadSource, Rating, GROUPING(LeadSource) grpLS, GROUPING(Rating) grpRating, COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(LeadSource, Rating)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Company, toLabel(RecordType.Name) FROM Lead"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Company, Status, toLabel(Status), toLabel(MyCustomObject__r.Name) FROM Lead"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT CALENDAR_YEAR(CloseDate) FROM Lead GROUP BY CALENDAR_YEAR(CloseDate)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Company, Status, toLabel(Status) leadStatus FROM Lead"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT FORMAT(Amount) FROM Opportunity"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT FORMAT(Amount) amt FROM Opportunity"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name, BillingCity FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id, Name, BillingCity FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id, Name, BillingCity, AccountNumber FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id, Name, BillingCity, AccountNumber, AccountSource FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id, Name, Industry, AccountNumber, AnnualRevenue, BillingCity FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT CampaignId campaign, AVG(Amount) amount FROM Opportunity GROUP BY CampaignId"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id, Subject, toLabel(Status) FROM Case"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name myAlias FROM Account GROUP BY Name"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name, BillingCity, CreatedBy.Name FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias, CreatedBy.City FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name, BillingCity, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias, CreatedBy.City, CreatedBy.CompanyName FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name , (SELECT Id FROM Contacts) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name , (SELECT Id, Name FROM Contacts) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name , (SELECT Id, Name, AccountId FROM Contacts) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name , (SELECT Id, Name, AccountId, Email FROM Contacts) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name , (SELECT Id, Name, AccountId, Email, Phone FROM Contacts) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name , (SELECT Id, Name, CreatedBy.Id, CreatedBy.Name FROM Contacts) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name , (SELECT Id, CreatedBy.Name FROM Contacts) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name , (SELECT Id, CreatedBy.Id, CreatedBy.Name FROM Contacts) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name , (SELECT Id, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias FROM Contacts) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name , (SELECT Id, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias, CreatedBy.City FROM Contacts) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name , (SELECT Id, CreatedBy.Id, CreatedBy.Name, CreatedBy.Alias, CreatedBy.City, CreatedBy.CompanyName FROM Contacts) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id , (SELECT LastName, toLabel(Salutation) FROM Contacts) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id , (SELECT LastName, toLabel(Salutation) contactSalutation FROM Contacts) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id , (SELECT LastName, toLabel(MyCustomObject__r.Name) FROM Contacts) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id , (SELECT LastName, toLabel(MyCustomObject__r.Name) customName FROM Contacts) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id , (SELECT toLabel(Salutation), toLabel(MyCustomObject__r.Name) FROM Contacts) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name , (SELECT LastName , (SELECT AssetLevel FROM Assets) FROM Contacts) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name , (SELECT Id, Name FROM Contacts WHERE (LastName = :v1)) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name , (SELECT Id, Name FROM Contacts WHERE LastName = :v1) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name , (SELECT Id, Name FROM Contacts ORDER BY Name DESC NULLS LAST) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name , (SELECT Id, Name FROM Contacts ORDER BY Name ASC NULLS LAST) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name , (SELECT Id, Name FROM Contacts ORDER BY CreatedBy.Name DESC NULLS LAST) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id , (SELECT Id FROM Contacts ORDER BY DISTANCE(MailingAddress, GEOLOCATION(0.0,0.0),' km') ASC NULLS FIRST) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name , (SELECT Id, Name FROM Contacts LIMIT 10) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name , (SELECT Id, Name FROM Contacts OFFSET 100) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name , (SELECT Id, Name FROM Contacts FOR REFERENCE) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name , (SELECT Id, Name FROM Contacts FOR VIEW) FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id , (SELECT Id FROM Contacts WHERE (CreatedDate <= :v1 AND (CreatedDate = :v2 OR CreatedDate >= :v3))), (SELECT Id FROM Opportunities WHERE (LeadSource = :v4 AND CreatedDate = :v5)) FROM Account LIMIT 1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Task USING SCOPE DELEGATED"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account USING SCOPE MINE"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM ProcessInstanceWorkitem USING SCOPE MINE_AND_MY_GROUPS"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account USING SCOPE MY_TERRITORY"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account USING SCOPE MY_TEAM_TERRITORY"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account USING SCOPE TEAM"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE Id != :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE RecordType.DeveloperName != :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE Name != :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Contact WHERE Account.Name = :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE Name = :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE NumberOfEmployees < :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE NumberOfEmployees > :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE NumberOfEmployees <= :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE NumberOfEmployees >= :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE Name LIKE :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE (NOT Name LIKE :v1)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE Name IN :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE Name NOT IN :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Name, BillingCity FROM Account WHERE Name NOT IN :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE Rating INCLUDES ('Hot;Warm')"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE Rating INCLUDES ('Hot', 'Warm')"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE Rating EXCLUDES ('Hot', 'Warm')"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE Rating EXCLUDES ('Hot;Warm')"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE IsDeleted = :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE CreatedDate > LAST_N_QUARTERS:2"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),' mi') < :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),' km') < :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Contact WHERE DISTANCE(Account.BillingAddress, GEOLOCATION(0.0,0.0),' mi') < :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(37.775,-122.418),' mi') < :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(10.5,20.5),' mi') < :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),' mi') > :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE (Name = :v1 AND BillingCity = :v2)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE (Name = 'Test' AND BillingCity = 'Krakow')"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE (Name = 'Test' OR BillingCity = 'Krakow')"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE Industry = :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE Industry = :v1 AND (Name = :v2 AND BillingCity = :v3)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE (Name LIKE :v1) AND (Name LIKE :v2) AND (Name LIKE :v3) AND (Name LIKE :v4) AND (Name LIKE :v5) AND (Name LIKE :v6) AND (Name LIKE :v7) AND (Name LIKE :v8) AND (Name LIKE :v9) AND (Name LIKE :v10) AND (Name LIKE :v11)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE ((Name LIKE :v1) AND (Name LIKE :v2) AND (Name LIKE :v3) AND (Name LIKE :v4) AND (Name LIKE :v5) AND (Name LIKE :v5) AND (Name LIKE :v7) AND (Name LIKE :v8) AND (Name LIKE :v9) AND (Name LIKE :v10) AND (Name LIKE :v11)) OR ((Name LIKE :v11) AND (Name LIKE :v1) AND (Name LIKE :v10))"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE (Name = :v1 OR BillingCity = :v2)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE Name = :v1 OR BillingCity = :v2"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE (Name = :v1 AND BillingCity = :v2 AND (Name = :v3 OR BillingCity = :v4))"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE Id IN (SELECT AccountId FROM Contact WHERE (Name = :v1))"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE Id IN (SELECT AccountId FROM Contact WHERE Name = :v1)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE Id NOT IN (SELECT AccountId FROM Contact WHERE Name = :v1)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE NumberOfEmployees >= 10 AND NumberOfEmployees <= 20"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE NumberOfEmployees >= 10 AND NumberOfEmployees <= 20 AND Name = :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE (NumberOfEmployees >= 10 AND NumberOfEmployees <= 20 AND Name = :v1)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE (BillingCity = :v1)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE ((Industry = :v1 AND Name LIKE :v2))"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT LeadSource FROM Lead GROUP BY LeadSource"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT(Name) count FROM OpportunityLineItem GROUP BY OpportunityLineItem.Opportunity.Account.Id"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT LeadSource, COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(LeadSource)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Status, LeadSource, COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(Status, LeadSource)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Type FROM Account GROUP BY CUBE(Type)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Type, BillingCountry FROM Account GROUP BY CUBE(Type, BillingCountry)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT(Name) FROM Lead GROUP BY City HAVING City LIKE 'San%'"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING COUNT(Name) > 100"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT LeadSource, AVG(Name) FROM Lead GROUP BY LeadSource HAVING AVG(Name) > 100"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT LeadSource, COUNT_DISTINCT(Name) FROM Lead GROUP BY LeadSource HAVING COUNT_DISTINCT(Name) > 100"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT LeadSource, MIN(NumberOfEmployees) FROM Lead GROUP BY LeadSource HAVING MIN(NumberOfEmployees) > 100"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT LeadSource, MAX(NumberOfEmployees) FROM Lead GROUP BY LeadSource HAVING MAX(NumberOfEmployees) > 100"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT LeadSource, SUM(AnnualRevenue) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) > 100"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING LeadSource = null"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT LeadSource FROM Lead GROUP BY LeadSource HAVING LeadSource != null"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT(Name) FROM Lead GROUP BY IsConverted HAVING IsConverted = true"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT(Name) FROM Lead GROUP BY IsConverted HAVING IsConverted = false"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING LeadSource = 'Web'"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) = 10000"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING LeadSource != 'Web'"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) != 10000"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) < 10000"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) > 10000"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) <= 10000"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT(Name) FROM Lead GROUP BY LeadSource HAVING SUM(AnnualRevenue) >= 10000"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City LIKE '%San%'"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City LIKE '_San%'"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING (NOT City LIKE '%San%')"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING (NOT City LIKE '_San%')"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City LIKE 'San%'"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING (NOT City LIKE 'San%')"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City LIKE '%San'"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING (NOT City LIKE '%San')"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City IN ('San Francisco', 'Los Angeles')"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT SUM(AnnualRevenue) FROM Lead GROUP BY City HAVING City NOT IN ('San Francisco', 'Los Angeles')"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING (COUNT(Name) > 100 AND City LIKE 'San%')"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING LeadSource = 'Web'"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING LeadSource = 'Web' AND (COUNT(Name) > 100 AND City LIKE 'San%')"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING (COUNT(Name) > 1) OR (COUNT(Name) > 2) OR (COUNT(Name) > 3) OR (COUNT(Name) > 4) OR (COUNT(Name) > 5) OR (COUNT(Name) > 6) OR (COUNT(Name) > 7) OR (COUNT(Name) > 8) OR (COUNT(Name) > 9) OR (COUNT(Name) > 10) OR (COUNT(Name) > 11)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING (COUNT(Name) > 100 OR City LIKE 'San%')"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource, City HAVING COUNT(Name) > 100 OR City LIKE 'San%'"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING ((COUNT(Name) > 100 AND COUNT(Name) < 200) AND (COUNT(Name) > 400 AND COUNT(Name) < 500))"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING COUNT(Name) > 100 AND COUNT(Name) < 200"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING (COUNT(Name) > 100 AND COUNT(Name) < 200) AND (COUNT(Name) > 400 AND COUNT(Name) < 500)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT LeadSource, COUNT(Name) FROM Lead GROUP BY LeadSource HAVING ((COUNT(Name) > 100 AND COUNT(Name) < 200) AND COUNT(Name) < 500)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c ABOVE_OR_BELOW Europe__c"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c AT Europe__c"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c AT (Europe__c, North_America__c)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c ABOVE Europe__c"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c ABOVE (Europe__c, North_America__c)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c BELOW Europe__c"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c BELOW (Europe__c, North_America__c)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c ABOVE_OR_BELOW (Europe__c, North_America__c)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Title FROM Knowledge__kav WITH DATA CATEGORY Geography__c ABOVE_OR_BELOW (Europe__c, North_America__c) AND Product__c AT (Product1__c, Product2__c)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Title FROM Knowledge__kav WHERE PublishStatus = :v1 AND Language = :v2 WITH DATA CATEGORY Geography__c ABOVE_OR_BELOW (Europe__c, North_America__c) AND Product__c AT Product1__c"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account ORDER BY Industry DESC NULLS LAST, Id ASC NULLS FIRST"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account ORDER BY Industry ASC NULLS FIRST"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account ORDER BY Industry ASC NULLS LAST"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Contact ORDER BY Account.Name ASC NULLS FIRST"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Industry FROM Account GROUP BY Industry ORDER BY COUNT(Industry) DESC NULLS LAST"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),' km') ASC NULLS FIRST"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress, GEOLOCATION(37.775,-122.418),' mi') ASC NULLS FIRST"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Contact ORDER BY DISTANCE(Account.BillingAddress, GEOLOCATION(0.0,0.0),' km') ASC NULLS FIRST"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),' km') DESC NULLS LAST"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account OFFSET 100"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account FOR REFERENCE"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account FOR VIEW"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account FOR UPDATE"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account ALL ROWS"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE Id = :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE Id IN :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE RecordType.DeveloperName = :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE (Name = :v1 AND Industry = :v2)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT NonExistingField__c FROM Account WHERE Name = :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT() FROM Account WHERE NonExistingField__c = :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT NonExistingField__c FROM Account"
+  }
+]
