@@ -50,6 +50,7 @@ The following are methods for using `SOQLEvaluator`:
 - [`toMap(SObjectField keyField)`](#tomap-with-custom-key)
 - [`toMap(String relationshipName, SObjectField targetKeyField)`](#tomap-with-custom-relationship-key)
 - [`toMap(SObjectField keyField, SObjectField valueField)`](#tomap-with-custom-key-and-value)
+- [`toMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField)`](#tomap-with-custom-key-and-relationship-value)
 - [`toAggregatedMap(SObjectField keyField)`](#toaggregatedmap)
 - [`toAggregatedMap(String relationshipName, SObjectField targetKeyField)`](#toaggregatedmap-with-custom-relationship-key)
 - [`toAggregatedMap(SObjectField keyField, SObjectField valueField)`](#toaggregatedmap-with-custom-value)
@@ -428,6 +429,24 @@ Map<String, String> nameToIndustry = SOQLEvaluator.of([
     FROM Account
     WITH USER_MODE
 ]).toMap(Account.Name, Account.Industry);
+```
+
+### toMap with custom key and relationship value
+
+**Signature**
+
+```apex
+Map<String, String> toMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField)
+```
+
+**Example**
+
+```apex
+Map<String, String> accountNameToParentName = SOQLEvaluator.of([
+    SELECT Id, Name, Parent.Name
+    FROM Account
+    WITH USER_MODE
+]).toMap(Account.Name, 'Parent', Account.Name);
 ```
 
 ### toAggregatedMap

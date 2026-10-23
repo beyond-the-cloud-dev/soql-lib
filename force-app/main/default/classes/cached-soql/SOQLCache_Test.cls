@@ -534,11 +534,7 @@ private class SOQLCache_Test {
 
         // Test
         try {
-            SOQLCache.of(Profile.SObjectType)
-                .with(Profile.Id, Profile.Name)
-                .whereEqual(Profile.UserType, 'Standard')
-                .whereEqual(Profile.Description, 'Test')
-                .toObject();
+            SOQLCache.of(Profile.SObjectType).with(Profile.Id, Profile.Name).whereEqual(Profile.UserType, 'Standard').whereEqual(Profile.Description, 'Test').toObject();
         } catch (SOQLCache.SoqlCacheException e) {
             soqlException = e;
         }
@@ -559,11 +555,7 @@ private class SOQLCache_Test {
 
         // Test
         try {
-            SOQLCache.of(Profile.SObjectType)
-                .with(Profile.Id, Profile.Name)
-                .whereEqual(Profile.UserType, 'Standard')
-                .whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR)
-                .toObject();
+            SOQLCache.of(Profile.SObjectType).with(Profile.Id, Profile.Name).whereEqual(Profile.UserType, 'Standard').whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR).toObject();
         } catch (SOQLCache.SoqlCacheException e) {
             soqlException = e;
         }
@@ -615,11 +607,7 @@ private class SOQLCache_Test {
 
         // Test
         try {
-            SOQLCache.of(Profile.SObjectType)
-                .with(Profile.Id, Profile.Name)
-                .allowFilteringByNonUniqueFields()
-                .whereEqual(Profile.UserType, 'NonExistingType')
-                .toObject();
+            SOQLCache.of(Profile.SObjectType).with(Profile.Id, Profile.Name).allowFilteringByNonUniqueFields().whereEqual(Profile.UserType, 'NonExistingType').toObject();
         } catch (SOQLCache.SoqlCacheException e) {
             soqlException = e;
         }

@@ -199,6 +199,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         Map<String, SObject> toMap(SObjectField keyField);
         Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField);
         Map<String, String> toMap(SObjectField keyField, SObjectField valueField);
+        Map<String, String> toMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField);
         Map<String, List<SObject>> toAggregatedMap(SObjectField keyField);
         Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField);
         Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
@@ -601,7 +602,7 @@ public virtual inherited sharing class SOQL implements Queryable {
                 List<ApexTypeImplementor> implementors = [
                     SELECT ClassName, ClassNamespacePrefix
                     FROM ApexTypeImplementor
-                    WHERE InterfaceName = 'SOQL.Logger' AND InterfaceNamespacePrefix = :namespacePrefix AND IsConcrete = true
+                    WHERE InterfaceName = 'SOQL.Logger' AND InterfaceNamespacePrefix = :namespacePrefix AND IsConcrete = TRUE
                     WITH SYSTEM_MODE
                     LIMIT 1
                 ];
@@ -1392,6 +1393,15 @@ public virtual inherited sharing class SOQL implements Queryable {
         this.with(keyField, valueField);
         this.whereAre(Filter.with(keyField).isNotNull());
         return this.converter.transform(this.executor.toList()).toMap(keyField, valueField);
+    }
+
+    @NamespaceAccessible
+    public Map<String, String> toMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField) {
+        this.builder.fields.clearAllFields(); // other fields not needed
+        this.with(keyField);
+        this.with(relationshipName + '.' + targetKeyField.toString());
+        this.whereAre(Filter.with(keyField).isNotNull());
+        return this.converter.transform(this.executor.toList()).toMap(keyField, relationshipName, targetKeyField);
     }
 
     @NamespaceAccessible
@@ -3440,8 +3450,7 @@ public virtual inherited sharing class SOQL implements Queryable {
                     return this.sharingExecutor.toSObjects(query, binder.getBindingMap(), this.accessMode);
                 }
 
-                return System.Security.stripInaccessible(this.accessType, this.sharingExecutor.toSObjects(query, binder.getBindingMap(), this.accessMode))
-                    .getRecords();
+                return System.Security.stripInaccessible(this.accessType, this.sharingExecutor.toSObjects(query, binder.getBindingMap(), this.accessMode)).getRecords();
             } catch (Exception e) {
                 this.logError(e, query);
                 throw e;
@@ -3475,8 +3484,7 @@ public virtual inherited sharing class SOQL implements Queryable {
                     return this.sharingExecutor.toSObjects(query, binder.getBindingMap(), this.accessMode);
                 }
 
-                return System.Security.stripInaccessible(this.accessType, this.sharingExecutor.toSObjects(query, binder.getBindingMap(), this.accessMode))
-                    .getRecords();
+                return System.Security.stripInaccessible(this.accessType, this.sharingExecutor.toSObjects(query, binder.getBindingMap(), this.accessMode)).getRecords();
             } catch (Exception e) {
                 this.logError(e, query);
                 throw e;
@@ -3773,6 +3781,22 @@ public virtual inherited sharing class SOQL implements Queryable {
             return customValuePerCustomKey;
         }
 
+        public Map<String, String> toMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField) {
+            return this.toMap(keyField, relationshipName + '.' + targetKeyField.toString());
+        }
+
+        private Map<String, String> toMap(SObjectField keyField, String targetFieldPath) {
+            Map<String, String> customValuePerCustomKey = new Map<String, String>();
+            List<String> relationshipPathFields = targetFieldPath.split('\\.');
+            String targetField = relationshipPathFields.remove(relationshipPathFields.size() - 1);
+
+            for (SObject record : this.recordsToTransform) {
+                customValuePerCustomKey.put(String.valueOf(record.get(keyField)), extractNestedFieldValue(record, relationshipPathFields, targetField));
+            }
+
+            return customValuePerCustomKey;
+        }
+
         public Set<Id> toIdsOf(SObjectField field) {
             return this.toIdsOf(field.toString());
         }
@@ -3874,7 +3898,7 @@ public virtual inherited sharing class SOQL implements Queryable {
                 }
             }
 
-            return currentRecord.get(targetField).toString();
+            return currentRecord.get(targetField)?.toString();
         }
     }
 

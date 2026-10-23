@@ -212,6 +212,7 @@ The following are methods for using `SOQL`:
 - [`toMap(SObjectField keyField)`](#tomap-with-custom-key)
 - [`toMap(String relationshipName, SObjectField targetKeyField)`](#tomap-with-custom-relationship-key)
 - [`toMap(SObjectField keyField,  SObjectField valueField)`](#tomap-with-custom-key-and-value)
+- [`toMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField)`](#tomap-with-custom-key-and-relationship-value)
 - [`toAggregatedMap(SObjectField keyField)`](#toaggregatedmap)
 - [`toAggregatedMap(String relationshipName, SObjectField targetKeyField)`](#toaggregatedmap-with-custom-relationship-key)
 - [`toAggregatedMap(SObjectField keyField, SObjectField valueField)`](#toaggregatedmap-with-custom-value)
@@ -2752,6 +2753,22 @@ Map<String, String> toMap(SObjectField keyField, , SObjectField valueField)
 
 ```apex
 Map<String, String> nameToAccount = SOQL.of(Account.SObjectType).toMap(Account.Name, Account.Industry);
+```
+
+### toMap with custom key and relationship value
+
+**Note!** To improve query performance, a condition checking if the keyField is not null (`WHERE keyField != null`) is automatically added to the query.
+
+**Signature**
+
+```apex
+Map<String, String> toMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField)
+```
+
+**Example**
+
+```apex
+Map<String, String> accountNameToParentName = SOQL.of(Account.SObjectType).toMap(Account.Name, 'Parent', Account.Name);
 ```
 
 ### toAggregatedMap

@@ -550,6 +550,20 @@ private class SOQLEvaluator_Full_Test {
     }
 
     @IsTest
+    static void sObjectsToMapWithKeyAndRelationshipValueFields() {
+        // Setup
+        insertAccountsWithParents();
+
+        // Test
+        Map<String, String> accountNameToParentName = SOQLEvaluator.of([SELECT Id, Name, Parent.Name FROM Account WHERE ParentId != NULL])
+            .toMap(Account.Name, 'Parent', Account.Name);
+
+        // Verify
+        Assert.areEqual(2, accountNameToParentName.size(), 'The size of the returned map should be 2.');
+        Assert.areEqual('Test 1 Parent', accountNameToParentName.get('Test 1'), 'The returned map should have the parent account Name for each account Name.');
+    }
+
+    @IsTest
     static void sObjectsToAggregatedMapWithKeyAndRelationshipValueFields() {
         // Setup
         insertAccountsWithParents();
@@ -560,6 +574,33 @@ private class SOQLEvaluator_Full_Test {
 
         // Verify
         Assert.areEqual(2, nameToDescriptions.size(), 'The size of the returned map should be 2.');
+    }
+
+    @IsTest
+    static void sObjectsToMapWithKeyAndRelationshipValueFieldsWithMocking() {
+        // Setup
+        SOQLEvaluator.mock('mockingQuery')
+            .thenReturn(
+                new List<Account>{ new Account(Name = 'Test 1', Parent = new Account(Name = 'Parent 1')), new Account(Name = 'Test 2', Parent = new Account(Name = 'Parent 2')) }
+            );
+
+        // Test
+        Map<String, String> accountNameToParentName = SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != NULL])
+            .mockId('mockingQuery')
+            .toMap(Account.Name, 'Parent', Account.Name);
+
+        // Verify
+        Assert.areEqual(2, accountNameToParentName.size(), 'The size of the returned map should be 2.');
+        Assert.areEqual('Parent 1', accountNameToParentName.get('Test 1'), 'The returned map should have the parent account Name for each account Name.');
+    }
+
+    @IsTest
+    static void sObjectsToMapWithKeyAndRelationshipValueFieldsWhenNoRecords() {
+        // Test
+        Map<String, String> accountNameToParentName = SOQLEvaluator.of([SELECT Id, Parent.Name FROM Account WHERE ParentId != NULL]).toMap(Account.Name, 'Parent', Account.Name);
+
+        // Verify
+        Assert.areEqual(0, accountNameToParentName.size(), 'The size of the returned map should be 0.');
     }
 
     @IsTest

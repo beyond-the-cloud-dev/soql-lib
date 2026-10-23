@@ -589,9 +589,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         private Boolean isUniqueOrAllowedConditionField(String field) {
-            return new List<String>{ 'Id', 'Name', 'DeveloperName' }.contains(field) ||
-                this.additionalAllowedConditionFields.contains(field) ||
-                this.isFieldUnique(field);
+            return new List<String>{ 'Id', 'Name', 'DeveloperName' }.contains(field) || this.additionalAllowedConditionFields.contains(field) || this.isFieldUnique(field);
         }
 
         private Boolean isFieldUnique(String field) {

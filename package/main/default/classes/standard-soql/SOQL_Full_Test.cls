@@ -9,7 +9,7 @@
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
  * - CognitiveComplexity: It is a library and we tried to put everything into ONE test class
  * - NcssTypeCount: It is a library and we tried to put everything into ONE test class
-**/
+ **/
 @SuppressWarnings('PMD.CyclomaticComplexity,PMD.CognitiveComplexity,PMD.NcssTypeCount')
 @IsTest
 private class SOQL_Full_Test {
@@ -677,10 +677,7 @@ private class SOQL_Full_Test {
     @IsTest
     static void subQueryRelatedField() {
         // Test
-        String soql = SOQL.of(Account.SObjectType)
-            .with(Account.Name)
-            .with(SOQL.SubQuery.of('Contacts').with(Contact.Id).with('CreatedBy', User.Name))
-            .toString();
+        String soql = SOQL.of(Account.SObjectType).with(Account.Name).with(SOQL.SubQuery.of('Contacts').with(Contact.Id).with('CreatedBy', User.Name)).toString();
 
         // Verify
         Assert.areEqual('SELECT Name , (SELECT Id, CreatedBy.Name FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
@@ -689,10 +686,7 @@ private class SOQL_Full_Test {
     @IsTest
     static void subQueryTwoRelatedFields() {
         // Test
-        String soql = SOQL.of(Account.SObjectType)
-            .with(Account.Name)
-            .with(SOQL.SubQuery.of('Contacts').with(Contact.Id).with('CreatedBy', User.Id, User.Name))
-            .toString();
+        String soql = SOQL.of(Account.SObjectType).with(Account.Name).with(SOQL.SubQuery.of('Contacts').with(Contact.Id).with('CreatedBy', User.Id, User.Name)).toString();
 
         // Verify
         Assert.areEqual('SELECT Name , (SELECT Id, CreatedBy.Id, CreatedBy.Name FROM Contacts) FROM Account', soql, 'The generated SOQL should match the expected one.');
@@ -4881,6 +4875,38 @@ private class SOQL_Full_Test {
     }
 
     @IsTest
+    static void mockedToMapWithCustomKeyAndCustomRelationshipValue() {
+        // Setup
+        List<Account> accounts = new List<Account>{
+            new Account(Name = 'Test 1', Parent = new Account(Name = 'Parent 1')),
+            new Account(Name = 'Test 2', Parent = new Account(Name = 'Parent 2'))
+        };
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(accounts);
+        Map<String, String> result = SOQL.of(Account.SObjectType).mockId('mockingQuery').toMap(Account.Name, 'Parent', Account.Name);
+
+        // Verify
+        Assert.areEqual(accounts.size(), result.size(), 'Size of the result map should be equal to the size of the mocked accounts.');
+        Assert.areEqual('Parent 1', result.get('Test 1'), 'The result map should have the parent account Name for each account Name.');
+        Assert.areEqual('Parent 2', result.get('Test 2'), 'The result map should have the parent account Name for each account Name.');
+    }
+
+    @IsTest
+    static void mockedToMapWithCustomKeyAndEmptyCustomRelationshipValue() {
+        // Setup
+        List<Account> accounts = new List<Account>{ new Account(Name = 'Test 1', Parent = new Account(Name = 'Parent 1')) };
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(accounts);
+        Map<String, String> result = SOQL.of(Account.SObjectType).mockId('mockingQuery').toMap(Account.Name, 'Parent', Account.Industry);
+
+        // Verify
+        Assert.isTrue(result.containsKey('Test 1'), 'The result map should have a key for the account Name.');
+        Assert.isNull(result.get('Test 1'), 'The result map value should be null, because the parent account Industry is empty.');
+    }
+
+    @IsTest
     static void toMapWithMockingWhenOtherFieldsAreSpecified() {
         // Setup
         List<Account> accounts = new List<Account>{
@@ -5080,6 +5106,20 @@ private class SOQL_Full_Test {
             Assert.isNotNull(result.get(acc.Name), 'The result map should have a value for each inserted account Name.');
             Assert.areEqual(acc.Id, result.get(acc.Name), 'The result map should have an account Id for each account Name.');
         }
+    }
+
+    @IsTest
+    static void toMapWithCustomKeyAndCustomRelationshipValue() {
+        // Setup
+        insertAccountsWithParents();
+
+        // Test
+        Map<String, String> result = SOQL.of(Account.SObjectType).toMap(Account.Name, 'Parent', Account.Name);
+
+        // Verify
+        Assert.areEqual(4, result.size(), 'The result map should have a key for each account Name.');
+        Assert.areEqual('Test 1 Parent', result.get('Test 1'), 'The result map should have the parent account Name for each account Name.');
+        Assert.areEqual('Test 2 Parent', result.get('Test 2'), 'The result map should have the parent account Name for each account Name.');
     }
 
     @IsTest

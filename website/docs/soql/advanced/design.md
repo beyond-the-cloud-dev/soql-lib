@@ -179,6 +179,7 @@ All crucial information is kept at the top of the class, so developers can use i
         Map<String, SObject> toMap(SObjectField keyField);
         Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField);
         Map<String, String> toMap(SObjectField keyField, SObjectField valueField);
+        Map<String, String> toMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField);
         Map<String, List<SObject>> toAggregatedMap(SObjectField keyField);
         Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField);
         Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
