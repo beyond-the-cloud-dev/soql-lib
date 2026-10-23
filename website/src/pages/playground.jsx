@@ -45,6 +45,11 @@ const EXAMPLE_GROUPS = [
         name: 'Custom relationship',
         query: 'SELECT Id, Invoice__r.Name, Invoice__r.Total__c\nFROM Invoice_Line__c',
       },
+      {
+        name: 'Polymorphic TYPEOF',
+        query:
+          'SELECT Id, Subject,\n  TYPEOF What\n    WHEN Account THEN Phone, NumberOfEmployees\n    WHEN Opportunity THEN Amount, CloseDate\n    ELSE Name, Email\n  END\nFROM Event',
+      },
     ],
   },
   {
@@ -76,7 +81,7 @@ const EXAMPLE_GROUPS = [
       {
         name: 'LIKE patterns',
         query:
-          "SELECT Id, Name\nFROM Account\nWHERE Name LIKE 'Test%'\n  AND BillingCity LIKE '%Francisco%'\n  AND NOT Website LIKE '%.test'",
+          "SELECT Id, Name\nFROM Account\nWHERE Name LIKE 'Test%'\n  AND BillingCity LIKE '%Francisco%'\n  AND (NOT Website LIKE '%.test')",
       },
       {
         name: 'IN and NOT IN',
@@ -167,7 +172,7 @@ const EXAMPLE_GROUPS = [
         query:
           "SELECT Id, Name\nFROM Account\nWHERE DISTANCE(BillingAddress, GEOLOCATION(37.775, -122.418), 'mi') < 20\nORDER BY DISTANCE(BillingAddress, GEOLOCATION(37.775, -122.418), 'mi')",
       },
-      { name: 'toLabel and FORMAT', query: 'SELECT Id, toLabel(Status), FORMAT(Amount)\nFROM Opportunity' },
+      { name: 'toLabel and FORMAT', query: 'SELECT Id, toLabel(StageName), FORMAT(Amount)\nFROM Opportunity' },
     ],
   },
 ];
@@ -176,6 +181,7 @@ const MAPPING_REFERENCE = [
   ['SELECT Id, Name', '.with(Account.Id, Account.Name)', '/soql/api/soql#with-field1---field5'],
   ['SELECT Owner.Name', ".with('Owner', User.Name)", '/soql/api/soql#with-related-field1---field5'],
   ['(SELECT Id FROM Contacts)', ".with(SOQL.SubQuery.of('Contacts')…)", '/soql/api/soql-sub'],
+  ['TYPEOF What WHEN … END', '.with(SOQL.TypeOf.of(Event.WhatId)…)', '/soql/api/soql-typeof'],
   ['WHERE Name = :value', '.whereAre(SOQL.Filter.name().equal(value))', '/soql/api/soql-filter'],
   ['AND / OR', 'SOQL.FilterGroup + .anyConditionMatching()', '/soql/api/soql-filters-group'],
   ["LIKE '%v%'", ".contains('v')", '/soql/api/soql-filter#contains'],
@@ -200,8 +206,9 @@ export default function Playground() {
             SOQL Lib Playground
           </Heading>
           <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Paste a SOQL query and see it translated to SOQL Lib as you type. Every clause — sub-queries, nested
-            conditions, aggregates, sorting and paging — is parsed and mapped to the matching builder method.
+            Paste a SOQL query and see it translated to SOQL Lib as you type. Every clause — sub-queries, polymorphic
+            TYPEOF fields, nested conditions, aggregates, sorting and paging — is parsed and mapped to the matching
+            builder method.
           </p>
         </div>
 

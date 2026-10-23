@@ -9,6 +9,9 @@
  * Every generated method call is also checked against the interfaces declared
  * in SOQL.cls, which catches calls that would not compile.
  *
+ * translator-cases.mjs covers what a round trip cannot see: SObjectField tokens
+ * that would not compile, warnings, and errors for invalid SOQL.
+ *
  * Run with: npm run verify:translator
  */
 
@@ -17,6 +20,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { parseSoql, translate } from '../src/lib/soqlTranslator.js';
 import { emulate, parseApexChain } from './apex-emulator.mjs';
+import translatorCases from './translator-cases.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, '../..');
@@ -28,20 +32,16 @@ const corpus = JSON.parse(fs.readFileSync(path.join(HERE, 'soql-corpus.json'), '
 
 const lower = (value) => String(value).toLowerCase();
 
-function expr(node, trimStrings = false) {
+function expr(node) {
   if (!node) return '';
   if (node.kind === 'field') return lower(node.path);
-  if (node.kind === 'function') {
-    // SOQL.cls renders the DISTANCE unit as `' km'`; ignore that stray space.
-    const trim = node.name.toUpperCase() === 'DISTANCE';
-    return `${lower(node.name)}(${node.args.map((argument) => expr(argument, trim)).join(',')})`;
-  }
-  if (node.kind === 'literal') return token(node.literal, trimStrings);
+  if (node.kind === 'function') return `${lower(node.name)}(${node.args.map((argument) => expr(argument)).join(',')})`;
+  if (node.kind === 'literal') return token(node.literal);
   return JSON.stringify(node);
 }
 
-function token(item, trimStrings = false) {
-  if (item.type === 'string') return `'${trimStrings ? item.value.trim() : item.value}'`;
+function token(item) {
+  if (item.type === 'string') return `'${item.value}'`;
   if (item.type === 'bind') return `:${item.value.replace(/\s+/g, '').replace(/^\((.*)\)$/, '$1')}`;
   if (item.type === 'ident') return lower(item.value);
   if (item.type === 'number') return String(Number(item.value));
@@ -104,7 +104,13 @@ function value(item) {
 function canonical(query) {
   const fields = query.fields.map((item) => {
     if (item.kind === 'subquery') return `(${canonical(item.query)})`;
-    if (item.kind === 'typeof') return lower(item.raw.replace(/\s+/g, ' '));
+    if (item.kind === 'typeof') {
+      const branches = item.whens
+        .map((when) => `when ${lower(when.object)} then ${when.fields.map(lower).sort().join(',')}`)
+        .sort();
+      if (item.elseFields.length) branches.push(`else ${item.elseFields.map(lower).sort().join(',')}`);
+      return `typeof ${lower(item.field)} ${branches.join(' ')}`;
+    }
     return item.alias ? `${expr(item.expression)} ${lower(item.alias)}` : expr(item.expression);
   }).sort();
 
@@ -131,12 +137,12 @@ function canonical(query) {
  * ------------------------------------------------------------------ */
 
 const CLS = fs.readFileSync(path.join(REPO, 'force-app/main/default/classes/standard-soql/SOQL.cls'), 'utf8');
-const INTERFACES = ['Queryable', 'SubQuery', 'FilterGroup', 'Filter', 'InnerJoin', 'HavingFilterGroup', 'HavingFilter', 'DataCategoryFilter', 'Distance'];
+const INTERFACES = ['Queryable', 'SubQuery', 'TypeOf', 'FilterGroup', 'Filter', 'InnerJoin', 'HavingFilterGroup', 'HavingFilter', 'DataCategoryFilter', 'Distance'];
 const TERMINALS = new Set(['toList', 'toInteger', 'toAggregated', 'toObject', 'toIds', 'doExist']);
 const ROOTS = {
   Filter: 'Filter', FilterGroup: 'FilterGroup', HavingFilter: 'HavingFilter',
   HavingFilterGroup: 'HavingFilterGroup', InnerJoin: 'InnerJoin',
-  DataCategoryFilter: 'DataCategoryFilter', Distance: 'Distance', SubQuery: 'SubQuery',
+  DataCategoryFilter: 'DataCategoryFilter', Distance: 'Distance', SubQuery: 'SubQuery', TypeOf: 'TypeOf',
 };
 
 const signatures = {};
@@ -193,7 +199,6 @@ function checkSignatures(node, problems) {
  * ------------------------------------------------------------------ */
 
 const ACCEPTED = {
-  UNSUPPORTED_TYPEOF: 'TYPEOF cannot be expressed by SOQL Lib (emitted as a comment)',
   LIB_DROPS_FIELD: 'SOQL.cls drops non-grouped elements from aggregate queries (warned)',
   LIB_UNESCAPED_MULTIPICKLIST: 'SOQL.cls inlines INCLUDES/EXCLUDES values without escaping them',
 };
@@ -244,7 +249,6 @@ for (const entry of corpus) {
   }
 
   if (original === rebuilt) { counts.OK = (counts.OK || 0) + 1; continue; }
-  if (/TYPEOF/i.test(entry.soql)) { fail('UNSUPPORTED_TYPEOF', ''); continue; }
   if (result.warnings.some((warning) => warning.includes('removes non-grouped elements'))) { fail('LIB_DROPS_FIELD', ''); continue; }
 
   const left = JSON.parse(original);
@@ -263,6 +267,35 @@ for (const [status, count] of Object.entries(counts).sort((a, b) => b[1] - a[1])
 const uniqueSignatureProblems = [...new Set(signatureProblems)];
 console.log(`Signature problems: ${uniqueSignatureProblems.length}`);
 uniqueSignatureProblems.forEach((problem) => console.log(`  - ${problem}`));
+
+const caseFailures = [];
+for (const expectation of translatorCases) {
+  const { code, warnings, error } = translate(expectation.soql);
+  const problems = [];
+  if (expectation.error) {
+    if (!error?.includes(expectation.error)) problems.push(`expected an error mentioning "${expectation.error}", got ${error ? `"${error}"` : 'a translation'}`);
+  } else if (error) {
+    problems.push(`did not translate: ${error}`);
+  }
+  for (const part of expectation.includes || []) if (!code.includes(part)) problems.push(`missing ${part}`);
+  for (const part of expectation.excludes || []) if (code.includes(part)) problems.push(`unexpected ${part}`);
+  if (expectation.warning && !warnings.some((warning) => warning.includes(expectation.warning))) {
+    problems.push(`no warning mentioning "${expectation.warning}"`);
+  }
+  if (expectation.noWarning && warnings.some((warning) => warning.includes(expectation.noWarning))) {
+    problems.push(`unexpected warning mentioning "${expectation.noWarning}"`);
+  }
+  if (problems.length) caseFailures.push({ ...expectation, code, warnings, problems });
+}
+console.log(`Expected translations: ${translatorCases.length - caseFailures.length}/${translatorCases.length} as expected`);
+for (const failure of caseFailures) {
+  console.log(`\n[CASE] ${failure.soql}`);
+  failure.problems.forEach((problem) => console.log(`  - ${problem}`));
+  if (failure.code) console.log(failure.code);
+  failure.warnings.forEach((warning) => console.log(`  warning: ${warning}`));
+}
+
+if (caseFailures.length) process.exitCode = 1;
 
 if (failures.length || uniqueSignatureProblems.length) {
   console.log(`\n${failures.length} failing queries:`);

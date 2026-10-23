@@ -6,6 +6,8 @@
 
 /* ----- Apex expression tokenizer / parser ----- */
 
+const APEX_ESCAPES = { n: '\n', r: '\r', t: '\t', b: '\b', f: '\f' };
+
 function tokenizeApex(rawSource) {
   const source = rawSource.replace(/\/\/[^\n]*/g, '');
   const tokens = [];
@@ -16,7 +18,7 @@ function tokenizeApex(rawSource) {
     if (c === "'") {
       let value = ''; i++;
       while (i < source.length) {
-        if (source[i] === '\\') { value += source[i + 1]; i += 2; continue; }
+        if (source[i] === '\\') { value += APEX_ESCAPES[source[i + 1]] ?? source[i + 1]; i += 2; continue; }
         if (source[i] === "'") { i++; break; }
         value += source[i]; i++;
       }
@@ -63,7 +65,12 @@ class ApexParser {
 
   parseChain() {
     let node = this.parsePrimary();
-    while (this.isPunct('.')) {
+    while (this.isPunct('.') || this.isPunct('[')) {
+      if (this.eatPunct('[')) {
+        node = { kind: 'index', target: node, index: this.parseExpression() };
+        this.expectPunct(']');
+        continue;
+      }
       this.next();
       const name = this.next();
       if (name.type !== 'ident') throw new Error(`Expected a member name, found "${name.value}"`);
@@ -138,6 +145,7 @@ export function renderApex(node) {
   if (node.kind === 'number') return node.value;
   if (node.kind === 'ident') return node.value;
   if (node.kind === 'member') return `${renderApex(node.target)}.${node.name}`;
+  if (node.kind === 'index') return `${renderApex(node.target)}[${renderApex(node.index)}]`;
   if (node.kind === 'call') {
     const prefix = node.target ? `${renderApex(node.target)}.` : '';
     return `${prefix}${node.name}(${node.args.map(renderApex).join(', ')})`;
@@ -151,11 +159,13 @@ export function renderApex(node) {
 
 /* ----- SOQL literal rendering (stands in for the bind map) ----- */
 
+const QUOTED_ESCAPES = { '\\': '\\\\', "'": "\\'", '\n': '\\n', '\r': '\\r', '\t': '\\t', '\b': '\\b', '\f': '\\f' };
+
 function soqlLiteral(value) {
   if (value === null) return 'null';
   if (typeof value === 'boolean') return String(value);
   if (typeof value === 'number') return String(value);
-  if (typeof value === 'string') return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+  if (typeof value === 'string') return `'${value.replace(/[\\'\n\r\t\b\f]/g, (character) => QUOTED_ESCAPES[character])}'`;
   if (value && value.__kind === 'raw') return value.text;
   if (value && value.__kind === 'bind') return `:${value.name}`;
   if (value && value.__kind === 'list') return `(${value.values.map(soqlLiteral).join(', ')})`;
@@ -194,12 +204,13 @@ class Fields {
     this.relationship = new FieldSet();
     this.functions = new FieldSet();
     this.aggregates = new FieldSet();
+    this.typeOf = new FieldSet();
     this.grouped = [];
   }
 
   count() { this.clearAll(); this.aggregates.add('COUNT()'); }
 
-  clearAll() { this.plain.clear(); this.relationship.clear(); this.functions.clear(); this.aggregates.clear(); }
+  clearAll() { this.plain.clear(); this.relationship.clear(); this.functions.clear(); this.aggregates.clear(); this.typeOf.clear(); }
 
   withString(commaSeparated) {
     for (const part of String(commaSeparated).split(',')) this.classify(part.trim());
@@ -218,15 +229,16 @@ class Fields {
   addFunction(text, alias) { this.functions.add(alias ? `${text} ${alias}` : text); }
 
   toString() {
-    if (this.plain.isEmpty && this.relationship.isEmpty && this.aggregates.isEmpty && this.functions.isEmpty) {
+    if (this.plain.isEmpty && this.relationship.isEmpty && this.aggregates.isEmpty && this.functions.isEmpty && this.typeOf.isEmpty) {
       this.plain.add('Id');
     }
     if (this.grouped.length || !this.aggregates.isEmpty) {
       this.plain.retainAll(this.grouped);
       this.relationship.retainAll(this.grouped);
       this.functions.retainAll(this.grouped);
+      this.typeOf.retainAll(this.grouped);
     }
-    const selected = [...this.plain.values, ...this.relationship.values, ...this.functions.values, ...this.aggregates.values];
+    const selected = [...this.plain.values, ...this.relationship.values, ...this.functions.values, ...this.aggregates.values, ...this.typeOf.values];
     return `SELECT ${selected.join(', ')}`;
   }
 }
@@ -351,7 +363,52 @@ class Distance {
   between(latitude, longitude) { this.location = `GEOLOCATION(${latitude},${longitude})`; return this; }
   mi() { this.unitValue = 'mi'; return this; }
   km() { this.unitValue = 'km'; return this; }
-  toString() { return `DISTANCE(${this.field}, ${this.location},' ${this.unitValue}')`; }
+  toString() { return `DISTANCE(${this.field}, ${this.location}, '${this.unitValue}')`; }
+}
+
+/** Mirrors SOQL.TypeOfWhenThen: one WHEN ... THEN branch, or the ELSE branch. */
+class TypeOfWhenThen {
+  constructor(prefix) { this.prefix = prefix; this.plain = new FieldSet(); this.relationship = new FieldSet(); }
+  get isEmpty() { return this.plain.isEmpty && this.relationship.isEmpty; }
+  withString(commaSeparated) {
+    for (const part of String(commaSeparated).split(',')) {
+      const field = part.trim();
+      if (!field.includes('(') && !field.includes(')') && field.includes('.')) this.relationship.add(field);
+      else this.plain.add(field);
+    }
+  }
+  toString() { return this.prefix + [...this.plain.values, ...this.relationship.values].join(', '); }
+}
+
+/** Mirrors SOQL.SoqlTypeOf. */
+class TypeOf {
+  constructor() { this.ofField = null; this.whenObjects = []; this.whenThens = []; this.elseFields = new TypeOfWhenThen('ELSE '); }
+  of(field) {
+    if (this.ofField !== null) throw new Error(`TYPEOF has already been initialized for: ${this.ofField}`);
+    this.ofField = field;
+    return this;
+  }
+  when(objectName) {
+    if (this.whenObjects.includes(objectName)) throw new Error(`TYPEOF already contains configuration for: ${objectName}`);
+    this.whenObjects.push(objectName);
+    this.whenThens.push(new TypeOfWhenThen(`WHEN ${objectName} THEN `));
+    return this;
+  }
+  latestWhenThen() {
+    if (!this.whenThens.length) throw new Error('TYPEOF then() called before when()');
+    return this.whenThens.at(-1);
+  }
+  toString() {
+    const clauses = this.whenThens.filter((whenThen) => !whenThen.isEmpty).map(String);
+    if (!clauses.length) return '';
+    if (!this.elseFields.isEmpty) clauses.push(String(this.elseFields));
+    return `TYPEOF ${this.ofField} ${clauses.join(' ')} END`;
+  }
+}
+
+/** Mirrors SObjectField.getDescribe().getRelationshipName() for lookup fields. */
+function relationshipNameOf(lookupField) {
+  return /__c$/i.test(lookupField) ? lookupField.replace(/__c$/i, '__r') : lookupField.replace(/Id$/i, '');
 }
 
 class OrderBy {
@@ -517,8 +574,8 @@ class FluentQuery {
       case 'sort': builder.orderBys.at(-1).direction = args[0].value; return this;
       case 'nullsLast': builder.orderBys.at(-1).nulls = 'LAST'; return this;
       case 'nullsOrder': builder.orderBys.at(-1).nulls = args[0].value; return this;
-      case 'setLimit': builder.limitValue = args[0].value; return this;
-      case 'offset': builder.offsetValue = args[0].value; return this;
+      case 'setLimit': builder.limitValue = soqlLiteral(args[0].value); return this;
+      case 'offset': builder.offsetValue = soqlLiteral(args[0].value); return this;
       case 'forReference': builder.forValue = 'FOR REFERENCE'; return this;
       case 'forView': builder.forValue = 'FOR VIEW'; return this;
       case 'forUpdate': builder.forValue = 'FOR UPDATE'; return this;
@@ -534,6 +591,11 @@ class FluentQuery {
 
     if (first.t === 'object' && first.value instanceof SubQuery) {
       builder.subQueries.push(first.value.toString());
+      return this;
+    }
+    if (first.t === 'object' && first.value instanceof TypeOf) {
+      const typeOf = first.value.toString();
+      if (typeOf) builder.fields.typeOf.add(typeOf);
       return this;
     }
     if (first.t === 'string' && args.length === 1) { builder.fields.withString(first.value); return this; }
@@ -596,7 +658,48 @@ const SOQL_FACTORIES = {
   DataCategoryFilter: () => new DataCategoryFilter(),
   Distance: () => new Distance(),
   SubQuery: () => new SubQuery(),
+  TypeOf: () => new TypeOf(),
 };
+
+function invokeTypeOf(typeOf, name, args) {
+  switch (name) {
+    case 'of': {
+      const [field] = args;
+      typeOf.of(field.t === 'string' ? field.value : relationshipNameOf(fieldName(field)));
+      return;
+    }
+    case 'when':
+      if (args[0].t !== 'sobjectType') throw new Error('TypeOf.when() takes an SObjectType');
+      typeOf.when(args[0].value);
+      return;
+    case 'then': {
+      const branch = typeOf.latestWhenThen();
+      const [first] = args;
+      if (first.t === 'string' && args.length > 1) {
+        const fields = args[1].t === 'list' ? args[1].values : args.slice(1);
+        for (const field of fields) branch.relationship.add(`${first.value}.${fieldName(field)}`);
+        return;
+      }
+      if (first.t === 'string') { branch.withString(first.value); return; }
+      if (first.t === 'list' && first.values.every((value) => value.t === 'string')) {
+        // then(Iterable<String>) ignores an empty collection
+        if (first.values.length) branch.withString(first.values.map((value) => value.value).join(','));
+        return;
+      }
+      const fields = first.t === 'list' ? first.values : args;
+      for (const field of fields) branch.plain.add(fieldName(field));
+      return;
+    }
+    case 'whenElse': {
+      const [fields] = args;
+      if (fields.t !== 'list') { typeOf.elseFields.withString(fields.value); return; }
+      if (fields.values.length) typeOf.elseFields.withString(fields.values.map((value) => value.value).join(','));
+      return;
+    }
+    default:
+      throw new Error(`Unknown TypeOf method ".${name}()"`);
+  }
+}
 
 function evaluate(node) {
   if (node.kind === 'string') return { t: 'string', value: node.value };
@@ -610,7 +713,7 @@ function evaluate(node) {
     if (node.value === 'null') return { t: 'null', value: null };
     return { t: 'bind', value: { __kind: 'bind', name: node.value } };
   }
-  if (node.kind === 'binary') {
+  if (node.kind === 'binary' || node.kind === 'index') {
     return { t: 'bind', value: { __kind: 'bind', name: renderApex(node) } };
   }
   if (node.kind === 'member') {
@@ -650,6 +753,10 @@ function evaluate(node) {
     if (receiver instanceof SubQuery) {
       if (node.name === 'of') { receiver.of(args[0].value); receiver.fluent = new FluentQuery(args[0].value, true); receiver.fluent.builder = receiver.builder; return target; }
       receiver.fluent.invoke(node.name, args);
+      return target;
+    }
+    if (receiver instanceof TypeOf) {
+      invokeTypeOf(receiver, node.name, args);
       return target;
     }
     if (receiver instanceof InnerJoin) {

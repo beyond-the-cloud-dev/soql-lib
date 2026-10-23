@@ -41,7 +41,6 @@ const PARENT_RELATIONSHIPS = {
   manager: 'User',
   opportunity: 'Opportunity',
   order: 'Order',
-  owner: 'User',
   parentcase: 'Case',
   pricebook2: 'Pricebook2',
   pricebookentry: 'PricebookEntry',
@@ -58,8 +57,15 @@ const PARENT_RELATIONSHIPS = {
   workorder: 'WorkOrder',
 };
 
-/** Relationships that point back at the object being queried. */
-const SELF_PARENT_RELATIONSHIPS = new Set(['parent', 'masterrecord', 'original', 'clonedfrom']);
+/** Relationships that point back at the object they belong to. */
+const SELF_PARENT_RELATIONSHIPS = new Set(['masterrecord', 'original', 'clonedfrom']);
+
+/** `Parent` is self-referencing on these objects, points elsewhere on a few, and is polymorphic on the rest. */
+const SELF_PARENT_OBJECTS = new Set(['account', 'asset', 'campaign', 'case']);
+const PARENT_OBJECTS = { casecomment: 'Case', emailmessage: 'Case' };
+
+/** `Owner` is always a User here - on other objects it can also be a Queue. */
+const USER_OWNED_OBJECTS = new Set(['account', 'campaign', 'contact', 'contract', 'opportunity']);
 
 const CHILD_RELATIONSHIPS = {
   accountcontactroles: 'AccountContactRole',
@@ -142,6 +148,11 @@ const DATE_LITERAL_PREFIXES = [
 const DATE_TIME_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}/;
 
+/** SOQL escape sequences that stand for a character. */
+const STRING_ESCAPES = {
+  n: '\n', N: '\n', r: '\r', R: '\r', t: '\t', T: '\t', b: '\b', B: '\b', f: '\f', F: '\f', '"': '"', "'": "'", '\\': '\\',
+};
+
 export function tokenize(input) {
   const tokens = [];
   const source = String(input);
@@ -158,8 +169,8 @@ export function tokenize(input) {
       const c = source[i];
       if (c === '\\' && i + 1 < source.length) {
         const escaped = source[i + 1];
-        // Decode the escapes that stand for a character; keep LIKE escapes (\_ \%) intact.
-        value += "'\"\\\\".includes(escaped) ? escaped : c + escaped;
+        // LIKE escapes (\_ \%) are not characters - keep them for the LIKE pattern.
+        value += STRING_ESCAPES[escaped] ?? c + escaped;
         i += 2;
         continue;
       }
@@ -291,7 +302,7 @@ export function tokenize(input) {
 
       if (/\s/.test(c) && depth === 0) {
         const ahead = source.slice(i).match(/^\s+([+\-*/])/);
-        const continues = ahead || /[+\-*/]$/.test(previousMeaningful);
+        const continues = ahead || /[+\-*/]$/.test(previousMeaningful) || /^new$/i.test(expression);
         if (!continues) break;
         expression += ' ';
         i++;
@@ -325,6 +336,15 @@ const CLAUSE_KEYWORDS = new Set([
   'THEN', 'ELSE', 'LIKE', 'IN', 'INCLUDES', 'EXCLUDES', 'OFFSET',
 ]);
 
+const TYPEOF_KEYWORDS = new Set(['WHEN', 'THEN', 'ELSE', 'END']);
+
+/** Words that start a clause, so they can never be a field. */
+const RESERVED_WORDS = new Set(['AND', 'FROM', 'GROUP', 'HAVING', 'LIMIT', 'OFFSET', 'OR', 'ORDER', 'SELECT', 'USING', 'WHERE', 'WITH']);
+
+const FOR_CLAUSES = new Set(['VIEW', 'REFERENCE', 'UPDATE']);
+
+const DATA_CATEGORY_OPERATORS = new Set(['AT', 'ABOVE', 'BELOW', 'ABOVE_OR_BELOW']);
+
 class Parser {
   constructor(tokens) {
     this.tokens = tokens;
@@ -337,7 +357,9 @@ class Parser {
   }
 
   next() {
-    return this.tokens[this.pos++];
+    const token = this.peek();
+    if (token.type !== 'eof') this.pos++;
+    return token;
   }
 
   atKeyword(word, offset = 0) {
@@ -424,6 +446,7 @@ class Parser {
     }
 
     this.parseTrailingClauses(query);
+    if (query.alias) stripAlias(query, query.alias);
     return query;
   }
 
@@ -432,7 +455,11 @@ class Parser {
       if (this.peek().type === 'eof' || this.atPunct(')')) return;
 
       if (this.eatKeywords('USING', 'SCOPE')) {
-        query.scope = this.next().value.toUpperCase();
+        const scopeToken = this.next();
+        if (scopeToken.type !== 'ident' || CLAUSE_KEYWORDS.has(scopeToken.value.toUpperCase())) {
+          throw new SoqlSyntaxError(`USING SCOPE needs a scope such as MINE, but found "${scopeToken.value || 'end of query'}"`, scopeToken.start);
+        }
+        query.scope = scopeToken.value.toUpperCase();
         continue;
       }
       if (this.eatKeyword('WHERE')) {
@@ -456,11 +483,11 @@ class Parser {
         continue;
       }
       if (this.eatKeyword('LIMIT')) {
-        query.limit = this.next().value;
+        query.limit = this.parseRowCount('LIMIT');
         continue;
       }
       if (this.eatKeyword('OFFSET')) {
-        query.offset = this.next().value;
+        query.offset = this.parseRowCount('OFFSET');
         continue;
       }
       if (this.eatKeywords('ALL', 'ROWS')) {
@@ -480,13 +507,23 @@ class Parser {
       if (this.eatKeyword('FOR')) {
         do {
           const forToken = this.next();
-          query.forClauses.push(String(forToken.value).toUpperCase());
+          const forClause = String(forToken.value).toUpperCase();
+          if (!FOR_CLAUSES.has(forClause)) {
+            throw new SoqlSyntaxError(`FOR needs VIEW, REFERENCE or UPDATE, but found "${forToken.value || 'end of query'}"`, forToken.start);
+          }
+          query.forClauses.push(forClause);
         } while (this.eatPunct(','));
         continue;
       }
 
       throw new SoqlSyntaxError(`Unexpected "${this.peek().value}"`, this.peek().start);
     }
+  }
+
+  parseRowCount(clause) {
+    const token = this.next();
+    if ((token.type === 'number' && /^\d+$/.test(token.value)) || (token.type === 'bind' && token.value)) return token.value;
+    throw new SoqlSyntaxError(`${clause} needs a whole number or a bind variable, but found "${token.value || 'end of query'}"`, token.start);
   }
 
   parseWithClause(query) {
@@ -502,27 +539,45 @@ class Parser {
       query.accessMode = mode;
       return;
     }
+    if (modeToken.type === 'eof') {
+      throw new SoqlSyntaxError('WITH needs USER_MODE, SYSTEM_MODE, SECURITY_ENFORCED or DATA CATEGORY', modeToken.start);
+    }
     throw new SoqlSyntaxError(`Unsupported WITH clause "${modeToken.value}"`, modeToken.start);
   }
 
   parseDataCategories() {
     const filters = [];
     do {
-      const field = this.next().value;
+      const fieldToken = this.next();
       const operatorToken = this.next();
       const operator = String(operatorToken.value).toUpperCase();
+      if (fieldToken.type !== 'ident' || !DATA_CATEGORY_OPERATORS.has(operator)) {
+        const found = fieldToken.type !== 'ident' ? fieldToken : operatorToken;
+        throw new SoqlSyntaxError(
+          `WITH DATA CATEGORY needs a category group and AT, ABOVE, BELOW or ABOVE_OR_BELOW, but found "${found.value || 'end of query'}"`,
+          found.start
+        );
+      }
       const categories = [];
       if (this.eatPunct('(')) {
         do {
-          categories.push(this.next().value);
+          categories.push(this.parseCategoryName());
         } while (this.eatPunct(','));
         this.expectPunct(')');
       } else {
-        categories.push(this.next().value);
+        categories.push(this.parseCategoryName());
       }
-      filters.push({ field, operator, categories });
+      filters.push({ field: fieldToken.value, operator, categories });
     } while (this.eatKeyword('AND'));
     return filters;
+  }
+
+  parseCategoryName() {
+    const token = this.next();
+    if (token.type !== 'ident') {
+      throw new SoqlSyntaxError(`Expected a data category but found "${token.value || 'end of query'}"`, token.start);
+    }
+    return token.value;
   }
 
   parseGroupBy() {
@@ -554,7 +609,13 @@ class Parser {
       let nulls = null;
       if (this.eatKeyword('ASC')) direction = 'ASC';
       else if (this.eatKeyword('DESC')) direction = 'DESC';
-      if (this.eatKeyword('NULLS')) nulls = String(this.next().value).toUpperCase();
+      if (this.eatKeyword('NULLS')) {
+        const nullsToken = this.next();
+        nulls = String(nullsToken.value).toUpperCase();
+        if (nulls !== 'FIRST' && nulls !== 'LAST') {
+          throw new SoqlSyntaxError(`NULLS needs FIRST or LAST, but found "${nullsToken.value || 'end of query'}"`, nullsToken.start);
+        }
+      }
       items.push({ expression, direction, nulls });
     } while (this.eatPunct(','));
     return items;
@@ -590,26 +651,53 @@ class Parser {
     return { kind: 'expression', expression, alias };
   }
 
+  /** TYPEOF field WHEN Type THEN fields [WHEN ...] [ELSE fields] END */
   parseTypeOf() {
+    const start = this.peek().start;
     this.expectKeyword('TYPEOF');
-    const parts = ['TYPEOF', this.next().value];
-    while (!this.atKeyword('END')) {
-      if (this.peek().type === 'eof') {
-        throw new SoqlSyntaxError('TYPEOF is missing its END', this.peek().start);
-      }
-      const token = this.next();
-      if (token.type === 'punct' && token.value === ',') parts[parts.length - 1] += ',';
-      else parts.push(token.value);
+    const field = this.parseTypeOfField();
+    const whens = [];
+    while (this.eatKeyword('WHEN')) {
+      const object = this.parseTypeOfField();
+      this.expectKeyword('THEN');
+      whens.push({ object, fields: this.parseTypeOfFields() });
     }
+    const elseFields = this.eatKeyword('ELSE') ? this.parseTypeOfFields() : [];
     this.expectKeyword('END');
-    parts.push('END');
-    this.warn('TYPEOF has no SOQL Lib equivalent - it is left as a comment in the generated code.');
-    return { kind: 'typeof', raw: parts.join(' ') };
+    if (!whens.length) throw new SoqlSyntaxError('TYPEOF needs at least one WHEN ... THEN branch', start);
+
+    const branches = whens.map((when) => `WHEN ${when.object} THEN ${when.fields.join(', ')}`);
+    if (elseFields.length) branches.push(`ELSE ${elseFields.join(', ')}`);
+    return { kind: 'typeof', field, whens, elseFields, raw: `TYPEOF ${field} ${branches.join(' ')} END` };
+  }
+
+  parseTypeOfField() {
+    const token = this.peek();
+    // Only TYPEOF's own keywords end a field list - `Group` and `Order` are valid object names here.
+    if (token.type !== 'ident' || TYPEOF_KEYWORDS.has(token.value.toUpperCase())) {
+      throw new SoqlSyntaxError(`Expected a field in TYPEOF but found "${token.value || 'end of query'}"`, token.start);
+    }
+    if (this.atPunct('(', 1)) {
+      throw new SoqlSyntaxError('TYPEOF can only select fields - functions are not allowed inside it', token.start);
+    }
+    return this.next().value;
+  }
+
+  parseTypeOfFields() {
+    const fields = [];
+    do {
+      fields.push(this.parseTypeOfField());
+    } while (this.eatPunct(','));
+    return fields;
   }
 
   /** A field path, a function call, or a literal used on the left of a comparison. */
   parseOperand() {
     const token = this.peek();
+
+    if (token.type === 'ident' && RESERVED_WORDS.has(token.value.toUpperCase())) {
+      throw new SoqlSyntaxError(`Expected a field but found "${token.value}"`, token.start);
+    }
 
     if (token.type === 'ident' && this.atPunct('(', 1)) {
       const name = this.next().value;
@@ -634,7 +722,7 @@ class Parser {
       return { kind: 'literal', literal: token };
     }
 
-    throw new SoqlSyntaxError(`Unexpected "${token.value || 'end of query'}"`, token.start);
+    throw new SoqlSyntaxError(`Expected a field but found "${token.value || 'end of query'}"`, token.start);
   }
 
   /* ----- conditions ----- */
@@ -651,6 +739,7 @@ class Parser {
       if (left.type === 'or') left.operands.push(right);
       else left = { type: 'or', operands: [left, right] };
     }
+    if (left.type === 'or') this.checkOperands(left);
     return left;
   }
 
@@ -662,13 +751,16 @@ class Parser {
       if (left.type === 'and') left.operands.push(right);
       else left = { type: 'and', operands: [left, right] };
     }
+    if (left.type === 'and') this.checkOperands(left);
     return left;
   }
 
   parseNot() {
     if (this.atKeyword('NOT') && !this.atKeyword('LIKE', 1) && !this.atKeyword('IN', 1)) {
       this.next();
-      return { type: 'not', operand: this.parseNot() };
+      const operand = this.parseNot();
+      if (operand.type === 'not' && !operand.grouped) this.warnAboutNot();
+      return { type: 'not', operand };
     }
     return this.parsePrimary();
   }
@@ -678,9 +770,24 @@ class Parser {
       this.next();
       const condition = this.parseOr();
       this.expectPunct(')');
-      return condition;
+      return { ...condition, grouped: true };
     }
     return this.parseComparison();
+  }
+
+  /** Salesforce rejects `A AND B OR C` and `A AND NOT B` - translate them, but say so. */
+  checkOperands(node) {
+    for (const operand of node.operands) {
+      if (operand.grouped) continue;
+      if (node.type === 'or' && operand.type === 'and') {
+        this.warn('SOQL needs parentheses when AND and OR are mixed - this was read with AND before OR.');
+      }
+      if (operand.type === 'not') this.warnAboutNot();
+    }
+  }
+
+  warnAboutNot() {
+    this.warn('SOQL accepts NOT only at the start of a condition or inside its own parentheses - write AND (NOT ...) instead.');
   }
 
   parseComparison() {
@@ -689,26 +796,26 @@ class Parser {
 
     if (operatorToken.type === 'op') {
       this.next();
-      return { type: 'comparison', field, operator: operatorToken.value, value: this.parseValue() };
+      return { type: 'comparison', field, operator: operatorToken.value, value: this.parseValue(operatorToken.value) };
     }
 
     if (operatorToken.type === 'ident') {
       const word = operatorToken.value.toUpperCase();
       if (word === 'NOT' && (this.atKeyword('LIKE', 1) || this.atKeyword('IN', 1))) {
         this.next();
-        const nextWord = this.next().value.toUpperCase();
-        return { type: 'comparison', field, operator: `NOT ${nextWord}`, value: this.parseValue() };
+        const operator = `NOT ${this.next().value.toUpperCase()}`;
+        return { type: 'comparison', field, operator, value: this.parseValue(operator) };
       }
       if (word === 'LIKE' || word === 'IN' || word === 'INCLUDES' || word === 'EXCLUDES') {
         this.next();
-        return { type: 'comparison', field, operator: word, value: this.parseValue() };
+        return { type: 'comparison', field, operator: word, value: this.parseValue(word) };
       }
     }
 
     throw new SoqlSyntaxError(`Expected a comparison operator but found "${operatorToken.value || 'end of query'}"`, operatorToken.start);
   }
 
-  parseValue() {
+  parseValue(operator) {
     if (this.atPunct('(')) {
       if (this.atKeyword('SELECT', 1)) {
         this.next();
@@ -716,23 +823,49 @@ class Parser {
         this.expectPunct(')');
         return { kind: 'semiJoin', query: subQuery };
       }
-      this.next();
+      const start = this.next().start;
       const values = [];
       if (!this.atPunct(')')) {
         do {
-          values.push(this.next());
+          values.push(this.parseLiteral(operator));
         } while (this.eatPunct(','));
       }
       this.expectPunct(')');
+      if (!values.length) throw new SoqlSyntaxError(`${operator} needs at least one value`, start);
       return { kind: 'list', values };
     }
 
-    const token = this.next();
-    if (token.type === 'ident' && this.atPunct('(')) {
-      this.pos--;
+    if (this.peek().type === 'ident' && this.atPunct('(', 1)) {
       return { kind: 'expression', expression: this.parseOperand() };
     }
-    return { kind: 'scalar', token };
+    return { kind: 'scalar', token: this.parseLiteral(operator) };
+  }
+
+  parseLiteral(operator) {
+    const token = this.next();
+    if (token.type === 'bind' && !token.value) throw new SoqlSyntaxError('Expected a bind variable after ":"', token.start);
+    if (['string', 'number', 'date', 'datetime', 'bind'].includes(token.type)) return token;
+    if (token.type === 'ident' && isLiteralWord(token.value)) return token;
+    if (token.type === 'ident' && !CLAUSE_KEYWORDS.has(token.value.toUpperCase())) {
+      throw new SoqlSyntaxError(`${token.value} is not a value - text needs quotes: '${token.value}'`, token.start);
+    }
+    throw new SoqlSyntaxError(`Expected a value after ${operator} but found "${token.value || 'end of query'}"`, token.start);
+  }
+}
+
+/** `SELECT a.Name FROM Account a` - SOQL Lib has no alias, so it is dropped from every field path. */
+function stripAlias(node, alias) {
+  if (Array.isArray(node)) {
+    node.forEach((item) => stripAlias(item, alias));
+    return;
+  }
+  if (!node || typeof node !== 'object') return;
+  if (node.kind === 'field' && node.path.toLowerCase().startsWith(`${alias.toLowerCase()}.`)) {
+    node.path = node.path.slice(alias.length + 1);
+  }
+  for (const [key, value] of Object.entries(node)) {
+    // Sub-queries and semi-joins have their own scope.
+    if (key !== 'query') stripAlias(value, alias);
   }
 }
 
@@ -759,12 +892,23 @@ function customRelationshipToObject(name) {
   return name.replace(/__r$/i, '__c');
 }
 
-/** Resolve the SObject that a relationship path points at, or null. */
+/** Resolve the SObject that a relationship path points at, or null when a hop is unknown or polymorphic. */
 function resolveParentObject(relationshipPath, rootObject) {
-  const lastSegment = relationshipPath.split('.').pop();
-  if (isCustomRelationship(lastSegment)) return customRelationshipToObject(lastSegment);
-  const key = lastSegment.toLowerCase();
-  if (SELF_PARENT_RELATIONSHIPS.has(key)) return rootObject;
+  let current = rootObject;
+  for (const relationship of relationshipPath.split('.')) {
+    current = resolveRelationship(relationship, current);
+    if (!current) return null;
+  }
+  return current;
+}
+
+function resolveRelationship(relationship, fromObject) {
+  if (isCustomRelationship(relationship)) return customRelationshipToObject(relationship);
+  const key = relationship.toLowerCase();
+  const from = String(fromObject || '').toLowerCase();
+  if (key === 'parent') return SELF_PARENT_OBJECTS.has(from) ? fromObject : PARENT_OBJECTS[from] || null;
+  if (key === 'owner') return USER_OWNED_OBJECTS.has(from) ? 'User' : null;
+  if (SELF_PARENT_RELATIONSHIPS.has(key)) return fromObject || null;
   return PARENT_RELATIONSHIPS[key] || null;
 }
 
@@ -779,14 +923,26 @@ function splitFieldPath(path) {
   return { relationship: segments.length ? segments.join('.') : null, field };
 }
 
+/** Apex and SOQL share the escape sequences used inside a quoted string. */
+const QUOTED_ESCAPES = { '\\': '\\\\', "'": "\\'", '\n': '\\n', '\r': '\\r', '\t': '\\t', '\b': '\\b', '\f': '\\f' };
+
 function apexString(value) {
-  return `'${String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+  return `'${String(value).replace(/[\\'\n\r\t\b\f]/g, (character) => QUOTED_ESCAPES[character])}'`;
 }
 
 function isDateLiteral(value) {
   const upper = String(value).toUpperCase();
   if (DATE_LITERALS.has(upper)) return true;
   return DATE_LITERAL_PREFIXES.some((prefix) => upper.startsWith(`${prefix}:`));
+}
+
+/** USD5000, EUR1250.50 - only valid in multi-currency orgs. */
+function isCurrencyLiteral(value) {
+  return /^[A-Z]{3}\d+(?:\.\d+)?$/i.test(String(value));
+}
+
+function isLiteralWord(value) {
+  return ['TRUE', 'FALSE', 'NULL'].includes(String(value).toUpperCase()) || isDateLiteral(value) || isCurrencyLiteral(value);
 }
 
 /** `SOQL.Filter.with(...)` accepts up to five tokens; beyond that use a List. */
@@ -873,8 +1029,7 @@ class Generator {
     for (const forClause of query.forClauses) {
       if (forClause === 'UPDATE') lines.push(`${INDENT}.forUpdate()`);
       else if (forClause === 'VIEW') lines.push(`${INDENT}.forView()`);
-      else if (forClause === 'REFERENCE') lines.push(`${INDENT}.forReference()`);
-      else this.warn(`FOR ${forClause} has no SOQL Lib equivalent and was dropped.`);
+      else lines.push(`${INDENT}.forReference()`);
     }
     if (query.allRows) lines.push(`${INDENT}.allRows()`);
 
@@ -919,6 +1074,10 @@ class Generator {
       if (!grouped.has(stored)) dropped.push(stored);
     }
 
+    for (const item of query.fields) {
+      if (item.kind === 'typeof') dropped.push(item.raw);
+    }
+
     if (dropped.length) {
       this.warn(`SOQL Lib removes non-grouped elements from an aggregate query, so ${dropped.join(', ')} will not be selected.`);
     }
@@ -943,7 +1102,7 @@ class Generator {
 
   /* ----- SELECT ----- */
 
-  selectLines(query, level) {
+  selectLines(query, level, isSubQuery = false) {
     const lines = [];
     const pad = indentOf(level);
     const plainFields = [];
@@ -956,10 +1115,12 @@ class Generator {
         continue;
       }
       if (item.kind === 'typeof') {
-        trailing.push([
-          `${pad}// TYPEOF has no SOQL Lib equivalent - select this polymorphic field manually:`,
-          `${pad}// ${item.raw}`,
-        ]);
+        if (isSubQuery) {
+          this.warn('TYPEOF inside a sub-query is not supported by SOQL Lib - it is left as a comment in the generated code.');
+          trailing.push([`${pad}// ${item.raw}`]);
+        } else {
+          trailing.push(this.typeOfLines(item, query, level));
+        }
         continue;
       }
 
@@ -1062,7 +1223,7 @@ class Generator {
     const lines = [`${indentOf(level)}.with(SOQL.SubQuery.of(${apexString(subQuery.object)})`];
 
     const scoped = { ...subQuery, object: childObject };
-    lines.push(...this.selectLines(scoped, inner));
+    lines.push(...this.selectLines(scoped, inner, true));
 
     if (subQuery.where) {
       const body = this.renderCondition(subQuery.where, scoped, inner + 1);
@@ -1084,6 +1245,56 @@ class Generator {
     }
 
     lines.push(`${indentOf(level)})`);
+    return lines;
+  }
+
+  /* ----- TYPEOF ----- */
+
+  typeOfLines(typeOf, query, level) {
+    const pad = indentOf(level);
+    const inner = indentOf(level + 1);
+    const lines = [`${pad}.with(SOQL.TypeOf.of(${this.typeOfTarget(typeOf.field, query)})`];
+
+    for (const when of typeOf.whens) {
+      lines.push(`${inner}.when(${when.object}.SObjectType)`);
+      lines.push(...this.typeOfThenLines(when.object, when.fields, level + 1));
+    }
+    if (typeOf.elseFields.length) lines.push(`${inner}.whenElse(${apexString(typeOf.elseFields.join(', '))})`);
+
+    lines.push(`${pad})`);
+    return lines;
+  }
+
+  /** `of()` takes the lookup field token when the polymorphic relationship sits on the queried object. */
+  typeOfTarget(relationship, query) {
+    if (!query.object || relationship.includes('.')) return apexString(relationship);
+    const lookupField = isCustomRelationship(relationship) ? customRelationshipToObject(relationship) : `${relationship}Id`;
+    return `${query.object}.${lookupField}`;
+  }
+
+  typeOfThenLines(objectName, fields, level) {
+    const pad = indentOf(level);
+    const plainFields = [];
+    const relationshipGroups = new Map();
+
+    for (const path of fields) {
+      const { relationship, field } = splitFieldPath(path);
+      if (!relationship) {
+        plainFields.push(field);
+        continue;
+      }
+      if (!relationshipGroups.has(relationship)) relationshipGroups.set(relationship, []);
+      relationshipGroups.get(relationship).push(field);
+    }
+
+    const lines = [];
+    if (plainFields.length) lines.push(`${pad}.then(${fieldTokenList(objectName, plainFields, level)})`);
+    for (const [relationship, relatedFields] of relationshipGroups) {
+      const parentObject = resolveParentObject(relationship, objectName);
+      lines.push(parentObject
+        ? `${pad}.then(${apexString(relationship)}, ${fieldTokenList(parentObject, relatedFields, level)})`
+        : `${pad}.then(${apexString(relatedFields.map((field) => `${relationship}.${field}`).join(', '))})`);
+    }
     return lines;
   }
 
@@ -1164,11 +1375,6 @@ class Generator {
     const method = {
       AT: 'at', ABOVE: 'above', BELOW: 'below', ABOVE_OR_BELOW: 'aboveOrBelow',
     }[dataCategory.operator];
-
-    if (!method) {
-      this.warn(`WITH DATA CATEGORY operator "${dataCategory.operator}" is not supported.`);
-      return `SOQL.DataCategoryFilter.with(${apexString(dataCategory.field)}).at(${apexString(dataCategory.categories[0])})`;
-    }
     const argument = dataCategory.categories.length === 1
       ? apexString(dataCategory.categories[0])
       : `new List<String>{ ${dataCategory.categories.map(apexString).join(', ')} }`;
@@ -1232,7 +1438,7 @@ function expressionToSoql(expression) {
 }
 
 function tokenToSoql(token) {
-  if (token.type === 'string') return `'${token.value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+  if (token.type === 'string') return apexString(token.value);
   if (token.type === 'bind') return `:${token.value}`;
   return token.value;
 }
@@ -1254,6 +1460,11 @@ function queryToSoql(query) {
   if (query.where) soql += ` WHERE ${conditionToSoql(query.where)}`;
   if (query.limit !== null) soql += ` LIMIT ${query.limit}`;
   return soql;
+}
+
+function hasCurrencyLiteral(value) {
+  const tokens = value.kind === 'scalar' ? [value.token] : value.kind === 'list' ? value.values : [];
+  return tokens.some((token) => token.type === 'ident' && isCurrencyLiteral(token.value));
 }
 
 /** Infer the Apex list type for an `IN (...)` literal list. */
@@ -1297,8 +1508,7 @@ Object.assign(Generator.prototype, {
     if (node.type === 'not') {
       const negated = negateCondition(node.operand);
       if (negated) return this.renderCondition(negated, query, level);
-      this.warn('NOT could not be pushed into a filter and was emitted as a raw condition string.');
-      return `SOQL.FilterGroup.add(${apexString(`NOT (${conditionToSoql(node.operand)})`)})`;
+      return this.negatedGroup(node.operand, 'SOQL.FilterGroup', level, (operand, operandLevel) => this.renderCondition(operand, query, operandLevel));
     }
 
     if (node.type === 'and' || node.type === 'or') {
@@ -1316,7 +1526,28 @@ Object.assign(Generator.prototype, {
     return this.renderFilter(node, query, level);
   },
 
+  /**
+   * A NOT that cannot become a negated comparator (a range check would start matching nulls)
+   * goes into a group that negates its operands: `(NOT (1 OR 2))`.
+   */
+  negatedGroup(operand, groupType, level, render) {
+    const pad = indentOf(level);
+    const operands = operand.type === 'and' || operand.type === 'or' ? operand.operands : [operand];
+    const lines = [groupType];
+    for (const entry of operands) {
+      lines.push(`${pad}${call('.add', render(entry, level + 1), level)}`);
+    }
+    const positions = operands.map((_, index) => index + 1).join(` ${operand.type.toUpperCase()} `);
+    lines.push(`${pad}.conditionLogic('NOT ${operands.length > 1 ? `(${positions})` : positions}')`);
+    return lines.join('\n');
+  },
+
   renderFilter(comparison, query, level) {
+    if (hasCurrencyLiteral(comparison.value)) {
+      this.warn('Currency literals such as USD5000 have no SOQL.Filter equivalent, so the condition was emitted as a raw string.');
+      return apexString(conditionToSoql(comparison));
+    }
+
     const reference = this.filterFieldReference(comparison.field, query);
     if (!reference) {
       this.warn('A condition could not be mapped to SOQL.Filter and was emitted as a raw string.');
@@ -1466,7 +1697,10 @@ Object.assign(Generator.prototype, {
 
   renderDistance(expression, query) {
     const [fieldArgument, locationArgument, unitArgument] = expression.args;
-    if (!fieldArgument || fieldArgument.kind !== 'field') return apexString(expressionToSoql(expression));
+    if (expression.args.length !== 3) {
+      throw new SoqlSyntaxError('DISTANCE needs a location field, GEOLOCATION(latitude, longitude) and a unit');
+    }
+    if (fieldArgument.kind !== 'field') return apexString(expressionToSoql(expression));
 
     const { relationship, field } = splitFieldPath(fieldArgument.path);
     let target;
@@ -1493,8 +1727,7 @@ Object.assign(Generator.prototype, {
     if (node.type === 'not') {
       const negated = negateCondition(node.operand);
       if (negated) return this.renderHaving(negated, query, level);
-      this.warn('NOT could not be pushed into a HAVING filter and was emitted as a raw condition string.');
-      return apexString(`NOT (${conditionToSoql(node.operand)})`);
+      return this.negatedGroup(node.operand, 'SOQL.HavingFilterGroup', level, (operand, operandLevel) => this.renderHaving(operand, query, operandLevel));
     }
 
     if (node.type === 'and' || node.type === 'or') {
@@ -1506,6 +1739,11 @@ Object.assign(Generator.prototype, {
       }
       if (node.type === 'or') lines.push(`${pad}.anyConditionMatching()`);
       return lines.join('\n');
+    }
+
+    if (hasCurrencyLiteral(node.value)) {
+      this.warn('Currency literals such as USD5000 have no SOQL.HavingFilter equivalent, so the condition was emitted as a raw string.');
+      return apexString(conditionToSoql(node));
     }
 
     const reference = this.havingFieldReference(node.field, query);
@@ -1523,11 +1761,8 @@ Object.assign(Generator.prototype, {
       if (!AGGREGATE_FUNCTIONS.has(name) || expression.args.length !== 1 || expression.args[0].kind !== 'field') return null;
       const method = name === 'COUNT_DISTINCT' ? 'countDistinct' : name.toLowerCase();
       const { relationship, field } = splitFieldPath(expression.args[0].path);
-      if (relationship) {
-        const parentObject = resolveParentObject(relationship, query.object);
-        if (!parentObject) return null;
-        return `SOQL.HavingFilter.${method}(${parentObject}.${field})`;
-      }
+      // The aggregate methods take a token of the queried object, so a related field goes in as text.
+      if (relationship) return `SOQL.HavingFilter.with(${apexString(expressionToSoql(expression))})`;
       return `SOQL.HavingFilter.${method}(${query.object}.${field})`;
     }
     if (expression.kind !== 'field') return null;
