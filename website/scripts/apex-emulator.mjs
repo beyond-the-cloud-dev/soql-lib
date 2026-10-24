@@ -357,6 +357,22 @@ class MainDataCategoryGroup extends FilterGroup {
   toString() { return this.conditions.length ? `WITH DATA CATEGORY ${this.buildNested()}` : ''; }
 }
 
+/** Mirrors SOQL.SoqlFormula: FORMULA() takes no bind variables, so the value is written into the query. */
+class Formula {
+  constructor(formula) { this.formula = formula; }
+  set(comparator, value) { this.comparator = comparator; this.value = value; return this; }
+  equal(value) { return this.set('=', value); }
+  notEqual(value) { return this.set('!=', value); }
+  lessThan(value) { return this.set('<', value); }
+  lessOrEqual(value) { return this.set('<=', value); }
+  greaterThan(value) { return this.set('>', value); }
+  greaterOrEqual(value) { return this.set('>=', value); }
+  toString() {
+    const formula = String(this.formula).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    return `FORMULA('${formula}') ${this.comparator} ${soqlLiteral(this.value)}`;
+  }
+}
+
 class Distance {
   constructor() { this.unitValue = 'km'; }
   of(...args) { this.field = args.length === 1 ? String(args[0]) : `${args[0]}.${args[1]}`; return this; }
@@ -739,6 +755,9 @@ function evaluate(node) {
       const argument = evaluate(node.args[0]);
       return { t: 'object', value: new FluentQuery(argument.value) };
     }
+    if (isSoqlRoot(node.target) && node.name === 'Formula') {
+      return { t: 'object', value: new Formula(evaluate(node.args[0]).value) };
+    }
 
     const target = evaluate(node.target);
     const args = node.args.map(evaluate);
@@ -775,7 +794,7 @@ function evaluate(node) {
       if (node.name === 'ignoreWhen') { receiver.ignoreWhen(args[0].value); return target; }
       throw new Error(`Unknown FilterGroup method ".${node.name}()"`);
     }
-    if (receiver instanceof Filter || receiver instanceof DataCategoryFilter || receiver instanceof Distance) {
+    if (receiver instanceof Filter || receiver instanceof Formula || receiver instanceof DataCategoryFilter || receiver instanceof Distance) {
       const method = receiver[node.name];
       if (typeof method !== 'function') throw new Error(`Unknown ${receiver.constructor.name} method ".${node.name}()"`);
       const takesFields = FIELD_METHODS.has(node.name);

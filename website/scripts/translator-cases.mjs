@@ -62,6 +62,38 @@ export default [
     noWarning: 'raw',
   },
 
+  /* ----- FORMULA() becomes SOQL.Formula ----- */
+  {
+    soql: "SELECT Id FROM Opportunity WHERE FORMULA('Amount - ExpectedRevenue') > 100",
+    includes: [".whereAre(SOQL.Formula('Amount - ExpectedRevenue').greaterThan(100))"],
+    noWarning: 'raw',
+  },
+  {
+    soql: "SELECT Id FROM Opportunity WHERE FORMULA('CloseDate + Probability') < 2026-11-01",
+    includes: [".whereAre(SOQL.Formula('CloseDate + Probability').lessThan(Date.newInstance(2026, 11, 1)))"],
+  },
+  {
+    soql: "SELECT Id FROM Opportunity WHERE FORMULA('Amount - ExpectedRevenue') >= :minimumMargin",
+    includes: [".whereAre(SOQL.Formula('Amount - ExpectedRevenue').greaterOrEqual(minimumMargin))"],
+  },
+  {
+    soql: "SELECT Id FROM Opportunity WHERE StageName = 'Closed Won' AND FORMULA('Amount - ExpectedRevenue') != 0",
+    includes: [".add(SOQL.Formula('Amount - ExpectedRevenue').notEqual(0))"],
+  },
+  {
+    soql: "SELECT Id FROM Opportunity WHERE NOT FORMULA('Amount - ExpectedRevenue') > 100",
+    includes: [".add(SOQL.Formula('Amount - ExpectedRevenue').greaterThan(100))", ".conditionLogic('NOT 1')"],
+  },
+  {
+    soql: "SELECT Id, (SELECT Id FROM Opportunities WHERE FORMULA('Amount - ExpectedRevenue') > 100) FROM Account",
+    includes: [".whereAre(SOQL.Formula('Amount - ExpectedRevenue').greaterThan(100))"],
+  },
+  {
+    soql: "SELECT Id FROM Opportunity WHERE FORMULA('CreatedDate + Probability') > 2026-01-01T00:00:00Z",
+    includes: [".whereAre('FORMULA(\\'CreatedDate + Probability\\') > 2026-01-01T00:00:00Z')"],
+    warning: 'SOQL.Formula',
+  },
+
   /* ----- string escapes ----- */
   { soql: String.raw`SELECT Id FROM Account WHERE Site = 'Line1\nLine2'`, includes: [String.raw`.equal('Line1\nLine2')`] },
   { soql: String.raw`SELECT Id FROM Account WHERE Site = 'Tab\tTab'`, includes: [String.raw`.equal('Tab\tTab')`] },
