@@ -1462,6 +1462,14 @@ function queryToSoql(query) {
   return soql;
 }
 
+function isFormula(expression) {
+  return expression.kind === 'function'
+    && expression.name.toUpperCase() === 'FORMULA'
+    && expression.args.length === 1
+    && expression.args[0].kind === 'literal'
+    && expression.args[0].literal.type === 'string';
+}
+
 function hasCurrencyLiteral(value) {
   const tokens = value.kind === 'scalar' ? [value.token] : value.kind === 'list' ? value.values : [];
   return tokens.some((token) => token.type === 'ident' && isCurrencyLiteral(token.value));
@@ -1543,6 +1551,8 @@ Object.assign(Generator.prototype, {
   },
 
   renderFilter(comparison, query, level) {
+    if (isFormula(comparison.field)) return this.renderFormula(comparison);
+
     if (hasCurrencyLiteral(comparison.value)) {
       this.warn('Currency literals such as USD5000 have no SOQL.Filter equivalent, so the condition was emitted as a raw string.');
       return apexString(conditionToSoql(comparison));
@@ -1560,6 +1570,19 @@ Object.assign(Generator.prototype, {
       return apexString(conditionToSoql(comparison));
     }
     return `${reference}${suffix}`;
+  },
+
+  /** `FORMULA('Amount - ExpectedRevenue') > 100` - SOQL.Formula takes a number or a date. */
+  renderFormula(comparison) {
+    const method = {
+      '=': 'equal', '!=': 'notEqual', '<': 'lessThan', '<=': 'lessOrEqual', '>': 'greaterThan', '>=': 'greaterOrEqual',
+    }[comparison.operator];
+    const token = comparison.value.kind === 'scalar' ? comparison.value.token : null;
+    if (!method || !token || !['number', 'date', 'bind'].includes(token.type)) {
+      this.warn('SOQL.Formula compares only with a number or a date, so the condition was emitted as a raw string.');
+      return apexString(conditionToSoql(comparison));
+    }
+    return `SOQL.Formula(${apexString(comparison.field.args[0].literal.value)}).${method}(${literalToApex(token)})`;
   },
 
   filterFieldReference(expression, query) {

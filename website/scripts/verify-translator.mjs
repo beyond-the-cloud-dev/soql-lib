@@ -137,7 +137,7 @@ function canonical(query) {
  * ------------------------------------------------------------------ */
 
 const CLS = fs.readFileSync(path.join(REPO, 'force-app/main/default/classes/standard-soql/SOQL.cls'), 'utf8');
-const INTERFACES = ['Queryable', 'SubQuery', 'TypeOf', 'FilterGroup', 'Filter', 'InnerJoin', 'HavingFilterGroup', 'HavingFilter', 'DataCategoryFilter', 'Distance'];
+const INTERFACES = ['Queryable', 'SubQuery', 'TypeOf', 'FilterGroup', 'Filter', 'Formula', 'InnerJoin', 'HavingFilterGroup', 'HavingFilter', 'DataCategoryFilter', 'Distance'];
 const TERMINALS = new Set(['toList', 'toInteger', 'toAggregated', 'toObject', 'toIds', 'doExist']);
 const ROOTS = {
   Filter: 'Filter', FilterGroup: 'FilterGroup', HavingFilter: 'HavingFilter',
@@ -166,6 +166,7 @@ for (const name of INTERFACES) {
 
 function receiverType(node) {
   if (node.kind === 'call' && node.target?.kind === 'ident' && node.target.value === 'SOQL' && node.name === 'of') return 'Queryable';
+  if (node.kind === 'call' && node.target?.kind === 'ident' && node.target.value === 'SOQL' && node.name === 'Formula') return 'Formula';
   if (node.kind === 'member' && node.target?.kind === 'ident' && node.target.value === 'SOQL') return ROOTS[node.name] || null;
   return null;
 }

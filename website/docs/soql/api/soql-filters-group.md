@@ -23,6 +23,7 @@ The following are methods for `FilterGroup`.
 
 - [`add(FilterGroup filterGroup)`](#add)
 - [`add(Filter filter)`](#add)
+- [`add(Formula formula)`](#add)
 - [`add(String dynamicCondition)`](#add)
 - [`add(List<Filter> filters)`](#add)
 - [`add(List<String> dynamicConditions)`](#add)
@@ -40,13 +41,14 @@ The following are methods for `FilterGroup`.
 ### add
 
 Allows to add multiple conditions.
-Add a [`SOQL.Filter`](soql-filter.md) or [`SOQL.FilterGroup`](soql-filters-group.md) or `String`.
+Add a [`SOQL.Filter`](soql-filter.md), [`SOQL.Formula`](soql-formula.md), [`SOQL.FilterGroup`](soql-filters-group.md) or `String`.
 
 **Signature**
 
 ```apex
 FilterGroup add(FilterGroup filterGroup)
 FilterGroup add(Filter filter)
+FilterGroup add(Formula formula)
 FilterGroup add(String dynamicCondition)
 FilterGroup add(List<Filter> filters)
 FilterGroup add(List<String> dynamicConditions)
