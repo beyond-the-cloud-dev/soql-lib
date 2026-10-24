@@ -2965,11 +2965,11 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public HavingFilter isIn(Iterable<Object> iterable) {
-            return this.set('IN', iterable, '\', \'');
+            return this.set('IN', iterable);
         }
 
         public HavingFilter notIn(Iterable<Object> iterable) {
-            return this.set('NOT IN', iterable, '\', \'');
+            return this.set('NOT IN', iterable);
         }
 
         private String formattedString(String value) {
@@ -2981,15 +2981,9 @@ public virtual inherited sharing class SOQL implements Queryable {
             return this;
         }
 
-        public HavingFilter set(String operator, Iterable<String> iterable, String separator) {
-            this.comparator = operator;
-            this.value = '(\'' + String.join(iterable, separator) + '\')';
-            return this;
-        }
-
         private HavingFilter set(String comparator, Object value) {
             this.comparator = comparator;
-            this.value = value instanceof String ? '\'' + value + '\'' : value;
+            this.value = value;
             return this;
         }
 
@@ -2998,7 +2992,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         public override String toString() {
-            return String.format(this.wrapper, new List<String>{ this.field + ' ' + this.comparator + ' ' + this.value });
+            return String.format(this.wrapper, new List<String>{ this.field + ' ' + this.comparator + ' :' + binder.bind(this.value) });
         }
     }
 
