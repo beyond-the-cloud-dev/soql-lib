@@ -50,9 +50,11 @@ The following are methods for using `SOQLEvaluator`:
 - [`toMap(SObjectField keyField)`](#tomap-with-custom-key)
 - [`toMap(String relationshipName, SObjectField targetKeyField)`](#tomap-with-custom-relationship-key)
 - [`toMap(SObjectField keyField, SObjectField valueField)`](#tomap-with-custom-key-and-value)
+- [`toMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField)`](#tomap-with-custom-key-and-relationship-value)
 - [`toAggregatedMap(SObjectField keyField)`](#toaggregatedmap)
 - [`toAggregatedMap(String relationshipName, SObjectField targetKeyField)`](#toaggregatedmap-with-custom-relationship-key)
 - [`toAggregatedMap(SObjectField keyField, SObjectField valueField)`](#toaggregatedmap-with-custom-value)
+- [`toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField)`](#toaggregatedmap-with-custom-key-and-relationship-value)
 
 ## INIT
 ### of
@@ -430,6 +432,24 @@ Map<String, String> nameToIndustry = SOQLEvaluator.of([
 ]).toMap(Account.Name, Account.Industry);
 ```
 
+### toMap with custom key and relationship value
+
+**Signature**
+
+```apex
+Map<String, String> toMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField)
+```
+
+**Example**
+
+```apex
+Map<String, String> accountNameToParentName = SOQLEvaluator.of([
+    SELECT Id, Name, Parent.Name
+    FROM Account
+    WITH USER_MODE
+]).toMap(Account.Name, 'Parent', Account.Name);
+```
+
 ### toAggregatedMap
 
 **Signature**
@@ -482,4 +502,22 @@ Map<String, List<String>> industryToAccountNames = SOQLEvaluator.of([
     FROM Account
     WITH USER_MODE
 ]).toAggregatedMap(Account.Industry, Account.Name);
+```
+
+### toAggregatedMap with custom key and relationship value
+
+**Signature**
+
+```apex
+Map<String, List<String>> toAggregatedMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField)
+```
+
+**Example**
+
+```apex
+Map<String, List<String>> industryToParentNames = SOQLEvaluator.of([
+    SELECT Id, Industry, Parent.Name
+    FROM Account
+    WITH USER_MODE
+]).toAggregatedMap(Account.Industry, 'Parent', Account.Name);
 ```

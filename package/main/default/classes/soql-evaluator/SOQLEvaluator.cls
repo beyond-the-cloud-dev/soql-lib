@@ -34,6 +34,7 @@ global inherited sharing class SOQLEvaluator {
         Map<String, SObject> toMap(SObjectField keyField);
         Map<String, SObject> toMap(String relationshipName, SObjectField targetKeyField);
         Map<String, String> toMap(SObjectField keyField, SObjectField valueField);
+        Map<String, String> toMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField);
         Map<String, List<SObject>> toAggregatedMap(SObjectField keyField);
         Map<String, List<SObject>> toAggregatedMap(String relationshipName, SObjectField targetKeyField);
         Map<String, List<String>> toAggregatedMap(SObjectField keyField, SObjectField valueField);
@@ -158,6 +159,10 @@ global inherited sharing class SOQLEvaluator {
 
         public Map<String, String> toMap(SObjectField keyField, SObjectField valueField) {
             return this.converter.transform(this.toList()).toMap(keyField, valueField);
+        }
+
+        public Map<String, String> toMap(SObjectField keyField, String relationshipName, SObjectField targetKeyField) {
+            return this.converter.transform(this.toList()).toMap(keyField, relationshipName, targetKeyField);
         }
 
         public Map<String, List<SObject>> toAggregatedMap(SObjectField keyField) {

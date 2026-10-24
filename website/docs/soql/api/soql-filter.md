@@ -659,7 +659,7 @@ SOQL.of(Contact.SObjectType)
 
 ### isIn with SObject field extraction
 
-Extract field values from source records to use in IN condition.
+Extract field values from source records to use in IN condition. Values keep the original field type, so filtering by non-string fields (e.g. `Date`, `Number`) works as well.
 
 **Signature**
 
@@ -708,7 +708,7 @@ SOQL.of(Contact.SObjectType)
 
 ### notIn with SObject field extraction
 
-Extract field values from source records to use in NOT IN condition.
+Extract field values from source records to use in NOT IN condition. Values keep the original field type, so filtering by non-string fields (e.g. `Date`, `Number`) works as well.
 
 **Signature**
 

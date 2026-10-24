@@ -3,7 +3,7 @@
  * Copyright (c) 2025 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.12.0
+ * v6.13.0
  *
  * PMD False Positives:
  * - CyclomaticComplexity: It is a library and we tried to put everything into ONE test class
@@ -534,11 +534,7 @@ private class SOQLCache_Test {
 
         // Test
         try {
-            SOQLCache.of(Profile.SObjectType)
-                .with(Profile.Id, Profile.Name)
-                .whereEqual(Profile.UserType, 'Standard')
-                .whereEqual(Profile.Description, 'Test')
-                .toObject();
+            SOQLCache.of(Profile.SObjectType).with(Profile.Id, Profile.Name).whereEqual(Profile.UserType, 'Standard').whereEqual(Profile.Description, 'Test').toObject();
         } catch (SOQLCache.SoqlCacheException e) {
             soqlException = e;
         }
@@ -559,11 +555,7 @@ private class SOQLCache_Test {
 
         // Test
         try {
-            SOQLCache.of(Profile.SObjectType)
-                .with(Profile.Id, Profile.Name)
-                .whereEqual(Profile.UserType, 'Standard')
-                .whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR)
-                .toObject();
+            SOQLCache.of(Profile.SObjectType).with(Profile.Id, Profile.Name).whereEqual(Profile.UserType, 'Standard').whereEqual(Profile.Name, SYSTEM_ADMINISTRATOR).toObject();
         } catch (SOQLCache.SoqlCacheException e) {
             soqlException = e;
         }
@@ -615,11 +607,7 @@ private class SOQLCache_Test {
 
         // Test
         try {
-            SOQLCache.of(Profile.SObjectType)
-                .with(Profile.Id, Profile.Name)
-                .allowFilteringByNonUniqueFields()
-                .whereEqual(Profile.UserType, 'NonExistingType')
-                .toObject();
+            SOQLCache.of(Profile.SObjectType).with(Profile.Id, Profile.Name).allowFilteringByNonUniqueFields().whereEqual(Profile.UserType, 'NonExistingType').toObject();
         } catch (SOQLCache.SoqlCacheException e) {
             soqlException = e;
         }

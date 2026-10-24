@@ -1,2 +1,4 @@
 User-agent: *
 Disallow:
+
+Sitemap: https://soql.beyondthecloud.dev/sitemap.xml

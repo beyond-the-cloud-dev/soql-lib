@@ -604,6 +604,18 @@
     "soql": "SELECT Id,\n       Subject,Status,\n              Priority,ActivityDate\n  FROM Task"
   },
   {
+    "category": "select-basics",
+    "soql": "SELECT Id, TYPEOF Parent.Owner WHEN User THEN Email WHEN Group THEN Name END FROM CaseComment"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT Id, TYPEOF What WHEN Order THEN OrderNumber WHEN Account THEN Name END FROM Task"
+  },
+  {
+    "category": "select-basics",
+    "soql": "SELECT TYPEOF What WHEN Opportunity THEN Name, Account.Name, Account.Phone END FROM Event"
+  },
+  {
     "category": "parent-fields",
     "soql": "SELECT Id, Name, Owner.Name FROM Account"
   },
@@ -2001,11 +2013,23 @@
   },
   {
     "category": "lib-tests",
+    "soql": "SELECT Id FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT() FROM Account"
+  },
+  {
+    "category": "lib-tests",
     "soql": "SELECT COUNT(Id), COUNT(CampaignId) FROM Opportunity"
   },
   {
     "category": "lib-tests",
     "soql": "SELECT COUNT(Name) names FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT(Account.Name) FROM Contact"
   },
   {
     "category": "lib-tests",
@@ -2022,6 +2046,14 @@
   {
     "category": "lib-tests",
     "soql": "SELECT AVG(Opportunity.Amount) FROM OpportunityLineItem"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT AVG(Opportunity.Amount) amount FROM OpportunityLineItem"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT_DISTINCT(Company) FROM Lead"
   },
   {
     "category": "lib-tests",
@@ -2089,7 +2121,19 @@
   },
   {
     "category": "lib-tests",
+    "soql": "SELECT Company, toLabel(Status) FROM Lead"
+  },
+  {
+    "category": "lib-tests",
     "soql": "SELECT Company, toLabel(RecordType.Name) FROM Lead"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Company, toLabel(Status) leadStatus FROM Lead"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Company, toLabel(RecordType.Name) recordTypeName FROM Lead"
   },
   {
     "category": "lib-tests",
@@ -2253,7 +2297,7 @@
   },
   {
     "category": "lib-tests",
-    "soql": "SELECT Id , (SELECT Id FROM Contacts ORDER BY DISTANCE(MailingAddress, GEOLOCATION(0.0,0.0),' km') ASC NULLS FIRST) FROM Account"
+    "soql": "SELECT Id , (SELECT Id FROM Contacts ORDER BY DISTANCE(MailingAddress, GEOLOCATION(0.0,0.0), 'km') ASC NULLS FIRST) FROM Account"
   },
   {
     "category": "lib-tests",
@@ -2274,6 +2318,90 @@
   {
     "category": "lib-tests",
     "soql": "SELECT Id , (SELECT Id FROM Contacts WHERE (CreatedDate <= :v1 AND (CreatedDate = :v2 OR CreatedDate >= :v3))), (SELECT Id FROM Opportunities WHERE (LeadSource = :v4 AND CreatedDate = :v5)) FROM Account LIMIT 1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT TYPEOF What WHEN Account THEN Name END FROM Event"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT TYPEOF What WHEN Account THEN Id, Name END FROM Event"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT TYPEOF What WHEN Account THEN Id, Name, Phone END FROM Event"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT TYPEOF What WHEN Account THEN Id, Name, Phone, Industry END FROM Event"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT TYPEOF What WHEN Account THEN Id, Name, Phone, Industry, BillingCity END FROM Event"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT TYPEOF What WHEN Account THEN Id, Name, Phone, Industry, BillingCity, BillingCountry END FROM Event"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT TYPEOF What WHEN Account THEN Id, Name, Owner.Name END FROM Event"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT TYPEOF What WHEN Opportunity THEN Account.Name END FROM Event"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT TYPEOF What WHEN Opportunity THEN Account.Id, Account.Name END FROM Event"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT TYPEOF What WHEN Opportunity THEN Account.Id, Account.Name, Account.Phone END FROM Event"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT TYPEOF What WHEN Opportunity THEN Account.Id, Account.Name, Account.Phone, Account.Industry END FROM Event"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT TYPEOF What WHEN Opportunity THEN Account.Id, Account.Name, Account.Phone, Account.Industry, Account.BillingCity END FROM Event"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT TYPEOF What WHEN Opportunity THEN Account.Id, Account.Name, Account.Phone, Account.Industry, Account.BillingCity, Account.BillingCountry END FROM Event"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT TYPEOF What WHEN Account THEN Phone, NumberOfEmployees WHEN Opportunity THEN Amount, CloseDate END FROM Event"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT TYPEOF What WHEN Account THEN Phone ELSE Name, Email END FROM Event"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT TYPEOF What WHEN Account THEN Phone END FROM Event"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Subject, TYPEOF What WHEN Account THEN Name END FROM Event"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT TYPEOF What WHEN Account THEN Name END, TYPEOF Who WHEN Contact THEN Email END FROM Event"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Subject FROM Event"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT() FROM Event"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT WhatId, COUNT(Id) events FROM Event GROUP BY WhatId"
   },
   {
     "category": "lib-tests",
@@ -2357,6 +2485,10 @@
   },
   {
     "category": "lib-tests",
+    "soql": "SELECT Id FROM Account WHERE NumberOfEmployees IN :v1"
+  },
+  {
+    "category": "lib-tests",
     "soql": "SELECT Id FROM Account WHERE Rating INCLUDES ('Hot;Warm')"
   },
   {
@@ -2381,27 +2513,27 @@
   },
   {
     "category": "lib-tests",
-    "soql": "SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),' mi') < :v1"
+    "soql": "SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0), 'mi') < :v1"
   },
   {
     "category": "lib-tests",
-    "soql": "SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),' km') < :v1"
+    "soql": "SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0), 'km') < :v1"
   },
   {
     "category": "lib-tests",
-    "soql": "SELECT Id FROM Contact WHERE DISTANCE(Account.BillingAddress, GEOLOCATION(0.0,0.0),' mi') < :v1"
+    "soql": "SELECT Id FROM Contact WHERE DISTANCE(Account.BillingAddress, GEOLOCATION(0.0,0.0), 'mi') < :v1"
   },
   {
     "category": "lib-tests",
-    "soql": "SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(37.775,-122.418),' mi') < :v1"
+    "soql": "SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(37.775,-122.418), 'mi') < :v1"
   },
   {
     "category": "lib-tests",
-    "soql": "SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(10.5,20.5),' mi') < :v1"
+    "soql": "SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(10.5,20.5), 'mi') < :v1"
   },
   {
     "category": "lib-tests",
-    "soql": "SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),' mi') > :v1"
+    "soql": "SELECT Id FROM Account WHERE DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0), 'mi') > :v1"
   },
   {
     "category": "lib-tests",
@@ -2493,11 +2625,19 @@
   },
   {
     "category": "lib-tests",
+    "soql": "SELECT COUNT(Name) cnt FROM Lead GROUP BY ROLLUP(ConvertedOpportunity.StageName)"
+  },
+  {
+    "category": "lib-tests",
     "soql": "SELECT Type FROM Account GROUP BY CUBE(Type)"
   },
   {
     "category": "lib-tests",
     "soql": "SELECT Type, BillingCountry FROM Account GROUP BY CUBE(Type, BillingCountry)"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT COUNT(Name) cnt FROM Lead GROUP BY CUBE(ConvertedOpportunity.StageName)"
   },
   {
     "category": "lib-tests",
@@ -2721,19 +2861,23 @@
   },
   {
     "category": "lib-tests",
-    "soql": "SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),' km') ASC NULLS FIRST"
+    "soql": "SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0), 'km') ASC NULLS FIRST"
   },
   {
     "category": "lib-tests",
-    "soql": "SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress, GEOLOCATION(37.775,-122.418),' mi') ASC NULLS FIRST"
+    "soql": "SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress, GEOLOCATION(37.775,-122.418), 'mi') ASC NULLS FIRST"
   },
   {
     "category": "lib-tests",
-    "soql": "SELECT Id FROM Contact ORDER BY DISTANCE(Account.BillingAddress, GEOLOCATION(0.0,0.0),' km') ASC NULLS FIRST"
+    "soql": "SELECT Id FROM Contact ORDER BY DISTANCE(Account.BillingAddress, GEOLOCATION(0.0,0.0), 'km') ASC NULLS FIRST"
   },
   {
     "category": "lib-tests",
-    "soql": "SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0),' km') DESC NULLS LAST"
+    "soql": "SELECT Id FROM Account ORDER BY DISTANCE(BillingAddress, GEOLOCATION(0.0,0.0), 'km') DESC NULLS LAST"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Account LIMIT 100"
   },
   {
     "category": "lib-tests",
@@ -2773,6 +2917,18 @@
   },
   {
     "category": "lib-tests",
+    "soql": "SELECT Id, Name FROM Account"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Case WHERE Id = :v1"
+  },
+  {
+    "category": "lib-tests",
+    "soql": "SELECT Id FROM Case WHERE Id IN :v1"
+  },
+  {
+    "category": "lib-tests",
     "soql": "SELECT NonExistingField__c FROM Account WHERE Name = :v1"
   },
   {
@@ -2782,5 +2938,757 @@
   {
     "category": "lib-tests",
     "soql": "SELECT NonExistingField__c FROM Account"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name, Industry, Type, Rating, AnnualRevenue, NumberOfEmployees, BillingCity, Phone, Website\nFROM Account\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name, Account.Name, Account.Industry, Account.Owner.Name, ReportsTo.Name, Owner.Email\nFROM Contact\nORDER BY LastName, FirstName"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name, Parent.Name, Parent.Parent.Name, Owner.Profile.Name, CreatedBy.UserRole.Name, Owner.Manager.Name\nFROM Account\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, LastName, Account.Parent.Name, Account.Parent.Industry\nFROM Contact\nORDER BY LastName"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Subject, What.Name, What.Type, Who.Name, Who.Email\nFROM Task\nORDER BY Subject"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, CaseNumber, Subject, Owner.Name, Account.Name, Contact.Email, Contact.Account.Industry\nFROM Case\nORDER BY CaseNumber"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Quantity, UnitPrice, TotalPrice, Opportunity.Name, Opportunity.Account.Name, PricebookEntry.Product2.Name, Product2.Family\nFROM OpportunityLineItem\nORDER BY Opportunity.Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name, toLabel(Industry), toLabel(Rating) ratingLabel, FORMAT(AnnualRevenue), FORMAT(CreatedDate) createdLabel\nFROM Account\nWHERE Industry != null\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, toLabel(Account.Industry), Account.Name\nFROM Contact\nORDER BY LastName"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT FIELDS(STANDARD)\nFROM Account\nORDER BY Name\nLIMIT 5"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name, BillingAddress, ShippingAddress, BillingLatitude, BillingLongitude\nFROM Account\nWHERE BillingCity != null"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "select id, NAME, account.name, Account.INDUSTRY\nfrom contact\nwhere account.industry = 'Technology' and email != null\norder by name desc nulls last"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT\n\tId,\n\t\tName ,\n  Industry\nFROM\n     Account\nWHERE\n  (   Industry   =   'Technology'\n    OR    Industry = 'Media' )\nORDER    BY   Name\nLIMIT    5"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name, (SELECT Id, Field, OldValue, NewValue FROM Histories)\nFROM Account\nWHERE Name = 'Acme'"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name\nFROM Account\nWHERE (Industry = 'Technology' AND (AnnualRevenue > 1000000 OR NumberOfEmployees >= 500))\n   OR (Industry = 'Healthcare' AND Rating = 'Hot')\n   OR (Type = 'Technology Partner' AND (NOT BillingCity = 'London'))\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name\nFROM Account\nWHERE NOT (Industry = 'Technology' AND Rating = 'Hot')\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name\nFROM Opportunity\nWHERE NOT (Amount > 100000)\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name\nFROM Account\nWHERE NOT Name LIKE 'Acme%'\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name\nFROM Account\nWHERE NOT (Name LIKE '%Media%' OR Industry IN ('Energy', 'Retail'))\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE ((Industry = 'Technology' AND (Rating = 'Hot' OR (AnnualRevenue >= 100000 AND NumberOfEmployees < 1000))) OR BillingCity = 'London')\n  AND Name != null\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Name = 'Acme' OR Name = 'Acme Labs' OR Name = 'Global Media' OR Name = 'Healthy Life' OR Name = 'Energy Plus' OR Name = 'Global Holdings'\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE NOT (NOT (Industry = 'Technology'))\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE NOT (Industry = 'Technology' OR (Rating = 'Cold' AND BillingCity != 'Chicago'))\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Opportunity\nWHERE NOT (Amount >= 50000 OR CloseDate < 2024-01-01)\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE NumberOfEmployees IN (40, 120, 800)\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE AnnualRevenue IN (150000.0, 2500000, 75000.50)\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Opportunity\nWHERE CloseDate IN (2024-01-15, 2025-06-30)\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Id IN ('001000000000000AAA', '001000000000001AAA')"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Id != '001000000000000AAA' AND Name = 'Acme'"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE ParentId = null AND Website != null\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Opportunity\nWHERE IsClosed = TRUE AND IsWon = false\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE AnnualRevenue > -1 AND NumberOfEmployees >= 0\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE AnnualRevenue < 1000000.50 AND AnnualRevenue >= 0.5\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Industry != 'Technology'\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Industry NOT IN ('Technology', 'Media')\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Name = null"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Rating <> 'Hot'\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Name = 'O\\'Reilly Media'"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Name LIKE '%\\'Reilly%'"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Name LIKE '50\\%%'"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Name LIKE 'Under\\_score%'"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Name LIKE 'Acme_Labs'"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Site = 'Line1\\nLine2'"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Site = 'C:\\\\temp'"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Name LIKE 'Acme'"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Name LIKE '%'\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Name LIKE '%a%e%'\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Name LIKE 'A%' AND Name LIKE '%s' AND (NOT Name LIKE '%Labs%')\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Name = ''"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Name IN ('Acme', 'O\\'Reilly Media', 'Global Media')\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Name = 'Zürich Café'"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Name = 'Acme' AND Site = null"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Opportunity\nWHERE CloseDate = THIS_QUARTER OR CloseDate = NEXT_N_DAYS:30 OR CreatedDate = LAST_N_WEEKS:2\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Opportunity\nWHERE CloseDate > LAST_YEAR AND CloseDate < NEXT_N_MONTHS:6\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Opportunity\nWHERE CloseDate >= 2024-01-01 AND CloseDate <= 2030-12-31 AND CreatedDate > 2020-01-01T00:00:00Z\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Opportunity\nWHERE CreatedDate < 2035-06-15T12:30:00+02:00 AND CreatedDate > 2020-06-15T12:30:00.000Z\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Opportunity\nWHERE CALENDAR_YEAR(CloseDate) = 2025 AND CALENDAR_MONTH(CloseDate) IN (1, 6, 12)\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE DAY_ONLY(CreatedDate) = TODAY\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Opportunity\nWHERE CloseDate = last_n_days:7 OR CloseDate = n_days_ago:1 OR CloseDate = tomorrow\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Opportunity\nWHERE CloseDate != THIS_MONTH AND CloseDate >= LAST_N_FISCAL_YEARS:3\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Contact\nWHERE Birthdate = NEXT_N_DAYS:365 OR Birthdate = null\nORDER BY LastName"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Id IN :accountIds\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Id = :accountId"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Id NOT IN :accountIdList\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Name IN :names AND Industry IN :industries\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Opportunity\nWHERE Amount >= :minAmount AND CloseDate >= :startDate\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE CreatedDate >= :createdAfter\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name\nFROM Account\nORDER BY Name\nLIMIT :pageSize\nOFFSET :offsetValue"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Name LIKE :term"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Name LIKE :pattern\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Name LIKE :('%' + term + '%')\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Name LIKE :(term + '%')\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE NOT Name LIKE :('%' + term)\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Contact\nWHERE AccountId = :acc.Id\nORDER BY LastName"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Contact\nWHERE AccountId IN :accountsById.keySet()\nORDER BY LastName"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Name = :names[0]"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE OwnerId = :UserInfo.getUserId() AND NumberOfEmployees > :minEmployees\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE CreatedDate = LAST_N_DAYS:30 AND Name != :String.valueOf(minAmount)\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Product2\nWHERE IsActive = :isActive\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Contact\nWHERE Account.Owner.Profile.Name = 'System Administrator' AND Account.Owner.IsActive = true AND Account.Industry != null\nORDER BY LastName"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Opportunity\nWHERE Account.Parent.Name = 'Global Holdings' OR Account.Name LIKE 'Acme%'\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Task\nWHERE What.Type IN ('Account', 'Opportunity') AND Who.Type = 'Contact'\nORDER BY Subject"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Case\nWHERE Contact.Account.Industry = 'Technology' AND Owner.Name != null\nORDER BY CaseNumber"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM OpportunityLineItem\nWHERE PricebookEntry.Product2.Family = 'Hardware' AND Opportunity.StageName != 'Closed Lost'\nORDER BY Quantity"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name\nFROM Account\nWHERE Industry = 'Technology' AND Id IN (SELECT AccountId FROM Opportunity WHERE StageName = 'Closed Won')\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name\nFROM Account\nWHERE Id NOT IN (SELECT AccountId FROM Contact WHERE AccountId != null)\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name\nFROM Account\nWHERE Id IN (SELECT AccountId FROM Contact WHERE Email != null)\n  AND Id NOT IN (SELECT AccountId FROM Case WHERE IsClosed = false)\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Opportunity\nWHERE AccountId IN (SELECT AccountId FROM Case WHERE Priority = 'High')\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Id IN (SELECT AccountId FROM AccountContactRelation WHERE IsDirect = false)\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Contact\nWHERE AccountId IN (SELECT Id FROM Account WHERE (Industry = 'Technology' OR Rating = 'Hot') AND NumberOfEmployees > 100)\nORDER BY LastName"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Contact\nWHERE Id IN (SELECT ContactId FROM AccountContactRelation WHERE Roles INCLUDES ('Decision Maker'))\nORDER BY LastName"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM AccountContactRelation\nWHERE Roles INCLUDES ('Decision Maker', 'Influencer')\nORDER BY Id"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM AccountContactRelation\nWHERE Roles INCLUDES ('Business User;Decision Maker')\nORDER BY Id"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM AccountContactRelation\nWHERE Roles EXCLUDES ('Influencer')\nORDER BY Id"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM AccountContactRelation\nWHERE Roles EXCLUDES ('Business User;Decision Maker')\nORDER BY Id"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM AccountContactRelation\nWHERE Roles INCLUDES ('Business User;Decision Maker', 'Influencer')\nORDER BY Id"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM AccountContactRelation\nWHERE Roles = 'Influencer' OR Roles = null\nORDER BY Id"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name\nFROM Account\nWHERE DISTANCE(BillingAddress, GEOLOCATION(37.775, -122.418), 'mi') < 50\nORDER BY DISTANCE(BillingAddress, GEOLOCATION(37.775, -122.418), 'mi') DESC NULLS LAST\nLIMIT 5"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name\nFROM Account\nWHERE DISTANCE(BillingAddress, GEOLOCATION(51.5, -0.12), 'km') > 1000 AND BillingCity != null\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name, DISTANCE(BillingAddress, GEOLOCATION(40.7, -74.0), 'km') dist\nFROM Account\nWHERE BillingCity != null\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Contact\nWHERE DISTANCE(Account.BillingAddress, GEOLOCATION(37.775, -122.418), 'km') < 100\nORDER BY LastName"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name,\n  (SELECT Id, FirstName, LastName, Email FROM Contacts WHERE Email != null ORDER BY LastName DESC NULLS LAST LIMIT 3),\n  (SELECT Id, Name, Amount FROM Opportunities WHERE StageName = 'Closed Won' OR Amount > 50000 ORDER BY Amount DESC),\n  (SELECT Id, CaseNumber, Subject FROM Cases WHERE IsClosed = false)\nFROM Account\nWHERE Industry != null\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, (SELECT Id, Owner.Name, CreatedBy.Name, ReportsTo.Name, Account.Name FROM Contacts)\nFROM Account\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, (SELECT Id, toLabel(StageName), Amount FROM Opportunities ORDER BY Name)\nFROM Account\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name, (SELECT Id, LastName, (SELECT Id, CaseNumber FROM Cases) FROM Contacts)\nFROM Account\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, (SELECT Id FROM Contacts WHERE Account.Industry = 'Technology' AND (Title LIKE '%CEO%' OR Department = 'Sales'))\nFROM Account\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, (SELECT Id FROM Opportunities WHERE CloseDate = LAST_N_DAYS:3650 AND StageName IN ('Prospecting', 'Qualification') AND (NOT Amount = null))\nFROM Account\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, (SELECT Id, Name, StageName, Amount, CloseDate, Probability, Type, LeadSource FROM Opportunities)\nFROM Account\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, (SELECT Id, Name FROM ChildAccounts ORDER BY Name), Parent.Name\nFROM Account\nWHERE ParentId = null\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name, (SELECT Id, Roles FROM AccountContactRelations WHERE Roles INCLUDES ('Decision Maker'))\nFROM Account\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, (SELECT Id, Quantity FROM OpportunityLineItems WHERE Quantity > 1), (SELECT Id FROM Tasks)\nFROM Opportunity\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, (SELECT Id FROM Contacts LIMIT 1)\nFROM Account\nWHERE Id IN (SELECT AccountId FROM Contact)\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Industry, Rating, COUNT(Id) total, SUM(AnnualRevenue) revenue, AVG(NumberOfEmployees) avgEmployees, MIN(CreatedDate) firstCreated, MAX(AnnualRevenue) maxRevenue\nFROM Account\nWHERE Industry != null\nGROUP BY Industry, Rating\nHAVING COUNT(Id) >= 1 AND SUM(AnnualRevenue) > 0\nORDER BY Industry, Rating NULLS LAST\nLIMIT 10"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT StageName, COUNT(Id)\nFROM Opportunity\nGROUP BY StageName\nHAVING COUNT(Id) > 1 OR SUM(Amount) > 100000\nORDER BY COUNT(Id) DESC"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT COUNT(Id), COUNT_DISTINCT(Industry), MAX(AnnualRevenue)\nFROM Account"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT CALENDAR_YEAR(CloseDate) closeYear, CALENDAR_QUARTER(CloseDate) closeQuarter, SUM(Amount) total\nFROM Opportunity\nGROUP BY CALENDAR_YEAR(CloseDate), CALENDAR_QUARTER(CloseDate)\nORDER BY CALENDAR_YEAR(CloseDate), CALENDAR_QUARTER(CloseDate)"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Account.Industry, COUNT(Id)\nFROM Contact\nGROUP BY Account.Industry\nORDER BY Account.Industry"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT LeadSource, Status, COUNT(Id)\nFROM Lead\nGROUP BY ROLLUP(LeadSource, Status)"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Type, StageName, SUM(Amount) amt, GROUPING(Type) grpType, GROUPING(StageName) grpStage\nFROM Opportunity\nGROUP BY CUBE(Type, StageName)\nORDER BY GROUPING(Type), GROUPING(StageName)"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Owner.Name ownerName, COUNT(Id)\nFROM Opportunity\nGROUP BY Owner.Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT COUNT()\nFROM Contact\nWHERE Account.Industry = 'Technology' AND Email != null"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT COUNT()\nFROM Account\nWHERE Id IN (SELECT AccountId FROM Opportunity)"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Industry, COUNT(Id)\nFROM Account\nGROUP BY Industry\nHAVING Industry != null AND COUNT(Id) > 0\nORDER BY Industry"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Industry\nFROM Account\nGROUP BY Industry\nORDER BY Industry"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Industry ind, COUNT(Id) cnt\nFROM Account\nGROUP BY Industry\nORDER BY Industry"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT MAX(CloseDate) latestClose, MIN(Amount) smallest\nFROM Opportunity\nWHERE IsClosed = false"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT SUM(Amount)\nFROM Opportunity\nWHERE CloseDate = LAST_N_DAYS:3650\nGROUP BY Account.Name\nHAVING SUM(Amount) > 1000\nORDER BY SUM(Amount) DESC\nLIMIT 5"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT FORMAT(SUM(Amount)) total\nFROM Opportunity"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT CALENDAR_MONTH(CreatedDate) month, COUNT(Id) cnt\nFROM Account\nWHERE CreatedDate = LAST_N_DAYS:365\nGROUP BY CALENDAR_MONTH(CreatedDate)"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT HOUR_IN_DAY(CreatedDate) hourOfDay, COUNT(Id)\nFROM Case\nGROUP BY HOUR_IN_DAY(CreatedDate)"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT COUNT_DISTINCT(AccountId) accounts\nFROM Contact"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT StageName, AVG(Amount)\nFROM Opportunity\nGROUP BY StageName\nHAVING AVG(Amount) > 100 AND MAX(Amount) < 1000000 AND MIN(Amount) >= 0\nORDER BY StageName"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Industry, COUNT(Id)\nFROM Account\nGROUP BY Industry\nHAVING NOT (COUNT(Id) > 1)\nORDER BY Industry"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT StageName, COUNT(Id)\nFROM Opportunity\nGROUP BY StageName\nHAVING StageName IN ('Prospecting', 'Closed Won')\nORDER BY StageName"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT StageName, COUNT(Id)\nFROM Opportunity\nGROUP BY StageName\nHAVING StageName LIKE 'Closed%'\nORDER BY StageName"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Account.Industry, SUM(Amount)\nFROM Opportunity\nWHERE Account.Industry != null\nGROUP BY Account.Industry\nHAVING SUM(Amount) > 0\nORDER BY Account.Industry"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT LeadSource, COUNT(Id) total\nFROM Lead\nWHERE Status != 'Closed - Not Converted'\nGROUP BY LeadSource\nHAVING COUNT(Id) >= 1\nORDER BY COUNT(Id) DESC, LeadSource\nLIMIT 3"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT MIN(Name), MAX(Name)\nFROM Account\nWHERE Industry = 'Technology'"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Rating, COUNT(Id)\nFROM Account\nGROUP BY Rating\nHAVING Rating = null OR COUNT(Id) > 2"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name\nFROM Account\nORDER BY Industry DESC NULLS LAST, Rating ASC NULLS FIRST, Name\nLIMIT 10\nOFFSET 2"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Contact\nORDER BY Account.Name DESC, Owner.Name, LastName NULLS LAST"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Industry = 'Technology'\nLIMIT 5\nFOR VIEW"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Industry = 'Technology'\nLIMIT 5\nFOR REFERENCE"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Name = 'Acme'\nFOR UPDATE"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name\nFROM Account\nUSING SCOPE Mine\nWHERE Industry != null\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name\nFROM Account\nUSING SCOPE everything\nWHERE Industry = 'Media'\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nUSING SCOPE Delegated\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name\nFROM Account\nWHERE Name != null\nWITH SECURITY_ENFORCED\nORDER BY Name\nLIMIT 5"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name\nFROM Account\nWHERE Industry = 'Technology'\nWITH USER_MODE\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name, Owner.Name\nFROM Account\nWHERE Industry = 'Technology'\nWITH SYSTEM_MODE\nORDER BY Name\nLIMIT 2"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name\nFROM Account\nWHERE IsDeleted = true\nALL ROWS"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nORDER BY Name DESC\nLIMIT 3"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nORDER BY Name ASC NULLS LAST, CreatedDate DESC NULLS FIRST"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Name LIKE 'Acme%'\nORDER BY Name\nOFFSET 1"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Subject,\n  TYPEOF What\n    WHEN Account THEN Name, Industry, Owner.Name\n    WHEN Opportunity THEN Name, StageName, Amount, Account.Name\n    WHEN Case THEN CaseNumber, Status\n    ELSE Name\n  END,\n  TYPEOF Who\n    WHEN Contact THEN FirstName, LastName, Account.Name\n    WHEN Lead THEN Company, Status\n  END\nFROM Task\nWHERE Status != 'Completed'\nORDER BY Subject\nLIMIT 10"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, TYPEOF What WHEN Account THEN Name END\nFROM Task\nWHERE What.Type IN ('Account', 'Opportunity')\nORDER BY Subject"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, CaseNumber, TYPEOF Owner WHEN User THEN Name, Email, Profile.Name WHEN Group THEN Name, Type END\nFROM Case\nORDER BY CaseNumber"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, TYPEOF What WHEN Account THEN Name, Industry, Type, Rating, AnnualRevenue, NumberOfEmployees, BillingCity END\nFROM Event\nORDER BY Subject"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Subject, TYPEOF Who WHEN Contact THEN Email, Phone ELSE Name END, TYPEOF What WHEN Opportunity THEN Amount ELSE Name END\nFROM Event\nWHERE StartDateTime > 2020-01-01T00:00:00Z\nORDER BY StartDateTime DESC, Subject\nLIMIT 5\nOFFSET 1"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, TYPEOF Parent.Owner WHEN User THEN Email WHEN Group THEN Name END\nFROM CaseComment\nORDER BY CreatedDate"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Subject, TYPEOF What WHEN Account THEN Name WHEN Opportunity THEN Name END, Who.Name\nFROM Task\nWHERE What.Type = 'Account' OR Who.Type = 'Lead'\nORDER BY Subject"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, TYPEOF What WHEN Opportunity THEN Name, Account.Name, Account.Industry, Account.Owner.Name END\nFROM Task\nORDER BY Subject"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name, toLabel(StageName), FORMAT(Amount), Account.Name, Account.Owner.Name,\n  (SELECT Id, Quantity, PricebookEntry.Product2.Name FROM OpportunityLineItems ORDER BY Quantity DESC),\n  (SELECT Id, Subject FROM Tasks WHERE Status != 'Completed')\nFROM Opportunity\nWHERE (StageName NOT IN ('Closed Lost') AND Amount > 1000)\n  AND (Account.Industry = 'Technology' OR Account.Rating = 'Hot' OR (NOT Account.BillingCity = 'London'))\n  AND AccountId NOT IN (SELECT AccountId FROM Case WHERE Priority = 'Low')\n  AND CloseDate >= 2024-01-01\nORDER BY Account.Name, Amount DESC NULLS LAST\nLIMIT 50"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Account.Industry industry, CALENDAR_YEAR(CloseDate) year, COUNT(Id) deals, SUM(Amount) pipeline, AVG(Probability) probability\nFROM Opportunity\nWHERE IsClosed = false AND Amount != null AND Account.Industry != null\nGROUP BY Account.Industry, CALENDAR_YEAR(CloseDate)\nHAVING SUM(Amount) > 0 AND COUNT(Id) >= 1\nORDER BY Account.Industry, CALENDAR_YEAR(CloseDate) DESC\nLIMIT 20"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, CaseNumber, Subject, toLabel(Status), toLabel(Priority) priorityLabel, Account.Name, Contact.Name, Owner.Name,\n  (SELECT Id, CommentBody FROM CaseComments ORDER BY CreatedDate DESC LIMIT 1)\nFROM Case\nWHERE (Status IN ('New', 'Working', 'Escalated') AND (Priority = 'High' OR IsEscalated = true))\n   OR (Origin = 'Web' AND CreatedDate = LAST_N_DAYS:30 AND Contact.Email LIKE '%@example.com')\nORDER BY Priority, CreatedDate DESC\nLIMIT 25"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name, Company, Status, Rating, AnnualRevenue\nFROM Lead\nWHERE IsConverted = false\n  AND (Rating = 'Hot' OR (Rating = 'Warm' AND AnnualRevenue >= 1000000) OR NumberOfEmployees > 500)\n  AND LeadSource IN ('Web', 'Partner Referral', 'Phone Inquiry')\n  AND Email != null\n  AND (NOT Company LIKE '%Test%')\nORDER BY Rating, AnnualRevenue DESC NULLS LAST\nLIMIT 10"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name, Invoice__r.Account__r.Name, Invoice__r.Total__c,\n  (SELECT Id, Amount__c FROM Payments__r WHERE Status__c = 'Paid' ORDER BY Amount__c DESC)\nFROM Invoice_Line__c\nWHERE Invoice__r.Status__c IN ('Open', 'Overdue') AND Quantity__c > 0\nORDER BY Invoice__r.Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, TYPEOF Related__r WHEN Account THEN Name WHEN Contact THEN Email END\nFROM Note__c"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Region__c, COUNT(Id) total, SUM(Amount__c) amount\nFROM Invoice__c\nWHERE Status__c != 'Draft'\nGROUP BY ROLLUP(Region__c)"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, convertCurrency(Amount), FORMAT(convertCurrency(Amount)) amountLabel\nFROM Opportunity\nWHERE Amount > USD5000"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Title\nFROM FAQ__kav\nWHERE PublishStatus = 'Online' AND Language = 'en_US'\nWITH DATA CATEGORY Geography__c AT (Europe__c, Asia__c) AND Product__c BELOW All__c\nUPDATE VIEWSTAT"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name, RecordType.DeveloperName\nFROM Account\nWHERE RecordType.DeveloperName = 'Business_Account'"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT a.Id, a.Name\nFROM Account a\nWHERE a.Industry = 'Technology'"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Case\nWHERE Owner.Type = 'User'\nORDER BY CaseNumber"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Owner.Type, Owner.Name\nFROM Lead\nORDER BY LastName"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Parent.CaseNumber, Parent.Subject\nFROM CaseComment\nORDER BY CreatedDate"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Opportunity\nWHERE StageName != null AND (NOT (Amount > 100000 OR Probability < 10))\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Industry, COUNT(Id)\nFROM Account\nGROUP BY Industry\nHAVING COUNT(Id) > 0 AND (NOT COUNT(Id) > 1)\nORDER BY Industry"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE (NOT Industry = 'Technology') AND (NOT Rating = 'Hot')\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Industry IN ('Technology') OR (Rating = 'Cold' AND (NOT Name LIKE '%Media%'))\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, Name\nFROM Account\nWHERE Industry = 'Technology' AND (NOT AnnualRevenue >= 1000000)\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE Industry NOT IN ('Technology', 'Media') AND Rating != 'Hot'\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Opportunity.StageName, SUM(Quantity) qty\nFROM OpportunityLineItem\nGROUP BY Opportunity.StageName\nHAVING SUM(Opportunity.Amount) > 0\nORDER BY Opportunity.StageName"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT a.Id, a.Name\nFROM Account a\nWHERE a.Industry = 'Technology'\nORDER BY a.Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Opportunity\nWHERE NOT (Amount >= 50000 OR (CloseDate < 2024-01-01 AND Probability > 10))\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id\nFROM Account\nWHERE (NOT NumberOfEmployees > 100) AND Industry = 'Technology'\nORDER BY Name"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT LeadSource, COUNT(Id)\nFROM Lead\nGROUP BY LeadSource\nHAVING (NOT (COUNT(Id) > 1 OR COUNT(Id) < 1)) AND LeadSource != null\nORDER BY LeadSource"
+  },
+  {
+    "category": "complex-scenarios",
+    "soql": "SELECT Id, CaseNumber, Owner.Type, Owner.Name, Parent.CaseNumber\nFROM Case\nWHERE Owner.Type = 'User' AND (NOT Priority = 'Low')\nORDER BY CaseNumber"
   }
 ]

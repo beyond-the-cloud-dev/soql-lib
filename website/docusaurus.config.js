@@ -32,7 +32,7 @@ const config = {
           // Hide the unreleased "Next" docs (website/docs) from the deployed site;
           // they remain visible locally via `npm run start` for authoring.
           onlyIncludeVersions:
-            process.env.NODE_ENV === 'development' ? ['current', '6.12.0'] : ['6.12.0'],
+            process.env.NODE_ENV === 'development' ? ['current', '6.13.0', '6.12.0'] : ['6.13.0', '6.12.0'],
         },
         gtag: {
           trackingID: 'G-FVQ8BT1C3H',
@@ -45,7 +45,41 @@ const config = {
     ],
 
   ],
+  headTags: [
+    {
+      tagName: 'script',
+      attributes: { type: 'application/ld+json' },
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: 'SOQL Lib',
+        description: 'Apex SOQL provides functional constructs for SOQL.',
+        url: 'https://soql.beyondthecloud.dev',
+        applicationCategory: 'DeveloperApplication',
+        operatingSystem: 'Salesforce',
+        license: 'https://opensource.org/licenses/MIT',
+        codeRepository: 'https://github.com/beyond-the-cloud-dev/soql-lib',
+        isPartOf: { '@type': 'SoftwareApplication', name: 'Apex Fluently', url: 'https://apexfluently.beyondthecloud.dev' },
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        author: {
+          '@type': 'Organization',
+          name: 'Beyond The Cloud',
+          url: 'https://beyondthecloud.dev',
+          sameAs: ['https://github.com/beyond-the-cloud-dev', 'https://www.linkedin.com/company/beyondtheclouddev'],
+        },
+      }),
+    },
+  ],
   plugins: [
+    [
+      'docusaurus-plugin-llms',
+      {
+        title: 'SOQL Lib',
+        description: 'Apex SOQL provides functional constructs for SOQL.',
+        includeOrder: ['docs/*', 'soql/**', 'cache/**', 'evaluator/**'],
+        pathTransformation: { ignorePaths: ['docs'] },
+      },
+    ],
     async function tailwindPlugin(context, options) {
       return {
         name: 'docusaurus-tailwindcss',

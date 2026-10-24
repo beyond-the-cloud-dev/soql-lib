@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.12.0
+ * v6.13.0
  *
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
@@ -589,9 +589,7 @@ public virtual inherited sharing class SOQLCache implements Cacheable {
         }
 
         private Boolean isUniqueOrAllowedConditionField(String field) {
-            return new List<String>{ 'Id', 'Name', 'DeveloperName' }.contains(field) ||
-                this.additionalAllowedConditionFields.contains(field) ||
-                this.isFieldUnique(field);
+            return new List<String>{ 'Id', 'Name', 'DeveloperName' }.contains(field) || this.additionalAllowedConditionFields.contains(field) || this.isFieldUnique(field);
         }
 
         private Boolean isFieldUnique(String field) {
