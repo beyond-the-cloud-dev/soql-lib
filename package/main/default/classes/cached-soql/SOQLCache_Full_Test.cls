@@ -1168,7 +1168,7 @@ private class SOQLCache_Full_Test {
 
     static Task insertTask() {
         Task task = new Task(Subject = 'Test Task', Type = 'Other');
-        insert task;
+        insert as system task;
         return task;
     }
 
