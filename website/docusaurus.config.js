@@ -72,12 +72,14 @@ const config = {
   ],
   plugins: [
     [
-      'docusaurus-plugin-llms',
+      // docusaurus-plugin-llms plus <link rel="alternate"> to each page's markdown twin
+      require.resolve('./plugins/llms-markdown'),
       {
         title: 'SOQL Lib',
         description: 'Apex SOQL provides functional constructs for SOQL.',
         includeOrder: ['docs/*', 'soql/**', 'cache/**', 'evaluator/**'],
         pathTransformation: { ignorePaths: ['docs'] },
+        generateMarkdownFiles: true,
       },
     ],
     async function tailwindPlugin(context, options) {
