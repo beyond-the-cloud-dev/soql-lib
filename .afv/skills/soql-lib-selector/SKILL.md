@@ -63,8 +63,8 @@ public inherited sharing class SOQL_Opportunity extends SOQL implements SOQL.Sel
 
 ## What belongs in the selector
 
-- Put a filter in the selector when two or more places use it, or when it names a business concept (`isOpen()`, `byAccountIds()`).
-- Keep these inline at the call site: one-off conditions, ORDER BY, LIMIT, extra fields, aggregates and the result method.
+- Keep selectors small: base configuration (fields, security, mock id) plus generic, reusable filters such as `byAccountIds()` or `isOpen()`.
+- Build business-specific conditions inline at the call site with `.whereAre(...)`. ORDER BY, LIMIT, extra fields, aggregates and the result method also stay at the call site.
 - Filter methods return the selector, never `List<SObject>`. Callers then decide on fields, ordering, limits and the result method.
 - To reuse an inherited shortcut and keep chaining, wrap it: `public SOQL_Contact byRecordTypeName(String name) { byRecordType(name); return this; }`.
 
@@ -85,9 +85,11 @@ public static List<Opportunity> getOpenOpportunities(Id accountId) {
 
 - Call selector methods first. Inherited methods (`with`, `whereAre`, `byId`, `orderBy`, `setLimit`, ...) return `SOQL.Queryable`, which has no selector methods.
 - User mode is SOQL Lib's default, so call `.userMode()` only to switch a selector that set `.systemMode()` back to the running user's access: `SOQL_Opportunity.query().isOpen().userMode().toList()`. Don't add `.withSharing()` next to it, because user mode always enforces sharing.
+- A selector built from the template bypasses CRUD, FLS and sharing. Entry points that return data to a user (`@AuraEnabled`, REST resources, Visualforce controllers) should call `.userMode()` on it. To drop unreadable fields instead of failing, stay in system mode and call `.withSharing().stripInaccessible()`.
+- End with the result method that returns the shape you need, for example `SOQL_Contact.query().byIds(contactIds).toIdsOf(Contact.AccountId)` or `(Map<Id, List<Contact>>) SOQL_Contact.query().toAggregatedIdMapBy(Contact.AccountId)`, instead of looping over `toList()`. The `soql-lib-query-builder` skill lists them all.
 - Counts and aggregates can go through the selector. Grouping and `toInteger()` drop the default fields: `SOQL_Opportunity.query().isOpen().toInteger()`.
-- OR between selector filters: `.anyConditionMatching()`, or `.conditionLogic('1 OR 2')` for custom logic.
-- Batch `start()`: `return SOQL_Opportunity.query().isOpen().toQueryLocator();`.
+- OR between selector filters: `.anyConditionMatching()`, or `.conditionLogic('1 OR 2')` for custom logic. If the query ends in `toMap(field)`, `toIdMapBy`, `toAggregatedMap` or `toAggregatedIdMapBy`, put the OR filters in a `SOQL.FilterGroup` instead, because those methods add a `<key> != null` condition that top-level OR logic breaks.
+- Batch `start()`: `return SOQL_Opportunity.query().isOpen().toQueryLocator();`. Mocks don't apply to `toQueryLocator()`, so batch tests need inserted records. In user mode, a WHERE clause combined with a field the user can't read fails with `Variable does not exist: v1`.
 - For the full builder API (filters, result methods, security table), use the `soql-lib-query-builder` skill. For tests, use `soql-lib-testing`.
 
 ## Common mistakes

@@ -5,7 +5,7 @@ description: Apex query building with the SOQL Lib fluent API (SOQL.cls). Use wh
 
 # SOQL Lib: Query Builder
 
-Every query is a chain on `SOQL.of(...)` or on a `SOQL_<Object>` selector, ending with a result method. SOQL Lib binds every filter value, so you never concatenate values or call `String.escapeSingleQuotes()`.
+Every query is a chain on `SOQL.of(...)` or on a `SOQL_<Object>` selector, ending with a result method.
 
 ## Rules
 
@@ -13,7 +13,7 @@ Every query is a chain on `SOQL.of(...)` or on a `SOQL_<Object>` selector, endin
 2. If a `SOQL_<Object>` selector exists, start from it (`SOQL_Account.query()`). Otherwise start from `SOQL.of(Account.SObjectType)`. To create a selector, use the `soql-lib-selector` skill.
 3. Pass fields as `SObjectField` tokens (`Account.Name`). Use String fields only for field lists that are built at runtime.
 4. Build conditions with `SOQL.Filter` and `SOQL.FilterGroup`. Use `whereAre(String)` only for conditions that are built at runtime.
-5. For an optional filter, add `.ignoreWhen(<value is empty>)` to the filter. Don't wrap the query in `if` branches.
+5. For an optional filter, add `.ignoreWhen(<value is empty>)` to the filter. Don't wrap the query in `if` branches, and don't combine `ignoreWhen` with `conditionLogic(...)` (see "Combining conditions").
 6. Add `.asDateLiteral()` to filters that compare against date literals (`THIS_MONTH`, `LAST_N_DAYS:30`).
 7. If a unit test will mock the query, give inline queries `.mockId('ClassName.methodName')` and return aggregates with `.toAggregatedProxy()`, not `.toAggregated()`. Tests then call `SOQL.mock('ClassName.methodName').thenReturn(...)`. For the tests themselves, use the `soql-lib-testing` skill.
 8. Before you write a `for` loop over `toList()` to build a `Set`, a `Map` or grouped lists, use the result method that returns that shape (see [Result methods](#result-methods)). Loop only when you need a shape no result method returns.
@@ -29,6 +29,19 @@ List<Account> accounts = SOQL_Account.query()
     .toList();
 ```
 
+## Binding and user input
+
+SOQL Lib binds the values you pass to `SOQL.Filter` and `SOQL.HavingFilter` comparators (`equal`, `isIn`, `contains`, ...), including `null`, `true` and `false`. `toString()` shows them as `:v1`, `:v2`. You don't concatenate or escape those values.
+
+The following go into the SOQL text exactly as written. Never pass user input to them without validating it first:
+
+- multi-select picklist values (`includesAll`, `includesSome`, `excludesAll`, `excludesSome`)
+- values marked `.asDateLiteral()`
+- `SOQL.DataCategoryFilter` categories
+- field and object names given as strings (`SOQL.of('Account')`, `.with('Name')`, `SOQL.Filter.with('Name')`)
+- sort direction and nulls order strings (`.orderBy(field, direction)`, `.sort(...)`, `.nullsOrder(...)`)
+- raw conditions (`whereAre(String)`, `SOQL.FilterGroup.add(String)`, `have(String)`)
+
 ## SELECT
 
 | Need | Call |
@@ -38,31 +51,33 @@ List<Account> accounts = SOQL_Account.query()
 | Parent fields (up to 5, or a list) | `.with('Owner', User.Name, User.Email)` |
 | Child subquery | `.with(SOQL.SubQuery.of('Contacts').with(Contact.Id, Contact.Email).setLimit(5))` |
 | Field set | `.withFieldSet('AccountListView')` |
-| Runtime field list | `.with('Id, Name')` or `.with(List<String>)` |
+| Runtime field list | `.with(fieldNames)` (a `List<String>`; an empty list adds nothing) or `.with('Id, Name')` |
 
-Fields added later merge with the selector's default fields. Duplicates are ignored.
+Fields added later merge with the selector's default fields. A field spelled exactly the same way twice is selected once.
 
 ## WHERE
 
 Field: `SOQL.Filter.id()`, `.recordType()` (DeveloperName), `.name()`, `.with(Account.Industry)`, `.with('Account', Account.Industry)` (parent field), `.with('Account.Owner.Email')`.
 
-| Comparator | SOQL |
+| Comparator | SOQL (values bound unless noted) |
 |---|---|
-| `equal(v)` / `notEqual(v)` | `= :v` / `!= :v` |
+| `equal(v)` / `notEqual(v)` | `=` / `!=` |
 | `lessThan` / `greaterThan` / `lessOrEqual` / `greaterOrEqual` | `<` `>` `<=` `>=` |
-| `isNull()` / `isNotNull()` / `isTrue()` / `isFalse()` | `= null` / `!= null` / `= true` / `= false` |
+| `isNull()` / `isNotNull()` / `isTrue()` / `isFalse()` | `=` / `!=` with a bound `null`, `true` or `false` |
 | `contains('a')` / `startsWith('a')` / `endsWith('a')` | `LIKE '%a%'` / `'a%'` / `'%a'` |
 | `notContains` / `notStartsWith` / `notEndsWith` | `NOT ... LIKE` |
 | `contains('_', 'a', '%')` | `LIKE '_a%'`: custom wildcards |
 | `containsSome(patterns)` | `LIKE :patterns`: matches any pattern. Patterns are used as given, so add `%` yourself |
-| `isIn(collection)` / `notIn(collection)` | `IN :v` / `NOT IN :v` |
+| `isIn(collection)` / `notIn(collection)` | `IN` / `NOT IN` |
 | `isIn(records, Contact.AccountId)` | `IN`: the values of that field taken from a record list |
 | `isIn(SOQL.InnerJoin...)` / `notIn(SOQL.InnerJoin...)` | semi-join / anti-join |
-| `includesAll` / `includesSome` / `excludesAll` / `excludesSome` | multi-select picklist `INCLUDES` / `EXCLUDES` |
+| `includesAll` / `includesSome` / `excludesAll` / `excludesSome` | multi-select picklist `INCLUDES` / `EXCLUDES`. Not bound |
 
-Modifiers: `.ignoreWhen(Boolean)` drops the condition when the expression is true. `.asDateLiteral()` keeps a date literal unbound.
+- `.ignoreWhen(Boolean)` drops the condition when the expression is true. `.asDateLiteral()` keeps a date literal unbound.
+- `contains(null)` searches for the text `null`, so skip the filter with `.ignoreWhen(value == null)`. `%` and `_` inside a LIKE value are not escaped and act as wildcards.
+- `SOQL.HavingFilter` has no `ignoreWhen()` or `asDateLiteral()`.
 
-Combining conditions:
+### Combining conditions
 
 ```apex
 .whereAre(filterA).whereAre(filterB)               // A AND B (default)
@@ -74,6 +89,8 @@ Combining conditions:
     .anyConditionMatching()
     .ignoreWhen(skipGroup))
 ```
+
+An ignored condition is never added, so the numbers in `conditionLogic(...)` shift and can point to the wrong condition. When some conditions are optional, express the logic with nested `SOQL.FilterGroup`s and `anyConditionMatching()` instead of `conditionLogic`.
 
 Shortcuts: `.byId(id)`, `.byId(record)`, `.byIds(ids)`, `.byIds(records)`, `.byRecordType('Partner')`.
 
@@ -104,27 +121,34 @@ Decimal total = (Decimal) totals[0].get('total');
 ```
 
 - Functions: `count()`, `count(field, alias)`, `countDistinct`, `sum`, `avg`, `min`, `max`, each also with `(relationshipName, field[, alias])`. `grouping(field, alias)` works with `groupByRollup` / `groupByCube`.
-- When a query groups or aggregates, SOQL Lib drops every non-grouped field. This means selectors with default fields are safe for aggregate queries.
-- `.toInteger()` adds `COUNT()` itself and clears the other fields: `SOQL_Account.query().byRecordType('Partner').toInteger()`.
+- When a query groups or aggregates, SOQL Lib drops every selected field that isn't grouped: plain, parent, `toLabel` / `FORMAT` and TYPEOF fields. This means selectors with default fields are safe for aggregate queries.
+- `.toInteger()` adds `COUNT()` and clears the other fields when no aggregate function is selected: `SOQL_Account.query().byRecordType('Partner').toInteger()`.
 - HAVING: `.have(SOQL.HavingFilter...)`, `.have(SOQL.HavingFilterGroup.add(...).add(...))`, `.anyHavingConditionMatching()`, `.havingConditionLogic('1 OR 2')`. HAVING values are bound too.
 - To sort by an aggregate: `.orderByCount(Lead.Industry).sortDesc()`.
 
 ## ORDER BY, LIMIT, OFFSET
 
-`.orderBy(Account.Name)` sorts ascending with nulls first. Chain `.sortDesc()` and `.nullsLast()` for a fixed direction. Use `.sort('DESC')` / `.nullsOrder('LAST')` / `.orderBy('Name', 'DESC')` only when the direction is decided at runtime. For a parent field: `.orderBy('Account', Account.Name)`. Then `.setLimit(n)` and `.offset(n)`.
+- SOQL Lib always writes the nulls order. `.orderBy(Account.Name)` gives `ASC NULLS FIRST`, and `.sortDesc()` alone gives `DESC NULLS FIRST`. Add `.nullsLast()` to put nulls at the end.
+- Use `.sort('DESC')` / `.nullsOrder('LAST')` / `.orderBy('Name', 'DESC')` only when the direction is decided at runtime, and allow only `ASC` / `DESC` and `FIRST` / `LAST`.
+- For a parent field: `.orderBy('Account', Account.Name)`. Then `.setLimit(n)` and `.offset(n)`.
+- `toInteger()`, `toIdsOf()` and `toValuesOf()` keep an existing ORDER BY, and the query then fails with a `System.UnexpectedException` that can't be caught: `COUNT() and ORDER BY may not be used together`, or `Ordered field must be grouped or aggregated`. `toInteger()` also keeps subqueries, which fails with `QueryException: unexpected token: ,`. Don't call these methods on such queries, and remember that a selector may add an ORDER BY.
 
 ## Result methods
 
-Use a result method before you write a loop. These methods add the key field to the query, skip records whose key is null, and return a typed collection.
+Use a result method before you write a loop. The Set and Map methods add the key field to the query, skip records whose key is null, and return a typed collection.
+
+Don't build the collection in a loop:
 
 ```apex
-// Don't: query, then loop
 Set<Id> accountIds = new Set<Id>();
 for (Contact contactRecord : SOQL_Contact.query().byIds(contactIds).toList()) {
     accountIds.add(contactRecord.AccountId);
 }
+```
 
-// Do
+Use the result method:
+
+```apex
 Set<Id> accountIds = SOQL_Contact.query().byIds(contactIds).toIdsOf(Contact.AccountId);
 ```
 
@@ -194,7 +218,7 @@ How they behave:
 - `toIdMapBy` and `toMap(keyField)` keep one record per key, and the last record wins. To keep every record, use `toAggregatedIdMapBy` / `toAggregatedMap`.
 - Keys and values in the `String` maps, and the values from `toValuesOf`, are the fields' text form, so a Date or a number becomes a `String`.
 - `toId`, `toIds`, `doExist`, `toValueOf` and `toInteger` clear the selected fields first, so the selector's default fields cost nothing.
-- Don't combine the key-based map methods with `.anyConditionMatching()`. The added `<key> != null` condition is joined with OR, so the query returns every record that has a key. Put the OR conditions in a `SOQL.FilterGroup` instead. `toIdsOf` and `toValuesOf` are not affected.
+- Don't call the key-based map methods on a query that uses `.anyConditionMatching()` or `.conditionLogic(...)` at the top level. The added `<key> != null` condition is OR-ed with your conditions, so every record that has a key comes back. With `conditionLogic` it is dropped instead, so null keys come back and `toMap(key, value)` throws a `NullPointerException`. Put the OR conditions in a `SOQL.FilterGroup` instead. `toIdsOf` and `toValuesOf` are not affected.
 
 ## Security and sharing
 
@@ -204,12 +228,13 @@ How they behave:
 | `.systemMode()` | `SYSTEM_MODE` | inherited from the calling class |
 | `.systemMode().withSharing()` | `SYSTEM_MODE` | `with sharing` |
 | `.systemMode().withoutSharing()` | `SYSTEM_MODE` | `without sharing` |
-| `.systemMode().withoutSharing().stripInaccessible()` | FLS applied by stripping fields | `without sharing` |
+| `.systemMode().withoutSharing().stripInaccessible()` | `SYSTEM_MODE`, then fields the user can't read are removed | `without sharing` |
 
 - User mode is the default. Don't call `.userMode()` on a query that never switched to system mode.
 - Selectors usually set `.systemMode().withoutSharing()` in their constructor. Calling `.userMode()` on such a selector is the one case where it changes anything: it switches the query back to the running user's access.
-- `.withSharing()` and `.withoutSharing()` take effect only after `.systemMode()`. In user mode, sharing is always enforced.
-- In user mode, a field the user can't read makes the query throw. Use `.stripInaccessible()` to drop such fields instead.
+- `.withSharing()` and `.withoutSharing()` take effect only in system mode. In user mode, sharing is always enforced.
+- In user mode, a field the user can't read makes the query throw, and `.stripInaccessible()` doesn't prevent that. To drop such fields instead of failing, use `.systemMode().stripInaccessible()`, with `.withSharing()` or `.withoutSharing()` as needed.
+- Stripping applies to the record results. `toQueryLocator()`, `toCursor()` and `toPaginationCursor()` return every selected field.
 
 ## Debugging
 
@@ -217,7 +242,7 @@ How they behave:
 
 ## Less common clauses
 
-Read [references/advanced-clauses.md](references/advanced-clauses.md) for USING SCOPE, `FOR UPDATE` / `FOR VIEW` / `FOR REFERENCE` / `ALL ROWS`, WITH DATA CATEGORY, TYPEOF, DISTANCE, `toLabel` / `FORMAT` / field aliases, cursors and the `SOQL.Logger` hook for failed queries.
+Read [references/advanced-clauses.md](references/advanced-clauses.md) for USING SCOPE, `FOR UPDATE` / `FOR VIEW` / `FOR REFERENCE` / `ALL ROWS`, WITH DATA CATEGORY, TYPEOF, DISTANCE, `toLabel` / `FORMAT` / field aliases, runtime-built queries, cursors and the `SOQL.Logger` hook for failed queries.
 
 ## Common mistakes
 
@@ -226,8 +251,11 @@ Read [references/advanced-clauses.md](references/advanced-clauses.md) for USING 
 | A selector method can't be called after `.with(...)` or `.byId(...)` | Inherited methods return `SOQL.Queryable`. Call the selector's own methods first. |
 | `Variable does not exist: SObjectType` | A local variable shadows the type (`Contact contact`). Rename it to `contactRecord`. |
 | `Method does not exist ... of(Schema.SObjectField)` on RecordType | Use `SOQL.of('RecordType')`. |
-| `Variable does not exist: v1` from `toQueryLocator()` | The user lacks FLS on a selected field in user mode. Grant access or use `.systemMode()`. |
-| Mocked test fails with `Use toAggregatedProxy()...` or a `NullPointerException` in `SOQL.SObjectMock.get` | Replace `.toAggregated()` with `.toAggregatedProxy()`. |
+| `Variable does not exist: v1` (or another `vN`) from `toQueryLocator()` | The query has a WHERE clause and runs in user mode, and the user lacks FLS on a selected field. Grant access or use `.systemMode()`. |
+| `System.UnexpectedException` from `toInteger()`, `toIdsOf()` or `toValuesOf()` | The query has an ORDER BY. Remove it. |
+| `QueryException: unexpected token: ,` from `toInteger()` | The query has a subquery. Count without it. |
+| Mocked test fails with `Use toAggregatedProxy()...` or a `NullPointerException` in `SOQL.SObjectMock.get` | If the code calls `.toAggregated()`, switch to `.toAggregatedProxy()`. Otherwise the mock's data type doesn't match the result method (see `soql-lib-testing`). |
 | Inline query built only for a single aggregate | Fine. You can also use the selector: grouping drops its default fields. |
 | `.userMode()` on a `SOQL.of(...)` query | Remove it. User mode is the default. |
-| `Field must be grouped or aggregated` | Group by every non-aggregated field you select, or don't select it. |
+| `Field must be grouped or aggregated` | SOQL Lib already drops ungrouped selected fields. Group by every field used in ORDER BY or HAVING, and by every field added with `.with(field, alias)`. |
+| Optional filter combined with `conditionLogic('1 AND 2 ...')` returns the wrong rows | `ignoreWhen` shifted the numbering. Use nested `SOQL.FilterGroup`s. |

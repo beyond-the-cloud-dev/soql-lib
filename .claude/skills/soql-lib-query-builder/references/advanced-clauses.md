@@ -31,6 +31,8 @@
 .allRows()        // ALL ROWS: include deleted and archived records
 ```
 
+A query holds only one of these keywords, and the last call wins. `.forView().forUpdate()` keeps only `FOR UPDATE`. Don't combine `forUpdate()` with `orderBy(...)`, because Salesforce rejects ORDER BY in a locking query.
+
 ## WITH DATA CATEGORY
 
 ```apex
@@ -54,7 +56,7 @@ SOQL.of(Event.SObjectType)
     .toList();
 ```
 
-Read the values with `event.What.get('Phone')`.
+Read the values with `eventRecord.What.get('Phone')`. Don't name the variable `event`, because it would shadow the `Event` type. Grouped and `COUNT()` queries drop TYPEOF fields.
 
 ## DISTANCE (geolocation)
 
@@ -67,7 +69,7 @@ SOQL.of(Contact.SObjectType)
     .toList();
 ```
 
-`between` also accepts a `System.Location`. The units are `.mi()` and `.km()`.
+`between` also accepts a `System.Location`. The units are `.mi()` and `.km()`, and the default is km.
 
 ## toLabel, FORMAT and field aliases
 
@@ -86,13 +88,13 @@ Only use these when the object, the fields or the conditions are not known at co
 
 ```apex
 SOQL.of(objectApiName)                      // String API name
-    .with(String.join(fieldNames, ','))      // or .with(fieldNamesList)
+    .with(fieldNames)                        // List<String>: an empty list adds nothing
     .whereAre(SOQL.Filter.with(fieldName).equal(value))  // value is still bound
     .orderBy(sortField, sortDirection)       // 'ASC' / 'DESC'
     .toList();
 ```
 
-`whereAre(String)`, `FilterGroup.add(String)` and `have(String)` insert raw text that is not bound. Never put user input in that text.
+Only the comparator values are bound here. The object name, the field names and the sort direction go into the SOQL text as written. Before using them, check names that come from outside the code against the schema (`Schema.getGlobalDescribe()`, the object's `fields.getMap()`), and accept only `ASC` / `DESC`. `whereAre(String)`, `FilterGroup.add(String)` and `have(String)` insert raw text that is not bound, so never put user input in that text.
 
 ## Cursors and batch
 
@@ -116,4 +118,4 @@ public class SOQLQueryLogger implements SOQL.Logger {
 }
 ```
 
-`log()` must not throw, because its exception would replace the original query error.
+`log()` must not throw, because its exception would replace the original query error. `getBinding()` returns SOQL Lib's shared bind map, which the next query clears. If you keep the bindings after `log()` returns, copy them first: `new Map<String, Object>(error.getBinding())`.
