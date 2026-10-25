@@ -85,6 +85,7 @@ public static List<Opportunity> getOpenOpportunities(Id accountId) {
 
 - Call selector methods first. Inherited methods (`with`, `whereAre`, `byId`, `orderBy`, `setLimit`, ...) return `SOQL.Queryable`, which has no selector methods.
 - User mode is SOQL Lib's default, so call `.userMode()` only to switch a selector that set `.systemMode()` back to the running user's access: `SOQL_Opportunity.query().isOpen().userMode().toList()`. Don't add `.withSharing()` next to it, because user mode always enforces sharing.
+- End with the result method that returns the shape you need, for example `SOQL_Contact.query().byIds(contactIds).toIdsOf(Contact.AccountId)` or `(Map<Id, List<Contact>>) SOQL_Contact.query().toAggregatedIdMapBy(Contact.AccountId)`, instead of looping over `toList()`. The `soql-lib-query-builder` skill lists them all.
 - Counts and aggregates can go through the selector. Grouping and `toInteger()` drop the default fields: `SOQL_Opportunity.query().isOpen().toInteger()`.
 - OR between selector filters: `.anyConditionMatching()`, or `.conditionLogic('1 OR 2')` for custom logic.
 - Batch `start()`: `return SOQL_Opportunity.query().isOpen().toQueryLocator();`.
