@@ -100,6 +100,7 @@ global virtual inherited sharing class SOQL implements Queryable {
         // WHERE
         Queryable whereAre(FilterGroup filterGroup);
         Queryable whereAre(Filter filter);
+        Queryable whereAre(Formula formula);
         Queryable whereAre(String conditions);
         Queryable conditionLogic(String order);
         Queryable anyConditionMatching();
@@ -229,6 +230,7 @@ global virtual inherited sharing class SOQL implements Queryable {
         // WHERE
         SubQuery whereAre(FilterGroup filterGroup);
         SubQuery whereAre(Filter filter);
+        SubQuery whereAre(Formula formula);
         // ORDER BY
         SubQuery orderBy(SObjectField field);
         SubQuery orderBy(String field);
@@ -277,6 +279,7 @@ global virtual inherited sharing class SOQL implements Queryable {
         // ADD CONDITION
         FilterGroup add(FilterGroup filterGroup);
         FilterGroup add(Filter filter);
+        FilterGroup add(Formula formula);
         FilterGroup add(String dynamicCondition);
         FilterGroup add(List<Filter> filters);
         FilterGroup add(List<String> dynamicConditions);
@@ -335,6 +338,26 @@ global virtual inherited sharing class SOQL implements Queryable {
         Boolean hasValue();
     }
 
+    global interface Formula {
+        // COMPARATORS
+        Formula equal(Decimal value);
+        Formula equal(Date value);
+        Formula notEqual(Decimal value);
+        Formula notEqual(Date value);
+        Formula lessThan(Decimal value);
+        Formula lessThan(Date value);
+        Formula lessOrEqual(Decimal value);
+        Formula lessOrEqual(Date value);
+        Formula greaterThan(Decimal value);
+        Formula greaterThan(Date value);
+        Formula greaterOrEqual(Decimal value);
+        Formula greaterOrEqual(Date value);
+        // ADDITIONAL
+        Formula ignoreWhen(Boolean logicExpression);
+
+        Boolean hasValue();
+    }
+
     global interface InnerJoin {
         InnerJoin of(SObjectType ofObject);
         // SELECT
@@ -342,6 +365,7 @@ global virtual inherited sharing class SOQL implements Queryable {
         // WHERE
         InnerJoin whereAre(FilterGroup filterGroup);
         InnerJoin whereAre(Filter filter);
+        InnerJoin whereAre(Formula formula);
     }
 
     global interface HavingFilterGroup {
@@ -461,6 +485,10 @@ global virtual inherited sharing class SOQL implements Queryable {
         get {
             return new SoqlFilter();
         }
+    }
+
+    global static Formula Formula(String formula) {
+        return new SoqlFormula(formula);
     }
 
     global static InnerJoin InnerJoin {
@@ -878,6 +906,11 @@ global virtual inherited sharing class SOQL implements Queryable {
 
     global Queryable whereAre(Filter filter) {
         this.builder.conditions.add(filter);
+        return this;
+    }
+
+    global Queryable whereAre(Formula formula) {
+        this.builder.conditions.add(formula);
         return this;
     }
 
@@ -1790,6 +1823,11 @@ global virtual inherited sharing class SOQL implements Queryable {
             return this;
         }
 
+        public SubQuery whereAre(Formula formula) {
+            this.builder.conditions.add(formula);
+            return this;
+        }
+
         public SubQuery orderBy(SObjectField field) {
             this.builder.orderBys.newOrderBy().with(field.toString());
             return this;
@@ -2089,6 +2127,11 @@ global virtual inherited sharing class SOQL implements Queryable {
             return this;
         }
 
+        public FilterGroup add(Formula formula) {
+            this.add(new FormulaAdapter(formula));
+            return this;
+        }
+
         public FilterGroup add(String dynamicCondition) {
             this.add(new StringConditionAdapter(dynamicCondition));
             return this;
@@ -2187,6 +2230,22 @@ global virtual inherited sharing class SOQL implements Queryable {
 
         public override String toString() {
             return this.filter.toString();
+        }
+    }
+
+    private class FormulaAdapter implements FilterClause {
+        private Formula formula;
+
+        public FormulaAdapter(Formula formula) {
+            this.formula = formula;
+        }
+
+        public Boolean hasValue() {
+            return this.formula.hasValue();
+        }
+
+        public override String toString() {
+            return this.formula.toString();
         }
     }
 
@@ -2422,6 +2481,97 @@ global virtual inherited sharing class SOQL implements Queryable {
         }
     }
 
+    private class SoqlFormula implements Formula {
+        private String formula;
+        private String comparator;
+        private String value;
+
+        public SoqlFormula(String formula) {
+            this.formula = formula;
+        }
+
+        public Formula equal(Decimal value) {
+            return this.set('=', this.toLiteral(value));
+        }
+
+        public Formula equal(Date value) {
+            return this.set('=', this.toLiteral(value));
+        }
+
+        public Formula notEqual(Decimal value) {
+            return this.set('!=', this.toLiteral(value));
+        }
+
+        public Formula notEqual(Date value) {
+            return this.set('!=', this.toLiteral(value));
+        }
+
+        public Formula lessThan(Decimal value) {
+            return this.set('<', this.toLiteral(value));
+        }
+
+        public Formula lessThan(Date value) {
+            return this.set('<', this.toLiteral(value));
+        }
+
+        public Formula lessOrEqual(Decimal value) {
+            return this.set('<=', this.toLiteral(value));
+        }
+
+        public Formula lessOrEqual(Date value) {
+            return this.set('<=', this.toLiteral(value));
+        }
+
+        public Formula greaterThan(Decimal value) {
+            return this.set('>', this.toLiteral(value));
+        }
+
+        public Formula greaterThan(Date value) {
+            return this.set('>', this.toLiteral(value));
+        }
+
+        public Formula greaterOrEqual(Decimal value) {
+            return this.set('>=', this.toLiteral(value));
+        }
+
+        public Formula greaterOrEqual(Date value) {
+            return this.set('>=', this.toLiteral(value));
+        }
+
+        private String toLiteral(Decimal value) {
+            // FORMULA() rejects exponent notation such as 1E+10
+            return value?.toPlainString();
+        }
+
+        private String toLiteral(Date value) {
+            return String.valueOf(value);
+        }
+
+        private Formula set(String comparator, String value) {
+            this.comparator = comparator;
+            this.value = value;
+            return this;
+        }
+
+        public Boolean hasValue() {
+            return String.isNotEmpty(this.formula);
+        }
+
+        public Formula ignoreWhen(Boolean logicExpression) {
+            if (logicExpression) {
+                // Set formula as empty to meet hasValue and ignore condition
+                this.formula = '';
+            }
+            return this;
+        }
+
+        public override String toString() {
+            // FORMULA() doesn't accept bind variables, so the formula and the value are written into the query.
+            // Backslashes and quotes are escaped to keep the formula inside its string literal.
+            return 'FORMULA(\'' + this.formula.replace('\\', '\\\\').replace('\'', '\\\'') + '\') ' + this.comparator + ' ' + this.value;
+        }
+    }
+
     private virtual class MainDataCategoryGroup extends FilterBuilder implements DataCategoryFilterGroup, QueryClause {
         public DataCategoryFilterGroup add(DataCategoryFilter dataCategoryFilter) {
             this.add(new DataCategoryFilterAdapter(dataCategoryFilter));
@@ -2532,6 +2682,11 @@ global virtual inherited sharing class SOQL implements Queryable {
 
         public InnerJoin whereAre(Filter filter) {
             this.builder.conditions.add(filter);
+            return this;
+        }
+
+        public InnerJoin whereAre(Formula formula) {
+            this.builder.conditions.add(formula);
             return this;
         }
 

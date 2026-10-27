@@ -1928,6 +1928,264 @@ private class SOQL_Full_Test {
     }
 
     @IsTest
+    static void formulaMinus() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType).whereAre(SOQL.Formula('Amount - ExpectedRevenue').greaterThan(100)).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Opportunity WHERE FORMULA(\'Amount - ExpectedRevenue\') > 100', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void formulaPlus() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType).whereAre(SOQL.Formula('Amount + ExpectedRevenue').greaterThan(100)).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Opportunity WHERE FORMULA(\'Amount + ExpectedRevenue\') > 100', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void formulaWithRelationshipField() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType).whereAre(SOQL.Formula('Account.AnnualRevenue - Amount').greaterThan(0)).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Opportunity WHERE FORMULA(\'Account.AnnualRevenue - Amount\') > 0', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void formulaEqual() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType).whereAre(SOQL.Formula('Amount - ExpectedRevenue').equal(0)).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Opportunity WHERE FORMULA(\'Amount - ExpectedRevenue\') = 0', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void formulaNotEqual() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType).whereAre(SOQL.Formula('Amount - ExpectedRevenue').notEqual(0)).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Opportunity WHERE FORMULA(\'Amount - ExpectedRevenue\') != 0', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void formulaLessThan() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType).whereAre(SOQL.Formula('Amount - ExpectedRevenue').lessThan(100)).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Opportunity WHERE FORMULA(\'Amount - ExpectedRevenue\') < 100', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void formulaLessOrEqual() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType).whereAre(SOQL.Formula('Amount - ExpectedRevenue').lessOrEqual(100)).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Opportunity WHERE FORMULA(\'Amount - ExpectedRevenue\') <= 100', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void formulaGreaterOrEqual() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType).whereAre(SOQL.Formula('Amount - ExpectedRevenue').greaterOrEqual(100)).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Opportunity WHERE FORMULA(\'Amount - ExpectedRevenue\') >= 100', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void formulaEqualDate() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType).whereAre(SOQL.Formula('CloseDate + Probability').equal(Date.newInstance(2026, 1, 15))).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Opportunity WHERE FORMULA(\'CloseDate + Probability\') = 2026-01-15', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void formulaNotEqualDate() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType).whereAre(SOQL.Formula('CloseDate + Probability').notEqual(Date.newInstance(2026, 1, 15))).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Opportunity WHERE FORMULA(\'CloseDate + Probability\') != 2026-01-15', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void formulaLessThanDate() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType).whereAre(SOQL.Formula('CloseDate - Probability').lessThan(Date.newInstance(2026, 1, 15))).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Opportunity WHERE FORMULA(\'CloseDate - Probability\') < 2026-01-15', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void formulaLessOrEqualDate() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType).whereAre(SOQL.Formula('CloseDate - Probability').lessOrEqual(Date.newInstance(2026, 1, 15))).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Opportunity WHERE FORMULA(\'CloseDate - Probability\') <= 2026-01-15', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void formulaGreaterThanDate() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType).whereAre(SOQL.Formula('CloseDate + Probability').greaterThan(Date.newInstance(2026, 1, 15))).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Opportunity WHERE FORMULA(\'CloseDate + Probability\') > 2026-01-15', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void formulaGreaterOrEqualDate() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType).whereAre(SOQL.Formula('CloseDate + Probability').greaterOrEqual(Date.newInstance(2026, 1, 15))).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Opportunity WHERE FORMULA(\'CloseDate + Probability\') >= 2026-01-15', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void formulaDecimalValue() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType).whereAre(SOQL.Formula('Amount - ExpectedRevenue').greaterThan(100.50)).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Opportunity WHERE FORMULA(\'Amount - ExpectedRevenue\') > 100.50', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void formulaNegativeValue() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType).whereAre(SOQL.Formula('Amount - ExpectedRevenue').lessThan(-5.5)).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Opportunity WHERE FORMULA(\'Amount - ExpectedRevenue\') < -5.5', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void formulaValueWithoutExponent() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType).whereAre(SOQL.Formula('Amount - ExpectedRevenue').greaterThan(Decimal.valueOf('1E+10'))).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Opportunity WHERE FORMULA(\'Amount - ExpectedRevenue\') > 10000000000', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void formulaEscapesSingleQuotes() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType).whereAre(SOQL.Formula('Amount\' - ExpectedRevenue').greaterThan(100)).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Opportunity WHERE FORMULA(\'Amount\\\' - ExpectedRevenue\') > 100', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void formulaEscapesBackslashes() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType).whereAre(SOQL.Formula('Amount\\ - ExpectedRevenue').greaterThan(100)).toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Opportunity WHERE FORMULA(\'Amount\\\\ - ExpectedRevenue\') > 100', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void formulaWithFilter() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType)
+            .whereAre(SOQL.Filter.with(Opportunity.StageName).equal('Closed Won'))
+            .whereAre(SOQL.Formula('Amount - ExpectedRevenue').greaterThan(100))
+            .toString();
+
+        // Verify
+        Assert.areEqual(
+            'SELECT Id FROM Opportunity WHERE StageName = :v1 AND FORMULA(\'Amount - ExpectedRevenue\') > 100',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
+    }
+
+    @IsTest
+    static void formulaInFilterGroup() {
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType)
+            .whereAre(
+                SOQL.FilterGroup
+                    .add(SOQL.Filter.with(Opportunity.StageName).equal('Closed Won'))
+                    .add(SOQL.Formula('Amount - ExpectedRevenue').greaterThan(100))
+                    .anyConditionMatching()
+            )
+            .toString();
+
+        // Verify
+        Assert.areEqual(
+            'SELECT Id FROM Opportunity WHERE (StageName = :v1 OR FORMULA(\'Amount - ExpectedRevenue\') > 100)',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
+    }
+
+    @IsTest
+    static void formulaIgnoreWhen() {
+        // Setup
+        Decimal minimumMargin = null;
+
+        // Test
+        String soql = SOQL.of(Opportunity.SObjectType)
+            .whereAre(
+                SOQL.FilterGroup
+                    .add(SOQL.Filter.with(Opportunity.StageName).equal('Closed Won'))
+                    .add(SOQL.Formula('Amount - ExpectedRevenue').greaterThan(minimumMargin).ignoreWhen(minimumMargin == null))
+            )
+            .toString();
+
+        // Verify
+        Assert.areEqual('SELECT Id FROM Opportunity WHERE (StageName = :v1)', soql, 'The generated SOQL should match the expected one.');
+    }
+
+    @IsTest
+    static void formulaInSubQuery() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .with(Account.Name)
+            .with(SOQL.SubQuery.of('Opportunities').with(Opportunity.Id).whereAre(SOQL.Formula('Amount - ExpectedRevenue').greaterThan(100)))
+            .toString();
+
+        // Verify
+        Assert.areEqual(
+            'SELECT Name , (SELECT Id FROM Opportunities WHERE FORMULA(\'Amount - ExpectedRevenue\') > 100) FROM Account',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
+    }
+
+    @IsTest
+    static void formulaInInnerJoin() {
+        // Test
+        String soql = SOQL.of(Account.SObjectType)
+            .whereAre(
+                SOQL.Filter.id().isIn(SOQL.InnerJoin.of(Opportunity.SObjectType).with(Opportunity.AccountId).whereAre(SOQL.Formula('Amount - ExpectedRevenue').greaterThan(100)))
+            )
+            .toString();
+
+        // Verify
+        Assert.areEqual(
+            'SELECT Id FROM Account WHERE Id IN (SELECT AccountId FROM Opportunity WHERE FORMULA(\'Amount - ExpectedRevenue\') > 100)',
+            soql,
+            'The generated SOQL should match the expected one.'
+        );
+    }
+
+    @IsTest
     static void filtersGroup() {
         // Test
         SOQL.Queryable builder = SOQL.of(Account.SObjectType)
