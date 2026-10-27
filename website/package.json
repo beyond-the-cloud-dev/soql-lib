@@ -32,7 +32,8 @@
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^3.8.1",
-    "@docusaurus/types": "^3.8.1"
+    "@docusaurus/types": "^3.8.1",
+    "@vercel/functions": "^3.9.11"
   },
   "browserslist": {
     "production": [

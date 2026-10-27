@@ -1,4 +1,14 @@
 User-agent: *
-Disallow:
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
+# Markdown for AI agents: /llms.txt, /llms-full.txt and <page>.md for every doc page
 Sitemap: https://soql.beyondthecloud.dev/sitemap.xml
