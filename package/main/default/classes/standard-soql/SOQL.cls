@@ -2981,6 +2981,7 @@ global virtual inherited sharing class SOQL implements Queryable {
         }
 
         private String schemaTypeName() {
+            // Without the Schema prefix Type.forName resolves Location and Address to the System classes.
             return this.sObjectType != null ? 'Schema.' + this.sObjectType.toString() : 'SObject';
         }
 
@@ -3510,12 +3511,12 @@ global virtual inherited sharing class SOQL implements Queryable {
     }
 
     public inherited sharing class Converter {
-        private String ofObject;
+        private String schemaTypeName;
         private List<SObject> recordsToTransform;
 
         public Converter(String ofObject) {
             // Without the Schema prefix Type.forName resolves Location and Address to the System classes.
-            this.ofObject = 'Schema.' + ofObject;
+            this.schemaTypeName = 'Schema.' + ofObject;
         }
 
         public Converter transform(List<SObject> recordsToTransform) {
@@ -3524,7 +3525,7 @@ global virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Map<Id, SObject> toMap() {
-            Map<Id, SObject> recordPerId = (Map<Id, SObject>) Type.forName('Map<Id, ' + this.ofObject + ' >').newInstance();
+            Map<Id, SObject> recordPerId = (Map<Id, SObject>) Type.forName('Map<Id, ' + this.schemaTypeName + ' >').newInstance();
             recordPerId.putAll(this.recordsToTransform);
             return recordPerId;
         }
@@ -3538,7 +3539,7 @@ global virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Map<Id, SObject> toIdMapBy(String fieldPath) {
-            Map<Id, SObject> recordPerCustomKey = (Map<Id, SObject>) Type.forName('Map<Id, ' + this.ofObject + ' >').newInstance();
+            Map<Id, SObject> recordPerCustomKey = (Map<Id, SObject>) Type.forName('Map<Id, ' + this.schemaTypeName + ' >').newInstance();
             List<String> relationshipPathFields = fieldPath.split('\\.');
             String targetField = relationshipPathFields.remove(relationshipPathFields.size() - 1);
 
@@ -3558,7 +3559,7 @@ global virtual inherited sharing class SOQL implements Queryable {
         }
 
         private Map<Id, List<SObject>> toAggregatedIdMapBy(String keyFieldPath) {
-            Map<Id, List<SObject>> recordsPerCustomKey = (Map<Id, List<SObject>>) Type.forName('Map<Id, List<' + this.ofObject + ' >>').newInstance();
+            Map<Id, List<SObject>> recordsPerCustomKey = (Map<Id, List<SObject>>) Type.forName('Map<Id, List<' + this.schemaTypeName + ' >>').newInstance();
             List<String> relationshipPathFields = keyFieldPath.split('\\.');
             String targetField = relationshipPathFields.remove(relationshipPathFields.size() - 1);
 
@@ -3584,7 +3585,7 @@ global virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Map<String, SObject> toMap(String fieldPath) {
-            Map<String, SObject> recordPerCustomKey = (Map<String, SObject>) Type.forName('Map<String, ' + this.ofObject + ' >').newInstance();
+            Map<String, SObject> recordPerCustomKey = (Map<String, SObject>) Type.forName('Map<String, ' + this.schemaTypeName + ' >').newInstance();
             List<String> relationshipPathFields = fieldPath.split('\\.');
             String targetField = relationshipPathFields.remove(relationshipPathFields.size() - 1);
 
@@ -3668,7 +3669,7 @@ global virtual inherited sharing class SOQL implements Queryable {
         }
 
         private Map<String, List<SObject>> toSObjectAggregatedMap(SObjectField keyField, String keyFieldPath) {
-            Map<String, List<SObject>> recordsPerCustomKey = (Map<String, List<SObject>>) Type.forName('Map<String, List<' + this.ofObject + ' >>').newInstance();
+            Map<String, List<SObject>> recordsPerCustomKey = (Map<String, List<SObject>>) Type.forName('Map<String, List<' + this.schemaTypeName + ' >>').newInstance();
             List<String> relationshipPathFields = keyFieldPath.split('\\.');
             String targetField = relationshipPathFields.remove(relationshipPathFields.size() - 1);
 

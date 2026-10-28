@@ -4597,10 +4597,7 @@ private class SOQL_Test {
     @IsTest
     static void mockedToMapWhenObjectNameClashesWithSystemClass() {
         // Setup
-        List<Schema.Location> locations = new List<Schema.Location>{
-            new Schema.Location(Name = 'Location 1', LocationType = 'Warehouse'),
-            new Schema.Location(Name = 'Location 2', LocationType = 'Warehouse')
-        };
+        List<Schema.Location> locations = new List<Schema.Location>{ new Schema.Location(Name = 'Location 1'), new Schema.Location(Name = 'Location 2') };
 
         // Test
         SOQL.mock('mockingQuery').thenReturn(locations);
@@ -4608,6 +4605,9 @@ private class SOQL_Test {
 
         // Verify
         Assert.areEqual(locations.size(), result.size(), 'The result map should have one entry per mocked location.');
+
+        Assert.isTrue(result.containsKey(locations[0].Id), 'The result map should be keyed by the first mocked location Id.');
+        Assert.isTrue(result.containsKey(locations[1].Id), 'The result map should be keyed by the second mocked location Id.');
     }
 
     @IsTest
