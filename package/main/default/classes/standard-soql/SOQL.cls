@@ -2977,7 +2977,11 @@ global virtual inherited sharing class SOQL implements Queryable {
                 return;
             }
 
-            this.mockedRecords = (List<SObject>) Type.forName('List<' + (this.sObjectType != null ? 'Schema.' + this.sObjectType?.toString() : 'SObject') + ' >').newInstance();
+            this.mockedRecords = (List<SObject>) Type.forName('List<' + this.schemaTypeName() + ' >').newInstance();
+        }
+
+        private String schemaTypeName() {
+            return this.sObjectType != null ? 'Schema.' + this.sObjectType.toString() : 'SObject';
         }
 
         private List<SObject> get(SoqlFields fields, SoqlSubQueries subQueries) {
@@ -3030,10 +3034,9 @@ global virtual inherited sharing class SOQL implements Queryable {
         }
 
         private List<SObject> stripAdditionalFields(Set<String> requestedFields, Set<String> subQueriesRelationshipNames) {
-            Type objectTypeName = Type.forName(this.sObjectType?.toString() ?? 'SObject');
+            Type objectTypeName = Type.forName(this.schemaTypeName());
 
-            List<SObject> cleanedRecords = (List<SObject>) Type.forName('List<' + (this.sObjectType != null ? 'Schema.' + this.sObjectType.toString() : 'SObject') + ' >')
-                .newInstance();
+            List<SObject> cleanedRecords = (List<SObject>) Type.forName('List<' + this.schemaTypeName() + ' >').newInstance();
 
             for (SObject record : this.mockedRecords) {
                 Map<String, Object> recordFilteredFields = new Map<String, Object>{ 'Id' => record.Id };
@@ -3511,7 +3514,8 @@ global virtual inherited sharing class SOQL implements Queryable {
         private List<SObject> recordsToTransform;
 
         public Converter(String ofObject) {
-            this.ofObject = ofObject;
+            // Without the Schema prefix Type.forName resolves Location and Address to the System classes.
+            this.ofObject = 'Schema.' + ofObject;
         }
 
         public Converter transform(List<SObject> recordsToTransform) {

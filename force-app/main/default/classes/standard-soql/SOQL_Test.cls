@@ -4595,6 +4595,126 @@ private class SOQL_Test {
     }
 
     @IsTest
+    static void mockedToMapWhenObjectNameClashesWithSystemClass() {
+        // Setup
+        List<Schema.Location> locations = new List<Schema.Location>{
+            new Schema.Location(Name = 'Location 1', LocationType = 'Warehouse'),
+            new Schema.Location(Name = 'Location 2', LocationType = 'Warehouse')
+        };
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(locations);
+        Map<Id, Schema.Location> result = (Map<Id, Schema.Location>) SOQL.of(Schema.Location.SObjectType).with(Schema.Location.Name).mockId('mockingQuery').toMap();
+
+        // Verify
+        Assert.areEqual(locations.size(), result.size(), 'The result map should have one entry per mocked location.');
+    }
+
+    @IsTest
+    static void mockedToMapForAddressWhenObjectNameClashesWithSystemClass() {
+        // Setup
+        List<Schema.Address> addresses = new List<Schema.Address>{ new Schema.Address(City = 'Warsaw'), new Schema.Address(City = 'Berlin') };
+
+        // Test
+        SOQL.mock('mockingQuery').thenReturn(addresses);
+        Map<Id, Schema.Address> result = (Map<Id, Schema.Address>) SOQL.of(Schema.Address.SObjectType).with(Schema.Address.City).mockId('mockingQuery').toMap();
+
+        // Verify
+        Assert.areEqual(addresses.size(), result.size(), 'The result map should have one entry per mocked address.');
+    }
+
+    @IsTest
+    static void mockedToIdMapByWhenObjectNameClashesWithSystemClass() {
+        // Setup
+        SOQL.mock('mockingQuery')
+            .thenReturn(
+                new List<Schema.Location>{
+                    new Schema.Location(Name = 'Location 1', OwnerId = SOQL.IdGenerator.get(User.SObjectType)),
+                    new Schema.Location(Name = 'Location 2', OwnerId = SOQL.IdGenerator.get(User.SObjectType))
+                }
+            );
+
+        // Test
+        Map<Id, Schema.Location> result = (Map<Id, Schema.Location>) SOQL.of(Schema.Location.SObjectType)
+            .with(Schema.Location.Name, Schema.Location.OwnerId)
+            .mockId('mockingQuery')
+            .toIdMapBy(Schema.Location.OwnerId);
+
+        // Verify
+        Assert.areEqual(2, result.size(), 'The result map should have one entry per owner.');
+    }
+
+    @IsTest
+    static void mockedToAggregatedIdMapByWhenObjectNameClashesWithSystemClass() {
+        // Setup
+        Id ownerId = SOQL.IdGenerator.get(User.SObjectType);
+
+        SOQL.mock('mockingQuery')
+            .thenReturn(new List<Schema.Location>{ new Schema.Location(Name = 'Location 1', OwnerId = ownerId), new Schema.Location(Name = 'Location 2', OwnerId = ownerId) });
+
+        // Test
+        Map<Id, List<Schema.Location>> result = (Map<Id, List<Schema.Location>>) SOQL.of(Schema.Location.SObjectType)
+            .with(Schema.Location.Name, Schema.Location.OwnerId)
+            .mockId('mockingQuery')
+            .toAggregatedIdMapBy(Schema.Location.OwnerId);
+
+        // Verify
+        Assert.areEqual(1, result.size(), 'The result map should have one entry, because both locations have the same owner.');
+        Assert.areEqual(2, result.get(ownerId).size(), 'The owner entry should hold both locations.');
+    }
+
+    @IsTest
+    static void mockedToMapWithCustomKeyWhenObjectNameClashesWithSystemClass() {
+        // Setup
+        SOQL.mock('mockingQuery').thenReturn(new List<Schema.Location>{ new Schema.Location(Name = 'Location 1'), new Schema.Location(Name = 'Location 2') });
+
+        // Test
+        Map<String, Schema.Location> result = (Map<String, Schema.Location>) SOQL.of(Schema.Location.SObjectType)
+            .with(Schema.Location.Name)
+            .mockId('mockingQuery')
+            .toMap(Schema.Location.Name);
+
+        // Verify
+        Assert.areEqual(2, result.size(), 'The result map should have one entry per location name.');
+        Assert.isTrue(result.containsKey('Location 1'), 'The result map should be keyed by location name.');
+    }
+
+    @IsTest
+    static void mockedToAggregatedMapWhenObjectNameClashesWithSystemClass() {
+        // Setup
+        SOQL.mock('mockingQuery')
+            .thenReturn(
+                new List<Schema.Location>{
+                    new Schema.Location(Name = 'Location 1', LocationType = 'Warehouse'),
+                    new Schema.Location(Name = 'Location 2', LocationType = 'Warehouse')
+                }
+            );
+
+        // Test
+        Map<String, List<Schema.Location>> result = (Map<String, List<Schema.Location>>) SOQL.of(Schema.Location.SObjectType)
+            .with(Schema.Location.Name, Schema.Location.LocationType)
+            .mockId('mockingQuery')
+            .toAggregatedMap(Schema.Location.LocationType);
+
+        // Verify
+        Assert.areEqual(1, result.size(), 'The result map should have one entry, because both locations have the same type.');
+        Assert.areEqual(2, result.get('Warehouse').size(), 'The type entry should hold both locations.');
+    }
+
+    @IsTest
+    static void mockedRecordsAreStrippedWhenObjectNameClashesWithSystemClass() {
+        // Setup
+        SOQL.mock('mockingQuery').thenReturn(new List<Schema.Location>{ new Schema.Location(Name = 'Location 1', ExternalReference = 'EXT-1') });
+
+        // Test
+        Schema.Location result = (Schema.Location) SOQL.of(Schema.Location.SObjectType).with(Schema.Location.Name).mockId('mockingQuery').toObject();
+
+        // Verify
+        Assert.areEqual('Location 1', result.Name, 'The queried field should be kept on the mocked record.');
+        Assert.isNull(result.ExternalReference, 'The field that is not in the query should be stripped from the mocked record.');
+    }
+
+    @IsTest
     static void toQueryLocator() {
         // Test
         Database.QueryLocator queryLocator = SOQL.of(Account.SObjectType).with(Account.Id).with(Account.Name).toQueryLocator();
