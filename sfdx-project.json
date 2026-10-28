@@ -1,8 +1,8 @@
 {
   "packageDirectories": [
     {
-      "versionName": "SOQL Lib 6.14.0",
-      "versionNumber": "6.14.0.NEXT",
+      "versionName": "SOQL Lib 6.13.1",
+      "versionNumber": "6.13.1.NEXT",
       "path": "package",
       "default": true,
       "package": "SOQL Lib",
@@ -38,6 +38,7 @@
     "SOQL Lib@6.11.0-1": "04tP6000003MO5BIAW",
     "SOQL Lib@6.11.1-1": "04tP6000003On13IAC",
     "SOQL Lib@6.12.0-1": "04tP6000003dX2PIAU",
-    "SOQL Lib@6.13.0-1": "04tP6000003nxwUIAQ"
+    "SOQL Lib@6.13.0-1": "04tP6000003nxwUIAQ",
+    "SOQL Lib@6.13.1-1": "04tP6000003oaY1IAI"
   }
 }
