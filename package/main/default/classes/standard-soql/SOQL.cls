@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Beyond The Cloud Sp. z o.o. (BeyondTheCloud.Dev)
  * Licensed under the MIT License (https://github.com/beyond-the-cloud-dev/soql-lib/blob/main/LICENSE)
  *
- * v6.13.0
+ * v6.13.1
  *
  * PMD False Positives:
  * - ExcessivePublicCount: It is a library class and exposes all necessary methods to construct a query
@@ -2977,7 +2977,12 @@ global virtual inherited sharing class SOQL implements Queryable {
                 return;
             }
 
-            this.mockedRecords = (List<SObject>) Type.forName('List<' + (this.sObjectType != null ? 'Schema.' + this.sObjectType?.toString() : 'SObject') + ' >').newInstance();
+            this.mockedRecords = (List<SObject>) Type.forName('List<' + this.schemaTypeName() + ' >').newInstance();
+        }
+
+        private String schemaTypeName() {
+            // Without the Schema prefix Type.forName resolves Location and Address to the System classes.
+            return this.sObjectType != null ? 'Schema.' + this.sObjectType.toString() : 'SObject';
         }
 
         private List<SObject> get(SoqlFields fields, SoqlSubQueries subQueries) {
@@ -3030,10 +3035,9 @@ global virtual inherited sharing class SOQL implements Queryable {
         }
 
         private List<SObject> stripAdditionalFields(Set<String> requestedFields, Set<String> subQueriesRelationshipNames) {
-            Type objectTypeName = Type.forName(this.sObjectType?.toString() ?? 'SObject');
+            Type objectTypeName = Type.forName(this.schemaTypeName());
 
-            List<SObject> cleanedRecords = (List<SObject>) Type.forName('List<' + (this.sObjectType != null ? 'Schema.' + this.sObjectType.toString() : 'SObject') + ' >')
-                .newInstance();
+            List<SObject> cleanedRecords = (List<SObject>) Type.forName('List<' + this.schemaTypeName() + ' >').newInstance();
 
             for (SObject record : this.mockedRecords) {
                 Map<String, Object> recordFilteredFields = new Map<String, Object>{ 'Id' => record.Id };
@@ -3507,11 +3511,12 @@ global virtual inherited sharing class SOQL implements Queryable {
     }
 
     public inherited sharing class Converter {
-        private String ofObject;
+        private String schemaTypeName;
         private List<SObject> recordsToTransform;
 
         public Converter(String ofObject) {
-            this.ofObject = ofObject;
+            // Without the Schema prefix Type.forName resolves Location and Address to the System classes.
+            this.schemaTypeName = 'Schema.' + ofObject;
         }
 
         public Converter transform(List<SObject> recordsToTransform) {
@@ -3520,7 +3525,7 @@ global virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Map<Id, SObject> toMap() {
-            Map<Id, SObject> recordPerId = (Map<Id, SObject>) Type.forName('Map<Id, ' + this.ofObject + ' >').newInstance();
+            Map<Id, SObject> recordPerId = (Map<Id, SObject>) Type.forName('Map<Id, ' + this.schemaTypeName + ' >').newInstance();
             recordPerId.putAll(this.recordsToTransform);
             return recordPerId;
         }
@@ -3534,7 +3539,7 @@ global virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Map<Id, SObject> toIdMapBy(String fieldPath) {
-            Map<Id, SObject> recordPerCustomKey = (Map<Id, SObject>) Type.forName('Map<Id, ' + this.ofObject + ' >').newInstance();
+            Map<Id, SObject> recordPerCustomKey = (Map<Id, SObject>) Type.forName('Map<Id, ' + this.schemaTypeName + ' >').newInstance();
             List<String> relationshipPathFields = fieldPath.split('\\.');
             String targetField = relationshipPathFields.remove(relationshipPathFields.size() - 1);
 
@@ -3554,7 +3559,7 @@ global virtual inherited sharing class SOQL implements Queryable {
         }
 
         private Map<Id, List<SObject>> toAggregatedIdMapBy(String keyFieldPath) {
-            Map<Id, List<SObject>> recordsPerCustomKey = (Map<Id, List<SObject>>) Type.forName('Map<Id, List<' + this.ofObject + ' >>').newInstance();
+            Map<Id, List<SObject>> recordsPerCustomKey = (Map<Id, List<SObject>>) Type.forName('Map<Id, List<' + this.schemaTypeName + ' >>').newInstance();
             List<String> relationshipPathFields = keyFieldPath.split('\\.');
             String targetField = relationshipPathFields.remove(relationshipPathFields.size() - 1);
 
@@ -3580,7 +3585,7 @@ global virtual inherited sharing class SOQL implements Queryable {
         }
 
         public Map<String, SObject> toMap(String fieldPath) {
-            Map<String, SObject> recordPerCustomKey = (Map<String, SObject>) Type.forName('Map<String, ' + this.ofObject + ' >').newInstance();
+            Map<String, SObject> recordPerCustomKey = (Map<String, SObject>) Type.forName('Map<String, ' + this.schemaTypeName + ' >').newInstance();
             List<String> relationshipPathFields = fieldPath.split('\\.');
             String targetField = relationshipPathFields.remove(relationshipPathFields.size() - 1);
 
@@ -3664,7 +3669,7 @@ global virtual inherited sharing class SOQL implements Queryable {
         }
 
         private Map<String, List<SObject>> toSObjectAggregatedMap(SObjectField keyField, String keyFieldPath) {
-            Map<String, List<SObject>> recordsPerCustomKey = (Map<String, List<SObject>>) Type.forName('Map<String, List<' + this.ofObject + ' >>').newInstance();
+            Map<String, List<SObject>> recordsPerCustomKey = (Map<String, List<SObject>>) Type.forName('Map<String, List<' + this.schemaTypeName + ' >>').newInstance();
             List<String> relationshipPathFields = keyFieldPath.split('\\.');
             String targetField = relationshipPathFields.remove(relationshipPathFields.size() - 1);
 
