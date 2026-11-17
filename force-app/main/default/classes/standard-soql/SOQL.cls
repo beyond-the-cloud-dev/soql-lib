@@ -592,29 +592,6 @@ public virtual inherited sharing class SOQL implements Queryable {
         void throwException(String message);
     }
 
-    // Backward support - it's going to be removed in the future
-
-    @TestVisible // deprecated
-    private static void setMock(String mockId, SObject record) {
-        SOQL.createLegacyMock(mockId).thenReturn(record);
-    }
-
-    @TestVisible // deprecated
-    private static void setMock(String mockId, List<SObject> records) {
-        SOQL.createLegacyMock(mockId).thenReturn(records);
-    }
-
-    @TestVisible // deprecated
-    private static void setCountMock(String mockId, Integer amount) {
-        SOQL.createLegacyMock(mockId).thenReturn(amount);
-    }
-
-    private static SoqlMock createLegacyMock(String mockId) {
-        SoqlMock mock = new SoqlMock().useLegacyMockingBehavior();
-        SOQL.queryIdToMock.put(mockId, new List<SoqlMock>{ mock });
-        return mock;
-    }
-
     // Implementation
 
     private static Map<String, List<SoqlMock>> queryIdToMock = new Map<String, List<SoqlMock>>();
@@ -3279,16 +3256,10 @@ public virtual inherited sharing class SOQL implements Queryable {
         public Boolean hasExceptionMock() {
             return this.exceptionMock != null;
         }
-
-        public SoqlMock useLegacyMockingBehavior() {
-            this.sObjectMock.useLegacyMockingBehavior = true;
-            return this;
-        }
     }
 
     private class SObjectMock {
         private List<SObject> mockedRecords;
-        private Boolean useLegacyMockingBehavior = false;
         private SObjectType sObjectType;
 
         private void add(SObject record) {
@@ -3312,7 +3283,7 @@ public virtual inherited sharing class SOQL implements Queryable {
         }
 
         private List<SObject> get(SoqlFields fields, SoqlSubQueries subQueries) {
-            if (this.useLegacyMockingBehavior || this.mockedRecords.isEmpty() || this.sObjectType == AggregateResult.SObjectType) {
+            if (this.mockedRecords.isEmpty() || this.sObjectType == AggregateResult.SObjectType) {
                 return this.mockedRecords;
             }
 

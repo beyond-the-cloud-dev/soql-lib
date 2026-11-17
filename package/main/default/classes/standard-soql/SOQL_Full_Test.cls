@@ -4077,19 +4077,6 @@ private class SOQL_Full_Test {
     }
 
     @IsTest
-    static void mockId() {
-        // Setup
-        List<Account> accounts = new List<Account>{ new Account(Name = 'Test 1'), new Account(Name = 'Test 2') };
-
-        // Test
-        SOQL.setMock('mockingQuery', accounts);
-        List<Account> result = SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toList();
-
-        // Verify
-        Assert.areEqual(accounts, result, 'The mocked accounts should be returned.');
-    }
-
-    @IsTest
     static void mockWithoutMockId() {
         // Setup
         SOQL.mock(Account.SObjectType).thenReturn(new List<Account>{ new Account(Name = 'Test 1'), new Account(Name = 'Test 2') });
@@ -4125,19 +4112,6 @@ private class SOQL_Full_Test {
 
         // Verify
         Assert.areEqual(0, accounts.size(), 'The mocked accounts should be returned.');
-    }
-
-    @IsTest
-    static void mockingSingleRecord() {
-        // Setup
-        Account testAccount = new Account(Name = 'Test 1');
-
-        // Test
-        SOQL.setMock('mockingQuery', testAccount);
-        Account result = (Account) SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toObject();
-
-        // Verify
-        Assert.areEqual(testAccount, result, 'The mocked account should be returned.');
     }
 
     @IsTest
@@ -4183,26 +4157,6 @@ private class SOQL_Full_Test {
     }
 
     @IsTest
-    static void mockNoResult() {
-        // Test
-        SOQL.setMock('mockingQuery', new List<Account>());
-        Account result = (Account) SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toObject();
-
-        // Verify
-        Assert.isNull(result, 'The result should be null when no records are mocked.');
-    }
-
-    @IsTest
-    static void mockNoResultWithNull() {
-        // Test
-        SOQL.setMock('mockingQuery', (Account) null);
-        Account result = (Account) SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toObject();
-
-        // Verify
-        Assert.isNull(result, 'The result should be null when no records are mocked.');
-    }
-
-    @IsTest
     static void mockNoResults() {
         // Test
         SOQL.mock('mockingQuery').thenReturn(new List<Account>());
@@ -4210,19 +4164,6 @@ private class SOQL_Full_Test {
 
         // Verify
         Assert.isTrue(result.isEmpty(), 'The result should be empty when no records are mocked.');
-    }
-
-    @IsTest
-    static void mockingMultipleRecords() {
-        // Setup
-        List<Account> testAccounts = new List<Account>{ new Account(Name = 'Test 1'), new Account(Name = 'Test 2') };
-
-        // Test
-        SOQL.setMock('mockingQuery', testAccounts);
-        List<Account> result = SOQL.of(Account.SObjectType).with(Account.Name).mockId('mockingQuery').toList();
-
-        // Verify
-        Assert.areEqual(testAccounts, result, 'The mocked accounts should be returned.');
     }
 
     @IsTest
@@ -4289,16 +4230,6 @@ private class SOQL_Full_Test {
         // Verify
         Assert.isNotNull(queryException, 'The query exception should be thrown, because it\'s mocked.');
         Assert.areEqual(message, queryException.getMessage(), 'The query exception should be thrown.');
-    }
-
-    @IsTest
-    static void mockingCount() {
-        // Test
-        SOQL.setCountMock('mockingQuery', 2);
-        Integer result = SOQL.of(Account.SObjectType).count().mockId('mockingQuery').toInteger();
-
-        // Verify
-        Assert.areEqual(2, result, 'The mocked count should be returned.');
     }
 
     @IsTest
