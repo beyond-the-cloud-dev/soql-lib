@@ -1,8 +1,8 @@
 {
   "packageDirectories": [
     {
-      "versionName": "SOQL Lib 6.13.1",
-      "versionNumber": "6.13.1.NEXT",
+      "versionName": "SOQL Lib 6.14.0",
+      "versionNumber": "6.14.0.NEXT",
       "path": "package",
       "default": true,
       "package": "SOQL Lib",

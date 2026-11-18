@@ -15,13 +15,13 @@ sidebar_position: 20
 
 Install the SOQL Lib unlocked package with `btcdev` namespace to your Salesforce environment:
 
-`/packaging/installPackage.apexp?p0=04tP6000003dX2PIAU`
+`/packaging/installPackage.apexp?p0=04tP6000003oaY1IAI`
 
-<a href="https://test.salesforce.com/packaging/installPackage.apexp?p0=04tP6000003dX2PIAU" target="_blank" style={{display: 'inline-block', backgroundColor: '#1976d2', color: 'white', padding: '10px 20px', textDecoration: 'none', borderRadius: '4px', marginRight: '10px'}}>
+<a href="https://test.salesforce.com/packaging/installPackage.apexp?p0=04tP6000003oaY1IAI" target="_blank" style={{display: 'inline-block', backgroundColor: '#1976d2', color: 'white', padding: '10px 20px', textDecoration: 'none', borderRadius: '4px', marginRight: '10px'}}>
     <p style={{margin: '0px'}}>Install on Sandbox</p>
 </a>
 
-<a href="https://login.salesforce.com/packaging/installPackage.apexp?p0=04tP6000003dX2PIAU" target="_blank" style={{display: 'inline-block', backgroundColor: '#d32f2f', color: 'white', padding: '10px 20px', textDecoration: 'none', borderRadius: '4px'}}>
+<a href="https://login.salesforce.com/packaging/installPackage.apexp?p0=04tP6000003oaY1IAI" target="_blank" style={{display: 'inline-block', backgroundColor: '#d32f2f', color: 'white', padding: '10px 20px', textDecoration: 'none', borderRadius: '4px'}}>
     <p style={{margin: '0px'}}>Install on Production</p>
 </a>
 
