@@ -46,6 +46,7 @@ The following are methods for `SubQuery`.
 
 - [`whereAre(FilterGroup filterGroup)`](#whereare)
 - [`whereAre(Filter filter)`](#whereare)
+- [`whereAre(Formula formula)`](#whereare)
 
 [**ORDER BY**](#order-by)
 
@@ -288,7 +289,7 @@ SOQL.of(Account.SObjectType)
 ## WHERE
 ### whereAre
 
-For more details check [`SOQL.FilterGroup`](soql-filters-group.md) and [`SOQL.Filter`](soql-filter.md)
+For more details check [`SOQL.FilterGroup`](soql-filters-group.md), [`SOQL.Filter`](soql-filter.md) and [`SOQL.Formula`](soql-formula.md)
 
 **Signature**
 

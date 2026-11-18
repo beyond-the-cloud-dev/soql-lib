@@ -172,6 +172,11 @@ const EXAMPLE_GROUPS = [
         query:
           "SELECT Id, Name\nFROM Account\nWHERE DISTANCE(BillingAddress, GEOLOCATION(37.775, -122.418), 'mi') < 20\nORDER BY DISTANCE(BillingAddress, GEOLOCATION(37.775, -122.418), 'mi')",
       },
+      {
+        name: 'FORMULA (Beta)',
+        query:
+          "SELECT Id, Name, Amount\nFROM Opportunity\nWHERE StageName = 'Closed Won'\n  AND FORMULA('Amount - ExpectedRevenue') > 100",
+      },
       { name: 'toLabel and FORMAT', query: 'SELECT Id, toLabel(StageName), FORMAT(Amount)\nFROM Opportunity' },
     ],
   },
@@ -183,6 +188,7 @@ const MAPPING_REFERENCE = [
   ['(SELECT Id FROM Contacts)', ".with(SOQL.SubQuery.of('Contacts')…)", '/soql/api/soql-sub'],
   ['TYPEOF What WHEN … END', '.with(SOQL.TypeOf.of(Event.WhatId)…)', '/soql/api/soql-typeof'],
   ['WHERE Name = :value', '.whereAre(SOQL.Filter.name().equal(value))', '/soql/api/soql-filter'],
+  ["FORMULA('A - B') > 100", ".whereAre(SOQL.Formula('A - B').greaterThan(100))", '/soql/api/soql-formula'],
   ['AND / OR', 'SOQL.FilterGroup + .anyConditionMatching()', '/soql/api/soql-filters-group'],
   ["LIKE '%v%'", ".contains('v')", '/soql/api/soql-filter#contains'],
   ['IN (SELECT …)', '.isIn(SOQL.InnerJoin.of(…))', '/soql/api/soql-join'],

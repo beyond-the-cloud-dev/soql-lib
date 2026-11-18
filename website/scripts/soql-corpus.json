@@ -3690,5 +3690,53 @@
   {
     "category": "complex-scenarios",
     "soql": "SELECT Id, CaseNumber, Owner.Type, Owner.Name, Parent.CaseNumber\nFROM Case\nWHERE Owner.Type = 'User' AND (NOT Priority = 'Low')\nORDER BY CaseNumber"
+  },
+  {
+    "category": "formula",
+    "soql": "SELECT Id FROM Opportunity WHERE FORMULA('Amount - ExpectedRevenue') > 100"
+  },
+  {
+    "category": "formula",
+    "soql": "SELECT Id FROM Opportunity WHERE FORMULA('Amount + ExpectedRevenue') <= 2000.50"
+  },
+  {
+    "category": "formula",
+    "soql": "SELECT Id FROM Opportunity WHERE FORMULA('Account.AnnualRevenue - Amount') < 0"
+  },
+  {
+    "category": "formula",
+    "soql": "SELECT Id FROM Opportunity WHERE FORMULA('CloseDate + Probability') >= 2026-03-01"
+  },
+  {
+    "category": "formula",
+    "soql": "SELECT Id FROM Opportunity WHERE FORMULA('Amount - ExpectedRevenue') = 0 OR FORMULA('Amount - ExpectedRevenue') != 0"
+  },
+  {
+    "category": "formula",
+    "soql": "SELECT Id FROM Opportunity WHERE StageName = 'Closed Won' AND FORMULA('Amount - ExpectedRevenue') > :minimumMargin"
+  },
+  {
+    "category": "formula",
+    "soql": "SELECT Id FROM Opportunity WHERE NOT FORMULA('Amount - ExpectedRevenue') > 100"
+  },
+  {
+    "category": "formula",
+    "soql": "SELECT Id, (SELECT Id FROM Opportunities WHERE FORMULA('Amount - ExpectedRevenue') > 100) FROM Account"
+  },
+  {
+    "category": "formula",
+    "soql": "SELECT Id FROM Account WHERE Id IN (SELECT AccountId FROM Opportunity WHERE FORMULA('Amount - ExpectedRevenue') > 100)"
+  },
+  {
+    "category": "formula",
+    "soql": "SELECT Id FROM Opportunity WHERE FORMULA('Amount - ExpectedRevenue') < -5.5"
+  },
+  {
+    "category": "formula",
+    "soql": "SELECT COUNT() FROM Opportunity WHERE FORMULA('Amount - ExpectedRevenue') > 100"
+  },
+  {
+    "category": "formula",
+    "soql": "SELECT StageName, COUNT(Id) FROM Opportunity WHERE FORMULA('Amount - ExpectedRevenue') > 100 GROUP BY StageName"
   }
 ]

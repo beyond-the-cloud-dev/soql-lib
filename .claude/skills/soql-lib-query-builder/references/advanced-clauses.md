@@ -6,6 +6,7 @@
 - WITH DATA CATEGORY
 - TYPEOF (polymorphic lookups)
 - DISTANCE (geolocation)
+- FORMULA (Beta): compare two fields
 - toLabel, FORMAT and field aliases
 - Runtime-built (dynamic) queries
 - Cursors and batch
@@ -70,6 +71,16 @@ SOQL.of(Contact.SObjectType)
 ```
 
 `between` also accepts a `System.Location`. The units are `.mi()` and `.km()`, and the default is km.
+
+## FORMULA (Beta): compare two fields
+
+```apex
+SOQL.of(Opportunity.SObjectType)
+    .whereAre(SOQL.Formula('Amount - ExpectedRevenue').greaterThan(100))
+    .toList();
+```
+
+Available from SOQL Lib 6.14.0. Salesforce runs `FORMULA()` only in Developer Edition, scratch and sandbox orgs, from API 68.0. The formula is exactly two fields joined by `+` or `-`, and it works only in WHERE: `whereAre`, `FilterGroup.add`, subqueries and semi-joins. Comparators take a `Decimal` or a `Date`, and the value is written into the query, because `FORMULA()` doesn't accept bind variables. `ignoreWhen` works as on `SOQL.Filter`.
 
 ## toLabel, FORMAT and field aliases
 

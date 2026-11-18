@@ -213,3 +213,27 @@ SOQL.of(Account.SObjectType)
         )
     ).toList();
 ```
+
+## Formula (Beta)
+
+Compare two fields with [SOQL.Formula](../api/soql-formula.md). Salesforce supports `FORMULA()` only in Developer Edition, scratch, and sandbox orgs, from API version 68.0.
+
+**SOQL**
+
+```sql
+SELECT Id
+FROM Opportunity
+WHERE StageName = 'Closed Won'
+    AND FORMULA('Amount - ExpectedRevenue') > 100
+```
+
+**SOQL Lib**
+
+```apex
+SOQL.of(Opportunity.SObjectType)
+    .whereAre(SOQL.FilterGroup
+        .add(SOQL.Filter.with(Opportunity.StageName).equal('Closed Won'))
+        .add(SOQL.Formula('Amount - ExpectedRevenue').greaterThan(100))
+    )
+    .toList();
+```

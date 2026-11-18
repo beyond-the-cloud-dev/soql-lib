@@ -242,7 +242,7 @@ How they behave:
 
 ## Less common clauses
 
-Read [references/advanced-clauses.md](references/advanced-clauses.md) for USING SCOPE, `FOR UPDATE` / `FOR VIEW` / `FOR REFERENCE` / `ALL ROWS`, WITH DATA CATEGORY, TYPEOF, DISTANCE, `toLabel` / `FORMAT` / field aliases, runtime-built queries, cursors and the `SOQL.Logger` hook for failed queries.
+Read [references/advanced-clauses.md](references/advanced-clauses.md) for USING SCOPE, `FOR UPDATE` / `FOR VIEW` / `FOR REFERENCE` / `ALL ROWS`, WITH DATA CATEGORY, TYPEOF, DISTANCE, `SOQL.Formula` (FORMULA, Beta), `toLabel` / `FORMAT` / field aliases, runtime-built queries, cursors and the `SOQL.Logger` hook for failed queries.
 
 ## Common mistakes
 
